@@ -32,8 +32,10 @@ describe the report as external or professional verification.
 
 The report reviewed manuscript SHA-256
 `53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190`,
-which is byte-for-byte identical to
-`../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`.
+which was byte-for-byte identical to the canonical manuscript at the time of
+review.  The current `../proofs/COMPLETE_PROOF_SELF_CONTAINED.md` differs only
+by a subsequently added author line; the reviewed theorem and proof text are
+unchanged.
 
 The report refers to an earlier archive with SHA-256
 `037F9A32A1C0D32C996BFD64222F65D121AC14871EFAB92826DD16DEF810C783`

@@ -5,6 +5,8 @@ Markdown proof in
 [`../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](../proofs/COMPLETE_PROOF_SELF_CONTAINED.md).
 The derivatives do not change the theorem, proof text, or qualification as a
 candidate solution that has not been externally peer reviewed.
+The Markdown, TeX title page, and embedded PDF metadata attribute the
+manuscript to **Samuil Petkov & ChatGPT 5.6**.
 
 ## Files
 
@@ -13,19 +15,25 @@ candidate solution that has not been externally peer reviewed.
 - [`tex/BUILD.md`](tex/BUILD.md) - exact generation command and helper files.
 - [`pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf)
   - 25-page A4 PDF compiled with Tectonic 0.16.9.
+- [`../COMPLETE_PROOF_SELF_CONTAINED.pdf`](../COMPLETE_PROOF_SELF_CONTAINED.pdf)
+  - byte-identical convenience copy in the top level of `625/` for immediate
+    GitHub viewing.
 
 ## Integrity
 
 ```text
-53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190  ../proofs/COMPLETE_PROOF_SELF_CONTAINED.md
-98EB7134512D65457D742DEDBBCE18F3E970B9024F184E60F0370B847D197AAD  tex/COMPLETE_PROOF_SELF_CONTAINED.tex
-8595B63DF459B57CCC56CAD0E81EB0BFBC8229BA383C47E83479EB45BFF8C557  pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+A0AAC63A6C1B470C76A389753140953E40D6A8B8CB6625DC9C6203A6477B336D  ../proofs/COMPLETE_PROOF_SELF_CONTAINED.md
+F7BDC5AD95A6C20B82E952A805162B0D6E9A69D8C88BEABD3B57D07B6B69EE3D  tex/COMPLETE_PROOF_SELF_CONTAINED.tex
+9CAC00FB7654E9B2E452D27C447984536651380DCC263F83443B7F943A4030EC  pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+9CAC00FB7654E9B2E452D27C447984536651380DCC263F83443B7F943A4030EC  ../COMPLETE_PROOF_SELF_CONTAINED.pdf
 ```
 
 ## PDF quality assurance
 
 - Compile exit code: 0.
 - Page count and size: 25 pages, A4, unencrypted.
+- Authorship: the title page and PDF Author field both read
+  `Samuil Petkov & ChatGPT 5.6`.
 - Statement styling: all 12 lemma statements appear in blue breakable boxes;
   Proposition 9.2 appears in a green box; proofs remain in normal page flow.
 - Compile diagnostics: no overfull boxes, missing glyphs, or fatal errors;
