@@ -107,8 +107,10 @@
   Final delimiter/tag, malformed-TeX, code, and exact-solver checks are logged
   in `FINAL_VERIFICATION.md`.
 - The result remains labelled a proposed resolution pending external expert
-  review, publication, and priority verification.  Historical-source access
-  failures remain explicitly disclosed in the source ledger.
+  review, publication, and priority verification.  The four previously
+  unavailable historical originals were later supplied by the user, read on
+  2026-07-12, and recorded with hashes in the source ledger; they confirmed
+  the historical framing and required no change to the theorem or constant.
 - Added the user-supplied follow-up report with its exact verdict,
   **Provisional internal verification: PASS**, plus its unchanged checker,
   reproduced output, hashes, provenance, and limitations.  Independent replay

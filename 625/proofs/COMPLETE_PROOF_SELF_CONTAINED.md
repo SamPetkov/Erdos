@@ -1645,4 +1645,9 @@ were consolidated are `EXCEPTIONAL_REGIME.md`,
 `ALPHA_MINUS_TWO_ROUTE.md`, `FOUR_SIZE_PARTIAL_RATES.md`,
 `DENSE_FOUR_TYPE_MATCHING.md`, `SIGNED_PROFILE_OVERLAP.md`,
 `RESIDUAL_ATTACHMENT.md`, and `ALON_CONCENTRATION_EXTENSION.md`.
-No step of the proof above depends on those cross-references.
+No step of the proof above depends on those cross-references.  The original
+texts of Erdős--Gimbel (1993), Gimbel (2016), Bollobás (1988), and the
+relevant section of Janson--Łuczak--Ruciński (2000, Section 7.4) were
+separately inspected for provenance and problem wording.  They confirm the
+definition, the original divergence question, and the standard first-order
+chromatic asymptotic; no result from them is used in the proof above.

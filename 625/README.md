@@ -1,5 +1,14 @@
 # Erdős Problem 625 research dossier
 
+## Complete proof
+
+**[Open the complete proof PDF](COMPLETE_PROOF_SELF_CONTAINED.pdf)**
+
+The editable canonical manuscript is
+[`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md),
+and the generated TeX is
+[`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex).
+
 <p align="center">
   <img src="assets/erdos625-preview.png" alt="Schematic overview of Erdős Problem 625, its graph parameters, and the proposed lower bound" width="1100">
 </p>
@@ -43,6 +52,9 @@ The current complete packaged dossier is available at
 The manuscript title block attributes co-authorship to **Samuil Petkov &
 ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 
+- [`COMPLETE_PROOF_SELF_CONTAINED.pdf`](COMPLETE_PROOF_SELF_CONTAINED.pdf)
+  - top-level convenience copy for immediate viewing on GitHub; byte-identical
+    to the compiled PDF under `output/pdf/`.
 - [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md)
   - canonical self-contained Markdown manuscript.
 - [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)
@@ -88,10 +100,11 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 - `proofs/KNOWN_RESULTS_RECONSTRUCTION.md`
 - `proofs/EXCEPTIONAL_REGIME.md`
 
-The ledger records every source version and probability quantifier.  Four
-historical originals could not be legally retrieved through the available
-institutional or public routes; those failures are explicit rather than
-silently replaced by secondary summaries.
+The ledger records every source version and probability quantifier.  The four
+previously unavailable historical originals were supplied by the user and
+checked directly on 2026-07-12.  Their findings and SHA-256 identifiers are
+recorded in the historical audit; the copyrighted PDFs remain local and are
+not redistributed in this repository or its release archives.
 
 ## Reproducibility
 
@@ -108,4 +121,4 @@ silently replaced by secondary summaries.
 failed routes, redirections, and precise remaining status.
 `FINAL_VERIFICATION.md` records the four full-audit verdicts, the additional
 user-supplied verification, reproducibility and publication checks, final
-hashes, and the source-access caveat.
+hashes, and the completed historical-source audit.

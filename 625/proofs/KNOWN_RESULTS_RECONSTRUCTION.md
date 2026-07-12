@@ -65,10 +65,10 @@ Intersecting the two high-probability events in (1.1) and (1.3) yields
 Thus both parameters are asymptotic to `n/(2 log_2 n)`. The argument only
 controls their ratio and says nothing at the additive scale.
 
-Source caveat: the full original Bollobás (1988) article remains a recorded
-paywall retrieval failure. The theorem is explicitly restated in the later
-primary papers audited here, but the user's original-text requirement is not
-yet satisfied for that dependency.
+Source status: the user-supplied original Bollobás (1988) article was checked
+in full on 2026-07-12. Its Theorem 4 directly confirms (1.3), including the
+fixed-`p` quantifier and the more precise denominator recorded in the source
+audit. This clears the earlier original-text caveat without changing (1.3).
 
 ## 2. Anti-concentration implication
 
