@@ -109,3 +109,17 @@
 - The result remains labelled a proposed resolution pending external expert
   review, publication, and priority verification.  Historical-source access
   failures remain explicitly disclosed in the source ledger.
+- Added the user-supplied follow-up report with its exact verdict,
+  **Provisional internal verification: PASS**, plus its unchanged checker,
+  reproduced output, hashes, provenance, and limitations.  Independent replay
+  returned all five PASS groups; this remains internal finite diagnostic
+  evidence, not peer review or formal verification.
+- Generated a standalone TeX manuscript and compiled a 25-page A4 PDF.  The
+  final build has no overfull boxes or missing glyphs, all pages rendered, and
+  representative title, theorem, dense-equation, residual, and provenance
+  pages passed visual inspection.
+- Added the supplied schematic preview to the repository landing pages with
+  an explicit statement that it is explanatory and not proof evidence.
+- Rebuilt the complete release ZIP to include the proof chain, audits,
+  verification assets, TeX, PDF, preview, source ledger, and reproducibility
+  files.

@@ -1,0 +1,17 @@
+\usepackage{mathtools}
+\usepackage{fancyhdr}
+
+\allowdisplaybreaks
+\emergencystretch=3em
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Erd\H{o}s Problem 625}
+\fancyhead[R]{\small Proposed proof}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{14pt}
+
+\AtBeginDocument{%
+  % Latin Modern Math lacks unicode-math's U+29F5 set-minus glyph.
+  \renewcommand{\setminus}{\mathbin{\backslash}}%
+}

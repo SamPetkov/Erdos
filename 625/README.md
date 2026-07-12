@@ -1,5 +1,11 @@
 # Erdős Problem 625 research dossier
 
+<p align="center">
+  <img src="assets/erdos625-preview.png" alt="Schematic overview of Erdős Problem 625, its graph parameters, and the proposed lower bound" width="1100">
+</p>
+
+<p align="center"><em>Schematic overview of the definitions and proposed theorem. The image is explanatory and is not proof evidence.</em></p>
+
 ## Current status
 
 `proofs/COMPLETE_PROOF_SELF_CONTAINED.md` contains a proposed all-`n` positive
@@ -17,8 +23,32 @@ four independent end-to-end reconstructions each returned PASS for the
 repaired proof.  This is internal validation of a new argument, not external
 peer review, publication, priority confirmation, or community acceptance.
 
-The clean packaged dossier is available at
-[`releases/Erdos-625-proof-dossier-2026-07-12.zip`](releases/Erdos-625-proof-dossier-2026-07-12.zip).
+A further user-supplied review dated 2026-07-12 reports **provisional internal
+verification: PASS** and no blocking mathematical error.  Its separately
+written checker reproduces five groups of finite diagnostic tests from
+Sections 6 and 8.  The report, checker, reproduced output, provenance, and
+limitations are indexed in [`verification/`](verification/).  This is
+additional internal evidence, not external peer review or machine
+verification, and the finite tests do not prove the asymptotic theorem.
+
+As of 2026-07-12, the [public Problem 625 page](https://www.erdosproblems.com/625)
+still labels the problem `OPEN`.  This repository presents a proposed
+resolution for scrutiny and does not claim an official status change.
+
+The current complete packaged dossier is available at
+[`releases/Erdos-625-complete-dossier-2026-07-12.zip`](releases/Erdos-625-complete-dossier-2026-07-12.zip).
+
+## Publication artifacts
+
+- [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md)
+  - canonical self-contained Markdown manuscript.
+- [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)
+  - generated standalone TeX source.
+- [`output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf)
+  - compiled 25-page A4 PDF.
+- [`output/README.md`](output/README.md) - build versions, hashes, and PDF QA.
+- [`assets/erdos625-preview.png`](assets/erdos625-preview.png) - explanatory
+  repository preview; schematic only, not proof evidence.
 
 ## Main proof chain
 
@@ -42,6 +72,10 @@ The clean packaged dossier is available at
 - `audits/DENSE_FOUR_TYPE_MATCHING_AUDIT.md` — pass.
 - `audits/FULL_PROOF_AUDIT_1.md` through `_4.md` — independent full-chain
   reconstructions; all four pass.
+- `verification/erdos625_verification_report.md` — additional provisional
+  internal verification; pass, with formalization targets identified.
+- `verification/erdos625_independent_checks.py` — separately written finite
+  diagnostic checker; all five supplied check groups pass.
 
 ## Literature and known results
 
@@ -69,5 +103,6 @@ silently replaced by secondary summaries.
 
 `WORK_LOG.md` and `MECHANISM_REGISTRY.md` record the investigation history,
 failed routes, redirections, and precise remaining status.
-`FINAL_VERIFICATION.md` records the four full-audit verdicts, reproducibility
-checks, structural manuscript checks, final hashes, and source-access caveat.
+`FINAL_VERIFICATION.md` records the four full-audit verdicts, the additional
+user-supplied verification, reproducibility and publication checks, final
+hashes, and the source-access caveat.
