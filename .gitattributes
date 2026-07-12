@@ -4,8 +4,14 @@
 625/verification/erdos625_independent_checks.py text eol=lf
 625/output/tex/* text eol=lf
 625/releases/*.txt text eol=lf
+625/experiments/EXACT_EXPERIMENTS.csv text eol=lf
+625/experiments/render_erdos625_animation.py text eol=lf
+625/assets/animations/*.json text eol=lf
+625/assets/animations/*.md text eol=lf
 
 # Never apply text conversions to publication binaries.
 *.pdf binary
 *.png binary
 *.zip binary
+*.gif binary
+*.mp4 binary

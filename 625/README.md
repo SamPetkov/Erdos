@@ -15,6 +15,16 @@ and the generated TeX is
 
 <p align="center"><em>Schematic overview of the definitions and proposed theorem. The image is explanatory and is not proof evidence.</em></p>
 
+## Animated exact example
+
+<p align="center">
+  <a href="assets/animations/erdos625-coloring-example.mp4">
+    <img src="assets/animations/erdos625-coloring-example.gif" alt="Animated exact coloring and cochromatic partition of a fixed 12-vertex graph" width="960">
+  </a>
+</p>
+
+<p align="center"><em>A selected, exactly solved 12-vertex illustration. Click for MP4. The seed was chosen to explain the two partitions; it is not representative, statistical, or asymptotic proof evidence.</em></p>
+
 ## Current status
 
 `proofs/COMPLETE_PROOF_SELF_CONTAINED.md` contains a proposed all-`n` positive
@@ -70,6 +80,10 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 - [`output/README.md`](output/README.md) - build versions, hashes, and PDF QA.
 - [`assets/erdos625-preview.png`](assets/erdos625-preview.png) - explanatory
   repository preview; schematic only, not proof evidence.
+- [`assets/animations/erdos625-coloring-example.gif`](assets/animations/erdos625-coloring-example.gif)
+  and [`erdos625-coloring-example.mp4`](assets/animations/erdos625-coloring-example.mp4)
+  - GitHub-ready animation and linked HD video of an exactly solved finite
+  example; see the [`animation build record`](assets/animations/).
 
 ## Main proof chain
 
@@ -129,6 +143,9 @@ in this repository or its release archives.
   `experiments/finite_slack_profile.py` — exceptional-profile calculations.
 - `experiments/exact_chi_zeta.py`, CSV, and report — certified finite graph
   computations (diagnostic only).
+- `experiments/render_erdos625_animation.py` — deterministic GIF/MP4 renderer
+  that revalidates the fixed graph and its exact partition witnesses before
+  producing the README animation.
 
 `WORK_LOG.md` and `MECHANISM_REGISTRY.md` record the investigation history,
 failed routes, redirections, and precise remaining status.
