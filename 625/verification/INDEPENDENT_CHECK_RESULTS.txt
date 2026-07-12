@@ -1,0 +1,7 @@
+PASS Lemma 6.1 sign-sum identity (625 overlap matrices)
+PASS exact signed second moment for n=6, profile (3,3): ratio=5/2
+PASS Lemma 6.2 prescribed-cell bound (4170 finite cases)
+PASS Lemma 8.1 transport inequality (2901 typed tables; maximum ratio=1)
+PASS exact near-containment ratio (8.21) (684 cases)
+ALL INDEPENDENT FINITE CHECKS PASSED
+

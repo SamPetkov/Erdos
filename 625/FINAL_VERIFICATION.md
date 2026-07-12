@@ -14,6 +14,26 @@ audit was started without the surrounding research conversation and included
 a separate finite-`n` optimizer/diagonal sub-audit.  These are internal
 checks, not external peer review.
 
+## Additional user-supplied verification
+
+The report in `verification/erdos625_verification_report.md` gives the exact
+verdict **Provisional internal verification: PASS** and reports no blocking
+mathematical error.  The supplied manuscript copy had SHA-256
+`53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190`,
+byte-for-byte identical to the canonical proof in this repository.
+
+The separately written standard-library checker was replayed under Python
+3.14.3 with exit code 0; all five groups passed.  Four groups use exact
+integer or rational arithmetic, while the Lemma 8.1 transport group uses
+floating-point square roots with tolerance `1e-11`.  Its seven assertions
+must be run without Python optimization.  These are finite diagnostics, not
+a proof of the asymptotic theorem or machine verification.
+
+No reviewer identity, credential, affiliation, signature, tool/model, commit
+ID, or license is embedded in the supplied files.  Accordingly, the report is
+recorded as additional user-supplied internal review, not external or
+professional verification.
+
 ## Reproducibility checks
 
 The following commands completed successfully.  From the repository root,
@@ -43,6 +63,24 @@ duplicate equation tags.  The self-contained manuscript specifically has
 176 opening and 176 closing display delimiters and 166 unique tags; scans for
 tabs, mojibake, and the known malformed-TeX patterns were clean.
 
+## Publication artifact checks
+
+Pandoc 3.9.0.2 generated the LF-normalized standalone TeX manuscript from the
+canonical Markdown source.  Its presentation filter places all 12 lemma
+statements in blue breakable boxes and Proposition 9.2 in a green box while
+leaving proofs in normal page flow.  Tectonic 0.16.9 compiled it successfully
+to a 25-page A4 PDF.  The final compile had no overfull boxes, missing glyphs,
+or fatal errors; one underfull-box warning remains in the final provenance
+filename list and is cosmetic.
+
+All 25 pages were rendered to PNG.  Pages 1, 2, 3, 5, 8, 11, 13, 16, 20, 22,
+23, and 25 were visually inspected, covering the title and contents, abstract
+and main bound, short and long lemma boxes, green proposition box, dense
+equations, the repaired two-line display (7.12), residual attachments, and the
+final provenance note.  Text extraction found no blank page, replacement
+character, or `??` marker and confirmed every lemma title, Proposition 9.2,
+the main constant, and the final section.
+
 ## Final SHA-256 identifiers
 
 Paths below are relative to the `625/` directory.
@@ -58,6 +96,11 @@ F7724290612866BD6D6A2105C95202C6C943C4CA93574708F980AFB0D087AE6E  audits/FULL_PR
 E9E56C7559D8774BE83281854EC5DCEAA9D8961D3DB5BB7E8EE01B2C5ED1A2D2  experiments/alpha_minus_two_route.py
 85C25A975D7F4EEBF7B262126358B9058A171043AA2F26DA369ED9C9D86EB0F9  experiments/dense_transport_scan.py
 DF90D14FE86A8FF3B1B8E2165EB7FB554811CD58D86D9F2CC3C6C7573AA1E0C0  experiments/exact_chi_zeta.py
+E0107A1FEB47F8D2CD2F742E509FDC1C5B3BE4C60811AF09FF927E1712B3185E  verification/erdos625_verification_report.md
+FB45DFEC62CED7BC8AADAD42865DA989572DCDC2FECC5AEB41B5A21B454E1310  verification/erdos625_independent_checks.py
+98EB7134512D65457D742DEDBBCE18F3E970B9024F184E60F0370B847D197AAD  output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex
+8595B63DF459B57CCC56CAD0E81EB0BFBC8229BA383C47E83479EB45BFF8C557  output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+F5A3CE99990EE68DC3E91456BD0755990ECFD9C992547EEB346DF6EBF9632AAB  assets/erdos625-preview.png
 ```
 
 ## Source-access limitation

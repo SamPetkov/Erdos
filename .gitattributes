@@ -1,0 +1,11 @@
+# Keep checksum-referenced publication text byte-stable across platforms.
+625/proofs/COMPLETE_PROOF_SELF_CONTAINED.md text eol=lf
+625/verification/erdos625_verification_report.md text eol=lf
+625/verification/erdos625_independent_checks.py text eol=lf
+625/output/tex/* text eol=lf
+625/releases/*.txt text eol=lf
+
+# Never apply text conversions to publication binaries.
+*.pdf binary
+*.png binary
+*.zip binary
