@@ -127,3 +127,31 @@
 - Rebuilt the complete release ZIP to include the proof chain, audits,
   verification assets, TeX, PDF, preview, source ledger, and reproducibility
   files.
+
+## 2026-07-13
+
+- Reopened the proof under an adversarial, route-split review rather than
+  relying on the four earlier PASS verdicts.  The review found a circular
+  signed-root localization in the written use of Lemma 3.1, an unstated
+  conditioning/globalization bridge in Lemma 8.3, and an overstrong two-sided
+  formulation of Lemma 9.1.
+- Strengthened Lemma 3.1 to a uniform root-corridor theorem for
+  `L_S+ck`, made the finite optimizer convergence explicit, and defined the
+  tangent-rounding errors and effective multiplier.  This removes the root-
+  localization circularity without changing the root gap or constant.
+- Added the exact endpoint-decoration product, joint middle-cell threshold
+  expansion, small-residual expectation, and global conditioned sum in
+  (8.25a)--(8.29b).  The patched proof now displays the multiplicities and
+  conditioning needed to pass from local estimates to all high skeletons.
+- Replaced the residual attachment claim by the one-sided uniform upper bound
+  actually proved and used.  Also made the central-rate domain, log-convex
+  near-containment check, leftover recurrence, growing deterministic
+  amplification parameter, and final deterministic error sequence explicit.
+- Three independent regression reviews returned PASS on the repaired routes.
+  The severity-ranked findings, repairs, diagnostics, and remaining external/
+  formal verification boundary are recorded in
+  `audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`.
+- Replayed the five-group independent finite checker successfully, regenerated
+  the color-boxed TeX, and compiled a 27-page A4 PDF.  All pages rendered; the
+  repaired root, high-skeleton, residual, amplification, theorem, and reference
+  pages passed full-size visual inspection.

@@ -180,10 +180,11 @@ The exact adjacent-size ratios are
 
 At `s=alpha+O(1)`, the first is `Theta(N/n)` and the
 second is `Theta(n/N)`, uniformly in `delta`.  Applying the first ratio
-twice to (2.2) proves (2.3).  The minimum of the right side of (2.2) over
-the phase is attained, up to a constant factor, at `delta=0`; hence
-`mu_alpha>=c_1N^{2/q-1/2}`.  Applying the second ratio twice proves
-(2.4).  \(\square\)
+twice to (2.2) proves (2.3).  More explicitly, \(\delta(N-w)\ge0\), while
+\(K\) is bounded, so (2.2) gives
+\(\ln\mu_\alpha\ge(2/q-1/2)w+\inf_\delta K(\delta)+o(1)\) uniformly in the
+phase.  Hence `mu_alpha>=c_1N^{2/q-1/2}`.  Applying the second ratio twice
+proves (2.4).  \(\square\)
 
 It follows at once from (2.3) and Markov's inequality that
 
@@ -236,27 +237,44 @@ Let
  T_0=\alpha-s_0=1+\frac2q-\delta.                        \tag{3.5}
 \]
 
-For `S=S_+` and `S=S_4`, the relevant zero of `L_S(n,k)` has
+For \(S\in\{S_+,S_4\}\), and uniformly for \(0\le c\le q\), the equation
+\(L_S(n,k)+ck=0\) has a unique zero \(r_{S,c}\) in the root corridor described
+below, and
 
 \[
- \frac nk=s_0+O(w/N),\qquad T=T_0+O(w/N).                \tag{3.6}
+ \frac n{r_{S,c}}=s_0+O(w/N),\qquad
+ T=\alpha-\frac n{r_{S,c}}=T_0+O(w/N).                  \tag{3.6}
 \]
 
-Uniformly when `k` is within `O(n/N^3)` of either zero,
+For every fixed \(A>0\), uniformly when \(|n/k-s_0|\le Aw/N\),
 
 \[
- \frac{\partial L_S}{\partial k}
+ \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
  =\frac2qN^2+O(Nw).                                      \tag{3.7}
 \]
 
-For two supports `R,S`, at the same feasible `k`,
+For two supports \(R,S\), at the same feasible \(k\),
 
 \[
  \frac{L_R(n,k)-L_S(n,k)}k
  =\mathcal F_{n,R}(T)-\mathcal F_{n,S}(T),               \tag{3.8}
 \]
 
-where, uniformly for `T=T_0+o(1)`,
+where
+
+\[
+ \mathcal F_{n,S}(T)=
+ \max_{\substack{\sum p_i=1\\\sum ip_i=T}}
+ \left[-\sum_i p_i\ln p_i+\sum_i p_i h_n(i)\right].     \tag{3.8a}
+\]
+
+To make the uniformity precise, fix
+
+\[
+ K_*=[2/q-1/10,\,1+2/q+1/10]\subset(2,5).               \tag{3.9a}
+\]
+
+Then, uniformly for \(T\in K_*\),
 
 \[
  \mathcal F_{n,S}(T)\longrightarrow
@@ -264,7 +282,16 @@ where, uniformly for `T=T_0+o(1)`,
  \left[-\sum p_i\ln p_i-\frac q2\sum i^2p_i\right].  \tag{3.9}
 \]
 
-The convergence and all error terms are uniform in `delta`.
+The effective Lagrange tilts are uniformly bounded on \(K_*\).  For \(S_4\),
+if \(p_{n,i}(T)\) and \(p_i(T)\) denote the finite and limiting optimizers, then
+
+\[
+ \sup_{T\in K_*}\max_{2\le i\le5}|p_{n,i}(T)-p_i(T)|=o(1),
+ \qquad
+ \inf_{T\in K_*}\min_{2\le i\le5}p_{n,i}(T)>0.          \tag{3.9b}
+\]
+
+All convergence and error terms are uniform in \(\delta\).
 
 #### Proof
 
@@ -303,17 +330,24 @@ For `i=-1`, direct subtraction gives
  h_n(i)=-qi^2/2+O(i^2/\alpha),                           \tag{3.14}
 \]
 
-while (3.13) also supplies a uniform Gaussian upper tail.  Since the target
-mean `T_0` stays in the compact interval
+while (3.13) also supplies the uniform bound \(h_n(i)\le-qi^2/2\).  Since the
+target mean `T_0` stays in the compact interval
 
 \[
  \frac2q\le T_0\le1+\frac2q,                             \tag{3.15}
 \]
 
-the Lagrange tilt in the entropy maximum is bounded.  Its optimizer is
-proportional to `exp(lambda i+h_n(i))`, and (3.13) makes the omitted tail
-uniformly summable.  Dominated convergence proves (3.9).  The affine terms
-in (3.11) prove the exact difference identity (3.8).
+the mean maps at two fixed tilts bracket all of \(K_*\), for both supports and
+all sufficiently large `n`.  The effective Lagrange tilt is therefore in a
+fixed compact interval.  Its optimizer is proportional to
+\(\exp(\lambda i+h_n(i))\).  On every bounded tilt interval, the weights and
+their first moments are dominated by a constant multiple of
+\(\exp(C|i|-qi^2/2)\), a summable sequence.  Hence the partition functions and
+their first derivatives converge uniformly.  Their mean maps are strictly
+increasing, with derivative equal to a positive variance; compactness then
+gives uniform convergence of the inverse tilts.  This proves (3.9), and on
+the finite support `S_4` also proves (3.9b).  The affine terms in (3.11)
+prove the exact difference identity (3.8).
 
 Substitute (3.11) into (3.10).  If `T=alpha-s`, the scalar part at
 `s=s_0` is, by Stirling,
@@ -334,7 +368,8 @@ Gaussian tail just proved.  Hence
  L_S(n,n/s_0)/(n/s_0)=O(w).                              \tag{3.16}
 \]
 
-Differentiating (3.10) by the envelope theorem, and using
+Write \(\Psi_S(s)=L_S(n,n/s)/(n/s)\).  Differentiating (3.10) by the envelope
+theorem, using the bounded effective tilt just proved and
 
 \[
  B_n=2N-w+O(1),                                          \tag{3.17}
@@ -343,24 +378,32 @@ Differentiating (3.10) by the envelope theorem, and using
 gives
 
 \[
- \frac{d}{ds}\left\{\frac{L_S(n,n/s)}{n/s}\right\}
+ \Psi'_S(s)
  =-N+O(w)                                                \tag{3.18}
 \]
 
-in a fixed neighbourhood of `s_0`.  Equations (3.16)--(3.18) give the
-unique local zero and (3.6).  Finally, if the expression in braces is
-`Psi(s)`, then `L=k Psi(s)` and `ds/dk=-s/k`; at a zero,
+uniformly in a fixed neighbourhood of `s_0`.  For
+\(\Psi_{S,c}(s)=\Psi_S(s)+c\), (3.16) gives \(\Psi_{S,c}(s_0)=O(w)\) and
+(3.18) gives a negative derivative of magnitude at least `N/2`.  Taking a
+sufficiently large fixed corridor constant brackets zero at
+\(s=s_0-Aw/N\) and \(s=s_0+Aw/N\), and strict monotonicity gives the unique
+corridor zero and (3.6), uniformly for \(0\le c\le q\).
+
+Throughout any fixed corridor \(|s-s_0|\le Aw/N\), the same equations give
+\(\Psi_{S,c}(s)=O_A(w)\).  Since
+\(L_S+ck=k\Psi_{S,c}(s)\) and \(ds/dk=-s/k\),
 
 \[
- \frac{dL}{dk}=-s\Psi'(s)=\frac2qN^2+O(Nw).              \tag{3.19}
+ \frac{d}{dk}\{L_S+ck\}
+ =\Psi_{S,c}(s)-s\Psi'_S(s)
+ =\frac2qN^2+O_A(Nw).                                    \tag{3.19}
 \]
 
-Changing `k` by `O(n/N^3)` changes `s` by only `O(1/N)`, so the same
-estimate is uniform throughout the stated window.  \(\square\)
+This is (3.7).  \(\square\)
 
 ## 4. A valid unrestricted lower location for `chi`
 
-Let `r_+(n)` be the zero in Lemma 3.1 for `S_+`, and put
+Let `r_+(n)=r_{S_+,0}` be the zero in Lemma 3.1, and put
 
 \[
  k_\chi^-:=\lfloor r_+(n)\rfloor-\lceil N\rceil.         \tag{4.1}
@@ -505,7 +548,8 @@ from `q=ln2` completes the proof.  \(\square\)
 For a fixed partition into `k` classes, assigning each class the declaration
 "independent" or "complete" multiplies its first moment by `2^k`: every
 declaration prescribes all internal edge bits, and all `2^k` declarations
-have probability `2^{-sum binom(u,2)}`.  Let `r_4^{co}` be the zero of
+have probability `2^{-sum binom(u,2)}`.  Let
+`r_4^{co}=r_{S_4,q}` be the unique corridor zero of
 
 \[
  L_{S_4}(n,k)+qk.                                       \tag{5.9}
@@ -518,7 +562,9 @@ At `k=r_+`, Lemma 3.1 and (5.2) give
  =r_+\{q-D_4(\delta)+o(1)\}.                             \tag{5.10}
 \]
 
-Since `r_+=(q/2+o(1))n/N`, the mean-value theorem and (3.7) give
+Both roots lie in the corridor (3.6), so the whole interval between them is
+inside a fixed corridor.  Since `r_+=(q/2+o(1))n/N`, the mean-value theorem
+and the strengthened estimate (3.7) give
 
 \[
  r_+-r_4^{co}
@@ -542,11 +588,14 @@ At this exact `k`, let `p_i^{(n)}` be the exact finite-`n` maximizer of
 `L_{S_4}`.  Its Lagrange equations give
 
 \[
- p_i^{(n)}\ \propto\ d_{\alpha-i}^{-1}e^{\lambda_ni},  \tag{5.14}
+ p_i^{(n)}\ \propto\ d_{\alpha-i}^{-1}e^{\lambda_n^{\mathrm{raw}}i}
+ \ \propto\ e^{\widehat\lambda_ni+h_n(i)},\qquad
+ \widehat\lambda_n=B_n+\lambda_n^{\mathrm{raw}}.          \tag{5.14}
 \]
 
-subject to mean `alpha-n/k_co`.  Lemma 3.1 makes these proportions
-converge uniformly to (5.1).  Equation (5.6) also shows directly that the
+subject to mean \(\alpha-n/k_{co}\).  Lemma 3.1 makes these proportions
+converge uniformly to (5.1), with
+\(\widehat\lambda_n\to\lambda_4(T_0)\).  Equation (5.6) also shows directly that the
 four limiting weights differ by at most a fixed factor.  Thus
 
 \[
@@ -555,15 +604,24 @@ four limiting weights differ by at most a fixed factor.  Thus
 
 uniformly in the phase.
 
-Round `k_co p_i^(n)` to integers.  If the errors in the total-count and
-total-deficit constraints are `e_0,e_1=O(1)`, add
+Round \(k_{co}p_i^{(n)}\) to preliminary integers \(\widetilde k_i\).  Define the signed
+constraint errors
+
+\[
+ e_0=\sum_i\widetilde k_i-k_{co},\qquad
+ e_1=\sum_i i\widetilde k_i-(\alpha k_{co}-n),
+\]
+
+so \(e_0,e_1=O(1)\), and add
 
 \[
  \Delta k_2=e_1-3e_0,\qquad
  \Delta k_3=2e_0-e_1.                                   \tag{5.16}
 \]
 
-This enforces both constraints exactly, changes only `O(1)` counts, and
+Indeed, \(\Delta k_2+\Delta k_3=-e_0\) and
+\(2\Delta k_2+3\Delta k_3=-e_1\).  This enforces both constraints exactly,
+changes only \(O(1)\) counts, and
 preserves positivity by (5.15).  Because the displacement is tangent to
 both constraints and starts at the exact finite optimizer, its first
 variation vanishes and its Hessian cost is `O(1/k_co)`.  Applying (1.3)
@@ -923,8 +981,8 @@ and hence
  \Phi_T\le R\ln R+q(T-2)(1-R)/2.                       \tag{7.23}
 \]
 
-On `R<=47/100`, the first bound is at most `-Y/5000`, using
-`q<0.6932`; on `R>=47/100`, convexity of
+On \(1/64\le R\le47/100\), the first bound is at most \(-Y/5000\), using
+\(q<0.6932\); on \(47/100\le R\le1\), convexity of
 
 \[
  R\ln R+(1-q/2+1/200)(1-R)
@@ -937,8 +995,11 @@ between `47/100` and `1` gives the same conclusion, in fact with
  m>\eta n,\qquad n-m>n/32,                               \tag{7.24}
 \]
 
-we have `Y>=eta/2`, and the leading negative term in (7.20) dominates
-the entropy error.  Uniformly in this range,
+we have \(Y\ge\eta/2\).  The leading term is at most
+\(-k_{co}\alpha Y/5000\), whereas
+\(\ln(e/Y)=O(w)\), \(w/\alpha=o(1)\), and
+\(N=o(k_{co}\alpha\eta)\).  It therefore dominates both error terms in (7.20).
+Uniformly in this range,
 
 \[
  D(\ell)\le e^{-c k_{co}w}.                              \tag{7.25}
@@ -1186,16 +1247,43 @@ The ratio of (8.23) at `e+1` to its value at `e` is
   \frac{d+e+1}{d+e+2},                                  \tag{8.24}
 \]
 
-which increases for `e<=m/4` and `d<=3`.  Thus (8.23) is largest at
-an endpoint.  At `e=0` it is `O(N^3/n)`, by (8.15), and at
-`e=floor(m/4)` it is `n^{-1/2+o(1)}`.  The series therefore decreases
+which increases for \(e\le m/4\) and \(d\le3\).  Here is a direct check of the
+one-turn assertion.  If \(r(e)\) denotes (8.23), interpolated for real \(e\),
+then
+
+\[
+ \frac{d^2}{de^2}\ln r(e)
+ =-\frac1{(m-e)^2}+\frac1{(e+1)^2}
+   +\frac1{(d+e+1)^2}>0                                  \tag{8.24a}
+\]
+
+for \(0\le e\le m/4\) and all sufficiently large \(m\).  Thus the consecutive
+ratios are log-convex and their maximum is at an endpoint.  At \(e=0\) the
+ratio is \(O(N^3/n)\), by (8.15), and at
+\(e=\lfloor m/4\rfloor\) it is \(n^{-1/2+o(1)}\).  The series therefore decreases
 geometrically and
 
 \[
  \sum_{1\le e<m/4}n^eR_{m,d}(e)=O(N^3/n).                \tag{8.25}
 \]
 
-The multinomial choices among identical typed cells turn this into a factor
+The passage from this per-cell estimate to the full skeleton sum is as
+follows.  For a full-containment table \(L\), temporarily distinguish its
+endpoint cells and let \(\mathcal S(L)\) be all near-containment skeletons obtained by
+assigning to each such cell either \(e=0\) or \(1\le e<m/4\).  If \(w(S)\) is its
+bare incidence and local weight, (8.21)--(8.25) give the nonnegative bound
+
+\[
+ \sum_{S\in\mathcal S(L)}w(S)
+ \le W(L)\prod_{c\in L}
+   \left(1+\sum_{1\le e<m_c/4}n^eR_{m_c,d_c}(e)\right).
+                                                               \tag{8.25a}
+\]
+
+Distinguishing and then forgetting identical typed cells is exactly the
+multinomial expansion, so there is no additional multiplicity.  Since a
+high skeleton is a matching and has at most \(k_{co}\) cells, (8.25a) is at most
+\(W(L)\) times
 
 \[
  (1+O(N^3/n))^{k_{co}}=\exp(O(N^2)).                     \tag{8.26}
@@ -1203,9 +1291,28 @@ The multinomial choices among identical typed cells turn this into a factor
 
 It remains to cover the middle strip, rather than silently importing an
 equitable-profile estimate.  First expose a near-containment skeleton and
-let `m_0` be its residual stub mass.  If `m_0>=n/N^6`, Lemma 6.2,
-before dropping the matching constraints, bounds the entire remaining
-middle-cell expansion by `exp(Xi_4)`, where
+let \(m_0\) be its residual stub mass.  Every unexposed high cell is then in
+the range \(R_0<j\le3a/4+O(1)\).  Let \(E_{mid}(S)\) be the conditional bare
+middle-extension factor.  If \(m_0\ge n/N^6\), expand over distinct residual
+cells and their threshold demands.  With
+\(\theta_{ab}=e d_ad'_b/m_0\le ea^2/m_0\), Lemma 6.2 is applied jointly before
+the constraints are dropped, and gives
+
+\[
+\begin{split}
+ E_{mid}(S)
+ &\le\sum_{\substack{D\ \text{ distinct residual cells}\\
+               R_0<j_{ab}\le3a/4+O(1)}}
+       \prod_{ab\in D}g(j_{ab})
+       \Pr\{r_{ab}\ge j_{ab}\ \forall ab\in D\}\\
+ &\le\prod_{ab}\left(1+
+       \sum_{R_0<j\le3a/4+O(1)}
+       g(j)\frac{\theta_{ab}^j}{j!}\right)
+ \le\exp(\Xi_4),                                        \tag{8.26a}
+\end{split}
+\]
+
+where
 
 \[
  \Xi_4\le k_{co}^2
@@ -1227,8 +1334,10 @@ Put `L=log_2 n` and `j=xL`.  Uniformly for
 Indeed, the quadratic coefficient is `x^2/2-x<=-3/8+o(1)` on
 this interval.  Hence `Xi_4=2^{-Omega(L^2)}`.
 
-If instead `m_0<n/N^6`, leave the entire residual matching unexposed.
-The near skeleton is a matching, so pointwise
+If instead \(m_0<n/N^6\), leave the entire residual matching unexposed.
+Every residual degree is at most \(a\), so every residual cell has
+\(r_e\le a\) and therefore
+\(\binom{r_e}{2}\le((a-1)/2)r_e\).  The near skeleton is a matching, so pointwise
 
 \[
  \beta(M\cup H_{res})\le|E(H_{res})|\le m_0/2,
@@ -1237,8 +1346,26 @@ The near skeleton is a matching, so pointwise
 \]
 
 All remaining local and topological factors together are therefore at most
-`exp(O(am_0))=exp(O(n/N^5))`.  In particular, this also upper-bounds the
-bare middle-cell sum.  Combining (8.16), (8.26), and the two branches gives
+\(\exp(O(am_0))=\exp(O(n/N^5))\).  Since \(g\ge1\) and \(\beta\ge0\), summing the
+residual matching probability first gives the explicit conditional bound
+
+\[
+ E_{mid}(S)
+ \le\mathbb E_{res}\left[
+      \prod_e g(r_e)2^{\beta(S\cup H_{res})}\right]
+ \le\exp(Cam_0).                                         \tag{8.29a}
+\]
+
+Combining (8.16), (8.25a)--(8.26a), and the two residual-mass branches now
+gives the global inequality
+
+\[
+ \sum_{\text{all high skeletons}}\text{bare weight}
+ \le e^{O(N^2)}\left(\sum_LW(L)\right)
+      \max\{e^{\Xi_4},e^{Cn/N^5}\}.                     \tag{8.29b}
+\]
+
+Therefore
 
 \[
  \sum_{\text{all high skeletons}}\text{bare weight}
@@ -1275,11 +1402,12 @@ law, the normalized moment is exactly
 Uniformly over every canonical high skeleton,
 
 \[
- \ln\mathcal A(M,j)=o(n/N^4).                            \tag{9.3}
+ \mathcal A(M,j)\le\exp\{o(n/N^4)\}.                    \tag{9.3}
 \]
 
-More precisely, it is `O(N^8)` when `m_0>=n/N^6` and
-`O(n/N^5)` otherwise.
+More precisely, for an absolute \(C\), it is at most \(\exp(CN^8)\) when
+\(m_0\ge n/N^6\) and at most \(\exp(Cn/N^5)\) otherwise.  No lower bound on
+\(\mathcal A\) is asserted or needed.
 
 #### Proof: large residual degree
 
@@ -1416,9 +1544,9 @@ Every high cell uses more than `U/2` stubs, so `h<2n/U`.  Combining
 (9.12)--(9.18),
 
 \[
- \ln\mathcal A(M,j)
- \le C\left\{\frac{U^4}{m_0}+n\tau^4+h\tau\right\}
- =O(N^8)                                                  \tag{9.19}
+ \mathcal A(M,j)
+ \le\exp\left[C\left\{\frac{U^4}{m_0}+n\tau^4+h\tau\right\}\right]
+ \le\exp(C'N^8)                                          \tag{9.19}
 \]
 
 at the cutoff `m_0>=n/N^6`.
@@ -1443,10 +1571,10 @@ Equations (6.5), (9.20), and (9.21) bound the integrand in (9.1) by
 `2^{Um_0/2}`.  Therefore
 
 \[
- \ln\mathcal A(M,j)=O(Um_0)=O(n/N^5).                   \tag{9.22}
+ \mathcal A(M,j)\le\exp(O(Um_0))\le\exp(Cn/N^5).       \tag{9.22}
 \]
 
-Both (9.19) and (9.22) are `o(n/N^4)`.  \(\square\)
+Both exponents in (9.19) and (9.22) are `o(n/N^4)`.  \(\square\)
 
 ### Proposition 9.2 (normalized signed second moment)
 
@@ -1493,8 +1621,8 @@ a typical one.
 
 ### Lemma 10.1 (simultaneous leftover colouring)
 
-There is an absolute `C` such that, with probability `1-o(1)`, every
-`U subseteq[n]` satisfies
+There is an absolute \(C\) such that, with probability \(1-o(1)\), every
+\(U\subseteq[n]\) satisfies
 
 \[
  \chi(G_n[U])\le C\frac{|U|}{N}+n^{1/3}.                 \tag{10.3}
@@ -1514,10 +1642,17 @@ Start with any vertex set of size at least `n^{1/3}`.  While its current
 size is at least `u_0`, choose a vertex of maximum `H`-degree and replace
 the current set by its `H`-neighbourhood there.  Density at least `1/4`
 implies that this neighbourhood has size at least one quarter of the
-current size, up to an additive one.  The chosen vertices form a clique in
-`H`; before the current size falls from `n^{1/3}` to `n^{1/4}`, this
-constructs at least `cN` vertices for an absolute `c>0`.  They are an
-independent set in `G_n`.
+current size, up to an additive one.  If \(s_t\) is the current size after
+\(t\) choices, then
+
+\[
+ s_{t+1}\ge(s_t-1)/4,\qquad s_t\ge4^{-t}s_0-1/3.         \tag{10.3a}
+\]
+
+The chosen vertices form a clique in `H`.  Starting from any
+\(\lceil n^{1/3}\rceil\)-subset, (10.3a) stays above \(n^{1/4}\) for at least
+\(\lfloor N/(13\ln4)\rfloor\) steps.  Thus it constructs at least \(cN\)
+vertices for an absolute \(c>0\).  They are an independent set in \(G_n\).
 
 For an arbitrary `U`, repeatedly remove such independent sets and give each
 a new colour until fewer than `n^{1/3}` vertices remain; colour the rest
@@ -1525,20 +1660,22 @@ singly.  This proves (10.3) simultaneously for every `U`.  \(\square\)
 
 ### Lemma 10.2 (amplification from a seed)
 
-Suppose deterministic `k_n,Lambda_n>=0` satisfy
+Suppose deterministic \(k_n,\Lambda_n\ge0\) satisfy
 
 \[
  \Pr\{\zeta(G_n)\le k_n\}\ge e^{-\Lambda_n}.             \tag{10.4}
 \]
 
-Then for every deterministic `r>0`,
+There is a deterministic \(\varepsilon_n=o(1)\), independent of
+\(k_n,\Lambda_n,r\), such that, uniformly for every deterministic choice
+\(r=r(n)>0\),
 
 \[
 \begin{split}
  \Pr\Bigg\{\zeta(G_n)>k_n+C\bigg(
  &\frac{\sqrt{n\Lambda_n}+\sqrt{nr}}N
    +n^{1/3}+1\bigg)\Bigg\}\\
- &\le e^{-r}+o(1).                                       \tag{10.5}
+ &\le e^{-r}+\varepsilon_n.                              \tag{10.5}
 \end{split}
 \]
 
@@ -1580,7 +1717,9 @@ gives
 \]
 
 Intersect (10.8) with the simultaneous event in Lemma 10.1 and apply
-(10.3).  This proves (10.5).  \(\square\)
+(10.3).  Its failure probability is the same deterministic
+\(\varepsilon_n=o(1)\) for every choice of the three deterministic parameters.
+This proves (10.5).  \(\square\)
 
 Apply Lemma 10.2 to (10.2).  Put
 
@@ -1588,7 +1727,7 @@ Apply Lemma 10.2 to (10.2).  Put
  B_n=\frac n{N^4},\qquad r_n=\sqrt{B_n}.                 \tag{10.10}
 \]
 
-Then `r_n->infinity`, and Proposition 9.2 gives
+Then \(r_n\to\infty\), and Proposition 9.2 gives
 
 \[
  \frac{\sqrt{n\Lambda_n}}N=o(n/N^3),\qquad
@@ -1596,19 +1735,29 @@ Then `r_n->infinity`, and Proposition 9.2 gives
  n^{1/3}=o(n/N^3).                                       \tag{10.11}
 \]
 
-Consequently
+Define the deterministic sequence
 
 \[
- \Pr\left\{\zeta(G_n)
- \le k_{co}+o(n/N^3)\right\}\longrightarrow1.          \tag{10.12}
+ a_n=C\left(
+ \frac{\sqrt{n\Lambda_n}+\sqrt{nr_n}}N+n^{1/3}+1\right).
+                                                               \tag{10.12}
 \]
 
-The `o(n/N^3)` in (10.12) is a deterministic sequence.
+Then (10.11) and Lemma 10.2 give
+
+\[
+ a_n=o(n/N^3),\qquad
+ \Pr\{\zeta(G_n)>k_{co}+a_n\}
+ \le e^{-r_n}+\varepsilon_n\longrightarrow0.            \tag{10.13}
+\]
 
 ## 11. Completion of the proof
 
-Intersect the events (4.5) and (10.12).  No independence is required; a
-union bound suffices.  Equation (5.20) then gives, with high probability,
+Intersect \(\{\chi(G_n)>k_\chi^-\}\), whose probability tends to one by (4.5),
+with \(\{\zeta(G_n)\le k_{co}+a_n\}\), whose probability tends to one by
+(10.13).
+No independence is required; a union bound suffices.  Equation (5.20) then
+gives, with high probability,
 
 \[
  \chi(G_n)-\zeta(G_n)
