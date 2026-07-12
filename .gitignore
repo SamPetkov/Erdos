@@ -1,0 +1,17 @@
+# Local research workspace and acquired source material.
+/research/
+/tmp/
+
+# Downloaded or rendered third-party/source artifacts.
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Generated caches and editor/OS files.
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+~$*
+
