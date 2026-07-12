@@ -27,10 +27,16 @@ resolution with the explicit bound
  \quad\text{with high probability}.
 \]
 
-The decisive overlap components passed focused independent audits, and
-four independent end-to-end reconstructions each returned PASS for the
-repaired proof.  This is internal validation of a new argument, not external
-peer review, publication, priority confirmation, or community acceptance.
+The decisive overlap components passed focused independent audits, and four
+independent end-to-end reconstructions each returned PASS.  A fresh
+severity-ranked adversarial review on 2026-07-13 then found a circular signed-
+root localization in the written proof, an unstated globalization step in the
+high-skeleton sum, and a one-sided/two-sided overclaim in the residual lemma.
+All three were repaired without changing the theorem or constant, and three
+independent regression reviews returned PASS on the corrected passages.  See
+[`audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`](audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md).
+This is internal validation of a new argument, not external peer review,
+publication, priority confirmation, or community acceptance.
 
 A further user-supplied review dated 2026-07-12 reports **provisional internal
 verification: PASS** and no blocking mathematical error.  Its separately
@@ -45,7 +51,7 @@ still labels the problem `OPEN`.  This repository presents a proposed
 resolution for scrutiny and does not claim an official status change.
 
 The current complete packaged dossier is available at
-[`releases/Erdos-625-complete-dossier-2026-07-12.zip`](releases/Erdos-625-complete-dossier-2026-07-12.zip).
+[`releases/Erdos-625-complete-dossier-2026-07-13.zip`](releases/Erdos-625-complete-dossier-2026-07-13.zip).
 
 ## Publication artifacts
 
@@ -60,7 +66,7 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 - [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)
   - generated standalone TeX source with color-coded lemma/proposition boxes.
 - [`output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf)
-  - compiled 25-page A4 PDF with proofs kept outside the statement boxes.
+  - compiled 27-page A4 PDF with proofs kept outside the statement boxes.
 - [`output/README.md`](output/README.md) - build versions, hashes, and PDF QA.
 - [`assets/erdos625-preview.png`](assets/erdos625-preview.png) - explanatory
   repository preview; schematic only, not proof evidence.
@@ -82,6 +88,9 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 
 ## Independent audits
 
+- `audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md` — severity-ranked fresh
+  audit, repair register, and independent regression results; internal pass
+  after revision.
 - `audits/RARE_EVENT_AMPLIFICATION_AUDIT.md` — pass.
 - `audits/RESIDUAL_ATTACHMENT_AUDIT.md` — pass.
 - `audits/DENSE_FOUR_TYPE_MATCHING_AUDIT.md` — pass.
@@ -123,6 +132,7 @@ in this repository or its release archives.
 
 `WORK_LOG.md` and `MECHANISM_REGISTRY.md` record the investigation history,
 failed routes, redirections, and precise remaining status.
-`FINAL_VERIFICATION.md` records the four full-audit verdicts, the additional
-user-supplied verification, reproducibility and publication checks, final
-hashes, and the completed historical-source audit.
+`FINAL_VERIFICATION.md` records the full audit history, the 2026-07-13
+adversarial repairs and regression results, the additional user-supplied
+verification, reproducibility and publication checks, final hashes, and the
+completed historical-source audit.
