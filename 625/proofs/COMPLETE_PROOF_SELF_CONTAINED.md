@@ -32,6 +32,13 @@ residual even-subgraph attachment with logarithmic cost
 proved Alon--Scott-type leftover argument amplifies it to high probability
 without losing the root separation.
 
+The divergence question was posed by Erdős and Gimbel (1993, p. 263) and
+restated by Gimbel (2016, Section 7.4, p. 100).  For historical comparison,
+the first-order dense-random-graph chromatic asymptotic is due to Bollobás
+(1988, Theorem 4); Janson, Łuczak, and Ruciński (2000, Section 7.4,
+Theorem 7.14 and Remark 7.15) give a textbook treatment.  These references
+provide context only: the proof of (0.1) below does not import their results.
+
 ## 1. Notation and elementary facts
 
 All logarithms are natural unless a base is displayed.  Put
@@ -77,7 +84,8 @@ We use the following standard inequalities in their stated forms.
 The first is Stirling's estimate, the second is McDiarmid's bounded-
 differences inequality, and the third is the zero-threshold case of
 Paley--Zygmund.  The fourth is the only binomial-tail estimate used below;
-the fifth is Markov's inequality.
+the fifth is Markov's inequality.  The bounded-differences formulation is the
+standard one recorded by McDiarmid (1989, pp. 148--188).
 
 ## 2. The complete independence-number phase
 
@@ -1469,6 +1477,11 @@ Proposition 9.2 and (1.5) give the seed
  \Pr\{Z_{\mathbf k}^{sgn}>0\}\ge e^{-\Lambda_n}.        \tag{10.1}
 \]
 
+The ordinary-colouring concentration argument motivating this amplification
+was communicated by Noga Alon and is presented by Scott (2008/2017,
+Theorem 1).  Lemmas 10.1 and 10.2 prove the precise simultaneous-leftover and
+rare-seed forms required here.
+
 By the observation after (5.19), this implies
 
 \[
@@ -1645,9 +1658,36 @@ were consolidated are `EXCEPTIONAL_REGIME.md`,
 `ALPHA_MINUS_TWO_ROUTE.md`, `FOUR_SIZE_PARTIAL_RATES.md`,
 `DENSE_FOUR_TYPE_MATCHING.md`, `SIGNED_PROFILE_OVERLAP.md`,
 `RESIDUAL_ATTACHMENT.md`, and `ALON_CONCENTRATION_EXTENSION.md`.
-No step of the proof above depends on those cross-references.  The original
-texts of Erdős--Gimbel (1993), Gimbel (2016), Bollobás (1988), and the
-relevant section of Janson--Łuczak--Ruciński (2000, Section 7.4) were
-separately inspected for provenance and problem wording.  They confirm the
-definition, the original divergence question, and the standard first-order
-chromatic asymptotic; no result from them is used in the proof above.
+No step of the proof above depends on those cross-references.  The cited
+historical sources confirm the definition, the original divergence question,
+and the standard first-order chromatic asymptotic; none supplies a step of the
+proof above.
+
+## 13. References
+
+1. P. Erdős and J. Gimbel, “Some Problems and Results in Cochromatic
+   Theory,” in J. Gimbel, J. W. Kennedy, and L. V. Quintas (eds.), *Quo
+   Vadis, Graph Theory?*, *Annals of Discrete Mathematics* **55**,
+   North-Holland/Elsevier, 1993, pp. 261--264.
+   <https://doi.org/10.1016/S0167-5060(08)70393-5>.
+
+2. J. Gimbel, “Some of My Favorite Coloring Problems for Graphs and
+   Digraphs,” in R. Gera, S. T. Hedetniemi, and C. Larson (eds.), *Graph
+   Theory: Favorite Conjectures and Open Problems -- 1*, Problem Books in
+   Mathematics, Springer, Cham, 2016, pp. 95--108.
+   <https://doi.org/10.1007/978-3-319-31940-7_7>.
+
+3. B. Bollobás, “The Chromatic Number of Random Graphs,” *Combinatorica*
+   **8**(1) (1988), 49--55.
+   <https://doi.org/10.1007/BF02122551>.
+
+4. S. Janson, T. Łuczak, and A. Ruciński, *Random Graphs*, Wiley-Interscience,
+   John Wiley & Sons, New York, 2000, ISBN 0-471-17541-2.
+
+5. C. McDiarmid, “On the Method of Bounded Differences,” in J. Siemons
+   (ed.), *Surveys in Combinatorics, 1989*, London Mathematical Society
+   Lecture Note Series **141**, Cambridge University Press, 1989,
+   pp. 148--188. <https://doi.org/10.1017/CBO9781107359949.008>.
+
+6. A. Scott, “On the Concentration of the Chromatic Number of Random
+   Graphs,” arXiv:0806.0178v2, 2017. <https://arxiv.org/abs/0806.0178>.

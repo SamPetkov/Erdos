@@ -97,14 +97,18 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 - `sources/SOURCE_LEDGER.md`
 - `sources/RECENT_WORK_AUDIT.md`
 - `sources/HISTORICAL_SOURCE_AUDIT.md`
+- `sources/ERDOS625_REFERENCES.bib` -- reusable BibTeX for every reference
+  cited in the canonical manuscript.
 - `proofs/KNOWN_RESULTS_RECONSTRUCTION.md`
 - `proofs/EXCEPTIONAL_REGIME.md`
 
-The ledger records every source version and probability quantifier.  The four
-previously unavailable historical originals were supplied by the user and
-checked directly on 2026-07-12.  Their findings and SHA-256 identifiers are
-recorded in the historical audit; the copyrighted PDFs remain local and are
-not redistributed in this repository or its release archives.
+The ledger records every source version and probability quantifier.  Every
+historical Problem 625 source cited in the manuscript has been checked directly
+for the claim attributed to it, with pages and SHA-256 identifiers recorded in
+the historical audit.  Bibliographic metadata for the standard bounded-
+differences and concentration references was verified against the publisher
+and arXiv records.  The copyrighted PDFs remain local and are not redistributed
+in this repository or its release archives.
 
 ## Reproducibility
 

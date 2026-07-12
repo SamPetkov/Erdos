@@ -169,6 +169,14 @@ residual even-subgraph attachment with logarithmic cost
 cocolouring, and a proved Alon--Scott-type leftover argument amplifies
 it to high probability without losing the root separation.
 
+The divergence question was posed by Erd\H{o}s and Gimbel (1993, p.~263)
+and restated by Gimbel (2016, Section 7.4, p.~100). For historical
+comparison, the first-order dense-random-graph chromatic asymptotic is
+due to Bollob\'{a}s (1988, Theorem 4); Janson, \L uczak, and
+Ruci\'{n}ski (2000, Section 7.4, Theorem 7.14 and Remark 7.15) give a
+textbook treatment. These references provide context only: the proof of
+(0.1) below does not import their results.
+
 \section{1. Notation and elementary
 facts}\label{notation-and-elementary-facts}
 
@@ -222,7 +230,9 @@ We use the following standard inequalities in their stated forms.
 The first is Stirling's estimate, the second is McDiarmid's bounded-
 differences inequality, and the third is the zero-threshold case of
 Paley--Zygmund. The fourth is the only binomial-tail estimate used
-below; the fifth is Markov's inequality.
+below; the fifth is Markov's inequality. The bounded-differences
+formulation is the standard one recorded by McDiarmid (1989,
+pp.~148--188).
 
 \section{2. The complete independence-number
 phase}\label{the-complete-independence-number-phase}
@@ -1749,6 +1759,11 @@ Proposition 9.2 and (1.5) give the seed
  \Pr\{Z_{\mathbf k}^{sgn}>0\}\ge e^{-\Lambda_n}.        \tag{10.1}
 \]
 
+The ordinary-colouring concentration argument motivating this
+amplification was communicated by Noga Alon and is presented by Scott
+(2008/2017, Theorem 1). Lemmas 10.1 and 10.2 prove the precise
+simultaneous-leftover and rare-seed forms required here.
+
 By the observation after (5.19), this implies
 
 \[
@@ -1950,12 +1965,45 @@ were consolidated are
 \texttt{SIGNED\_}\allowbreak{}\texttt{PROFILE\_}\allowbreak{}\texttt{OVERLAP.md},
 \texttt{RESIDUAL\_}\allowbreak{}\texttt{ATTACHMENT.md}, and
 \texttt{ALON\_}\allowbreak{}\texttt{CONCENTRATION\_}\allowbreak{}\texttt{EXTENSION.md}.
-No step of the proof above depends on those cross-references. The
-original texts of Erd\H{o}s--Gimbel (1993), Gimbel (2016), Bollob\'{a}s
-(1988), and the relevant section of Janson--\L uczak--Ruci\'{n}ski
-(2000, Section 7.4) were separately inspected for provenance and problem
-wording. They confirm the definition, the original divergence question,
-and the standard first-order chromatic asymptotic; no result from them
-is used in the proof above.
+No step of the proof above depends on those cross-references. The cited
+historical sources confirm the definition, the original divergence
+question, and the standard first-order chromatic asymptotic; none
+supplies a step of the proof above.
+
+\section{13. References}\label{references}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  P. Erd\H{o}s and J. Gimbel, ``Some Problems and Results in Cochromatic
+  Theory,'' in J. Gimbel, J. W. Kennedy, and L. V. Quintas (eds.),
+  \emph{Quo Vadis, Graph Theory?}, \emph{Annals of Discrete Mathematics}
+  \textbf{55}, North-Holland/Elsevier, 1993, pp.~261--264.
+  \url{https://doi.org/10.1016/S0167-5060(08)70393-5}.
+\item
+  J. Gimbel, ``Some of My Favorite Coloring Problems for Graphs and
+  Digraphs,'' in R. Gera, S. T. Hedetniemi, and C. Larson (eds.),
+  \emph{Graph Theory: Favorite Conjectures and Open Problems -- 1},
+  Problem Books in Mathematics, Springer, Cham, 2016, pp.~95--108.
+  \url{https://doi.org/10.1007/978-3-319-31940-7_7}.
+\item
+  B. Bollob\'{a}s, ``The Chromatic Number of Random Graphs,''
+  \emph{Combinatorica} \textbf{8}(1) (1988), 49--55.
+  \url{https://doi.org/10.1007/BF02122551}.
+\item
+  S. Janson, T. \L uczak, and A. Ruci\'{n}ski, \emph{Random Graphs},
+  Wiley-Interscience, John Wiley \& Sons, New York, 2000, ISBN
+  0-471-17541-2.
+\item
+  C. McDiarmid, ``On the Method of Bounded Differences,'' in J. Siemons
+  (ed.), \emph{Surveys in Combinatorics, 1989}, London Mathematical
+  Society Lecture Note Series \textbf{141}, Cambridge University Press,
+  1989, pp.~148--188.
+  \url{https://doi.org/10.1017/CBO9781107359949.008}.
+\item
+  A. Scott, ``On the Concentration of the Chromatic Number of Random
+  Graphs,'' arXiv:0806.0178v2, 2017.
+  \url{https://arxiv.org/abs/0806.0178}.
+\end{enumerate}
 
 \end{document}

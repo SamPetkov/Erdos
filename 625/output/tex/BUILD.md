@@ -31,6 +31,12 @@ ordinary page flow, so long arguments stay readable and page breaks remain
 natural.  The styling changes presentation only; the canonical Markdown proof
 is not modified.
 
+The canonical Markdown contains readable author--date citations and a complete
+reference list.  A reusable BibTeX mirror is maintained at
+[`../../sources/ERDOS625_REFERENCES.bib`](../../sources/ERDOS625_REFERENCES.bib).
+The generated TeX and PDF therefore remain self-contained and do not require a
+separate bibliography-processing pass.
+
 The status wording is intentionally conservative: the manuscript presents a
 candidate solution backed by internal audits and exact finite checks, not a
 claim of external peer review, publication, priority, or community acceptance.
