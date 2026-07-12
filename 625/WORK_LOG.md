@@ -155,3 +155,13 @@
   the color-boxed TeX, and compiled a 27-page A4 PDF.  All pages rendered; the
   repaired root, high-skeleton, residual, amplification, theorem, and reference
   pages passed full-size visual inspection.
+- Added a deterministic 20-second README animation of one exactly solved
+  `G(12,1/2)` graph (SplitMix64 seed 78). The renderer reuses the exact solver,
+  validates `chi=6`, `zeta=3`, both displayed partitions, and explicit
+  lower-bound obstruction certificates before producing the GIF and MP4. The
+  selected seed is a finite explanatory artifact, not statistical evidence or
+  evidence for the asymptotic theorem.
+- Embedded the optimized GIF in both GitHub landing pages, linked it to the HD
+  MP4, and recorded the full edge list, witnesses, render settings, hashes,
+  dimensions, sizes, and finite-example limitation in a JSON sidecar and asset
+  README. Representative animation phases passed visual inspection.
