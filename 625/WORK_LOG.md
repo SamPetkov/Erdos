@@ -114,9 +114,11 @@
   reproduced output, hashes, provenance, and limitations.  Independent replay
   returned all five PASS groups; this remains internal finite diagnostic
   evidence, not peer review or formal verification.
-- Generated a standalone TeX manuscript and compiled a 25-page A4 PDF.  The
+- Generated an LF-normalized standalone TeX manuscript and compiled a 25-page
+  A4 PDF.  All 12 lemma statements are set in blue breakable boxes,
+  Proposition 9.2 is set in green, and proofs stay in normal page flow.  The
   final build has no overfull boxes or missing glyphs, all pages rendered, and
-  representative title, theorem, dense-equation, residual, and provenance
+  representative title, theorem-box, dense-equation, residual, and provenance
   pages passed visual inspection.
 - Added the supplied schematic preview to the repository landing pages with
   an explicit statement that it is explanatory and not proof evidence.

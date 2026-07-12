@@ -43,9 +43,9 @@ The current complete packaged dossier is available at
 - [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md)
   - canonical self-contained Markdown manuscript.
 - [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)
-  - generated standalone TeX source.
+  - generated standalone TeX source with color-coded lemma/proposition boxes.
 - [`output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf)
-  - compiled 25-page A4 PDF.
+  - compiled 25-page A4 PDF with proofs kept outside the statement boxes.
 - [`output/README.md`](output/README.md) - build versions, hashes, and PDF QA.
 - [`assets/erdos625-preview.png`](assets/erdos625-preview.png) - explanatory
   repository preview; schematic only, not proof evidence.

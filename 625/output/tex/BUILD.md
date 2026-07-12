@@ -7,7 +7,7 @@ with Pandoc 3.9.0.2.  From the repository root, run:
 ```powershell
 pandoc 625/proofs/COMPLETE_PROOF_SELF_CONTAINED.md `
   -f markdown+tex_math_single_backslash+raw_tex `
-  -t latex -s --ascii `
+  -t latex -s --ascii --eol=lf `
   --lua-filter=625/output/tex/pandoc_filter.lua `
   --include-in-header=625/output/tex/header.tex `
   --metadata title="A self-contained proof of a polynomial-scale gap between the chromatic and cochromatic numbers of a random graph" `
@@ -23,6 +23,12 @@ The repository copy was compiled with the Codex LaTeX plugin's Tectonic
 driver.  Any conventional LaTeX installation with the packages named in the
 generated preamble should also compile it.  The generated PDF is stored in
 [`../pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](../pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf).
+
+The Lua filter places each lemma statement in a blue, breakable box and the
+normalized-second-moment proposition in a green box.  Proofs remain in the
+ordinary page flow, so long arguments stay readable and page breaks remain
+natural.  The styling changes presentation only; the canonical Markdown proof
+is not modified.
 
 The status wording is intentionally conservative: the manuscript presents a
 candidate solution backed by internal audits and exact finite checks, not a

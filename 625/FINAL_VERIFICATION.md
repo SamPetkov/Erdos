@@ -65,18 +65,21 @@ tabs, mojibake, and the known malformed-TeX patterns were clean.
 
 ## Publication artifact checks
 
-Pandoc 3.9.0.2 generated the standalone TeX manuscript from the canonical
-Markdown source.  Tectonic 0.16.9 compiled it successfully to a 25-page A4
-PDF.  The final compile had no overfull boxes, missing glyphs, or fatal
-errors; one underfull-box warning remains in the final provenance filename
-list and is cosmetic.
+Pandoc 3.9.0.2 generated the LF-normalized standalone TeX manuscript from the
+canonical Markdown source.  Its presentation filter places all 12 lemma
+statements in blue breakable boxes and Proposition 9.2 in a green box while
+leaving proofs in normal page flow.  Tectonic 0.16.9 compiled it successfully
+to a 25-page A4 PDF.  The final compile had no overfull boxes, missing glyphs,
+or fatal errors; one underfull-box warning remains in the final provenance
+filename list and is cosmetic.
 
-All 25 pages were rendered to PNG.  Pages 1, 2, 12, 13, 19, 21, and 25 were
-visually inspected, covering the title and contents, abstract and main bound,
-dense equations, the repaired two-line display (7.12), residual attachments,
-and the final provenance note.  Text extraction found no blank page,
-replacement character, or `??` marker and confirmed the title, main constant,
-and final section.
+All 25 pages were rendered to PNG.  Pages 1, 2, 3, 5, 8, 11, 13, 16, 20, 22,
+23, and 25 were visually inspected, covering the title and contents, abstract
+and main bound, short and long lemma boxes, green proposition box, dense
+equations, the repaired two-line display (7.12), residual attachments, and the
+final provenance note.  Text extraction found no blank page, replacement
+character, or `??` marker and confirmed every lemma title, Proposition 9.2,
+the main constant, and the final section.
 
 ## Final SHA-256 identifiers
 
@@ -95,8 +98,8 @@ E9E56C7559D8774BE83281854EC5DCEAA9D8961D3DB5BB7E8EE01B2C5ED1A2D2  experiments/al
 DF90D14FE86A8FF3B1B8E2165EB7FB554811CD58D86D9F2CC3C6C7573AA1E0C0  experiments/exact_chi_zeta.py
 E0107A1FEB47F8D2CD2F742E509FDC1C5B3BE4C60811AF09FF927E1712B3185E  verification/erdos625_verification_report.md
 FB45DFEC62CED7BC8AADAD42865DA989572DCDC2FECC5AEB41B5A21B454E1310  verification/erdos625_independent_checks.py
-1277957D17248D18FD25F8D16764F1A1D3B7368664A5082B4D9C27D2E5AAF535  output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex
-0D4536ADC67A1E1AB7C9511CF7714FAA4F3AA6C50977D4BB613FFB8FF141317C  output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+98EB7134512D65457D742DEDBBCE18F3E970B9024F184E60F0370B847D197AAD  output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex
+8595B63DF459B57CCC56CAD0E81EB0BFBC8229BA383C47E83479EB45BFF8C557  output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
 F5A3CE99990EE68DC3E91456BD0755990ECFD9C992547EEB346DF6EBF9632AAB  assets/erdos625-preview.png
 ```
 

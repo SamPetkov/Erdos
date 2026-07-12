@@ -45,6 +45,53 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \usepackage{mathtools}
 \usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+\definecolor{lemmaBlue}{HTML}{214E78}
+\definecolor{lemmaBlueBackground}{HTML}{F3F7FC}
+\definecolor{propositionGreen}{HTML}{276749}
+\definecolor{propositionGreenBackground}{HTML}{F2F9F5}
+
+\newtcolorbox{lemmabox}[1]{%
+  enhanced,
+  breakable,
+  title={#1},
+  colback=lemmaBlueBackground,
+  colframe=lemmaBlue,
+  colbacktitle=lemmaBlue,
+  coltitle=white,
+  fonttitle=\bfseries\large,
+  boxrule=0.8pt,
+  arc=1.5mm,
+  left=3mm,
+  right=3mm,
+  top=2.5mm,
+  bottom=2.5mm,
+  before skip=1.1em,
+  after skip=1.0em,
+  borderline west={2.2pt}{0pt}{lemmaBlue}%
+}
+
+\newtcolorbox{propositionbox}[1]{%
+  enhanced,
+  breakable,
+  title={#1},
+  colback=propositionGreenBackground,
+  colframe=propositionGreen,
+  colbacktitle=propositionGreen,
+  coltitle=white,
+  fonttitle=\bfseries\large,
+  boxrule=0.8pt,
+  arc=1.5mm,
+  left=3mm,
+  right=3mm,
+  top=2.5mm,
+  bottom=2.5mm,
+  before skip=1.1em,
+  after skip=1.0em,
+  borderline west={2.2pt}{0pt}{propositionGreen}%
+}
 
 \allowdisplaybreaks
 \emergencystretch=3em
@@ -192,8 +239,10 @@ Thus \texttt{0\textless{}=delta\textless{}1}. The estimates below are
 uniform on this entire interval, including sequences approaching either
 endpoint.
 
-\subsection{Lemma 2.1 (phase
-expansion)}\label{lemma-2.1-phase-expansion}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 2.1 (phase expansion)}
+\label{lemma-2.1-phase-expansion}
+\begin{lemmabox}{Lemma 2.1 (phase expansion)}
 
 There is a bounded continuous function \texttt{K(delta)} such that
 
@@ -218,6 +267,8 @@ and, with \texttt{a=alpha-2},
 
 for an absolute \texttt{c\textgreater{}0} and all sufficiently large
 \texttt{n}.
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof}
 
@@ -325,8 +376,10 @@ Set
 
 The following lemma supplies all root geometry needed later.
 
-\subsection{Lemma 3.1 (root phase, derivative, and support
-comparison)}\label{lemma-3.1-root-phase-derivative-and-support-comparison}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 3.1 (root phase, derivative, and support comparison)}
+\label{lemma-3.1-root-phase-derivative-and-support-comparison}
+\begin{lemmabox}{Lemma 3.1 (root phase, derivative, and support comparison)}
 
 Let
 
@@ -365,6 +418,8 @@ where, uniformly for \texttt{T=T\_0+o(1)},
 \]
 
 The convergence and all error terms are uniform in \texttt{delta}.
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-1}
 
@@ -532,8 +587,10 @@ where \texttt{lambda} is chosen to give mean \texttt{T}. Define
  \gamma_4=\ln\frac{200}{153}.                            \tag{5.2}
 \]
 
-\subsection{Lemma 5.1 (uniform entropy
-certificate)}\label{lemma-5.1-uniform-entropy-certificate}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 5.1 (uniform entropy certificate)}
+\label{lemma-5.1-uniform-entropy-certificate}
+\begin{lemmabox}{Lemma 5.1 (uniform entropy certificate)}
 
 For every \texttt{0\textless{}=delta\textless{}=1},
 
@@ -541,6 +598,8 @@ For every \texttt{0\textless{}=delta\textless{}=1},
  0\le D_4(\delta)<\ln\frac{153}{100},\qquad
  q-D_4(\delta)>\gamma_4.                                 \tag{5.3}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-2}
 
@@ -764,7 +823,10 @@ Write
  \beta(H)=|E(H)|-|V(H)|+c(H).                             \tag{6.3}
 \]
 
-\subsection{Lemma 6.1 (exact sign sum)}\label{lemma-6.1-exact-sign-sum}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 6.1 (exact sign sum)}
+\label{lemma-6.1-exact-sign-sum}
+\begin{lemmabox}{Lemma 6.1 (exact sign sum)}
 
 The normalized local factor of the pair of partitions is
 
@@ -787,6 +849,8 @@ Consequently
       {(\mathbb EZ_{\mathbf k}^{sgn})^2}
  =\sum_rp(r)A_\zeta(r).                                  \tag{6.6}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-3}
 
@@ -826,8 +890,10 @@ subgraphs form the binary cycle space of dimension \texttt{beta(H)}.
 
 We also need one exact configuration-model estimate.
 
-\subsection{Lemma 6.2 (joint prescribed-cell
-bound)}\label{lemma-6.2-joint-prescribed-cell-bound}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 6.2 (joint prescribed-cell bound)}
+\label{lemma-6.2-joint-prescribed-cell-bound}
+\begin{lemmabox}{Lemma 6.2 (joint prescribed-cell bound)}
 
 In a bipartite configuration model of total degree \texttt{m\_0}, with
 row degrees \texttt{d\_a} and column degrees
@@ -854,6 +920,8 @@ the right side is at most
 \[
  \prod_{ab\in D}\frac{\theta_{ab}^{x_{ab}}}{x_{ab}!}.  \tag{6.9}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-4}
 
@@ -922,14 +990,18 @@ and
  =\frac{2(k_i-h_i)\mu_{u_i}(v+u_i)}{(h_i+1)^2}.          \tag{7.6}
 \]
 
-\subsection{Lemma 7.1 (all common
-subprofiles)}\label{lemma-7.1-all-common-subprofiles}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 7.1 (all common subprofiles)}
+\label{lemma-7.1-all-common-subprofiles}
+\begin{lemmabox}{Lemma 7.1 (all common subprofiles)}
 
 For the exact midpoint profile,
 
 \[
  \sum_{0\le\ell_i\le k_i}D(\ell)=1+o(1).               \tag{7.7}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof: the empty corner}\label{proof-the-empty-corner}
 
@@ -1186,8 +1258,10 @@ For a margin vector \texttt{r}, define
 
 This is exactly the common-subprofile weight (7.3).
 
-\subsection{Lemma 8.1 (geometric-mean transportation
-comparison)}\label{lemma-8.1-geometric-mean-transportation-comparison}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 8.1 (geometric-mean transportation comparison)}
+\label{lemma-8.1-geometric-mean-transportation-comparison}
+\begin{lemmabox}{Lemma 8.1 (geometric-mean transportation comparison)}
 
 For every feasible \texttt{L},
 
@@ -1212,6 +1286,8 @@ with
  \eta_n=2^{3/2}\sqrt{\frac{(n+1)a}{2^a}}
        =O(N^{3/2}/\sqrt n)=o(1).                         \tag{8.10}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-5}
 
@@ -1255,14 +1331,18 @@ proves (8.8)--(8.9). Finally \texttt{t\textless{}=a},
 
 uniformly in the phase. This proves (8.10). \(\square\)
 
-\subsection{Lemma 8.2 (sum of all endpoint
-tables)}\label{lemma-8.2-sum-of-all-endpoint-tables}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 8.2 (sum of all endpoint tables)}
+\label{lemma-8.2-sum-of-all-endpoint-tables}
+\begin{lemmabox}{Lemma 8.2 (sum of all endpoint tables)}
 
 \[
  \sum_LW(L)\le
  \exp\{O(\sqrt{nN})+O(N)\}\sum_rD(r)
  =\exp\{O(\sqrt{nN})+O(N)\}.                            \tag{8.16}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-6}
 
@@ -1306,13 +1386,17 @@ Use Lemma 7.1 and
 \texttt{eta\_}\allowbreak{}\texttt{n\ k\_}\allowbreak{}\texttt{co=}\allowbreak{}\texttt{O(sqrt(nN)}\allowbreak{}\texttt{)}
 to finish. \(\square\)
 
-\subsection{Lemma 8.3 (all nonendpoint high
-multiplicities)}\label{lemma-8.3-all-nonendpoint-high-multiplicities}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 8.3 (all nonendpoint high multiplicities)}
+\label{lemma-8.3-all-nonendpoint-high-multiplicities}
+\begin{lemmabox}{Lemma 8.3 (all nonendpoint high multiplicities)}
 
 The full-containment sum (8.16) remains \texttt{exp(o(n/N\^{}4))} after
 all high-cell multiplicities
 \texttt{R\_}\allowbreak{}\texttt{0\textless{}}\allowbreak{}\texttt{j\textless{}}\allowbreak{}\texttt{min(u\_}\allowbreak{}\texttt{i,}\allowbreak{}\texttt{u\_}\allowbreak{}\texttt{j)}
 are inserted.
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-7}
 
@@ -1441,8 +1525,10 @@ law, the normalized moment is exactly
  \mathcal A(M,j).                                       \tag{9.2}
 \]
 
-\subsection{Lemma 9.1 (uniform attachment
-bound)}\label{lemma-9.1-uniform-attachment-bound}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 9.1 (uniform attachment bound)}
+\label{lemma-9.1-uniform-attachment-bound}
+\begin{lemmabox}{Lemma 9.1 (uniform attachment bound)}
 
 Uniformly over every canonical high skeleton,
 
@@ -1452,6 +1538,8 @@ Uniformly over every canonical high skeleton,
 
 More precisely, it is \texttt{O(N\^{}8)} when
 \texttt{m\_0\textgreater{}=n/N\^{}6} and \texttt{O(n/N\^{}5)} otherwise.
+
+\end{lemmabox}
 
 \subsubsection{Proof: large residual
 degree}\label{proof-large-residual-degree}
@@ -1626,8 +1714,10 @@ Equations (6.5), (9.20), and (9.21) bound the integrand in (9.1) by
 
 Both (9.19) and (9.22) are \texttt{o(n/N\^{}4)}. \(\square\)
 
-\subsection{Proposition 9.2 (normalized signed second
-moment)}\label{proposition-9.2-normalized-signed-second-moment}
+\phantomsection
+\addcontentsline{toc}{subsection}{Proposition 9.2 (normalized signed second moment)}
+\label{proposition-9.2-normalized-signed-second-moment}
+\begin{propositionbox}{Proposition 9.2 (normalized signed second moment)}
 
 For the exact midpoint profile,
 
@@ -1636,6 +1726,8 @@ For the exact midpoint profile,
                       {(\mathbb EZ_{\mathbf k}^{sgn})^2}
  =o(n/N^4).                                               \tag{9.23}
 \]
+
+\end{propositionbox}
 
 \subsubsection{Proof}\label{proof-8}
 
@@ -1665,8 +1757,10 @@ By the observation after (5.19), this implies
 We now prove the amplification needed to turn this possibly rare event
 into a typical one.
 
-\subsection{Lemma 10.1 (simultaneous leftover
-colouring)}\label{lemma-10.1-simultaneous-leftover-colouring}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 10.1 (simultaneous leftover colouring)}
+\label{lemma-10.1-simultaneous-leftover-colouring}
+\begin{lemmabox}{Lemma 10.1 (simultaneous leftover colouring)}
 
 There is an absolute \texttt{C} such that, with probability
 \texttt{1-o(1)}, every \texttt{U\ subseteq{[}n{]}} satisfies
@@ -1674,6 +1768,8 @@ There is an absolute \texttt{C} such that, with probability
 \[
  \chi(G_n[U])\le C\frac{|U|}{N}+n^{1/3}.                 \tag{10.3}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-9}
 
@@ -1703,8 +1799,10 @@ give each a new colour until fewer than \texttt{n\^{}\{1/3\}} vertices
 remain; colour the rest singly. This proves (10.3) simultaneously for
 every \texttt{U}. \(\square\)
 
-\subsection{Lemma 10.2 (amplification from a
-seed)}\label{lemma-10.2-amplification-from-a-seed}
+\phantomsection
+\addcontentsline{toc}{subsection}{Lemma 10.2 (amplification from a seed)}
+\label{lemma-10.2-amplification-from-a-seed}
+\begin{lemmabox}{Lemma 10.2 (amplification from a seed)}
 
 Suppose deterministic \texttt{k\_n,Lambda\_n\textgreater{}=0} satisfy
 
@@ -1722,6 +1820,8 @@ Then for every deterministic \texttt{r\textgreater{}0},
  &\le e^{-r}+o(1).                                       \end{split}
 \tag{10.5}
 \]
+
+\end{lemmabox}
 
 \subsubsection{Proof}\label{proof-10}
 
