@@ -40,6 +40,9 @@ The current complete packaged dossier is available at
 
 ## Publication artifacts
 
+The manuscript title block attributes co-authorship to **Samuil Petkov &
+ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
+
 - [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md)
   - canonical self-contained Markdown manuscript.
 - [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)

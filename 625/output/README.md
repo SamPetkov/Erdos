@@ -5,6 +5,8 @@ Markdown proof in
 [`../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](../proofs/COMPLETE_PROOF_SELF_CONTAINED.md).
 The derivatives do not change the theorem, proof text, or qualification as a
 candidate solution that has not been externally peer reviewed.
+The Markdown, TeX title page, and embedded PDF metadata attribute the
+manuscript to **Samuil Petkov & ChatGPT 5.6**.
 
 ## Files
 
@@ -17,15 +19,17 @@ candidate solution that has not been externally peer reviewed.
 ## Integrity
 
 ```text
-53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190  ../proofs/COMPLETE_PROOF_SELF_CONTAINED.md
-98EB7134512D65457D742DEDBBCE18F3E970B9024F184E60F0370B847D197AAD  tex/COMPLETE_PROOF_SELF_CONTAINED.tex
-8595B63DF459B57CCC56CAD0E81EB0BFBC8229BA383C47E83479EB45BFF8C557  pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+6C67D07E3146467386CAB0D536F86458E50DAA4A1D368BFC06058B750701B884  ../proofs/COMPLETE_PROOF_SELF_CONTAINED.md
+A25F3B4ECD7F99B9FE72A64DE6D4F6116746869BF767F661268182DEABE6E357  tex/COMPLETE_PROOF_SELF_CONTAINED.tex
+F418098173C8FAF27893972BA4A5932FDA3483C54560A0A5641764DD46B5A840  pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
 ```
 
 ## PDF quality assurance
 
 - Compile exit code: 0.
 - Page count and size: 25 pages, A4, unencrypted.
+- Authorship: the title page and PDF Author field both read
+  `Samuil Petkov & ChatGPT 5.6`.
 - Statement styling: all 12 lemma statements appear in blue breakable boxes;
   Proposition 9.2 appears in a green box; proofs remain in normal page flow.
 - Compile diagnostics: no overfull boxes, missing glyphs, or fatal errors;

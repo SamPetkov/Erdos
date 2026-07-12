@@ -20,7 +20,10 @@ The report in `verification/erdos625_verification_report.md` gives the exact
 verdict **Provisional internal verification: PASS** and reports no blocking
 mathematical error.  The supplied manuscript copy had SHA-256
 `53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190`,
-byte-for-byte identical to the canonical proof in this repository.
+byte-for-byte identical to the canonical proof at the time of review.  The
+current canonical manuscript differs from that reviewed copy only by the
+subsequent addition of the author line `Samuil Petkov & ChatGPT 5.6`; its
+theorem and proof text are unchanged.
 
 The separately written standard-library checker was replayed under Python
 3.14.3 with exit code 0; all five groups passed.  Four groups use exact
@@ -77,7 +80,9 @@ All 25 pages were rendered to PNG.  Pages 1, 2, 3, 5, 8, 11, 13, 16, 20, 22,
 23, and 25 were visually inspected, covering the title and contents, abstract
 and main bound, short and long lemma boxes, green proposition box, dense
 equations, the repaired two-line display (7.12), residual attachments, and the
-final provenance note.  Text extraction found no blank page, replacement
+final provenance note.  The rebuilt title page displays `Samuil Petkov &
+ChatGPT 5.6`, and the embedded PDF Author field contains the same attribution.
+Text extraction found no blank page, replacement
 character, or `??` marker and confirmed every lemma title, Proposition 9.2,
 the main constant, and the final section.
 
@@ -86,7 +91,7 @@ the main constant, and the final section.
 Paths below are relative to the `625/` directory.
 
 ```text
-53B2ADCCD64133991F3DCDCAA9F8E8820F38A12C982CC5735F96568DD014A190  proofs/COMPLETE_PROOF_SELF_CONTAINED.md
+6C67D07E3146467386CAB0D536F86458E50DAA4A1D368BFC06058B750701B884  proofs/COMPLETE_PROOF_SELF_CONTAINED.md
 42A39BC3A7D922B74EC3501EF233F93711F9C2769FE602EDA70E145220B923D3  proofs/COMPLETE_PROOF_DRAFT.md
 CC17BE8A3196258FF6BFAC6FAD154EF7FA3D7EC7CE32CB29C4384C0397028213  audits/FULL_PROOF_AUDIT_1.md
 2B9D96CBB560FD0674978B3111E1DF22A511412CEC42FDDDF2BE099F4E31125E  audits/FULL_PROOF_AUDIT_2.md
@@ -98,8 +103,8 @@ E9E56C7559D8774BE83281854EC5DCEAA9D8961D3DB5BB7E8EE01B2C5ED1A2D2  experiments/al
 DF90D14FE86A8FF3B1B8E2165EB7FB554811CD58D86D9F2CC3C6C7573AA1E0C0  experiments/exact_chi_zeta.py
 E0107A1FEB47F8D2CD2F742E509FDC1C5B3BE4C60811AF09FF927E1712B3185E  verification/erdos625_verification_report.md
 FB45DFEC62CED7BC8AADAD42865DA989572DCDC2FECC5AEB41B5A21B454E1310  verification/erdos625_independent_checks.py
-98EB7134512D65457D742DEDBBCE18F3E970B9024F184E60F0370B847D197AAD  output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex
-8595B63DF459B57CCC56CAD0E81EB0BFBC8229BA383C47E83479EB45BFF8C557  output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+A25F3B4ECD7F99B9FE72A64DE6D4F6116746869BF767F661268182DEABE6E357  output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex
+F418098173C8FAF27893972BA4A5932FDA3483C54560A0A5641764DD46B5A840  output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
 F5A3CE99990EE68DC3E91456BD0755990ECFD9C992547EEB346DF6EBF9632AAB  assets/erdos625-preview.png
 ```
 
