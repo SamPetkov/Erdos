@@ -92,8 +92,34 @@ the necessary mass equation, without assuming a counting interpretation from
 mathlib.  All mass-`n`, exactly-`k`, size-bounded profiles are also collected
 in a finite coordinate box, their number is at most `(n+1)^b`, and the
 aggregate expectation is proved to be exactly the sum of the per-profile
-expectations.  The uniform Stirling/variational estimate (4.3) is not yet
-claimed.
+expectations.  Explicit zero-safe factorial bounds identify the exact
+per-profile logarithmic weight, convert it to an exponential upper bound, and
+sum it with the rigorous `(n+1)^b` profile-box multiplicity.  The finite
+exponent is proved exactly equal to the manuscript's expanded discrete
+objective, including zero coordinates and the empty profile.  Natural
+profiles embed into an explicit nonnegative real feasible space with exact
+part-count and vertex-mass constraints and exactly preserved objective.  A
+generic variational-envelope theorem then packages any proved continuous
+upper relaxation into the required finite expectation bound; it does not
+assume the concrete `L_+` maximum.  For positive support and part count, a
+finite zero-safe Gibbs argument now provides a concrete one-parameter
+log-partition dual upper bound; tilt existence, optimality, and root
+asymptotics are still separate obligations.  The dual's derivative is proved
+to be `parts·mean−n`, the mean derivative is its strictly positive variance
+when `b≥2`, and hence the dual derivative is strictly increasing.  That dual bound is already
+composed with the finite chromatic probability reduction, producing the exact
+`box·exp(dual+error)+μ(n,b+1)` inequality for every parameter `t`.  A coloring is
+also converted to its nonempty kernel partition, refined to exactly `k`
+nonempty parts, and extracted into a bounded profile.  This proves the
+deterministic event containment behind (4.5), with the excessive-independence-
+number event as the only alternative.  A direct finite-space Markov and union
+argument then proves `P(χ≤k)≤E[bounded count]+P(α>b)`, as well as its sharp
+box-exponential-plus-`μ(n,b+1)` form.  The remaining part of (4.3)--(4.5) is analytic
+and asymptotic: reindex the discrete objective by deficits,
+compare it uniformly to the continuous maximum `L_+`, prove the root/slope
+estimate, and prove that the assembled upper bound tends to zero.
+An explicit phase-cap squeeze theorem already performs the last implication
+once convergence of the displayed dual main term is supplied.
 
 The early reproduced build, source, axiom, and independent statement checks
 are recorded in
@@ -108,6 +134,9 @@ and rare-seed checkpoint is reproduced in
 The compact-uniform profile, exact (10.8), complete finite enumeration and
 first-moment formula (4.2), and finite aggregation checkpoint is reproduced in
 [`M4_PROFILE_SECTION4_AUDIT_2026-07-13.md`](M4_PROFILE_SECTION4_AUDIT_2026-07-13.md).
+The finite Stirling/log-weight, coloring-to-profile, sharp probability,
+Gibbs-dual, local dual-calculus, and conditional phase-cap checkpoint is in
+[`M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md`](M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md).
 
 The difficult profile-root, unrestricted chromatic lower-location,
 signed-moment/overlap, residual-attachment, and complete amplification layers

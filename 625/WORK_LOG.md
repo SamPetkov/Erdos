@@ -217,3 +217,14 @@
   Robbins remainder estimates. A separate cross-audit passed every stated
   theorem. The endpoint-uniform algebraic assembly (2.5), (2.6), and (2.2)
   remains open rather than being inferred from these ingredients.
+- Extended the Lean Section 4 closure from the exact first-moment formula to
+  zero-safe factorial/log bounds, the exact discrete objective, its real
+  embedding and variational envelope, nonempty coloring-partition refinement,
+  profile extraction, deterministic event containment, and the finite Markov
+  reduction.  A concrete zero-safe Gibbs dual, its derivative/mean/variance
+  calculus, the sharp `μ(n,b+1)` probability bound, and a conditional
+  phase-cap squeeze are now kernel-checked.  The integrated warning-as-error
+  build passed 3,728 jobs across 50 Lean files and 10,715 physical lines; the
+  independent frozen-pin audit found no blockers.  The target-matching tilt,
+  concrete `L_+` comparison, root/slope/rounding limit, and all later signed
+  overlap/amplification layers remain open.
