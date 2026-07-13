@@ -45,6 +45,10 @@ high-skeleton sum, and a one-sided/two-sided overclaim in the residual lemma.
 All three were repaired without changing the theorem or constant, and three
 independent regression reviews returned PASS on the corrected passages.  See
 [`audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`](audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md).
+The concise draft and the focused first-moment, dense-overlap, residual, and
+amplification notes were subsequently synchronized to those repairs.  Their
+cross-document mapping is recorded in
+[`audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md`](audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md).
 This is internal validation of a new argument, not external peer review,
 publication, priority confirmation, or community acceptance.
 
@@ -85,31 +89,47 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
   - GitHub-ready animation and linked HD video of an exactly solved finite
   example; see the [`animation build record`](assets/animations/).
 
-## Main proof chain
+## Proof authority and synchronized support
 
-- `proofs/COMPLETE_PROOF_SELF_CONTAINED.md` — consolidated paper-style proof
-  with all substantive lemmas proved in one document.
-- `proofs/COMPLETE_PROOF_DRAFT.md` — assembled theorem and proof.
-- `proofs/ALPHA_MINUS_TWO_ROUTE.md` — all-phase first-moment comparison,
-  explicit constants, unrestricted chromatic lower location, and integer
-  midpoint profile.
+`proofs/COMPLETE_PROOF_SELF_CONTAINED.md` is the sole authoritative proof.
+The TeX and PDF are generated publication forms of that manuscript.  The
+component notes below retain focused derivations and route history; they have
+been synchronized to the 2026-07-13 repairs but are supporting explanations,
+not a second proof whose wording overrides the canonical manuscript.  If a
+future discrepancy appears, the canonical manuscript controls and the
+discrepancy must be logged.
+
+- `proofs/COMPLETE_PROOF_DRAFT.md` — concise synchronized map of the theorem
+  and its proof obligations.
+- `proofs/ALPHA_MINUS_TWO_ROUTE.md` — synchronized support for the uniform
+  root corridor, first-moment comparison, explicit constants, unrestricted
+  chromatic lower location, and tangent-rounded integer profile.
 - `proofs/FOUR_SIZE_PARTIAL_RATES.md` — exact common-diagonal sum `1+o(1)`.
-- `proofs/DENSE_FOUR_TYPE_MATCHING.md` — all unequal-type containments,
-  near-containments, and the mixed middle strip.
-- `proofs/RESIDUAL_ATTACHMENT.md` — all residual local and even-subgraph
-  attachments after the large-cell matching is exposed.
-- `proofs/ALON_CONCENTRATION_EXTENSION.md` — rare-event-to-whp transfer.
+- `proofs/DENSE_FOUR_TYPE_MATCHING.md` — synchronized support for all
+  unequal-type containments, near-containments, the mixed middle strip, and
+  the conditioned global sum over high skeletons.
+- `proofs/RESIDUAL_ATTACHMENT.md` — synchronized one-sided upper bound for
+  residual local and even-subgraph attachments after the large-cell matching
+  is exposed.
+- `proofs/ALON_CONCENTRATION_EXTENSION.md` — synchronized rare-event-to-whp
+  transfer with the growing deterministic error/failure sequence used in the
+  final event intersection.
 
 ## Independent audits
 
 - `audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md` — severity-ranked fresh
   audit, repair register, and independent regression results; internal pass
   after revision.
+- `audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md` — traceability
+  matrix confirming that the focused component notes reflect those repairs;
+  no change to the canonical TeX/PDF content.
 - `audits/RARE_EVENT_AMPLIFICATION_AUDIT.md` — pass.
-- `audits/RESIDUAL_ATTACHMENT_AUDIT.md` — pass.
-- `audits/DENSE_FOUR_TYPE_MATCHING_AUDIT.md` — pass.
-- `audits/FULL_PROOF_AUDIT_1.md` through `_4.md` — independent full-chain
-  reconstructions; all four pass.
+- `audits/RESIDUAL_ATTACHMENT_AUDIT.md` and
+  `audits/DENSE_FOUR_TYPE_MATCHING_AUDIT.md` — preserved internal 2026-07-12
+  verdicts on the earlier component bytes; their top notices delimit scope.
+- `audits/FULL_PROOF_AUDIT_1.md` through `_4.md` — preserved independent
+  2026-07-12 reconstructions; all four passed the bytes then reviewed, and
+  their top notices make clear that they are not reviews of later bytes.
 - `verification/erdos625_verification_report.md` — additional provisional
   internal verification; pass, with formalization targets identified.
 - `verification/erdos625_independent_checks.py` — separately written finite

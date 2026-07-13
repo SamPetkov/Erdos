@@ -9,6 +9,13 @@ published tame-profile estimate that is unavailable for the midpoint
 four-type witness.  The only complete-moment input is the already proved
 signed margin `exp(Omega(n/ln n))`.
 
+**Synchronization status (2026-07-13).**  The endpoint-decoration and
+middle-strip assembly below has been synchronized with the global
+high-skeleton argument in `COMPLETE_PROOF_SELF_CONTAINED.md`,
+(8.25a)--(8.29b).  The added bookkeeping makes explicit how the fixed-table
+and conditional estimates enter the one global sum; it changes neither the
+theorem nor any asymptotic constant.
+
 The key point is not that an off-diagonal transportation matrix is smaller
 than a diagonal one pointwise.  That assertion is false at finite positive
 mass.  Instead, an exact geometric-mean comparison reduces the whole
@@ -486,10 +493,12 @@ where `J_0` is the mass of the corresponding full-containment skeleton.
 Thus the global denominator is retained before the safe bound in (5.2) is
 taken.
 
-Uniformly for `a-3<=m<=a`, `0<=d<=3`, and `1<=e<m/4`,
+Define the single uniform near-containment error
 
 \[
- \epsilon_n:=\sum_e n^eR_{m,d}(e)
+ \epsilon_n^{\rm near}:=
+ \max_{\substack{a-3\le m\le a\\0\le d\le3}}
+ \sum_{1\le e<m/4} n^eR_{m,d}(e)
  =O\!\left(\frac{(\ln n)^3}{n}\right).                   \tag{5.3}
 \]
 
@@ -516,29 +525,72 @@ increase, so their maximum is at an endpoint.  At `e=0` it is
 one, which proves (5.3).  This is the four-size specialization of (3.6)--
 (3.7) in `RESIDUAL_ATTACHMENT.md`.
 
-For a fixed endpoint matrix, summing the multinomial choices of all deficits
-therefore multiplies its weight by at most
+Fix a full-containment endpoint matrix `L`, temporarily distinguish its
+endpoint cells, and let `S(L)` be the set of near-containment skeletons
+obtained by assigning to each cell either deficit zero or a deficit
+`1<=e<m/4`.  If `w(S)` is the resulting bare incidence and local weight,
+then (5.2)--(5.4a) give the nonnegative product bound
 
 \[
- (1+\epsilon_n)^K
- =\exp\{O((\ln n)^2)\}.                                   \tag{5.5}
+ \begin{aligned}
+ \sum_{S\in\mathcal S(L)}w(S)
+ &\le W(L)\prod_{c\in L}
+  \left(1+\sum_{1\le e<m_c/4}n^eR_{m_c,d_c}(e)\right)\\
+ &\le W(L)(1+\epsilon_n^{\rm near})^{\sum_{i,j}\ell_{ij}}
+ \le W(L)\exp\{O((\ln n)^2)\}.                           \tag{5.5}
+ \end{aligned}
 \]
 
-The middle strip, outside this near-containment range, is already
-`2^{-Omega((ln n)^2)}` after the exact global matching sum, by (3.11)--
-(3.13) of `RESIDUAL_ATTACHMENT.md`.  Here is the uniform four-type
-specialization, to make clear that equitability is not being imported.
-After a near-containment skeleton is exposed, let `M_0` be the residual
-stub mass.  If `M_0>=n/(ln n)^6`, the joint factorial bound (before dropping
-the matching constraint) majorizes every remaining middle-cell matching by
+Define the decoration factor by
+`D_near(L):=(sum_{S in S(L)}w(S))/W(L)` when `W(L)>0`, and set it to zero
+when `W(L)=0`.  Thus (5.5) is exactly
+`D_near(L)<=exp{O((ln n)^2)}` uniformly in `L`.
+
+Distinguishing and then forgetting identical cells of one type is exactly
+the multinomial expansion
+`ell_ij!/prod_e ell_{ij,e}!`.  Thus (5.5) has no extra ordering,
+`K!`, or other hidden multiplicity.  This is the four-type form of
+(8.25a)--(8.26) in the canonical proof.
+
+It remains to insert the middle strip, outside the near-containment range,
+without treating its cells independently.  Expose a particular near
+skeleton `S`, let `M_0` be its residual stub mass, and denote the residual
+row and column degrees by `d_u,d'_v`.  Put
 
 \[
- \exp\{\Xi_4(M_0)\},\qquad
- \Xi_4(M_0)=K^2\sum_{a/2<j\le3a/4+O(1)}
-    g(j)\frac{(e a^2/M_0)^j}{j!}.                         \tag{5.6}
+ \theta_{uv}=\frac{e d_ud'_v}{M_0}\le\frac{ea^2}{M_0},
 \]
 
-Writing `L=log_2 n`, uniformly for `j/L in [1+o(1),3/2+o(1)]`,
+with `theta_uv=0` on an already exposed cell.  Let `E_mid(S)` be the
+conditional middle-extension factor.  If `M_0>=n/(ln n)^6`, expand first
+over distinct residual cells and all their threshold demands.  Applying
+the joint configuration-model factorial bound before dropping either the
+matching constraint or the common denominator gives
+
+\[
+ \begin{aligned}
+ E_{\rm mid}(S)
+ &\le\sum_{\substack{D\ \mathrm{distinct\ residual\ cells}\\
+              a/2<j_{uv}\le3a/4+O(1)}}
+       \prod_{uv\in D}g(j_{uv})
+       \Pr\{r_{uv}\ge j_{uv}\ \forall uv\in D\}\\
+ &\le\prod_{u,v}\left(1+
+       \sum_{a/2<j\le3a/4+O(1)}
+       g(j)\frac{\theta_{uv}^j}{j!}\right)
+ \le\exp\{\Xi_4(M_0)\},                                  \tag{5.6}
+ \end{aligned}
+\]
+
+where, uniformly in the already exposed skeleton,
+
+\[
+ \Xi_4(M_0)\le K^2\sum_{a/2<j\le3a/4+O(1)}
+    g(j)\frac{(e a^2/M_0)^j}{j!}.                         \tag{5.6a}
+\]
+
+Thus the product in (5.6) is the result of one joint threshold expansion,
+not a product of marginal probabilities.  Writing `L=log_2 n`, uniformly
+for `j/L in [1+o(1),3/2+o(1)]`,
 
 \[
  \log_2\!\left[K^2g(j)\frac{(e a^2/M_0)^j}{j!}\right]
@@ -547,18 +599,56 @@ Writing `L=log_2 n`, uniformly for `j/L in [1+o(1),3/2+o(1)]`,
 \]
 
 The `O(1)` variation among the four slot sizes is absorbed by the last
-term.  Hence `Xi_4=2^{-Omega(L^2)}`.  If instead
-`M_0<n/(ln n)^6`, summing over the residual matching probability first and
-using `beta<=|E(H_res)|` and
-`sum_e binom(r_e,2)<=(a-1)M_0/2` bounds all remaining local and topological
-factors together by
+term.  Consequently
+`Xi_4^*:=sup_{S:M_0>=n/(ln n)^6}Xi_4(M_0)=2^{-Omega(L^2)}`.  This is the
+conditional large-residual branch of (8.26a)--(8.28) in the canonical
+proof.
+
+If instead `M_0<n/(ln n)^6`, leave the entire residual matching unexposed.
+Every residual cell then has `r_e<=a`.  Since the exposed near skeleton is
+a matching, pointwise
 
 \[
- \exp\{O(aM_0)\}=\exp\{O(n/(\ln n)^5)\}.                 \tag{5.8}
+ \beta(S\cup H_{\rm res})\le|E(H_{\rm res})|\le M_0/2,
+ \qquad
+ \sum_e\binom{r_e}{2}\le\frac{a-1}{2}M_0.                \tag{5.8}
 \]
 
-Thus every middle-strip configuration for the mixed four-type profile is
-included at `exp(o(n/(ln n)^4))` cost.
+All remaining local and topological factors are therefore at most
+`exp(CaM_0)`.  In this branch take `E_mid(S)` to be the resulting terminal
+conditional factor, which only enlarges the middle-extension sum.  Because
+all terms are nonnegative, summing the residual matching probability first
+gives the explicit alternative
+
+\[
+ E_{\rm mid}(S)
+ \le\mathbb E_{\rm res}\!\left[
+       \prod_eg(r_e)2^{\beta(S\cup H_{\rm res})}\right]
+ \le\exp(CaM_0)
+ \le\exp\{Cn/(\ln n)^5\}.                                \tag{5.8a}
+\]
+
+Finally let `H_high` range over all complete canonical high skeletons and
+let `w_bare(H)` denote the bare incidence and high-cell local weight at this
+stage of the exposure.  Combining the endpoint-table sum, the
+decoration product (5.5), the conditional expansion (5.6), and the two
+residual-mass branches gives the single global inequality
+
+\[
+ \begin{aligned}
+ \sum_{H\in\mathcal H_{\rm high}}w_{\rm bare}(H)
+ &\le e^{O((\ln n)^2)}\left(\sum_LW(L)\right)
+       \max\left\{e^{\Xi_4^*},e^{Cn/(\ln n)^5}\right\}\\
+ &\le\exp\left\{O(\sqrt{n\ln n})+O((\ln n)^2)
+                 +O\!\left(\frac n{(\ln n)^5}\right)\right\}\\
+ &=\exp\{o(n/(\ln n)^4)\}.                               \tag{5.9}
+ \end{aligned}
+\]
+
+Here the first line is a sum over endpoint tables and all their
+decorations, followed by a uniform conditional estimate; no fixed-skeleton
+bound is silently promoted term by term.  Equation (5.9) is the notation of
+this note for the globalization in canonical (8.29a)--(8.29b).
 
 ## 6. Dense-endpoint theorem
 
@@ -595,7 +685,9 @@ Equation (5.5) adds only `O((ln n)^2)` to its logarithm.  Finally
  =\frac{(\ln n)^{9/2}}{\sqrt n}\longrightarrow0.          \tag{6.3}
 \]
 
-This proves (6.1). \(\square\)
+This proves (6.1).  Equations (5.6)--(5.9) then condition on each summed
+endpoint/near skeleton and promote the middle-strip estimates to the full
+global high-skeleton sum. \(\square\)
 
 Together with the residual-attachment theorem, the entire signed overlap
 sum contributed by these bare high skeletons and all their residual
@@ -612,11 +704,12 @@ For the tangent-rounded midpoint profile constructed in
 \]
 
 Indeed, `RESIDUAL_ATTACHMENT.md`, Section 4.1, reduces that assertion
-exactly to (4.13): the middle strip is controlled at the required scale by
-(5.6)--(5.8) (exponentially in the large-residual branch and by
-`exp(O(n/(ln n)^5))` in the small-residual branch), and the only dense bare
-terms left are endpoint containments and their near-containment decorations.
-Theorem 6.1 proves this remaining sum.
+exactly to (4.13).  The endpoint-decoration product (5.5), the joint
+conditional threshold expansion (5.6), and both residual-mass alternatives
+(5.7)--(5.8a) are assembled globally in (5.9).  Theorem 6.1 supplies the
+endpoint transportation estimate used there, so all endpoint
+containments, near-containment decorations, and middle-strip cells are in
+the same summed bound.
 
 ## 7. Adversarial checks and scope
 
@@ -643,3 +736,9 @@ Theorem 6.1 proves this remaining sum.
    there.  No ordinary-first-moment or published-tameness assumption has
    been added.  The present note supplies exactly its previously missing
    dense `4 by 4` endpoint estimate.
+7. **No fixed-skeleton globalization gap.**  Formula (5.5) sums every
+   endpoint decoration with its exact multinomial multiplicity, (5.6)
+   applies the threshold estimate jointly under the conditioned residual
+   law, and (5.9) performs the endpoint-table sum before taking the uniform
+   conditional bound.  Hence no unrecorded number of skeletons is absorbed
+   into an `o(1)` term.

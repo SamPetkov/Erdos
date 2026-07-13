@@ -1,9 +1,12 @@
 # Alon--Scott concentration for cochromatic and two-graph covering numbers
 
-**Status.**  The concentration and amplification statements below are proved
-self-containedly.  They strengthen the basic vertex-Azuma bounds for
-`zeta` and `X` by a logarithmic factor.  They do not estimate the required
-surrogate gap, so they do not by themselves resolve Erdős Problem #625.
+**Synchronized supporting status (2026-07-13).**  The concentration and
+amplification statements below are proved self-containedly.  They strengthen
+the basic vertex-Azuma bounds for `zeta` and `X` by a logarithmic factor.  The
+uniform deterministic-error formulation in (2.12a) is synchronized with
+Lemma 10.2 of the authoritative manuscript
+`COMPLETE_PROOF_SELF_CONTAINED.md`.  This note does not estimate the required
+surrogate gap, so it does not by itself resolve Erdős Problem #625.
 
 Let
 
@@ -187,23 +190,25 @@ Thus `E S_T>=n-t_n`, and the opposite McDiarmid tail gives
 Colour the leftover as in (2.9)--(2.10).  ∎
 
 An independent reconstruction in
-`research/audits/RARE_EVENT_AMPLIFICATION_AUDIT.md` gives the following
-slightly sharper canonical form.  For every deterministic `r>0`, without
-assuming `Lambda+r=o(n)`,
+`../audits/RARE_EVENT_AMPLIFICATION_AUDIT.md` gives the following slightly
+sharper canonical form.  There is a deterministic `varepsilon_n=o(1)`,
+independent of `k_n`, `Lambda_n`, and `r`, such that uniformly for every
+deterministic choice `r=r(n)>0`, without assuming `Lambda_n+r=o(n)`,
 
 \[
  \Pr\left\{T([n])>k_n+C\left(
    \frac{\sqrt{n\Lambda_n}+\sqrt{nr}}{\log n}+n^{1/3}+1
   \right)\right\}
- \le e^{-r}+o(1).                                           \tag{2.12a}
+ \le e^{-r}+\varepsilon_n.                                  \tag{2.12a}
 \]
 
 Indeed, (2.11) and the upper McDiarmid tail imply directly that
 `n-E S_T<=sqrt((n-1)Lambda_n/2)`.  The lower tail with radius
 `sqrt((n-1)r/2)` then leaves at most the sum of these two radii uncovered.
-The simultaneous leftover lemma finishes the argument.  The original
-Theorem 2.2 is therefore valid as stated; its `o(n)` hypothesis only ensures
-that the guaranteed leftover is sublinear.
+The simultaneous leftover lemma finishes the argument.  Its single failure
+probability is precisely the same deterministic `varepsilon_n` for all three
+parameters.  The original Theorem 2.2 is therefore valid as stated; its
+`o(n)` hypothesis only ensures that the guaranteed leftover is sublinear.
 
 For `T=zeta`, (2.11) may come from a Paley--Zygmund bound on a signed
 cocolouring count.  If its normalized second moment is at most

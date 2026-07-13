@@ -1,7 +1,8 @@
 # The `(alpha-2)`-bounded signed route
 
-**Status.**  The first-moment comparison in this note is proved uniformly
-through the whole phase `delta={alpha_0} in [0,1)`.  It gives a deterministic
+**Synchronized status (2026-07-13).**  The first-moment comparison in this
+note is proved uniformly through the whole phase
+`delta={alpha_0} in [0,1)`.  It gives a deterministic
 separation of order `n/(ln n)^3` between a valid lower first-moment location
 for the unrestricted chromatic number and the signed first-moment location
 of an `(alpha-2)`-bounded cocolouring.  A fixed four-size version, using only
@@ -14,18 +15,24 @@ class sizes
 also retains a uniform signed advantage.  The latter has only four slot
 types and is the cleaner overlap candidate.
 
-This note supplies the first-moment half of the argument.  The published
+The core of this note supplies the first-moment half of the argument.  The published
 tame-colouring second moment cannot be invoked at the signed threshold
 because the ordinary first moment is `exp{-Theta(n/ln n)}`.  Section 8
-therefore isolates the high-matching lemma that was missing when this note
-was written.  That lemma is now proved in
-`DENSE_FOUR_TYPE_MATCHING.md`, Corollary 6.2, and the completed chain is
-assembled in `COMPLETE_PROOF_DRAFT.md`.
+records the high-matching lemma that was missing when this note was written
+and the conditioned globalization that closes it.  That lemma is now proved in
+`DENSE_FOUR_TYPE_MATCHING.md`, Corollary 6.2.  This note is synchronized with
+the repaired canonical proof `COMPLETE_PROOF_SELF_CONTAINED.md` and the
+regression record `../audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`;
+`../audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md` records the
+cross-file propagation.  The canonical manuscript remains authoritative, and
+the completed concise chain is assembled in `COMPLETE_PROOF_DRAFT.md`.  These
+are internal candidate-proof checks, not external peer review or formal
+verification.
 
 Throughout,
 
 \[
- q=\ln2,\qquad N=\ln n,\qquad
+ q=\ln2,\qquad N=\ln n,\qquad w=\ln N,\qquad
  \alpha_0=\alpha+\delta,\quad \alpha=\lfloor\alpha_0\rfloor,
  \quad 0\le\delta<1.                                      \tag{0.2}
 \]
@@ -110,6 +117,23 @@ where, uniformly for every fixed `i`,
  h_n(i)=-\frac q2i^2+o(1).                                \tag{1.10}
 \]
 
+The exact quantities behind this asymptotic are
+
+\[
+ C_n=q\alpha-q/2+\ln\alpha,\qquad f_n=-\ln d_\alpha,
+\]
+
+and, for `i>=0`,
+
+\[
+ h_n(i)=-\frac q2i^2+
+       \sum_{r=0}^{i-1}\ln(1-r/\alpha)\le-\frac q2i^2,   \tag{1.10a}
+\]
+
+while `h_n(-1)=-q/2+ln(alpha/(alpha+1))`.  Thus bounded
+effective tilts are dominated uniformly by a summable discrete-Gaussian
+sequence, including on the one-sided supports.
+
 For fixed `n,k`, the mean deficit `T_n=alpha-n/k` is fixed.
 Consequently the terms `C_n E i+f_n` cancel when two supports are
 compared.  If `L_S(n,k)` denotes the continuous optimum in (1.8) with
@@ -130,11 +154,10 @@ in the phase,
  =\mathcal F_R(T(\delta))-\mathcal F_S(T(\delta))+o(1)     \tag{1.12}
 \]
 
-whenever `k` differs by `O(n/N^3)` from a chromatic first-moment root.
-One may first center at the known `(alpha-2)` first-moment root, for which
-`n/k=alpha_0-1-2/q+o(1)`, and then use the derivative estimate in Section 5
-to justify this window.  Thus (1.12) does not assume the conclusion it is
-used to prove.
+whenever `k` is in the uniform root corridor proved independently in Section
+5.  That argument brackets every relevant zero before invoking the derivative
+or the mean-value theorem, so (1.12) does not assume the root separation it is
+later used to prove.
 
 ## 2. Forbidding deficits `-1,0,1` costs less than `ln 2`
 
@@ -371,16 +394,42 @@ The four counts must satisfy
 \]
 
 Let `p_i^{(n)}` be the exact finite-`n` maximizer of `L_{S_4}(n,k)`, with
-the exact factorial weights from (1.8).  By (1.12) and strict concavity,
-`p_i^{(n)}` converges uniformly in the phase to the limiting optimizer
-(1.5).  Since `D/k=T(delta)+o(1)` lies in a compact subinterval of `(2,5)`,
-we therefore have `p_i^{(n)}>=c_*>0` for all four `i`, uniformly in the
-phase.  Round each `kp_i^{(n)}` to an integer.  If the two constraint errors
-are `e_0,e_1=O(1)`, correct them in the `i=2,3` coordinates using
+the exact factorial weights from (1.8).  To avoid conflating multipliers, use
+the decomposition (1.9) and write
+
+\[
+ p_i^{(n)}\ \propto\ d_{\alpha-i}^{-1}
+       e^{\lambda_n^{\rm raw}i}
+ \ \propto\ e^{\widehat\lambda_ni+h_n(i)},\qquad
+ \widehat\lambda_n=C_n+\lambda_n^{\rm raw}.               \tag{4.1a}
+\]
+
+Thus `lambda_n^{raw}` is the multiplier for the exact factorial weights,
+whereas `widehat lambda_n` is the effective Gaussian tilt.  By (1.12), strict
+concavity, and the compact mean interval, the effective tilt and optimizer
+converge uniformly to (1.5).  In particular,
+`p_i^{(n)}>=c_p>0` for all four `i`, uniformly in the phase.
+
+Round each `kp_i^{(n)}` to a preliminary integer `tilde k_i` and define the
+two **signed** constraint errors
+
+\[
+ e_0=\sum_i\widetilde k_i-k,\qquad
+ e_1=\sum_i i\widetilde k_i-D.                             \tag{4.1b}
+\]
+
+Then `e_0,e_1=O(1)`.  Correct the `i=2,3` coordinates using
 
 \[
  \Delta k_2=e_1-3e_0,qquad
  \Delta k_3=2e_0-e_1.                                     \tag{4.2}
+\]
+
+The signs in (4.1b) make both cancellations explicit:
+
+\[
+ \Delta k_2+\Delta k_3=-e_0,\qquad
+ 2\Delta k_2+3\Delta k_3=-e_1.                             \tag{4.2a}
 \]
 
 This changes every count by `O(1)`, preserves nonnegativity for large `n`,
@@ -410,32 +459,69 @@ Thus the finite-support restriction has no hidden integer loss on the
 
 ## 5. Translation to an explicit `n/(ln n)^3` threshold gap
 
-Let `r_+(n)` be the real root
+Put
+
+\[
+ s_0=\alpha_0-1-\frac2q.                                  \tag{5.0}
+\]
+
+For `S in {S_+,S_2,S_4}` and every `0<=c<=q`, let `r_{S,c}` denote the
+zero of `L_S(n,k)+ck` in the corridor below.  The following localization is
+uniform in `S`, `c`, and the phase:
+
+\[
+ \frac n{r_{S,c}}=s_0+O(w/N).                              \tag{5.0a}
+\]
+
+Moreover, for every fixed `A>0` and every `k` satisfying
+`|n/k-s_0|<=Aw/N`,
+
+\[
+ \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+ =\frac2qN^2+O_A(Nw).                                     \tag{5.0b}
+\]
+
+Here is the noncircular proof.  Put `s=n/k` and
+
+\[
+ \Psi_{S,c}(s)=\frac{L_S(n,n/s)+c n/s}{n/s}.
+\]
+
+The exact affine-plus-curved decomposition (1.9)--(1.10a), the bounded
+effective tilts, and the scalar Stirling expansion written in canonical
+equations (3.15a)--(3.18) give, uniformly for `0<=c<=q`,
+
+\[
+ \Psi_{S,c}(s_0)=O(w),\qquad
+ \Psi'_{S,c}(s)=-N+O_A(w)\quad
+ (|s-s_0|\le Aw/N).                                      \tag{5.0c}
+\]
+
+For a sufficiently large fixed `A`, the values at
+`s=s_0-Aw/N` and `s=s_0+Aw/N` have opposite signs.  Strict monotonicity first
+gives the unique corridor zero and (5.0a).  Only after every zero is localized
+do we differentiate, using `ds/dk=-s/k`, to obtain throughout the corridor
+
+\[
+ \frac d{dk}\{L_S+ck\}
+ =\Psi_{S,c}(s)-s\Psi'_{S,c}(s)
+ =\frac2qN^2+O_A(Nw),                                     \tag{5.0d}
+\]
+
+which proves (5.0b).  In particular, let `r_+(n)=r_{S_+,0}`; equivalently,
 
 \[
  L_{S_+}(n,r_+)=0,                                        \tag{5.1}
 \]
 
-and let `r_S^{co}(n)` be the real signed root
+and let `r_S^{co}(n)=r_{S,q}` be the real signed root
 
 \[
  L_S(n,r_S^{co})+qr_S^{co}=0,\qquad S\in\{S_2,S_4\}.      \tag{5.2}
 \]
 
-All these roots lie within `O(n/N^3)` of the ordinary `(alpha-2)` root.
-The envelope calculation behind Corollary 39 of the tame-colourings paper
-applies equally to any of the supports above: their deficit tilts are
-bounded, and
-
-\[
- \frac{\partial}{\partial k}L_S(n,k)
- =\frac2qN^2+O(N\ln N)                                    \tag{5.3}
-\]
-
-uniformly in that window.  For a fixed finite support this also follows
-directly by differentiating (1.8): the original size tilt is
-`alpha q+ln alpha+O(1)`, and substitution in the envelope derivative gives
-`2N^2/q+O(N ln N)`.
+Equation (5.0a) localizes all these roots before they are compared, and
+(5.0b) supplies the derivative on every segment between them.
 
 At `k=r_+`, (1.11)--(1.12) give
 
@@ -450,7 +536,10 @@ Also
  r_+=\left(\frac q2+o(1)\right)\frac nN.                 \tag{5.5}
 \]
 
-The mean value theorem and (5.3)--(5.5) yield the phase-resolved formula
+Both roots `r_+` and `r_S^{co}` are already in the corridor (5.0a); hence the
+complete interval between them lies where (5.0b) holds.  The mean-value theorem may
+therefore be applied without circularity, and (5.0b), (5.4), and (5.5) yield
+the phase-resolved formula
 
 \[
  \boxed{
@@ -523,7 +612,7 @@ Set
  k_\chi^-:=\lfloor r_+\rfloor-\lceil N\rceil.             \tag{6.4}
 \]
 
-By (5.3), `L_{S_+}(n,k_chi^-)<=-Theta(N^3)`, so (6.3) gives
+By (5.0b), `L_{S_+}(n,k_chi^-)<=-Theta(N^3)`, so (6.3) gives
 `E_{n,k_chi^-,alpha+1}=o(1)`.  On (6.2), any colouring with at most
 `k_chi^-` colours can be refined to an exactly `k_chi^-`-colouring whose
 parts all have size at most `alpha+1`.  Thus
@@ -544,7 +633,7 @@ midpoint
                                                                     \tag{6.6}
 \]
 
-By (5.3), (5.8), and (4.4), the integer profile from Section 4 now has
+By (5.0b), (5.8), and (4.4), the integer profile from Section 4 now has
 
 \[
  \ln\mathbb E\bar X^{\rm co}_{\mathbf k^{(4)}}
@@ -606,7 +695,7 @@ They do **not**, by themselves, justify multiplying one-cell activities:
 the exact joint law contains `(n)_J` rather than a product of powers of
 `n`, and near-total overlaps have diagonal/partial-diagonal cancellations.
 
-## 8. Seed probability and the subsequently closed lemma
+## 8. Seed probability and the closed second-moment bridge
 
 The target needed by the rare-event Alon--Scott amplification is
 
@@ -615,7 +704,8 @@ The target needed by the rare-event Alon--Scott amplification is
  \ge\exp\{-o(n/N^4)\}.                                    \tag{8.1}
 \]
 
-For a nonnegative signed witness `Z`, it would suffice to prove
+For the nonnegative signed witness `Z`, Proposition 9.2 of the canonical
+manuscript proves
 
 \[
  \ln\frac{\mathbb EZ^2}{(\mathbb EZ)^2}=o(n/N^4).          \tag{8.2}
@@ -630,8 +720,9 @@ The available ingredients are:
 2. `SIGNED_PROFILE_OVERLAP.md`, Theorem 3.1, sums all bounded/intermediate
    cells and the exact even-subgraph factor.
 3. `RESIDUAL_ATTACHMENT.md`, Theorem 2.1, shows that after a matching of
-   high cells is exposed, every residual local and cycle attachment costs
-   only `exp{o(n/N^4)}`, uniformly for mixed profiles.
+   high cells is exposed, the conditional residual local-and-cycle factor is
+   at most `exp{b_n}`, uniformly for mixed profiles, for a deterministic
+   `b_n=o(n/N^4)`.  This is a one-sided upper bound; no lower bound is used.
 4. For the four-type profile, every individual common and unequal-size
    containment activity is `o(1)` by (7.3)--(7.4), and the integer profile
    has only a `4 by 4` type structure.
@@ -647,13 +738,13 @@ The same order holds at the midpoint witness (6.6): its signed logarithmic
 first moment is `Theta(n/N)`, but subtracting the certificate bonus `qk`
 still leaves an ordinary logarithmic first moment `-Theta(n/N)` (indeed the
 midpoint lies halfway between ordinary exponents `-qk+o(k)` and
-`-D_4(delta)k+o(k)`, with `D_4>=0`).
-
-which violates the tame definition's fixed-power lower bound
+`-D_4(delta)k+o(k)`, with `D_4>=0`).  This violates the tame definition's
+fixed-power lower bound
 `ln E X >> -n^(1-c)`.  The signed first moment is large, but that is not a
 hypothesis of the published ordinary-colouring theorem.
 
-The statement that remained at this stage was isolated as follows.
+The statement that remained historically was isolated as follows and is now
+proved in `DENSE_FOUR_TYPE_MATCHING.md` and canonical Lemma 8.3.
 
 > **Four-type high-matching lemma.**  Let `mathbf k` be the
 > integer profile on sizes `alpha-2,...,alpha-5` constructed in Section 4,
@@ -668,38 +759,96 @@ The statement that remained at this stage was isolated as follows.
 >  \ln S_{\rm high}=o(n/N^4).                              \tag{8.4}
 > \]
 
-For the full `S_2` optimizer, the same lemma is needed with all its
-Gaussian-tail types.  The existing tame partial-profile estimates are then
-available.  For the four-type optimizer, a structural proof that follows
-the old middle-overlap route must additionally verify its finite list of
-proper prefix rates; numerically they are uniformly positive, but that
-auxiliary certification is not substituted for (8.4) here.  A direct proof
-of (8.4) may bypass that formulation and use the exact partial-diagonal
-first-moment identity instead.
-
-With (8.4) proved, the residual-attachment theorem multiplies it by
-`exp{o(n/N^4)}`, the bounded-cell theorem contributes `1+o(1)`, and (8.2)
-follows.  Paley--Zygmund gives (8.1).  The rare-event concentration theorem
-then adds only
+The globalization that prevents a hidden multiplicity or dependence factor
+is explicit in canonical equations (8.25a), (8.26a), and
+(8.29a)--(8.29b).  In compressed form, for a full-containment table `L`,
+temporarily distinguish its endpoint cells.  If `S(L)` denotes all
+near-containment decorations, then
 
 \[
- O\left(\frac{\sqrt{n\,o(n/N^4)}}N+n^{1/3}\right)
- =o(n/N^3)                                                 \tag{8.5}
+ \sum_{S\in\mathcal S(L)}w(S)
+ \le W(L)\prod_{c\in L}(1+\rho_c)
+ \le W(L)e^{O(N^2)},\qquad \rho_c=O(N^3/n).               \tag{8.4a}
 \]
 
-colours, while (6.8) leaves a positive constant multiple of `n/N^3`.
-Therefore (8.4), together with the already proved pieces, completes this
-all-phase route to a whp diverging gap.  The geometric-mean transport and
-Cauchy--multinomial proof of (8.4) is in
-`DENSE_FOUR_TYPE_MATCHING.md`; the assembled proof records the final
-constant and quantifiers.
+Distinguishing and then forgetting identical typed cells is exactly this
+multinomial product, so it adds no multiplicity.  Condition on the resulting
+near skeleton and let `m_0` be its residual stub mass.  With `U=alpha-2`,
+`R_0=floor(U/2)`, and residual row/column degrees `d_x,d'_y`, the large branch
+`m_0>=n/N^6` is expanded jointly over sets of distinct residual cells before
+constraints are dropped:
+
+\[
+ E_{mid}(S)\le
+ \prod_{xy}\left(1+
+  \sum_{R_0<j\le3U/4+O(1)}
+  g(j)\frac{(e d_xd'_y/m_0)^j}{j!}\right)
+ \le e^{\Xi_4},\qquad
+ \Xi_4=2^{-\Omega((\log_2n)^2)}.                           \tag{8.4b}
+\]
+
+This product is the conclusion of the joint configuration-model threshold
+bound, not a product of marginal probabilities.  In the small branch
+`m_0<n/N^6`, summing the residual matching probability first gives
+`E_mid(S)<=exp(CUm_0)<=exp(Cn/N^5)`.  Therefore
+
+\[
+ \sum_{\text{all high skeletons}}\text{bare weight}
+ \le e^{O(N^2)}\left(\sum_LW(L)\right)
+      \max\{e^{\Xi_4},e^{Cn/N^5}\}
+ =\exp\{o(n/N^4)\}.                                      \tag{8.4c}
+\]
+
+The exact canonical decomposition multiplies these nonnegative bare weights
+by their conditional residual factors.  The uniform one-sided bound in item
+3 gives the required upper bound in (8.2); the normalized second moment is at
+least one by variance.  Thus (8.2) follows, and Paley--Zygmund gives (8.1).
+
+To state amplification without an anonymous probabilistic `o(1)`, define
+
+\[
+ \Lambda_n=\ln\frac{\mathbb EZ^2}{(\mathbb EZ)^2},\qquad
+ B_n=\frac n{N^4},\qquad r_n=\sqrt{B_n}.                  \tag{8.5}
+\]
+
+The uniform amplification lemma supplies a deterministic
+`epsilon_n=o(1)`, independent of deterministic `r>0`, and an absolute `C`
+such that
+
+\[
+ \Pr\!\left\{\zeta(G_n)>k_{co}+C\left(
+  \frac{\sqrt{n\Lambda_n}+\sqrt{nr}}N+n^{1/3}+1
+ \right)\right\}
+ \le e^{-r}+\varepsilon_n.                               \tag{8.6}
+\]
+
+Set
+
+\[
+ a_n=C\left(
+  \frac{\sqrt{n\Lambda_n}+\sqrt{nr_n}}N+n^{1/3}+1
+ \right).                                                 \tag{8.7}
+\]
+
+Since `Lambda_n=o(B_n)` and `r_n->infinity`,
+
+\[
+ a_n=o(n/N^3),\qquad
+ \Pr\{\zeta(G_n)>k_{co}+a_n\}
+ \le e^{-r_n}+\varepsilon_n\longrightarrow0.             \tag{8.8}
+\]
+
+Together with the chromatic event (6.5), a union bound (no independence) and
+(6.8) leave the same positive constant multiple of `n/N^3`.  Thus the
+four-type route is synchronized with the canonical all-phase,
+high-probability conclusion; the theorem and its constant are unchanged.
 
 ## 9. Reproducible calculation
 
 Run
 
 ```powershell
-python research\experiments\alpha_minus_two_route.py
+python 625/experiments/alpha_minus_two_route.py
 ```
 
 The script uses only the Python standard library.  It prints the limiting

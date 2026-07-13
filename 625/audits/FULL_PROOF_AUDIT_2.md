@@ -1,5 +1,14 @@
 # Second independent full-chain audit of `COMPLETE_PROOF_DRAFT.md`
 
+> **Historical-scope notice (2026-07-13).** This document preserves the
+> internal 2026-07-12 verdict on the draft and component bytes then under
+> review. It is not a review of the later repaired or synchronized bytes.
+> The authoritative proof is now `../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`;
+> see `ADVERSARIAL_LEAP_AUDIT_2026-07-13.md` for the later defects and
+> regression checks, and `PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md`
+> for the mapping from that canonical proof to the synchronized component
+> notes. The original audit body and verdict below are retained unchanged.
+
 **Audit date:** 2026-07-12  
 **Verdict:** **PASS**, for the current post-repair draft, as an internally
 complete proof of the stated all-`n` theorem.  I found no remaining reversed

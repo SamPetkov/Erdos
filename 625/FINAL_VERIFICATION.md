@@ -4,15 +4,17 @@ Initial record: 2026-07-12.  Adversarial proof-audit update: 2026-07-13.
 
 ## Mathematical audit gates
 
-- `audits/FULL_PROOF_AUDIT_1.md`: PASS.
-- `audits/FULL_PROOF_AUDIT_2.md`: PASS.
-- `audits/FULL_PROOF_AUDIT_3.md`: PASS.
-- `audits/FULL_PROOF_AUDIT_4.md`: PASS.
+- `audits/FULL_PROOF_AUDIT_1.md`: PASS on the 2026-07-12 reviewed bytes.
+- `audits/FULL_PROOF_AUDIT_2.md`: PASS on the 2026-07-12 reviewed bytes.
+- `audits/FULL_PROOF_AUDIT_3.md`: PASS on the 2026-07-12 reviewed bytes.
+- `audits/FULL_PROOF_AUDIT_4.md`: PASS on the 2026-07-12 reviewed bytes.
 
 Each audit independently reconstructed the complete proof chain.  The fourth
 audit was started without the surrounding research conversation and included
-a separate finite-`n` optimizer/diagonal sub-audit.  These are internal
-checks, not external peer review.
+a separate finite-`n` optimizer/diagonal sub-audit.  These historical verdicts
+are not represented as reviews of the later 2026-07-13 repaired or
+synchronized bytes; each file now carries an explicit top notice.  These are
+internal checks, not external peer review.
 
 ## 2026-07-13 adversarial leap audit and repairs
 
@@ -35,6 +37,30 @@ recurrence, growing deterministic amplification parameter, and final error
 sequence explicit.  Three independent route-specific regression reviews
 returned PASS on the patched passages.  No repair changes the theorem,
 constant, four class sizes, or full-sequence probability quantifier.
+
+## 2026-07-13 proof-component synchronization
+
+After the adversarial repairs, the concise draft and the focused first-moment,
+dense-overlap, residual-attachment, and amplification notes were synchronized
+to the authoritative self-contained manuscript.  The propagation check in
+`audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md` maps the uniform
+root corridor, finite optimizer and tangent rounding, conditioned global
+high-skeleton sum, one-sided residual estimate, and deterministic
+amplification/final events to both the canonical locations and supporting
+notes.  Its scope verdict is PASS for document propagation and traceability;
+it is not an additional mathematical proof verdict.
+
+The bodies and verdicts of the six relevant 2026-07-12 audits were preserved.
+Top notices were added to delimit the older byte scope and point to the
+adversarial and synchronization records.  The user-supplied verification files
+were not edited and remain limited by their existing provenance statements.
+
+This synchronization did not change the canonical manuscript, generated TeX,
+or either PDF copy.  Their SHA-256 identifiers remain, respectively,
+`9EA27F617D95DAFA42991A3CAF2ACBF3A4E92CA16CA25D524D7B587954D95A83`,
+`AAF38D8134015EC9AEAD6FEA4916F618C4479F6601E1EB34F68A5134B0E1B82A`,
+and `2ACD9BA34A7104976C65A007DF5132668605AFACA7407516B290545CB0634357`
+for both PDF locations.
 
 ## Additional user-supplied verification
 
@@ -149,12 +175,19 @@ Paths below are relative to the `625/` directory.
 
 ```text
 9EA27F617D95DAFA42991A3CAF2ACBF3A4E92CA16CA25D524D7B587954D95A83  proofs/COMPLETE_PROOF_SELF_CONTAINED.md
-42A39BC3A7D922B74EC3501EF233F93711F9C2769FE602EDA70E145220B923D3  proofs/COMPLETE_PROOF_DRAFT.md
-CC17BE8A3196258FF6BFAC6FAD154EF7FA3D7EC7CE32CB29C4384C0397028213  audits/FULL_PROOF_AUDIT_1.md
-2B9D96CBB560FD0674978B3111E1DF22A511412CEC42FDDDF2BE099F4E31125E  audits/FULL_PROOF_AUDIT_2.md
-F7724290612866BD6D6A2105C95202C6C943C4CA93574708F980AFB0D087AE6E  audits/FULL_PROOF_AUDIT_3.md
-110549CEDC8056BB7DE57D43789CA81D3FD48BCF9D45ADD697141117166E632E  audits/FULL_PROOF_AUDIT_4.md
+5094D58F685EF7ED7B9DE1CEC37202F48B8F70A0A2B18667B8957B232F955A2D  proofs/COMPLETE_PROOF_DRAFT.md
+CA97B605FAE2FB4A0D0ABF9F8894EB5DBEB26455E21C312F5C37EF860A2E93C7  proofs/ALPHA_MINUS_TWO_ROUTE.md
+C0AD9373F857D06A1EC9656AF2AEE725F087AD81D631E1A91258FE0F2430E950  proofs/DENSE_FOUR_TYPE_MATCHING.md
+CE578B2B066A4545D0F1573300A218D8345B35D68F60316F9C32A3C8E99C5194  proofs/RESIDUAL_ATTACHMENT.md
+4A91E9C5F01C980004817B821ED960EDAD43BBB6D3887A0C208A2B65AAD7A565  proofs/ALON_CONCENTRATION_EXTENSION.md
+32E0BC482C41E7F357A441888E957E5222E60484F0EDDD206E14FCA0BF396D3F  audits/FULL_PROOF_AUDIT_1.md
+1D4CC063455E6BBE0E06E8A8927FE35947BC325C19CBED6AA72BE188AC6F8802  audits/FULL_PROOF_AUDIT_2.md
+0F2A2BC1E6C25835F53E6FF5676625E724D8DF485C01A8AABE91DA4DE2155341  audits/FULL_PROOF_AUDIT_3.md
+A3977A50B4BB2C395596DAFC4B08FC256811BADF7D3D424959B8192282C9322B  audits/FULL_PROOF_AUDIT_4.md
+7DC59CD69903A7125E1B5B7FBF7234D86004607499B5763557156A4BEFB56AEF  audits/DENSE_FOUR_TYPE_MATCHING_AUDIT.md
+71CE7E3EE4794EB927BFF204C5B22FEA911F39FC20220068FBB1AD59E32121DC  audits/RESIDUAL_ATTACHMENT_AUDIT.md
 CA110DE66D62F2CABC1D84E08594D343FB3BD9C8DA844D1D6BFA68B626FBB8E8  audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md
+0ABF100570C7CCF88592E9045E6C1EA1134393BB44C54EF5C68F300D7BB02D9B  audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md
 088C2E4C9B45F5BC806842C68CCF94A9CAE477C876ABCB7B74A65B79F1B77C2A  sources/SOURCE_LEDGER.md
 D30987F28BF20556A633D0A78A10FFA240BC4977FF53E01A31FE08D27B396A94  sources/ERDOS625_REFERENCES.bib
 E9E56C7559D8774BE83281854EC5DCEAA9D8961D3DB5BB7E8EE01B2C5ED1A2D2  experiments/alpha_minus_two_route.py
@@ -171,3 +204,7 @@ F5A3CE99990EE68DC3E91456BD0755990ECFD9C992547EEB346DF6EBF9632AAB  assets/erdos62
 68DE745E2B735756B5DF3BF3F2ADAE08A973742767E935F2E6FF744DA0A5CD96  assets/animations/erdos625-coloring-example.mp4
 068C6201E59222187DE491C4C1B25312C2B54C30302EE3D32F6E361486EA6759  assets/animations/erdos625-coloring-example.json
 ```
+
+The current complete archive is deliberately not hashed inside this record,
+because this file is itself an archive member.  Its aggregate SHA-256 is kept
+in `releases/SHA256SUMS.txt`, which is intentionally excluded from the ZIP.
