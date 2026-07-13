@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           if grep -RInE --include='*.lean' \
-            '(^|[[:space:]])(sorry|admit)([[:space:]]|$)|^[[:space:]]*axiom[[:space:]]' \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization; then
             exit 1
           fi

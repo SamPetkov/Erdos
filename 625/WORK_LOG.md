@@ -194,3 +194,26 @@
   probability, and reproducibility reviews returned PASS.  The target remains
   explicitly unproved, and the remaining dependency graph is recorded in
   `formalization/FORMALIZATION_LEDGER.md`.
+- Extended the imported Lean closure with exact phase/floor identities,
+  adjacent first-moment ratios, Markov and zero-threshold Paley–Zygmund,
+  an exact binomial lower-quarter tail, the complete independent-set
+  expectation/event calculation, and the non-asymptotic phase setup. A
+  warning-free 3,138-job build, strict source scan, and 24 representative
+  axiom checks passed; independent statement audits found no blocking issue.
+  The bounded-differences coordinate bridge and the quantitative phase
+  expansion remain explicitly open, and the arXiv package remains paused.
+- Hardened the Lean CI source gate after an independent integration audit
+  noticed that its earlier expression did not reject explicit placeholder
+  axioms or `constant` declarations. The strengthened gate also rejects
+  `unsafe`; the current source passes it.
+- Proved the centered bounded-differences MGF directly on every finite uniform
+  Boolean cube by recursive two-point averaging, identified that average with
+  the actual uniform-PMF integral, and derived exact one-/two-sided tails with
+  variance proxy `Σcᵢ²/4`. A cross-audit passed constants, centering,
+  degenerate cases, source, compilation, and axiom checks. The manuscript's
+  larger vertex blocks still require a separate product-space theorem and
+  graph-statistic oscillation proof.
+- Added explicit finite Taylor, descending-factorial, and sharp two-sided
+  Robbins remainder estimates. A separate cross-audit passed every stated
+  theorem. The endpoint-uniform algebraic assembly (2.5), (2.6), and (2.2)
+  remains open rather than being inferred from these ingredients.

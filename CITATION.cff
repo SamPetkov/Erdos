@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: >-
+  If you use material from this repository, please cite Samuil Petkov using
+  the metadata below and follow the CC BY 4.0 attribution requirements.
+title: "Erdős Problem 625: Proof Dossier and Lean Formalization"
+authors:
+  - family-names: Petkov
+    given-names: Samuil
+date-released: 2026-07-13
+version: 0.1.0
+url: "https://github.com/SamPetkov/Erdos"
+repository-code: "https://github.com/SamPetkov/Erdos"
+license: CC-BY-4.0
+abstract: >-
+  A research dossier presenting a proposed proof for Erdős Problem 625,
+  supporting audits and reproducibility artifacts, and an in-progress Lean 4
+  formalization. The proposed resolution has not yet received external peer
+  review or community acceptance.
+keywords:
+  - Erdős problems
+  - random graphs
+  - chromatic number
+  - cochromatic number
+  - Lean 4
+  - formalization
