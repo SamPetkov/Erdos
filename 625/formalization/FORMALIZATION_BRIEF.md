@@ -1,7 +1,10 @@
 # Confirmed Lean formalization brief
 
-Confirmed by the user on 2026-07-13: proceed brick by brick in Lean, without
-Aristotle.
+Confirmed by the user on 2026-07-13: proceed brick by brick in Lean.  The user
+subsequently authorized Aristotle as an optional proof-search assistant.  Its
+fixed Lean 4.28 output is isolated from the accepted Lean 4.31 project and is
+never imported without local porting, kernel checks, source/axiom gates, and
+independent semantic review; see `ARISTOTLE_WORKFLOW.md`.
 
 ## Full-proof-first release gate
 
