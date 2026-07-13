@@ -28,33 +28,46 @@ and the generated TeX is
 ## Lean formalization
 
 [`formalization/`](formalization/) contains the pinned Lean 4 formalization,
-authored by **Samuil Petkov & ChatGPT 5.6** without Aristotle or another
-external proof-generation service.  Milestone M0 kernel-checks the labelled
-finite-graph model, chromatic and cochromatic invariants, `ζ(G) ≤ χ(G)`, exact
-minimum semantics for `ζ`, induced-set/leftover concatenation, the
-`G(n,1/2)` probability law and its uniform singleton mass, event measurability,
-and the exact full-sequence proposition corresponding to (0.1). Verified
-post-M0 bricks add exact phase and floor arithmetic, adjacent first-moment
-ratios, elementary probability inequalities, the exact independent-set
-expectation and Markov event bounds, and the non-asymptotic setup and eventual
-range facts needed for the endpoint-uniform phase expansion. It now also
-contains explicit finite Taylor/falling-factorial/Robbins bounds and a genuine
-bounded-differences MGF proof on the uniform Boolean cube.
+authored by **Samuil Petkov & ChatGPT 5.6**.  The accepted project is checked
+locally with Lean/mathlib `v4.31.0`; optional Aristotle experiments remain
+quarantined and are not imported.  The verified closure includes the labelled
+finite-graph and `G(n,1/2)` model, chromatic/cochromatic semantics, exact phase
+and independent-set asymptotics, Boolean-cube and variable-block bounded
+differences, induced-capacity amplification bricks, and finite four-support
+entropy/optimizer continuity.
+
+The Section 4 layer now proves the exact unordered profile enumeration and
+first-moment formula (4.2), zero-safe factorial/log-weight bounds, the finite
+`(n+1)^b` aggregate exponential estimate, and exact equivalence with the
+expanded discrete profile objective.  Natural profiles now embed exactly in
+the constrained real profile space, and an abstract variational-envelope
+theorem isolates the still-required concrete `L_+` domination.  A zero-safe
+Gibbs inequality further gives an explicit one-parameter dual domination for
+positive support and part count, without assuming the minimizing tilt, and is
+composed with the sharp shifted finite probability bound.  Its local calculus
+(mean, variance, and strict derivative monotonicity) and the final phase-cap
+squeeze interface are also kernel-checked.  The layer
+also constructs a nonempty kernel
+partition from a coloring, refines it to exactly `k` parts, extracts the
+bounded profile, and proves the deterministic event containment used in
+(4.5), including all zero endpoints.  Finite-space Markov and union bounds
+then give the exact probability reduction and its conditional
+`(n+1)^b exp(L)+μ(n,b+1)` form.
 
 The asymptotic target is deliberately recorded as an **unproved proposition**;
 the current development is a verified partial formalization, not a completed
-Lean proof of the manuscript. The variable-size vertex-block McDiarmid
-transport and the quantitative phase expansion remain explicit open
-obligations; the fair-bit theorem alone does not supply the vertex-block
-variance scale used in Section 10.
+Lean proof of the manuscript.  In Section 4, the continuous `L_+` comparison,
+root/slope estimate, and resulting probability limit remain open; the
+signed first/second-moment, overlap, residual-attachment, and final
+amplification layers also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
-declaration-by-declaration status and remaining dependency graph, and the
-[`M0 audit`](formalization/M0_AUDIT_2026-07-13.md) for reproduced build,
-axiom, semantic, probability, and reproducibility checks.
-The audited post-M0 closure is documented separately in the
-[`M1a/M2 setup audit`](formalization/M1A_M2_SETUP_AUDIT_2026-07-13.md).
-The next imported bricks and their independent cross-audits are recorded in
-the [`M1b/M2 estimates audit`](formalization/M1B_M2_ESTIMATES_AUDIT_2026-07-13.md).
+declaration-by-declaration status and remaining dependency graph.  Reproduced
+milestone evidence is recorded in the audit files under
+[`formalization/`](formalization/); the latest finite Section 4 and dual
+checkpoint is the
+[`M5 audit`](formalization/M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md).  The
+complete dependency/import policy is in
+[`DEPENDENCY_REPRODUCIBILITY.md`](formalization/DEPENDENCY_REPRODUCIBILITY.md).
 
 ## Current status
 
