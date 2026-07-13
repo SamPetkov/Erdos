@@ -10,6 +10,9 @@ checkpoint policy are recorded in [`FORMALIZATION_BRIEF.md`](FORMALIZATION_BRIEF
 The comparison with DeepMind's statement-only Problem 625 draft is recorded in
 [`EXTERNAL_FORMALIZATION_AUDIT.md`](EXTERNAL_FORMALIZATION_AUDIT.md); no code
 was copied and no dependency was added.
+The explicit import, toolchain, transitive lockfile, and reproducible-build policy is
+recorded in
+[`DEPENDENCY_REPRODUCIBILITY.md`](DEPENDENCY_REPRODUCIBILITY.md).
 
 ## Reproducible toolchain
 
@@ -20,7 +23,7 @@ was copied and no dependency was added.
   port and the full repository gates.  See
   [`ARISTOTLE_WORKFLOW.md`](ARISTOTLE_WORKFLOW.md).
 
-Build from this directory with:
+Run the standard cache-assisted build from this directory with:
 
 ```powershell
 lake exe cache get
@@ -63,11 +66,34 @@ colouring of the complement proves the deterministic manuscript inequality
 (10.9).  A generic probability lemma also converts an endpoint seed of mass
 `exp(-Λ)` and a positive-proxy one-sided sub-Gaussian tail into the exact
 endpoint-to-expectation cost `sqrt(2vΛ)`; its graph-specific specialization
-proves `n-E[capacity]≤sqrt((n-1)Λ/2)` for `n≥2`.  The
+proves `n-E[capacity]≤sqrt((n-1)Λ/2)` for `n≥2`.  The matching one-sided
+lower tail now yields the exact (10.8) failure probability `exp(-r)` at the
+additional radius `sqrt((n-1)r/2)`, without a two-sided factor.  The
 finite-support `{2,3,4,5}` exponential family also has kernel-checked mean
 inversion, a zero-safe entropy variational optimizer, and a sharp
 coordinatewise score-stability theorem for the optimized value at each fixed
-interior target.
+interior target, together with an explicit uniform-in-target convergence
+corollary on `(2,5)`.  Joint score-and-target continuity now gives moving-target
+convergence of the unique tilt and all four optimizer coordinates.  On every
+compact subset of `(2,5)`, these convergences are uniform, one index controls
+all four coordinates, and the optimizer is eventually bounded uniformly away
+from zero.
+The finite Section 4 profile foundation now models unordered nonempty colour
+classes as `Finpartition`s, proves their exact internal-edge count and fixed-
+partition probability, and derives the exact first moment as the actual number
+of profile partitions times its energy factor.  The enumeration layer proves
+the exact factorial decoration count, maps every decorated partition to a canonical slot
+equivalence, and reconstructs from every slot equivalence the correct profile
+partition, labels, and within-part orders.  Coordinate recovery proves the
+forgetful map both injective and surjective, so these constructions are now an
+actual total equivalence.  The exact unordered factorial cardinality formula
+and the displayed first-moment formula (4.2) are consequently proved under
+the necessary mass equation, without assuming a counting interpretation from
+mathlib.  All mass-`n`, exactly-`k`, size-bounded profiles are also collected
+in a finite coordinate box, their number is at most `(n+1)^b`, and the
+aggregate expectation is proved to be exactly the sum of the per-profile
+expectations.  The uniform Stirling/variational estimate (4.3) is not yet
+claimed.
 
 The early reproduced build, source, axiom, and independent statement checks
 are recorded in
@@ -79,6 +105,9 @@ The current declaration-by-declaration hashes and remaining obligations are
 kept in the formalization ledger.  The combined phase, vertex-block, capacity,
 and rare-seed checkpoint is reproduced in
 [`M3_PHASE_BLOCK_AMPLIFICATION_AUDIT_2026-07-13.md`](M3_PHASE_BLOCK_AMPLIFICATION_AUDIT_2026-07-13.md).
+The compact-uniform profile, exact (10.8), complete finite enumeration and
+first-moment formula (4.2), and finite aggregation checkpoint is reproduced in
+[`M4_PROFILE_SECTION4_AUDIT_2026-07-13.md`](M4_PROFILE_SECTION4_AUDIT_2026-07-13.md).
 
 The difficult profile-root, unrestricted chromatic lower-location,
 signed-moment/overlap, residual-attachment, and complete amplification layers

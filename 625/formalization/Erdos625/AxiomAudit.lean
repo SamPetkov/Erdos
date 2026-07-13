@@ -7,6 +7,7 @@ import Erdos625.VertexBlockExpectation
 import Erdos625.InducedCochromaticCapacity
 import Erdos625.CochromaticAmplification
 import Erdos625.CochromaticSeedGap
+import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -14,6 +15,14 @@ import Erdos625.PhaseConsequences
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
+import Erdos625.ProfileValueUniformS4
+import Erdos625.ProfileOptimizerContinuityS4
+import Erdos625.ProfileOptimizerUniformS4
+import Erdos625.ColoringProfileFirstMoment
+import Erdos625.ColoringProfileEnumeration
+import Erdos625.ColoringProfileEnumerationInverse
+import Erdos625.ColoringProfileEnumerationInjective
+import Erdos625.ColoringProfileAggregation
 import Erdos625.ProbabilityTools
 
 /-!
@@ -102,6 +111,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cochromaticVarianceProxy_pos
 #print axioms Erdos625.cochromaticSeedGap_le
 #print axioms Erdos625.cochromaticSeedGap_le_simplified
+#print axioms Erdos625.randomGraph_cochromaticInducedCapacity_lowerTail
+#print axioms Erdos625.randomGraph_cochromaticInducedCapacity_failureProbability_le
+#print axioms Erdos625.randomGraph_cochromaticInducedCapacity_strictFailureProbability_le
 #print axioms Erdos625.ProfileEntropyS4.sum_weight
 #print axioms Erdos625.ProfileEntropyS4.hasDerivAt_mean
 #print axioms Erdos625.ProfileEntropyS4.variance_pos
@@ -116,3 +128,41 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.sum_mul_sub_sum_mul_le
 #print axioms Erdos625.ProfileEntropyS4.abs_optimizedValue_sub_optimizedValue_le
 #print axioms Erdos625.ProfileEntropyS4.tendsto_optimizedValue_of_uniform_scores
+#print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizedValue_of_uniform_scores
+#print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizedValue_on_Ioo_of_uniform_scores
+#print axioms Erdos625.ProfileEntropyS4.tendsto_mean_of_scores_and_parameter
+#print axioms Erdos625.ProfileEntropyS4.tendsto_tilt_of_scores_and_target
+#print axioms Erdos625.ProfileEntropyS4.tendsto_optimizer_of_scores_and_target
+#print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_tilt_of_uniform_scores
+#print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
+#print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
+#print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
+#print axioms Erdos625.ColoringProfile.prod_factorial_count_sizes
+#print axioms Erdos625.ColoringProfile.enumerativeCoefficient_mul_coordinateDenominator_eq
+#print axioms Erdos625.ProfilePartition.ncard_partitionInternalGraph
+#print axioms Erdos625.randomGraphMeasure_partitionColoringEvent
+#print axioms Erdos625.profileColoringExpectation_eq_card_mul
+#print axioms Erdos625.profileColoringExpectation_eq_formula_of_mass
+#print axioms Erdos625.profileColoringExpectation_eq_zero_of_vertexMass_ne
+#print axioms Erdos625.card_shapeSlot
+#print axioms Erdos625.card_profileDecoration
+#print axioms Erdos625.decoratedProfileInv_map
+#print axioms Erdos625.shapeBlockIndexEquivKernelParts
+#print axioms Erdos625.card_slotBlockPart
+#print axioms Erdos625.partitionShape_slotKernelPartition
+#print axioms Erdos625.profileEnumerationStatement_of_decorationBijection
+#print axioms Erdos625.decoratedProfileEquiv_slotProfileDecoration
+#print axioms Erdos625.slotKernelPartition_decoratedProfileEquiv
+#print axioms Erdos625.profileDecoration_eq_of_equiv_eq
+#print axioms Erdos625.totalProfileDecorationMap_injective
+#print axioms Erdos625.totalProfileDecorationMap_surjective
+#print axioms Erdos625.totalProfileDecorationEquiv
+#print axioms Erdos625.profileDecorationBijectionStatement
+#print axioms Erdos625.profileEnumerationStatement
+#print axioms Erdos625.profileColoringExpectation_eq_formula
+#print axioms Erdos625.ColoringProfile.coordinate_le_vertexMass
+#print axioms Erdos625.mem_coloringProfileBox_of_vertexMass_eq
+#print axioms Erdos625.card_coloringProfileBox
+#print axioms Erdos625.mem_boundedColoringProfiles
+#print axioms Erdos625.card_boundedColoringProfiles_le
+#print axioms Erdos625.boundedProfileColoringExpectation_eq_sum
