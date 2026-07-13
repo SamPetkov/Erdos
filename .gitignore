@@ -14,6 +14,7 @@
 !625/output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
 
 # Generated caches and editor/OS files.
+/625/formalization/.lake/
 __pycache__/
 *.py[cod]
 .DS_Store

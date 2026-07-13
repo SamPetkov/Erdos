@@ -25,6 +25,23 @@ and the generated TeX is
 
 <p align="center"><em>A selected, exactly solved 12-vertex illustration. Click for MP4. The seed was chosen to explain the two partitions; it is not representative, statistical, or asymptotic proof evidence.</em></p>
 
+## Lean formalization
+
+[`formalization/`](formalization/) contains the pinned Lean 4 formalization,
+authored by **Samuil Petkov & ChatGPT 5.6** without Aristotle or another
+external proof-generation service.  Milestone M0 kernel-checks the labelled
+finite-graph model, chromatic and cochromatic invariants, `ζ(G) ≤ χ(G)`, exact
+minimum semantics for `ζ`, induced-set/leftover concatenation, the
+`G(n,1/2)` probability law and its uniform singleton mass, event measurability,
+and the exact full-sequence proposition corresponding to (0.1).
+
+The asymptotic target is deliberately recorded as an **unproved proposition**;
+M0 is a verified foundation, not a completed Lean proof of the manuscript.
+See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
+declaration-by-declaration status and remaining dependency graph, and the
+[`M0 audit`](formalization/M0_AUDIT_2026-07-13.md) for reproduced build,
+axiom, semantic, probability, and reproducibility checks.
+
 ## Current status
 
 `proofs/COMPLETE_PROOF_SELF_CONTAINED.md` contains a proposed all-`n` positive

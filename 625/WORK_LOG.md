@@ -185,3 +185,12 @@
   dossier text and scripts, and rebuilt the current 65-file complete archive.
   Its aggregate checksum is kept outside the archive in
   `releases/SHA256SUMS.txt`.
+- Began the confirmed brick-by-brick Lean 4 formalization without Aristotle.
+  Milestone M0 pins Lean/mathlib, formalizes finite labelled graphs, chromatic
+  and cochromatic invariants, exact minimum semantics, `ζ≤χ`, induced-set and
+  leftover gluing, the exact `G(n,1/2)` law, uniform singleton mass, event
+  measurability, and the full-sequence target proposition.  `lake build
+  --wfail` succeeds with no placeholder or project axiom; independent graph,
+  probability, and reproducibility reviews returned PASS.  The target remains
+  explicitly unproved, and the remaining dependency graph is recorded in
+  `formalization/FORMALIZATION_LEDGER.md`.

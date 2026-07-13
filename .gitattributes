@@ -1,9 +1,15 @@
 # Keep checksum-referenced publication text byte-stable across platforms.
 .gitattributes text eol=lf
+.gitignore text eol=lf
 README.md text eol=lf
 625/*.md text eol=lf
 625/**/*.md text eol=lf
 625/**/*.py text eol=lf
+625/**/*.lean text eol=lf
+625/**/lakefile.toml text eol=lf
+625/**/lake-manifest.json text eol=lf
+625/**/lean-toolchain text eol=lf
+.github/workflows/*.yml text eol=lf
 625/proofs/COMPLETE_PROOF_SELF_CONTAINED.md text eol=lf
 625/verification/erdos625_verification_report.md text eol=lf
 625/verification/erdos625_independent_checks.py text eol=lf
