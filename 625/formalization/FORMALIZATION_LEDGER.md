@@ -36,15 +36,51 @@ the candidate manuscript.  Its manuscript anchor is
 | `Erdos625Statement` | (0.1) | defined, **unproved** | Exact full-sequence convergence of the displayed event probability to one. |
 | `erdos625Statement_iff_real` | (0.1) | proved | The `ENNReal` target is equivalent to the manuscript's real-valued probability limit. |
 
+## Verified post-M0 bricks
+
+These declarations have passed direct warning-free compilation, placeholder
+and project-axiom scans, representative `#print axioms` checks, and independent
+statement audits. They do not by themselves prove Lemma 2.1 or the final
+target.
+
+| Lean declaration | Manuscript anchor | Status | Meaning |
+|---|---|---:|---|
+| `q`, `logOrder`, `logLogOrder`, `logBaseTwo`, `alphaZero`, `phaseInt`, `phaseNat`, `phaseDelta` | (2.1) | defined | Exact phase quantities, with integer and natural floor semantics kept separate. |
+| `phaseDelta_mem_Ico`, `phaseNat_cast_real` | (2.1) | proved | `0 ≤ δ < 1`; the guarded natural phase equals the integer floor. |
+| `mu`, `mu_succ_div_identity`, `mu_pred_div_identity` | (1.2), (2.8) | defined; exact ratios proved | Real first moment and both adjacent-size identities, including explicit denominator hypotheses. |
+| `markov_measureReal_le` | (1.4) first-moment use | proved | Real Markov inequality with AE nonnegativity and integrability hypotheses. |
+| `paleyZygmund_zero` | (1.5) | proved | Zero-threshold Paley--Zygmund in `ENNReal`, including zero/infinite second-moment cases. |
+| `subgaussian_two_sided`, `mcdiarmid_two_sided_of_subgaussian` | analytic tail core for (1.4) | proved **conditional on a sub-Gaussian MGF** | The constants are exact once the centered variable has variance proxy `r/4`; the independent-block-to-MGF bridge remains open. |
+| `binomialHalf_lowerQuarter_le_exp` | (1.6) | proved | Exact lower-quarter tail for mathlib's real-valued `Bin(m,1/2)`, with bound `exp(-m/16)`. |
+| `randomGraphMeasure_independentEvent` | (1.2) | proved | A fixed labelled `s`-set is independent with probability `2^{-choose(s,2)}`. |
+| `independentSetExpectation_eq`, `independentSetExpectation_eq_ofReal_mu` | (1.2) | proved | Exact finite expectation and exact bridge to `ENNReal.ofReal (mu n s)`. |
+| `independentSetCount_pos_iff_le_indepNum` | first-moment semantics | proved | Positive count is equivalent to `s ≤ G.indepNum`, including `s=0` and `s>n`. |
+| `randomGraphMeasure_independenceNumberExceeds_le_mu_succ` | Markov step toward (2.9) | proved | Sharp shifted bound `P(α(G)>s) ≤ μ_{s+1}`. |
+| `phaseC`, `phaseS`, `phaseB`, `phaseK` | (2.5)--(2.7) setup | defined | Exact constants and endpoint-uniform phase offset. |
+| `alphaZero_eq_two_phaseS_div_q_add_one`, `phaseNat_cast_eq_two_phaseS_div_q_add_phaseB` | algebra before (2.5) | proved | Exact non-asymptotic normal forms for `α₀` and the guarded natural phase. |
+| `continuous_phaseK`, `exists_phaseK_abs_bound` | (2.7) | proved | `K` is continuous and uniformly bounded on the full closed phase interval `[0,1]`. |
+| `eventually_phaseRangeDomain` | finite-index bookkeeping for §2 | proved | Eventually `PhaseDomain n`, `2 ≤ phaseNat n`, and `phaseNat n + 2 ≤ n`, without using Lemma 2.1. |
+| `phaseNat_isEquivalent_scaled_logOrder`, `eventually_two_mul_phaseNat_le` | range control before (2.5) | proved | The guarded integer phase is asymptotic to `(2/q) log n`; eventually two phase-sized blocks fit inside `n`. |
+| `log_descFactorial_linear_error_le` | falling-factorial part of (2.5) | proved | Under `2s ≤ n`, the exact logarithmic linearization error is at most `2s³/n²`. |
+| `stirlingLogRemainder_mem_Icc` | (1.3), factorial part of (2.5) | proved | For every positive integer `s`, the exact Robbins remainder lies in `[0,1/(12s)]`. |
+| `cubeMean_exp_center_le`, `boundedDifferences_hasSubgaussianMGF` | fair-bit case of (1.4) | proved | Coordinate oscillation on the uniform finite Boolean cube implies the centered MGF bound with exact proxy `Σcᵢ²/4`; no MGF premise is assumed. |
+| `integral_boolCubePMF_eq_cubeMean`, `boundedDifferences_twoSidedTail` | fair-bit measure bridge and tail | proved | Recursive cube averaging is the actual uniform-PMF expectation, giving the exact two-sided fair-bit tail. |
+
 ## Remaining proof dependency graph
 
 The following items are open.  Names here are work-package labels, not hidden
 Lean axioms or claimed theorems.
 
-1. Exact finite probability identities and elementary inequalities used in §1.
-2. Independence-number phase expansion, including endpoint-uniform errors
-   (Lemma 2.1).
-3. Existence, uniqueness, derivative bounds, and support comparison for the
+1. Generalize the proved fair-bit bounded-differences bridge to the manuscript's
+   arbitrary finite block coordinates, transport the vertex-block exposure of
+   `G(n,1/2)` to that product law, and prove the induced-set statistic's
+   one-block oscillation. Flattening a vertex block into individual bits is
+   not sufficient because it loses the required variance scale.
+2. Assemble the now-proved quantitative falling-factorial,
+   Robbins/Stirling, and logarithmic Taylor estimates into endpoint-uniform
+   (2.5), (2.6), and (2.2), and derive (2.3), (2.4), and the probability
+   limit (2.9).
+3. Prove existence, uniqueness, derivative bounds, and support comparison for the
    continuous profile roots (Lemma 3.1).  Roots will not be introduced by
    choice until existence and uniqueness are proved.
 4. The unrestricted chromatic lower-location argument (§4).
@@ -81,6 +117,8 @@ quantifier, endpoint, and uniform error term must be explicit.
 
 ## Next checkpoint
 
-After M0 is audited and published, the next brick is the exact finite
-combinatorics/probability layer supporting §1 and the phase definitions in §2.
-The user checkpoint is required before beginning the phase-asymptotic campaign.
+The user has confirmed the full-proof-first campaign. The next technical
+checkpoint is completion of the genuine bounded-differences bridge and the
+quantified endpoint-uniform phase expansion. The private arXiv package remains
+paused until `Erdos625Statement` itself is proved and the final kernel/source
+audit passes.

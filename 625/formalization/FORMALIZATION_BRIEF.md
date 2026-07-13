@@ -3,6 +3,16 @@
 Confirmed by the user on 2026-07-13: proceed brick by brick in Lean, without
 Aristotle.
 
+## Full-proof-first release gate
+
+After the audited M0 milestone, the user confirmed on 2026-07-13 that the
+private arXiv manuscript must remain paused until the complete theorem has
+been formalized.  Manuscript generation may resume only after
+`Erdos625Statement` is proved, the full project builds with `--wfail`, source
+scans find no `sorry`, `admit`, or project-defined axiom, and the public final
+theorem passes the tracked `#print axioms` audit.  Intermediate milestones are
+research artifacts, not an arXiv-readiness claim.
+
 ## Exact question and deliverable
 
 Translate the candidate proof of manuscript equation (0.1) into a reproducible

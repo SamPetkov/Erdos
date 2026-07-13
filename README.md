@@ -1,5 +1,7 @@
 # Erdős problem research
 
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 <p align="center">
   <a href="625/">
     <img src="625/assets/erdos625-preview.png" alt="Schematic overview of Erdős Problem 625, its graph parameters, and the proposed lower bound" width="1100">
@@ -44,3 +46,16 @@ The Problem 625 argument is new and has not yet undergone external peer
 review, publication, or community acceptance.  The repository presents the
 proof and its internal checks for expert scrutiny; it does not claim an
 official change to the problem's published status.
+
+## Citation and license
+
+Original repository material is licensed under
+[Creative Commons Attribution 4.0 International](LICENSE). When the license
+requires attribution, credit **Samuil Petkov**, link to this repository when
+reasonably practicable, identify CC BY 4.0, and state whether changes were
+made. Scholarly users are also asked to cite the project using
+[`CITATION.cff`](CITATION.cff).
+
+See [`LICENSE_SCOPE.md`](LICENSE_SCOPE.md) for a ready-to-use attribution and
+the exclusions for third-party literature, source scans, dependencies, and
+files carrying their own notices.

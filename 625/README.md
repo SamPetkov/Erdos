@@ -33,14 +33,28 @@ external proof-generation service.  Milestone M0 kernel-checks the labelled
 finite-graph model, chromatic and cochromatic invariants, `ζ(G) ≤ χ(G)`, exact
 minimum semantics for `ζ`, induced-set/leftover concatenation, the
 `G(n,1/2)` probability law and its uniform singleton mass, event measurability,
-and the exact full-sequence proposition corresponding to (0.1).
+and the exact full-sequence proposition corresponding to (0.1). Verified
+post-M0 bricks add exact phase and floor arithmetic, adjacent first-moment
+ratios, elementary probability inequalities, the exact independent-set
+expectation and Markov event bounds, and the non-asymptotic setup and eventual
+range facts needed for the endpoint-uniform phase expansion. It now also
+contains explicit finite Taylor/falling-factorial/Robbins bounds and a genuine
+bounded-differences MGF proof on the uniform Boolean cube.
 
 The asymptotic target is deliberately recorded as an **unproved proposition**;
-M0 is a verified foundation, not a completed Lean proof of the manuscript.
+the current development is a verified partial formalization, not a completed
+Lean proof of the manuscript. The variable-size vertex-block McDiarmid
+transport and the quantitative phase expansion remain explicit open
+obligations; the fair-bit theorem alone does not supply the vertex-block
+variance scale used in Section 10.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
 declaration-by-declaration status and remaining dependency graph, and the
 [`M0 audit`](formalization/M0_AUDIT_2026-07-13.md) for reproduced build,
 axiom, semantic, probability, and reproducibility checks.
+The audited post-M0 closure is documented separately in the
+[`M1a/M2 setup audit`](formalization/M1A_M2_SETUP_AUDIT_2026-07-13.md).
+The next imported bricks and their independent cross-audits are recorded in
+the [`M1b/M2 estimates audit`](formalization/M1B_M2_ESTIMATES_AUDIT_2026-07-13.md).
 
 ## Current status
 
@@ -190,3 +204,11 @@ failed routes, redirections, and precise remaining status.
 adversarial repairs and regression results, the additional user-supplied
 verification, reproducibility and publication checks, final hashes, and the
 completed historical-source audit.
+
+## Citation and license
+
+The original repository material is licensed under
+[CC BY 4.0](../LICENSE). When the license requires attribution, credit
+**Samuil Petkov** and follow the repository-level
+[scope and attribution notice](../LICENSE_SCOPE.md). Scholarly citation
+metadata are provided in [`CITATION.cff`](../CITATION.cff).
