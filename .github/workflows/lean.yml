@@ -1,0 +1,38 @@
+name: Lean
+
+on:
+  push:
+    paths:
+      - "625/formalization/**"
+      - ".github/workflows/lean.yml"
+  pull_request:
+    paths:
+      - "625/formalization/**"
+      - ".github/workflows/lean.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject proof placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -RInE --include='*.lean' \
+            '(^|[[:space:]])(sorry|admit)([[:space:]]|$)|^[[:space:]]*axiom[[:space:]]' \
+            625/formalization; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
