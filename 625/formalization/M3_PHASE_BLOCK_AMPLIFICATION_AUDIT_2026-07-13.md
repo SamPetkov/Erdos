@@ -19,11 +19,16 @@ This milestone closes three previously explicit infrastructure gaps:
    maximizing core, deterministic leftover inequality (10.9), generic
    rare-seed inversion, and graph-specific expectation bound (10.7).
 
+The subsequent audited extension also closes the exact one-sided lower-tail
+assembly (10.8).
+
 It also records the finite four-support mean inversion, zero-safe entropy
 optimizer, and fixed-target value stability used as infrastructure for
-Lemma 3.1.  The continuous profile roots,
+Lemma 3.1.  A subsequent audited extension proves joint score/target
+continuity of the unique tilt and optimizer, compact-uniform convergence, and
+eventual compact-uniform positivity.  The continuous profile roots,
 overlap estimates, residual attachment, simultaneous leftover-colouring event,
-lower-tail step (10.8), and final theorem remain open.
+and final theorem remain open.
 
 ## Pinned accepted source
 
@@ -38,13 +43,19 @@ lower-tail step (10.8), and final theorem remain open.
 | `CochromaticAmplification.lean` | 93 | `17732D8062DA47E07DA8A509008F0B3319096285ECFDC150091CF1469F086B3F` |
 | `RareSeedInversion.lean` | 133 | `0C96BD24777698D2EF7AEEB3D712E4CFEEFAC8016FA8E9D32B75DD0BB63C967F` |
 | `CochromaticSeedGap.lean` | 102 | `66D847C2DF2BFF38826D67E071B3CA1EDA052528508D734AB50276EBD3EBCB7D` |
+| `CochromaticCapacityLowerTail.lean` | 171 | `1252116F7474370EFE40B5538B5AFE9A75DC0ECE1DE2468BA974D6E23F4DF9FE` |
 | `ProfileEntropyS4.lean` | 397 | `1B55E8BAC87D5BAFEF2D46BB479B0D7828740FD0FA64A6360EA375C10A236B62` |
 | `ProfileOptimizerS4.lean` | 197 | `23300A989FD1EC236402EB02535DE775DA1290D42F9639EEB08DBF5AC930F3CE` |
 | `ProfileValueStabilityS4.lean` | 126 | `A6487FECE04718D81D2685E13071F598B27AEB1F0C143812009E93664F6F9803` |
+| `ProfileValueUniformS4.lean` | 54 | `F714518B663A0CCA1BE9820348B5D1CD04CA2B903CE2DE0FBD5C64B8EAD6C3B7` |
+| `ProfileOptimizerContinuityS4.lean` | 174 | `CDA02F1B2195E9C0B32C527C36FAC82BFEC5CF3B47590BE93CD6DA00648A21E7` |
+| `ProfileOptimizerUniformS4.lean` | 242 | `313CBC9DB688823A93EC7113AC2828796420974F6F27FF7E91A768F201638E22` |
 
 ## Reproduced gates
 
-- `lake build --wfail`: **PASS**, 3,694 jobs.
+- `lake build --wfail`: **PASS**, 3,694 jobs at the original M3 pin.  Later
+  profile-layer extensions are certified by the M4 audit rather than being
+  retroactively folded into this historical build count.
 - Recursive Lean source gate for `sorry`, `admit`, `sorryAx`, project
   `axiom`/`constant` declarations, and `unsafe`: **PASS**.
 - Tracked representative `#print axioms` audit: **PASS**.  Public results use
@@ -70,8 +81,22 @@ error compilation, source and axiom gates, and the pinned hash.
 The four-support value-stability review additionally checked both
 cross-evaluation inequality directions, zero-coordinate compatibility,
 coordinatewise sup bounds, and the fixed-`T` quantifier on the convergence
-corollary.  It does not promote that corollary to compact-uniform convergence
-in `T`.
+corollary.  A subsequent audited corollary uses the target-independent
+constant to give one eventual index simultaneously for every `T∈(2,5)`.
+Those value-only results do not themselves claim uniform convergence of tilts
+or optimizer coordinates.  The separately audited continuity modules do:
+inverse trapping handles moving targets without an a priori tilt bound;
+Heine--Cantor gives genuine compact-uniform tilt convergence; a finite-index
+maximum gives one index for all four optimizer coordinates; and minimizing the
+positive limiting optimizer on the compact product gives the eventual uniform
+positive lower bound, including the empty-compact-set case.
+
+The (10.8) review independently checked the negated-MGF tail direction, the
+actual random-graph expectation center, the `(n-1)/4` proxy, the endpoint-gap
+substitution from (10.7), the exact square-root exponent reduction to `-r`,
+and both strict and non-strict event inclusions.  Direct warning-as-error
+compilation, the module build, source gate, and all three representative axiom
+prints passed for the pinned source above.
 
 The zero-proxy cases `n=0,1` are deliberately not passed through the positive-
 variance rare-seed inversion.  The concentration statements themselves remain
@@ -90,7 +115,7 @@ details and CLI reproduction commands are in `ARISTOTLE_WORKFLOW.md`.
 
 ## Status after M3
 
-This milestone materially advances Lemma 10.2 but does not complete it: (10.7)
-and (10.9) are formalized, while the lower-tail assembly (10.8), the uniform
-leftover-colouring Lemma 10.1, and their final intersection remain open.  The
+This milestone materially advances Lemma 10.2 but does not complete it:
+(10.7), (10.8), and (10.9) are formalized, while the uniform leftover-colouring
+Lemma 10.1 and the final intersection remain open.  The
 private arXiv package therefore remains frozen under the full-proof-first gate.
