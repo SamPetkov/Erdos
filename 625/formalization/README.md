@@ -15,7 +15,10 @@ was copied and no dependency was added.
 
 - Lean: `v4.31.0`
 - mathlib: `v4.31.0`
-- Aristotle or other external proof-generation services: **not used**
+- Aristotle: optional isolated proof search on its fixed Lean `v4.28.0`
+  service toolchain; no returned file is accepted without a local Lean 4.31
+  port and the full repository gates.  See
+  [`ARISTOTLE_WORKFLOW.md`](ARISTOTLE_WORKFLOW.md).
 
 Build from this directory with:
 
@@ -45,29 +48,42 @@ and uniform singleton mass, event measurability, and the full-sequence target
 proposition. The independent M0 results are in
 [`M0_AUDIT_2026-07-13.md`](M0_AUDIT_2026-07-13.md).
 
-The verified post-M0 bricks now add exact phase/floor arithmetic and adjacent
-first-moment ratios (`Phase.lean`), Markov and Paley--Zygmund, the analytic
-sub-Gaussian tail core, and the exact binomial lower tail
-(`ProbabilityTools.lean`), the complete finite independent-set first-moment
-calculation and Markov event bounds (`IndependentSets.lean`), and the exact
-constants, endpoint bounds, and eventual finite-index range needed before the
-phase expansion (`PhaseExpansion.lean`), plus explicit Taylor,
-falling-factorial, and two-sided Robbins/Stirling estimates
-(`PhaseEstimates.lean`). `BoundedDifferences.lean` proves, by finite induction,
-the centered MGF and exact one-/two-sided tails for coordinate-Lipschitz
-functions on the uniform Boolean cube; it does not assume a conditional MGF.
-Their reproduced build, source, axiom, and independent statement checks are
-recorded in
+The verified post-M0 bricks now include exact phase/floor arithmetic and
+adjacent first-moment ratios; Markov, Paley--Zygmund, and binomial-tail tools;
+the complete finite independent-set first moment; the endpoint-uniform phase
+expansion and its genuine consequences (2.3), (2.4), and (2.9); and exact
+Boolean-cube and arbitrary finite-block bounded differences.  The uniform
+vertex-block product law is proved equivalent to `G(n,1/2)`, including event
+and expectation transport.  The largest induced `k`-cocolourable subgraph is
+defined, shown one-vertex Lipschitz, characterized at full capacity, and given
+one- and two-sided graph-law tails with the `(n-1)/4` block profile.  The
+capacity maximum is attained by an explicit induced core whose complement has
+exact size `n-capacity`; concatenating its cocolouring with an ordinary
+colouring of the complement proves the deterministic manuscript inequality
+(10.9).  A generic probability lemma also converts an endpoint seed of mass
+`exp(-Λ)` and a positive-proxy one-sided sub-Gaussian tail into the exact
+endpoint-to-expectation cost `sqrt(2vΛ)`; its graph-specific specialization
+proves `n-E[capacity]≤sqrt((n-1)Λ/2)` for `n≥2`.  The
+finite-support `{2,3,4,5}` exponential family also has kernel-checked mean
+inversion, a zero-safe entropy variational optimizer, and a sharp
+coordinatewise score-stability theorem for the optimized value at each fixed
+interior target.
+
+The early reproduced build, source, axiom, and independent statement checks
+are recorded in
 [`M1A_M2_SETUP_AUDIT_2026-07-13.md`](M1A_M2_SETUP_AUDIT_2026-07-13.md).
 The subsequent cross-audit of the Boolean-cube bounded-differences theorem
 and the explicit phase estimates is in
 [`M1B_M2_ESTIMATES_AUDIT_2026-07-13.md`](M1B_M2_ESTIMATES_AUDIT_2026-07-13.md).
+The current declaration-by-declaration hashes and remaining obligations are
+kept in the formalization ledger.  The combined phase, vertex-block, capacity,
+and rare-seed checkpoint is reproduced in
+[`M3_PHASE_BLOCK_AMPLIFICATION_AUDIT_2026-07-13.md`](M3_PHASE_BLOCK_AMPLIFICATION_AUDIT_2026-07-13.md).
 
-Two limitations are deliberate and blocking: the fair-bit theorem has not yet
-been generalized and transported to the manuscript's variable-size
-independent vertex blocks, and the quantitative assembly (2.5), (2.6), and
-(2.2) has not yet been proved. The project does
-**not** claim Lemma 2.1 or `Erdos625Statement`. The
+The difficult profile-root, unrestricted chromatic lower-location,
+signed-moment/overlap, residual-attachment, and complete amplification layers
+remain open.  The project therefore does **not** claim Lemma 2.1 or
+`Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
 declaration-by-declaration status record.
 

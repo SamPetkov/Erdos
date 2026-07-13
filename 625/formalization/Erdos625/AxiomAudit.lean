@@ -1,7 +1,19 @@
 import Erdos625.IndependentSets
 import Erdos625.BoundedDifferences
+import Erdos625.BlockBoundedDifferences
+import Erdos625.RareSeedInversion
+import Erdos625.VertexBlockGraph
+import Erdos625.VertexBlockExpectation
+import Erdos625.InducedCochromaticCapacity
+import Erdos625.CochromaticAmplification
+import Erdos625.CochromaticSeedGap
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
+import Erdos625.PhaseAsymptotic
+import Erdos625.PhaseConsequences
+import Erdos625.ProfileEntropyS4
+import Erdos625.ProfileOptimizerS4
+import Erdos625.ProfileValueStabilityS4
 import Erdos625.ProbabilityTools
 
 /-!
@@ -42,7 +54,65 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_two_mul_phaseNat_le
 #print axioms Erdos625.log_descFactorial_linear_error_le
 #print axioms Erdos625.stirlingLogRemainder_mem_Icc
+#print axioms Erdos625.log_mu_sub_phaseStirlingMain_abs_le
+#print axioms Erdos625.phaseBracket_sub_main_abs_le
+#print axioms Erdos625.phaseBracket_sub_main_isBigO
+#print axioms Erdos625.phaseStirlingResidual_isBigO_inv_logOrder
+#print axioms Erdos625.phaseMain_algebra_identity
+#print axioms Erdos625.phaseExpansionResidual_isBigO
+#print axioms Erdos625.log_mu_phaseNat_add_two_div_logOrder_sub_phaseDelta_add_two_tendsto_zero
+#print axioms Erdos625.mu_phaseNat_add_two_tendsto_zero
+#print axioms Erdos625.exists_pos_eventually_mu_phaseNat_sub_two_lower_bound
+#print axioms Erdos625.randomGraphMeasure_independenceNumberExceeds_phaseNat_add_one_tendsto_zero
 #print axioms Erdos625.cubeMean_exp_center_le
 #print axioms Erdos625.integral_boolCubePMF_eq_cubeMean
 #print axioms Erdos625.boundedDifferences_hasSubgaussianMGF
 #print axioms Erdos625.boundedDifferences_twoSidedTail
+#print axioms Erdos625.blockMean_succ
+#print axioms Erdos625.integral_blockUniformPMF_eq_blockMean
+#print axioms Erdos625.blockMean_exp_center_le
+#print axioms Erdos625.blockBoundedDifferences_hasSubgaussianMGF
+#print axioms Erdos625.blockBoundedDifferences_twoSidedTail
+#print axioms Erdos625.blockBoundedDifferences_hasSubgaussianMGF_zero
+#print axioms Erdos625.gap_le_sqrt_two_mul_of_exp_neg_le_exp_neg_sq_div
+#print axioms Erdos625.integral_le_const_of_ae_le
+#print axioms Erdos625.measureReal_levelSet_le_centeredUpperTail
+#print axioms Erdos625.rareSeed_gap_le
+#print axioms Erdos625.rareSeed_gap_le_of_hasSubgaussianMGF
+#print axioms Erdos625.vertexBlocksEquiv
+#print axioms Erdos625.card_vertexBlocks
+#print axioms Erdos625.map_vertexBlockMeasure_eq_randomGraphMeasure
+#print axioms Erdos625.blocksToGraph_induce_away_eq
+#print axioms Erdos625.randomGraph_vertexBlock_twoSidedTail
+#print axioms Erdos625.integral_randomGraphMeasure_eq_randomGraphBlockExpectation
+#print axioms Erdos625.CoColoring.pullback
+#print axioms Erdos625.cochromaticInducedCapacity_eq_card_iff
+#print axioms Erdos625.cochromaticInducedCapacity_le_add_one_of_induce_away_eq
+#print axioms Erdos625.cochromaticInducedCapacity_hasBlockOscillation
+#print axioms Erdos625.blockVariance_noninitialUnitOscillation
+#print axioms Erdos625.randomGraph_cochromaticInducedCapacity_upperTail
+#print axioms Erdos625.randomGraph_cochromaticInducedCapacity_twoSidedTail
+#print axioms Erdos625.exists_cochromaticInducedCapacity_witness
+#print axioms Erdos625.capacity_witness_compl_card
+#print axioms Erdos625.cochromaticNumber_le_add_chromaticNumber_compl
+#print axioms Erdos625.exists_capacity_witness_with_compl_bound
+#print axioms Erdos625.measurable_cochromaticInducedCapacity_real
+#print axioms Erdos625.integrable_cochromaticInducedCapacity_real
+#print axioms Erdos625.cochromaticInducedCapacity_levelSet_eq
+#print axioms Erdos625.cochromaticVarianceProxy_pos
+#print axioms Erdos625.cochromaticSeedGap_le
+#print axioms Erdos625.cochromaticSeedGap_le_simplified
+#print axioms Erdos625.ProfileEntropyS4.sum_weight
+#print axioms Erdos625.ProfileEntropyS4.hasDerivAt_mean
+#print axioms Erdos625.ProfileEntropyS4.variance_pos
+#print axioms Erdos625.ProfileEntropyS4.strictMono_mean
+#print axioms Erdos625.ProfileEntropyS4.tendsto_mean_atBot
+#print axioms Erdos625.ProfileEntropyS4.tendsto_mean_atTop
+#print axioms Erdos625.ProfileEntropyS4.existsUnique_mean_eq_of_mem_Ioo
+#print axioms Erdos625.ProfileEntropyS4.mean_tilt_eq
+#print axioms Erdos625.ProfileEntropyS4.optimizer_isFeasible
+#print axioms Erdos625.ProfileEntropyS4.entropy_score_le_log_partition_sub_tilt_mul_target
+#print axioms Erdos625.ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target
+#print axioms Erdos625.ProfileEntropyS4.sum_mul_sub_sum_mul_le
+#print axioms Erdos625.ProfileEntropyS4.abs_optimizedValue_sub_optimizedValue_le
+#print axioms Erdos625.ProfileEntropyS4.tendsto_optimizedValue_of_uniform_scores
