@@ -1,11 +1,20 @@
 # Erdős Problem 625: proposed complete proof
 
-**Internal audit status (2026-07-12).**  Four independent full-chain
-reconstructions (`FULL_PROOF_AUDIT_1.md` through `_4.md`) returned
-PASS after two uniformity/accounting statements and the finite-`n` optimizer
-wording were repaired.  No substantive gap was found.  This is nevertheless
-a new proposed resolution, not a claim of external peer review, publication,
-priority, or acceptance by the mathematical community.
+**Synchronized internal-audit status (2026-07-13).**  This concise draft is
+now synchronized with the repaired canonical manuscript
+`COMPLETE_PROOF_SELF_CONTAINED.md` and the independent regression record
+`../audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`.  In particular, it includes
+the uniform root corridor, the raw/effective multiplier and signed-rounding
+conventions, the conditioned global high-skeleton sum, the one-sided residual
+attachment bound, and the deterministic amplification error sequence.  The
+four 2026-07-12 full-chain reconstructions retain their historical PASS
+verdicts for the earlier bytes; they are not represented as audits of this
+later synchronized text.  The 2026-07-13 adversarial audit regression-checks
+the repaired canonical passages, and
+`../audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md` records their
+propagation to the component notes.  This remains a candidate resolution, not
+a claim of external peer review, publication, priority, or acceptance by the
+mathematical community.
 
 ## Theorem
 
@@ -45,6 +54,8 @@ Let
  \delta=\alpha_0-\alpha.                                  \tag{1.1}
 \]
 
+Write `N=ln n` and `w=ln N`.
+
 The expansion in `EXCEPTIONAL_REGIME.md` and the exact adjacent-size ratio
 give, uniformly for `0<=delta<1`,
 
@@ -71,13 +82,43 @@ at finite `n` it is cut off where `u>=1`.  For a real class count `k`, let
 \]
 
 over profiles with `sum k_u=k`, `sum u k_u=n`, and deficits in `S_+`.
-Let `r_+(n)` be its unique chromatic-window zero.  Uniformly in an
-`O(n/(ln n)^3)` window around this zero,
+Write `d_u=2^{binom(u,2)}u!`.
+The same notation `L_S(n,k)` is used for the four-size support
+`S_4={2,3,4,5}`.  Put
 
 \[
- \frac{\partial L_+}{\partial k}
- =\frac2q(\ln n)^2+O(\ln n\ln\ln n).                     \tag{1.5}
+ s_0=\alpha_0-1-\frac2q.
 \]
+
+The uniform root-corridor statement needed below is the following.  For
+`S in {S_+,S_4}` and every `0<=c<=q`, the equation
+`L_S(n,k)+ck=0` has a unique zero `r_{S,c}` in a fixed corridor, and
+
+\[
+ \frac n{r_{S,c}}=s_0+O(w/N).                             \tag{1.5a}
+\]
+
+Moreover, for every fixed `A>0`, uniformly for `0<=c<=q` and every `k`
+with `|n/k-s_0|<=Aw/N`,
+
+\[
+ \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+ =\frac2qN^2+O_A(Nw).                                    \tag{1.5b}
+\]
+
+For completeness, if `s=n/k` and
+`Psi_{S,c}(s)=(L_S(n,n/s)+c n/s)/(n/s)`, the exact affine-plus-curved
+decomposition and scalar expansion in canonical equations (3.11)--(3.19) give
+`Psi_{S,c}(s_0)=O(w)` and `Psi'_{S,c}(s)=-N+O_A(w)` throughout that corridor.
+The two endpoints `s_0-Aw/N` and `s_0+Aw/N` therefore bracket zero for a sufficiently
+large fixed `A`, strict monotonicity gives (1.5a), and
+
+\[
+ \frac d{dk}\{L_S+ck\}=\Psi_{S,c}(s)-s\Psi'_{S,c}(s)
+\]
+
+gives (1.5b) throughout the corridor.  Thus root localization is established
+before any mean-value argument.  Set `r_+=r_{S_+,0}`.
 
 There are at most `exp(O((ln n)^2))` integer bounded profiles, and uniform
 Stirling bounds give
@@ -93,7 +134,7 @@ where `E` is the expected total number of unordered `(alpha+1)`-bounded
  k_\chi^-:=\lfloor r_+(n)\rfloor-\lceil\ln n\rceil,       \tag{1.7}
 \]
 
-(1.5)--(1.6) give `E_{n,k_chi^-,alpha+1}=o(1)`.  On the event
+(1.5b)--(1.6) give `E_{n,k_chi^-,alpha+1}=o(1)`.  On the event
 in (1.3), any colouring can be refined to exactly `k_chi^-` nonempty
 independent parts without exceeding size `alpha+1`.  Consequently
 
@@ -144,9 +185,18 @@ Therefore
 \]
 
 The finite-`n` profile functional converges uniformly to (2.2); the linear
-terms cancel between supports.  With `r_4^{co}` denoting the real zero of
-the four-size **signed** first moment, (1.5), the mean-value theorem, and
-`r_+=(q/2+o(1))n/ln n` give
+terms cancel between supports.  Let `r_4^{co}=r_{S_4,q}`, the already-localized
+real zero of the four-size **signed** first moment.  At `k=r_+`, the exact
+support comparison and (2.4) give
+
+\[
+ L_{S_4}(n,r_+)+qr_+=r_+\{q-D_4(\delta)+o(1)\}.          \tag{2.5a}
+\]
+
+By (1.5a), both `r_+` and `r_4^{co}` lie in the same fixed corridor, so the
+entire segment between them lies where (1.5b) is valid.  Only now applying
+the mean-value theorem, together with
+`r_+=(q/2+o(1))n/N`, gives
 
 \[
  r_+-r_4^{co}
@@ -168,16 +218,40 @@ Use the midpoint integer
 \]
 
 Let `p_i^{(n)}` be the exact finite-`n` maximizer of the four-size
-functional `L_{S_4}(n,k_co)` (equivalently, use the exact weights
-`d_{alpha-i}=2^{binom(alpha-i,2)}(alpha-i)!` and their exact Lagrange
-tilt).  Uniform convergence of the finite-`n`
-functional gives `p_i^{(n)}=p_i+o(1)` uniformly in the phase, where `p_i`
-is the Gaussian vector in (2.3); hence all four exact proportions are
-uniformly bounded below.  Rounding `k_co p_i^{(n)}` and correcting the two
-linear constraints in the deficit-2 and deficit-3 coordinates changes only
-`O(1)` counts.  Because the correction is tangent to the exact finite-`n`
-optimizer, it changes the log first moment by `O(ln n)`.  We obtain an exact
-profile
+functional `L_{S_4}(n,k_co)`.  In the exact decomposition
+`-ln d_{alpha-i}=A_n+B_ni+h_n(i)`, distinguish the raw Lagrange multiplier
+from the effective tilt:
+
+\[
+ p_i^{(n)}\ \propto\ d_{\alpha-i}^{-1}
+       e^{\lambda_n^{\rm raw}i}
+ \ \propto\ e^{\widehat\lambda_ni+h_n(i)},\qquad
+ \widehat\lambda_n=B_n+\lambda_n^{\rm raw}.              \tag{2.8a}
+\]
+
+Uniform convergence makes `widehat lambda_n` converge to the bounded tilt
+in (2.3), and all four exact proportions are uniformly bounded below.  Round
+`k_co p_i^{(n)}` to preliminary integers `tilde k_i` and define the **signed**
+constraint errors
+
+\[
+ e_0=\sum_i\widetilde k_i-k_{co},\qquad
+ e_1=\sum_i i\widetilde k_i-(\alpha k_{co}-n).            \tag{2.8b}
+\]
+
+They are `O(1)`.  Correct the deficit-2 and deficit-3 coordinates by
+
+\[
+ \Delta k_2=e_1-3e_0,\qquad \Delta k_3=2e_0-e_1.          \tag{2.8c}
+\]
+
+The signs in (2.8b) matter: directly,
+`Delta k_2+Delta k_3=-e_0` and
+`2 Delta k_2+3 Delta k_3=-e_1`.  Thus both constraints cancel exactly,
+only `O(1)` counts change, and positivity is preserved.  Because this
+correction is tangent to both constraints and starts at the exact finite-`n`
+optimizer, the first variation vanishes; the Hessian cost is `O(1/k_co)` and
+the Stirling remainder is `O(ln n)`.  We obtain an exact profile
 
 \[
  \mathbf k=(k_2,k_3,k_4,k_5),\qquad
@@ -250,20 +324,28 @@ pairs.  If their total exposed multiplicity is `J`, the unexposed stubs form
 an exact uniform bipartite configuration model of total degree `n-J`.
 
 `RESIDUAL_ATTACHMENT.md`, Theorem 2.1, proved and independently audited in
-`RESIDUAL_ATTACHMENT_AUDIT.md`, sums every residual threshold increment and
-the entire even-subgraph factor, including cycles joining arbitrarily many
-high cells.  Uniformly over every high skeleton,
+`../audits/RESIDUAL_ATTACHMENT_AUDIT.md`, sums every residual threshold
+increment and the entire even-subgraph factor, including cycles joining
+arbitrarily many high cells.  There is a deterministic
+`b_n=o(n/N^4)` such that, uniformly over every high skeleton `(M,j)`, its
+conditional residual factor satisfies the **one-sided** bound
 
 \[
- \ln\mathcal A_{res}=o\!\left(\frac n{(\ln n)^4}\right). \tag{4.1}
+ \mathcal A(M,j)\le e^{b_n}.                              \tag{4.1}
 \]
 
+More precisely, for an absolute `C`, the upper bound is `exp(CN^8)` when
+the residual degree is at least `n/N^6`, and `exp(Cn/N^5)` below that
+cutoff.  The cap indicator in `mathcal A` can make this factor smaller than
+one, so no lower bound and no two-sided assertion about `ln mathcal A` is
+made or needed.
+
 The proof has two regimes.  If the residual degree is at least
-`n/(ln n)^6`, weighted residual row and column sums are
-`O((ln n)^3/(n-J))`; a cycle-walk expansion gives only
-`O((ln n)^8)`.  Below that degree, the deterministic inequalities
+`n/N^6`, weighted residual row and column sums are
+`O(N^3/(n-J))`; a cycle-walk expansion gives only
+`O(N^8)`.  Below that degree, the deterministic inequalities
 `beta<=|E(H_res)|` and
-`sum binom(r_e,2)<=(U-1)(n-J)/2` give `O(n/(ln n)^5)`.
+`sum binom(r_e,2)<=(U-1)(n-J)/2` give `O(n/N^5)`.
 The matching acts as a partial permutation of norm one, so no factor `2^h`
 or `h^r` is lost.
 
@@ -350,21 +432,68 @@ Replacing a containment multiplicity `m` by `m-e` has exact local ratio
   2^{-em+e(e+1)/2}.                                      \tag{5.9}
 \]
 
-After the one global falling-factorial comparison, all such decorations
-cost only `exp(O((ln n)^2))`.  The remaining middle strip has
-`2^{-Omega((ln n)^2)}` total activity when the residual mass is at least
-`n/(ln n)^6`; below that cutoff its safe deterministic cost is
-`exp(O(n/(ln n)^5))`.  Thus
+Here is the conditioned bridge from the per-cell estimate to the sum over
+**all** high skeletons; it is the concise version of canonical equations
+(8.25a), (8.26a), and (8.29a)--(8.29b).  For a full-containment table `L`,
+temporarily distinguish its endpoint cells.  If `S(L)` is the family of all
+near-containment decorations and `w(S)` its bare weight, the single global
+falling-factorial comparison gives
+
+\[
+ \sum_{S\in\mathcal S(L)}w(S)
+ \le W(L)\prod_{c\in L}\left(1+\rho_c\right),\qquad
+ \rho_c=O(N^3/n).                                        \tag{5.9a}
+\]
+
+Distinguishing and then forgetting identical typed cells is exactly the
+multinomial expansion in (5.9a), so it creates no extra multiplicity.  A
+high skeleton is a matching with at most `k_co` cells, hence the product is
+at most `exp(O(N^2))`.
+
+Condition on such a near-containment skeleton and write `m_0` for its
+residual stub mass, with residual row and column degrees `d_a,d'_b`.  If
+`m_0>=n/N^6`, expand jointly over sets `D` of **distinct** residual cells and
+their threshold demands.  Lemma 6.2 of the canonical manuscript is applied
+before any constraints are dropped, giving
+
+\[
+\begin{split}
+ E_{mid}(S)
+ &\le\sum_D\prod_{ab\in D}g(j_{ab})
+       \Pr\{r_{ab}\ge j_{ab}\ \text{for every }ab\in D\}\\
+ &\le\prod_{ab}\left(1+
+       \sum_{R<j\le3U/4+O(1)}
+       g(j)\frac{(e d_ad'_b/m_0)^j}{j!}\right)
+ \le e^{\Xi_4},\qquad
+ \Xi_4=2^{-\Omega((\log_2n)^2)}.                          \tag{5.9b}
+\end{split}
+\]
+
+This joint threshold expansion, rather than multiplication of marginal
+probabilities, handles the residual dependence.  If `m_0<n/N^6`, summing the
+residual matching probability first and using `r_e<=U` gives the conditional
+bound `E_mid(S)<=exp(CUm_0)<=exp(Cn/N^5)`.  Consequently
 
 \[
  \sum_{\text{all high skeletons}}\text{bare weight}
- \le\exp\left\{O(\sqrt{n\ln n})+O((\ln n)^2)
-                  +O\!\left(\frac n{(\ln n)^5}\right)\right\}
- =\exp\!\left\{o\!\left(\frac n{(\ln n)^4}\right)\right\}.
+ \le e^{O(N^2)}\left(\sum_LW(L)\right)
+      \max\{e^{\Xi_4},e^{Cn/N^5}\}.                       \tag{5.9c}
+\]
+
+Combining (5.5)--(5.6) with (5.9c) yields
+
+\[
+ \sum_{\text{all high skeletons}}\text{bare weight}
+ \le\exp\left\{O(\sqrt{nN})+O(N^2)+O(n/N^5)\right\}
+ =\exp\{o(n/N^4)\}.
                                                                   \tag{5.10}
 \]
 
-Combining (4.1), (5.10), and the exact canonical decomposition gives
+The exact canonical decomposition is a sum of nonnegative bare skeleton
+weights multiplied by their conditional residual factors.  Multiplying the
+global upper bound (5.10) by the **uniform one-sided** estimate (4.1) gives
+an `exp{o(n/N^4)}` upper bound.  The normalized second moment is at least one
+by variance, so its logarithm is nonnegative and
 
 \[
  \boxed{
@@ -383,34 +512,46 @@ Paley--Zygmund and (5.11) give
 
 The event on the left implies `zeta(G_n)<=k_co`.  The independently audited
 rare-event Alon--Scott theorem in `ALON_CONCENTRATION_EXTENSION.md` and
-`RARE_EVENT_AMPLIFICATION_AUDIT.md` says that, for any `r_n->infinity`,
+`../audits/RARE_EVENT_AMPLIFICATION_AUDIT.md` supplies a deterministic
+`epsilon_n=o(1)`, independent of the deterministic parameters below, such
+that uniformly for every deterministic `r=r(n)>0`,
 
 \[
- \zeta(G_n)\le k_{co}
- +O\!\left(
-   \frac{\sqrt{n\Lambda_n}+\sqrt{nr_n}}{\ln n}+n^{1/3}
-  \right)                                                \tag{6.2}
+ \Pr\!\left\{\zeta(G_n)>k_{co}+C\left(
+   \frac{\sqrt{n\Lambda_n}+\sqrt{nr}}N+n^{1/3}+1
+  \right)\right\}
+ \le e^{-r}+\varepsilon_n.                              \tag{6.2}
 \]
 
-outside a set of probability at most `e^{-r_n}+o(1)`.  Choose
+Choose
 
 \[
- B_n=\frac n{(\ln n)^4},\qquad r_n=\sqrt{B_n}.            \tag{6.3}
+ B_n=\frac n{N^4},\qquad r_n=\sqrt{B_n}.                  \tag{6.3}
 \]
 
-Then (5.11) makes the additive term in (6.2)
-`o(n/(ln n)^3)`.  Hence
+Then `r_n->infinity`, and (5.11) makes the deterministic sequence
 
 \[
- \Pr\left\{\zeta(G_n)\le
- k_{co}+o\!\left(\frac n{(\ln n)^3}\right)\right\}
- \longrightarrow1.                                      \tag{6.4}
+ a_n=C\left(
+   \frac{\sqrt{n\Lambda_n}+\sqrt{nr_n}}N+n^{1/3}+1
+ \right)                                                 \tag{6.4}
+\]
+
+satisfy `a_n=o(n/N^3)`.  The probability statement is now the unambiguous
+uniform tail bound
+
+\[
+ \Pr\{\zeta(G_n)>k_{co}+a_n\}
+ \le e^{-r_n}+\varepsilon_n\longrightarrow0.             \tag{6.5}
 \]
 
 ## 7. Completion and quantifiers
 
-Intersect the two events (1.8) and (6.4); a union bound is sufficient, and
-no independence is asserted.  By (2.11), with high probability,
+Let
+`E_chi={chi(G_n)>k_chi^-}` and
+`E_co={zeta(G_n)<=k_co+a_n}`.  Equations (1.8) and (6.5) show that both
+events have probability tending to one; a union bound is sufficient, and no
+independence is asserted.  By (2.11) and `a_n=o(n/N^3)`, on their intersection
 
 \[
  \chi(G_n)-\zeta(G_n)
@@ -431,7 +572,9 @@ subset, or infinite subsequence result.
 
 ## 8. Internal dependency list
 
-The detailed component proofs and independent audits are:
+The canonical authority is `COMPLETE_PROOF_SELF_CONTAINED.md`; the component
+notes below support its derivations and do not supersede it.  The supporting
+proofs and audit records are:
 
 - `COMPLETE_PROOF_SELF_CONTAINED.md`: consolidated proof with the component
   derivations written out in one document;
@@ -445,12 +588,20 @@ The detailed component proofs and independent audits are:
   sum;
 - `RESIDUAL_ATTACHMENT.md`: all residual local and even-subgraph
   attachments;
-- `RESIDUAL_ATTACHMENT_AUDIT.md`: independent reconstruction of the
+- `../audits/RESIDUAL_ATTACHMENT_AUDIT.md`: independent reconstruction of the
   residual theorem;
 - `ALON_CONCENTRATION_EXTENSION.md` and
-  `RARE_EVENT_AMPLIFICATION_AUDIT.md`: rare-event-to-whp transfer.
-- `FULL_PROOF_AUDIT_1.md` through `FULL_PROOF_AUDIT_4.md`: independent
-  end-to-end reconstructions, each with a PASS verdict for the repaired proof.
+  `../audits/RARE_EVENT_AMPLIFICATION_AUDIT.md`: rare-event-to-whp transfer;
+- `../audits/FULL_PROOF_AUDIT_1.md` through
+  `../audits/FULL_PROOF_AUDIT_4.md`: historical
+  2026-07-12 end-to-end reconstructions with PASS verdicts for the earlier
+  snapshot, not reviews of the later synchronized bytes;
+- `../audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md`: the targeted regression
+  audit for the root corridor, rounding identities, high-skeleton
+  globalization, one-sided residual bound, and deterministic amplification
+  sequence in the repaired canonical manuscript;
+- `../audits/PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md`: propagation
+  audit for the synchronized component notes and this concise draft.
 
-Reproducible diagnostic scripts are in `research/experiments/`; finite
+Reproducible diagnostic scripts are in `../experiments/`; finite
 experiments are not used as proof steps.

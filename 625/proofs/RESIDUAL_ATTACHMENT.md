@@ -6,6 +6,13 @@ keeps the exact configuration-model law and sums the full even-subgraph
 factor.  In particular, residual double and triple cells are allowed to join
 arbitrarily many exposed large cells; they are not treated as independent.
 
+**Synchronization status (2026-07-13).**  The statement of Theorem 2.1 has
+been synchronized with Lemma 9.1 of `COMPLETE_PROOF_SELF_CONTAINED.md`: it is
+the one-sided upper bound actually proved and used.  The two residual-mass
+regimes are displayed explicitly below.  This wording repair changes no
+estimate or asymptotic constant.  The mixed four-size obstruction retained
+for diagnosis in Section 4 is closed by `DENSE_FOUR_TYPE_MATCHING.md`.
+
 For an equitable chromatic-scale profile with signed first moment at least
 one, the lemma combines with the exact partial-diagonal calculation and the
 near-copy calculation already in `SIGNED_EQUITABLE_SECOND_MOMENT.md` to give
@@ -131,35 +138,42 @@ Assume that for some fixed `epsilon_0>0`,
  U\le(4-\epsilon_0)\log n.                                 \tag{2.1}
 \]
 
-Uniformly over the two profiles in (1.1), every canonical high-cell
-skeleton in (1.3), and all its multiplicities,
+There is a deterministic sequence `epsilon_n^{att}->0`, depending only on
+`epsilon_0`, such that, uniformly over the two profiles in (1.1), every
+canonical high-cell skeleton in (1.3), and all its multiplicities,
 
 \[
  \boxed{
-  \sup_{M,\mathbf j}\ln\mathcal A(M,\mathbf j)
-  =o(n/\log ^4 n).}                                        \tag{2.2}
+  \mathcal A(M,\mathbf j)
+  \le\exp\!\left\{\epsilon_n^{\rm att}\frac{n}{\log ^4n}\right\}
+  =\exp\{o(n/\log ^4n)\}.}                                 \tag{2.2}
 \]
 
-More explicitly, if `N>=n/(ln n)^6`, then for an absolute constant `C`,
+More explicitly, if `N>=n/(ln n)^6`, then for absolute constants `C,C'`,
 
 \[
- \ln\mathcal A(M,\mathbf j)
- \le C\left\{
+ \mathcal A(M,\mathbf j)
+ \le \exp\!\left[C\left\{
        \frac{U^4}{N}+n\tau^4+h\tau
-      \right\},
+      \right\}\right]
+ \le\exp\{C'(\ln n)^8\},
  \qquad \tau=C\frac{U^3}{N}.                              \tag{2.3}
 \]
 
-Consequently the right side of (2.3) is `O((ln n)^8)`.  If instead
-`N<n/(ln n)^6`, then the deterministic estimate
+If instead `N<n/(ln n)^6`, then the deterministic estimate
 
 \[
- \ln\mathcal A(M,\mathbf j)
- \le\frac{\ln2}{2}UN
- =O(n/(\ln n)^5)                                           \tag{2.4}
+ \mathcal A(M,\mathbf j)
+ \le 2^{UN/2}
+ =\exp\!\left\{\frac{\ln2}{2}UN\right\}
+ \le\exp\{Cn/(\ln n)^5\}                                 \tag{2.4}
 \]
 
-holds.  Both bounds are `o(n/(ln n)^4)`.
+holds.  Both exponents are `o(n/(ln n)^4)`, proving (2.2).  No lower bound
+on \(\mathcal A\) is asserted or needed.  In particular, (2.2) must not be
+read as the two-sided statement
+\(\ln\mathcal A=o(n/(\ln n)^4)\): the cap and no-backtracking indicator in
+(1.9) can make \(\mathcal A<1\).
 
 #### Proof: the large-residual regime
 
@@ -404,15 +418,16 @@ not replace the joint denominator by independent denominators.  The endpoint
 ratio calculation gives
 
 \[
- \epsilon_n:=\sum_{1\le d<s/4}\eta_d=n^{-1+o(1)}.          \tag{3.7}
+ \epsilon_n^{\rm near}:=\sum_{1\le d<s/4}\eta_d
+ =n^{-1+o(1)}.                                             \tag{3.7}
 \]
 
 Consequently the entire near-exact matching expansion is bounded by
 
 \[
  S_{\rm near}
- \le\sum_{h=0}^kA_h(1+\epsilon_n)^h
- \le e^{k\epsilon_n}(2+o(1))
+ \le\sum_{h=0}^kA_h(1+\epsilon_n^{\rm near})^h
+ \le e^{k\epsilon_n^{\rm near}}(2+o(1))
  =\exp\{n^{o(1)}\}.                                        \tag{3.8}
 \]
 
@@ -422,7 +437,7 @@ In the refined window
  s=2\log n-2\log\log n+O(1),                              \tag{3.9}
 \]
 
-one has `epsilon_n=O(s^3/n)`, and the last bound in (3.8) is
+one has `epsilon_n^{near}=O(s^3/n)`, and the last bound in (3.8) is
 `exp(O(s^2))`.  Equations (3.4)--(3.5) are the first-moment diagonal
 suppression: replacing them by a product of one-cell activities would lose
 the full and partial diagonal endpoints.
@@ -631,7 +646,8 @@ partial first moment.  The small value in (4.8) controls the Taylor
 coefficient at `L=0`; it does not control the finite-population factor
 `n^{J(L)}/(n)_{J(L)}`, which is exponential when `J(L)=Theta(n)`.
 
-Accordingly, the exact still-unproved four-size statement is
+Accordingly, at the reduction stage recorded in this residual note, the
+remaining four-size obligation was
 
 \[
  \sum_{L:\,J(L)=\Theta(n)}
@@ -640,12 +656,14 @@ Accordingly, the exact still-unproved four-size statement is
 \]
 
 where `D_near(L)` is the exact near-containment decoration sum.  There are
-only polynomially many matrices `L`, but this does not bound an individual
-dense term.  Theorem 2.1 proves that residual cycles multiply the left side
-of (4.13) by only `exp(o(n/(ln n)^4))`.  Thus (4.13), not residual
-attachment and not one-polymer activity, is the precise remaining
-four-size obstruction.  A direct entropy analysis of (4.11) may prove it,
-but such an analysis is not supplied here.
+only polynomially many matrices `L`, but this does not by itself bound an
+individual dense term.  Theorem 2.1 proves that residual cycles multiply the
+left side of (4.13) by only `exp(o(n/(ln n)^4))`; consequently (4.13), rather
+than residual attachment or one-polymer activity, was the exact obligation
+left by this reduction.  That obligation is now proved by the direct entropy
+and transportation analysis in `DENSE_FOUR_TYPE_MATCHING.md`, Theorem 6.1.
+The present note retains (4.11)--(4.13) to make the handoff auditable and does
+not duplicate that dense-endpoint proof.
 
 ## 5. Adversarial audit
 

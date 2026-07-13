@@ -165,3 +165,23 @@
   MP4, and recorded the full edge list, witnesses, render settings, hashes,
   dimensions, sizes, and finite-example limitation in a JSON sidecar and asset
   README. Representative animation phases passed visual inspection.
+- Synchronized the concise draft and focused first-moment, dense-overlap,
+  residual-attachment, and amplification notes to the canonical 2026-07-13
+  repairs.  The canonical manuscript remains the sole authoritative proof;
+  the component files are now explicitly indexed as supporting derivations.
+- Added a proof-component traceability matrix and placed scope notices on the
+  six 2026-07-12 audit records whose PASS verdicts concern earlier bytes.  The
+  notices preserve those audit bodies and verdicts without representing them
+  as reviews of the later repaired or synchronized files.
+- This propagation pass did not change the canonical Markdown, generated TeX,
+  or either PDF copy.  Their SHA-256 identifiers remain `9EA27F...D95A83`,
+  `AAF38D...1B82A`, and `2ACD9B...4357`, respectively.  The user-supplied
+  verification report and checker were also left untouched.
+- Two fresh read-only regression passes independently checked the synchronized
+  root/rounding/amplification chain and the dense-overlap/residual chain.  Both
+  returned PASS after minor notation and path cleanups; no new mathematical
+  claim, constant, or full-sequence quantifier was introduced.
+- Refreshed the component/audit hash ledger, added repository-wide LF rules for
+  dossier text and scripts, and rebuilt the current 65-file complete archive.
+  Its aggregate checksum is kept outside the archive in
+  `releases/SHA256SUMS.txt`.

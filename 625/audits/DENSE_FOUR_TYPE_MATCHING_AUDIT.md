@@ -1,5 +1,15 @@
 # Independent audit of `DENSE_FOUR_TYPE_MATCHING.md`
 
+> **Historical-scope notice (2026-07-13).** This document preserves the
+> internal 2026-07-12 verdict on the component bytes then under review. It is
+> not a review of the later repaired or synchronized bytes. The authoritative
+> proof is `../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`; see
+> `ADVERSARIAL_LEAP_AUDIT_2026-07-13.md` for the missing globalization bridge
+> and its regression check, and
+> `PROOF_COMPONENT_SYNCHRONIZATION_AUDIT_2026-07-13.md` for the synchronized
+> component mapping. The original audit body and verdict below are retained
+> unchanged.
+
 ## Verdict
 
 **Core endpoint theorem: PASS.  Claimed completion of the whole high-cell
