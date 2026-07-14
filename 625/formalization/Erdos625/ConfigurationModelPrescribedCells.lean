@@ -6,12 +6,29 @@ import Erdos625.MatchingExtensionTools
 
 This module supplies the finite types and injective maps needed to interpret a
 `PrescribedDemandWitness` as a family of distinct row--column stub pairs.  It
-does not yet state event coverage or the probability estimate (6.8).
+also proves both directions of the witness/event bridge and counts the full
+matchings extending one fixed witness.  The aggregate union bound and the
+probability estimate (6.8) remain separate obligations.
 -/
 
 namespace Erdos625
 
 open scoped BigOperators
+
+private def sigmaSecondCast
+    {I : Type*} {f : I → Type*}
+    (z : Σ i, f i) {i : I} (h : z.1 = i) : f i :=
+  h ▸ z.2
+
+private theorem sigma_eq_mk_sigmaSecondCast
+    {I : Type*} {f : I → Type*}
+    (z : Σ i, f i) {i : I} (h : z.1 = i) :
+    z = ⟨i, sigmaSecondCast z h⟩ := by
+  cases z with
+  | mk j x =>
+      simp only at h
+      subst i
+      rfl
 
 /-- Row stubs, indexed by their row class. -/
 abbrev RowStub {A : Type*} [Fintype A] (row : A → ℕ) :=
@@ -251,6 +268,116 @@ theorem extendsWitness_mem_prescribedCellEvent
     (extendsPrescribedDemandWitness_iff_cellwise matching witness).1
       hextends a b ⟨stub, hstub⟩
   exact congrArg Sigma.fst hpair
+
+/-- Every matching satisfying the prescribed cell lower bounds extends a
+concrete prescribed-demand witness.  The witness is obtained by choosing the
+required number of row stubs inside each cell, transporting them through the
+matching, and retaining the induced cellwise bijections. -/
+theorem exists_extendingWitness_of_mem_prescribedCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    {matching : ConfigurationMatching row col}
+    (hEvent : matching ∈ prescribedCellEvent demand row col) :
+    ∃ witness : PrescribedDemandWitness demand row col,
+      ExtendsPrescribedDemandWitness matching witness := by
+  classical
+  have hselect : ∀ a b,
+      ∃ s : Finset (Fin (row a)),
+        s ⊆ Finset.univ.filter
+          (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) ∧
+        s.card = demand a b := by
+    intro a b
+    apply Finset.exists_subset_card_eq
+    simpa [configurationCellCount] using hEvent a b
+  choose selected hsubset hcard using hselect
+  have hlabel : ∀ a b (stub : ↑(selected a b)),
+      (matching ⟨a, stub.1⟩).1 = b := by
+    intro a b stub
+    have h := hsubset a b stub.2
+    simpa using h
+  let rowAllocation : ∀ a, StubAllocation (row a) (demand a) := fun a ↦
+    ⟨selected a, by
+      constructor
+      · exact hcard a
+      · intro b b' hne
+        rw [Finset.disjoint_left]
+        intro stub hs hs'
+        have hb := hsubset a b hs
+        have hb' := hsubset a b' hs'
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb hb'
+        exact hne (hb.symm.trans hb')⟩
+  let columnValue : ∀ a b, ↑(selected a b) → Fin (col b) :=
+    fun a b stub ↦
+      sigmaSecondCast (matching ⟨a, stub.1⟩) (hlabel a b stub)
+  let columnEmbedding : ∀ a b, ↑(selected a b) ↪ Fin (col b) :=
+    fun a b ↦
+      { toFun := columnValue a b
+        inj' := by
+          intro x y hxy
+          apply Subtype.ext
+          have hmatched :
+              matching ⟨a, x.1⟩ = matching ⟨a, y.1⟩ := by
+            calc
+              matching ⟨a, x.1⟩ = ⟨b, columnValue a b x⟩ :=
+                sigma_eq_mk_sigmaSecondCast _ (hlabel a b x)
+              _ = ⟨b, columnValue a b y⟩ := by rw [hxy]
+              _ = matching ⟨a, y.1⟩ :=
+                (sigma_eq_mk_sigmaSecondCast _ (hlabel a b y)).symm
+          have hglobal := matching.injective hmatched
+          exact eq_of_heq (Sigma.mk.inj_iff.mp hglobal).2 }
+  let columnCell : ∀ b a, Finset (Fin (col b)) :=
+    fun b a ↦ Finset.univ.map (columnEmbedding a b)
+  have hcolumnCard : ∀ b a, (columnCell b a).card = demand a b := by
+    intro b a
+    simp [columnCell, hcard a b]
+  have hcolumnDisjoint : ∀ b a a', a ≠ a' →
+      Disjoint (columnCell b a) (columnCell b a') := by
+    intro b a a' hne
+    rw [Finset.disjoint_left]
+    intro c hc hc'
+    simp only [columnCell, Finset.mem_map, Finset.mem_univ, true_and] at hc hc'
+    obtain ⟨x, hx⟩ := hc
+    obtain ⟨y, hy⟩ := hc'
+    change columnValue a b x = c at hx
+    change columnValue a' b y = c at hy
+    have hmatchx : matching ⟨a, x.1⟩ = ⟨b, c⟩ := by
+      calc
+        matching ⟨a, x.1⟩ = ⟨b, columnValue a b x⟩ :=
+          sigma_eq_mk_sigmaSecondCast _ (hlabel a b x)
+        _ = ⟨b, c⟩ := by rw [hx]
+    have hmatchy : matching ⟨a', y.1⟩ = ⟨b, c⟩ := by
+      calc
+        matching ⟨a', y.1⟩ = ⟨b, columnValue a' b y⟩ :=
+          sigma_eq_mk_sigmaSecondCast _ (hlabel a' b y)
+        _ = ⟨b, c⟩ := by rw [hy]
+    have hglobal := matching.injective (hmatchx.trans hmatchy.symm)
+    exact hne (congrArg Sigma.fst hglobal)
+  let colAllocation : ∀ b, StubAllocation (col b) (fun a ↦ demand a b) :=
+    fun b ↦ ⟨columnCell b, hcolumnCard b, hcolumnDisjoint b⟩
+  let cellEquiv : ∀ a b, ↑(selected a b) ≃ ↑(columnCell b a) :=
+    fun a b ↦ Equiv.ofBijective
+      (fun stub ↦
+        ⟨columnEmbedding a b stub, by
+          simp [columnCell]⟩)
+      ⟨by
+        intro x y hxy
+        exact (columnEmbedding a b).injective (congrArg Subtype.val hxy),
+       by
+        intro y
+        have hy := y.2
+        simp only [columnCell, Finset.mem_map, Finset.mem_univ, true_and] at hy
+        obtain ⟨x, hx⟩ := hy
+        refine ⟨x, ?_⟩
+        apply Subtype.ext
+        exact hx⟩
+  let witness : PrescribedDemandWitness demand row col :=
+    ⟨rowAllocation, colAllocation, cellEquiv⟩
+  refine ⟨witness, ?_⟩
+  rw [extendsPrescribedDemandWitness_iff_cellwise]
+  intro a b stub
+  change matching ⟨a, stub.1⟩ = ⟨b, columnValue a b stub⟩
+  exact sigma_eq_mk_sigmaSecondCast _ (hlabel a b stub)
 
 noncomputable instance instFintypeExtensionsOfPrescribedDemandWitness
     {A B : Type*}
