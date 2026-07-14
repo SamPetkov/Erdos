@@ -56,7 +56,7 @@ threshold expansion
 | `card_extensions_of_exposed_equiv` | fixed-witness matching count before (6.8), and after (8.3) | local proved | Assemble each demand witness into one exposed global equivalence and transport the uniform law. |
 | `card_extensions_of_embedding_pairing` | indexed fixed-pair count before (6.8) | local proved | Build the row/column embeddings carried by each demand witness. |
 | `card_rowStub`, `card_columnStub`, `witnessAtomEquiv`, `witnessRowEmbedding`, `witnessColumnEmbedding`, `card_witnessRowAtom`, `card_witnessColumnAtom` | global stub and witness encoding before (6.8) | local proved | Define the cell event, prove witness coverage, and connect these embeddings to the extension count. |
-| `configurationCellCount`, `prescribedCellEvent`, `ExtendsPrescribedDemandWitness`, `extendsWitness_mem_prescribedCellEvent`, `exists_extendingWitness_of_mem_prescribedCellEvent`, `card_extensionsOfPrescribedDemandWitness` | event and one-witness count before (6.8) | defined; local proved | Both directions of event/witness coverage and the exact one-witness extension count are proved. Count the finite union and transport the uniform law. |
+| `configurationCellCount`, `prescribedCellEvent`, `ExtendsPrescribedDemandWitness`, `extendsWitness_mem_prescribedCellEvent`, `exists_extendingWitness_of_mem_prescribedCellEvent`, `card_configurationMatching`, `card_extensionsOfPrescribedDemandWitness`, `card_prescribedCellEvent_le_witness_mul_factorial` | event and finite union count before (6.8) | defined; local proved | Both coverage directions, the ambient `m!` count, each exact `(m-x)!` extension count, and the aggregate event-cardinality bound are proved. Transport the uniform law and normalize the exact factors. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -89,8 +89,9 @@ stub types, exact total-cardinality formulas, and an injective encoding of every
 prescribed-demand witness as distinct paired row/column atoms.  Its isolated
 warning-as-error build passed all 2,971 jobs.  It also defines the exact cell
 event, proves both directions of the event/witness bridge by an explicit finite
-selection construction, and proves the exact factorial count of extensions of
-any one witness.  The finite union count and uniform probability remain
+selection construction, proves the exact factorial count of extensions of any
+one witness, and embeds the whole event into the disjoint union of those
+extension types.  The uniform probability and final normalization remain
 deliberately separate.
 
 ## Aristotle wave 3: analytic and traversal leaves
@@ -189,11 +190,11 @@ accepts the separately reviewed local reconstruction.
 
 1. Turn the overlap-labeling identity into the exact probability law (6.2)
    for the manuscript's ordered profiles and signs.
-2. Use the now-proved reverse event-to-witness construction to bound the event
-   by the sum of the exact one-witness extension counts, transport the uniform
-   law, and apply the finite union bound to finish (6.8).  Both coverage
-   directions, the one-witness count, global stub types, witness atoms and
-   embeddings, witness numerator, and infeasible branch are now proved.
+2. Transport the now-proved aggregate event-cardinality bound through the
+   uniform matching law and normalize the exact witness factors to finish
+   (6.8).  Both coverage directions, ambient and one-witness counts, the finite
+   union embedding, global stub types, witness atoms and embeddings, witness
+   numerator, and infeasible branch are now proved.
 3. Prove the uniform central diagonal estimate (7.14)--(7.25), including the
    phase reduction and deterministic uniform error sequence.
 4. Define the canonical high skeleton and prove the exact residual matching

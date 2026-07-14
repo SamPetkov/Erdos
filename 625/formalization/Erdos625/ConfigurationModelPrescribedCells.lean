@@ -71,6 +71,24 @@ theorem card_columnStub
   intro b _
   rw [Fintype.card_fin]
 
+/-- When the two total stub counts agree, the full configuration-matching
+space has the expected factorial cardinality. -/
+theorem card_configurationMatching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    Fintype.card (ConfigurationMatching row col) =
+      (Finset.univ.sum row).factorial := by
+  let e : RowStub row ≃ ColumnStub col :=
+    Fintype.equivOfCardEq (by
+      rw [card_rowStub, card_columnStub, htotal])
+  calc
+    Fintype.card (ConfigurationMatching row col) =
+        (Fintype.card (RowStub row)).factorial :=
+      Fintype.card_equiv e
+    _ = (Finset.univ.sum row).factorial := by rw [card_rowStub]
+
 /-- A selected row atom remembers its row class, its target column class, and
 the selected row stub in that cell. -/
 abbrev WitnessRowAtom
@@ -379,6 +397,60 @@ theorem exists_extendingWitness_of_mem_prescribedCellEvent
   change matching ⟨a, stub.1⟩ = ⟨b, columnValue a b stub⟩
   exact sigma_eq_mk_sigmaSecondCast _ (hlabel a b stub)
 
+noncomputable instance instFintypePrescribedCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) :
+    Fintype
+      {matching : ConfigurationMatching row col //
+        matching ∈ prescribedCellEvent demand row col} :=
+  Fintype.ofFinite _
+
+/-- A deterministic classical choice of one extending witness for each
+matching in the prescribed-cell event. -/
+noncomputable def prescribedCellEventWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching :
+      {matching : ConfigurationMatching row col //
+        matching ∈ prescribedCellEvent demand row col}) :
+    PrescribedDemandWitness demand row col :=
+  Classical.choose
+    (exists_extendingWitness_of_mem_prescribedCellEvent matching.2)
+
+theorem prescribedCellEventWitness_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching :
+      {matching : ConfigurationMatching row col //
+        matching ∈ prescribedCellEvent demand row col}) :
+    ExtendsPrescribedDemandWitness matching.1
+      (prescribedCellEventWitness matching) :=
+  Classical.choose_spec
+    (exists_extendingWitness_of_mem_prescribedCellEvent matching.2)
+
+/-- Retaining the original matching makes the choice of one covering witness
+into an embedding of the cell event into the disjoint union of all witness
+extension events. -/
+noncomputable def prescribedCellEventEmbedding
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ} :
+    {matching : ConfigurationMatching row col //
+        matching ∈ prescribedCellEvent demand row col} ↪
+      (Σ witness : PrescribedDemandWitness demand row col,
+        {matching : ConfigurationMatching row col //
+          ExtendsPrescribedDemandWitness matching witness}) where
+  toFun matching :=
+    ⟨prescribedCellEventWitness matching,
+      ⟨matching.1, prescribedCellEventWitness_extends matching⟩⟩
+  inj' := by
+    intro x y hxy
+    apply Subtype.ext
+    exact congrArg (fun z ↦ z.2.1) hxy
+
 noncomputable instance instFintypeExtensionsOfPrescribedDemandWitness
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
@@ -410,5 +482,37 @@ theorem card_extensionsOfPrescribedDemandWitness
       card_extensions_of_embedding_pairing hcard
         (witnessRowEmbedding witness)
         (witnessColumnPairingEmbedding witness)
+
+/-- Cardinal union bound for the prescribed-cell event.  Every event matching
+is assigned one extending witness, and every witness has the same exact number
+of full extensions. -/
+theorem card_prescribedCellEvent_le_witness_mul_factorial
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    Fintype.card
+        {matching : ConfigurationMatching row col //
+          matching ∈ prescribedCellEvent demand row col} ≤
+      Fintype.card (PrescribedDemandWitness demand row col) *
+        (Finset.univ.sum row -
+          Finset.univ.sum (fun a ↦ Finset.univ.sum (demand a))).factorial := by
+  calc
+    Fintype.card
+        {matching : ConfigurationMatching row col //
+          matching ∈ prescribedCellEvent demand row col} ≤
+        Fintype.card
+          (Σ witness : PrescribedDemandWitness demand row col,
+            {matching : ConfigurationMatching row col //
+              ExtendsPrescribedDemandWitness matching witness}) :=
+      Fintype.card_le_of_embedding prescribedCellEventEmbedding
+    _ = ∑ witness : PrescribedDemandWitness demand row col,
+          Fintype.card
+            {matching : ConfigurationMatching row col //
+              ExtendsPrescribedDemandWitness matching witness} :=
+      Fintype.card_sigma
+    _ = _ := by
+      simp_rw [card_extensionsOfPrescribedDemandWitness htotal]
+      simp
 
 end Erdos625
