@@ -73,6 +73,19 @@ bounded profile, and proves the deterministic event containment used in
 then give the exact probability reduction and its conditional
 `(n+1)^b exp(L)+μ(n,b+1)` form.
 
+The current Sections 6--8 checkpoint now includes the exact fixed-row ordered
+overlap law (6.1)--(6.2), the uniform configuration-model prescribed-cell bound
+(6.8), the effective
+falling-factorial estimate (6.10), and the all-cases cellwise product bound
+(6.9), including a proof that the excessive-total event is empty.  The exact
+partial-diagonal algebra, endpoint factorization, and recurrences (7.1)--(7.6)
+are kernel-checked.  Exact row and column margins of the configuration cell
+table also instantiate the concrete high-cell matching assertion before
+(8.2).  Extending a fixed exposed witness is moreover equivalent to a bijection
+of its unused stubs, with exact remaining cardinalities.  These finite results
+do not yet prove the asymptotic diagonal sums, degree-labelled canonical
+residual law, or residual attachment estimates.
+
 The asymptotic target is deliberately recorded as an **unproved proposition**;
 the current development is a verified partial formalization, not a completed
 Lean proof of the manuscript.  Growing-support moments, compact-uniform
@@ -80,7 +93,8 @@ optimizer-tilt convergence, variance stability, and generic root/rounding
 interfaces are kernel-checked.  In Section 4, the concrete phase objective,
 its center/slope corridor, its integer decrement, and the resulting probability
 limit remain open; the
-signed first/second-moment, overlap, residual-attachment, and final
+signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
+partial-diagonal ranges, canonical residual law, residual-attachment, and final
 amplification layers also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
 declaration-by-declaration status and remaining dependency graph.  Reproduced

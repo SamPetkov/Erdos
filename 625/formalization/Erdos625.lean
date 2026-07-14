@@ -70,12 +70,19 @@ import Erdos625.ExtendedGaussianTilt
 import Erdos625.ColoringProfileDeficitTiltConvergence
 import Erdos625.ProfileAsymptoticTools
 import Erdos625.ProfileCorridorTools
+import Erdos625.OrderedOverlapLaw
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
 import Erdos625.PrescribedDemandTools
 import Erdos625.MatchingExtensionTools
 import Erdos625.ConfigurationModelPrescribedCells
+import Erdos625.FallingFactorialBounds
 import Erdos625.ConfigurationModelProbability
+import Erdos625.ConfigurationModelCellMarginals
+import Erdos625.ConfigurationModelResidualMatching
+import Erdos625.EndpointTransportBounds
+import Erdos625.PartialDiagonalWeights
+import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
@@ -177,12 +184,24 @@ and final chromatic probability limit remain separate obligations.
 Generic interval tools for a unique decreasing root, derivative integration,
 endpoint tilt trapping, and the exact floor/ceiling decrement are proved, but
 their phase-specific bracket and slope hypotheses are not assumed.
-The first deterministic Section 6 feasibility layer is also imported: finite
-table row and column totals agree, entrywise demand bounds sum correctly, and
-an excessive row demand, excessive column demand, or unequal total margin
-makes the prescribed contingency-table event empty.  Moreover, entries larger
-than half a common row/column cap form a matching, supplying the deterministic
-high-cell claim used at the start of Section 8.
+The Section 6 layer also contains the exact fixed-row ordered overlap law
+(6.1)--(6.2), including its literal finite event/sample-space ratio.  The
+unordered-profile ordering bridge and sign/component factors remain open.  The
+exact prescribed-cell count (6.8), effective falling-factorial estimate (6.10),
+and all-cases cellwise product majorant (6.9) are kernel-checked.  The
+total-infeasible branch is discharged by proving the event empty.  Exact finite partial-diagonal
+statistics, signed weights, coordinate updates, recurrence (7.4), endpoint
+factorization (7.5), and full-corner recurrence (7.6) are formalized as well.
+The asymptotic ranges of Lemma 7.1 remain open.  The exact row and column marginals of the actual
+configuration-model cell table are also proved.  Consequently, entries larger
+than half a common degree cap form a matching, supplying the concrete high-cell
+claim used at the start of Section 8.  For every fixed prescribed witness,
+full matchings extending it are also explicitly equivalent to bijections of
+the unused row and column stubs, with exact remaining-cardinality formulas.
+Identifying those complements with degree-labelled residual fibres and proving
+the conditional law remain open.  The exact descending-factorial endpoint
+transport used in (8.12) is proved independently, with the stronger loss
+`n^gap` and exact minimum/absolute-difference specializations.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

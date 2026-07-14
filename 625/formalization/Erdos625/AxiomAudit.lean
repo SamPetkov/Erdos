@@ -65,12 +65,19 @@ import Erdos625.ExtendedGaussianTilt
 import Erdos625.ColoringProfileDeficitTiltConvergence
 import Erdos625.ProfileAsymptoticTools
 import Erdos625.ProfileCorridorTools
+import Erdos625.OrderedOverlapLaw
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
 import Erdos625.PrescribedDemandTools
 import Erdos625.MatchingExtensionTools
 import Erdos625.ConfigurationModelPrescribedCells
+import Erdos625.FallingFactorialBounds
 import Erdos625.ConfigurationModelProbability
+import Erdos625.ConfigurationModelCellMarginals
+import Erdos625.ConfigurationModelResidualMatching
+import Erdos625.EndpointTransportBounds
+import Erdos625.PartialDiagonalWeights
+import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
@@ -327,6 +334,19 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.derivative_lower_bound_mul_sub_le_sub
 #print axioms Erdos625.tilt_mem_Ioo_of_strictMono_mean_eq
 #print axioms Erdos625.rounded_left_value_le
+#print axioms Erdos625.sum_labelingFiberCount
+#print axioms Erdos625.card_labelingFiber
+#print axioms Erdos625.sigmaEquivOfFiberOrders_apply
+#print axioms Erdos625.card_fixedFiberLabeling_mul_factorials
+#print axioms Erdos625.restricted_labelingFiberCount_eq_orderedOverlapCount
+#print axioms Erdos625.sum_orderedOverlapCount_row
+#print axioms Erdos625.orderedOverlapCount_comm
+#print axioms Erdos625.sum_orderedOverlapCount_column
+#print axioms Erdos625.card_fixedMarginOverlapEvent
+#print axioms Erdos625.card_orderedOverlapLabeling_mul_factorials
+#print axioms Erdos625.card_orderedOverlapLabeling_probability_identity
+#print axioms Erdos625.orderedOverlapLabeling_probability_eq
+#print axioms Erdos625.fixedMarginOverlapEvent_probability_eq
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
@@ -350,9 +370,66 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_extendingWitness_of_mem_prescribedCellEvent
 #print axioms Erdos625.card_extensionsOfPrescribedDemandWitness
 #print axioms Erdos625.card_prescribedCellEvent_le_witness_mul_factorial
+#print axioms Erdos625.pow_sub_add_one_le_descFactorial
+#print axioms Erdos625.factorial_pow_le_descFactorial_pow
+#print axioms Erdos625.real_div_exp_one_pow_le_descFactorial
+#print axioms Erdos625.ennreal_div_euler_pow_le_descFactorial
+#print axioms Erdos625.row_column_descendingProduct_le_cellDegreePowerProduct
+#print axioms Erdos625.configurationCellTheta_pow_product
+#print axioms Erdos625.inv_demandFactorialProduct
+#print axioms Erdos625.configurationCellWeight_product_eq_global
 #print axioms Erdos625.uniformConfigurationMatching_prescribedCellEvent_apply
 #print axioms Erdos625.uniformConfigurationMatching_prescribedCellEvent_le_witness
 #print axioms Erdos625.jointPrescribedCellBound
+#print axioms Erdos625.jointPrescribedCellBound_cellwise_of_totalDemand_le
+#print axioms Erdos625.not_mem_prescribedCellEvent_of_total_lt
+#print axioms Erdos625.jointPrescribedCellBound_cellwise
+#print axioms Erdos625.sum_configurationCellCount_row
+#print axioms Erdos625.sum_configurationCellCount_column
+#print axioms Erdos625.configurationCellCount_highCells_form_matching
+#print axioms Erdos625.witnessSelectedStubEquiv
+#print axioms Erdos625.extensionsOfPrescribedDemandWitnessEquivRemaining
+#print axioms Erdos625.card_witnessSelectedRowStubs
+#print axioms Erdos625.card_witnessSelectedColumnStubs
+#print axioms Erdos625.card_remainingRowStub
+#print axioms Erdos625.card_remainingColumnStub
+#print axioms Erdos625.card_remainingStubs_eq
+#print axioms Erdos625.sub_min_add_sub_min_eq_dist
+#print axioms Erdos625.add_eq_two_mul_min_add_dist
+#print axioms Erdos625.descFactorial_endpoint_transport
+#print axioms Erdos625.descFactorial_endpoint_transport_succ
+#print axioms Erdos625.descFactorial_min_transport
+#print axioms Erdos625.descFactorial_min_transport_succ
+#print axioms Erdos625.selectedBlockCount_increment
+#print axioms Erdos625.selectedVertexMass_increment
+#print axioms Erdos625.selectedInternalEdgeCount_increment
+#print axioms Erdos625.partialProfileFactorialProduct_increment
+#print axioms Erdos625.partialMarkingCount_increment_mul
+#print axioms Erdos625.isPartialSubprofile_increment
+#print axioms Erdos625.partialSignedFirstMoment_pos
+#print axioms Erdos625.partialMarkingCount_pos
+#print axioms Erdos625.partialDiagonalWeight_pos
+#print axioms Erdos625.partialDiagonalWeight_zero
+#print axioms Erdos625.partialSignedFirstMoment_increment_mul
+#print axioms Erdos625.partialDiagonalWeight_increment_mul
+#print axioms Erdos625.partialDiagonalWeight_increment_div
+#print axioms Erdos625.completeSignedFirstMoment_pos
+#print axioms Erdos625.residualMarkingCount_pos
+#print axioms Erdos625.fullCornerWeight_pos
+#print axioms Erdos625.complementaryProfile_add
+#print axioms Erdos625.selectedBlockCount_complement_add
+#print axioms Erdos625.selectedVertexMass_complement_add
+#print axioms Erdos625.selectedVertexMass_complement_le_of_fullMass
+#print axioms Erdos625.selectedVertexMass_le_of_fullMass
+#print axioms Erdos625.selectedInternalEdgeCount_complement_add
+#print axioms Erdos625.partialMarkingCount_complement
+#print axioms Erdos625.residualMarking_mul_profileFactorials
+#print axioms Erdos625.partialDiagonalWeight_complement_mul_complete
+#print axioms Erdos625.partialDiagonalWeight_complement_eq_fullCorner_div
+#print axioms Erdos625.residualMarkingCount_increment_mul
+#print axioms Erdos625.completeSignedFirstMoment_increment_mul
+#print axioms Erdos625.fullCornerWeight_increment_mul
+#print axioms Erdos625.fullCornerWeight_increment_div
 #print axioms Erdos625.exists_finpartition_refinement_card_eq
 #print axioms Erdos625.exists_bounded_proper_refinement_card_eq
 #print axioms Erdos625.partitionShape_eq_sizes_vertexPartitionProfile

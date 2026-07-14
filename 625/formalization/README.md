@@ -179,9 +179,21 @@ The active overlap/skeleton/residual decomposition and quarantined Aristotle
 task map are recorded in
 [`SECTIONS_6_9_BREAKDOWN_2026-07-14.md`](SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
 
+The latest exact finite checkpoint proves the fixed-row ordered overlap law
+(6.1)--(6.2), the configuration-model prescribed-cell estimates
+(6.8)--(6.10), the partial-diagonal and full-corner
+identities (7.1)--(7.6), the exact configuration-cell row and column margins,
+and the resulting high-cell matching assertion before (8.2).  Each accepted
+module has an isolated warnings-fatal build and focused standard-axiom audit.
+The deterministic equivalence between witness-extending matchings and
+bijections of the unused stubs is also proved, without overclaiming the still
+open residual degree-fibre probability law.  External proof-search output
+remains advisory until independently replayed.
+
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
-signed-moment/overlap, residual-attachment, and complete amplification layers
-remain open.  The project therefore does **not** claim Lemma 3.1 or
+signed-moment/overlap assembly, asymptotic diagonal ranges, canonical residual
+law, residual attachment, and complete amplification layers remain open.  The
+project therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
 declaration-by-declaration status record.

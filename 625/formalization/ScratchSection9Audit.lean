@@ -1,0 +1,14 @@
+import Erdos625.ConfigurationThetaMoments
+
+#print axioms Erdos625.degreeSquareSum_le_cap_mul_total
+#print axioms Erdos625.degreeCubeSum_le_cap_sq_mul_total
+#print axioms Erdos625.degreeSquareSum_ennreal_le_cap_mul_total
+#print axioms Erdos625.degreeCubeSum_ennreal_le_cap_sq_mul_total
+#print axioms Erdos625.sum_configurationCellTheta_sq_row
+#print axioms Erdos625.sum_configurationCellTheta_sq_column
+#print axioms Erdos625.sum_configurationCellTheta_cube
+#print axioms Erdos625.sum_configurationCellTheta_sq_row_le_uniform
+#print axioms Erdos625.sum_configurationCellTheta_sq_column_le_uniform
+#print axioms Erdos625.sum_configurationCellTheta_cube_le
+#print axioms Erdos625.configurationCellTheta_eq_zero_of_rowTotal_zero
+#print axioms Erdos625.sum_configurationCellTheta_cube_eq_zero_of_total_zero
