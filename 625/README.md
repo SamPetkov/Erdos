@@ -4,6 +4,13 @@
 
 **[Open the complete proof PDF](COMPLETE_PROOF_SELF_CONTAINED.pdf)**
 
+**[Open the publication-layout preprint PDF](arxiv_625.pdf)**
+
+The publication-layout PDF is dated 12 July 2026 and lists Samuil Petkov as
+the sole author, with explicit AI-assistance, Aristotle-use, funding, and
+competing-interests disclosures.  It remains a candidate preprint while the
+full Lean target is open.
+
 The editable canonical manuscript is
 [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md),
 and the generated TeX is
@@ -41,12 +48,24 @@ first-moment formula (4.2), zero-safe factorial/log-weight bounds, the finite
 `(n+1)^b` aggregate exponential estimate, and exact equivalence with the
 expanded discrete profile objective.  Natural profiles now embed exactly in
 the constrained real profile space, and an abstract variational-envelope
-theorem isolates the still-required concrete `L_+` domination.  A zero-safe
-Gibbs inequality further gives an explicit one-parameter dual domination for
-positive support and part count, without assuming the minimizing tilt, and is
-composed with the sharp shifted finite probability bound.  Its local calculus
-(mean, variance, and strict derivative monotonicity) and the final phase-cap
-squeeze interface are also kernel-checked.  The layer
+theorem supplies the finite expectation interface.  A zero-safe Gibbs
+inequality gives an explicit one-parameter dual domination for positive
+support and part count and is composed with the sharp shifted finite
+ probability bound.  The Gibbs mean now has its two endpoint limits and a
+ unique interior target tilt; its positive optimizer exactly attains the fixed
+ finite real-profile maximum.  The support is reindexed exactly by deficits
+ with normalized tilt `λ=B_α-t`, and the inverse, entropy, and part-count
+ envelope derivatives are kernel-checked.  The exceptional top residual is
+ evaluated exactly and the full finite support has a pointwise Gaussian score
+ bound.  Exact support reversal plus finite Gaussian-tail lemmas now give
+ explicit growing-support partition, first-moment, and second-moment envelopes
+ on every supplied bounded tilt interval, with a uniform denominator lower
+ bound from the zero-deficit atom.  The limiting deficit Gaussian is defined
+ with summable moments through order two and a strictly positive partition;
+ its normalized mean has derivative equal to a strictly positive variance and
+ has endpoint limits `-1` and `+∞`.  Hence every limiting target above `-1`
+ has a unique finite tilt and compact target intervals admit fixed brackets.
+The final phase-cap squeeze interface is also kernel-checked.  The layer
 also constructs a nonempty kernel
 partition from a coloring, refines it to exactly `k` parts, extracts the
 bounded profile, and proves the deterministic event containment used in
@@ -56,18 +75,24 @@ then give the exact probability reduction and its conditional
 
 The asymptotic target is deliberately recorded as an **unproved proposition**;
 the current development is a verified partial formalization, not a completed
-Lean proof of the manuscript.  In Section 4, the continuous `L_+` comparison,
-root/slope estimate, and resulting probability limit remain open; the
+Lean proof of the manuscript.  Growing-support moments, compact-uniform
+optimizer-tilt convergence, variance stability, and generic root/rounding
+interfaces are kernel-checked.  In Section 4, the concrete phase objective,
+its center/slope corridor, its integer decrement, and the resulting probability
+limit remain open; the
 signed first/second-moment, overlap, residual-attachment, and final
 amplification layers also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
 declaration-by-declaration status and remaining dependency graph.  Reproduced
 milestone evidence is recorded in the audit files under
-[`formalization/`](formalization/); the latest finite Section 4 and dual
-checkpoint is the
-[`M5 audit`](formalization/M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md).  The
+[`formalization/`](formalization/); the latest growing-support, compact-tilt,
+variance, and root-interface checkpoint is the
+[`M7 audit`](formalization/M7_GROWING_SUPPORT_TILT_CORRIDOR_AUDIT_2026-07-14.md).  The
 complete dependency/import policy is in
 [`DEPENDENCY_REPRODUCIBILITY.md`](formalization/DEPENDENCY_REPRODUCIBILITY.md).
+The current Sections 6--9 atomization, Aristotle quarantine status, and exact
+non-atomic obligations are tracked in the
+[`Sections 6--9 breakdown`](formalization/SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
 
 ## Current status
 
