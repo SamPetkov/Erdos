@@ -70,6 +70,7 @@ import Erdos625.StubAllocationTools
 import Erdos625.PrescribedDemandTools
 import Erdos625.MatchingExtensionTools
 import Erdos625.ConfigurationModelPrescribedCells
+import Erdos625.ConfigurationModelProbability
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
@@ -349,6 +350,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_extendingWitness_of_mem_prescribedCellEvent
 #print axioms Erdos625.card_extensionsOfPrescribedDemandWitness
 #print axioms Erdos625.card_prescribedCellEvent_le_witness_mul_factorial
+#print axioms Erdos625.uniformConfigurationMatching_prescribedCellEvent_apply
+#print axioms Erdos625.uniformConfigurationMatching_prescribedCellEvent_le_witness
+#print axioms Erdos625.jointPrescribedCellBound
 #print axioms Erdos625.exists_finpartition_refinement_card_eq
 #print axioms Erdos625.exists_bounded_proper_refinement_card_eq
 #print axioms Erdos625.partitionShape_eq_sizes_vertexPartitionProfile

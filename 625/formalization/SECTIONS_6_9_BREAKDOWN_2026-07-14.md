@@ -52,11 +52,12 @@ threshold expansion
 | `card_iUnion_stubAllocation` | allocation count before (6.8) | local proved | Use it in the full disjoint-allocation enumeration. |
 | `card_disjoint_extension` | one-cell extension step before (6.8) | local proved | Iterate or replace it by an audited global allocation equivalence. |
 | `card_stubAllocation_mul_factorials` | falling-factorial allocation factor in (6.8) | local proved | Combine row and column selections with the cell bijections. |
-| `card_prescribedDemandWitness_mul_factorials` | exact numerator count in (6.8) | local proved | Connect witnesses to uniform full matchings and apply the finite union bound. |
+| `card_prescribedDemandWitness_mul_factorials` | exact numerator count in (6.8) | local proved; integrated | Consumed by `jointPrescribedCellBound`. |
 | `card_extensions_of_exposed_equiv` | fixed-witness matching count before (6.8), and after (8.3) | local proved | Assemble each demand witness into one exposed global equivalence and transport the uniform law. |
 | `card_extensions_of_embedding_pairing` | indexed fixed-pair count before (6.8) | local proved | Build the row/column embeddings carried by each demand witness. |
 | `card_rowStub`, `card_columnStub`, `witnessAtomEquiv`, `witnessRowEmbedding`, `witnessColumnEmbedding`, `card_witnessRowAtom`, `card_witnessColumnAtom` | global stub and witness encoding before (6.8) | local proved | Define the cell event, prove witness coverage, and connect these embeddings to the extension count. |
-| `configurationCellCount`, `prescribedCellEvent`, `ExtendsPrescribedDemandWitness`, `extendsWitness_mem_prescribedCellEvent`, `exists_extendingWitness_of_mem_prescribedCellEvent`, `card_configurationMatching`, `card_extensionsOfPrescribedDemandWitness`, `card_prescribedCellEvent_le_witness_mul_factorial` | event and finite union count before (6.8) | defined; local proved | Both coverage directions, the ambient `m!` count, each exact `(m-x)!` extension count, and the aggregate event-cardinality bound are proved. Transport the uniform law and normalize the exact factors. |
+| `configurationCellCount`, `prescribedCellEvent`, `ExtendsPrescribedDemandWitness`, `extendsWitness_mem_prescribedCellEvent`, `exists_extendingWitness_of_mem_prescribedCellEvent`, `card_configurationMatching`, `card_extensionsOfPrescribedDemandWitness`, `card_prescribedCellEvent_le_witness_mul_factorial` | event and finite union count before (6.8) | defined; local proved; integrated | Both coverage directions, the ambient `m!` count, each exact `(m-x)!` extension count, and the aggregate event-cardinality bound are consumed by the complete probability theorem. |
+| `uniformConfigurationMatching_prescribedCellEvent_apply`, `uniformConfigurationMatching_prescribedCellEvent_le_witness`, `jointPrescribedCellBound` | uniform-law transport and equation (6.8) | local proved | Exact ENNReal probability ratio, witness union bound, and factorial normalization to one global `(m)_x`; proceed to the product majorant (6.9). |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -91,8 +92,10 @@ warning-as-error build passed all 2,971 jobs.  It also defines the exact cell
 event, proves both directions of the event/witness bridge by an explicit finite
 selection construction, proves the exact factorial count of extensions of any
 one witness, and embeds the whole event into the disjoint union of those
-extension types.  The uniform probability and final normalization remain
-deliberately separate.
+extension types.  `ConfigurationModelProbability.lean` then transports this
+count through the uniform PMF and proves the exact joint prescribed-cell bound
+(6.8).  Its isolated warning-as-error build passed all 3,227 jobs.  The product
+majorant (6.9) remains deliberately separate.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -190,11 +193,10 @@ accepts the separately reviewed local reconstruction.
 
 1. Turn the overlap-labeling identity into the exact probability law (6.2)
    for the manuscript's ordered profiles and signs.
-2. Transport the now-proved aggregate event-cardinality bound through the
-   uniform matching law and normalize the exact witness factors to finish
-   (6.8).  Both coverage directions, ambient and one-witness counts, the finite
-   union embedding, global stub types, witness atoms and embeddings, witness
-   numerator, and infeasible branch are now proved.
+2. Derive the product majorant (6.9) from the now-proved exact joint bound
+   (6.8), using `(d)_r ≤ d^r` and the global falling-factorial lower bound
+   `(m)_x ≥ (m/e)^x` for `m > 0`.  Equation (6.8), including both coverage
+   directions, all finite counts, the uniform law, and normalization, is proved.
 3. Prove the uniform central diagonal estimate (7.14)--(7.25), including the
    phase reduction and deterministic uniform error sequence.
 4. Define the canonical high skeleton and prove the exact residual matching
