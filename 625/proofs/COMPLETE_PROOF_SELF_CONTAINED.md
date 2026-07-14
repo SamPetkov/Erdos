@@ -32,12 +32,22 @@ $o(n/(\ln n)^4)$.  Paley--Zygmund gives a possibly rare cocolouring, and a
 proved Alon--Scott-type leftover argument amplifies it to high probability
 without losing the root separation.
 
-The divergence question was posed by Erdős and Gimbel (1993, p. 263) and
+The divergence question was posed by Erdos and Gimbel (1993, p. 263) and
 restated by Gimbel (2016, Section 7.4, p. 100).  For historical comparison,
-the first-order dense-random-graph chromatic asymptotic is due to Bollobás
-(1988, Theorem 4); Janson, Łuczak, and Ruciński (2000, Section 7.4,
+the first-order dense-random-graph chromatic asymptotic is due to Bollobas
+(1988, Theorem 4); Janson, Luczak, and Rucinski (2000, Section 7.4,
 Theorem 7.14 and Remark 7.15) give a textbook treatment.  These references
 provide context only: the proof of (0.1) below does not import their results.
+
+The problem is also recorded as Erdos Problem #625 by Bloom (2026).  The
+recent work of Heckel (2024) and, independently, Steiner (2024) showed that
+the gap is not bounded with high probability, in the stronger sense that any
+high-probability upper bound must be at least \(n^{1/2-o(1)}\) along an
+infinite sequence of \(n\).  Heckel (2025) subsequently proved a positive
+answer for roughly \(95\%\) of all values of \(n\) and formulated the natural
+scale \(\chi(G_n)-\zeta(G_n)\asymp n/(\log n)^3\).  The candidate proof below
+builds on this recent framework and targets the full sequence of \(n\), with
+the explicit constant in (0.1).
 
 ## 1. Notation and elementary facts
 
@@ -1850,7 +1860,10 @@ four-size profile, overlap enumeration, residual attachments, and
 concentration amplification.  No step of the proof above depends on those
 internal cross-references.  The cited historical sources confirm the
 definition, the original divergence question, and the standard first-order
-chromatic asymptotic; none supplies a step of the proof above.
+chromatic asymptotic.  The cited recent sources establish the known
+infinite-sequence lower-bound obstruction, Heckel's near-full-density positive
+result, and the predicted \(n/(\log n)^3\) scale.  The new work claimed here
+is the proposed full-sequence second-moment and amplification argument.
 
 For the accompanying Lean 4 work, Aristotle, as described by Achim et al.
 (2025), was used as an optional proof-search assistant on isolated atomic
@@ -1868,38 +1881,53 @@ constitute a machine-checked proof of the complete theorem stated here.
 
 ## 13. References
 
-1. P. Erdős and J. Gimbel, “Some Problems and Results in Cochromatic
-   Theory,” in J. Gimbel, J. W. Kennedy, and L. V. Quintas (eds.), *Quo
+1. P. Erdos and J. Gimbel, "Some Problems and Results in Cochromatic
+   Theory," in J. Gimbel, J. W. Kennedy, and L. V. Quintas (eds.), *Quo
    Vadis, Graph Theory?*, *Annals of Discrete Mathematics* **55**,
    North-Holland/Elsevier, 1993, pp. 261--264.
    <https://doi.org/10.1016/S0167-5060(08)70393-5>.
 
-2. J. Gimbel, “Some of My Favorite Coloring Problems for Graphs and
-   Digraphs,” in R. Gera, S. T. Hedetniemi, and C. Larson (eds.), *Graph
+2. J. Gimbel, "Some of My Favorite Coloring Problems for Graphs and
+   Digraphs," in R. Gera, S. T. Hedetniemi, and C. Larson (eds.), *Graph
    Theory: Favorite Conjectures and Open Problems -- 1*, Problem Books in
    Mathematics, Springer, Cham, 2016, pp. 95--108.
    <https://doi.org/10.1007/978-3-319-31940-7_7>.
 
-3. B. Bollobás, “The Chromatic Number of Random Graphs,” *Combinatorica*
+3. B. Bollobas, "The Chromatic Number of Random Graphs," *Combinatorica*
    **8**(1) (1988), 49--55.
    <https://doi.org/10.1007/BF02122551>.
 
-4. S. Janson, T. Łuczak, and A. Ruciński, *Random Graphs*, Wiley-Interscience,
+4. S. Janson, T. Luczak, and A. Rucinski, *Random Graphs*, Wiley-Interscience,
    John Wiley & Sons, New York, 2000, ISBN 0-471-17541-2.
 
-5. C. McDiarmid, “On the Method of Bounded Differences,” in J. Siemons
+5. T. F. Bloom, *Erdos Problem #625*,
+   <https://www.erdosproblems.com/625>, accessed 14 July 2026.
+
+6. A. Heckel, "On a Question of Erdos and Gimbel on the Cochromatic
+   Number," *The Electronic Journal of Combinatorics* **31**(4) (2024),
+   #P4.72. <https://doi.org/10.37236/13346>.  arXiv:2408.13839.
+
+7. A. Heckel, "The Difference Between the Chromatic and the Cochromatic
+   Number of a Random Graph," arXiv:2409.17614v2 [math.CO], 2025;
+   first submitted in 2024. <https://arxiv.org/abs/2409.17614>.
+
+8. R. Steiner, "On the Difference Between the Chromatic and Cochromatic
+   Number," arXiv:2408.02400v2 [math.CO], 2024.
+   <https://arxiv.org/abs/2408.02400>.
+
+9. C. McDiarmid, "On the Method of Bounded Differences," in J. Siemons
    (ed.), *Surveys in Combinatorics, 1989*, London Mathematical Society
    Lecture Note Series **141**, Cambridge University Press, 1989,
    pp. 148--188. <https://doi.org/10.1017/CBO9781107359949.008>.
 
-6. A. Scott, “On the Concentration of the Chromatic Number of Random
-   Graphs,” arXiv:0806.0178v2, 2017. <https://arxiv.org/abs/0806.0178>.
+10. A. Scott, "On the Concentration of the Chromatic Number of Random
+    Graphs," arXiv:0806.0178v2, 2017. <https://arxiv.org/abs/0806.0178>.
 
-7. Tudor Achim, Alex Best, Alberto Bietti, Kevin Der, Mathïs Fédérico,
-   Sergei Gukov, Daniel Halpern-Leistner, Kirsten Henningsgard,
-   Yury Kudryashov, Alexander Meiburg, Martin Michelsen, Riley Patterson,
-   Eric Rodriguez, Laura Scharff, Vikram Shanker, Vladmir Sicca,
-   Hari Sowrirajan, Aidan Swope, Matyas Tamas, Vlad Tenev, Jonathan Thomm,
-   Harold Williams, and Lawrence Wu, “Aristotle: IMO-level Automated Theorem
-   Proving,” arXiv:2510.01346 [cs.AI], 2025.
-   <https://doi.org/10.48550/arXiv.2510.01346>.
+11. Tudor Achim, Alex Best, Alberto Bietti, Kevin Der, Mathis Federico,
+    Sergei Gukov, Daniel Halpern-Leistner, Kirsten Henningsgard,
+    Yury Kudryashov, Alexander Meiburg, Martin Michelsen, Riley Patterson,
+    Eric Rodriguez, Laura Scharff, Vikram Shanker, Vladmir Sicca,
+    Hari Sowrirajan, Aidan Swope, Matyas Tamas, Vlad Tenev, Jonathan Thomm,
+    Harold Williams, and Lawrence Wu, "Aristotle: IMO-level Automated Theorem
+    Proving," arXiv:2510.01346 [cs.AI], 2025.
+    <https://doi.org/10.48550/arXiv.2510.01346>.

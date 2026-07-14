@@ -66,6 +66,7 @@ import Erdos625.ColoringProfileDeficitTiltConvergence
 import Erdos625.ProfileAsymptoticTools
 import Erdos625.ProfileCorridorTools
 import Erdos625.OverlapContingencyTools
+import Erdos625.StubAllocationTools
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
@@ -326,6 +327,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
 #print axioms Erdos625.highCells_form_matching
+#print axioms Erdos625.card_iUnion_stubAllocation
+#print axioms Erdos625.card_disjoint_extension
 #print axioms Erdos625.exists_finpartition_refinement_card_eq
 #print axioms Erdos625.exists_bounded_proper_refinement_card_eq
 #print axioms Erdos625.partitionShape_eq_sizes_vertexPartitionProfile
