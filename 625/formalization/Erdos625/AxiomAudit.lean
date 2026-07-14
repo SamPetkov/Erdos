@@ -337,6 +337,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_stubAllocation_mul_factorials
 #print axioms Erdos625.card_prescribedDemandWitness_mul_factorials
 #print axioms Erdos625.card_extensions_of_exposed_equiv
+#print axioms Erdos625.card_extensions_of_embedding_pairing
 #print axioms Erdos625.exists_finpartition_refinement_card_eq
 #print axioms Erdos625.exists_bounded_proper_refinement_card_eq
 #print axioms Erdos625.partitionShape_eq_sizes_vertexPartitionProfile
