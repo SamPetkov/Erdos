@@ -228,3 +228,66 @@
   independent frozen-pin audit found no blockers.  The target-matching tilt,
   concrete `L_+` comparison, root/slope/rounding limit, and all later signed
   overlap/amplification layers remain open.
+- Extended the fixed finite Section 4 dual closure with endpoint inversion and
+  a unique interior tilt, exact Gibbs attainment, deficit normalization
+  `λ=B_α-t`, selected inverse/entropy/envelope calculus, and a pointwise
+  Gaussian residual-score bound on the full support for `α>0`. The integrated
+  warning-as-error build passed 3,733 jobs across 55 Lean files and 11,936
+  physical lines; source, axiom, diff, and two independent semantic audits
+  passed. Growing-support tail domination, bounded normalized tilt, support
+  comparison, the root/slope/rounding corridor, and the final target remain
+  open.
+
+## 2026-07-14
+
+- Completed the M6 finite-dual checkpoint: exact deficit reindexing, finite
+  Gibbs attainment, selected-tilt/envelope calculus, and full-support
+  pointwise Gaussian score control are imported and independently audited.
+- Added the next growing-support bricks.  Explicit geometric/Gaussian tails
+  now control zeroth, first, and second deficit moments uniformly in the
+  support size whenever a common bound `|λ|≤M` is supplied.  The limiting
+  law on deficits `{-1,0,1,…}` has a defined partition, first and second
+  numerators, mean, and raw variance; all moments through order two are
+  summable and the partition is strictly positive.  Fixed-deficit correction
+  limits, exact fixed-coordinate weight/moment convergence, dominated-`tsum`,
+  finite-support-to-`tsum`, uniform dominated-series and quotient convergence,
+  generic root-corridor,
+  derivative-integration, and rounding lemmas are also kernel-checked.
+  Termwise differentiation of the limiting law gives `Z'=N₁`, `N₁'=N₂`,
+  and `mean'=variance`; an infinite-series Cauchy–Schwarz argument proves the
+  variance is strictly positive.  Independent endpoint arguments prove that
+  the limiting mean tends to `-1` at negative infinite tilt and to `+∞` at
+  positive infinite tilt.  Generic endpoint-bracket and unique-inversion
+  theorems therefore give a unique limiting tilt for every target above `-1`.
+  The integrated axiom audit passed 8,623
+  jobs before the final calculus import, with only the
+  standard Mathlib axioms `propext`, `Classical.choice`, and `Quot.sound`.
+- Aristotle is being used only as parallel proof search on isolated Lean 4.28
+  projects.  Every returned proof remains quarantined until its statement,
+  source, edge cases, Lean 4.31 port, warning-as-error build, and axiom
+  footprint are checked locally; several generated proofs have already been
+  rejected or rewritten rather than copied.
+- Prepared and pushed a strict formal statement of Problem 625 to the user
+  fork of `google-deepmind/formal-conjectures`, coordinating with the existing
+  upstream draft instead of opening a duplicate pull request.  The benchmark
+  statement intentionally retains only its two required conjectural holes.
+- Regenerated the public manuscript PDF with repository/formalization links
+  and prepared a separate local arXiv submission package under Samuil Petkov's
+  sole authorship with an explicit AI-assistance ethics disclosure.  This
+  formatting work does not change the candidate status or substitute for the
+  still-incomplete Lean proof.
+- Completed the M7 growing-support checkpoint.  The full finite partition,
+  first numerator, second numerator, mean, variance, compact selected tilt,
+  limiting inverse, and generic root/rounding interfaces are imported.  The
+  warning-as-error root build reported 8,639 successful jobs; the source gate,
+  representative axiom audit, file-hash pinning, and independent semantic
+  checks passed.  The concrete phase center/slope substitution and all
+  Sections 6–9 overlap/residual obligations remain open.
+- Broke Sections 6--9 into finite overlap, recurrence, skeleton, cycle, and
+  traversal leaves and submitted the independent leaves to quarantined
+  Aristotle projects.  Locally proved the impossible contingency-demand
+  branch and the fact that entries above half a common margin cap form a
+  matching.  Their isolated warning-as-error build, direct axiom audit, strict
+  source gate, and the 8,640-job integrated root build passed.  The exact
+  counting/probability assemblies and uniform asymptotic estimates remain
+  explicitly open in the Sections 6--9 breakdown.

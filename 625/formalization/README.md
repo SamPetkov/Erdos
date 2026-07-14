@@ -100,13 +100,44 @@ objective, including zero coordinates and the empty profile.  Natural
 profiles embed into an explicit nonnegative real feasible space with exact
 part-count and vertex-mass constraints and exactly preserved objective.  A
 generic variational-envelope theorem then packages any proved continuous
-upper relaxation into the required finite expectation bound; it does not
-assume the concrete `L_+` maximum.  For positive support and part count, a
-finite zero-safe Gibbs argument now provides a concrete one-parameter
-log-partition dual upper bound; tilt existence, optimality, and root
-asymptotics are still separate obligations.  The dual's derivative is proved
-to be `parts·mean−n`, the mean derivative is its strictly positive variance
-when `b≥2`, and hence the dual derivative is strictly increasing.  That dual bound is already
+ upper relaxation into the required finite expectation bound.  For positive
+ support and part count, a finite zero-safe Gibbs argument provides a concrete
+ one-parameter log-partition dual upper bound.  The Gibbs mean tends to the two
+ support endpoints, is strictly increasing when `b≥2`, and therefore has a
+ unique tilt for every target in `(1,b)`.  The matching Gibbs profile is
+ feasible and attains the exact greatest value of the fixed finite real-profile
+ relaxation.  Reindexing the support by deficits is exact: the manuscript's
+ normalized deficit tilt is `λ=B_α-t`, and its target is `α-n/parts`.  On the
+ interior target domain, the inverse derivative is the reciprocal variance,
+ the normalized entropy derivative is `-t`, and the attained value has exact
+ part-count derivative `log Z_b(t)-log parts`.  Finally, the exceptional top
+ deficit has its exact logarithmic correction, while every support coordinate
+ satisfies the pointwise Gaussian residual-score upper bound.  Exact support
+ reversal and finite tilted-Gaussian tails now give uniform partition,
+ first-moment, and second-moment envelopes on the growing support whenever a
+ common absolute tilt bound is supplied; the deficit-zero atom simultaneously
+ gives a uniform denominator lower bound.  The limiting law on deficits
+ `{-1,0,1,…}` is defined with summable zeroth, first, and second moments and a
+ strictly positive partition.  Its partition and first numerator can be
+ differentiated termwise, its normalized mean has derivative equal to a
+ strictly positive raw variance, and hence the limiting mean is strictly
+ increasing.  Its endpoint limits are `-1` at negative infinite tilt and
+ `+∞` at positive infinite tilt; every target above `-1` therefore has a
+ unique limiting tilt, and compact target intervals have fixed finite
+ bracketing tilts.  Every fixed natural weight, the exceptional
+ `-1` weight, and their fixed first/second-moment terms converge to the
+ corresponding limiting atoms.  Uniform Gaussian domination now upgrades
+ these coordinate limits to pointwise and compact-uniform convergence of the
+ full growing-support partition, first numerator, second numerator, and
+ normalized mean.  The selected finite deficit tilt is eventually bounded by
+ one constant simultaneously for every target in a supplied compact interval
+ above `-1`; it converges uniformly there to the unique selected limiting
+ tilt.  The finite deficit variance is the derivative of the finite mean and
+ converges uniformly on bounded tilt intervals to the positive limiting raw
+ variance.  Continuity supplies a positive compact variance floor, integration
+ gives a quantitative lower separation, and a generic inverse-error theorem
+ completes the selected-inverse transfer without assuming its conclusion.  The
+ dual bound is already
 composed with the finite chromatic probability reduction, producing the exact
 `box·exp(dual+error)+μ(n,b+1)` inequality for every parameter `t`.  A coloring is
 also converted to its nonempty kernel partition, refined to exactly `k`
@@ -114,10 +145,11 @@ nonempty parts, and extracted into a bounded profile.  This proves the
 deterministic event containment behind (4.5), with the excessive-independence-
 number event as the only alternative.  A direct finite-space Markov and union
 argument then proves `P(χ≤k)≤E[bounded count]+P(α>b)`, as well as its sharp
-box-exponential-plus-`μ(n,b+1)` form.  The remaining part of (4.3)--(4.5) is analytic
-and asymptotic: reindex the discrete objective by deficits,
-compare it uniformly to the continuous maximum `L_+`, prove the root/slope
-estimate, and prove that the assembled upper bound tends to zero.
+ box-exponential-plus-`μ(n,b+1)` form.  The remaining part of (4.3)--(4.5) is
+ analytic and asymptotic: insert the now-controlled phase-dependent deficit
+ optimizer into the part-count objective, establish the scalar root corridor
+ and slope, justify the integer rounding decrement, and prove that the
+ assembled upper bound tends to zero.
 An explicit phase-cap squeeze theorem already performs the last implication
 once convergence of the displayed dual main term is supplied.
 
@@ -137,10 +169,19 @@ first-moment formula (4.2), and finite aggregation checkpoint is reproduced in
 The finite Stirling/log-weight, coloring-to-profile, sharp probability,
 Gibbs-dual, local dual-calculus, and conditional phase-cap checkpoint is in
 [`M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md`](M5_SECTION4_FINITE_DUAL_AUDIT_2026-07-13.md).
+The fixed finite-support inversion, exact Gibbs attainment, deficit
+normalization, envelope calculus, and pointwise Gaussian-score checkpoint is in
+[`M6_FINITE_DUAL_ATTAINMENT_DEFICIT_AUDIT_2026-07-14.md`](M6_FINITE_DUAL_ATTAINMENT_DEFICIT_AUDIT_2026-07-14.md).
+The growing-support moments, limiting-law calculus, compact selected-tilt
+convergence, variance stability, and generic root/rounding checkpoint is in
+[`M7_GROWING_SUPPORT_TILT_CORRIDOR_AUDIT_2026-07-14.md`](M7_GROWING_SUPPORT_TILT_CORRIDOR_AUDIT_2026-07-14.md).
+The active overlap/skeleton/residual decomposition and quarantined Aristotle
+task map are recorded in
+[`SECTIONS_6_9_BREAKDOWN_2026-07-14.md`](SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
 
-The difficult profile-root, unrestricted chromatic lower-location,
+The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap, residual-attachment, and complete amplification layers
-remain open.  The project therefore does **not** claim Lemma 2.1 or
+remain open.  The project therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
 declaration-by-declaration status record.

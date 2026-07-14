@@ -2,33 +2,33 @@
 
 **Authors:** Samuil Petkov & ChatGPT 5.6
 
-**Date:** 2026-07-12  
+**Date:** 12 July 2026
 **Status:** self-contained manuscript assembled from, and checked against, the
 component arguments in this research dossier.  This document makes no claim
 of external peer review or priority.
 
 ## Abstract
 
-For a graph `G`, let `chi(G)` be its chromatic number and let `zeta(G)` be
+For a graph $G$, let $\chi(G)$ be its chromatic number and let $\zeta(G)$ be
 the least number of parts in a vertex partition in which every part induces
 either an empty graph or a complete graph.  We prove that, for
-`G_n~G(n,1/2)`,
+$G_n\sim G(n,1/2)$,
 
 \[
  \Pr\left\{\chi(G_n)-\zeta(G_n)
- \ge \frac{(\ln2)^2}{32}\ln\frac{200}{153}
+ \ge \frac{(\ln 2)^2}{32}\ln\!\left(\frac{200}{153}\right)
        \frac{n}{(\ln n)^3}\right\}\longrightarrow1.      \tag{0.1}
 \]
 
 The construction uses classes of the four sizes
-`alpha-2,...,alpha-5`, where `alpha` is the usual independence-number
+$\alpha-2,\ldots,\alpha-5$, where $\alpha$ is the usual independence-number
 phase.  Signing each class as independent or complete moves its
-first-moment root down by order `n/(ln n)^3`, uniformly through the whole
+first-moment root down by order $n/(\ln n)^3$, uniformly through the whole
 phase cycle.  An exact sign-summed overlap identity reduces the second
 moment to a bipartite configuration model.  We sum partial diagonals,
 unequal-type dense containments, all intermediate high cells, and every
 residual even-subgraph attachment with logarithmic cost
-`o(n/(ln n)^4)`.  Paley--Zygmund gives a possibly rare cocolouring, and a
+$o(n/(\ln n)^4)$.  Paley--Zygmund gives a possibly rare cocolouring, and a
 proved Alon--Scott-type leftover argument amplifies it to high probability
 without losing the root separation.
 
@@ -711,10 +711,15 @@ where
 Consequently
 
 \[
- \frac{\mathbb E(Z_{\mathbf k}^{sgn})^2}
-      {(\mathbb EZ_{\mathbf k}^{sgn})^2}
- =\sum_rp(r)A_\zeta(r).                                  \tag{6.6}
+ \frac{\mathbb E\!\left[(Z_{\mathbf k}^{sgn})^2\right]}
+       {(\mathbb EZ_{\mathbf k}^{sgn})^2}
+ =\sum_{r\in\mathcal R(\mathbf s,\mathbf t)}
+      p(r)A_\zeta(r),                                    \tag{6.6}
 \]
+
+where \(\mathcal R(\mathbf s,\mathbf t)\) is the finite set of
+nonnegative integer matrices with the prescribed row margins \(\mathbf s\)
+and column margins \(\mathbf t\).
 
 #### Proof
 
@@ -761,7 +766,14 @@ In a bipartite configuration model of total degree `m_0`, with row degrees
  D'_b=\sum_ax_{ab}.
 \]
 
-Then
+In the feasible case
+
+\[
+ x\le m_0,\qquad D_a\le d_a\ \ (\forall a),\qquad
+ D'_b\le d'_b\ \ (\forall b),
+\]
+
+we have
 
 \[
  \Pr\{r_{ab}\ge x_{ab}\ \forall ab\in D\}
@@ -769,7 +781,9 @@ Then
           {(m_0)_x\prod_{ab\in D}x_{ab}!}.               \tag{6.8}
 \]
 
-In particular, with `theta_ab=e d_a d'_b/m_0`, the right side is at most
+If any feasibility condition fails, the prescribed event is empty and is
+handled separately.  In particular, in all cases with \(m_0>0\), with
+`theta_ab=e d_a d'_b/m_0`, its probability is at most
 
 \[
  \prod_{ab\in D}\frac{\theta_{ab}^{x_{ab}}}{x_{ab}!}.  \tag{6.9}
@@ -777,9 +791,10 @@ In particular, with `theta_ab=e d_a d'_b/m_0`, the right side is at most
 
 #### Proof
 
-Choose the required row and column stubs and biject them inside each
-prescribed cell.  This gives the numerator of (6.8); any fixed set of `x`
-paired stubs occurs with probability `1/(m_0)_x`.  A union bound proves
+If a feasibility condition fails, no matching realizes all demands.  In the
+feasible case, choose the required row and column stubs and biject them inside
+each prescribed cell.  This gives the numerator of (6.8); any fixed set of
+`x` paired stubs occurs with probability `1/(m_0)_x`.  A union bound proves
 (6.8).  Next use `(d)_r<=d^r` and
 
 \[
@@ -809,13 +824,16 @@ vertices of `[n]` is
 \]
 
 Summing the possible matchings between selected row and column slots gives
-the exact common-subprofile contribution
+the exact **marked** common-subprofile weight
 
 \[
  D(\ell)=\frac{\prod_i\binom{k_i}{\ell_i}^2}
                  {Y_\ell^{sgn}}.                         \tag{7.3}
 \]
 
+Different marked choices need not be disjoint: an overlap containing several
+common blocks contributes to each corresponding marked choice.  The sums below
+are sums of these nonnegative marked weights, so no disjointness is used.
 In particular, `D(0)=1` and
 `D(k)=1/E Z_k^sgn`.  Adding one common block gives
 
@@ -1164,6 +1182,10 @@ uniformly in the phase.  This proves (8.10).  \(\square\)
 
 ### Lemma 8.2 (sum of all endpoint tables)
 
+Here the first sum is over the finite set of typed full-containment tables
+\(L\) with feasible row and column margins; the second is over the finite set
+of feasible pairs of margin vectors \(r=(\mathbf r,\mathbf c)\).
+
 \[
  \sum_LW(L)\le
  \exp\{O(\sqrt{nN})+O(N)\}\sum_rD(r)
@@ -1291,10 +1313,17 @@ high skeleton is a matching and has at most \(k_{co}\) cells, (8.25a) is at most
 
 It remains to cover the middle strip, rather than silently importing an
 equitable-profile estimate.  First expose a near-containment skeleton and
-let \(m_0\) be its residual stub mass.  Every unexposed high cell is then in
-the range \(R_0<j\le3a/4+O(1)\).  Let \(E_{mid}(S)\) be the conditional bare
-middle-extension factor.  If \(m_0\ge n/N^6\), expand over distinct residual
-cells and their threshold demands.  With
+let \(m_0\) be its residual stub mass.  Let \(\mathcal N(S)\) be the residual
+event that there is no further near-containment cell.  On \(\mathcal N(S)\),
+every unexposed high cell is in the range
+\(R_0<j\le3a/4+O(1)\).  Define \(E_{mid}(S)\) as the residual expectation of
+the product of the local factors truncated to this middle range, multiplied
+by \(\mathbf 1_{\mathcal N(S)}\).  Thus its finite threshold expansion is
+exact on \(\mathcal N(S)\).  After that nonnegative expansion, the indicator
+\(\mathbf 1_{\mathcal N(S)}\) may be dropped term by term; the local factor is
+still the truncated middle factor, so no newly admitted near cell is charged
+as a middle cell.  If \(m_0\ge n/N^6\), expand over distinct residual cells
+and their threshold demands.  With
 \(\theta_{ab}=e d_ad'_b/m_0\le ea^2/m_0\), Lemma 6.2 is applied jointly before
 the constraints are dropped, and gives
 
@@ -1397,12 +1426,19 @@ law, the normalized moment is exactly
  \mathcal A(M,j).                                       \tag{9.2}
 \]
 
+The sum in (9.2) is over the finite set of feasible canonical high skeletons:
+typed matchings \(M\), allowed multiplicities \(j_e>R_0\), and the induced
+nonnegative residual row and column degrees.
+
 ### Lemma 9.1 (uniform attachment bound)
 
-Uniformly over every canonical high skeleton,
+There is a deterministic sequence \(\varepsilon_n\to0\), independent of the
+canonical high skeleton, such that for every feasible skeleton and all
+sufficiently large \(n\),
 
 \[
- \mathcal A(M,j)\le\exp\{o(n/N^4)\}.                    \tag{9.3}
+ \mathcal A(M,j)\le
+ \exp\!\left\{\varepsilon_n\frac n{N^4}\right\}.       \tag{9.3}
 \]
 
 More precisely, for an absolute \(C\), it is at most \(\exp(CN^8)\) when
@@ -1484,9 +1520,15 @@ this nonnegative expansion gives
 \[
  \mathcal A(M,j)
  \le e^{\Lambda_0}
-  \sum_{F\text{ even}}\prod_{e\in F\setminus M}q_e,\qquad
+  \sum_{F\in\mathcal C_{\rm even}(M,R)}
+       \prod_{e\in F\setminus M}q_e,\qquad
  \Lambda_0=\sum_e\lambda_e.                              \tag{9.12}
 \]
+
+Here \(R\) is the finite potential residual support graph (all residual
+row--column cells), and \(\mathcal C_{\rm even}(M,R)\) is the finite family of
+edge subsets \(F\subseteq E(M\cup R)\) having even degree at every vertex;
+the edges of \(M\) have weight one in the displayed product.
 
 The degree sums give
 
@@ -1581,8 +1623,8 @@ Both exponents in (9.19) and (9.22) are `o(n/N^4)`.  \(\square\)
 For the exact midpoint profile,
 
 \[
- \Lambda_n:=\ln\frac{\mathbb E(Z_{\mathbf k}^{sgn})^2}
-                      {(\mathbb EZ_{\mathbf k}^{sgn})^2}
+ \Lambda_n:=\ln\frac{\mathbb E\!\left[(Z_{\mathbf k}^{sgn})^2\right]}
+                       {(\mathbb EZ_{\mathbf k}^{sgn})^2}
  =o(n/N^4).                                               \tag{9.23}
 \]
 
@@ -1802,15 +1844,27 @@ construction.  In particular, no ordinary-colouring second-moment theorem
 is invoked at the signed midpoint, where the ordinary first moment is
 exponentially small.
 
-For provenance only, the separate dossier files from which the arguments
-were consolidated are `EXCEPTIONAL_REGIME.md`,
-`ALPHA_MINUS_TWO_ROUTE.md`, `FOUR_SIZE_PARTIAL_RATES.md`,
-`DENSE_FOUR_TYPE_MATCHING.md`, `SIGNED_PROFILE_OVERLAP.md`,
-`RESIDUAL_ATTACHMENT.md`, and `ALON_CONCENTRATION_EXTENSION.md`.
-No step of the proof above depends on those cross-references.  The cited
-historical sources confirm the definition, the original divergence question,
-and the standard first-order chromatic asymptotic; none supplies a step of the
-proof above.
+The manuscript was consolidated from a larger research dossier containing
+separate derivations and adversarial checks of the exceptional regime, the
+four-size profile, overlap enumeration, residual attachments, and
+concentration amplification.  No step of the proof above depends on those
+internal cross-references.  The cited historical sources confirm the
+definition, the original divergence question, and the standard first-order
+chromatic asymptotic; none supplies a step of the proof above.
+
+For the accompanying Lean 4 work, Aristotle, as described by Achim et al.
+(2025), was used as an optional proof-search assistant on isolated atomic
+Lean statements.  Returned files remained quarantined; only arguments that
+were independently inspected, locally ported, rebuilt under Lean v4.31 with
+`--wfail`, and axiom-audited were accepted.  Aristotle did not verify or prove
+the full manuscript.
+
+The public research dossier is available at
+<https://github.com/SamPetkov/Erdos>.  An accompanying Lean 4 development is
+available at <https://github.com/SamPetkov/Erdos/tree/main/625/formalization>.
+As of 14 July 2026 that formalization is ongoing and partial: it certifies a
+growing collection of definitions and proof components, but it does not yet
+constitute a machine-checked proof of the complete theorem stated here.
 
 ## 13. References
 
@@ -1840,3 +1894,12 @@ proof above.
 
 6. A. Scott, “On the Concentration of the Chromatic Number of Random
    Graphs,” arXiv:0806.0178v2, 2017. <https://arxiv.org/abs/0806.0178>.
+
+7. Tudor Achim, Alex Best, Alberto Bietti, Kevin Der, Mathïs Fédérico,
+   Sergei Gukov, Daniel Halpern-Leistner, Kirsten Henningsgard,
+   Yury Kudryashov, Alexander Meiburg, Martin Michelsen, Riley Patterson,
+   Eric Rodriguez, Laura Scharff, Vikram Shanker, Vladmir Sicca,
+   Hari Sowrirajan, Aidan Swope, Matyas Tamas, Vlad Tenev, Jonathan Thomm,
+   Harold Williams, and Lawrence Wu, “Aristotle: IMO-level Automated Theorem
+   Proving,” arXiv:2510.01346 [cs.AI], 2025.
+   <https://doi.org/10.48550/arXiv.2510.01346>.

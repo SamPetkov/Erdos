@@ -39,6 +39,38 @@ import Erdos625.ColoringProfileRealObjective
 import Erdos625.ColoringProfileVariationalEnvelope
 import Erdos625.ColoringProfileDualBound
 import Erdos625.ColoringProfileDualDifferentiation
+import Erdos625.ColoringProfileDualTilt
+import Erdos625.ColoringProfileDualOptimizer
+import Erdos625.ColoringProfileDeficitDual
+import Erdos625.ColoringProfileDualOptimalValue
+import Erdos625.ColoringProfileDeficitScoreBounds
+import Erdos625.ColoringProfileDeficitConvergence
+import Erdos625.GaussianTailTools
+import Erdos625.GeometricMomentTools
+import Erdos625.GaussianMomentTailTools
+import Erdos625.GeometricSecondMomentTools
+import Erdos625.GaussianSecondMomentTailTools
+import Erdos625.TiltedGaussianSummability
+import Erdos625.ExtendedGaussianProfile
+import Erdos625.ExtendedGaussianCalculus
+import Erdos625.ExtendedGaussianEndpoints
+import Erdos625.MeanInversionTools
+import Erdos625.SeriesConvergenceTools
+import Erdos625.UniformSeriesConvergenceTools
+import Erdos625.ColoringProfileDeficitPartitionBounds
+import Erdos625.ColoringProfileDeficitPointwiseConvergence
+import Erdos625.ColoringProfileDeficitMomentConvergence
+import Erdos625.ColoringProfileDeficitUniformMomentConvergence
+import Erdos625.ColoringProfileDeficitUniformMeanConvergence
+import Erdos625.ColoringProfileDeficitTilt
+import Erdos625.ColoringProfileDeficitVariance
+import Erdos625.InverseConvergenceTools
+import Erdos625.VarianceStabilityTools
+import Erdos625.ExtendedGaussianTilt
+import Erdos625.ColoringProfileDeficitTiltConvergence
+import Erdos625.ProfileAsymptoticTools
+import Erdos625.ProfileCorridorTools
+import Erdos625.OverlapContingencyTools
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
@@ -99,16 +131,57 @@ proved algebraically identical to the manuscript's expanded discrete profile
 objective, with the forbidden-edge energy exact.
 Natural profiles now embed exactly into an explicitly constrained real profile
 space, preserving both affine constraints and the objective even at zero
-coordinates.  An abstract continuous-relaxation interface cleanly separates
-the completed finite aggregation from the still-open proof of the concrete
-`L_+` upper envelope.
-For positive support and part count, a zero-safe finite Gibbs inequality now
-supplies a concrete one-parameter log-partition dual bound for every feasible
-real profile and hence for the aggregate exact first moment.  It introduces
-no minimizing tilt or asymptotic estimate.
-The log-partition derivative is the Gibbs mean, the mean derivative is the
-variance, and the dual derivative is strictly increasing on every support
-with at least two sizes and positive part count.
+coordinates.  An abstract continuous-relaxation interface separates the
+completed finite aggregation from the remaining phase-uniform asymptotics.
+For positive support and part count, a zero-safe finite Gibbs inequality gives
+a concrete one-parameter log-partition bound for every feasible real profile
+and hence for the aggregate exact first moment.  The Gibbs mean has endpoint
+limits `1` and `b`, is strictly increasing for `b ≥ 2`, and therefore has a
+unique tilt at every interior target.  Its positive profile attains the exact
+greatest value of the fixed finite real relaxation.  Deficit reindexing proves
+the normalized relation `λ = B_α - t`, and the selected tilt, entropy value,
+and attained optimum have their exact interior derivatives.  The exceptional
+top residual score is evaluated exactly and every finite support coordinate
+satisfies the pointwise Gaussian residual upper bound.  Finite tilted-Gaussian
+tails and exact support reversal now give explicit growing-support partition,
+absolute first-moment, and second-moment bounds on every supplied bounded tilt
+interval.  The limiting Gaussian law on deficits `{-1, 0, 1, ...}` is defined
+with summable zeroth, first, and second moments and a strictly positive
+partition function.  Its partition derivative is the first numerator, the
+first-numerator derivative is the second numerator, the normalized-mean
+derivative is the raw variance, and that variance is strictly positive.
+At the two tilt endpoints the limiting mean tends to `-1` and `+∞`.
+Consequently every limiting target above `-1` has a unique finite tilt, and
+every compact target interval above `-1` admits two fixed bracketing tilts.
+Every fixed natural-deficit weight and the exceptional `-1` weight also
+converge to the corresponding limiting atom, including fixed first- and
+second-moment coordinate corollaries.  Summable Gaussian envelopes now justify
+the full growing-support interchange for the partition, first numerator,
+second numerator, and normalized mean, both pointwise in the tilt and uniformly
+on every bounded tilt interval.  The finite selected deficit tilt exists on
+its exact interior target domain, is bounded eventually and simultaneously on
+every compact target interval above `-1`, and converges there uniformly to the
+unique selected limiting tilt.  The finite variance is the derivative of the
+finite mean and converges uniformly on compact tilt intervals to the strictly
+positive limiting variance; an integrated compact lower-separation modulus
+makes inverse convergence quantitative rather than relying on strict
+monotonicity alone.
+Composing this analytic package with the phase-dependent part-count objective,
+then proving the scalar root corridor, phase slope, integer rounding decrement,
+and final chromatic probability limit remain separate obligations.
+Generic interval tools for a unique decreasing root, derivative integration,
+endpoint tilt trapping, and the exact floor/ceiling decrement are proved, but
+their phase-specific bracket and slope hypotheses are not assumed.
+The first deterministic Section 6 feasibility layer is also imported: finite
+table row and column totals agree, entrywise demand bounds sum correctly, and
+an excessive row demand, excessive column demand, or unequal total margin
+makes the prescribed contingency-table event empty.  Moreover, entries larger
+than half a common row/column cap form a matching, supplying the deterministic
+high-cell claim used at the start of Section 8.
+The exceptional deficit correction tends to zero, normalized quotients have an
+explicit stability bound, bounded-parameter coordinate limits pass uniformly
+through summable series and normalized quotients, and the `s=n/k`
+product-chain derivative is exact.
 For the finite enumeration bridge, canonical labelled slots and factorial
 decorations are counted exactly.  A decorated profile partition produces a
 genuine vertex-to-slot equivalence, and conversely every slot equivalence now
