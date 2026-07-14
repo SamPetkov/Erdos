@@ -49,6 +49,11 @@ threshold expansion
 | `sum_demand_le_sum_table` | before (6.8) | local proved | Combine with the exact witness enumeration. |
 | `no_contingencyTable_of_infeasible_demands` | Lemma 6.2 impossible branch | local proved | The feasible prescribed-cell count and probability ratio are still open. |
 | `highCells_form_matching` | assertion before (8.2) | local proved | Define the canonical skeleton and prove the residual conditional law. |
+| `card_iUnion_stubAllocation` | allocation count before (6.8) | local proved | Use it in the full disjoint-allocation enumeration. |
+| `card_disjoint_extension` | one-cell extension step before (6.8) | local proved | Iterate or replace it by an audited global allocation equivalence. |
+| `card_stubAllocation_mul_factorials` | falling-factorial allocation factor in (6.8) | local proved | Combine row and column selections with the cell bijections. |
+| `card_prescribedDemandWitness_mul_factorials` | exact numerator count in (6.8) | local proved | Connect witnesses to uniform full matchings and apply the finite union bound. |
+| `card_extensions_of_exposed_equiv` | fixed-witness matching count before (6.8), and after (8.3) | local proved | Assemble each demand witness into one exposed global equivalence and transport the uniform law. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -58,6 +63,22 @@ successfully (2,966 jobs).  The module is imported by the project root and
 listed in `AxiomAudit.lean`; direct `#print axioms` reports only `propext`,
 `Classical.choice`, and `Quot.sound` for all four declarations.  The subsequent
 integrated `lake build Erdos625 --wfail` also passed all 8,640 jobs.
+
+The stub-allocation declarations are in `StubAllocationTools.lean`.  Its
+isolated `lake build Erdos625.StubAllocationTools --wfail` completed
+successfully (2,968 jobs).  In addition to the union and one-cell extension
+counts, the module now proves the full allocation identity by an explicit
+equivalence with embeddings of `Σ c, Fin (demand c)` into `Fin m`.
+`PrescribedDemandTools.lean` then combines the row allocations, column
+allocations, and per-cell bijections; its isolated warning-as-error build passed
+all 2,969 jobs.  These are exact finite numerator counts, not yet a probability
+bound.
+
+`MatchingExtensionTools.lean` gives an explicit equivalence between full
+matchings extending an exposed finite pairing and arbitrary bijections of the
+two complements.  Its isolated warning-as-error build passed all 2,966 jobs and
+proves the exact residual factorial count.  The remaining work is the
+configuration-model bridge, not this generic extension enumeration.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -96,14 +117,17 @@ quarantine.  The ordered-law result required the explicit ambient parameter
 input omitted; the full-corner result changed surrounding definitions to
 `noncomputable`.  The original stub-allocation result carries avoidable
 feasibility and instance complexity.  Cleaner split or assumption-minimal
-variants are recorded below.  None has yet passed the local Lean 4.31 gate.
+variants are recorded below.  The one-cell extension split has now been
+re-proved locally, and the full allocation factor and prescribed-demand witness
+count have been reconstructed and checked locally.  The remaining rows are not
+accepted merely because the service completed them.
 
 ## Aristotle wave 5: explicit missing bridges
 
 | Atomic theorem | Project | Service status | Manuscript use |
 |---|---|---:|---|
-| exact full prescribed-demand witness cardinality, corrected explicit-finiteness input | `933f98ea-3a1c-4823-b9bc-9744f552acb0` | queued | assemble the numerator in (6.8) |
-| exact cardinal of extensions of an exposed finite matching | `3131b669-2e71-4a25-be04-18494413427a` | complete, quarantined | conditioning count after (8.3) |
+| exact full prescribed-demand witness cardinality, corrected explicit-finiteness input | `933f98ea-3a1c-4823-b9bc-9744f552acb0` | complete; independently reconstructed and local proved | `card_prescribedDemandWitness_mul_factorials` assembles the numerator in (6.8) |
+| exact cardinal of extensions of an exposed finite matching | `3131b669-2e71-4a25-be04-18494413427a` | independently reconstructed and local proved | `card_extensions_of_exposed_equiv`; conditioning count after (8.3) |
 | injective selected decomposition recovered by union | `44d62168-b483-4e47-be82-4069945cca3e` | complete, quarantined | instantiate injectivity in (9.15) |
 | finite closed alternating-walk geometric sum | `e4a2bdac-6e02-44f3-b604-a1c4f3c3a6f3` | complete, quarantined | (9.16) |
 | finite marked-traversal geometric sum | `a25ef5a5-2a2e-49b2-8576-f9369c480d95` | complete, quarantined | (9.17)--(9.18) |
@@ -140,19 +164,23 @@ requires manual review.
 | fixed-fiber multinomial count with explicit finite instances | `fe77b778-d5c2-4de2-86b5-d0c8907ebfdc` | queued | first factor of exact overlap law (6.2) |
 | rowwise overlap multinomial count with explicit finite instances | `a6ef4342-1e6f-4be7-af19-146e7545591d` | queued | second factor of exact overlap law (6.2) |
 | clean monolithic ordered-law variant | `0e193ffc-c430-4dca-bff6-ebbf3939857b` | queued | alternative assembly of (6.2) |
-| assumption-minimal stub-allocation identity | `5e3d753d-bf3f-4d57-b220-31c6c5538e82` | complete, quarantined | descending-factorial allocation factor in (6.8) |
-| assumption-minimal one-cell disjoint extension count | `e2f1d51c-208f-4176-9198-ebcabd7eacff` | complete, quarantined | induction step for the allocation count |
+| assumption-minimal stub-allocation identity | `5e3d753d-bf3f-4d57-b220-31c6c5538e82` | independently reconstructed and local proved | `card_stubAllocation_mul_factorials` in `StubAllocationTools.lean` |
+| assumption-minimal one-cell disjoint extension count | `e2f1d51c-208f-4176-9198-ebcabd7eacff` | independently re-proved and local proved | `card_disjoint_extension` in `StubAllocationTools.lean` |
 
-The clean stub-allocation result explicitly constructs the missing `Finite`
-and `Fintype` instances for its subtype; opaque-definition unfolding must be
-preserved or replaced deliberately during the local port.
+The local stub-allocation module explicitly constructs the missing `Finite`
+and `Fintype` instances for its subtype and proves the global equivalence under
+Lean 4.31.  The returned service proof remains provenance only; the repository
+accepts the separately reviewed local reconstruction.
 
 ## Non-atomic obligations that must not be hidden
 
 1. Turn the overlap-labeling identity into the exact probability law (6.2)
    for the manuscript's ordered profiles and signs.
-2. Assemble the feasible prescribed-cell witness count, falling factorials,
-   and union bound with all row/column feasibility conditions to prove (6.8).
+2. Define the global row/column stub types and uniform full-matching space,
+   assemble every demand witness into an exposed global equivalence, prove that
+   the prescribed event is covered by the corresponding extension events, and
+   apply the finite union bound to finish (6.8).  The witness numerator,
+   infeasible branch, and generic fixed-exposure extension count are now proved.
 3. Prove the uniform central diagonal estimate (7.14)--(7.25), including the
    phase reduction and deterministic uniform error sequence.
 4. Define the canonical high skeleton and prove the exact residual matching
