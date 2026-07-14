@@ -8,6 +8,9 @@ import Erdos625.InducedCochromaticCapacity
 import Erdos625.CochromaticAmplification
 import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
+import Erdos625.QuarterDensityDegree
+import Erdos625.QuarterRecurrence
+import Erdos625.Section11EventAssembly
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -76,11 +79,19 @@ import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
 import Erdos625.UniformEquivTransport
+import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
+import Erdos625.ResidualSupportMass
+import Erdos625.ConfigurationResidualSupport
 import Erdos625.LocalSignReward
 import Erdos625.EvenMatchingKernel
+import Erdos625.BipartiteEdgeMatrix
+import Erdos625.EvenMatchingRestriction
 import Erdos625.WeightedCauchyTools
 import Erdos625.ResidualFiberCounts
+import Erdos625.ResidualDegreeMatching
+import Erdos625.ConfigurationResidualCellCounts
+import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -114,6 +125,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.measurableSet_gapEvent
 #print axioms Erdos625.gapProbability_le_one
 #print axioms Erdos625.erdos625Statement_iff_real
+#print axioms Erdos625.thresholdIntersection_subset_gapEvent
+#print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.phaseDelta_mem_Ico
 #print axioms Erdos625.mu_succ_div_identity
 #print axioms Erdos625.mu_pred_div_identity
@@ -121,6 +134,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.paleyZygmund_zero
 #print axioms Erdos625.mcdiarmid_two_sided_of_subgaussian
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
+#print axioms Erdos625.exists_vertex_quarter_degree
+#print axioms Erdos625.quarterRecurrence_lowerBound
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -402,12 +417,43 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_remainingColumnStub
 #print axioms Erdos625.card_remainingStubs_eq
 #print axioms Erdos625.uniformOfFintype_map_equiv
+#print axioms Erdos625.uniform_filter_eq_uniformSubtype_map
 #print axioms Erdos625.highCellFinset_card_mul_succ_le_total
+#print axioms Erdos625.two_mul_card_selectedCells_le_total
+#print axioms Erdos625.card_selectedCells_le_half_total
+#print axioms Erdos625.sum_configurationCellCount_all
+#print axioms Erdos625.card_configurationResidualSupportFinset_le_half_stubMass
+#print axioms Erdos625.card_configurationResidualSupportFinset_le_half_rowStubCard
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
+#print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
+#print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
+#print axioms Erdos625.bipartiteEdgeMatrix_injective
+#print axioms Erdos625.sum_bipartiteEdgeMatrix_row
+#print axioms Erdos625.sum_bipartiteEdgeMatrix_column
+#print axioms Erdos625.bipartiteEdgeMatrix_even_iff
+#print axioms Erdos625.evenMatrix_eq_of_eq_on_residual
+#print axioms Erdos625.residualRestriction_injective
+#print axioms Erdos625.card_evenMatrixSupportedOn_le_pow_card_residualCell
 #print axioms Erdos625.sum_sqrt_mul_weight_le
 #print axioms Erdos625.card_selectedRowStubs_in_class
 #print axioms Erdos625.card_selectedColumnStubs_in_class
+#print axioms Erdos625.card_witnessSelectedRowIndices
+#print axioms Erdos625.card_witnessSelectedColumnIndices
+#print axioms Erdos625.card_remainingRowFiber
+#print axioms Erdos625.card_remainingColumnFiber
+#print axioms Erdos625.remainingRowStubEquivResidual_class
+#print axioms Erdos625.remainingColumnStubEquivResidual_class
+#print axioms Erdos625.uniform_extensionSubtype_map_residual
+#print axioms Erdos625.card_targetFiber_eq_usedTarget_add_residual
+#print axioms Erdos625.remainingRowStubEquivResidual_apply_in_class
+#print axioms Erdos625.residualConfiguration_targetClass
+#print axioms Erdos625.usedRowTargetIndices_eq_witnessCell
+#print axioms Erdos625.configurationCellCount_eq_demand_add_residual
+#print axioms Erdos625.nat_add_eq_left_iff_right_eq_zero
+#print axioms Erdos625.nat_add_le_iff_le_sub_of_le
+#print axioms Erdos625.exposedCell_constraints_iff_residual
+#print axioms Erdos625.configurationCell_constraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
 #print axioms Erdos625.descFactorial_endpoint_transport

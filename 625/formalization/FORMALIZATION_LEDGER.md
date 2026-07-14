@@ -13,6 +13,20 @@ the candidate manuscript.  Its manuscript anchor is
 - **open**: the manuscript argument has not yet been translated into Lean;
 - **audit only**: numerical or prose evidence, never a substitute for proof.
 
+## Generated one-file checkpoint
+
+[`Erdos625SelfContained.lean`](Erdos625SelfContained.lean) is generated from
+the transitive local import closure of `Erdos625.lean`.  It places the accepted
+project source in dependency order behind external Mathlib imports and is
+independently reproducible with
+[`scripts/generate_self_contained.py`](scripts/generate_self_contained.py).
+The current build and source/axiom checks are recorded in
+[`SELF_CONTAINED_BUILD.md`](SELF_CONTAINED_BUILD.md).
+
+This is a one-file form of the same **partial** formalization described by this
+ledger.  Generation and successful compilation do not discharge any open row,
+and the file does not prove `Erdos625Statement`.
+
 ## Milestone M0: model and target
 
 | Lean declaration | Manuscript anchor | Status | Meaning |
@@ -81,6 +95,9 @@ target.
 | `exists_cochromaticInducedCapacity_witness`, `capacity_witness_compl_card`, `cochromaticNumber_le_add_chromaticNumber_compl` | deterministic core of (10.9) | proved | One induced core attains the capacity, its complement has exactly `n-capacity` vertices, and concatenating its `k`-cocolouring with an optimal ordinary colouring of the complement gives `ζ(G) ≤ k + χ(G[Wᶜ])`. |
 | `cochromaticInducedCapacity_levelSet_eq`, `cochromaticVarianceProxy_pos`, `cochromaticSeedGap_le_simplified` | graph-specific (10.7) | proved | For `n≥2`, a seed `P{CoColorable G k}≥exp(-Λ)` gives the exact bound `n-E[capacity]≤sqrt(((n-1)Λ)/2)` under the actual random-graph law.  The endpoint event, integrability, proxy positivity, and algebraic simplification are explicit. |
 | `randomGraph_cochromaticInducedCapacity_lowerTail`, `randomGraph_cochromaticInducedCapacity_failureProbability_le`, `randomGraph_cochromaticInducedCapacity_strictFailureProbability_le` | graph-specific (10.8) | proved | Negating the exact vertex-block MGF gives the one-sided lower tail centered at the actual graph-law integral.  Combining it with (10.7) yields failure probability at most `exp(-r)` at deficit `sqrt(((n-1)Λ)/2)+sqrt(((n-1)r)/2)`, with no two-sided factor and with both non-strict and strict failure-event spellings. |
+| `exists_vertex_quarter_degree` | deterministic quarter-density step in Lemma 10.1 | proved | A nonempty finite graph satisfying the denominator-cleared one-quarter density premise has a vertex with `card - 1 <= 4 * degree`. The random simultaneous-density event and greedy colouring remain open. |
+| `quarterRecurrence_lowerBound` | recurrence (10.3a) in Lemma 10.1 | proved | The exact real recurrence gives `4^(-t) * s 0 - 1/3 <= s t`. The required iteration count, independent-set construction, and one simultaneous `∀ U` event remain open. |
+| `chromaticLowerEvent`, `cochromaticUpperEvent`, `thresholdIntersection_subset_gapEvent`, `explicitThresholdIntersection_subset_gapEvent` | deterministic event assembly in Section 11 | defined; two inclusions proved | Once the strict chromatic and real cochromatic thresholds have the displayed separation, their intersection lies in `gapEvent`; the strict natural threshold contributes the exact `+1`. No actual parameter sequence, probability convergence, intersection limit, or final theorem is proved. |
 | `ProfileEntropyS4.partition`, `ProfileEntropyS4.weight`, `ProfileEntropyS4.mean`, `ProfileEntropyS4.variance` | finite-support analytic infrastructure for Lemma 3.1 | defined; normalization and positivity proved | Exact exponential-family objects on support `{2,3,4,5}` with positive normalized weights. |
 | `ProfileEntropyS4.hasDerivAt_mean`, `ProfileEntropyS4.variance_pos`, `ProfileEntropyS4.existsUnique_mean_eq_of_mem_Ioo` | finite-support analytic infrastructure for Lemma 3.1 | proved | The mean derivative is the strictly positive variance, its endpoint limits are `2` and `5`, and every target in `(2,5)` has a unique real tilt parameter. This file explicitly does not claim manuscript Lemma 3.1. |
 | `ProfileEntropyS4.optimizer_isFeasible`, `ProfileEntropyS4.entropy_score_le_log_partition_sub_tilt_mul_target`, `ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target` | finite-support entropy optimizer | proved | `ProfileOptimizerS4.lean` extends the common `ProfileEntropyS4` namespace: the unique target-mean tilt gives the exact positive optimizer; a zero-safe relative-entropy argument proves the variational inequality for every feasible competitor and exact equality at the optimizer. |
@@ -137,9 +154,14 @@ target.
 | `pow_sub_add_one_le_descFactorial`, `factorial_pow_le_descFactorial_pow`, `real_div_exp_one_pow_le_descFactorial`, `ennreal_div_euler_pow_le_descFactorial` | effective falling-factorial estimate (6.10) | proved | A finite geometric-mean comparison and Mathlib's effective Stirling lower bound prove `(m / e)^x ≤ (m)_x` for `0 < m` and `x ≤ m`, first in `ℝ` and then in `ℝ≥0∞`. |
 | `cellDegreePowerProduct`, `row_column_descendingProduct_le_cellDegreePowerProduct`, `configurationCellTheta`, `configurationCellTheta_pow_product`, `configurationCellWeight_product_eq_global`, `jointPrescribedCellBound_cellwise_of_totalDemand_le`, `not_mem_prescribedCellEvent_of_total_lt`, `jointPrescribedCellBound_cellwise` | product majorant (6.9) | proved, including all total-demand cases | The row and column descending-factorial numerator is bounded cellwise; the global `(m/e)^x` denominator is normalized exactly into the product of `θ_ab = e d_a d'_b / m`; and (6.8) yields the displayed product `∏ θ_ab^{x_ab}/x_ab!`. The feasible-total theorem records the analytic derivation. The public all-cases theorem assumes only equal positive ambient totals: if the requested total exceeds `m`, a witness embedding would contradict cardinality, so the event is empty. All `ℝ≥0∞` inversions explicitly use positive finite natural factorial denominators. |
 | `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | concrete configuration-table margins and high-cell assertion before (8.2) | proved | Fiber counts across every row and column recover the exact prescribed degrees. Instantiating the generic deterministic table lemma therefore proves that cells larger than half a common degree cap form a partial matching in an actual configuration matching. Canonical skeleton selection, witness uniqueness, and the residual conditional law remain separate. |
-| `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `witnessSelectedStubEquiv`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | deterministic residual-matching structure after an exposed witness | proved | The witness's globally selected stubs are finite images of its injective row/column embeddings. Matchings extending the fixed exposed pairing are exactly bijections between the two complements, and their remaining cardinalities are computed. This is not yet the residual degree-fibre identification or conditional probability pushforward required after (8.3). |
-| `uniformOfFintype_map_equiv` | finite-law transport after the residual equivalence | proved | The uniform PMF on a nonempty finite type maps to the uniform PMF along an equivalence. This is only a transport leaf: it does not prove that conditioning the original configuration law produces the required uniform residual law. |
-| `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise exposed-stub counts after (8.3) | proved | In every row or column class, the selected-stub cardinality is exactly the corresponding sum of the prescribed demands. These are deterministic fibre counts; the residual degrees, residual cell-count split, and conditional pushforward remain open. |
+| `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `witnessSelectedStubEquiv`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | deterministic residual-matching structure after an exposed witness | proved | The witness's globally selected stubs are finite images of its injective row/column embeddings. Matchings extending the fixed exposed pairing are exactly bijections between the two complements, and their remaining cardinalities are computed. The degree-labelled refinement and its uniform pushforward are recorded in the following rows. |
+| `uniformOfFintype_map_equiv` | finite-law transport after the residual equivalence | proved | The uniform PMF on a nonempty finite type maps to the uniform PMF along an equivalence. |
+| `uniformFilterWitness`, `uniform_filter_eq_uniformSubtype_map` | generic finite conditioning after (8.3) | defined; proved | Conditioning a uniform PMF on a nonempty finite event is exactly the pushforward of the uniform PMF on the event subtype. This is generic: it does not identify the canonical high-skeleton event or transport its cap conditions. |
+| `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise exposed-stub counts after (8.3) | proved | In every row or column class, the selected-stub cardinality is exactly the corresponding sum of the prescribed demands. |
+| `witnessSelectedRowIndices`, `witnessSelectedColumnIndices`, `residualRowDegree`, `residualColumnDegree`, `card_witnessSelectedRowIndices`, `card_witnessSelectedColumnIndices`, `card_remainingRowFiber`, `card_remainingColumnFiber`, `remainingRowStubEquivResidual`, `remainingColumnStubEquivResidual` | degree-labelled residual fibres after (8.3) | defined; proved | The unused local fibres have the exact residual degrees and are identified class-preservingly with the standard dependent-sum row and column stub types. |
+| `extensionsOfWitnessEquivResidualConfiguration`, `uniform_extensionSubtype_map_residual` | fixed-witness residual sample space after (8.3) | defined; proved | Full matchings extending one fixed witness are equivalent to the residual `ConfigurationMatching` space, and the uniform law on that extension subtype pushes forward to the residual uniform law. Canonical skeleton choice, uniqueness/incidence, and event-level packaging remain open; the fixed-cell constraints are recorded below. |
+| `card_targetFiber_eq_usedTarget_add_residual`, `remainingRowStubEquivResidual_apply_in_class`, `residualConfiguration_targetClass`, `usedRowTargetIndices_eq_witnessCell`, `configurationCellCount_eq_demand_add_residual` | exact fixed-witness cell-count decomposition after (8.3) | proved | The residual equivalence preserves the row class, the used row stubs targeting `(a,b)` are exactly the witness cell, and every full cell count equals `demand a b` plus the corresponding transported residual cell count. Canonical high-skeleton selection and uniqueness/incidence remain open; the fixed-cell zero/cap consequences are recorded in the next row. |
+| `nat_add_eq_left_iff_right_eq_zero`, `nat_add_le_iff_le_sub_of_le`, `exposedCell_constraints_iff_residual`, `configurationCell_constraints_iff_residual` | fixed-witness zero/cap constraints after (8.3) | proved | The supporting zero equivalence is cap-free. The packaged configuration theorem assumes the explicit boundary `hcap : demand a b <= cap` and returns `full = demand` iff residual count is zero together with `full <= cap` iff `residual <= cap - demand a b`. A high-skeleton cell uses the zero branch. To obtain the unshifted cap off the skeleton, one must first prove `demand a b = 0`; the theorem does not silently remove the subtraction. Canonical skeleton selection, uniqueness/incidence, and event-level transport remain open. |
 | `highCellFinset`, `highCellFinset_card_mul_succ_le_total` | high-cell mass bound in §8 | defined; proved | Every entry above threshold `R` contributes at least `R+1`, so the number of high cells times `R+1` is bounded by total table mass. This does not choose a canonical skeleton or establish its law. |
 | `sum_sqrt_mul_weight_le` | weighted Cauchy bridge in the margin-pair sum of §8 | proved | A finite nonnegative square-root sum is bounded by the product of the two weighted one-margin square-root sums. The table enumeration, the choice of the weights, and the full Lemma 8.2 assembly are not part of this theorem. |
 | `sub_min_add_sub_min_eq_dist`, `add_eq_two_mul_min_add_dist`, `descFactorial_endpoint_transport`, `descFactorial_endpoint_transport_succ`, `descFactorial_min_transport`, `descFactorial_min_transport_succ` | finite endpoint transportation in (8.12) | proved | Two margins are transported to a common lower endpoint with exact excess `gap`; the product of descending factorials is bounded by the square at the endpoint times `n^gap`, which is stronger than the manuscript's `(n+1)^gap`. No feasibility premise is required because the descending-factorial identities are total. Exact `min` and `Nat.dist` forms are included. |
@@ -148,6 +170,10 @@ target.
 | `BipartiteEvenMatrix`, `evenMatrix_eq_zero_of_support_rowMatching` | small-residual injectivity kernel in §9 | defined; proved | An even `ZMod 2` bipartite matrix supported on a row matching is zero. This is the parity kernel needed for a later restriction-injectivity argument; it does not itself construct the restriction map, enumerate residual even subgraphs, or prove Lemma 9.1. |
 | `selectedBlockCount`, `selectedVertexMass`, `selectedInternalEdgeCount`, `partialSignedFirstMoment`, `partialDiagonalWeight`, `partialDiagonalWeight_zero`, `partialSignedFirstMoment_increment_mul`, `partialDiagonalWeight_increment_mul`, `partialDiagonalWeight_increment_div` | exact partial-diagonal formulas and recurrence (7.1)–(7.4) | proved | The full finite-profile statistics, factorial and marking products, total algebraic expression (7.2), and marked weight (7.3) are defined. Because natural subtraction makes the definitions total, their counting interpretation is asserted only on the selected-mass-feasible domain. Coordinate-update identities yield a denominator-free recurrence valid even when a marking count vanishes; under componentwise subprofile containment and the explicit mass condition this gives the displayed ratio (7.4). No asymptotic estimate is bundled into this checkpoint. |
 | `complementaryProfile`, `residualVertexMass`, `completeSignedFirstMoment`, `fullCornerWeight`, `selectedVertexMass_complement_le_of_fullMass`, `partialDiagonalWeight_complement_mul_complete`, `partialDiagonalWeight_complement_eq_fullCorner_div`, `fullCornerWeight_increment_mul`, `fullCornerWeight_increment_div` | full-corner factorization and recurrence (7.5)–(7.6) | proved | Componentwise containment and the full-profile mass identity explicitly imply feasibility of both the residual and complementary profiles. Exact factorial, block-count, edge-count, and marking cancellations give a denominator-free form of (7.5) and its quotient form. Independent marking and complete-moment updates give a denominator-free (7.6) and the displayed ratio; no total-extension interpretation is used outside its justified domain. |
+| `two_mul_card_selectedCells_le_total`, `card_selectedCells_le_half_total` | generic residual-support cardinality bound in Section 9 | proved | If each selected cell carries mass at least two, the number of selected cells is at most the total mass divided by two. This is a cardinality bound, not a claim about how much mass those cells carry. |
+| `configurationResidualSupportRelation`, `configurationResidualSupportFinset`, `sum_configurationCellCount_all`, `card_configurationResidualSupportFinset_le_half_stubMass`, `card_configurationResidualSupportFinset_le_half_rowStubCard` | actual configuration-table support cardinality in Section 9 | defined; proved | The number of configuration cells containing at least two paired stubs is at most the total row-stub count divided by two. No cycle-space identity or attachment estimate is included. |
+| `bipartiteEdgeRow`, `bipartiteEdgeColumn`, `bipartiteEdgeMatrix`, `bipartiteEdgeMatrix_injective`, `sum_bipartiteEdgeMatrix_row`, `sum_bipartiteEdgeMatrix_column`, `BipartiteEvenEdgeSet`, `bipartiteEdgeMatrix_even_iff` | finite bipartite edge-set incidence encoding in Section 9 | defined; proved | The zero-one `ZMod 2` incidence encoding is injective, and its row/column sums vanish exactly when all row/column edge fibres have even cardinality. The support bridge for the manuscript's actual residual family remains open. |
+| `evenMatrix_eq_of_eq_on_residual`, `EvenMatrixSupportedOn`, `ResidualCell`, `residualRestriction`, `residualRestriction_injective`, `card_evenMatrixSupportedOn_le_pow_card_residualCell` | generic small-residual restriction bound in Section 9 | defined; proved | For matrices supported on a row matching together with a residual relation, restriction to the residual cells is injective and the family has cardinality at most `2 ^ |R|`. Instantiating this with the manuscript's actual residual even-edge family and proving the required support relation remain open. |
 
 ## Remaining proof dependency graph
 
@@ -176,29 +202,54 @@ Lean axioms or claimed theorems.
 5. All asymptotic partial-diagonal ranges (7.7)–(7.25), with empty, central,
    and full corners kept explicit (Lemma 7.1).  The exact finite identities
    and recurrences (7.1)–(7.6) are proved.
-6. Canonical high cells, the degree-labelled residual-fibre identification and
-   conditional pushforward, endpoint transportation, and all nonendpoint high
+6. Complete the canonical high-skeleton event, its uniqueness/incidence and
+   event-level cap/no-additional-pair packaging, endpoint sums, and all
+   nonendpoint high
    multiplicities (Lemmas 8.1–8.3).  The actual table margins, high-cell
-   matching assertion and mass bound, complement-bijection structure,
-   classwise selected-stub counts, uniform-equivalence transport leaf,
-   weighted Cauchy inequality, and finite descending-factorial transport
-   inequality are proved.  None of these leaves supplies the conditional
-   residual law or the full Section 8 assembly.
+   matching assertion and mass bound, complement-bijection structure, exact
+   residual degrees, class-preserving residual-configuration equivalence,
+   generic finite conditioning, fixed-extension uniform pushforward, and the
+   exact per-cell `full = demand + residual` identity are proved.  The exact
+   zero/cap equivalences are also proved under
+   `hcap : demand a b <= cap`: skeleton cells use the residual-zero branch,
+   while an unshifted off-skeleton cap requires `demand a b = 0`.  The weighted
+   Cauchy inequality and finite descending-factorial transport inequality are
+   also proved.  These fixed-witness leaves do not select the canonical
+   skeleton, prove uniqueness/incidence, or package the full capped
+   conditional event, and they do not assemble Section 8.
 7. Residual local/cycle attachment bound and normalized signed second moment
    (Lemma 9.1 and Proposition 9.2).  The residual estimate must remain
    one-sided; no equality is to be inferred from an upper bound.  The finite
    capped degree moments and theta bounds (9.13)–(9.14), local sign-exponent
-   identity, and matching-support parity kernel are proved.  The restriction
-   injection, enumeration, asymptotic estimate, and global assembly remain
-   open.
+   identity, configuration-table support-cardinality bound, injective
+   bipartite edge-set incidence encoding with exact parity equivalence, and
+   generic restriction injection/count for even matrices supported on a row
+   matching plus a residual relation are proved.  The support bridge from the
+   manuscript's actual residual family into that restriction type,
+   cycle-space/decomposition and traversal enumeration, asymptotic estimate,
+   and global assembly remain open.
 8. Complete the simultaneous leftover-colouring and seed-amplification layer
    (Lemmas 10.1–10.2).  The induced-capacity statistic, event equivalence,
    block-count concentration input, generic rare-seed inversion, maximizing
    core, exact leftover size, graph-specific expectation bound (10.7),
    deterministic concatenation inequality (10.9), and the exact one-sided
-   lower-tail step (10.8) are now proved.  The simultaneous
-   leftover-colouring event and final intersection remain.
-9. Assembly of the preceding results into `Erdos625Statement` (§11).
+   lower-tail step (10.8) are proved.  The quarter-density high-degree atom and
+   recurrence (10.3a) are also proved.  What remains is the random quarter-
+   density union bound, averaging to all larger sets, the greedy colouring on
+   one event with an internal `∀ U`, and the Lemma 10.2 assembly.  Its
+   quantifiers must choose one absolute `C` and deterministic
+   `epsilon_n -> 0` before `k_n`, `Lambda_n`, and `r_n`.  The seed/radius scale
+   limits, actual `a_n`, and full-sequence upper tail (10.13) also remain.
+9. Assemble Section 11 and `Erdos625Statement`.  The two deterministic
+   threshold-intersection inclusions are proved.  The actual sequences and
+   their chromatic/cochromatic probability tails, eventual separation,
+   intersection-probability limit without independence, measure-monotonicity
+   step, and full-sequence target remain.  The explicit scale-divergence and
+   fixed-`M` tail (11.3) remain separate obligations.
+
+The precise dependency order and service-request provenance for items 8--9 is
+maintained in
+[`SECTIONS_10_11_BREAKDOWN_2026-07-14.md`](SECTIONS_10_11_BREAKDOWN_2026-07-14.md).
 
 The central high-risk corridor is items 4–7.  A reduction that merely restates
 their global overlap bound will not count as progress; each profile family,
@@ -235,6 +286,21 @@ quantifier, endpoint, and uniform error term must be explicit.
   quarantined.  They are atomic leaves only and do not establish the residual
   conditional law, Lemmas 8.1–8.3, Lemma 9.1, Proposition 9.2, or the final
   theorem.
+- Subsequent 2026-07-14 local modules add generic finite conditioning, exact
+  residual degrees and sample-space equivalences, the exact fixed-witness
+  per-cell count decomposition and zero/cap equivalences, an injective
+  bipartite edge-set incidence encoding with exact parity equivalence, a
+  generic residual restriction injection/count, and the actual configuration-
+  table support-cardinality bound.  Accepted Lean 4.31 source is authoritative
+  only after the local warning-as-error, scan, and axiom gates; the associated
+  Aristotle work is redundant candidate generation, not a proof dependency.
+  These atoms still do not prove a Section 8 or Section 9 manuscript lemma.
+- The Sections 10--11 wave independently accepts
+  `QuarterDensityDegree.lean`, `QuarterRecurrence.lean`, and
+  `Section11EventAssembly.lean`.  Seven related Aristotle requests are still
+  running or pending and quarantined; no service output from this wave has
+  been imported.  The local atoms do not prove Lemma 10.1, Lemma 10.2,
+  Section 11, or `Erdos625Statement`.
 - CI rejects placeholders/project axioms with a source gate and runs
   `lake build --wfail`, making Lean's own placeholder warning fatal.  The
   optional external `nanoda` helper path is disabled.
@@ -253,8 +319,10 @@ are complete.  Growing-support moments, compact selected-tilt convergence,
 variance stability, and the generic root/rounding interfaces are also
 complete.  The next high-level checkpoints are the concrete phase-objective
 center/slope substitution and the atomic overlap, skeleton, cycle, and
-residual obligations in Sections 6--9.  Deterministic leftover and rare-seed
-amplification interfaces may be formalized independently.  At the user's
+residual obligations in Sections 6--9.  The first deterministic Sections
+10--11 atoms are accepted; their next checkpoints are the one-event
+simultaneous leftover theorem, quantifier-correct seed amplification, and the
+actual full-sequence parameter/tail instantiation.  At the user's
 direction, a private arXiv-style
 layout is being prepared in parallel; it is not evidence that
 `Erdos625Statement` has been kernel-checked.

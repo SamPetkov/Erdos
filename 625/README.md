@@ -37,6 +37,14 @@ exact phase and independent-set asymptotics, Boolean-cube and variable-block
 bounded differences, induced-capacity amplification bricks, and finite
 four-support entropy/optimizer continuity.
 
+For audit convenience, the generated
+[`Erdos625SelfContained.lean`](formalization/Erdos625SelfContained.lean)
+packages the current transitive local import closure into one Lean source
+file; its regeneration and independent compile record are in
+[`SELF_CONTAINED_BUILD.md`](formalization/SELF_CONTAINED_BUILD.md).  This is a
+single-file **partial checkpoint**, not a full formal proof of Sections 8--9
+or of `Erdos625Statement`.
+
 The Section 4 layer now proves the exact unordered profile enumeration and
 first-moment formula (4.2), zero-safe factorial/log-weight bounds, the finite
 `(n+1)^b` aggregate exponential estimate, and exact equivalence with the
@@ -76,15 +84,51 @@ partial-diagonal algebra, endpoint factorization, and recurrences (7.1)--(7.6)
 are kernel-checked.  Exact row and column margins of the configuration cell
 table also instantiate the concrete high-cell matching assertion before
 (8.2).  Extending a fixed exposed witness is moreover equivalent to a bijection
-of its unused stubs, with exact remaining cardinalities.  These finite results
-do not yet prove the asymptotic diagonal sums, degree-labelled canonical
-residual law, or residual attachment estimates.  Six additional locally
-replayed leaves establish uniform finite-law transport along an equivalence,
-classwise selected-stub counts, a high-cell mass bound, weighted finite Cauchy,
-local sign-exponent arithmetic, and the matching-support parity kernel.  They
-do not establish the conditional residual law or assemble Sections 8 or 9.
+of its unused stubs, with exact remaining cardinalities.  The unused fibres
+are now identified class-preservingly with standard residual stub types having
+the exact residual degrees, so the fixed-witness extension subtype is
+equivalent to the corresponding residual `ConfigurationMatching` space and
+its uniform law pushes forward to the residual uniform law.  Generic finite
+uniform conditioning is also proved.  The target-fibre and class-preservation
+lemmas culminate in the exact per-cell fixed-witness identity
+`full configurationCellCount = demand + residual configurationCellCount`.
+The accepted cell-constraint module separately identifies `full = demand`
+with residual count zero through a cap-free arithmetic lemma.  Its packaged
+configuration theorem assumes `hcap : demand a b <= cap` and returns that
+equivalence together with `full <= cap` iff
+`residual <= cap - demand`.  High-skeleton cells use the zero branch; an
+off-skeleton application of the unshifted residual cap first needs
+`demand a b = 0`.  These fixed-witness results do not select the canonical
+high skeleton, prove its uniqueness/incidence, or package the constraints as
+the full Section 8 conditional event.
+
+For Section 9, restriction to the residual relation is proved injective for
+even matrices supported on the union of that relation with a row matching,
+giving a generic `2 ^ |R|` cardinal bound.  Finite bipartite edge sets now have
+an injective zero-one incidence-matrix encoding over `ZMod 2`, with matrix
+parity equivalent to even row and column fibres.  The number of cells of an
+actual configuration matching with multiplicity at least two is at most the
+total row-stub count divided by two.  The support bridge from the manuscript's
+actual residual family into the generic restriction theorem, the cycle-space
+identity/decomposition and traversal count, asymptotic
+attachment estimate, and global assembly remain open.  Aristotle is used only
+for redundant isolated candidate generation; reviewed local Lean 4.31 source
+is authoritative.
 The capped degree moments and exact theta factorizations/bounds behind
 (9.13)--(9.14) are also kernel-checked.
+
+The newest Sections 10--11 checkpoint adds three deterministic source units.
+[`QuarterDensityDegree.lean`](formalization/Erdos625/QuarterDensityDegree.lean)
+proves the quarter-density high-degree vertex step, and
+[`QuarterRecurrence.lean`](formalization/Erdos625/QuarterRecurrence.lean)
+proves the exact real recurrence (10.3a).
+[`Section11EventAssembly.lean`](formalization/Erdos625/Section11EventAssembly.lean)
+proves two pointwise threshold-intersection inclusions, including the explicit
+constant and strict-event `+1`.  These atoms do not prove the one simultaneous
+event controlling every `U`, Lemma 10.1, Lemma 10.2, the actual Section 11
+sequence/tail instantiation, or the final theorem.  The exact remaining DAG,
+quantifier order, and seven quarantined Aristotle requests are recorded in the
+[`Sections X--XI breakdown`](formalization/SECTIONS_10_11_BREAKDOWN_2026-07-14.md).
 
 The asymptotic target is deliberately recorded as an **unproved proposition**;
 the current development is a verified partial formalization, not a completed
@@ -95,7 +139,9 @@ its center/slope corridor, its integer decrement, and the resulting probability
 limit remain open; the
 signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
 partial-diagonal ranges, canonical residual conditional law, full Sections 8--9
-assembly, residual attachment, and final amplification layers also remain open.
+assembly, the actual residual-family support and cycle assembly, residual
+attachment, Section 10's leftover-colouring and seed-amplification lemmas, and
+Section 11's final parameter/limit assembly also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
 declaration-by-declaration status and remaining dependency graph.  Reproduced
 milestone evidence is recorded in the audit files under
@@ -107,6 +153,9 @@ complete dependency/import policy is in
 The current Sections 6--9 atomization, Aristotle quarantine status, and exact
 non-atomic obligations are tracked in the
 [`Sections 6--9 breakdown`](formalization/SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
+The simultaneous-leftover, amplification, and final event/limit obligations
+are tracked separately in the
+[`Sections X--XI breakdown`](formalization/SECTIONS_10_11_BREAKDOWN_2026-07-14.md).
 
 ## Current status
 

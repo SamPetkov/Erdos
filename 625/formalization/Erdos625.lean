@@ -17,6 +17,9 @@ import Erdos625.InducedCochromaticCapacity
 import Erdos625.CochromaticAmplification
 import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
+import Erdos625.QuarterDensityDegree
+import Erdos625.QuarterRecurrence
+import Erdos625.Section11EventAssembly
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
@@ -81,11 +84,19 @@ import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
 import Erdos625.UniformEquivTransport
+import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
+import Erdos625.ResidualSupportMass
+import Erdos625.ConfigurationResidualSupport
 import Erdos625.LocalSignReward
 import Erdos625.EvenMatchingKernel
+import Erdos625.BipartiteEdgeMatrix
+import Erdos625.EvenMatchingRestriction
 import Erdos625.WeightedCauchyTools
 import Erdos625.ResidualFiberCounts
+import Erdos625.ResidualDegreeMatching
+import Erdos625.ConfigurationResidualCellCounts
+import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -205,8 +216,11 @@ than half a common degree cap form a matching, supplying the concrete high-cell
 claim used at the start of Section 8.  For every fixed prescribed witness,
 full matchings extending it are also explicitly equivalent to bijections of
 the unused row and column stubs, with exact remaining-cardinality formulas.
-Identifying those complements with degree-labelled residual fibres and proving
-the conditional law remain open.  The exact descending-factorial endpoint
+Those complements are identified class-preservingly with the exact residual
+degree fibres; the fixed-extension uniform pushforward, exact per-cell count
+decomposition, and cellwise zero/cap translations are proved.  Selecting the
+canonical high skeleton, proving its uniqueness/incidence, and packaging the
+corresponding conditioned cap event remain open.  The exact descending-factorial endpoint
 transport used in (8.12) is proved independently, with the stronger loss
 `n^gap` and exact minimum/absolute-difference specializations.
 The finite degree-moment estimates and exact configuration-cell theta

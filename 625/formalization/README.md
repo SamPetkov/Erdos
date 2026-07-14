@@ -35,6 +35,20 @@ Do not run `lake update` for an ordinary reproduction: the tracked manifest
 already fixes every dependency commit.  Use it only for an intentional,
 reviewed dependency refresh.
 
+## One-file checkpoint
+
+[`Erdos625SelfContained.lean`](Erdos625SelfContained.lean) is a generated,
+single-file packaging of the transitive local import closure of
+`Erdos625.lean`.  It retains only external Mathlib imports and embeds the
+project modules in dependency order.  Regenerate it with
+[`scripts/generate_self_contained.py`](scripts/generate_self_contained.py) and
+see [`SELF_CONTAINED_BUILD.md`](SELF_CONTAINED_BUILD.md) for the independent
+compile and source/axiom audit.
+
+This convenience artifact contains the current verified **partial**
+formalization.  It is not a completed formal proof of Sections 8--9 or of
+Problem 625: in particular, `Erdos625Statement` remains an unproved target.
+
 ## Integrity policy
 
 A milestone is called complete only when its imported modules compile without
@@ -187,23 +201,86 @@ identities (7.1)--(7.6), the exact configuration-cell row and column margins,
 and the resulting high-cell matching assertion before (8.2).  Each accepted
 module has an isolated warnings-fatal build and focused standard-axiom audit.
 The deterministic equivalence between witness-extending matchings and
-bijections of the unused stubs is also proved, without overclaiming the still
-open residual degree-fibre probability law.  Six additional, independently
-replayed atomic modules prove uniform finite-law transport along an
-equivalence, classwise selected-stub counts, a high-cell mass bound, weighted
-finite Cauchy, local sign-exponent arithmetic, and the parity kernel for an
-even matrix supported on a matching.  These accepted Lean 4.31 leaves passed a
-combined warning-as-error replay; the raw Aristotle outputs remain
-quarantined.
+bijections of the unused stubs is also proved.  The unused row and column
+fibres are now identified class-preservingly with dependent sums having the
+exact residual degrees, and the fixed-witness extension subtype is equivalent
+to the corresponding residual `ConfigurationMatching` space.  Uniformity is
+transported across that equivalence.  A separate generic theorem identifies
+conditioning a finite uniform law on a nonempty event with the pushforward of
+the uniform law on the event subtype.  The supporting target-fibre split,
+class-preserving equivalence, and exact used-cell identification now culminate
+in the per-cell fixed-witness identity
+`configurationCellCount = demand + residual configurationCellCount`.  The
+accepted constraint module separately proves the cap-free zero equivalence.
+Its packaged configuration theorem has the explicit hypothesis
+`hcap : demand a b <= cap` and returns that zero equivalence together with the
+identification of the full cap and the truncated residual cap
+`residual <= cap - demand a b`.  The high-skeleton cell condition uses the
+zero branch.  Before using the unshifted cap off the skeleton, one must first
+prove `demand a b = 0`; without this, only the shifted `cap - demand a b`
+conclusion is available.  These are exact fixed-witness results; they do not
+choose the canonical high skeleton, prove its uniqueness/incidence, or package
+these constraints as the full canonical conditional event in Section 8.
+
+The four new Section 8 source units are
+[`UniformConditionalLaw.lean`](Erdos625/UniformConditionalLaw.lean),
+[`ResidualDegreeMatching.lean`](Erdos625/ResidualDegreeMatching.lean), and
+[`ConfigurationResidualCellCounts.lean`](Erdos625/ConfigurationResidualCellCounts.lean),
+together with
+[`ConfigurationResidualCellConstraints.lean`](Erdos625/ConfigurationResidualCellConstraints.lean).
+
+The accepted Section 9 atoms now also include the following deterministic
+facts.  Restriction to a residual relation is injective for even `ZMod 2`
+bipartite matrices supported on its union with a row matching, giving the
+generic cardinal bound `2 ^ |R|`.  A finite bipartite edge set is now encoded
+injectively by its zero-one `ZMod 2` incidence matrix, and zero row and column
+sums are equivalent to even row and column fibres.  The number of cells of an
+actual configuration matching that contain at least two paired stubs is at
+most the total row-stub count divided by two.  These results do not prove that
+the manuscript's actual residual family has the support needed by the
+restriction theorem, identify its cycle space, or prove any attachment or
+asymptotic estimate.  The earlier high-cell mass bound, weighted finite
+Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
+kernel remain available as independent leaves.  Accepted Lean 4.31 source is
+the proof authority; any Aristotle output is only redundant candidate
+generation and remains quarantined until it passes the local acceptance gates.
+The corresponding source units are
+[`ResidualSupportMass.lean`](Erdos625/ResidualSupportMass.lean),
+[`BipartiteEdgeMatrix.lean`](Erdos625/BipartiteEdgeMatrix.lean),
+[`EvenMatchingRestriction.lean`](Erdos625/EvenMatchingRestriction.lean), and
+[`ConfigurationResidualSupport.lean`](Erdos625/ConfigurationResidualSupport.lean).
 The finite capped degree moments, exact theta factorizations, normalized bounds
 in (9.13)--(9.14), and the total-zero branch are kernel-checked as a separate
 Section 9 arithmetic module.
 
+Three accepted deterministic modules now begin the Sections 10--11 layer.
+[`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
+denominator-cleared quarter-density averaging step, and
+[`QuarterRecurrence.lean`](Erdos625/QuarterRecurrence.lean) proves the exact
+recurrence lower bound in (10.3a).
+[`Section11EventAssembly.lean`](Erdos625/Section11EventAssembly.lean) defines
+the two threshold events and proves both the abstract and explicit-constant
+pointwise inclusions of their intersection in `gapEvent`.  It does not prove
+that either event has probability tending to one.
+
+The missing Section 10 statement must use one high-probability event with an
+internal `∀ U`; pointwise events chosen separately for each leftover set
+have the wrong quantifiers.  In Lemma 10.2, the absolute `C` and deterministic
+`epsilon_n -> 0` must be chosen before the deterministic sequences `k_n`,
+`Lambda_n`, and `r_n`, and the result must hold along the full sequence.  The
+Section 11 set inclusion must still be instantiated with the actual parameter
+sequences and probability tails.  See
+[`SECTIONS_10_11_BREAKDOWN_2026-07-14.md`](SECTIONS_10_11_BREAKDOWN_2026-07-14.md)
+for the exact DAG and the seven running/pending quarantined Aristotle requests.
+
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap assembly, asymptotic diagonal ranges, canonical residual
-conditional law and full Section 8 assembly, residual attachment and full
-Section 9 assembly, and complete amplification layers remain open.  The new
-atomic leaves do not prove any manuscript section theorem.  The project
+conditioned-event packaging (including skeleton uniqueness/incidence)
+and full Section 8 assembly, the actual residual-family support bridge,
+cycle-space/decomposition and traversal enumeration, residual attachment and full Section 9 assembly,
+Section 10's leftover-colouring and seed-amplification lemmas, and Section 11's
+final parameter/limit assembly remain open.  The new atomic leaves do not
+prove any manuscript section theorem.  The project
 therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
