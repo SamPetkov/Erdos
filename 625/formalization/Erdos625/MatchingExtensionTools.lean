@@ -138,4 +138,76 @@ theorem card_extensions_of_exposed_equiv
   rw [Fintype.card_congr (matchingExtensionsEquivComplement S T exposed),
     Fintype.card_equiv (Fintype.equivOfCardEq hcompl), card_notMem]
 
+/-- An embedding is an equivalence from its domain onto its finite image. -/
+private noncomputable def embeddingRangeEquiv
+    {X Y : Type*} [Fintype X] [Fintype Y] [DecidableEq Y]
+    (f : X ↪ Y) : X ≃ ↑(Finset.univ.image f) :=
+  Equiv.ofBijective
+    (fun x ↦ ⟨f x, Finset.mem_image_of_mem _ (Finset.mem_univ x)⟩)
+    ⟨fun x y hxy ↦ f.injective (Subtype.ext_iff.mp hxy),
+      fun y ↦ by
+        obtain ⟨x, _, hx⟩ := Finset.mem_image.mp y.2
+        exact ⟨x, Subtype.ext hx⟩⟩
+
+@[simp] private lemma embeddingRangeEquiv_val
+    {X Y : Type*} [Fintype X] [Fintype Y] [DecidableEq Y]
+    (f : X ↪ Y) (x : X) :
+    (embeddingRangeEquiv f x).1 = f x := rfl
+
+/-- The selected images of two embeddings are paired using their common
+indexing type. -/
+private noncomputable def embeddingImagePairing
+    {X L R : Type*}
+    [Fintype X] [Fintype L] [Fintype R]
+    [DecidableEq L] [DecidableEq R]
+    (domain : X ↪ L) (codomain : X ↪ R) :
+    ↑(Finset.univ.image domain) ≃ ↑(Finset.univ.image codomain) :=
+  (embeddingRangeEquiv domain).symm.trans (embeddingRangeEquiv codomain)
+
+/-- Stating extension through the common embedding index or through the
+induced exposed image equivalence gives equivalent finite types. -/
+private noncomputable def pairingExtensionsEquivImageExtensions
+    {X L R : Type*}
+    [Fintype X] [Fintype L] [Fintype R]
+    [DecidableEq L] [DecidableEq R]
+    (domain : X ↪ L) (codomain : X ↪ R) :
+    {matching : L ≃ R // ∀ x, matching (domain x) = codomain x} ≃
+      MatchingExtensions (Finset.univ.image domain)
+        (Finset.univ.image codomain)
+        (embeddingImagePairing domain codomain) where
+  toFun extension := ⟨extension.1, by
+    intro y
+    obtain ⟨x, rfl⟩ := (embeddingRangeEquiv domain).surjective y
+    simpa [embeddingImagePairing] using extension.2 x⟩
+  invFun extension := ⟨extension.1, by
+    intro x
+    simpa [embeddingImagePairing] using
+      extension.2 (embeddingRangeEquiv domain x)⟩
+  left_inv extension := by
+    apply Subtype.ext
+    rfl
+  right_inv extension := by
+    apply Subtype.ext
+    rfl
+
+/-- Exactly `(card L-card X)!` full bijections extend a prescribed family of
+distinct pairs indexed by `X`.  This is the generic fixed-witness count used
+before the union bound in (6.8). -/
+theorem card_extensions_of_embedding_pairing
+    {X L R : Type*}
+    [Fintype X] [Fintype L] [Fintype R]
+    [DecidableEq L] [DecidableEq R]
+    (hcard : Fintype.card L = Fintype.card R)
+    (domain : X ↪ L) (codomain : X ↪ R) :
+    Fintype.card
+        {matching : L ≃ R // ∀ x, matching (domain x) = codomain x} =
+      (Fintype.card L - Fintype.card X).factorial := by
+  rw [Fintype.card_congr
+      (pairingExtensionsEquivImageExtensions domain codomain),
+    card_extensions_of_exposed_equiv hcard]
+  congr 2
+  rw [Finset.card_image_of_injective]
+  · simp
+  · exact domain.injective
+
 end Erdos625

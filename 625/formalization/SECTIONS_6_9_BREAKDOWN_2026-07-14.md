@@ -54,6 +54,7 @@ threshold expansion
 | `card_stubAllocation_mul_factorials` | falling-factorial allocation factor in (6.8) | local proved | Combine row and column selections with the cell bijections. |
 | `card_prescribedDemandWitness_mul_factorials` | exact numerator count in (6.8) | local proved | Connect witnesses to uniform full matchings and apply the finite union bound. |
 | `card_extensions_of_exposed_equiv` | fixed-witness matching count before (6.8), and after (8.3) | local proved | Assemble each demand witness into one exposed global equivalence and transport the uniform law. |
+| `card_extensions_of_embedding_pairing` | indexed fixed-pair count before (6.8) | local proved | Build the row/column embeddings carried by each demand witness. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -77,8 +78,9 @@ bound.
 `MatchingExtensionTools.lean` gives an explicit equivalence between full
 matchings extending an exposed finite pairing and arbitrary bijections of the
 two complements.  Its isolated warning-as-error build passed all 2,966 jobs and
-proves the exact residual factorial count.  The remaining work is the
-configuration-model bridge, not this generic extension enumeration.
+proves the exact residual factorial count, both for finset exposures and for a
+family of distinct pairs indexed by an arbitrary finite type.  The remaining
+work is the configuration-model bridge, not this generic extension enumeration.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
