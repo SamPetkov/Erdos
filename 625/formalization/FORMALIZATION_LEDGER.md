@@ -128,6 +128,7 @@ target.
 
 | `sum_table_rows_eq_sum_table_columns`, `sum_demand_le_sum_table`, `no_contingencyTable_of_infeasible_demands` | feasibility branch before Lemma 6.2 and (6.8) | proved | Row and column summation of a finite nonnegative integer table gives the same total, entrywise prescribed demands sum monotonically, and any excessive row demand, excessive column demand, or unequal pair of total margins makes the table-witness type empty. This closes only the impossible-event branch; the exact prescribed-cell count and probability bound remain open. |
 | `highCells_form_matching` | high-cell assertion before (8.2) | proved | If every row and column of a nonnegative integer table has mass at most `U`, then two entries in one row or column cannot both exceed `U/2`. Thus the high cells form a partial matching. This does not yet construct the canonical skeleton or its conditional residual law. |
+| `card_iUnion_stubAllocation`, `card_disjoint_extension` | finite allocation factors before (6.8) | proved | A pairwise-disjoint family uses exactly the total demanded number of labelled stubs, and after fixing it the exact number of disjoint new `d`-subsets is the residual binomial coefficient. The statement is total: both sides vanish when the new demand exceeds the complement. The global allocation count, prescribed-demand witness count, uniform-matching incidence, and union-bound probability inequality remain open. |
 
 ## Remaining proof dependency graph
 

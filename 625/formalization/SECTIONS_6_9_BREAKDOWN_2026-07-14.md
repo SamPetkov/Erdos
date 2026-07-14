@@ -49,6 +49,8 @@ threshold expansion
 | `sum_demand_le_sum_table` | before (6.8) | local proved | Combine with the exact witness enumeration. |
 | `no_contingencyTable_of_infeasible_demands` | Lemma 6.2 impossible branch | local proved | The feasible prescribed-cell count and probability ratio are still open. |
 | `highCells_form_matching` | assertion before (8.2) | local proved | Define the canonical skeleton and prove the residual conditional law. |
+| `card_iUnion_stubAllocation` | allocation count before (6.8) | local proved | Use it in the full disjoint-allocation enumeration. |
+| `card_disjoint_extension` | one-cell extension step before (6.8) | local proved | Iterate or replace it by an audited global allocation equivalence. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -58,6 +60,14 @@ successfully (2,966 jobs).  The module is imported by the project root and
 listed in `AxiomAudit.lean`; direct `#print axioms` reports only `propext`,
 `Classical.choice`, and `Quot.sound` for all four declarations.  The subsequent
 integrated `lake build Erdos625 --wfail` also passed all 8,640 jobs.
+
+The two stub-allocation declarations are in `StubAllocationTools.lean`.  Its
+isolated `lake build Erdos625.StubAllocationTools --wfail` completed
+successfully (2,966 jobs); the module is imported by the project root and both
+declarations are listed in `AxiomAudit.lean`.  These lemmas count the used
+stub union and one disjoint extension exactly, including the infeasible branch,
+but they do not yet state the full prescribed-demand numerator or a probability
+bound.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -96,7 +106,9 @@ quarantine.  The ordered-law result required the explicit ambient parameter
 input omitted; the full-corner result changed surrounding definitions to
 `noncomputable`.  The original stub-allocation result carries avoidable
 feasibility and instance complexity.  Cleaner split or assumption-minimal
-variants are recorded below.  None has yet passed the local Lean 4.31 gate.
+variants are recorded below.  The one-cell extension split has now been
+re-proved locally; the remaining rows are not accepted merely because the
+service completed them.
 
 ## Aristotle wave 5: explicit missing bridges
 
@@ -141,11 +153,12 @@ requires manual review.
 | rowwise overlap multinomial count with explicit finite instances | `a6ef4342-1e6f-4be7-af19-146e7545591d` | queued | second factor of exact overlap law (6.2) |
 | clean monolithic ordered-law variant | `0e193ffc-c430-4dca-bff6-ebbf3939857b` | queued | alternative assembly of (6.2) |
 | assumption-minimal stub-allocation identity | `5e3d753d-bf3f-4d57-b220-31c6c5538e82` | complete, quarantined | descending-factorial allocation factor in (6.8) |
-| assumption-minimal one-cell disjoint extension count | `e2f1d51c-208f-4176-9198-ebcabd7eacff` | complete, quarantined | induction step for the allocation count |
+| assumption-minimal one-cell disjoint extension count | `e2f1d51c-208f-4176-9198-ebcabd7eacff` | independently re-proved and local proved | `card_disjoint_extension` in `StubAllocationTools.lean` |
 
-The clean stub-allocation result explicitly constructs the missing `Finite`
-and `Fintype` instances for its subtype; opaque-definition unfolding must be
-preserved or replaced deliberately during the local port.
+The local stub-allocation module explicitly constructs the missing `Finite`
+and `Fintype` instances for its subtype.  The full descending-factorial
+identity remains quarantined until its global equivalence is reviewed or
+re-proved under Lean 4.31.
 
 ## Non-atomic obligations that must not be hidden
 
