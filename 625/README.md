@@ -11,37 +11,31 @@ the sole author, with explicit AI-assistance, Aristotle-use, funding, and
 competing-interests disclosures.  It remains a candidate preprint while the
 full Lean target is open.
 
+Its editable source, author--year bibliography, arXiv-ready `.bbl`, build
+notes, and byte-identical PDF are collected in the [`arxiv/`](arxiv/) folder.
+
 The editable canonical manuscript is
 [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md),
 and the generated TeX is
 [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex).
 
-<p align="center">
-  <img src="assets/erdos625-preview.png" alt="Schematic overview of Erdős Problem 625, its graph parameters, and the proposed lower bound" width="1100">
-</p>
+## Supplementary exact example
 
-<p align="center"><em>Schematic overview of the definitions and proposed theorem. The image is explanatory and is not proof evidence.</em></p>
-
-## Animated exact example
-
-<p align="center">
-  <a href="assets/animations/erdos625-coloring-example.mp4">
-    <img src="assets/animations/erdos625-coloring-example.gif" alt="Animated exact coloring and cochromatic partition of a fixed 12-vertex graph" width="960">
-  </a>
-</p>
-
-<p align="center"><em>A selected, exactly solved 12-vertex illustration. Click for MP4. The seed was chosen to explain the two partitions; it is not representative, statistical, or asymptotic proof evidence.</em></p>
+An [MP4 animation](assets/animations/erdos625-coloring-example.mp4) shows an
+exact coloring and cochromatic partition of a fixed 12-vertex graph.  It is an
+illustrative example, not statistical or asymptotic proof evidence.
 
 ## Lean formalization
 
 [`formalization/`](formalization/) contains the pinned Lean 4 formalization,
 authored by **Samuil Petkov & ChatGPT 5.6**.  The accepted project is checked
-locally with Lean/mathlib `v4.31.0`; optional Aristotle experiments remain
-quarantined and are not imported.  The verified closure includes the labelled
-finite-graph and `G(n,1/2)` model, chromatic/cochromatic semantics, exact phase
-and independent-set asymptotics, Boolean-cube and variable-block bounded
-differences, induced-capacity amplification bricks, and finite four-support
-entropy/optimizer continuity.
+locally with Lean/mathlib `v4.31.0`.  Raw Aristotle outputs remain quarantined;
+only manually reviewed Lean 4.31 ports or reconstructions that pass the local
+repository gates enter the accepted project.  The verified closure includes
+the labelled finite-graph and `G(n,1/2)` model, chromatic/cochromatic semantics,
+exact phase and independent-set asymptotics, Boolean-cube and variable-block
+bounded differences, induced-capacity amplification bricks, and finite
+four-support entropy/optimizer continuity.
 
 The Section 4 layer now proves the exact unordered profile enumeration and
 first-moment formula (4.2), zero-safe factorial/log-weight bounds, the finite
@@ -84,7 +78,13 @@ table also instantiate the concrete high-cell matching assertion before
 (8.2).  Extending a fixed exposed witness is moreover equivalent to a bijection
 of its unused stubs, with exact remaining cardinalities.  These finite results
 do not yet prove the asymptotic diagonal sums, degree-labelled canonical
-residual law, or residual attachment estimates.
+residual law, or residual attachment estimates.  Six additional locally
+replayed leaves establish uniform finite-law transport along an equivalence,
+classwise selected-stub counts, a high-cell mass bound, weighted finite Cauchy,
+local sign-exponent arithmetic, and the matching-support parity kernel.  They
+do not establish the conditional residual law or assemble Sections 8 or 9.
+The capped degree moments and exact theta factorizations/bounds behind
+(9.13)--(9.14) are also kernel-checked.
 
 The asymptotic target is deliberately recorded as an **unproved proposition**;
 the current development is a verified partial formalization, not a completed
@@ -94,8 +94,8 @@ interfaces are kernel-checked.  In Section 4, the concrete phase objective,
 its center/slope corridor, its integer decrement, and the resulting probability
 limit remain open; the
 signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
-partial-diagonal ranges, canonical residual law, residual-attachment, and final
-amplification layers also remain open.
+partial-diagonal ranges, canonical residual conditional law, full Sections 8--9
+assembly, residual attachment, and final amplification layers also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the
 declaration-by-declaration status and remaining dependency graph.  Reproduced
 milestone evidence is recorded in the audit files under
@@ -148,12 +148,15 @@ still labels the problem `OPEN`.  This repository presents a proposed
 resolution for scrutiny and does not claim an official status change.
 
 The current complete packaged dossier is available at
-[`releases/Erdos-625-complete-dossier-2026-07-13.zip`](releases/Erdos-625-complete-dossier-2026-07-13.zip).
+[`releases/Erdos-625-complete-dossier-2026-07-14.zip`](releases/Erdos-625-complete-dossier-2026-07-14.zip).
+It includes the arXiv source library and the pinned Lean source project while
+excluding local build/service caches and copyrighted historical-source PDFs.
 
 ## Publication artifacts
 
-The manuscript title block attributes co-authorship to **Samuil Petkov &
-ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
+The canonical dossier manuscript attributes co-authorship to **Samuil Petkov
+& ChatGPT 5.6**.  The separate publication-layout preprint lists **Samuil
+Petkov** as author and gives explicit AI-assistance and ethics disclosures.
 
 - [`COMPLETE_PROOF_SELF_CONTAINED.pdf`](COMPLETE_PROOF_SELF_CONTAINED.pdf)
   - top-level convenience copy for immediate viewing on GitHub; byte-identical
@@ -163,14 +166,12 @@ ChatGPT 5.6** in the canonical Markdown, generated TeX, and PDF.
 - [`output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex`](output/tex/COMPLETE_PROOF_SELF_CONTAINED.tex)
   - generated standalone TeX source with color-coded lemma/proposition boxes.
 - [`output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf`](output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf)
-  - compiled 27-page A4 PDF with proofs kept outside the statement boxes.
+  - compiled 30-page A4 PDF with proofs kept outside the statement boxes.
 - [`output/README.md`](output/README.md) - build versions, hashes, and PDF QA.
-- [`assets/erdos625-preview.png`](assets/erdos625-preview.png) - explanatory
-  repository preview; schematic only, not proof evidence.
-- [`assets/animations/erdos625-coloring-example.gif`](assets/animations/erdos625-coloring-example.gif)
-  and [`erdos625-coloring-example.mp4`](assets/animations/erdos625-coloring-example.mp4)
-  - GitHub-ready animation and linked HD video of an exactly solved finite
-  example; see the [`animation build record`](assets/animations/).
+- [`arxiv/`](arxiv/) - publication-layout TeX, bibliography, `.bbl`, build
+  notes, and compiled 35-page preprint.
+- [`arxiv_625.pdf`](arxiv_625.pdf) - top-level convenience copy of the
+  publication-layout preprint.
 
 ## Proof authority and synchronized support
 
@@ -248,14 +249,15 @@ in this repository or its release archives.
   computations (diagnostic only).
 - `experiments/render_erdos625_animation.py` — deterministic GIF/MP4 renderer
   that revalidates the fixed graph and its exact partition witnesses before
-  producing the README animation.
+  producing the supplementary animation artifacts.
 
 `WORK_LOG.md` and `MECHANISM_REGISTRY.md` record the investigation history,
 failed routes, redirections, and precise remaining status.
 `FINAL_VERIFICATION.md` records the full audit history, the 2026-07-13
-adversarial repairs and regression results, the additional user-supplied
-verification, reproducibility and publication checks, final hashes, and the
-completed historical-source audit.
+adversarial repairs and regression results, the 2026-07-14 publication and
+Lean-checkpoint refresh, the additional user-supplied verification,
+reproducibility checks, final hashes, and the completed historical-source
+audit.
 
 ## Citation and license
 

@@ -10,7 +10,7 @@ pandoc 625/proofs/COMPLETE_PROOF_SELF_CONTAINED.md `
   -t latex -s --ascii --eol=lf `
   --lua-filter=625/output/tex/pandoc_filter.lua `
   --include-in-header=625/output/tex/header.tex `
-  --metadata title="A self-contained proof of a polynomial-scale gap between the chromatic and cochromatic numbers of a random graph" `
+  --metadata title="A Self-Contained Proof of a Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph" `
   --metadata subtitle="Candidate all-n solution to Erdős Problem 625; not externally peer reviewed" `
   --metadata author="Samuil Petkov & ChatGPT 5.6" `
   --metadata date="12 July 2026" `

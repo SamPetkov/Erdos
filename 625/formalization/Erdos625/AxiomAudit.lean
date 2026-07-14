@@ -75,7 +75,14 @@ import Erdos625.FallingFactorialBounds
 import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
+import Erdos625.UniformEquivTransport
+import Erdos625.HighCellMass
+import Erdos625.LocalSignReward
+import Erdos625.EvenMatchingKernel
+import Erdos625.WeightedCauchyTools
+import Erdos625.ResidualFiberCounts
 import Erdos625.EndpointTransportBounds
+import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
 import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
@@ -394,12 +401,39 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_remainingRowStub
 #print axioms Erdos625.card_remainingColumnStub
 #print axioms Erdos625.card_remainingStubs_eq
+#print axioms Erdos625.uniformOfFintype_map_equiv
+#print axioms Erdos625.highCellFinset_card_mul_succ_le_total
+#print axioms Erdos625.prod_localSignRewardNat_eq_pow
+#print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
+#print axioms Erdos625.sum_sqrt_mul_weight_le
+#print axioms Erdos625.card_selectedRowStubs_in_class
+#print axioms Erdos625.card_selectedColumnStubs_in_class
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
 #print axioms Erdos625.descFactorial_endpoint_transport
 #print axioms Erdos625.descFactorial_endpoint_transport_succ
 #print axioms Erdos625.descFactorial_min_transport
 #print axioms Erdos625.descFactorial_min_transport_succ
+#print axioms Erdos625.degreeSquareSum_le_cap_mul_total
+#print axioms Erdos625.degreeCubeSum_le_cap_sq_mul_total
+#print axioms Erdos625.degreeSquareSum_real_le_cap_mul_total
+#print axioms Erdos625.degreeCubeSum_real_le_cap_sq_mul_total
+#print axioms Erdos625.degreeSquareSum_ennreal_le_cap_mul_total
+#print axioms Erdos625.degreeCubeSum_ennreal_le_cap_sq_mul_total
+#print axioms Erdos625.sum_configurationCellTheta_sq_row
+#print axioms Erdos625.sum_configurationCellTheta_sq_column
+#print axioms Erdos625.sum_configurationCellTheta_cube
+#print axioms Erdos625.sum_configurationCellTheta_sq_row_le_raw
+#print axioms Erdos625.sum_configurationCellTheta_sq_column_le_raw
+#print axioms Erdos625.sum_configurationCellTheta_sq_row_le
+#print axioms Erdos625.sum_configurationCellTheta_sq_column_le
+#print axioms Erdos625.sum_configurationCellTheta_sq_row_le_uniform
+#print axioms Erdos625.sum_configurationCellTheta_sq_column_le_uniform
+#print axioms Erdos625.sum_configurationCellTheta_cube_le_raw
+#print axioms Erdos625.sum_configurationCellTheta_cube_le
+#print axioms Erdos625.configurationCellTheta_eq_zero_of_rowTotal_zero
+#print axioms Erdos625.configurationCellTheta_eq_zero_of_colTotal_zero
+#print axioms Erdos625.sum_configurationCellTheta_cube_eq_zero_of_total_zero
 #print axioms Erdos625.selectedBlockCount_increment
 #print axioms Erdos625.selectedVertexMass_increment
 #print axioms Erdos625.selectedInternalEdgeCount_increment

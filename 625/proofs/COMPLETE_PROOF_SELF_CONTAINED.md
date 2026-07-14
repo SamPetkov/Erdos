@@ -1,4 +1,4 @@
-# A self-contained proof of a polynomial-scale gap between the chromatic and cochromatic numbers of a random graph
+# A Self-Contained Proof of a Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph
 
 **Authors:** Samuil Petkov & ChatGPT 5.6
 
@@ -39,15 +39,45 @@ the first-order dense-random-graph chromatic asymptotic is due to Bollobas
 Theorem 7.14 and Remark 7.15) give a textbook treatment.  These references
 provide context only: the proof of (0.1) below does not import their results.
 
-The problem is also recorded as Erdos Problem #625 by Bloom (2026).  The
-recent work of Heckel (2024) and, independently, Steiner (2024) showed that
-the gap is not bounded with high probability, in the stronger sense that any
-high-probability upper bound must be at least \(n^{1/2-o(1)}\) along an
-infinite sequence of \(n\).  Heckel (2025) subsequently proved a positive
-answer for roughly \(95\%\) of all values of \(n\) and formulated the natural
-scale \(\chi(G_n)-\zeta(G_n)\asymp n/(\log n)^3\).  The candidate proof below
-builds on this recent framework and targets the full sequence of \(n\), with
-the explicit constant in (0.1).
+The problem is also recorded as Erdos Problem #625 by Bloom (2026).  Heckel
+(2024, Theorem 1) proved that if a deterministic integer sequence \(g(n)\)
+satisfies
+\(\Pr\{\chi(G_n)-\zeta(G_n)\le g(n)\}>0.999\), then along an unbounded
+sequence \(n^*\),
+\[
+ g(n^*)>c\frac{\sqrt{n^*}\log\log n^*}{(\log n^*)^3}.
+\]
+This is an obstruction to a uniformly small high-probability upper bound,
+not an all-\(n\) high-probability lower bound for the gap.  Heckel (2024,
+Conjecture 4) also proposed the scale
+\(\chi(G_n)-\zeta(G_n)=\Theta(n/(\log n)^3)\) with high probability.
+Independently, Steiner (2024) obtained related infinite-subsequence
+evidence.
+
+Heckel (2025, Theorem 1) subsequently proved that, for every fixed
+\(\varepsilon>0\),
+\[
+n^{0.05+\varepsilon}\le\mu_\alpha\le n^{1-\varepsilon}
+\quad\Longrightarrow\quad
+\chi(G_n)-\zeta(G_n)\ge n^{1-\varepsilon}
+\quad\text{with high probability}.
+\]
+The phrase "roughly \(95\%\)" refers to the integers in this
+phase-dependent window, not to an all-\(n\) theorem.  The exact relation to
+the candidate proof below is:
+
+1. Heckel's 2024 anti-concentration theorem is motivation, not a logical
+   input.
+2. The one-partition factor \(2^k\) and overlap-sensitive sign bookkeeping
+   originate in Heckel (2025, Proposition 6).  They are rederived and then
+   strengthened to an exact component identity in Sections 5--6.
+3. The rare-second-moment-seed/concentration architecture follows Heckel
+   (2025, Proposition 5 and the proof of Theorem 1), but Sections 6--10 prove
+   the different second-moment and amplification estimates used here.
+4. The four-size profile, its uniform entropy certificate, the all-phase
+   treatment, and the explicit constant in (0.1) are new claims of this
+   manuscript.  Heckel's range-restricted tame-profile existence theorem is
+   not imported.
 
 ## 1. Notation and elementary facts
 
@@ -555,10 +585,14 @@ function for `S_+` at the `S_4` tilt yields
 Since `S_4` is a subset of `S_+`, the loss is nonnegative.  Subtracting
 from `q=ln2` completes the proof.  \(\square\)
 
-For a fixed partition into `k` classes, assigning each class the declaration
-"independent" or "complete" multiplies its first moment by `2^k`: every
-declaration prescribes all internal edge bits, and all `2^k` declarations
-have probability `2^{-sum binom(u,2)}`.  Let
+The following `2^k` gain is the one-partition identity isolated by Heckel
+(2025, Proposition 6), repeated here because it enters the new root
+calculation.  For a fixed partition into `k` classes, assigning each class
+the declaration "independent" or "complete" multiplies its first moment by
+`2^k`: every declaration prescribes all internal edge bits, and all `2^k`
+declarations have probability `2^{-sum binom(u,2)}`.  They are disjoint
+because the allowed class sizes tend to infinity, so there are no singleton
+classes.  Let
 `r_4^{co}=r_{S_4,q}` be the unique corridor zero of
 
 \[
@@ -672,6 +706,12 @@ Finally, (4.1), (5.12), and (5.13) give
 \]
 
 ## 6. Exact signed second-moment representation
+
+For partitions sharing exactly `ell` whole classes, Heckel (2025,
+Proposition 6) bounds the number of joint sign declarations by
+`2^{2k-ell}`.  The lemma below does not import that inequality: it retains
+the full overlap matrix and counts compatible signs exactly through the
+components of the graph of cells of size at least two.
 
 Temporarily label all slots within each of the four types.  This multiplies
 the unordered witness by the deterministic factor `prod_i k_i!` and hence
@@ -868,6 +908,12 @@ and
  \frac{B(h+e_i)}{B(h)}
  =\frac{2(k_i-h_i)\mu_{u_i}(v+u_i)}{(h_i+1)^2}.          \tag{7.6}
 \]
+
+In Heckel's admissible-phase argument, analogous partial-profile control
+enters through the tame-colouring input used for Proposition 5; its
+hypotheses produce the lower \(\mu_\alpha\)-window.  Lemma 7.1 instead
+proves the required estimate directly for the four-size signed profile,
+including both corners and every intermediate mass.
 
 ### Lemma 7.1 (all common subprofiles)
 
@@ -1651,6 +1697,12 @@ one by variance, so its logarithm is nonnegative and (9.23) follows.
 
 ## 10. Rare-event amplification
 
+Heckel (2025, proof of Theorem 1) likewise starts from a rare second-moment
+seed and applies vertex-exposure concentration of \(\zeta(G_n)\).  We use
+that strategic principle but not the theorem as a black box: Lemmas 10.1
+and 10.2 prove the simultaneous-leftover and arbitrary-seed-exponent forms
+needed here.
+
 Proposition 9.2 and (1.5) give the seed
 
 \[
@@ -1864,6 +1916,18 @@ chromatic asymptotic.  The cited recent sources establish the known
 infinite-sequence lower-bound obstruction, Heckel's near-full-density positive
 result, and the predicted \(n/(\log n)^3\) scale.  The new work claimed here
 is the proposed full-sequence second-moment and amplification argument.
+
+More precisely, Heckel (2024, Theorem 1 and Conjecture 4) supplies the
+anti-concentration obstruction and the conjectural scale.  Heckel (2025,
+Theorem 1 and Propositions 5--6) supplies the admissible-phase theorem, the
+signed \(2^k\) identity and pair-sign bound, and the rare-seed amplification
+strategy.  These are essential strategic antecedents, but no numbered
+theorem from either paper is used as an unproved implication above: Section 5
+rederives the first identity, Section 6 replaces the pair bound by an exact
+component identity, Sections 7--9 replace the phase-restricted tame-profile
+estimates, and Section 10 proves the amplifier.  The full-phase uniformity
+and explicit constant are therefore claims of this manuscript, not claims
+attributed to Heckel.
 
 For the accompanying Lean 4 work, Aristotle, as described by Achim et al.
 (2025), was used as an optional proof-search assistant on isolated atomic

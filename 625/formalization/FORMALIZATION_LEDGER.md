@@ -138,7 +138,14 @@ target.
 | `cellDegreePowerProduct`, `row_column_descendingProduct_le_cellDegreePowerProduct`, `configurationCellTheta`, `configurationCellTheta_pow_product`, `configurationCellWeight_product_eq_global`, `jointPrescribedCellBound_cellwise_of_totalDemand_le`, `not_mem_prescribedCellEvent_of_total_lt`, `jointPrescribedCellBound_cellwise` | product majorant (6.9) | proved, including all total-demand cases | The row and column descending-factorial numerator is bounded cellwise; the global `(m/e)^x` denominator is normalized exactly into the product of `θ_ab = e d_a d'_b / m`; and (6.8) yields the displayed product `∏ θ_ab^{x_ab}/x_ab!`. The feasible-total theorem records the analytic derivation. The public all-cases theorem assumes only equal positive ambient totals: if the requested total exceeds `m`, a witness embedding would contradict cardinality, so the event is empty. All `ℝ≥0∞` inversions explicitly use positive finite natural factorial denominators. |
 | `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | concrete configuration-table margins and high-cell assertion before (8.2) | proved | Fiber counts across every row and column recover the exact prescribed degrees. Instantiating the generic deterministic table lemma therefore proves that cells larger than half a common degree cap form a partial matching in an actual configuration matching. Canonical skeleton selection, witness uniqueness, and the residual conditional law remain separate. |
 | `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `witnessSelectedStubEquiv`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | deterministic residual-matching structure after an exposed witness | proved | The witness's globally selected stubs are finite images of its injective row/column embeddings. Matchings extending the fixed exposed pairing are exactly bijections between the two complements, and their remaining cardinalities are computed. This is not yet the residual degree-fibre identification or conditional probability pushforward required after (8.3). |
+| `uniformOfFintype_map_equiv` | finite-law transport after the residual equivalence | proved | The uniform PMF on a nonempty finite type maps to the uniform PMF along an equivalence. This is only a transport leaf: it does not prove that conditioning the original configuration law produces the required uniform residual law. |
+| `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise exposed-stub counts after (8.3) | proved | In every row or column class, the selected-stub cardinality is exactly the corresponding sum of the prescribed demands. These are deterministic fibre counts; the residual degrees, residual cell-count split, and conditional pushforward remain open. |
+| `highCellFinset`, `highCellFinset_card_mul_succ_le_total` | high-cell mass bound in §8 | defined; proved | Every entry above threshold `R` contributes at least `R+1`, so the number of high cells times `R+1` is bounded by total table mass. This does not choose a canonical skeleton or establish its law. |
+| `sum_sqrt_mul_weight_le` | weighted Cauchy bridge in the margin-pair sum of §8 | proved | A finite nonnegative square-root sum is bounded by the product of the two weighted one-margin square-root sums. The table enumeration, the choice of the weights, and the full Lemma 8.2 assembly are not part of this theorem. |
 | `sub_min_add_sub_min_eq_dist`, `add_eq_two_mul_min_add_dist`, `descFactorial_endpoint_transport`, `descFactorial_endpoint_transport_succ`, `descFactorial_min_transport`, `descFactorial_min_transport_succ` | finite endpoint transportation in (8.12) | proved | Two margins are transported to a common lower endpoint with exact excess `gap`; the product of descending factorials is bounded by the square at the endpoint times `n^gap`, which is stronger than the manuscript's `(n+1)^gap`. No feasibility premise is required because the descending-factorial identities are total. Exact `min` and `Nat.dist` forms are included. |
+| `degreeSquareSum_le_cap_mul_total`, `degreeCubeSum_le_cap_sq_mul_total`, `sum_configurationCellTheta_sq_row`, `sum_configurationCellTheta_sq_column`, `sum_configurationCellTheta_cube`, `sum_configurationCellTheta_sq_row_le_uniform`, `sum_configurationCellTheta_sq_column_le_uniform`, `sum_configurationCellTheta_cube_le`, `sum_configurationCellTheta_cube_eq_zero_of_total_zero` | finite degree moments and theta bounds (9.13)–(9.14) | proved | Capped degree families satisfy exact second- and third-moment bounds in `ℕ`, `ℝ`, and `ℝ≥0∞`. The row/column square and global cube theta sums factor exactly. Positive total mass gives the normalized bounds `e²U³/m` and `e³U⁴/m`; a separate theorem proves vanishing at total zero. No asymptotic substitution is made. |
+| `localSignRewardNat`, `prod_localSignRewardNat_eq_pow` | local sign-reward exponent bookkeeping | defined; proved | On a finite set of local objects whose sizes are at least three, the product of the local powers of two is the stated single power. The component-sign factor and global signed second-moment sum are not included. |
+| `BipartiteEvenMatrix`, `evenMatrix_eq_zero_of_support_rowMatching` | small-residual injectivity kernel in §9 | defined; proved | An even `ZMod 2` bipartite matrix supported on a row matching is zero. This is the parity kernel needed for a later restriction-injectivity argument; it does not itself construct the restriction map, enumerate residual even subgraphs, or prove Lemma 9.1. |
 | `selectedBlockCount`, `selectedVertexMass`, `selectedInternalEdgeCount`, `partialSignedFirstMoment`, `partialDiagonalWeight`, `partialDiagonalWeight_zero`, `partialSignedFirstMoment_increment_mul`, `partialDiagonalWeight_increment_mul`, `partialDiagonalWeight_increment_div` | exact partial-diagonal formulas and recurrence (7.1)–(7.4) | proved | The full finite-profile statistics, factorial and marking products, total algebraic expression (7.2), and marked weight (7.3) are defined. Because natural subtraction makes the definitions total, their counting interpretation is asserted only on the selected-mass-feasible domain. Coordinate-update identities yield a denominator-free recurrence valid even when a marking count vanishes; under componentwise subprofile containment and the explicit mass condition this gives the displayed ratio (7.4). No asymptotic estimate is bundled into this checkpoint. |
 | `complementaryProfile`, `residualVertexMass`, `completeSignedFirstMoment`, `fullCornerWeight`, `selectedVertexMass_complement_le_of_fullMass`, `partialDiagonalWeight_complement_mul_complete`, `partialDiagonalWeight_complement_eq_fullCorner_div`, `fullCornerWeight_increment_mul`, `fullCornerWeight_increment_div` | full-corner factorization and recurrence (7.5)–(7.6) | proved | Componentwise containment and the full-profile mass identity explicitly imply feasibility of both the residual and complementary profiles. Exact factorial, block-count, edge-count, and marking cancellations give a denominator-free form of (7.5) and its quotient form. Independent marking and complete-moment updates give a denominator-free (7.6) and the displayed ratio; no total-extension interpretation is used outside its justified domain. |
 
@@ -172,11 +179,18 @@ Lean axioms or claimed theorems.
 6. Canonical high cells, the degree-labelled residual-fibre identification and
    conditional pushforward, endpoint transportation, and all nonendpoint high
    multiplicities (Lemmas 8.1–8.3).  The actual table margins, high-cell
-   matching assertion, complement-bijection structure, and finite
-   descending-factorial transport inequality are proved.
+   matching assertion and mass bound, complement-bijection structure,
+   classwise selected-stub counts, uniform-equivalence transport leaf,
+   weighted Cauchy inequality, and finite descending-factorial transport
+   inequality are proved.  None of these leaves supplies the conditional
+   residual law or the full Section 8 assembly.
 7. Residual local/cycle attachment bound and normalized signed second moment
    (Lemma 9.1 and Proposition 9.2).  The residual estimate must remain
-   one-sided; no equality is to be inferred from an upper bound.
+   one-sided; no equality is to be inferred from an upper bound.  The finite
+   capped degree moments and theta bounds (9.13)–(9.14), local sign-exponent
+   identity, and matching-support parity kernel are proved.  The restriction
+   injection, enumeration, asymptotic estimate, and global assembly remain
+   open.
 8. Complete the simultaneous leftover-colouring and seed-amplification layer
    (Lemmas 10.1–10.2).  The induced-capacity statistic, event equivalence,
    block-count concentration input, generic rare-seed inversion, maximizing
@@ -194,10 +208,13 @@ quantifier, endpoint, and uniform error term must be explicit.
 
 - Toolchain: Lean `v4.31.0`; mathlib tag `v4.31.0`, pinned transitively by
   `lake-manifest.json`.
-- Aristotle is used only on isolated, ignored compatibility copies as an
-  optional proof-search assistant. Its fixed Lean `v4.28.0` output is never
-  imported automatically: every candidate is ported to this project's
-  `v4.31.0`, scanned, rebuilt, axiom-audited, and independently reviewed.
+- Aristotle is used only as an optional, isolated proof-search assistant on
+  its fixed Lean `v4.28.0` service toolchain.  Raw service output is never
+  imported automatically.  A candidate can enter the project only after its
+  statement and proof are manually reviewed, ported or independently
+  re-proved for this project's `v4.31.0`, source-scanned, rebuilt with
+  warnings fatal, axiom-audited, and checked against the surrounding
+  dependency without adding a hidden premise.
 - The first isolated Aristotle task (2026-07-13) solved the three
   vertex-block/graph inverse obligations on the service toolchain. Its archive
   remains quarantined and ignored. Because its automation-heavy final inverse
@@ -210,6 +227,14 @@ quantifier, endpoint, and uniform error term must be explicit.
   graph-specific heredity, event, variance, measure-transport, and tail proofs
   were checked locally.  The downloaded result remains quarantined and its
   temporary key was revoked.
+- The 2026-07-14 Sections 8–9 batch produced six narrowly scoped local modules:
+  finite uniform-law transport, a high-cell mass bound, local sign-exponent
+  arithmetic, a matching-support parity kernel, weighted finite Cauchy, and
+  classwise selected-stub counts.  Their accepted Lean 4.31 versions passed a
+  combined warning-as-error replay; the raw service artifacts remain
+  quarantined.  They are atomic leaves only and do not establish the residual
+  conditional law, Lemmas 8.1–8.3, Lemma 9.1, Proposition 9.2, or the final
+  theorem.
 - CI rejects placeholders/project axioms with a source gate and runs
   `lake build --wfail`, making Lean's own placeholder warning fatal.  The
   optional external `nanoda` helper path is disabled.

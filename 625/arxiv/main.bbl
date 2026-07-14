@@ -1,0 +1,97 @@
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Achim et~al.(2025)Achim, Best, Bietti, Der, F{\'e}d{\'e}rico, Gukov,
+  Halpern-Leistner, Henningsgard, Kudryashov, Meiburg, Michelsen, Patterson,
+  Rodriguez, Scharff, Shanker, Sicca, Sowrirajan, Swope, Tamas, Tenev, Thomm,
+  Williams, and Wu]{achim-et-al-2025}
+Tudor Achim, Alex Best, Alberto Bietti, Kevin Der, Math{\"i}s F{\'e}d{\'e}rico,
+  Sergei Gukov, Daniel Halpern-Leistner, Kirsten Henningsgard, Yury Kudryashov,
+  Alexander Meiburg, Martin Michelsen, Riley Patterson, Eric Rodriguez, Laura
+  Scharff, Vikram Shanker, Vladmir Sicca, Hari Sowrirajan, Aidan Swope, Matyas
+  Tamas, Vlad Tenev, Jonathan Thomm, Harold Williams, and Lawrence Wu.
+\newblock {Aristotle}: {IMO}-level automated theorem proving, 2025.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2510.01346}.
+\newblock arXiv:2510.01346; version 2, revised 10 October 2025; DOI
+  10.48550/arXiv.2510.01346.
+
+\bibitem[Bloom(2026)]{bloom-erdos625}
+Thomas~F. Bloom.
+\newblock Erd{\H{o}}s problem \#625.
+\newblock \url{https://www.erdosproblems.com/625}, 2026.
+\newblock Accessed 14 July 2026.
+
+\bibitem[Bollob{\'{a}}s(1988)]{bollobas-1988}
+B{\'{e}}la Bollob{\'{a}}s.
+\newblock The chromatic number of random graphs.
+\newblock \emph{Combinatorica}, 8\penalty0 (1):\penalty0 49--55, 1988.
+\newblock \doi{10.1007/BF02122551}.
+\newblock URL \url{https://doi.org/10.1007/BF02122551}.
+
+\bibitem[Erd{\H{o}}s and Gimbel(1993)]{erdos-gimbel-1993}
+Paul Erd{\H{o}}s and John Gimbel.
+\newblock Some problems and results in cochromatic theory.
+\newblock In John Gimbel, John~W. Kennedy, and Louis~V. Quintas, editors,
+  \emph{Quo Vadis, Graph Theory?}, volume~55 of \emph{Annals of Discrete
+  Mathematics}, pages 261--264. North-Holland/Elsevier, 1993.
+\newblock \doi{10.1016/S0167-5060(08)70393-5}.
+\newblock URL \url{https://doi.org/10.1016/S0167-5060(08)70393-5}.
+
+\bibitem[Gimbel(2016)]{gimbel-2016}
+John Gimbel.
+\newblock Some of my favorite coloring problems for graphs and digraphs.
+\newblock In Ralucca Gera, Stephen~T. Hedetniemi, and Craig Larson, editors,
+  \emph{Graph Theory: Favorite Conjectures and Open Problems -- 1}, Problem
+  Books in Mathematics, pages 95--108. Springer, Cham, 2016.
+\newblock ISBN 978-3-319-31940-7.
+\newblock \doi{10.1007/978-3-319-31940-7_7}.
+\newblock URL \url{https://doi.org/10.1007/978-3-319-31940-7_7}.
+
+\bibitem[Heckel(2024)]{heckel-2024-question}
+Annika Heckel.
+\newblock On a question of erd{\H{o}}s and gimbel on the cochromatic number.
+\newblock \emph{The Electronic Journal of Combinatorics}, 31\penalty0
+  (4):\penalty0 P4.72, 2024.
+\newblock \doi{10.37236/13346}.
+\newblock URL \url{https://doi.org/10.37236/13346}.
+
+\bibitem[Heckel(2025)]{heckel-2025-difference}
+Annika Heckel.
+\newblock The difference between the chromatic and the cochromatic number of a
+  random graph, 2025.
+\newblock URL \url{https://arxiv.org/abs/2409.17614}.
+\newblock Version 2, revised 19 February 2025; first submitted in 2024.
+
+\bibitem[Janson et~al.(2000)Janson, {\L}uczak, and
+  Ruci{\'{n}}ski]{janson-luczak-rucinski-2000}
+Svante Janson, Tomasz {\L}uczak, and Andrzej Ruci{\'{n}}ski.
+\newblock \emph{Random Graphs}.
+\newblock John Wiley \& Sons, New York, 2000.
+\newblock ISBN 0-471-17541-2.
+
+\bibitem[McDiarmid(1989)]{mcdiarmid-1989}
+Colin McDiarmid.
+\newblock On the method of bounded differences.
+\newblock In Johannes Siemons, editor, \emph{Surveys in Combinatorics, 1989},
+  volume 141 of \emph{London Mathematical Society Lecture Note Series}, pages
+  148--188. Cambridge University Press, 1989.
+\newblock \doi{10.1017/CBO9781107359949.008}.
+\newblock URL \url{https://doi.org/10.1017/CBO9781107359949.008}.
+
+\bibitem[Scott(2017)]{scott-2008-2017}
+Alex Scott.
+\newblock On the concentration of the chromatic number of random graphs, 2017.
+\newblock URL \url{https://arxiv.org/abs/0806.0178}.
+\newblock Version 2; first submitted in 2008.
+
+\bibitem[Steiner(2024)]{steiner-2024}
+Raphael Steiner.
+\newblock On the difference between the chromatic and cochromatic number, 2024.
+\newblock URL \url{https://arxiv.org/abs/2408.02400}.
+\newblock Version 2, revised 20 August 2024.
+
+\end{thebibliography}

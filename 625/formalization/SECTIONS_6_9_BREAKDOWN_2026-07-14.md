@@ -63,7 +63,14 @@ threshold expansion
 | `cellDegreePowerProduct`, `row_column_descendingProduct_le_cellDegreePowerProduct`, `configurationCellTheta`, `configurationCellTheta_pow_product`, `configurationCellWeight_product_eq_global`, `jointPrescribedCellBound_cellwise_of_totalDemand_le`, `not_mem_prescribedCellEvent_of_total_lt`, `jointPrescribedCellBound_cellwise` | product majorant (6.9) | local proved, all cases | Exact cellwise `ℝ≥0∞` product bound with `θ_ab=e d_a d'_b/m`. The feasible-total theorem proves the analytic inequality; the public theorem removes that premise by proving the prescribed event empty when total demand exceeds `m`. All finite-product inversions and denominator conditions are explicit. |
 | `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | first concrete bridge before (8.2) | local proved | The actual configuration cell table has its exact row and column degree margins; under a common cap, its high cells form a partial matching. Canonical selection and the residual law remain open. |
 | `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | structural complement equivalence after (8.3) | local proved | Extending a fixed exposed witness is exactly equivalent to a bijection of unused stubs, with exact remaining cardinalities. No degree-fibre identification or residual probability-law claim is included. |
+| `uniformOfFintype_map_equiv` | uniform finite-law transport after the residual equivalence | local proved | An equivalence maps the uniform PMF to the uniform PMF. Identifying the conditioned original matching law with the source uniform PMF remains open. |
+| `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise witness-fibre counts after (8.3) | local proved | The selected stubs in each row or column class have the exact demand-sum cardinality. The residual degree family and conditional cell-table law remain open. |
+| `highCellFinset_card_mul_succ_le_total` | high-cell mass bound in Section 8 | local proved | The number of entries above `R`, multiplied by `R+1`, is at most the total table mass. This is not a canonical-skeleton construction. |
+| `sum_sqrt_mul_weight_le` | weighted Cauchy step in the margin-pair sum | local proved | The finite nonnegative square-root inequality is exact. Instantiating it with the actual margin weights and assembling Lemma 8.2 remain open. |
 | `descFactorial_endpoint_transport`, `descFactorial_endpoint_transport_succ`, `descFactorial_min_transport`, `descFactorial_min_transport_succ` | endpoint transport (8.12) | local proved | Exact total natural-number theorem with stronger loss `n^gap`; the manuscript's `(n+1)^gap` and exact `min`/`Nat.dist` forms follow. |
+| `degreeSquareSum_le_cap_mul_total`, `degreeCubeSum_le_cap_sq_mul_total`, `sum_configurationCellTheta_sq_row`, `sum_configurationCellTheta_sq_column`, `sum_configurationCellTheta_cube`, `sum_configurationCellTheta_sq_row_le_uniform`, `sum_configurationCellTheta_sq_column_le_uniform`, `sum_configurationCellTheta_cube_le`, `sum_configurationCellTheta_cube_eq_zero_of_total_zero` | degree/theta estimates (9.13)–(9.14) | local proved | Exact finite factorizations and normalized `ℝ≥0∞` bounds, with the `m=0` branch separated explicitly. |
+| `localSignRewardNat`, `prod_localSignRewardNat_eq_pow` | local sign-reward exponent | local proved | The product of the local powers of two is reduced to one exact exponent. Component signs and the global signed-moment sum remain open. |
+| `BipartiteEvenMatrix`, `evenMatrix_eq_zero_of_support_rowMatching` | small-residual parity kernel | local proved | An even `ZMod 2` bipartite matrix supported on a row matching is zero. The restriction map, its injectivity on the actual residual family, and the final count remain open. |
 | `selectedBlockCount`, `selectedVertexMass`, `selectedInternalEdgeCount`, `partialSignedFirstMoment`, `partialDiagonalWeight`, `partialDiagonalWeight_zero`, `partialSignedFirstMoment_increment_mul`, `partialDiagonalWeight_increment_mul`, `partialDiagonalWeight_increment_div` | formulas (7.1)–(7.3) and recurrence (7.4) | local proved | Exact full-profile algebra on the feasible selected-mass domain, with a clearly documented total natural-subtraction extension outside it. The denominator-free recurrence assumes the vertex-mass condition; the displayed ratio additionally uses componentwise subprofile containment to prove the old marked weight positive. |
 | `complementaryProfile`, `residualVertexMass`, `completeSignedFirstMoment`, `fullCornerWeight`, `selectedVertexMass_complement_le_of_fullMass`, `partialDiagonalWeight_complement_mul_complete`, `partialDiagonalWeight_complement_eq_fullCorner_div`, `fullCornerWeight_increment_mul`, `fullCornerWeight_increment_div` | endpoint factorization (7.5) and recurrence (7.6) | local proved | The full-profile mass identity and componentwise containment derive every feasibility fact explicitly. Denominator-free and quotient forms are both kernel-checked; the ratio remains valid at `h_i=k_i`, where the next weight and numerator are zero. |
 
@@ -139,10 +146,34 @@ warning-as-error build passed all 2,966 jobs and its focused audit used only
 the standard axioms.  It does not yet supply the unordered-profile ordering
 bridge or the sign/component factors.
 
+`ConfigurationThetaMoments.lean` proves the capped degree moments, exact theta
+factorizations, normalized row/column square and global cube bounds in
+(9.13)–(9.14), and the zero-total branch.  Its independent warning-as-error
+rebuild passed all 3,384 jobs; no asymptotic estimate is hidden in the module.
+
 `FullCornerWeights.lean` proves the complementary-profile feasibility lemmas,
 the endpoint factorization (7.5), and the full-corner recurrence (7.6), each in
 denominator-free and quotient form.  Its isolated warning-as-error build passed
 all 1,921 jobs, and its focused audit reports only the three standard axioms.
+
+Six additional Aristotle-derived leaf modules were manually reviewed and
+replayed under Lean 4.31 rather than imported from the service.  The combined
+warning-as-error build passed all 3,233 jobs:
+
+- `UniformEquivTransport.lean` proves only uniform-PMF transport along a finite
+  equivalence, not the conditioning statement needed for the residual law;
+- `ResidualFiberCounts.lean` proves the selected row- and column-stub counts
+  class by class, but not residual degree identification or probability;
+- `HighCellMass.lean` proves the total-mass bound on the number of high cells;
+- `WeightedCauchyTools.lean` proves the finite analytic inequality needed by a
+  later Section 8 margin-sum reduction;
+- `LocalSignReward.lean` proves only the local exponent arithmetic; and
+- `EvenMatchingKernel.lean` proves the parity kernel for matching-supported
+  even matrices, not the full small-residual injection or enumeration.
+
+All six are atomic leaves.  In particular, they do not close the canonical
+residual conditional law, the full Section 8 skeleton estimates, the Section 9
+attachment estimate, or either global signed-moment assembly.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -236,6 +267,24 @@ and `Fintype` instances for its subtype and proves the global equivalence under
 Lean 4.31.  The returned service proof remains provenance only; the repository
 accepts the separately reviewed local reconstruction.
 
+## Aristotle wave 8: locally replayed residual and analytic leaves
+
+| Atomic theorem | Project | Accepted Lean 4.31 module | Limitation |
+|---|---|---|---|
+| weighted finite Cauchy--Schwarz | `e2c8d889-b584-4930-b702-50bfe4e96f06` | `WeightedCauchyTools.lean` | analytic inequality only; no margin-table assembly |
+| uniform PMF transport along an equivalence | `eb6e68c9-7cdc-48d7-b924-d297bd94b079` | `UniformEquivTransport.lean` | does not identify the original conditional law |
+| classwise selected row-stub count | `474273da-73c4-41e6-81d2-5693016a684c` | `ResidualFiberCounts.lean` | deterministic row fibre only |
+| classwise selected column-stub count | `9cb8b5ce-fef9-428a-a63e-bd4ed805b95f` | `ResidualFiberCounts.lean` | deterministic column fibre only |
+| high-cell cardinality versus total mass | `4f3f0236-34ec-4263-b548-e95defbc8385` | `HighCellMass.lean` | no canonical selection or probability statement |
+| local sign-reward exponent identity | `acb79d29-444c-4ef8-8cf4-c943c504c370` | `LocalSignReward.lean` | no component-sign or global sum |
+| matching-support parity kernel | `5316a33d-76e4-4d2d-8f74-8dfa3ecf8575` | `EvenMatchingKernel.lean` | no residual restriction map or enumeration |
+
+The raw Lean 4.28 service results remain quarantined.  The six repository
+modules are reviewed Lean 4.31 ports or reconstructions and passed the local
+combined `--wfail` replay; their declarations are included in the central
+axiom-audit source.  Acceptance of these leaves does not transfer trust to any
+other service result or discharge a non-atomic obligation below.
+
 ## Non-atomic obligations that must not be hidden
 
 1. Connect the proved fixed-row ordered overlap law (6.1)–(6.2) to the
@@ -260,11 +309,13 @@ A second local replay split the remaining Sections 8–9 argument into the
 following dependency-ordered packages.  These are proof obligations, not
 axioms or aliases for the desired conclusion.
 
-1. Prove the exact row and column marginals of `configurationCellCount` and
-   use them to construct the canonical high-cell partial matching.
-2. Expose the complement-matching equivalence after a prescribed witness;
-   identify it with a residual `ConfigurationMatching`; and prove the exact
-   cell-count split `full = exposed + residual`.
+1. Use the proved row/column marginals, high-cell matching assertion, and
+   high-cell mass bound to construct and expose the canonical high skeleton.
+2. Starting from the proved complement-matching equivalence and classwise
+   selected-stub counts, identify the complement with a residual
+   `ConfigurationMatching` and prove the exact cell-count split
+   `full = exposed + residual`.  The uniform-equivalence lemma transports a
+   law only after this missing conditional-law identification is supplied.
 3. Prove uniqueness of the canonical high-demand witness.  This is needed
    because the exact incidence (8.3) includes the condition that no residual
    pair returns to a skeleton cell; the union bound behind (6.8) does not
@@ -275,10 +326,10 @@ axioms or aliases for the desired conclusion.
 5. Count typed partial matchings with prescribed table `ell i j` by the
    cross-multiplied row/column descending-factorial identity.  This is the
    missing finite bridge from the skeleton type to the weight `W(L)` in (8.6).
-6. Prove endpoint transportation (8.11)–(8.14), preferably by a direct
-   descending-factorial inequality rather than interpolation, and combine it
-   with the exact minimum/absolute-difference and local reward identities.
-7. Assemble Lemma 8.2 through
+6. Combine the proved endpoint transportation, exact
+   minimum/absolute-difference identities, and local reward exponent with the
+   actual skeleton weights in (8.11)–(8.14).
+7. Assemble Lemma 8.2 through the proved weighted Cauchy leaf and
    `(sum_r sqrt (D r))^2`.  A sum of one-vector `D` over margin pairs is
    ill-typed and is not an acceptable substitute.
 8. Split Lemma 8.3 into the exact ratios (8.21)–(8.22), the recurrence for
@@ -291,8 +342,9 @@ axioms or aliases for the desired conclusion.
 10. Port the mutually exclusive threshold-choice expansion and apply the
     all-cases theorem `jointPrescribedCellBound_cellwise` jointly to the
     combined per-cell demands before removing caps or forbidden-cell events.
-11. Prove the finite degree-sum bounds behind (9.13)–(9.14), then the exact
-    factorization of the sums of powers of `theta_ab`.
+11. **Completed locally:** finite degree-sum bounds, exact theta
+    factorizations, normalized square/cube estimates (9.13)–(9.14), and the
+    zero-total branch.
 12. Construct the simple-cycle deletion recursion manually, prove union
     recovery, choose decompositions injectively, and only then apply the
     exponential family overcount in (9.15).
@@ -300,24 +352,24 @@ axioms or aliases for the desired conclusion.
     used in (9.16)–(9.18).  The analytic geometric bounds do not supply these
     encodings, and a marked traversal receives no fresh cardinal factor after
     its initial mark.
-14. For the small residual branch, prove injectivity of restriction of an
-    even subgraph of `M ∪ R` to `R` when `M` is a matching; parity then
-    recovers the matching edges and gives the direct `2^|R|` bound.
+14. For the small residual branch, construct the restriction map and use the
+    proved matching-support parity kernel to establish injectivity on even
+    subgraphs of `M ∪ R`; only then infer the direct `2^|R|` bound.
 15. State the final attachment estimate with one deterministic error sequence
     and one eventual threshold uniform over every feasible skeleton.  A
     skeleton-dependent error sequence or threshold has the wrong quantifiers.
 
-The RVE replay under Lean 4.31 and warning-as-error accepted the threshold
-choice expansion, recoverable-decomposition selector, injective exponential
-overcount, closed-walk and marked-traversal geometric bounds, sign-exponent
-bookkeeping, and component-constant sign count; each used only `propext`,
-`Classical.choice`, and `Quot.sound`.  It rejected the weighted-Cauchy output
-because it fails locally and retains `sorryAx`, and rejected the old cycle
-decomposition because it contains forbidden `grind +suggestions`.  A capped
-residual-pair theorem is mathematically reusable after removing an unused
-hypothesis that currently fails warnings-fatal.  The Aristotle API key was
-not present in this terminal for new submissions, so only already returned
-projects were replayed and all remain quarantined until a clean local port.
+The earlier RVE replay under Lean 4.31 and warning-as-error accepted the
+threshold-choice expansion, recoverable-decomposition selector, injective
+exponential overcount, closed-walk and marked-traversal geometric bounds,
+sign-exponent bookkeeping, and component-constant sign count.  Its original
+weighted-Cauchy artifact remains rejected because it retained `sorryAx`; the
+separate corrected wave-8 theorem was manually reviewed and accepted in
+`WeightedCauchyTools.lean`.  The old cycle decomposition remains rejected
+because it contains forbidden `grind +suggestions`.  A capped residual-pair
+theorem is mathematically reusable after removing an unused hypothesis that
+currently fails warnings-fatal.  Raw external outputs stay quarantined unless
+and until an exact local port passes every repository gate.
 
 Only those assemblies, followed by the amplification layer and exact final
 target, can close the proof.  Successful isolated arithmetic or enumeration

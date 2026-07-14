@@ -19,8 +19,9 @@ recorded in
 - Lean: `v4.31.0`
 - mathlib: `v4.31.0`
 - Aristotle: optional isolated proof search on its fixed Lean `v4.28.0`
-  service toolchain; no returned file is accepted without a local Lean 4.31
-  port and the full repository gates.  See
+  service toolchain.  Raw returned files remain quarantined; a candidate is
+  accepted only after manual review, a local Lean 4.31 port or reconstruction,
+  and the full repository gates.  See
   [`ARISTOTLE_WORKFLOW.md`](ARISTOTLE_WORKFLOW.md).
 
 Run the standard cache-assisted build from this directory with:
@@ -187,13 +188,23 @@ and the resulting high-cell matching assertion before (8.2).  Each accepted
 module has an isolated warnings-fatal build and focused standard-axiom audit.
 The deterministic equivalence between witness-extending matchings and
 bijections of the unused stubs is also proved, without overclaiming the still
-open residual degree-fibre probability law.  External proof-search output
-remains advisory until independently replayed.
+open residual degree-fibre probability law.  Six additional, independently
+replayed atomic modules prove uniform finite-law transport along an
+equivalence, classwise selected-stub counts, a high-cell mass bound, weighted
+finite Cauchy, local sign-exponent arithmetic, and the parity kernel for an
+even matrix supported on a matching.  These accepted Lean 4.31 leaves passed a
+combined warning-as-error replay; the raw Aristotle outputs remain
+quarantined.
+The finite capped degree moments, exact theta factorizations, normalized bounds
+in (9.13)--(9.14), and the total-zero branch are kernel-checked as a separate
+Section 9 arithmetic module.
 
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap assembly, asymptotic diagonal ranges, canonical residual
-law, residual attachment, and complete amplification layers remain open.  The
-project therefore does **not** claim Lemma 3.1 or
+conditional law and full Section 8 assembly, residual attachment and full
+Section 9 assembly, and complete amplification layers remain open.  The new
+atomic leaves do not prove any manuscript section theorem.  The project
+therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
 declaration-by-declaration status record.

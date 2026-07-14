@@ -80,7 +80,14 @@ import Erdos625.FallingFactorialBounds
 import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
+import Erdos625.UniformEquivTransport
+import Erdos625.HighCellMass
+import Erdos625.LocalSignReward
+import Erdos625.EvenMatchingKernel
+import Erdos625.WeightedCauchyTools
+import Erdos625.ResidualFiberCounts
 import Erdos625.EndpointTransportBounds
+import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
 import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
@@ -202,6 +209,9 @@ Identifying those complements with degree-labelled residual fibres and proving
 the conditional law remain open.  The exact descending-factorial endpoint
 transport used in (8.12) is proved independently, with the stronger loss
 `n^gap` and exact minimum/absolute-difference specializations.
+The finite degree-moment estimates and exact configuration-cell theta
+factorizations behind (9.13)--(9.14) are also checked, including positive-mass
+normalized bounds and the zero-total branch.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
