@@ -55,6 +55,7 @@ threshold expansion
 | `card_prescribedDemandWitness_mul_factorials` | exact numerator count in (6.8) | local proved | Connect witnesses to uniform full matchings and apply the finite union bound. |
 | `card_extensions_of_exposed_equiv` | fixed-witness matching count before (6.8), and after (8.3) | local proved | Assemble each demand witness into one exposed global equivalence and transport the uniform law. |
 | `card_extensions_of_embedding_pairing` | indexed fixed-pair count before (6.8) | local proved | Build the row/column embeddings carried by each demand witness. |
+| `card_rowStub`, `card_columnStub`, `witnessAtomEquiv`, `witnessRowEmbedding`, `witnessColumnEmbedding`, `card_witnessRowAtom`, `card_witnessColumnAtom` | global stub and witness encoding before (6.8) | local proved | Define the cell event, prove witness coverage, and connect these embeddings to the extension count. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -81,6 +82,12 @@ two complements.  Its isolated warning-as-error build passed all 2,966 jobs and
 proves the exact residual factorial count, both for finset exposures and for a
 family of distinct pairs indexed by an arbitrary finite type.  The remaining
 work is the configuration-model bridge, not this generic extension enumeration.
+
+`ConfigurationModelPrescribedCells.lean` now defines the global row and column
+stub types, exact total-cardinality formulas, and an injective encoding of every
+prescribed-demand witness as distinct paired row/column atoms.  Its isolated
+warning-as-error build passed all 2,971 jobs.  Event coverage and uniform
+probability remain deliberately separate.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -178,11 +185,11 @@ accepts the separately reviewed local reconstruction.
 
 1. Turn the overlap-labeling identity into the exact probability law (6.2)
    for the manuscript's ordered profiles and signs.
-2. Define the global row/column stub types and uniform full-matching space,
-   assemble every demand witness into an exposed global equivalence, prove that
-   the prescribed event is covered by the corresponding extension events, and
-   apply the finite union bound to finish (6.8).  The witness numerator,
-   infeasible branch, and generic fixed-exposure extension count are now proved.
+2. Define the cell-count event on the global matching space, prove that it is
+   covered by the extension events of the now-defined injective witness
+   embeddings, transport the uniform law, and apply the finite union bound to
+   finish (6.8).  The global stub types, witness atoms and embeddings, witness
+   numerator, infeasible branch, and generic fixed-exposure count are now proved.
 3. Prove the uniform central diagonal estimate (7.14)--(7.25), including the
    phase reduction and deterministic uniform error sequence.
 4. Define the canonical high skeleton and prove the exact residual matching

@@ -74,6 +74,7 @@ import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
 import Erdos625.PrescribedDemandTools
 import Erdos625.MatchingExtensionTools
+import Erdos625.ConfigurationModelPrescribedCells
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge
