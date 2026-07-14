@@ -171,4 +171,117 @@ theorem card_witnessColumnAtom
       (Fintype.card_congr (witnessAtomEquiv witness)).symm
     _ = _ := card_witnessRowAtom witness
 
+/-- The number of row stubs from class `a` that a configuration matching sends
+to column class `b`. -/
+def configurationCellCount
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (a : A) (b : B) : ℕ :=
+  (Finset.univ.filter
+    (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b)).card
+
+/-- The event that every configuration-model cell contains at least its
+prescribed demand.  Demands outside a manuscript support set may simply be
+set to zero. -/
+def prescribedCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) :
+    Set (ConfigurationMatching row col) :=
+  {matching | ∀ a b, demand a b ≤ configurationCellCount matching a b}
+
+/-- Compose the witness's cellwise pairing with its injective column-stub
+encoding. -/
+noncomputable def witnessColumnPairingEmbedding
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    WitnessRowAtom witness ↪ ColumnStub col :=
+  (witnessAtomEquiv witness).toEmbedding.trans
+    (witnessColumnEmbedding witness)
+
+/-- A full configuration matching extends a witness when it realizes every
+selected cellwise stub pair. -/
+def ExtendsPrescribedDemandWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (witness : PrescribedDemandWitness demand row col) : Prop :=
+  ∀ atom : WitnessRowAtom witness,
+    matching (witnessRowEmbedding witness atom) =
+      witnessColumnPairingEmbedding witness atom
+
+/-- The embedding-indexed extension predicate is exactly the transparent
+cellwise condition. -/
+theorem extendsPrescribedDemandWitness_iff_cellwise
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (witness : PrescribedDemandWitness demand row col) :
+    ExtendsPrescribedDemandWitness matching witness ↔
+      ∀ a b (stub : ↑((witness.1 a).1 b)),
+        matching ⟨a, stub.1⟩ =
+          ⟨b, (witness.2.2 a b stub).1⟩ := by
+  constructor
+  · intro h a b stub
+    exact h ⟨a, b, stub⟩
+  · rintro h ⟨a, b, stub⟩
+    exact h a b stub
+
+/-- Every matching extending a prescribed-demand witness belongs to the
+corresponding prescribed-cell event. -/
+theorem extendsWitness_mem_prescribedCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    {matching : ConfigurationMatching row col}
+    {witness : PrescribedDemandWitness demand row col}
+    (hextends : ExtendsPrescribedDemandWitness matching witness) :
+    matching ∈ prescribedCellEvent demand row col := by
+  intro a b
+  rw [← (witness.1 a).2.1 b]
+  apply Finset.card_le_card
+  intro stub hstub
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  have hpair :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching witness).1
+      hextends a b ⟨stub, hstub⟩
+  exact congrArg Sigma.fst hpair
+
+noncomputable instance instFintypeExtensionsOfPrescribedDemandWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    Fintype
+      {matching : ConfigurationMatching row col //
+        ExtendsPrescribedDemandWitness matching witness} :=
+  Fintype.ofFinite _
+
+/-- Exact number of full configuration matchings extending one fixed witness.
+No feasibility premise is needed: an infeasible witness type has no element to
+which this theorem can be applied. -/
+theorem card_extensionsOfPrescribedDemandWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (witness : PrescribedDemandWitness demand row col) :
+    Fintype.card
+        {matching : ConfigurationMatching row col //
+          ExtendsPrescribedDemandWitness matching witness} =
+      (Finset.univ.sum row -
+        Finset.univ.sum (fun a ↦ Finset.univ.sum (demand a))).factorial := by
+  have hcard : Fintype.card (RowStub row) = Fintype.card (ColumnStub col) := by
+    rw [card_rowStub, card_columnStub, htotal]
+  simpa [ExtendsPrescribedDemandWitness,
+    witnessColumnPairingEmbedding, card_witnessRowAtom witness] using
+      card_extensions_of_embedding_pairing hcard
+        (witnessRowEmbedding witness)
+        (witnessColumnPairingEmbedding witness)
+
 end Erdos625

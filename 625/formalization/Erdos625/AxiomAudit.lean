@@ -343,6 +343,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_columnStub
 #print axioms Erdos625.card_witnessRowAtom
 #print axioms Erdos625.card_witnessColumnAtom
+#print axioms Erdos625.extendsPrescribedDemandWitness_iff_cellwise
+#print axioms Erdos625.extendsWitness_mem_prescribedCellEvent
+#print axioms Erdos625.card_extensionsOfPrescribedDemandWitness
 #print axioms Erdos625.exists_finpartition_refinement_card_eq
 #print axioms Erdos625.exists_bounded_proper_refinement_card_eq
 #print axioms Erdos625.partitionShape_eq_sizes_vertexPartitionProfile
