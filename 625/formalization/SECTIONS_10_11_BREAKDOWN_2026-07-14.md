@@ -4,10 +4,10 @@
 
 This document records the accepted deterministic Lean atoms and the exact
 remaining proof obligations for manuscript Sections 10 and 11.  A declaration
-marked **local proved** is accepted Lean 4.31 source.  An Aristotle request is
-only quarantined proof search on an isolated Lean 4.28 project; while it is
-running or pending it proves nothing in this repository, and no returned
-source is imported automatically.
+marked **local proved** is accepted Lean 4.31 source.  Aristotle service output
+is quarantined provenance only; all ten requests in these waves completed with
+successful isolated builds and standard-axiom reports, but accepted local Lean
+4.31 source remains authoritative and no service source was imported directly.
 
 Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 
@@ -17,9 +17,14 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 |---|---|---:|---|
 | `exists_vertex_quarter_degree` | deterministic averaging step in Lemma 10.1 | local proved | The denominator-cleared quarter-density premise yields one vertex with `card - 1 <= 4 * degree`.  It does not prove the random simultaneous-density event or construct the full greedy colouring. |
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
+| `amplificationBase`, `amplificationRadius`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3` under their exact displayed hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
 | `chromaticLowerEvent`, `cochromaticUpperEvent` | threshold events in Section 11 | defined | These are the strict natural chromatic lower event and real cochromatic upper event with deterministic error. |
 | `thresholdIntersection_subset_gapEvent` | deterministic Section 11 event inclusion | local proved | Given the exact threshold separation, the intersection is contained in `gapEvent`; the strict chromatic event contributes the necessary `+1`. |
 | `explicitThresholdIntersection_subset_gapEvent` | expanded form of (11.2) | local proved | The same inclusion displays the constant explicitly.  It supplies no sequence choice, probability limit, or eventual separation theorem. |
+| `tendsto_measure_inter_one` | probability intersection in Section 11 | local proved | Two measurable event families whose probabilities tend to one have intersection probability tending to one, with no independence hypothesis and with sample spaces allowed to depend on `n`. |
+| `baseScale`, `eventually_explicit_gap_threshold` | eventual threshold (11.2) | defined; local proved | Abstract root separation with vanishing `rho` and `a = o(baseScale)` eventually gives the explicit separated thresholds, including the strict-event `+1`.  The actual manuscript sequences and upstream hypotheses are not instantiated. |
+| `tendsto_explicit_gap_scale_atTop` | divergence used for (11.3) | local proved | The explicit positive scale tends to infinity along the full sequence.  The actual fixed-`M` probability-tail implication is not yet assembled. |
+| `capacityDeficitEvent`, `simultaneousLeftoverColoringEvent`, `capacityDeficitEvent_probability_tendsto_one`, `cochromaticNumber_le_of_capacityDeficit_and_leftover`, `tendsto_measure_one_of_eventually_subset`, `erdos625Statement_of_capacity_leftover_thresholds` | conditional Sections 10--11 closure | defined; local proved under explicit hypotheses | The capacity and simultaneous-leftover events have the correct internal quantifiers; a rounded capacity tail is derived from the displayed seed/radius assumptions; and five named full-sequence inputs imply `Erdos625Statement`.  The theorem does not prove any of those concrete manuscript inputs and is not an unconditional target proof. |
 
 The previously accepted amplification infrastructure also includes the induced
 `k`-cocolourable capacity, its full-capacity event, one-vertex block
@@ -71,10 +76,12 @@ The remaining Section X obligations, in dependency order, are:
    `epsilon_n -> 0` before quantifying over deterministic `k_n`, `Lambda_n`,
    and `r_n`; the error sequence may not depend on any of those three choices.
    The conclusion must be uniform for every deterministic `r_n > 0`.
-6. Prove the scale implications used in (10.10)--(10.12): the seed term from
-   `Lambda_n = o(n/(log n)^4)`, the divergence of
-   `r_n = sqrt(n/(log n)^4)`, the amplified-radius term, `n^(1/3)`, and the
-   additive constant are all negligible relative to `n/(log n)^3`.
+6. **Completed locally as deterministic scale facts:**
+   `r_n = sqrt(n/(log n)^4)` tends to infinity; the seed hypothesis
+   `Lambda_n = o(n/(log n)^4)` gives the required seed square-root term; and
+   `sqrt(n*r_n)/log n`, the real cube-root term, and the additive constant are
+   each `o(n/(log n)^3)`.  These limits do not supply the probabilistic seed,
+   the simultaneous leftover theorem, or Lemma 10.2.
 7. Define the actual deterministic error `a_n` and instantiate Lemma 10.2 to
    obtain (10.13), including `exp(-r_n) + epsilon_n -> 0` on the full sequence.
 
@@ -99,24 +106,31 @@ explicit gap-scale divergence
   -> every fixed-M gap tail (11.3)
 ```
 
-The accepted `Section11EventAssembly.lean` module supplies only the pointwise
-set inclusion in the middle of this DAG.  The remaining actual sequence/tail
-instantiation is:
+The accepted `Section11EventAssembly.lean` module supplies the pointwise set
+inclusion.  `Section11AsymptoticAssembly.lean` now supplies the generic
+full-sequence intersection theorem without independence, the abstract eventual
+threshold theorem, and explicit scale divergence.
+`Section10_11ConditionalAssembly.lean` packages the rounded capacity tail,
+quantifier-correct simultaneous-leftover interface, deterministic
+cochromatic bound, measure monotonicity, and the conditional five-input target
+closure.  The remaining actual sequence/tail instantiation is:
 
 1. Define the manuscript sequences `kChi n`, `kCo n`, and `a n`, and connect
    their Lean definitions to the Section 4, Section 5, Section 9, and Section
    10 outputs without replacing an eventual statement by a subsequence.
-2. Prove the eventual explicit threshold separation, including the strict-
-   event `+1` and the little-o loss `a_n`.
+2. Instantiate the proved eventual threshold theorem, including the strict-
+   event `+1`, by proving its root-separation, `rho_n -> 0`, and
+   `a_n = o(baseScale)` hypotheses for the actual sequences.
 3. Prove measurability and full-sequence convergence to one for the actual
    chromatic-lower and cochromatic-upper event probabilities.
-4. Prove that the intersection probability tends to one by a union bound; no
-   independence assumption is permitted.
-5. Instantiate `explicitThresholdIntersection_subset_gapEvent`, use measure
-   monotonicity, and prove the exact full-sequence target
-   `Erdos625Statement`.
-6. Prove divergence of the explicit positive gap scale and derive the actual
-   fixed-`M` probability tail (11.3).
+4. Prove the actual capacity and simultaneous-leftover tails and the eventual
+   cochromatic threshold comparison.  Then supply those, the chromatic tail,
+   and the gap threshold to the proved conditional theorem
+   `erdos625Statement_of_capacity_leftover_thresholds`.  Its internal
+   intersection step uses no independence assumption and its measure-
+   monotonicity closure need not be reproved.
+5. Use the proved explicit scale divergence together with the actual gap-event
+   tail to derive the fixed-`M` probability tail (11.3).
 
 Every limit above is an `atTop` statement along all natural `n`.  Phase
 uniformity near independence-number jumps must therefore be inherited from the
@@ -125,20 +139,23 @@ qualification.
 
 ## Aristotle request ledger
 
-All seven requests below are currently running or pending and quarantined.
-The two accepted local Section X atoms were proved independently; their local
-files remain authoritative regardless of the service result.  The other five
-rows remain open repository obligations.
+All ten requests completed successfully and are quarantined.  Their isolated
+service projects reported successful builds and only standard axioms.  The
+corresponding Lean 4.31 declarations were replayed and accepted locally; those
+local files are authoritative and no service source was imported directly.
 
 | Section | Isolated task | Request ID | Service/repository status |
 |---|---|---|---|
-| X | quarter recurrence | `6b7ec5a6-6bfc-4926-b699-bc20977f66fd` | running/pending; quarantined; local `QuarterRecurrence.lean` independently proved |
-| X | quarter-density high-degree vertex | `b275f7c1-dfba-4c1c-9ead-0112c4e54020` | running/pending; quarantined; local `QuarterDensityDegree.lean` independently proved |
-| X | growing amplification radius | `ff666a22-b192-489c-8c66-ef0da63a0daa` | running/pending; quarantined; no accepted local theorem yet |
-| X | seed square-root scale | `288de3bd-372f-4802-8070-60c0eef7f3c2` | running/pending; quarantined; no accepted local theorem yet |
-| XI | probability intersection | `cb039d44-1e81-4b0b-a0e2-481eeb8fc8a0` | running/pending; quarantined; no accepted local theorem yet |
-| XI | eventual parameter threshold | `e451963a-2f93-407c-aa0e-28467d87642e` | running/pending; quarantined; no accepted local theorem yet |
-| XI | explicit gap-scale divergence | `764866b6-c929-48fb-b476-ec61925d250c` | running/pending; quarantined; no accepted local theorem yet |
+| X | quarter recurrence | `6b7ec5a6-6bfc-4926-b699-bc20977f66fd` | completed; quarantined; local `QuarterRecurrence.lean` accepted |
+| X | quarter-density high-degree vertex | `b275f7c1-dfba-4c1c-9ead-0112c4e54020` | completed; quarantined; local `QuarterDensityDegree.lean` accepted |
+| X | growing amplification radius | `ff666a22-b192-489c-8c66-ef0da63a0daa` | completed; quarantined; local `Section10AmplificationScales.lean` accepted |
+| X | seed square-root scale | `288de3bd-372f-4802-8070-60c0eef7f3c2` | completed; quarantined; local `Section10AmplificationScales.lean` accepted |
+| X | transformed-radius scale | `47457fc6-f6ff-4702-81de-6b5956bb5db9` | completed; quarantined; locally replayed and accepted in `Section10AmplificationScales.lean` |
+| X | real cube-root scale | `5000978b-34fd-4d94-bbe7-f2a13b4b05bc` | completed; quarantined; locally replayed and accepted in `Section10AmplificationScales.lean` |
+| X | additive constant scale | `67ac866d-2bd9-4cb8-a19f-a0f57ee7ffeb` | completed; quarantined; locally replayed and accepted in `Section10AmplificationScales.lean` |
+| XI | probability intersection | `cb039d44-1e81-4b0b-a0e2-481eeb8fc8a0` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
+| XI | eventual parameter threshold | `e451963a-2f93-407c-aa0e-28467d87642e` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
+| XI | explicit gap-scale divergence | `764866b6-c929-48fb-b476-ec61925d250c` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
 
 The service tasks are redundant candidate generation only.  A returned proof
 must still be reviewed, reconstructed or ported to Lean 4.31, source-scanned,

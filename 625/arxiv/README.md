@@ -10,11 +10,12 @@ resolution of Erdős Problem 625.
 - `main.bbl` — bibliography output included for arXiv submission portability.
 - `main.pdf` — compiled 35-page preprint dated 12 July 2026.
 
-The article lists Samuil Petkov as the author. Its ethics and reproducibility
-statements disclose substantial assistance from ChatGPT 5.6, independent AI
-verification, and quarantined use of Aristotle for atomic Lean proof search.
-It also states that there was no external funding and that there are no
-competing interests.
+The article lists Samuil Petkov as the sole author, with the affiliation
+École normale supérieure–PSL (ENS–PSL) and the institutional contact address
+`samuil.petkov@ens.psl.eu`. Its ethics and reproducibility statements disclose
+substantial assistance from ChatGPT 5.6, independent AI verification, and
+quarantined use of Aristotle for atomic Lean proof search. It also states that
+there was no external funding and that there are no competing interests.
 
 The introduction and technical sections identify precisely how the manuscript
 builds on Heckel (2024) and Heckel (2025): contextual anti-concentration and

@@ -17,6 +17,7 @@ import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
@@ -5360,6 +5361,223 @@ END SOURCE MODULE: Erdos625.QuarterRecurrence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10AmplificationScales
+Source: Erdos625/Section10AmplificationScales.lean
+Normalized SHA-256: 9255951231aceddf989f09adbde031788e97397a34d048964f6a7528dbadd921
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10AmplificationScales
+
+/-!
+# Asymptotic scales in rare-event amplification
+
+This file isolates the deterministic asymptotic transformations in manuscript
+Section 10.  The functions are exactly those in (10.10)--(10.11); no
+probabilistic seed or leftover-colouring assertion is introduced here.
+-/
+
+open Filter
+open scoped Topology
+
+namespace Erdos625
+
+/-- The deterministic scale `B_n = n / (log n)^4` from (10.10). -/
+noncomputable def amplificationBase (n : ℕ) : ℝ :=
+  (n : ℝ) / (Real.log (n : ℝ)) ^ 4
+
+/-- The deterministic, genuinely growing choice `r_n = sqrt B_n`. -/
+noncomputable def amplificationRadius (n : ℕ) : ℝ :=
+  Real.sqrt (amplificationBase n)
+
+/-- The deterministic radius used in the manuscript tends to infinity. -/
+theorem amplificationRadius_tendsto_atTop :
+    Tendsto amplificationRadius atTop atTop := by
+  have hRatioZero :
+      Tendsto (fun x : ℝ ↦ Real.log x ^ 4 / x) atTop (𝓝 0) := by
+    simpa using
+      (Real.tendsto_pow_log_div_mul_add_atTop 1 0 4 one_ne_zero)
+  have hRatioPos :
+      ∀ᶠ x : ℝ in atTop, 0 < Real.log x ^ 4 / x := by
+    filter_upwards [eventually_gt_atTop (1 : ℝ)] with x hx
+    exact div_pos (pow_pos (Real.log_pos hx) 4) (by linarith)
+  have hRatioWithin :
+      Tendsto (fun x : ℝ ↦ Real.log x ^ 4 / x) atTop (𝓝[>] 0) :=
+    tendsto_nhdsWithin_iff.mpr ⟨hRatioZero, hRatioPos⟩
+  have hBaseReal :
+      Tendsto (fun x : ℝ ↦ x / Real.log x ^ 4) atTop atTop := by
+    have hInv := hRatioWithin.inv_tendsto_nhdsGT_zero
+    change Tendsto
+      (fun x : ℝ ↦ (Real.log x ^ 4 / x)⁻¹) atTop atTop at hInv
+    simpa only [inv_div] using hInv
+  have hBaseNat : Tendsto amplificationBase atTop atTop := by
+    have hComp :=
+      hBaseReal.comp (tendsto_natCast_atTop_atTop (R := ℝ))
+    change Tendsto
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 4) atTop atTop at hComp
+    change Tendsto
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 4) atTop atTop
+    exact hComp
+  exact Real.tendsto_sqrt_atTop.comp hBaseNat
+
+/-- The first implication in (10.11): a nonnegative seed exponent
+`Λ_n = o(n / (log n)^4)` contributes only `o(n / (log n)^3)` after the
+square-root amplification transform. -/
+theorem sqrt_seedTerm_isLittleO
+    (Lambda : ℕ → ℝ)
+    (hLambdaNonneg : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hLambda :
+      (fun n : ℕ ↦ Lambda n) =o[atTop]
+        (fun n : ℕ ↦ (n : ℝ) / (Real.log (n : ℝ)) ^ 4)) :
+    (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / (Real.log (n : ℝ)) ^ 3) := by
+  refine Asymptotics.IsLittleO.of_bound fun c hc ↦ ?_
+  have hLambdaBound := hLambda.bound (sq_pos_of_pos hc)
+  have hNatLarge : ∀ᶠ n : ℕ in atTop, (1 : ℝ) < (n : ℝ) :=
+    (tendsto_natCast_atTop_atTop (R := ℝ)).eventually
+      (eventually_gt_atTop (1 : ℝ))
+  filter_upwards [hLambdaNonneg, hLambdaBound, hNatLarge] with
+      n hnLambda hnBound hnLarge
+  have hnPos : 0 < (n : ℝ) := by linarith
+  have hlogPos : 0 < Real.log (n : ℝ) := Real.log_pos hnLarge
+  have hbasePos :
+      0 < (n : ℝ) / Real.log (n : ℝ) ^ 4 :=
+    div_pos hnPos (pow_pos hlogPos 4)
+  rw [Real.norm_eq_abs, abs_of_nonneg hnLambda,
+    Real.norm_eq_abs, abs_of_pos hbasePos] at hnBound
+  have hProductBound :
+      (n : ℝ) * Lambda n ≤
+        (c * (n : ℝ) / Real.log (n : ℝ) ^ 2) ^ 2 := by
+    calc
+      (n : ℝ) * Lambda n ≤
+          (n : ℝ) *
+            (c ^ 2 * ((n : ℝ) / Real.log (n : ℝ) ^ 4)) :=
+        mul_le_mul_of_nonneg_left hnBound hnPos.le
+      _ = (c * (n : ℝ) / Real.log (n : ℝ) ^ 2) ^ 2 := by
+        field_simp [ne_of_gt hlogPos]
+  have hSqrtBound :
+      Real.sqrt ((n : ℝ) * Lambda n) ≤
+        c * (n : ℝ) / Real.log (n : ℝ) ^ 2 := by
+    apply Real.sqrt_le_iff.mpr
+    exact ⟨by positivity, hProductBound⟩
+  have hDivBound :
+      Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) ≤
+        c * ((n : ℝ) / Real.log (n : ℝ) ^ 3) := by
+    have h := (div_le_div_iff_of_pos_right hlogPos).mpr hSqrtBound
+    calc
+      Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) ≤
+          (c * (n : ℝ) / Real.log (n : ℝ) ^ 2) /
+            Real.log (n : ℝ) := h
+      _ = c * ((n : ℝ) / Real.log (n : ℝ) ^ 3) := by
+        field_simp [ne_of_gt hlogPos]
+  rw [Real.norm_eq_abs,
+    abs_of_nonneg (div_nonneg (Real.sqrt_nonneg _) hlogPos.le),
+    Real.norm_eq_abs,
+    abs_of_pos (div_pos hnPos (pow_pos hlogPos 3))]
+  exact hDivBound
+
+/-- The second implication in (10.11), for the exact growing deterministic
+radius chosen in (10.10). -/
+theorem sqrt_radiusTerm_isLittleO :
+    (fun n : ℕ =>
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3) := by
+  suffices h_simp :
+      Tendsto (fun n : ℕ => Real.log n / (n : ℝ) ^ (1 / 4 : ℝ))
+        atTop (nhds 0) by
+    rw [Asymptotics.isLittleO_iff_tendsto']
+    · refine h_simp.congr' ?_
+      filter_upwards [eventually_gt_atTop 1] with n hn
+      unfold amplificationRadius amplificationBase
+      norm_num [Real.sqrt_eq_rpow,
+        ← Real.rpow_mul (Nat.cast_nonneg _),
+        ← Real.rpow_neg (Nat.cast_nonneg _)]
+      ring_nf
+      rw [Real.mul_rpow (by positivity) (by positivity),
+        ← Real.rpow_mul (by positivity)]
+      ring_nf
+      rw [Real.mul_rpow (by positivity) (by positivity),
+        ← Real.rpow_natCast, ← Real.rpow_mul (by positivity)]
+      norm_num
+      ring_nf
+      field_simp
+      norm_num [sq, mul_assoc,
+        ← Real.rpow_add (by positivity : 0 < (n : ℝ))]
+    · filter_upwards [eventually_gt_atTop 1] with n hn h
+      exact absurd h <| ne_of_gt <|
+        div_pos (Nat.cast_pos.mpr <| pos_of_gt hn) <|
+          pow_pos (Real.log_pos <| Nat.one_lt_cast.mpr hn) _
+  have hreal :
+      Tendsto (fun x : ℝ => Real.log x / x ^ (1 / 4 : ℝ))
+        atTop (nhds 0) :=
+    (isLittleO_log_rpow_atTop
+      (r := (1 / 4 : ℝ)) (by norm_num)).tendsto_div_nhds_zero
+  exact hreal.comp tendsto_natCast_atTop_atTop
+
+/-- The real cube-root contribution in (10.11), using real exponentiation. -/
+theorem realCubeRoot_isLittleO :
+    (fun n : ℕ => (n : ℝ) ^ (1 / 3 : ℝ)) =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3) := by
+  have h_log :
+      (fun x : ℝ => (Real.log x) ^ 3) =o[atTop]
+        (fun x : ℝ => x ^ (2 / 3 : ℝ)) := by
+    convert isLittleO_log_rpow_rpow_atTop
+      (3 : ℝ) (by norm_num : (0 : ℝ) < 2 / 3) using 1
+    norm_cast
+  rw [Asymptotics.isLittleO_iff_tendsto'] at * <;> norm_num at *
+  · convert h_log.comp tendsto_natCast_atTop_atTop using 2
+    norm_num
+    ring_nf
+    rw [show (2 / 3 : ℝ) = 1 - 1 / 3 by norm_num, Real.rpow_sub'] <;>
+      norm_num
+    ring
+  · exact ⟨1, fun x hx hx' => absurd hx' <| by positivity⟩
+  · exact ⟨2, by rintro n hn (rfl | rfl | hn) <;> norm_cast at hn⟩
+
+/-- The constant contribution in (10.12) is negligible on the gap scale. -/
+theorem one_isLittleO_gapScale :
+    (fun _n : ℕ => (1 : ℝ)) =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3) := by
+  have hreal :
+      Tendsto (fun x : ℝ => x / (Real.log x) ^ 3) atTop atTop := by
+    have h0 :
+        Tendsto (fun x : ℝ => (Real.log x) ^ 3 / x) atTop (nhds 0) := by
+      simpa using Real.tendsto_pow_log_div_mul_add_atTop 1 0 3 one_ne_zero
+    have h1 :
+        Tendsto (fun x : ℝ => (Real.log x) ^ 3 / x) atTop
+          (nhdsWithin 0 (Set.Ioi 0)) := by
+      refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ h0 ?_
+      filter_upwards [eventually_gt_atTop 1] with x hx
+      have hlog : 0 < Real.log x := Real.log_pos hx
+      rw [Set.mem_Ioi]
+      positivity
+    have h2 := h1.inv_tendsto_nhdsGT_zero
+    refine h2.congr ?_
+    intro x
+    simp [inv_div]
+  rw [Asymptotics.isLittleO_const_left]
+  right
+  have hnat :
+      Tendsto (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3)
+        atTop atTop :=
+    hreal.comp tendsto_natCast_atTop_atTop
+  refine Tendsto.congr (fun n => ?_) (tendsto_norm_atTop_atTop.comp hnat)
+  simp [Function.comp]
+
+#print axioms amplificationRadius_tendsto_atTop
+#print axioms sqrt_seedTerm_isLittleO
+#print axioms sqrt_radiusTerm_isLittleO
+#print axioms realCubeRoot_isLittleO
+#print axioms one_isLittleO_gapScale
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10AmplificationScales
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10AmplificationScales
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section11EventAssembly
 Source: Erdos625/Section11EventAssembly.lean
 Normalized SHA-256: c6ffc90927de0474a28ca75caf995524c82c23c2bbd2fe6c44a3666287ebf748
@@ -5430,6 +5648,527 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section11EventAssembly
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section11EventAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
+Source: Erdos625/Section11AsymptoticAssembly.lean
+Normalized SHA-256: da7dbf5392ebe50ca376eb91df977ec96ca5e9b2c679564fcea7d8ba6122057e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
+
+/-!
+# Section 11: asymptotic and probability assembly
+
+This module contains the three generic closing lemmas used after the
+manuscript's substantive chromatic and cochromatic estimates have been proved.
+They preserve full-sequence `atTop` quantifiers and the explicit constant.
+
+No theorem below supplies the Section 5 root separation or the Section 10
+cochromatic tail: those remain hypotheses to be instantiated by the preceding
+formalization layers.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set Asymptotics
+
+/-- If each of two measurable events has probability tending to one along the
+full sequence, then their intersection has probability tending to one.  The
+sample type may depend on `n`; no independence hypothesis appears. -/
+theorem tendsto_measure_inter_one
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A B : ∀ n, Set (Omega n))
+    (hAmeas : ∀ n, MeasurableSet (A n))
+    (hBmeas : ∀ n, MeasurableSet (B n))
+    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
+    (hB : Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1)) :
+    Tendsto (fun n ↦ mu n (A n ∩ B n)) atTop (nhds 1) := by
+  have hAReal :
+      Tendsto (fun n ↦ (mu n (A n)).toReal) atTop (nhds (1 : ℝ)) := by
+    simpa using
+      (ENNReal.tendsto_toReal_iff
+        (fun n ↦ measure_ne_top (mu n) (A n)) ENNReal.one_ne_top).mpr hA
+  have hBReal :
+      Tendsto (fun n ↦ (mu n (B n)).toReal) atTop (nhds (1 : ℝ)) := by
+    simpa using
+      (ENNReal.tendsto_toReal_iff
+        (fun n ↦ measure_ne_top (mu n) (B n)) ENNReal.one_ne_top).mpr hB
+  have hLower : ∀ n,
+      (mu n (A n)).toReal + (mu n (B n)).toReal - 1 ≤
+        (mu n (A n ∩ B n)).toReal := by
+    intro n
+    have hIdentity := measure_union_add_inter (μ := mu n) (A n) (hBmeas n)
+    have hIdentityReal := congrArg ENNReal.toReal hIdentity
+    rw [ENNReal.toReal_add (measure_ne_top (mu n) (A n ∪ B n))
+          (measure_ne_top (mu n) (A n ∩ B n)),
+        ENNReal.toReal_add (measure_ne_top (mu n) (A n))
+          (measure_ne_top (mu n) (B n))] at hIdentityReal
+    have hUnion : mu n (A n ∪ B n) ≤ 1 := by
+      calc
+        mu n (A n ∪ B n) ≤
+            mu n (A n ∪ B n) + mu n (A n ∪ B n)ᶜ :=
+          self_le_add_right _ _
+        _ = mu n Set.univ :=
+          measure_add_measure_compl ((hAmeas n).union (hBmeas n))
+        _ = 1 := measure_univ
+    have hUnionReal : (mu n (A n ∪ B n)).toReal ≤ 1 := by
+      simpa using
+        (ENNReal.toReal_le_toReal (measure_ne_top (mu n) (A n ∪ B n))
+          ENNReal.one_ne_top).mpr hUnion
+    linarith
+  have hUpper : ∀ n, (mu n (A n ∩ B n)).toReal ≤ 1 := by
+    intro n
+    have hMeasure : mu n (A n ∩ B n) ≤ 1 := by
+      calc
+        mu n (A n ∩ B n) ≤ mu n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ
+    simpa using
+      (ENNReal.toReal_le_toReal (measure_ne_top (mu n) (A n ∩ B n))
+        ENNReal.one_ne_top).mpr hMeasure
+  have hLowerTendsto :
+      Tendsto
+        (fun n ↦ (mu n (A n)).toReal + (mu n (B n)).toReal - 1)
+        atTop (nhds (1 : ℝ)) := by
+    convert (hAReal.add hBReal).sub_const 1 using 1
+    norm_num
+  have hInterReal :
+      Tendsto (fun n ↦ (mu n (A n ∩ B n)).toReal)
+        atTop (nhds (1 : ℝ)) :=
+    tendsto_of_tendsto_of_tendsto_of_le_of_le' hLowerTendsto
+      tendsto_const_nhds (Filter.Eventually.of_forall hLower)
+      (Filter.Eventually.of_forall hUpper)
+  exact
+    (ENNReal.tendsto_toReal_iff
+      (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
+      (by simpa using hInterReal)
+
+/-- The manuscript's unscaled `n / (ln n)^3` factor. -/
+noncomputable def baseScale (n : ℕ) : ℝ :=
+  (n : ℝ) / (Real.log (n : ℝ)) ^ 3
+
+/-- Section 5's root separation, together with Section 10's little-o
+cochromatic amplification loss, eventually dominates the exact factor-two
+reduced constant of (11.2).  The `+1` retains the strict integer chromatic
+event used in Section 11. -/
+theorem eventually_explicit_gap_threshold
+    (kChi kCo : ℕ → ℕ) (a rho : ℕ → ℝ)
+    (hrho : Tendsto rho atTop (nhds 0))
+    (ha : a =o[atTop] baseScale)
+    (hroot : ∀ᶠ n in atTop,
+      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ)) - rho n) *
+          baseScale n ≤
+        (kChi n : ℝ) - (kCo n : ℝ)) :
+    ∀ᶠ n in atTop,
+      ((Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)) *
+          baseScale n ≤
+        ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n) := by
+  let c : ℝ :=
+    (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)
+  have hc : 0 < c := by
+    dsimp [c]
+    positivity
+  have hLeading :
+      (Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ) = 2 * c := by
+    dsimp [c]
+    ring
+  have hRho : ∀ᶠ n in atTop, |rho n| < c / 4 := by
+    have hIoo : Set.Ioo (-(c / 4)) (c / 4) ∈ nhds (0 : ℝ) :=
+      Ioo_mem_nhds (neg_lt_zero.mpr (div_pos hc (by norm_num)))
+        (div_pos hc (by norm_num))
+    filter_upwards [hrho.eventually hIoo] with n hn
+    exact abs_lt.mpr hn
+  have hASmall : ∀ᶠ n in atTop,
+      ‖a n‖ ≤ (c / 4) * ‖baseScale n‖ :=
+    ha.bound (by positivity)
+  have hBasePos : ∀ᶠ n in atTop, 0 < baseScale n := by
+    filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
+    have hnReal : (1 : ℝ) < n := by exact_mod_cast hn
+    simp only [baseScale]
+    exact div_pos (Nat.cast_pos.mpr (by omega))
+      (pow_pos (Real.log_pos hnReal) 3)
+  filter_upwards [hroot, hRho, hASmall, hBasePos] with n hRoot hRhoN hAN hBase
+  rw [hLeading] at hRoot
+  have hRhoUpper : rho n ≤ c / 4 :=
+    (le_abs_self (rho n)).trans hRhoN.le
+  have hRhoMul : rho n * baseScale n ≤ (c / 4) * baseScale n :=
+    mul_le_mul_of_nonneg_right hRhoUpper hBase.le
+  have hAUpper : a n ≤ (c / 4) * baseScale n := by
+    calc
+      a n ≤ |a n| := le_abs_self _
+      _ = ‖a n‖ := (Real.norm_eq_abs _).symm
+      _ ≤ (c / 4) * ‖baseScale n‖ := hAN
+      _ = (c / 4) * baseScale n := by
+        rw [Real.norm_eq_abs, abs_of_pos hBase]
+  change c * baseScale n ≤
+    ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)
+  norm_num only [Nat.cast_add, Nat.cast_one]
+  nlinarith
+
+/-- The exact lower-bound scale in (11.2) tends to infinity along all natural
+numbers, which is the deterministic implication used for (11.3). -/
+theorem tendsto_explicit_gap_scale_atTop :
+    Tendsto
+      (fun n : ℕ ↦
+        ((Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)) * (n : ℝ) /
+          (Real.log (n : ℝ)) ^ 3)
+      atTop atTop := by
+  have hLimit :
+      Tendsto (fun n : ℕ ↦ (n : ℝ) / (Real.log n) ^ 3)
+        atTop atTop := by
+    suffices hLog :
+        Tendsto (fun u : ℝ ↦ Real.exp u / u ^ 3) atTop atTop by
+      have h := hLog.comp
+        (Real.tendsto_log_atTop.comp
+          (tendsto_natCast_atTop_atTop :
+            Tendsto (fun n : ℕ ↦ (n : ℝ)) atTop atTop))
+      exact h.congr' (by
+        filter_upwards [eventually_gt_atTop (0 : ℕ)] with n hn
+        simp only [Function.comp_apply]
+        rw [Real.exp_log (Nat.cast_pos.mpr hn)])
+    exact Real.tendsto_exp_div_pow_atTop 3
+  simpa only [mul_div_assoc] using
+    hLimit.const_mul_atTop (by positivity :
+      0 < (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ))
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
+Source: Erdos625/Section10_11ConditionalAssembly.lean
+Normalized SHA-256: bc8fabc8e50b62b421f9b911c04c5acb84b2fc55937a2e34af98af1bcd487b73
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
+
+/-!
+# Conditional Sections X--XI assembly
+
+This module connects the accepted induced-capacity tail, the deterministic
+capacity-witness amplification bound, the simultaneous leftover-colouring
+interface, and the Section XI event/probability infrastructure.
+
+The final theorem is deliberately conditional.  Its hypotheses name the
+five substantive inputs that are not proved here for the manuscript's concrete
+sequences: the capacity tail, a simultaneous leftover-colouring tail, the
+chromatic lower tail, the cochromatic threshold comparison, and the final gap
+threshold separation.  No one of those hypotheses is a restatement of
+`Erdos625Statement`.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- The explicit induced-capacity deficit radius in the one-sided
+amplification estimate. -/
+def cochromaticCapacityDeficitRadius (n : ℕ) (Lambda r : ℝ) : ℝ :=
+  Real.sqrt ((((n - 1 : ℕ) : ℝ) * Lambda) / 2) +
+    Real.sqrt ((((n - 1 : ℕ) : ℝ) * r) / 2)
+
+/-- Success event for the real-valued capacity-deficit estimate.  Its
+complement is exactly the non-strict failure event controlled by the accepted
+one-sided lower-tail theorem. -/
+def capacityAmplificationSuccessEvent
+    (n k : ℕ) (Lambda r : ℝ) : Set (LabeledGraph n) :=
+  {G | (n : ℝ) - (cochromaticInducedCapacity G k : ℝ) <
+    cochromaticCapacityDeficitRadius n Lambda r}
+
+/-- A natural-number version of a capacity-deficit success event. -/
+def capacityDeficitEvent (n k d : ℕ) : Set (LabeledGraph n) :=
+  {G | n - cochromaticInducedCapacity G k ≤ d}
+
+/-- One event, with an internal universal quantifier, controlling the
+chromatic number of every induced complement having at most `d` vertices.
+This is the interface required of the still-open simultaneous leftover
+colouring lemma; a pointwise-in-`W` probability statement is insufficient. -/
+def simultaneousLeftoverColoringEvent
+    (n d q : ℕ) : Set (LabeledGraph n) :=
+  {G | ∀ W : Finset (Fin n),
+    Fintype.card (↑((↑W : Set (Fin n)))ᶜ : Type) ≤ d →
+      chromaticNumberNat (G.induce ((↑W : Set (Fin n)))ᶜ) ≤ q}
+
+theorem measurableSet_capacityDeficitEvent (n k d : ℕ) :
+    MeasurableSet (capacityDeficitEvent n k d) :=
+  Set.toFinite (capacityDeficitEvent n k d) |>.measurableSet
+
+theorem measurableSet_simultaneousLeftoverColoringEvent (n d q : ℕ) :
+    MeasurableSet (simultaneousLeftoverColoringEvent n d q) :=
+  Set.toFinite (simultaneousLeftoverColoringEvent n d q) |>.measurableSet
+
+/-- The accepted capacity theorem controls precisely the complement of the
+real-valued success event. -/
+theorem capacityAmplificationSuccessEvent_compl_probability_le
+    (n k : ℕ) {Lambda r : ℝ}
+    (hn : 2 ≤ n) (hLambda : 0 ≤ Lambda) (hr : 0 ≤ r)
+    (hSeed : Real.exp (-Lambda) ≤
+      (randomGraphMeasure n).real {G | CoColorable G k}) :
+    (randomGraphMeasure n).real
+        (capacityAmplificationSuccessEvent n k Lambda r)ᶜ ≤
+      Real.exp (-r) := by
+  have hEvent :
+      (capacityAmplificationSuccessEvent n k Lambda r)ᶜ =
+        {G : LabeledGraph n |
+          cochromaticCapacityDeficitRadius n Lambda r ≤
+            (n : ℝ) - (cochromaticInducedCapacity G k : ℝ)} := by
+    ext G
+    simp [capacityAmplificationSuccessEvent]
+  rw [hEvent]
+  simpa only [cochromaticCapacityDeficitRadius] using
+    (randomGraph_cochromaticInducedCapacity_failureProbability_le
+      n k hn hLambda hr hSeed)
+
+/-- Rounding bridge from the real deficit radius to a natural leftover-size
+bound.  The `d + 1` is exact: a natural number strictly below it is at most
+`d`. -/
+theorem capacityAmplificationSuccessEvent_subset_capacityDeficitEvent
+    (n k d : ℕ) {Lambda r : ℝ}
+    (hround : cochromaticCapacityDeficitRadius n Lambda r ≤
+      ((d + 1 : ℕ) : ℝ)) :
+    capacityAmplificationSuccessEvent n k Lambda r ⊆
+      capacityDeficitEvent n k d := by
+  intro G hSuccess
+  have hCapacity : cochromaticInducedCapacity G k ≤ n :=
+    cochromaticInducedCapacity_le_card G k
+  have hReal :
+      ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) <
+        ((d + 1 : ℕ) : ℝ) := by
+    rw [Nat.cast_sub hCapacity]
+    exact hSuccess.trans_le hround
+  have hNat : n - cochromaticInducedCapacity G k < d + 1 := by
+    exact_mod_cast hReal
+  exact Nat.lt_succ_iff.mp hNat
+
+/-- The accepted real capacity tail therefore controls failure of any rounded
+natural deficit event whose cutoff dominates the real radius. -/
+theorem capacityDeficitEvent_compl_probability_le
+    (n k d : ℕ) {Lambda r : ℝ}
+    (hn : 2 ≤ n) (hLambda : 0 ≤ Lambda) (hr : 0 ≤ r)
+    (hSeed : Real.exp (-Lambda) ≤
+      (randomGraphMeasure n).real {G | CoColorable G k})
+    (hround : cochromaticCapacityDeficitRadius n Lambda r ≤
+      ((d + 1 : ℕ) : ℝ)) :
+    (randomGraphMeasure n).real (capacityDeficitEvent n k d)ᶜ ≤
+      Real.exp (-r) := by
+  calc
+    (randomGraphMeasure n).real (capacityDeficitEvent n k d)ᶜ ≤
+        (randomGraphMeasure n).real
+          (capacityAmplificationSuccessEvent n k Lambda r)ᶜ := by
+      apply measureReal_mono (h₂ := by finiteness)
+      exact Set.compl_subset_compl.mpr
+        (capacityAmplificationSuccessEvent_subset_capacityDeficitEvent
+          n k d hround)
+    _ ≤ Real.exp (-r) :=
+      capacityAmplificationSuccessEvent_compl_probability_le
+        n k hn hLambda hr hSeed
+
+/-- Sequence-level use of the accepted capacity tail.  Once the seed bound,
+nonnegativity, and rounding inequality hold eventually and `r n → ∞`, the
+rounded natural capacity-deficit event has probability tending to one. -/
+theorem capacityDeficitEvent_probability_tendsto_one
+    (k d : ℕ → ℕ) (Lambda r : ℕ → ℝ)
+    (hLambda : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hr : ∀ᶠ n in atTop, 0 ≤ r n)
+    (hSeed : ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real {G | CoColorable G (k n)})
+    (hround : ∀ᶠ n in atTop,
+      cochromaticCapacityDeficitRadius n (Lambda n) (r n) ≤
+        (((d n) + 1 : ℕ) : ℝ))
+    (hrTop : Tendsto r atTop atTop) :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n (capacityDeficitEvent n (k n) (d n)))
+      atTop (nhds 1) := by
+  have hExp : Tendsto (fun n ↦ Real.exp (-r n)) atTop (nhds 0) :=
+    Real.tendsto_exp_atBot.comp
+      (tendsto_neg_atTop_atBot.comp hrTop)
+  have hUpper : ∀ᶠ n in atTop,
+      (randomGraphMeasure n).real
+          (capacityDeficitEvent n (k n) (d n))ᶜ ≤ Real.exp (-r n) := by
+    filter_upwards [eventually_ge_atTop (2 : ℕ), hLambda, hr, hSeed,
+      hround] with n hn hLambdaN hrN hSeedN hroundN
+    exact capacityDeficitEvent_compl_probability_le
+      n (k n) (d n) hn hLambdaN hrN hSeedN hroundN
+  have hFailureReal : Tendsto
+      (fun n ↦ (randomGraphMeasure n).real
+        (capacityDeficitEvent n (k n) (d n))ᶜ)
+      atTop (nhds 0) := by
+    exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+      tendsto_const_nhds hExp
+      (Filter.Eventually.of_forall fun n ↦ measureReal_nonneg)
+      hUpper
+  have hSuccessIdentity : ∀ n,
+      (randomGraphMeasure n).real (capacityDeficitEvent n (k n) (d n)) =
+        1 - (randomGraphMeasure n).real
+          (capacityDeficitEvent n (k n) (d n))ᶜ := by
+    intro n
+    have hCompl := measureReal_compl
+      (μ := randomGraphMeasure n)
+      (measurableSet_capacityDeficitEvent n (k n) (d n))
+    rw [probReal_univ] at hCompl
+    linarith
+  have hSuccessReal : Tendsto
+      (fun n ↦ (randomGraphMeasure n).real
+        (capacityDeficitEvent n (k n) (d n)))
+      atTop (nhds (1 : ℝ)) := by
+    have hOne : Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (nhds 1) :=
+      tendsto_const_nhds
+    have hSub := hOne.sub hFailureReal
+    convert hSub using 1
+    · funext n
+      exact hSuccessIdentity n
+    · norm_num
+  exact
+    (ENNReal.tendsto_toReal_iff
+      (fun n ↦ measure_ne_top (randomGraphMeasure n)
+        (capacityDeficitEvent n (k n) (d n)))
+      ENNReal.one_ne_top).mp (by
+        simpa only [Measure.real, ENNReal.toReal_one] using hSuccessReal)
+
+/-- A capacity-attaining cocolourable core plus the simultaneous leftover
+bound gives the expected whole-graph cochromatic bound. -/
+theorem cochromaticNumber_le_of_capacityDeficit_and_leftover
+    {n k d q : ℕ} {G : LabeledGraph n}
+    (hCapacity : G ∈ capacityDeficitEvent n k d)
+    (hLeftover : G ∈ simultaneousLeftoverColoringEvent n d q) :
+    cochromaticNumber G ≤ k + q := by
+  obtain ⟨W, _hCore, _hWcard, hComplCard, hWhole⟩ :=
+    exists_capacity_witness_with_compl_bound G k
+  have hSize :
+      Fintype.card (↑((↑W : Set (Fin n)))ᶜ : Type) ≤ d := by
+    rw [hComplCard]
+    exact hCapacity
+  exact hWhole.trans (Nat.add_le_add_left (hLeftover W hSize) k)
+
+/-- Event form of the deterministic capacity/leftover interface. -/
+theorem capacityDeficit_inter_leftover_subset_cochromaticUpperEvent
+    {n k d q kCo : ℕ} {a : ℝ}
+    (hThreshold : ((k + q : ℕ) : ℝ) ≤ (kCo : ℝ) + a) :
+    capacityDeficitEvent n k d ∩
+        simultaneousLeftoverColoringEvent n d q ⊆
+      cochromaticUpperEvent n kCo a := by
+  intro G hG
+  have hNat := cochromaticNumber_le_of_capacityDeficit_and_leftover
+    hG.1 hG.2
+  have hReal : (cochromaticNumber G : ℝ) ≤ ((k + q : ℕ) : ℝ) := by
+    exact_mod_cast hNat
+  exact hReal.trans hThreshold
+
+/-- A probability-one event remains probability one after eventual pointwise
+enlargement. -/
+theorem tendsto_measure_one_of_eventually_subset
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A B : ∀ n, Set (Omega n))
+    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
+    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
+    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hA tendsto_const_nhds
+    (hSubset.mono fun _ h ↦ measure_mono h)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
+
+/-- Conditional closure of Sections X--XI.
+
+The open inputs are exposed separately:
+
+* `hLeftoverTail`: the one-event simultaneous leftover-colouring estimate;
+* `hChromaticTail`: the upstream chromatic lower-tail theorem;
+* `hCochromaticThreshold`: rounding/parameter domination after amplification;
+* `hGapThreshold`: the eventual Section XI threshold separation.
+
+The capacity tail itself can be supplied by
+`capacityDeficitEvent_probability_tendsto_one`, so it is kept as a separate
+named input rather than hidden inside a cochromatic-upper-tail assumption. -/
+theorem erdos625Statement_of_capacity_leftover_thresholds
+    (kChi kSeed deficit leftover kCo : ℕ → ℕ) (a : ℕ → ℝ)
+    (hCapacityTail : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (capacityDeficitEvent n (kSeed n) (deficit n)))
+      atTop (nhds 1))
+    (hLeftoverTail : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (simultaneousLeftoverColoringEvent n (deficit n) (leftover n)))
+      atTop (nhds 1))
+    (hChromaticTail : Tendsto
+      (fun n ↦ randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1))
+    (hCochromaticThreshold : ∀ᶠ n in atTop,
+      (((kSeed n) + (leftover n) : ℕ) : ℝ) ≤ (kCo n : ℝ) + a n)
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)) :
+    Erdos625Statement := by
+  have hCapacityLeftover : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (capacityDeficitEvent n (kSeed n) (deficit n) ∩
+          simultaneousLeftoverColoringEvent n (deficit n) (leftover n)))
+      atTop (nhds 1) :=
+    tendsto_measure_inter_one randomGraphMeasure
+      (fun n ↦ capacityDeficitEvent n (kSeed n) (deficit n))
+      (fun n ↦ simultaneousLeftoverColoringEvent n
+        (deficit n) (leftover n))
+      (fun n ↦ measurableSet_capacityDeficitEvent n (kSeed n) (deficit n))
+      (fun n ↦ measurableSet_simultaneousLeftoverColoringEvent n
+        (deficit n) (leftover n))
+      hCapacityTail hLeftoverTail
+  have hCochromaticTail : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) := by
+    apply tendsto_measure_one_of_eventually_subset randomGraphMeasure
+      (fun n ↦ capacityDeficitEvent n (kSeed n) (deficit n) ∩
+        simultaneousLeftoverColoringEvent n (deficit n) (leftover n))
+      (fun n ↦ cochromaticUpperEvent n (kCo n) (a n))
+      hCapacityLeftover
+    filter_upwards [hCochromaticThreshold] with n hThreshold
+    exact capacityDeficit_inter_leftover_subset_cochromaticUpperEvent
+      hThreshold
+  have hThresholdIntersection : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (chromaticLowerEvent n (kChi n) ∩
+          cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) :=
+    tendsto_measure_inter_one randomGraphMeasure
+      (fun n ↦ chromaticLowerEvent n (kChi n))
+      (fun n ↦ cochromaticUpperEvent n (kCo n) (a n))
+      (fun n ↦ Set.toFinite (chromaticLowerEvent n (kChi n)) |>.measurableSet)
+      (fun n ↦ Set.toFinite
+        (cochromaticUpperEvent n (kCo n) (a n)) |>.measurableSet)
+      hChromaticTail hCochromaticTail
+  unfold Erdos625Statement
+  change Tendsto (fun n ↦ randomGraphMeasure n (gapEvent n))
+    atTop (nhds 1)
+  apply tendsto_measure_one_of_eventually_subset randomGraphMeasure
+    (fun n ↦ chromaticLowerEvent n (kChi n) ∩
+      cochromaticUpperEvent n (kCo n) (a n))
+    gapEvent hThresholdIntersection
+  filter_upwards [hGapThreshold] with n hThreshold
+  exact thresholdIntersection_subset_gapEvent hThreshold
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
 ========================================================================== -/
 
 /- ==========================================================================
@@ -19859,60 +20598,6 @@ END SOURCE MODULE: Erdos625.ConfigurationResidualSupport
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.LocalSignReward
-Source: Erdos625/LocalSignReward.lean
-Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_LocalSignReward
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-!
-# Product of local sign rewards
-
-This module isolates the finite exponent arithmetic in the local part of the
-signed overlap reward.  It does not include the component-sign factor or the
-global second-moment assembly.
--/
-
-def localSignRewardNat (x : ℕ) : ℕ :=
-  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
-
-theorem prod_localSignRewardNat_eq_pow
-    {E : Type*} [DecidableEq E]
-    (S : Finset E) (r : E → ℕ)
-    (hlarge : ∀ e ∈ S, 3 ≤ r e) :
-    (∏ e ∈ S, localSignRewardNat (r e)) =
-      2 ^ ((∑ e ∈ S, (r e).choose 2) - S.card) := by
-  have hone : ∀ e ∈ S, 1 ≤ (r e).choose 2 := by
-    intro e he
-    have h3 : (3 : ℕ).choose 2 ≤ (r e).choose 2 :=
-      Nat.choose_le_choose 2 (hlarge e he)
-    have : (3 : ℕ).choose 2 = 3 := by decide
-    omega
-  have hprod :
-      (∏ e ∈ S, localSignRewardNat (r e)) =
-        ∏ e ∈ S, 2 ^ ((r e).choose 2 - 1) := by
-    refine Finset.prod_congr rfl ?_
-    intro e he
-    simp only [localSignRewardNat, if_pos (hlarge e he)]
-  rw [hprod, Finset.prod_pow_eq_pow_sum]
-  congr 1
-  have hsub := Finset.sum_tsub_distrib (s := S)
-    (f := fun e => (r e).choose 2) (g := fun _ => 1) hone
-  rw [hsub]
-  simp
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_LocalSignReward
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.LocalSignReward
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.EvenMatchingKernel
 Source: Erdos625/EvenMatchingKernel.lean
 Normalized SHA-256: 9b84508842442617b268fa1d3d703de10481a6422d849fcbd6b936560305db05
@@ -19961,6 +20646,270 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_EvenMatchingKernel
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.EvenMatchingKernel
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.EvenMatchingRestriction
+Source: Erdos625/EvenMatchingRestriction.lean
+Normalized SHA-256: 094795cf7cbb24fac6f707309da6a9a737d6b033ed5df87c85cb8dea59ea5a3e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_EvenMatchingRestriction
+
+/-!
+# Restricting even bipartite matrices away from a matching
+
+This module isolates the deterministic injection used in the small-residual
+branch of Section IX.  If two even `ZMod 2` matrices are supported on the union
+of a row matching `M` and an arbitrary residual relation `R`, then their values
+on `R` determine the whole matrix.  Consequently the finite family of such
+matrices has cardinality at most `2 ^ |R|`.
+
+No probability, asymptotic estimate, cycle decomposition, or attachment bound
+is asserted here.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Two even matrices supported on `M ∪ R` are equal once they agree on `R`,
+provided `M` is a row matching. -/
+theorem evenMatrix_eq_of_eq_on_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    (x y : A → B → ZMod 2) (M R : A → B → Prop)
+    (hxEven : BipartiteEvenMatrix x)
+    (hyEven : BipartiteEvenMatrix y)
+    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hxSupport : ∀ a b, x a b ≠ 0 → M a b ∨ R a b)
+    (hySupport : ∀ a b, y a b ≠ 0 → M a b ∨ R a b)
+    (hresidual : ∀ a b, R a b → x a b = y a b) :
+    x = y := by
+  let z : A → B → ZMod 2 := fun a b ↦ x a b - y a b
+  have hzEven : BipartiteEvenMatrix z := by
+    constructor
+    · intro a
+      simp only [z, Finset.sum_sub_distrib, hxEven.1 a, hyEven.1 a, sub_self]
+    · intro b
+      simp only [z, Finset.sum_sub_distrib, hxEven.2 b, hyEven.2 b, sub_self]
+  have hzSupport : ∀ a b, z a b ≠ 0 → M a b := by
+    intro a b hz
+    have hxy : x a b ≠ y a b := sub_ne_zero.mp hz
+    by_contra hM
+    have hR : R a b := by
+      by_cases hx0 : x a b = 0
+      · have hy0 : y a b ≠ 0 := by
+          intro hy0
+          exact hxy (hx0.trans hy0.symm)
+        exact (hySupport a b hy0).resolve_left hM
+      · exact (hxSupport a b hx0).resolve_left hM
+    exact hxy (hresidual a b hR)
+  have hzZero : z = 0 :=
+    evenMatrix_eq_zero_of_support_rowMatching z M hzEven hmatching hzSupport
+  funext a b
+  have hab : z a b = 0 := by rw [hzZero]; rfl
+  exact sub_eq_zero.mp hab
+
+/-- Even matrices supported on `M ∪ R`. -/
+def EvenMatrixSupportedOn
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop) :=
+  {x : A → B → ZMod 2 //
+    BipartiteEvenMatrix x ∧ ∀ a b, x a b ≠ 0 → M a b ∨ R a b}
+
+/-- A residual cell, represented by a row-column pair satisfying `R`. -/
+def ResidualCell
+    {A B : Type*} (R : A → B → Prop) :=
+  {e : A × B // R e.1 e.2}
+
+/-- Restrict a supported even matrix to the residual cells. -/
+def residualRestriction
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop) :
+    EvenMatrixSupportedOn M R → ResidualCell R → ZMod 2 :=
+  fun x e ↦ x.1 e.1.1 e.1.2
+
+/-- Restriction to residual cells is injective when the complementary support
+relation is a row matching. -/
+theorem residualRestriction_injective
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop)
+    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Function.Injective (residualRestriction M R) := by
+  intro x y hxy
+  apply Subtype.ext
+  apply evenMatrix_eq_of_eq_on_residual x.1 y.1 M R
+    x.2.1 y.2.1 hmatching x.2.2 y.2.2
+  intro a b hR
+  exact congrFun hxy ⟨(a, b), hR⟩
+
+/-- There are at most `2 ^ |R|` even matrices supported on a row matching
+together with the residual relation `R`. -/
+theorem card_evenMatrixSupportedOn_le_pow_card_residualCell
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop)
+    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Nat.card (EvenMatrixSupportedOn M R) ≤
+      2 ^ Nat.card (ResidualCell R) := by
+  letI : Finite (EvenMatrixSupportedOn M R) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  letI : Finite (ResidualCell R) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  letI : Fintype (EvenMatrixSupportedOn M R) := Fintype.ofFinite _
+  letI : Fintype (ResidualCell R) := Fintype.ofFinite _
+  letI : DecidableEq (ResidualCell R) := Classical.decEq _
+  calc
+    Nat.card (EvenMatrixSupportedOn M R) =
+        Fintype.card (EvenMatrixSupportedOn M R) := Nat.card_eq_fintype_card
+    _ ≤ Fintype.card (ResidualCell R → ZMod 2) :=
+      Fintype.card_le_of_injective (residualRestriction M R)
+        (residualRestriction_injective M R hmatching)
+    _ = 2 ^ Nat.card (ResidualCell R) := by
+      rw [Fintype.card_fun, Nat.card_eq_fintype_card]
+      norm_num
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_EvenMatchingRestriction
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.EvenMatchingRestriction
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9EncodingAssembly
+Source: Erdos625/Section9EncodingAssembly.lean
+Normalized SHA-256: 0de0513390ce1a46bf46bc4f278c26aaba25aa82dffd7b6df00bafe2177a1502
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9EncodingAssembly
+
+/-!
+# Section IX encoding and restriction assembly
+
+This module gives the deterministic seam needed by the small-residual branch
+of Section IX.  Any finite family that admits an injective encoding by even
+`ZMod 2` matrices supported on a row matching plus an explicit residual
+relation inherits the verified `2 ^ |R|` bound.  For the actual configuration
+residual-support relation, the accepted mass estimate then bounds the exponent
+by half the total row-stub mass.
+
+The existence, injectivity, evenness, and support properties of the concrete
+manuscript encoding remain explicit hypotheses.  No cycle-space identity or
+large-residual estimate is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- An explicit injective even-matrix encoding supported on `M ∪ R` turns the
+accepted restriction injection into a cardinality bound for the source
+family. -/
+theorem card_family_le_pow_residualCells_of_even_encoding
+    {X A B : Type*} [Finite X] [Fintype A] [Fintype B]
+    (encode : X → A → B → ZMod 2) (M R : A → B → Prop)
+    (hencode : Function.Injective encode)
+    (heven : ∀ x, BipartiteEvenMatrix (encode x))
+    (hsupport : ∀ x a b, encode x a b ≠ 0 → M a b ∨ R a b)
+    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Nat.card X ≤ 2 ^ Nat.card (ResidualCell R) := by
+  let toSupported : X → EvenMatrixSupportedOn M R :=
+    fun x ↦ ⟨encode x, heven x, hsupport x⟩
+  have hSupported : Function.Injective toSupported := by
+    intro x y hxy
+    apply hencode
+    exact congrArg Subtype.val hxy
+  letI : Finite (EvenMatrixSupportedOn M R) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  letI : Fintype X := Fintype.ofFinite X
+  letI : Fintype (EvenMatrixSupportedOn M R) := Fintype.ofFinite _
+  calc
+    Nat.card X = Fintype.card X := Nat.card_eq_fintype_card
+    _ ≤ Fintype.card (EvenMatrixSupportedOn M R) :=
+      Fintype.card_le_of_injective toSupported hSupported
+    _ = Nat.card (EvenMatrixSupportedOn M R) :=
+      Nat.card_eq_fintype_card.symm
+    _ ≤ 2 ^ Nat.card (ResidualCell R) :=
+      card_evenMatrixSupportedOn_le_pow_card_residualCell M R hmatching
+
+/-- Residual cells for an actual configuration matching are equivalent to the
+subtype of its finite residual-support finset. -/
+def configurationResidualCellEquivSupportSubtype
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) :
+    ResidualCell (configurationResidualSupportRelation matching) ≃
+      ↥(configurationResidualSupportFinset matching) where
+  toFun e := ⟨e.1,
+    (mem_configurationResidualSupportFinset matching e.1).mpr e.2⟩
+  invFun p := ⟨p.1,
+    (mem_configurationResidualSupportFinset matching p.1).mp p.2⟩
+  left_inv e := by
+    apply Subtype.ext
+    rfl
+  right_inv p := by
+    apply Subtype.ext
+    rfl
+
+/-- Exact identification of the abstract residual-cell exponent with the
+cardinality of the concrete residual-support finset. -/
+theorem natCard_configurationResidualCell_eq_supportFinset_card
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) :
+    Nat.card (ResidualCell (configurationResidualSupportRelation matching)) =
+      (configurationResidualSupportFinset matching).card := by
+  calc
+    Nat.card
+        (ResidualCell (configurationResidualSupportRelation matching)) =
+        Nat.card ↥(configurationResidualSupportFinset matching) :=
+      Nat.card_congr (configurationResidualCellEquivSupportSubtype matching)
+    _ = Fintype.card ↥(configurationResidualSupportFinset matching) :=
+      Nat.card_eq_fintype_card
+    _ = (configurationResidualSupportFinset matching).card :=
+      Fintype.card_coe _
+
+/-- Actual small-residual seam.  Once a finite family has the explicit
+injective even encoding and support decomposition stated in the hypotheses,
+its cardinality is at most `2` to half the total row-stub mass. -/
+theorem card_family_le_two_pow_half_stubMass
+    {X A B : Type*} [Finite X]
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (encode : X → A → B → ZMod 2) (M : A → B → Prop)
+    (hencode : Function.Injective encode)
+    (heven : ∀ x, BipartiteEvenMatrix (encode x))
+    (hsupport : ∀ x a b, encode x a b ≠ 0 →
+      M a b ∨ configurationResidualSupportRelation matching a b)
+    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Nat.card X ≤ 2 ^ ((∑ a, row a) / 2) := by
+  have hRestriction : Nat.card X ≤
+      2 ^ Nat.card
+        (ResidualCell (configurationResidualSupportRelation matching)) :=
+    card_family_le_pow_residualCells_of_even_encoding
+      encode M (configurationResidualSupportRelation matching)
+      hencode heven hsupport hmatching
+  have hResidualCard :
+      Nat.card
+          (ResidualCell (configurationResidualSupportRelation matching)) ≤
+        (∑ a, row a) / 2 := by
+    rw [natCard_configurationResidualCell_eq_supportFinset_card matching]
+    exact card_configurationResidualSupportFinset_le_half_stubMass matching
+  exact hRestriction.trans
+    (Nat.pow_le_pow_right (by norm_num : 0 < 2) hResidualCard)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9EncodingAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9EncodingAssembly
 ========================================================================== -/
 
 /- ==========================================================================
@@ -20105,131 +21054,177 @@ END SOURCE MODULE: Erdos625.BipartiteEdgeMatrix
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.EvenMatchingRestriction
-Source: Erdos625/EvenMatchingRestriction.lean
-Normalized SHA-256: 094795cf7cbb24fac6f707309da6a9a737d6b033ed5df87c85cb8dea59ea5a3e
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualFamily
+Source: Erdos625/Section9ActualResidualFamily.lean
+Normalized SHA-256: d4796abc25ef0ea214cb68689534d56a2387b776b5cdab51ce6ef83a319dc7a4
 ========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_EvenMatchingRestriction
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualFamily
 
 /-!
-# Restricting even bipartite matrices away from a matching
+# The actual residual even-edge family in Section IX
 
-This module isolates the deterministic injection used in the small-residual
-branch of Section IX.  If two even `ZMod 2` matrices are supported on the union
-of a row matching `M` and an arbitrary residual relation `R`, then their values
-on `R` determine the whole matrix.  Consequently the finite family of such
-matrices has cardinality at most `2 ^ |R|`.
+The residual relation here is not an abstract placeholder: it is literally the
+set of cells whose supplied multiplicity is at least two.  Finite even edge
+sets supported on that relation together with a row matching are encoded by
+their zero-one matrices.  The previously verified matching-restriction theorem
+then gives the exact `2 ^ |H_res|` bound.
 
-No probability, asymptotic estimate, cycle decomposition, or attachment bound
-is asserted here.
+This finite bridge does not prove the cycle decomposition, traversal estimates,
+or the uniform attachment bound of Lemma 9.1.
 -/
 
 namespace Erdos625
 
-noncomputable section
-
-/-- Two even matrices supported on `M ∪ R` are equal once they agree on `R`,
-provided `M` is a row matching. -/
-theorem evenMatrix_eq_of_eq_on_residual
+/-- Actual even edge sets supported on a high-skeleton relation `M` together
+with the multiplicity-at-least-two residual cells. -/
+def ActualResidualEvenEdgeFamily
     {A B : Type*} [Fintype A] [Fintype B]
-    (x y : A → B → ZMod 2) (M R : A → B → Prop)
-    (hxEven : BipartiteEvenMatrix x)
-    (hyEven : BipartiteEvenMatrix y)
-    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
-    (hxSupport : ∀ a b, x a b ≠ 0 → M a b ∨ R a b)
-    (hySupport : ∀ a b, y a b ≠ 0 → M a b ∨ R a b)
-    (hresidual : ∀ a b, R a b → x a b = y a b) :
-    x = y := by
-  let z : A → B → ZMod 2 := fun a b ↦ x a b - y a b
-  have hzEven : BipartiteEvenMatrix z := by
-    constructor
-    · intro a
-      simp only [z, Finset.sum_sub_distrib, hxEven.1 a, hyEven.1 a, sub_self]
-    · intro b
-      simp only [z, Finset.sum_sub_distrib, hxEven.2 b, hyEven.2 b, sub_self]
-  have hzSupport : ∀ a b, z a b ≠ 0 → M a b := by
-    intro a b hz
-    have hxy : x a b ≠ y a b := sub_ne_zero.mp hz
-    by_contra hM
-    have hR : R a b := by
-      by_cases hx0 : x a b = 0
-      · have hy0 : y a b ≠ 0 := by
-          intro hy0
-          exact hxy (hx0.trans hy0.symm)
-        exact (hySupport a b hy0).resolve_left hM
-      · exact (hxSupport a b hx0).resolve_left hM
-    exact hxy (hresidual a b hR)
-  have hzZero : z = 0 :=
-    evenMatrix_eq_zero_of_support_rowMatching z M hzEven hmatching hzSupport
-  funext a b
-  have hab : z a b = 0 := by rw [hzZero]; rfl
-  exact sub_eq_zero.mp hab
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : A → B → Prop) :=
+  {F : Finset (A × B) //
+    BipartiteEvenEdgeSet F ∧
+      ∀ e ∈ F, M e.1 e.2 ∨ 2 ≤ cellCount e.1 e.2}
 
-/-- Even matrices supported on `M ∪ R`. -/
-def EvenMatrixSupportedOn
+/-- The actual residual family is bounded by the number of zero-one choices on
+the actual multiplicity-at-least-two support. -/
+theorem card_actualResidualEvenEdgeFamily_le_pow_support
     {A B : Type*} [Fintype A] [Fintype B]
-    (M R : A → B → Prop) :=
-  {x : A → B → ZMod 2 //
-    BipartiteEvenMatrix x ∧ ∀ a b, x a b ≠ 0 → M a b ∨ R a b}
-
-/-- A residual cell, represented by a row-column pair satisfying `R`. -/
-def ResidualCell
-    {A B : Type*} (R : A → B → Prop) :=
-  {e : A × B // R e.1 e.2}
-
-/-- Restrict a supported even matrix to the residual cells. -/
-def residualRestriction
-    {A B : Type*} [Fintype A] [Fintype B]
-    (M R : A → B → Prop) :
-    EvenMatrixSupportedOn M R → ResidualCell R → ZMod 2 :=
-  fun x e ↦ x.1 e.1.1 e.1.2
-
-/-- Restriction to residual cells is injective when the complementary support
-relation is a row matching. -/
-theorem residualRestriction_injective
-    {A B : Type*} [Fintype A] [Fintype B]
-    (M R : A → B → Prop)
-    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
-    Function.Injective (residualRestriction M R) := by
-  intro x y hxy
-  apply Subtype.ext
-  apply evenMatrix_eq_of_eq_on_residual x.1 y.1 M R
-    x.2.1 y.2.1 hmatching x.2.2 y.2.2
-  intro a b hR
-  exact congrFun hxy ⟨(a, b), hR⟩
-
-/-- There are at most `2 ^ |R|` even matrices supported on a row matching
-together with the residual relation `R`. -/
-theorem card_evenMatrixSupportedOn_le_pow_card_residualCell
-    {A B : Type*} [Fintype A] [Fintype B]
-    (M R : A → B → Prop)
-    (hmatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
-    Nat.card (EvenMatrixSupportedOn M R) ≤
-      2 ^ Nat.card (ResidualCell R) := by
-  letI : Finite (EvenMatrixSupportedOn M R) :=
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Nat.card (ActualResidualEvenEdgeFamily cellCount M) ≤
+      2 ^ Nat.card (ResidualCell (fun a b => 2 ≤ cellCount a b)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount M) :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (ResidualCell R) :=
-    Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (EvenMatrixSupportedOn M R) := Fintype.ofFinite _
-  letI : Fintype (ResidualCell R) := Fintype.ofFinite _
-  letI : DecidableEq (ResidualCell R) := Classical.decEq _
-  calc
-    Nat.card (EvenMatrixSupportedOn M R) =
-        Fintype.card (EvenMatrixSupportedOn M R) := Nat.card_eq_fintype_card
-    _ ≤ Fintype.card (ResidualCell R → ZMod 2) :=
-      Fintype.card_le_of_injective (residualRestriction M R)
-        (residualRestriction_injective M R hmatching)
-    _ = 2 ^ Nat.card (ResidualCell R) := by
-      rw [Fintype.card_fun, Nat.card_eq_fintype_card]
-      norm_num
+  refine card_family_le_pow_residualCells_of_even_encoding
+    (X := ActualResidualEvenEdgeFamily cellCount M)
+    (fun F => bipartiteEdgeMatrix F.1) M
+    (fun a b => 2 ≤ cellCount a b) ?_ ?_ ?_ hRowMatching
+  · intro F G hFG
+    apply Subtype.ext
+    exact bipartiteEdgeMatrix_injective hFG
+  · intro F
+    exact (bipartiteEdgeMatrix_even_iff F.1).2 F.2.1
+  · intro F a b hab
+    have hmem :=
+      (bipartiteEdgeMatrix_apply_ne_zero_iff F.1 a b).mp hab
+    exact F.2.2 (a, b) hmem
 
-end
+#print axioms card_actualResidualEvenEdgeFamily_le_pow_support
 
 end Erdos625
 
-end Erdos625SelfContained_Module_Erdos625_EvenMatchingRestriction
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualFamily
 /- ==========================================================================
-END SOURCE MODULE: Erdos625.EvenMatchingRestriction
+END SOURCE MODULE: Erdos625.Section9ActualResidualFamily
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ChooseTwoMass
+Source: Erdos625/Section9ChooseTwoMass.lean
+Normalized SHA-256: 7eee57ca52d6da9b2cd2950e599485a3e6016656d1145ebeb31ad7fc1607fb62
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ChooseTwoMass
+
+/-!
+# The finite choose-two mass estimate in Section IX
+
+This is the division-free form of manuscript (9.21).  It is a finite arithmetic
+bound only and assumes no cycle-rank or attachment estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- If every residual multiplicity is at most `U` and their total is `m₀`,
+then twice the total pair count is at most `(U - 1) * m₀`. -/
+theorem twice_sum_choose_two_le_cap_mass
+    {E : Type*} [Fintype E]
+    (r : E → ℕ) (U m₀ : ℕ)
+    (hCap : ∀ e, r e ≤ U)
+    (hTotal : ∑ e, r e = m₀) :
+    2 * (∑ e, (r e).choose 2) ≤ (U - 1) * m₀ := by
+  have hPointwise : ∀ e, 2 * (r e).choose 2 ≤ (U - 1) * r e := by
+    intro e
+    have hTwiceChoose : 2 * (r e).choose 2 = r e * (r e - 1) := by
+      rw [Nat.choose_two_right, mul_comm]
+      exact Nat.div_mul_cancel
+        (even_iff_two_dvd.mp (Nat.even_mul_pred_self _))
+    rw [hTwiceChoose]
+    calc
+      r e * (r e - 1) = (r e - 1) * r e := Nat.mul_comm _ _
+      _ ≤ (U - 1) * r e :=
+        Nat.mul_le_mul_right _ (Nat.sub_le_sub_right (hCap e) 1)
+  calc
+    2 * (∑ e, (r e).choose 2) = ∑ e, 2 * (r e).choose 2 := by
+      rw [Finset.mul_sum]
+    _ ≤ ∑ e, (U - 1) * r e :=
+      Finset.sum_le_sum fun e _ => hPointwise e
+    _ = (U - 1) * m₀ := by
+      rw [← Finset.mul_sum, hTotal]
+
+#print axioms twice_sum_choose_two_le_cap_mass
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ChooseTwoMass
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ChooseTwoMass
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.LocalSignReward
+Source: Erdos625/LocalSignReward.lean
+Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_LocalSignReward
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-!
+# Product of local sign rewards
+
+This module isolates the finite exponent arithmetic in the local part of the
+signed overlap reward.  It does not include the component-sign factor or the
+global second-moment assembly.
+-/
+
+def localSignRewardNat (x : ℕ) : ℕ :=
+  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
+
+theorem prod_localSignRewardNat_eq_pow
+    {E : Type*} [DecidableEq E]
+    (S : Finset E) (r : E → ℕ)
+    (hlarge : ∀ e ∈ S, 3 ≤ r e) :
+    (∏ e ∈ S, localSignRewardNat (r e)) =
+      2 ^ ((∑ e ∈ S, (r e).choose 2) - S.card) := by
+  have hone : ∀ e ∈ S, 1 ≤ (r e).choose 2 := by
+    intro e he
+    have h3 : (3 : ℕ).choose 2 ≤ (r e).choose 2 :=
+      Nat.choose_le_choose 2 (hlarge e he)
+    have : (3 : ℕ).choose 2 = 3 := by decide
+    omega
+  have hprod :
+      (∏ e ∈ S, localSignRewardNat (r e)) =
+        ∏ e ∈ S, 2 ^ ((r e).choose 2 - 1) := by
+    refine Finset.prod_congr rfl ?_
+    intro e he
+    simp only [localSignRewardNat, if_pos (hlarge e he)]
+  rw [hprod, Finset.prod_pow_eq_pow_sum]
+  congr 1
+  have hsub := Finset.sum_tsub_distrib (s := S)
+    (f := fun e => (r e).choose 2) (g := fun _ => 1) hone
+  rw [hsub]
+  simp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_LocalSignReward
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.LocalSignReward
 ========================================================================== -/
 
 /- ==========================================================================
@@ -21008,6 +22003,381 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellConstraints
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ConfigurationResidualCellConstraints
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
+Source: Erdos625/Section8FixedWitnessAssembly.lean
+Normalized SHA-256: 7cd3c62a331ce1615a41833732ab8e4a561df2bd20774f054e2e2bcc563440cc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
+
+/-!
+# Section VIII fixed-witness assembly
+
+This module composes the accepted deterministic and finite-uniform pieces for
+one fixed labelled prescribed-demand witness.  It packages:
+
+* conditioning the ambient finite uniform law on the extension event;
+* transport of the uniform extension law to the residual configuration space;
+* the exact cell-count split `full = demand + residual`; and
+* simultaneous transport of cell caps and "no additional pair" constraints.
+
+It does **not** choose a canonical skeleton, prove uniqueness of an exposure,
+or estimate the probability of any skeleton event.  Those are separate
+Section VIII obligations.
+-/
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+/-- The event that a full configuration matching extends one fixed labelled
+prescribed-demand witness. -/
+def fixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    Set (ConfigurationMatching row col) :=
+  {matching | ExtendsPrescribedDemandWitness matching witness}
+
+/-- The fixed-witness extension event is finite because the ambient matching
+space is finite.  This explicit instance avoids making the event predicate's
+decidability part of downstream theorem signatures. -/
+noncomputable instance instFintypeFixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    Fintype (fixedWitnessExtensionEvent witness) :=
+  Fintype.ofFinite _
+
+/-- The extension-event subtype is the domain of the accepted exact residual
+configuration equivalence. -/
+def fixedWitnessExtensionEquivResidual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    fixedWitnessExtensionEvent witness ≃
+      ConfigurationMatching (residualRowDegree witness)
+        (residualColumnDegree witness) :=
+  extensionsOfWitnessEquivResidualConfiguration witness
+
+/-- Simultaneous constraints on full cells.  Every cell is capped, while the
+cells selected by `noAdditional` must contain exactly the exposed demand and
+therefore no additional matched pair. -/
+def FixedWitnessFullCellConstraints
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (extension : fixedWitnessExtensionEvent witness) : Prop :=
+  ∀ a b,
+    configurationCellCount extension.1 a b ≤ cap a b ∧
+      (noAdditional a b →
+        configurationCellCount extension.1 a b = demand a b)
+
+/-- The residual form of `FixedWitnessFullCellConstraints`: cell caps lose the
+already exposed demand, and a no-additional-pair constraint becomes a zero
+residual-cell constraint. -/
+def FixedWitnessResidualCellConstraints
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (residual : ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness)) : Prop :=
+  ∀ a b,
+    configurationCellCount residual a b ≤ cap a b - demand a b ∧
+      (noAdditional a b → configurationCellCount residual a b = 0)
+
+/-- Conditioning the ambient uniform law on the fixed-witness extension event
+is the pushforward of the uniform law on the extension subtype. -/
+theorem uniform_filter_fixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    [Nonempty (ConfigurationMatching row col)]
+    [Nonempty (fixedWitnessExtensionEvent witness)] :
+    (PMF.uniformOfFintype (ConfigurationMatching row col)).filter
+        (fixedWitnessExtensionEvent witness)
+        (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
+      (PMF.uniformOfFintype
+        (fixedWitnessExtensionEvent witness)).map Subtype.val := by
+  exact uniform_filter_eq_uniformSubtype_map
+    (fixedWitnessExtensionEvent witness)
+
+/-- The uniform extension-subtype law pushes forward to the uniform law on
+the degree-labelled residual configuration space. -/
+theorem uniform_fixedWitnessExtension_map_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    [Nonempty (fixedWitnessExtensionEvent witness)]
+    [Nonempty (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness))] :
+    (PMF.uniformOfFintype
+        (fixedWitnessExtensionEvent witness)).map
+        (fixedWitnessExtensionEquivResidual witness) =
+      PMF.uniformOfFintype
+        (ConfigurationMatching (residualRowDegree witness)
+          (residualColumnDegree witness)) := by
+  letI : Nonempty {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness} := by
+    let extension : fixedWitnessExtensionEvent witness :=
+      Classical.choice inferInstance
+    have hExtension := extension.2
+    change ExtendsPrescribedDemandWitness extension.1 witness at hExtension
+    exact ⟨⟨extension.1, hExtension⟩⟩
+  exact uniform_extensionSubtype_map_residual witness
+
+/-- All full-cell cap and no-additional-pair constraints transport through the
+fixed-witness residual equivalence, simultaneously over every cell. -/
+theorem fixedWitnessFullCellConstraints_iff_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (hcap : ∀ a b, demand a b ≤ cap a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
+      FixedWitnessResidualCellConstraints witness cap noAdditional
+        (fixedWitnessExtensionEquivResidual witness extension) := by
+  constructor
+  · intro hFull a b
+    have hCell := configurationCell_constraints_iff_residual
+      witness extension a b (cap a b) (hcap a b)
+    exact ⟨hCell.2.mp (hFull a b).1,
+      fun hNoAdditional ↦ hCell.1.mp ((hFull a b).2 hNoAdditional)⟩
+  · intro hResidual a b
+    have hCell := configurationCell_constraints_iff_residual
+      witness extension a b (cap a b) (hcap a b)
+    exact ⟨hCell.2.mpr (hResidual a b).1,
+      fun hNoAdditional ↦ hCell.1.mpr
+        ((hResidual a b).2 hNoAdditional)⟩
+
+/-- Fixed-witness Section VIII seam.  The conclusion contains only results
+already justified for a fixed labelled witness.  In particular, it does not
+assert that such a witness is canonical or that its event is likely. -/
+theorem fixedWitnessSection8Assembly
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (hcap : ∀ a b, demand a b ≤ cap a b)
+    [Nonempty (ConfigurationMatching row col)]
+    [Nonempty (fixedWitnessExtensionEvent witness)]
+    [Nonempty (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness))] :
+    ((PMF.uniformOfFintype (ConfigurationMatching row col)).filter
+          (fixedWitnessExtensionEvent witness)
+          (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
+        (PMF.uniformOfFintype
+          (fixedWitnessExtensionEvent witness)).map Subtype.val) ∧
+      ((PMF.uniformOfFintype
+          (fixedWitnessExtensionEvent witness)).map
+          (fixedWitnessExtensionEquivResidual witness) =
+        PMF.uniformOfFintype
+          (ConfigurationMatching (residualRowDegree witness)
+            (residualColumnDegree witness))) ∧
+      (∀ extension a b,
+        configurationCellCount extension.1 a b =
+          demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b) ∧
+      (∀ extension,
+        FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
+          FixedWitnessResidualCellConstraints witness cap noAdditional
+            (fixedWitnessExtensionEquivResidual witness extension)) := by
+  refine ⟨uniform_filter_fixedWitnessExtensionEvent witness,
+    uniform_fixedWitnessExtension_map_residual witness, ?_, ?_⟩
+  · intro extension a b
+    exact configurationCellCount_eq_demand_add_residual
+      witness extension a b
+  · intro extension
+    exact fixedWitnessFullCellConstraints_iff_residual
+      witness cap noAdditional hcap extension
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
+Source: Erdos625/Section8CanonicalSkeleton.lean
+Normalized SHA-256: bfe2dc24eae64b91d16af03d3f36ef35321a9e2a39247cb8358783007df4480b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
+
+/-!
+# Canonical high-support atoms for Section VIII
+
+This module packages four finite deterministic facts used when the canonical
+high-cell support is extracted from a configuration table.  It proves that
+entries above half a common row/column cap form a partial matching, that zero
+residual mass forces uniqueness of the selected fibres and their compatible
+pairing, and that the full-cell cap/no-return event translates exactly to the
+residual event.
+
+These statements do not count canonical skeletons, prove the incidence formula
+(8.3), or establish the endpoint/near/middle sums in Lemma 8.3.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Retain the whole cell demand precisely above the cutoff `U / 2`. -/
+def canonicalHighDemand {A B : Type*}
+    (table : A → B → ℕ) (U : ℕ) : A → B → ℕ :=
+  fun a b => if U / 2 < table a b then table a b else 0
+
+/-- Once source and target fibres are fixed, compatibility with the ambient
+matching determines their labelled pairing uniquely. -/
+theorem compatiblePairing_unique
+    {X Y : Type*} [Fintype X] [Fintype Y]
+    [DecidableEq X] [DecidableEq Y]
+    (matching : X ≃ Y) (source : Finset X) (target : Finset Y)
+    (pairing₁ pairing₂ : (↥source) ≃ (↥target))
+    (hpairing₁ : ∀ x, (pairing₁ x).1 = matching x.1)
+    (hpairing₂ : ∀ x, (pairing₂ x).1 = matching x.1) :
+    pairing₁ = pairing₂ := by
+  ext x
+  exact (hpairing₁ x).trans (hpairing₂ x).symm
+
+/-- A selected fibre with the full fibre's cardinality is the full fibre.  The
+displayed demand-plus-residual equality is the form produced by the fixed-
+witness decomposition. -/
+theorem selectedFiber_eq_fullFiber_of_zero_residual
+    {X : Type*} [Fintype X] [DecidableEq X]
+    (selected fullFiber : Finset X) (demand residual : ℕ)
+    (hsubset : selected ⊆ fullFiber)
+    (hselected : selected.card = demand)
+    (hfull : fullFiber.card = demand + residual)
+    (hzero : residual = 0) :
+    selected = fullFiber := by
+  apply Finset.eq_of_subset_of_card_le hsubset
+  rw [hselected, hfull, hzero]
+  omega
+
+/-- Under common row and column caps, the support of the canonical high demand
+is a bipartite partial matching, with exact on- and off-support values. -/
+theorem canonicalHighDemand_partialMatching_and_incidence
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (table : A → B → ℕ) (U : ℕ)
+    (hrow : ∀ a, (∑ b, table a b) ≤ U)
+    (hcolumn : ∀ b, (∑ a, table a b) ≤ U) :
+    (∀ a b₁ b₂,
+      canonicalHighDemand table U a b₁ ≠ 0 →
+      canonicalHighDemand table U a b₂ ≠ 0 → b₁ = b₂) ∧
+    (∀ b a₁ a₂,
+      canonicalHighDemand table U a₁ b ≠ 0 →
+      canonicalHighDemand table U a₂ b ≠ 0 → a₁ = a₂) ∧
+    (∀ a b, U / 2 < table a b →
+      canonicalHighDemand table U a b = table a b) ∧
+    (∀ a b, ¬ U / 2 < table a b →
+      canonicalHighDemand table U a b = 0) := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro a b₁ b₂ h₁ h₂
+    by_contra hne
+    have hb₁ : U / 2 < table a b₁ := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₁
+    have hb₂ : U / 2 < table a b₂ := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₂
+    have hsub : table a b₁ + table a b₂ ≤ ∑ b, table a b := by
+      have hs : ({b₁, b₂} : Finset B) ⊆ Finset.univ := Finset.subset_univ _
+      calc
+        table a b₁ + table a b₂ =
+            ∑ b ∈ ({b₁, b₂} : Finset B), table a b := by
+          rw [Finset.sum_pair hne]
+        _ ≤ ∑ b, table a b := Finset.sum_le_sum_of_subset hs
+    have hcap := hrow a
+    omega
+  · intro b a₁ a₂ h₁ h₂
+    by_contra hne
+    have ha₁ : U / 2 < table a₁ b := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₁
+    have ha₂ : U / 2 < table a₂ b := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₂
+    have hsub : table a₁ b + table a₂ b ≤ ∑ a, table a b := by
+      have hs : ({a₁, a₂} : Finset A) ⊆ Finset.univ := Finset.subset_univ _
+      calc
+        table a₁ b + table a₂ b =
+            ∑ a ∈ ({a₁, a₂} : Finset A), table a b := by
+          rw [Finset.sum_pair hne]
+        _ ≤ ∑ a, table a b := Finset.sum_le_sum_of_subset hs
+    have hcap := hcolumn b
+    omega
+  · intro a b h
+    simp [canonicalHighDemand, h]
+  · intro a b h
+    simp [canonicalHighDemand, h]
+
+/-- Translate the simultaneous full-cell cap/no-return condition into the
+unshifted residual cap and zero residual mass on the canonical support. -/
+theorem supportIndexed_fullConstraints_iff_residual
+    {A B : Type*}
+    (full demand residual cap : A → B → ℕ)
+    (support : A → B → Prop)
+    (hsplit : ∀ a b, full a b = demand a b + residual a b)
+    (hdemandCap : ∀ a b, demand a b ≤ cap a b)
+    (hdemandOff : ∀ a b, ¬ support a b → demand a b = 0) :
+    (∀ a b,
+        full a b ≤ cap a b ∧
+          (support a b → full a b = demand a b)) ↔
+      (∀ a b,
+        residual a b ≤ cap a b ∧
+          (support a b → residual a b = 0)) := by
+  constructor
+  · intro h a b
+    obtain ⟨hcap, hsupp⟩ := h a b
+    have hs := hsplit a b
+    exact ⟨by omega, fun hsup => by
+      have heq := hsupp hsup
+      omega⟩
+  · intro h a b
+    obtain ⟨hcap, hsupp⟩ := h a b
+    have hs := hsplit a b
+    have hdc := hdemandCap a b
+    refine ⟨?_, fun hsup => by
+      have hzero := hsupp hsup
+      omega⟩
+    by_cases hsup : support a b
+    · have hzero := hsupp hsup
+      omega
+    · have hoff := hdemandOff a b hsup
+      omega
+
+#print axioms compatiblePairing_unique
+#print axioms selectedFiber_eq_fullFiber_of_zero_residual
+#print axioms canonicalHighDemand_partialMatching_and_incidence
+#print axioms supportIndexed_fullConstraints_iff_residual
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
 ========================================================================== -/
 
 /- ==========================================================================
@@ -23208,7 +24578,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: affb79e8bd000288aec573991654870d80629fd6eb833c8d347e735d2d50b03d
+Normalized SHA-256: 03e27fd1ef57809a5cdd47d7bde8832327f818385a4b1bc68581981dbf1541c7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -23234,6 +24604,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.erdos625Statement_iff_real
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
+#print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.eventually_explicit_gap_threshold
+#print axioms Erdos625.tendsto_explicit_gap_scale_atTop
 #print axioms Erdos625.phaseDelta_mem_Ico
 #print axioms Erdos625.mu_succ_div_identity
 #print axioms Erdos625.mu_pred_div_identity
@@ -23243,6 +24616,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
 #print axioms Erdos625.quarterRecurrence_lowerBound
+#print axioms Erdos625.amplificationRadius_tendsto_atTop
+#print axioms Erdos625.sqrt_seedTerm_isLittleO
+#print axioms Erdos625.sqrt_radiusTerm_isLittleO
+#print axioms Erdos625.realCubeRoot_isLittleO
+#print axioms Erdos625.one_isLittleO_gapScale
+#print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
+#print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
+#print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -23531,6 +24912,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_configurationCellCount_all
 #print axioms Erdos625.card_configurationResidualSupportFinset_le_half_stubMass
 #print axioms Erdos625.card_configurationResidualSupportFinset_le_half_rowStubCard
+#print axioms Erdos625.card_family_le_pow_residualCells_of_even_encoding
+#print axioms Erdos625.card_family_le_two_pow_half_stubMass
+#print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
+#print axioms Erdos625.twice_sum_choose_two_le_cap_mass
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
@@ -23561,6 +24946,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.nat_add_le_iff_le_sub_of_le
 #print axioms Erdos625.exposedCell_constraints_iff_residual
 #print axioms Erdos625.configurationCell_constraints_iff_residual
+#print axioms Erdos625.fixedWitnessFullCellConstraints_iff_residual
+#print axioms Erdos625.fixedWitnessSection8Assembly
+#print axioms Erdos625.compatiblePairing_unique
+#print axioms Erdos625.selectedFiber_eq_fullFiber_of_zero_residual
+#print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
+#print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
 #print axioms Erdos625.descFactorial_endpoint_transport
@@ -23639,7 +25030,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 0947ded92e635f6ffde2e298cab1674547f1cdc7100d095241c1683f40cd555c
+Normalized SHA-256: 8b03cf98d199886bce924abc1f3f17061d80abfd83075e3e5025d223cbf0a686
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -23751,14 +25142,24 @@ full matchings extending it are also explicitly equivalent to bijections of
 the unused row and column stubs, with exact remaining-cardinality formulas.
 Those complements are identified class-preservingly with the exact residual
 degree fibres; the fixed-extension uniform pushforward, exact per-cell count
-decomposition, and cellwise zero/cap translations are proved.  Selecting the
-canonical high skeleton, proving its uniqueness/incidence, and packaging the
-corresponding conditioned cap event remain open.  The exact descending-factorial endpoint
-transport used in (8.12) is proved independently, with the stronger loss
-`n^gap` and exact minimum/absolute-difference specializations.
+decomposition, and cellwise zero/cap translations are proved.  The canonical
+high-demand function is now defined; its support is proved to be a partial
+matching with exact on/off-support values.  Compatibility uniqueness for fixed
+selected fibres, the zero-residual full-fibre identity, and a generic
+support-indexed cap/no-return translation are also checked.  Constructing and
+counting the labelled canonical witness, proving the manuscript incidence
+formula (8.3), packaging the global conditioned event, and the skeleton
+estimates remain open.  The exact descending-factorial endpoint transport used
+in (8.12) is proved independently, with the stronger loss `n^gap` and exact
+minimum/absolute-difference specializations.
 The finite degree-moment estimates and exact configuration-cell theta
 factorizations behind (9.13)--(9.14) are also checked, including positive-mass
-normalized bounds and the zero-total branch.
+normalized bounds and the zero-total branch.  The explicitly defined residual
+even-edge family is injected into the verified parity-matrix restriction seam,
+giving its exact `2 ^ |R|` support bound; the finite division-free choose-two
+mass estimate (9.21) is proved as well.  Cycle-rank/decomposition, traversal and
+attachment estimates, and the complete Lemma 9.1/Proposition 9.2 assembly
+remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

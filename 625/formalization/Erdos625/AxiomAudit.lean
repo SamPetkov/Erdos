@@ -10,7 +10,10 @@ import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
+import Erdos625.Section10AmplificationScales
 import Erdos625.Section11EventAssembly
+import Erdos625.Section11AsymptoticAssembly
+import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -83,6 +86,9 @@ import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
 import Erdos625.ResidualSupportMass
 import Erdos625.ConfigurationResidualSupport
+import Erdos625.Section9EncodingAssembly
+import Erdos625.Section9ActualResidualFamily
+import Erdos625.Section9ChooseTwoMass
 import Erdos625.LocalSignReward
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -92,6 +98,8 @@ import Erdos625.ResidualFiberCounts
 import Erdos625.ResidualDegreeMatching
 import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
+import Erdos625.Section8FixedWitnessAssembly
+import Erdos625.Section8CanonicalSkeleton
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -127,6 +135,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.erdos625Statement_iff_real
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
+#print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.eventually_explicit_gap_threshold
+#print axioms Erdos625.tendsto_explicit_gap_scale_atTop
 #print axioms Erdos625.phaseDelta_mem_Ico
 #print axioms Erdos625.mu_succ_div_identity
 #print axioms Erdos625.mu_pred_div_identity
@@ -136,6 +147,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
 #print axioms Erdos625.quarterRecurrence_lowerBound
+#print axioms Erdos625.amplificationRadius_tendsto_atTop
+#print axioms Erdos625.sqrt_seedTerm_isLittleO
+#print axioms Erdos625.sqrt_radiusTerm_isLittleO
+#print axioms Erdos625.realCubeRoot_isLittleO
+#print axioms Erdos625.one_isLittleO_gapScale
+#print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
+#print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
+#print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -424,6 +443,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_configurationCellCount_all
 #print axioms Erdos625.card_configurationResidualSupportFinset_le_half_stubMass
 #print axioms Erdos625.card_configurationResidualSupportFinset_le_half_rowStubCard
+#print axioms Erdos625.card_family_le_pow_residualCells_of_even_encoding
+#print axioms Erdos625.card_family_le_two_pow_half_stubMass
+#print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
+#print axioms Erdos625.twice_sum_choose_two_le_cap_mass
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
@@ -454,6 +477,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.nat_add_le_iff_le_sub_of_le
 #print axioms Erdos625.exposedCell_constraints_iff_residual
 #print axioms Erdos625.configurationCell_constraints_iff_residual
+#print axioms Erdos625.fixedWitnessFullCellConstraints_iff_residual
+#print axioms Erdos625.fixedWitnessSection8Assembly
+#print axioms Erdos625.compatiblePairing_unique
+#print axioms Erdos625.selectedFiber_eq_fullFiber_of_zero_residual
+#print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
+#print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
 #print axioms Erdos625.descFactorial_endpoint_transport

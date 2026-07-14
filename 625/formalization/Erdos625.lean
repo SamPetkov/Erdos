@@ -19,7 +19,10 @@ import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
+import Erdos625.Section10AmplificationScales
 import Erdos625.Section11EventAssembly
+import Erdos625.Section11AsymptoticAssembly
+import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
@@ -88,6 +91,9 @@ import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
 import Erdos625.ResidualSupportMass
 import Erdos625.ConfigurationResidualSupport
+import Erdos625.Section9EncodingAssembly
+import Erdos625.Section9ActualResidualFamily
+import Erdos625.Section9ChooseTwoMass
 import Erdos625.LocalSignReward
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -97,6 +103,8 @@ import Erdos625.ResidualFiberCounts
 import Erdos625.ResidualDegreeMatching
 import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
+import Erdos625.Section8FixedWitnessAssembly
+import Erdos625.Section8CanonicalSkeleton
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -218,14 +226,24 @@ full matchings extending it are also explicitly equivalent to bijections of
 the unused row and column stubs, with exact remaining-cardinality formulas.
 Those complements are identified class-preservingly with the exact residual
 degree fibres; the fixed-extension uniform pushforward, exact per-cell count
-decomposition, and cellwise zero/cap translations are proved.  Selecting the
-canonical high skeleton, proving its uniqueness/incidence, and packaging the
-corresponding conditioned cap event remain open.  The exact descending-factorial endpoint
-transport used in (8.12) is proved independently, with the stronger loss
-`n^gap` and exact minimum/absolute-difference specializations.
+decomposition, and cellwise zero/cap translations are proved.  The canonical
+high-demand function is now defined; its support is proved to be a partial
+matching with exact on/off-support values.  Compatibility uniqueness for fixed
+selected fibres, the zero-residual full-fibre identity, and a generic
+support-indexed cap/no-return translation are also checked.  Constructing and
+counting the labelled canonical witness, proving the manuscript incidence
+formula (8.3), packaging the global conditioned event, and the skeleton
+estimates remain open.  The exact descending-factorial endpoint transport used
+in (8.12) is proved independently, with the stronger loss `n^gap` and exact
+minimum/absolute-difference specializations.
 The finite degree-moment estimates and exact configuration-cell theta
 factorizations behind (9.13)--(9.14) are also checked, including positive-mass
-normalized bounds and the zero-total branch.
+normalized bounds and the zero-total branch.  The explicitly defined residual
+even-edge family is injected into the verified parity-matrix restriction seam,
+giving its exact `2 ^ |R|` support bound; the finite division-free choose-two
+mass estimate (9.21) is proved as well.  Cycle-rank/decomposition, traversal and
+attachment estimates, and the complete Lemma 9.1/Proposition 9.2 assembly
+remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
