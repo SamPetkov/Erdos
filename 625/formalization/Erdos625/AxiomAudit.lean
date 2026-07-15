@@ -12,6 +12,7 @@ import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
 import Erdos625.Section10BinomialEdgeCount
+import Erdos625.Section10ComplementInvariance
 import Erdos625.Section10QuarterUnionDecay
 import Erdos625.Section10SimultaneousGreedyColoring
 import Erdos625.Section10AmplificationScales
@@ -197,6 +198,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterDense_all_larger_of_all_exact
 #print axioms Erdos625.quarterRecurrence_lowerBound
 #print axioms Erdos625.binomialRandom_map_ncard_edgeSet_singleton
+#print axioms Erdos625.randomGraphMeasure_map_compl
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
 #print axioms Erdos625.simultaneous_induced_chromatic_bound
 #print axioms Erdos625.amplificationRadius_tendsto_atTop

@@ -540,6 +540,10 @@ proves the exact singleton law for the number of edges in Mathlib's finite
 binomial random graph.  It supplies the finite edge-count distribution bridge,
 but not yet its transport to every fixed induced complement graph or the
 simultaneous quarter-density event of Lemma 10.1.
+[`Section10ComplementInvariance.lean`](Erdos625/Section10ComplementInvariance.lean)
+proves that complementation exactly preserves the ambient labelled
+`G(n,1/2)` measure.  It is a symmetry only: the native pushforward through a
+fixed induced restriction remains the hard missing transport.
 [`RandomGraphUniformLaw.lean`](Erdos625/RandomGraphUniformLaw.lean) proves that
 the repository's half-binomial graph measure is exactly `uniformOn univ`, from
 its equal singleton masses and probability normalization.  This removes the

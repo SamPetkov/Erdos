@@ -67,8 +67,9 @@ quarter-union decay, deterministic simultaneous greedy-colouring implication,
 growing amplification radius, and all four deterministic little-`o`
 contributions in (10.11)--(10.12) are proved. The exact finite binomial
 edge-count law, equality of the half-binomial graph law with the uniform law,
-and the no-independence quantitative two-event failure seam are also checked.
-The graph-probability transport giving the required one
+ambient complement invariance, and the no-independence quantitative two-event
+failure seam are also checked. The fixed induced-restriction graph-probability
+transport giving the required one
 simultaneous event and the concrete seed-amplification assembly remain open.
 Section XI's deterministic event inclusion, generic probability-one
 intersection, strict-lower complement bridge, eventual threshold reduction,
