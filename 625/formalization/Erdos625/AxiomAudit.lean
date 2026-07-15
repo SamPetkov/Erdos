@@ -585,6 +585,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
+#print axioms Erdos625.configurationMatchingEquivSigmaCanonicalDemandEvent
+#print axioms Erdos625.card_configurationMatching_eq_sum_card_canonicalDemandEvent
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

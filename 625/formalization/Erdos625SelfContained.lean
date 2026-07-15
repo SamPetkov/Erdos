@@ -28068,6 +28068,91 @@ END SOURCE MODULE: Erdos625.Section8CanonicalConditionalLaw
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
+Source: Erdos625/Section8CanonicalDemandPartition.lean
+Normalized SHA-256: f94d7912ddce1543088a6a6fc313af45914fa55f1b39697ba854731e6dfbfb3e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
+
+/-!
+# Section VIII: ambient canonical-demand partition
+
+The canonical high-demand map partitions the whole finite configuration
+matching space into its literal canonical-demand fibres.  This is an exact
+finite counting identity; it makes no probability, residual-law, or
+typed-skeleton estimate claim.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-! Keep the finite-event instance local, consistently with the other
+canonical-event counting modules. -/
+local instance instFintypeCanonicalDemandEventPartition
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+/-- The finite range of literal canonical high-demand tables realized by
+ambient configuration matchings. -/
+noncomputable def canonicalDemandImage
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) : Finset (A → B → ℕ) := by
+  classical
+  exact
+    (Finset.univ : Finset (ConfigurationMatching row col)).image
+      (fun matching => canonicalDemandOfMatching matching U)
+
+/-- The explicit finite equivalence from ambient matchings to their attained
+canonical demand and the corresponding literal fibre. -/
+noncomputable def configurationMatchingEquivSigmaCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    ConfigurationMatching row col ≃
+      Σ demand : canonicalDemandImage row col U,
+        ↑(canonicalDemandEvent demand.1 row col U) := by
+  classical
+  exact
+    (Equiv.sigmaSubtypeFiberEquiv
+      (fun matching : ConfigurationMatching row col =>
+        canonicalDemandOfMatching matching U)
+      (fun demand => demand ∈ canonicalDemandImage row col U)
+      (fun matching => Finset.mem_image_of_mem _ (Finset.mem_univ matching))).symm
+
+/-- Exact ambient partition by the literal canonical high-demand table.
+The statement is valid even when the configuration-matching type is empty,
+so it requires no total-balance or nonemptiness hypothesis. -/
+theorem card_configurationMatching_eq_sum_card_canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype.card (ConfigurationMatching row col) =
+      ∑ demand : canonicalDemandImage row col U,
+        Fintype.card ↑(canonicalDemandEvent demand.1 row col U) := by
+  rw [← Fintype.card_sigma]
+  exact Fintype.card_congr
+    (configurationMatchingEquivSigmaCanonicalDemandEvent row col U)
+
+#print axioms configurationMatchingEquivSigmaCanonicalDemandEvent
+#print axioms card_configurationMatching_eq_sum_card_canonicalDemandEvent
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
 Source: Erdos625/Section8CanonicalEventProbabilityNormalization.lean
 Normalized SHA-256: 18dc25744548aa3ba445ac02c28b65b287e51172998b5a4be853a7511ddbf614
@@ -30737,7 +30822,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 978838688e1e7eac51337194888da7d21393c294c7582191ef82b1aec39abd95
+Normalized SHA-256: c35bb545082ff7419dbc5f8810435e9d0e7b6e7ad817e0287945fd045219e0a0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31174,6 +31259,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
+#print axioms Erdos625.configurationMatchingEquivSigmaCanonicalDemandEvent
+#print axioms Erdos625.card_configurationMatching_eq_sum_card_canonicalDemandEvent
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -31264,7 +31351,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 5c9e5ffdb52513315aa4d161b6c633061dce2b966f7c1888a1b05e2cc318548f
+Normalized SHA-256: 78e6f2a0408d6f836f90b3fcbbb235dd20e1cef2666aba75d8b7c453723d9621
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
