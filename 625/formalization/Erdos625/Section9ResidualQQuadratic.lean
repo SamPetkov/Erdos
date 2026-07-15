@@ -64,8 +64,7 @@ theorem existsAbsoluteResidualQQuadraticBound :
         · rw [ Nat.cast_sub ] <;> norm_num;
           apply pow_le_pow_right₀ (by norm_num)
           have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
-            simpa [Nat.succ_eq_add_one, Nat.add_assoc] using
-              (Nat.choose_le_succ (x + 3) 2)
+            exact Nat.choose_le_succ (x + 3) 2
           omega
     · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
         rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat ] at hi ⊢;
