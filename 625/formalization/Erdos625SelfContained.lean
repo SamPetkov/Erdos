@@ -24988,7 +24988,7 @@ END SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
 Source: Erdos625/Section9ResidualQQuadratic.lean
-Normalized SHA-256: 28b20a473bf62b7d1ca682cea7f83c56708eac8aabd03cca7d54db712c2a8468
+Normalized SHA-256: a88c0ac4f761d5279070dbf39e13edee6825d701ef33c1fbf2e8cbdd421d3b2d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
 
@@ -25052,7 +25052,11 @@ theorem existsAbsoluteResidualQQuadraticBound :
         rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
         · norm_num;
         · rw [ Nat.cast_sub ] <;> norm_num;
-          exact pow_le_pow_right₀ ( by norm_num ) ( by omega );
+          apply pow_le_pow_right₀ (by norm_num)
+          have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
+            simpa [Nat.succ_eq_add_one, Nat.add_assoc] using
+              (Nat.choose_le_succ (x + 3) 2)
+          omega
     · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
         rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat ] at hi ⊢;
         split_ifs <;> norm_num [ Nat.choose ];
