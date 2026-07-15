@@ -26705,7 +26705,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 104ecca5511c47e80aa5d1ddd836bec991cda7bb8efb2139b0cf0fc59b60a3b1
+Normalized SHA-256: 2f9110769a212fd7dad7fa824016ff9ac90e66d5d6536f584be0896df42fb7fe
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -26755,26 +26755,30 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness U) := by
   classical
-  apply Fintype.card_congr
-  refine Equiv.ofBijective
-    (fun extension =>
+  let f :
+      ↑(fixedWitnessCanonicalDemandEvent witness U) →
+        ↑(canonicalResidualCellEvent witness U) :=
+    fun extension =>
       ⟨fixedWitnessExtensionEquivResidual witness extension.1,
         (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩) ?_ ?_
-  · intro x y hxy
-    apply Subtype.ext
-    apply (fixedWitnessExtensionEquivResidual witness).injective
-    exact Subtype.ext_iff.mp hxy
-  · intro residual
-    refine ⟨⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-      (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-        witness U hhigh
-        ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr ?_⟩,
-      ?_⟩
-    · simpa using residual.2
-    · apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply
-        residual.1
+          witness U hhigh extension.1).mp extension.2⟩
+  apply Fintype.card_congr
+  exact
+  { toFun := f
+    invFun := fun residual =>
+      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh
+          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
+          residual.2⟩
+    left_inv := by
+      intro extension
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
+    right_inv := by
+      intro residual
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
 
 private theorem card_canonicalResidualCellEvent_eq
     {A B : Type*}
@@ -26862,17 +26866,17 @@ private theorem canonicalDemandEventPartitionMap_surjective
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
     Function.Surjective (canonicalDemandEventPartitionMap demand row col U) := by
-  intro y
+  rintro ⟨witness, extension⟩
   let x : ↑(canonicalDemandEvent demand row col U) :=
-    ⟨y.2.1.1, by
-      change canonicalDemandOfMatching y.2.1.1 U = demand
-      exact y.2.2⟩
+    ⟨extension.1.1, by
+      change canonicalDemandOfMatching extension.1.1 U = demand
+      exact extension.2⟩
   refine ⟨x, ?_⟩
-  have hwitness : canonicalDemandEventWitness demand row col U x = y.1 :=
-    canonicalDemandEventWitness_unique demand row col U x y.1 y.2.1.2
-  unfold canonicalDemandEventPartitionMap
-  apply Sigma.ext hwitness
-  cases hwitness
+  have hwitness : canonicalDemandEventWitness demand row col U x = witness :=
+    canonicalDemandEventWitness_unique demand row col U x witness extension.1.2
+  subst witness
+  dsimp [canonicalDemandEventPartitionMap, x]
+  apply Sigma.ext rfl
   apply heq_of_eq
   apply Subtype.ext
   apply Subtype.ext
