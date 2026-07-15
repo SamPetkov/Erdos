@@ -49,13 +49,15 @@ cap/no-return event, and the ambient uniform PMF transports exactly to the
 uniform law on that tagged sigma family. This does not create an untagged
 residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
-polymer bound, plus abstract and matching-aware finite geometric traversal
+polymer bound. The actual residual even-edge family has an exact one-sided
+weighted `ENNReal` inclusion into the all-even finite sum, but not an `ENNReal`
+polymer bound. The file also contains abstract and matching-aware finite geometric traversal
 bounds. It now also contains the endpoint-resolved positive kernel, pointwise
 explicit-path/chain summand bounds, and the generic row/column norm consequence
 of a supplied degree-square `q` estimate. The literal residual `q` has a
 degree-cap row/column bound and its symmetric bipartite kernel inherits that
 row norm. The canonical-skeleton
-instantiation, actual residual-family and `ENNReal` weight specialization,
+instantiation, `ENNReal` polymer specialization for the actual residual family,
 concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
 encoding, conditioned attachment estimate, and second-moment assembly remain
 open.

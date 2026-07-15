@@ -95,6 +95,7 @@ import Erdos625.ResidualSupportMass
 import Erdos625.ConfigurationResidualSupport
 import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
+import Erdos625.Section9ActualResidualWeightedEmbedding
 import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
@@ -501,6 +502,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_family_le_pow_residualCells_of_even_encoding
 #print axioms Erdos625.card_family_le_two_pow_half_stubMass
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
+#print axioms Erdos625.bipartiteEvenEdgeSet_iff_isBipartiteEven
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_weight_le_all_even
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
 #print axioms Erdos625.smallResidualDeterministicBound
 #print axioms Erdos625.cycleRank_matching_union_le_card_residual

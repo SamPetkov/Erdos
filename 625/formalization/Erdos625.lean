@@ -100,6 +100,7 @@ import Erdos625.ResidualSupportMass
 import Erdos625.ConfigurationResidualSupport
 import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
+import Erdos625.Section9ActualResidualWeightedEmbedding
 import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
@@ -311,7 +312,9 @@ factorizations behind (9.13)--(9.14) are also checked, including positive-mass
 normalized bounds and the zero-total branch.  The explicitly defined residual
 even-edge family is injected into the verified parity-matrix restriction seam,
 giving its exact `2 ^ |R|` support bound; the finite division-free choose-two
-mass estimate (9.21) is proved as well.  The finite graph-theoretic part of
+mass estimate (9.21) is proved as well.  Its finite weighted `ENNReal` sum is
+also bounded one-sidedly by the corresponding sum over all even bipartite edge
+sets.  This is not an `ENNReal` polymer bound.  The finite graph-theoretic part of
 (9.20) is now checked: adjoining a residual bipartite relation to a genuine
 matching raises cycle rank by at most the number of residual cells, and the
 literal configuration support contains at most half the residual stub mass.

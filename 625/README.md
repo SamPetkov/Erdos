@@ -175,7 +175,10 @@ actual configuration matching with multiplicity at least two is at most the
 total row-stub count divided by two.  The explicitly defined actual residual
 even-edge family is now connected to the generic restriction theorem, giving
 the precise `2 ^ |R|` support bound, and the division-free finite choose-two
-mass estimate (9.21) is proved.  The finite forest-plus-residual-edge
+mass estimate (9.21) is proved.  It also has an exact one-sided `ENNReal`
+weighted embedding into the finite sum over all even bipartite edge sets, for
+arbitrary cell weights.  This is a subfamily comparison, not an `ENNReal`
+polymer estimate.  The finite forest-plus-residual-edge
 cycle-rank inequality in (9.20) is also kernel-checked, including its literal
 configuration-support and `m₀ / 2` forms.  The exact finite binary cycle-space
 cardinality, a recoverable real-valued minimal-even polymer decomposition, and
@@ -185,8 +188,9 @@ adds the relaxed finite matching-operator/walk-mass bridge: matching traversal
 preserves the residual row bound, oriented starts cost exactly `2 * |M|`, and
 the finite block-walk sum has the stated geometric bound.  It does not build
 the positive residual kernel from `q` or an injective, weight-preserving
-cycle-to-walk encoding.  Those steps, the actual residual-family/`ENNReal`
-weight specialization, instantiation of the accepted eventual-`tau` bridge,
+cycle-to-walk encoding.  The exact finite subfamily embedding is checked, but
+an `ENNReal` polymer bound, the cycle-to-walk weight transfer, instantiation
+of the accepted eventual-`tau` bridge,
 the finite attachment estimates, and the global Lemma
 9.1/Proposition 9.2
 assembly remain open.  Aristotle is used only for redundant
@@ -208,7 +212,10 @@ encoding, evenness, and support hypotheses.
 [`Section9ActualResidualFamily.lean`](formalization/Erdos625/Section9ActualResidualFamily.lean)
 discharges those encoding/evenness/support hypotheses for the literal finite
 family of even edge sets supported on the high matching or multiplicity-at-
-least-two cells.  [`Section9ChooseTwoMass.lean`](formalization/Erdos625/Section9ChooseTwoMass.lean)
+least-two cells.  [`Section9ActualResidualWeightedEmbedding.lean`](formalization/Erdos625/Section9ActualResidualWeightedEmbedding.lean)
+then proves its exact one-sided weighted `ENNReal` inclusion into the all-even
+finite sum; it does not turn the separate real polymer theorem into an
+`ENNReal` theorem.  [`Section9ChooseTwoMass.lean`](formalization/Erdos625/Section9ChooseTwoMass.lean)
 proves (9.21) in a division-free form, while
 [`Section9CycleRankResidual.lean`](formalization/Erdos625/Section9CycleRankResidual.lean)
 proves that a matching plus a residual relation has cycle rank at most the
@@ -216,8 +223,9 @@ number of residual cells.
 [`Section9CycleRankConfigurationAssembly.lean`](formalization/Erdos625/Section9CycleRankConfigurationAssembly.lean)
 identifies the literal residual-support finset and proves the full finite chain
 `cycleRank ≤ |E(H_res)| ≤ m₀ / 2`.  A separate accepted real-valued polymer
-theorem constructs a recoverable disjoint minimal-even decomposition.  Its
-actual-family/`ENNReal` specialization, concrete cycle-to-walk encoding and
+theorem constructs a recoverable disjoint minimal-even decomposition.  The
+actual family has the one-sided finite weighted embedding above, but an
+`ENNReal` polymer specialization, concrete cycle-to-walk encoding and
 weight/kernel transfer, instantiation of the accepted eventual-`tau` bridge,
 attachment bound, and final Section 9 assembly
 remain open; the exact binary cycle-space count and abstract traversal kernel
@@ -247,8 +255,8 @@ constructs the recoverable disjoint minimal-even decomposition and proves the
 finite real polymer product/exponential bound.
 [`Section9FiniteAnalyticEndpoint.lean`](formalization/Erdos625/Section9FiniteAnalyticEndpoint.lean)
 proves one absolute-constant finite real endpoint bound for `lambda` and `q`
-under its exact hypotheses.  These modules do not themselves instantiate the
-actual residual family and `ENNReal` kernel weights, build the required
+under its exact hypotheses.  These modules do not themselves supply an
+`ENNReal` polymer bound for the actual residual family, build the required
 cycle-to-walk code, or supply the upstream random event.
 
 [`Section9RewardTelescoping.lean`](formalization/Erdos625/Section9RewardTelescoping.lean)
@@ -320,7 +328,8 @@ signed first-moment certificate, unordered/sign-summed overlap assembly, asympto
 partial-diagonal ranges, manuscript-specific specialization of the exact
 fixed-demand canonical conditional law and probability factorization, the
 skeleton quotient/estimates, and full Section 8 assembly, actual-family and
-weight specialization of the accepted polymer decomposition, concrete
+`ENNReal` polymer/weight specialization beyond the proved one-sided subfamily
+inclusion, concrete
 cycle-to-walk encoding and weight transfer, finite residual attachment and
 conditioned probability control, and full Section 9 assembly, Section 10's
 simultaneous leftover tail and concrete

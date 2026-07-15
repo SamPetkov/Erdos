@@ -350,15 +350,19 @@ most the total row-stub count divided by two.  The actual residual even-edge
 family has now been defined and its literal incidence encoding is proved to
 meet the row-matching-plus-residual support condition, so it inherits the exact
 `2 ^ |R|` bound.  The finite division-free choose-two mass estimate (9.21) is
-also proved.  The finite graph-theoretic inequality in (9.20) is checked as
+also proved.  For arbitrary `ENNReal` cell weights, its finite weighted sum
+has an exact one-sided inclusion into the sum over all even bipartite edge
+sets.  This is not an `ENNReal` polymer estimate.  The finite graph-theoretic
+inequality in (9.20) is checked as
 well: adding an arbitrary residual relation to a genuine bipartite matching
 raises cycle rank by at most the number of residual cells.  Its literal
 configuration-support specialization proves that this is at most half the
 residual row-stub mass, including the explicit `m₀ / 2` form.  The exact
 binary cycle-space identity, recoverable real-valued polymer decomposition,
-and abstract traversal bounds are proved separately below; specializing them
-to the actual residual family and weights and proving the attachment estimate
-remain open.  The earlier high-cell mass bound, weighted finite
+and abstract traversal bounds are proved separately below.  The exact
+one-sided weighted inclusion does not specialize the polymer decomposition to
+`ENNReal`; that strengthening, the cycle-to-walk transfer, and the attachment
+estimate remain open.  The earlier high-cell mass bound, weighted finite
 Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
 kernel remain available as independent leaves.  Accepted Lean 4.31 source is
 the proof authority; any Aristotle output is only redundant candidate
@@ -369,7 +373,8 @@ The corresponding source units are
 [`EvenMatchingRestriction.lean`](Erdos625/EvenMatchingRestriction.lean), and
 [`ConfigurationResidualSupport.lean`](Erdos625/ConfigurationResidualSupport.lean),
 together with [`Section9ActualResidualFamily.lean`](Erdos625/Section9ActualResidualFamily.lean)
-and [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
+and [`Section9ActualResidualWeightedEmbedding.lean`](Erdos625/Section9ActualResidualWeightedEmbedding.lean),
+then [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
 [`Section9CycleRankResidual.lean`](Erdos625/Section9CycleRankResidual.lean) and
 [`Section9CycleRankConfigurationAssembly.lean`](Erdos625/Section9CycleRankConfigurationAssembly.lean).
 [`Section9SmallResidualDeterministic.lean`](Erdos625/Section9SmallResidualDeterministic.lean)
@@ -390,9 +395,11 @@ the residual relation to the actual configuration support bounds that exponent
 by half the row-stub count.  This is a cardinality exponent bound under the
 stated encoding/evenness/support hypotheses; it is not a mass-occupancy claim.
 `Section9ActualResidualFamily.lean` verifies those hypotheses for the literal
-finite even-edge family used here.  A separate accepted real-valued polymer
-theorem now constructs a recoverable disjoint minimal-even decomposition.
-Instantiation with this actual family and its `ENNReal` weights, concrete
+finite even-edge family used here.  `Section9ActualResidualWeightedEmbedding.lean`
+also proves the exact one-sided finite `ENNReal` weighted inclusion into the
+all-even sum.  A separate accepted real-valued polymer theorem now constructs
+a recoverable disjoint minimal-even decomposition.  An `ENNReal` polymer
+bound for this actual family, concrete
 cycle-to-walk enumeration and weight/kernel transfer, instantiation of the
 accepted eventual-`tau` bridge, the upstream finite attachment estimates, and
 full Lemma 9.1/
@@ -411,8 +418,8 @@ that kernel with literal finite edge subsets of even degree at every vertex,
 and proves their exact cardinality `2 ^ cycleRank`.  This is the finite binary
 cycle-space identity used in (6.7).  The separate accepted polymer theorem
 constructs a recoverable disjoint minimal-even decomposition, but neither
-theorem instantiates the actual residual weights or encodes those components
-as the required weighted walks.
+theorem gives an `ENNReal` polymer bound for the actual residual family or
+encodes those components as the required weighted walks.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -438,7 +445,8 @@ over the even family remains separate.
 proves `weighted_evenSubgraph_polymer_bound`, including a recoverable
 pairwise-disjoint decomposition into inclusion-minimal nonempty even sets and
 the real subset-product/exponential bound.  It is not yet specialized to the
-actual residual family or `ENNReal` kernel weights.
+actual residual family as an `ENNReal` polymer bound; the separately proved
+one-sided finite weighted inclusion does not provide that strengthening.
 [`Section9FiniteAnalyticEndpoint.lean`](Erdos625/Section9FiniteAnalyticEndpoint.lean)
 proves `existsAbsoluteFiniteEndpointConstant`, the uniform finite real bounds
 `lambda <= C * theta^3` and `q <= C * theta^2` under the exact displayed
@@ -579,7 +587,8 @@ signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
 assembly, actual-family/weight specialization of the accepted
-polymer decomposition, concrete cycle-to-walk enumeration and weight transfer,
+polymer decomposition beyond the proved one-sided `ENNReal` subfamily
+inclusion, concrete cycle-to-walk enumeration and weight transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
 Section 10's simultaneous leftover tail and concrete seed-amplification
