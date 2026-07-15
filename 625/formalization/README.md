@@ -263,12 +263,11 @@ deterministic bridges; neither supplies the missing canonical-event probability
 or conditioned-law argument.
 
 [`Section8CanonicalEventCardinality.lean`](Erdos625/Section8CanonicalEventCardinality.lean)
-contains the current candidate partition of the literal canonical event by its
-unique labelled witness, with the intended exact product of witness count and
-residual-event count.  It is not an accepted brick until the remote
-warning-fatal Lean 4.31 gate passes.  The intended result is finite counting
-only; probability normalization and the global conditioned-law identification
-remain open.
+partitions the literal canonical event by its unique labelled witness and
+proves the exact product of witness count and residual-event count.  It passed
+the remote warning-fatal Lean 4.31 gates.  This is finite counting only;
+probability normalization and the global conditioned-law identification remain
+open.
 
 [`Section8LabelledIncidence.lean`](Erdos625/Section8LabelledIncidence.lean)
 proves `labelledWitnessIncidence_eq`, the exact normalized descending-factorial
