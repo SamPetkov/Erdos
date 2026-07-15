@@ -24557,7 +24557,7 @@ END SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ResidualQDegreeAssembly
 Source: Erdos625/Section9ResidualQDegreeAssembly.lean
-Normalized SHA-256: 5fe6eeabcf4ec0f29f2f2a7410d13e20d8e99e1b3510d10dd227db1269bdcd5a
+Normalized SHA-256: 09d13cb89233c4ae413598769c4b35e6e3d5b47bd34671bdbe861ff0601cdfa4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ResidualQDegreeAssembly
 
@@ -24609,7 +24609,9 @@ theorem existsAbsoluteResidualQRowColumnBound :
     exact Real.exp_pos 1
   have heulerFinite : eulerENNReal ≠ ∞ :=
     ENNReal.ofReal_ne_top
-  refine ⟨K * eulerENNReal ^ 2, mul_pos hKpos (pow_pos heulerPos 2),
+  have heulerNe : eulerENNReal ≠ 0 := heulerPos.ne'
+  refine ⟨K * eulerENNReal ^ 2, pos_iff_ne_zero.mpr
+    (mul_ne_zero hKpos.ne' (pow_ne_zero 2 heulerNe)),
     ENNReal.mul_ne_top hKtop (ENNReal.pow_ne_top heulerFinite), ?_⟩
   intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
     hR htheta hpow
@@ -27535,7 +27537,7 @@ END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
 Source: Erdos625/Section8CanonicalEventProbabilityFactorization.lean
-Normalized SHA-256: 6a998e338620d17d19b1cb2abfb6cf7902ef5535f1a2bf6070d04f4b9fb5a6cb
+Normalized SHA-256: cbdf0649f0df3725a25c8296bc3644b013feb3e28f9f8f312852c5c3c3e12671
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
 
@@ -27593,9 +27595,13 @@ private theorem card_factorial_factorization
     _ = ((W : ℝ≥0∞) * (R : ℝ≥0∞)) /
         ((m.descFactorial J : ℝ≥0∞) * ((m - J).factorial : ℝ≥0∞)) := by
       rw [hfactorialENNReal]
-    _ = (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
-        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) :=
-      ENNReal.mul_div_mul_comm (Or.inl hdescZero) (Or.inl hdescTop)
+    _ = ((W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞)) *
+        ((R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞)) := by
+      exact ENNReal.mul_div_mul_comm
+        (a := (W : ℝ≥0∞)) (b := (R : ℝ≥0∞))
+        (c := (m.descFactorial J : ℝ≥0∞))
+        (d := ((m - J).factorial : ℝ≥0∞))
+        (Or.inl hdescZero) (Or.inl hdescTop)
 
 /-- Exact finite factorization of the ambient canonical-demand event into its
 normalised labelled-witness incidence and the residual canonical-event
@@ -27610,10 +27616,10 @@ theorem uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_resid
     (uniformConfigurationMatching row col htotal).toOuterMeasure
         (canonicalDemandEvent demand row col U) =
       labelledWitnessIncidence demand row col *
-        (uniformConfigurationMatching
+        ((uniformConfigurationMatching
           (residualRowDegree witness₀) (residualColumnDegree witness₀)
-          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀))
-          .toOuterMeasure (canonicalResidualCellEvent witness₀ U) := by
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀)).toOuterMeasure
+          (canonicalResidualCellEvent witness₀ U)) := by
   have hJ : totalDemand demand ≤ ∑ a, row a :=
     totalDemand_le_rowTotal_of_witness witness₀
   have hres : (∑ a, residualRowDegree witness₀ a) =

@@ -50,7 +50,9 @@ theorem existsAbsoluteResidualQRowColumnBound :
     exact Real.exp_pos 1
   have heulerFinite : eulerENNReal ≠ ∞ :=
     ENNReal.ofReal_ne_top
-  refine ⟨K * eulerENNReal ^ 2, mul_pos hKpos (pow_pos heulerPos 2),
+  have heulerNe : eulerENNReal ≠ 0 := heulerPos.ne'
+  refine ⟨K * eulerENNReal ^ 2, pos_iff_ne_zero.mpr
+    (mul_ne_zero hKpos.ne' (pow_ne_zero 2 heulerNe)),
     ENNReal.mul_ne_top hKtop (ENNReal.pow_ne_top heulerFinite), ?_⟩
   intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
     hR htheta hpow

@@ -60,9 +60,13 @@ private theorem card_factorial_factorization
     _ = ((W : ℝ≥0∞) * (R : ℝ≥0∞)) /
         ((m.descFactorial J : ℝ≥0∞) * ((m - J).factorial : ℝ≥0∞)) := by
       rw [hfactorialENNReal]
-    _ = (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
-        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) :=
-      ENNReal.mul_div_mul_comm (Or.inl hdescZero) (Or.inl hdescTop)
+    _ = ((W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞)) *
+        ((R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞)) := by
+      exact ENNReal.mul_div_mul_comm
+        (a := (W : ℝ≥0∞)) (b := (R : ℝ≥0∞))
+        (c := (m.descFactorial J : ℝ≥0∞))
+        (d := ((m - J).factorial : ℝ≥0∞))
+        (Or.inl hdescZero) (Or.inl hdescTop)
 
 /-- Exact finite factorization of the ambient canonical-demand event into its
 normalised labelled-witness incidence and the residual canonical-event
@@ -77,10 +81,10 @@ theorem uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_resid
     (uniformConfigurationMatching row col htotal).toOuterMeasure
         (canonicalDemandEvent demand row col U) =
       labelledWitnessIncidence demand row col *
-        (uniformConfigurationMatching
+        ((uniformConfigurationMatching
           (residualRowDegree witness₀) (residualColumnDegree witness₀)
-          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀))
-          .toOuterMeasure (canonicalResidualCellEvent witness₀ U) := by
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀)).toOuterMeasure
+          (canonicalResidualCellEvent witness₀ U)) := by
   have hJ : totalDemand demand ≤ ∑ a, row a :=
     totalDemand_le_rowTotal_of_witness witness₀
   have hres : (∑ a, residualRowDegree witness₀ a) =
