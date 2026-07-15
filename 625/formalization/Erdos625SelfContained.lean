@@ -26972,7 +26972,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
 Source: Erdos625/Section8CanonicalEventProbabilityNormalization.lean
-Normalized SHA-256: c8e048debc46ff7686a205b8cf9094e5896d6028a0a9401ac089b7546dfdd2d5
+Normalized SHA-256: 18dc25744548aa3ba445ac02c28b65b287e51172998b5a4be853a7511ddbf614
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityNormalization
 
@@ -26993,7 +26993,7 @@ noncomputable section
 
 /-! The event subtype is finite, but the project deliberately avoids a global
 instance-search change for canonical event subtypes. -/
-local instance instFintypeCanonicalDemandEvent
+local instance instFintypeCanonicalDemandEventProbabilityNormalization
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :

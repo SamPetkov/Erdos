@@ -18,7 +18,7 @@ noncomputable section
 
 /-! The event subtype is finite, but the project deliberately avoids a global
 instance-search change for canonical event subtypes. -/
-local instance instFintypeCanonicalDemandEvent
+local instance instFintypeCanonicalDemandEventProbabilityNormalization
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
