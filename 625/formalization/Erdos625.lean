@@ -93,6 +93,7 @@ import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
 import Erdos625.UniformEquivTransport
+import Erdos625.UniformProductTransport
 import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
 import Erdos625.ResidualSupportMass

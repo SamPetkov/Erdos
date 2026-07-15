@@ -88,6 +88,7 @@ import Erdos625.ConfigurationModelProbability
 import Erdos625.ConfigurationModelCellMarginals
 import Erdos625.ConfigurationModelResidualMatching
 import Erdos625.UniformEquivTransport
+import Erdos625.UniformProductTransport
 import Erdos625.UniformConditionalLaw
 import Erdos625.HighCellMass
 import Erdos625.ResidualSupportMass
@@ -483,6 +484,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_remainingColumnStub
 #print axioms Erdos625.card_remainingStubs_eq
 #print axioms Erdos625.uniformOfFintype_map_equiv
+#print axioms Erdos625.uniformOfFintype_prod_map_snd
 #print axioms Erdos625.uniform_filter_eq_uniformSubtype_map
 #print axioms Erdos625.highCellFinset_card_mul_succ_le_total
 #print axioms Erdos625.two_mul_card_selectedCells_le_total
@@ -582,6 +584,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalDemandEventEquivWitnessTimesResidual
 #print axioms Erdos625.nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
+#print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

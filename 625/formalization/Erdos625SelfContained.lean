@@ -47,6 +47,7 @@ import Mathlib.Data.Fintype.Option
 import Mathlib.Data.Fintype.Perm
 import Mathlib.Data.Fintype.Pi
 import Mathlib.Data.Fintype.Powerset
+import Mathlib.Data.Fintype.Prod
 import Mathlib.Data.Nat.Choose.Basic
 import Mathlib.Data.Nat.Choose.Cast
 import Mathlib.Data.Nat.Dist
@@ -21154,6 +21155,58 @@ END SOURCE MODULE: Erdos625.UniformEquivTransport
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformProductTransport
+Source: Erdos625/UniformProductTransport.lean
+Normalized SHA-256: 7c2b3f18edd1ba77890b8308ae93f46cfeb530f7def03684647ac5ac27f00aad
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformProductTransport
+
+/-!
+# Uniform finite product projections
+
+The uniform PMF on a nonempty finite Cartesian product has uniform coordinate
+marginals.  This is a finite counting identity used to pass from an exact
+uniform product representation to one standardized residual coordinate.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The second-coordinate marginal of the finite uniform PMF on a nonempty
+product is the finite uniform PMF on that coordinate. -/
+theorem uniformOfFintype_prod_map_snd
+    {alpha beta : Type*}
+    [Fintype alpha] [Fintype beta] [Nonempty alpha] [Nonempty beta] :
+    (PMF.uniformOfFintype (alpha × beta)).map
+        (fun p : alpha × beta => p.2) =
+      PMF.uniformOfFintype beta := by
+  classical
+  ext b
+  rw [PMF.map_apply, PMF.uniformOfFintype_apply, tsum_fintype]
+  rw [← Finset.univ_product_univ, Finset.sum_product]
+  simp only [Finset.sum_ite_eq, Finset.mem_univ, if_true,
+    Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  have halpha0 : (Fintype.card alpha : ENNReal) ≠ 0 := by
+    exact_mod_cast Fintype.card_ne_zero
+  have halphatop : (Fintype.card alpha : ENNReal) ≠ (⊤ : ENNReal) :=
+    ENNReal.natCast_ne_top _
+  rw [Fintype.card_prod, Nat.cast_mul,
+    ENNReal.mul_inv (Or.inl halpha0) (Or.inl halphatop),
+    ← mul_assoc, ENNReal.mul_inv_cancel halpha0 halphatop, one_mul]
+
+#print axioms uniformOfFintype_prod_map_snd
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformProductTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformProductTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformConditionalLaw
 Source: Erdos625/UniformConditionalLaw.lean
 Normalized SHA-256: 85112e3724355d55a3e35f7d4eb9176e0b9aab6d6eaea5fb2d2921141dde5197
@@ -27770,7 +27823,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalConditionalLaw
 Source: Erdos625/Section8CanonicalConditionalLaw.lean
-Normalized SHA-256: 7e3ed68ee3cb56a5fbe94bf42695f824cfc21561944583c74677cbf54a973b68
+Normalized SHA-256: 1cafd341d3d4dfb708633427642aa15bd74af25dfd53e036a3edad0455cb397b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalConditionalLaw
 
@@ -27954,6 +28007,39 @@ theorem uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
     (canonicalDemandEventEquivWitnessTimesResidual
       demand row col U hhigh witness₀)
 
+/-- The standardized residual coordinate of the uniform canonical-event
+subtype has its own uniform law.  The residual event is fixed only on the
+canonical-event subtype, so this statement intentionally does not extend a
+residual-coordinate function to arbitrary ambient matchings. -/
+theorem uniform_canonicalDemandEventSubtype_map_fixedResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness₀ : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (canonicalDemandEvent demand row col U)]
+    [Nonempty (canonicalResidualCellEvent witness₀ U)] :
+    (PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+        (fun x : canonicalDemandEvent demand row col U =>
+          (canonicalDemandEventEquivWitnessTimesResidual
+            demand row col U hhigh witness₀ x).2) =
+      PMF.uniformOfFintype (canonicalResidualCellEvent witness₀ U) := by
+  letI : Nonempty (PrescribedDemandWitness demand row col) := ⟨witness₀⟩
+  calc
+    _ = ((PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+          (canonicalDemandEventEquivWitnessTimesResidual
+            demand row col U hhigh witness₀)).map
+          (fun product : PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U => product.2) := by
+      rw [PMF.map_comp]
+    _ = (PMF.uniformOfFintype
+          (PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U)).map
+          (fun product : PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U => product.2) := by
+      rw [uniform_canonicalDemandEventSubtype_map_witnessTimesResidual]
+    _ = _ := uniformOfFintype_prod_map_snd
+
 #print axioms nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
 #print axioms uniform_canonicalDemandEventSubtype_map_sigmaResidual
 #print axioms uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
@@ -27961,6 +28047,7 @@ theorem uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
 #print axioms canonicalDemandEventEquivWitnessTimesResidual
 #print axioms nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
+#print axioms uniform_canonicalDemandEventSubtype_map_fixedResidual
 
 end
 
@@ -30641,7 +30728,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2cfbbda68f5f340aa0cfed5c25d18a2a86cd0a3766b2a6b7cc358fcf533d3e14
+Normalized SHA-256: 978838688e1e7eac51337194888da7d21393c294c7582191ef82b1aec39abd95
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30977,6 +31064,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_remainingColumnStub
 #print axioms Erdos625.card_remainingStubs_eq
 #print axioms Erdos625.uniformOfFintype_map_equiv
+#print axioms Erdos625.uniformOfFintype_prod_map_snd
 #print axioms Erdos625.uniform_filter_eq_uniformSubtype_map
 #print axioms Erdos625.highCellFinset_card_mul_succ_le_total
 #print axioms Erdos625.two_mul_card_selectedCells_le_total
@@ -31076,6 +31164,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalDemandEventEquivWitnessTimesResidual
 #print axioms Erdos625.nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
+#print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -31166,7 +31255,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 2e19de2695908f17d2cf148d739cb9f8a73d562b84aca57199949463eb3e8d32
+Normalized SHA-256: 5c9e5ffdb52513315aa4d161b6c633061dce2b966f7c1888a1b05e2cc318548f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

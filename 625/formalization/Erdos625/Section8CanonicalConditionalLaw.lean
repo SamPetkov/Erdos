@@ -1,5 +1,6 @@
 import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.UniformConditionalLaw
+import Erdos625.UniformProductTransport
 
 /-!
 # Section VIII: exact canonical conditional-law transport
@@ -181,6 +182,39 @@ theorem uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
     (canonicalDemandEventEquivWitnessTimesResidual
       demand row col U hhigh witness₀)
 
+/-- The standardized residual coordinate of the uniform canonical-event
+subtype has its own uniform law.  The residual event is fixed only on the
+canonical-event subtype, so this statement intentionally does not extend a
+residual-coordinate function to arbitrary ambient matchings. -/
+theorem uniform_canonicalDemandEventSubtype_map_fixedResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness₀ : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (canonicalDemandEvent demand row col U)]
+    [Nonempty (canonicalResidualCellEvent witness₀ U)] :
+    (PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+        (fun x : canonicalDemandEvent demand row col U =>
+          (canonicalDemandEventEquivWitnessTimesResidual
+            demand row col U hhigh witness₀ x).2) =
+      PMF.uniformOfFintype (canonicalResidualCellEvent witness₀ U) := by
+  letI : Nonempty (PrescribedDemandWitness demand row col) := ⟨witness₀⟩
+  calc
+    _ = ((PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+          (canonicalDemandEventEquivWitnessTimesResidual
+            demand row col U hhigh witness₀)).map
+          (fun product : PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U => product.2) := by
+      rw [PMF.map_comp]
+    _ = (PMF.uniformOfFintype
+          (PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U)).map
+          (fun product : PrescribedDemandWitness demand row col ×
+            canonicalResidualCellEvent witness₀ U => product.2) := by
+      rw [uniform_canonicalDemandEventSubtype_map_witnessTimesResidual]
+    _ = _ := uniformOfFintype_prod_map_snd
+
 #print axioms nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
 #print axioms uniform_canonicalDemandEventSubtype_map_sigmaResidual
 #print axioms uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
@@ -188,6 +222,7 @@ theorem uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
 #print axioms canonicalDemandEventEquivWitnessTimesResidual
 #print axioms nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
 #print axioms uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
+#print axioms uniform_canonicalDemandEventSubtype_map_fixedResidual
 
 end
 
