@@ -46,16 +46,20 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness U) := by
   classical
-  apply Fintype.card_congr
-  refine Equiv.ofBijective
-    (fun extension =>
+  let f :
+      ↑(fixedWitnessCanonicalDemandEvent witness U) →
+        ↑(canonicalResidualCellEvent witness U) :=
+    fun extension =>
       ⟨fixedWitnessExtensionEquivResidual witness extension.1,
         (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩) ?_ ?_
+          witness U hhigh extension.1).mp extension.2⟩
+  apply Fintype.card_congr
+  apply Equiv.ofBijective f
+  constructor
   · intro x y hxy
     apply Subtype.ext
     apply (fixedWitnessExtensionEquivResidual witness).injective
-    exact Subtype.ext_iff.mp hxy
+    simpa [f] using congrArg Subtype.val hxy
   · intro residual
     refine ⟨⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
       (mem_fixedWitnessCanonicalDemandEvent_iff_residual
@@ -64,8 +68,8 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
       ?_⟩
     · simpa using residual.2
     · apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply
-        residual.1
+      simpa [f] using
+        (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1
 
 private theorem card_canonicalResidualCellEvent_eq
     {A B : Type*}
