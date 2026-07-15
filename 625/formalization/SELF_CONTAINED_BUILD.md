@@ -22,8 +22,8 @@ characterization. The normalized
 labelled-witness incidence identity and the distinguishable near-skeleton
 product expansion are checked as finite algebra. The literal global canonical
 event is also counted exactly by partitioning it into labelled-witness fibres.
-Its ambient probability normalization is a separately gated finite bridge;
-the conditioned law, the remaining incidence specialization, and the
+Its ambient probability normalization is also proved as a finite bridge; the
+conditioned law, the remaining incidence specialization, and the
 endpoint/near/middle skeleton estimates remain open.
 
 In Section IX the generic restriction and support-cardinality bounds,
