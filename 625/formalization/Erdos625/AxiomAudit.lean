@@ -134,6 +134,7 @@ import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.Section8CanonicalConditionalLaw
 import Erdos625.Section8CanonicalDemandPartition
+import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -588,6 +589,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
 #print axioms Erdos625.configurationMatchingEquivSigmaCanonicalDemandEvent
 #print axioms Erdos625.card_configurationMatching_eq_sum_card_canonicalDemandEvent
+#print axioms Erdos625.sum_uniformConfigurationMatching_canonicalDemandEvent_eq_one
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

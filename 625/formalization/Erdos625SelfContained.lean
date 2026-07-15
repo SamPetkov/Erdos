@@ -28214,6 +28214,110 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandMixture
+Source: Erdos625/Section8CanonicalDemandMixture.lean
+Normalized SHA-256: f25364b50a5fa3b1eb542ea3515070995070221a0ba7af0612f839af959da6b2
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandMixture
+
+/-!
+# Section VIII: exact canonical-demand mixture normalization
+
+This module records only the finite consequence of the literal canonical-demand
+partition: when the two ambient stub totals agree, the
+probabilities of all attained canonical-demand fibres sum to one.  It makes
+no high-demand, nonemptiness-of-an-individual-fibre, conditional-law, or
+quantitative claim.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalDemandEventMixture
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+/-- Finite ENNReal sums commute with division by a fixed denominator.  Unlike
+the field lemma `Finset.sum_div`, this uses only `ENNReal.add_div`. -/
+private theorem ennreal_sum_div
+    {gamma : Type*} (s : Finset gamma) (f : gamma -> ENNReal) (d : ENNReal) :
+    (∑ x ∈ s, f x / d) = (∑ x ∈ s, f x) / d := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert x s hxs ih =>
+      rw [Finset.sum_insert hxs, Finset.sum_insert hxs, ENNReal.add_div, ih]
+
+/-- The literal canonical-demand fibres form a probability partition of the
+ambient uniform configuration law. -/
+theorem sum_uniformConfigurationMatching_canonicalDemandEvent_eq_one
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    (∑ demand : canonicalDemandImage row col U,
+      (uniformConfigurationMatching row col htotal).toOuterMeasure
+        (canonicalDemandEvent demand.1 row col U)) = 1 := by
+  let m := Finset.univ.sum row
+  have hfactorialZero : (m.factorial : ENNReal) ≠ 0 := by
+    exact_mod_cast m.factorial_ne_zero
+  have hfactorialTop : (m.factorial : ENNReal) ≠ ∞ :=
+    ENNReal.natCast_ne_top _
+  calc
+    (∑ demand : canonicalDemandImage row col U,
+        (uniformConfigurationMatching row col htotal).toOuterMeasure
+          (canonicalDemandEvent demand.1 row col U)) =
+        ∑ demand : canonicalDemandImage row col U,
+          (Fintype.card (canonicalDemandEvent demand.1 row col U) : ENNReal) /
+            (m.factorial : ENNReal) := by
+      apply Finset.sum_congr rfl
+      intro demand _
+      simpa only [m] using
+        uniformConfigurationMatching_canonicalDemandEvent_apply
+          demand.1 row col U htotal
+    _ =
+        ((∑ demand : canonicalDemandImage row col U,
+          Fintype.card (canonicalDemandEvent demand.1 row col U) : Nat) : ENNReal) /
+          (m.factorial : ENNReal) := by
+      rw [Nat.cast_sum]
+      change
+        (Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+          (Fintype.card (canonicalDemandEvent demand.1 row col U) : ENNReal) /
+            (m.factorial : ENNReal)) =
+          (Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+            (Fintype.card (canonicalDemandEvent demand.1 row col U) : ENNReal)) /
+              (m.factorial : ENNReal)
+      exact
+        ennreal_sum_div
+          (Finset.univ : Finset (canonicalDemandImage row col U))
+          (fun demand =>
+            (Fintype.card (canonicalDemandEvent demand.1 row col U) : ENNReal))
+          (m.factorial : ENNReal)
+    _ = (Fintype.card (ConfigurationMatching row col) : ENNReal) /
+          (m.factorial : ENNReal) := by
+      rw [card_configurationMatching_eq_sum_card_canonicalDemandEvent]
+    _ = 1 := by
+      rw [card_configurationMatching row col htotal]
+      simpa only [m] using ENNReal.div_self hfactorialZero hfactorialTop
+
+#print axioms sum_uniformConfigurationMatching_canonicalDemandEvent_eq_one
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandMixture
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalDemandMixture
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
 Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
@@ -30823,7 +30927,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: c8543b5a31c0341a2bb87bd4ae07f12554db746629271add057b909223c13076
+Normalized SHA-256: 50f01e807685acba0316cdd2d7b973abd754e5d17856b9e9a6c3b163c7e24673
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31262,6 +31366,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual
 #print axioms Erdos625.configurationMatchingEquivSigmaCanonicalDemandEvent
 #print axioms Erdos625.card_configurationMatching_eq_sum_card_canonicalDemandEvent
+#print axioms Erdos625.sum_uniformConfigurationMatching_canonicalDemandEvent_eq_one
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -31352,7 +31457,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: bdda538b48d1cb0b69ad46ab5e8f5ef8cbf8189dd13109cbc74bef39255ebdc7
+Normalized SHA-256: b31145d3aa6007a21aa05f9386739c60befe03a61c1aa8290b2d51c8d67fab6b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
