@@ -502,7 +502,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.explicit_terms_le_kernel_masses
 #print axioms Erdos625.q_row_column_le_of_pointwise_degree_square
 #print axioms Erdos625.rescale_configurationCellTheta_square_to_degreeSquare
+#print axioms Erdos625.configurationCellTheta_toReal_le_of_caps
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
+#print axioms Erdos625.existsAbsoluteResidualQRowColumnBound_of_degreeCaps
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff

@@ -23618,6 +23618,79 @@ END SOURCE MODULE: Erdos625.Section9QDegreeBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ThetaCap
+Source: Erdos625/Section9ThetaCap.lean
+Normalized SHA-256: 506b6c3fb559c4ff82977b08f3595c2a8799ecbf2689ebc9a4e12f49a4cd40fa
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ThetaCap
+
+/-!
+# Section IX: deterministic configuration-cell cap
+
+This file records the elementary cap on the configuration-cell parameter that
+follows directly from positive total mass and pointwise row and column degree
+caps.  It is deliberately a deterministic inequality: it does not assert a
+conditioned residual law or any attachment estimate.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+/-- A positive total mass and pointwise row and column caps imply the
+configuration-cell theta cap used by the finite residual-kernel estimates. -/
+theorem configurationCellTheta_toReal_le_of_caps
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A) (b : B)
+    (hm : 0 < m) (hrow : row a ≤ U) (hcol : col b ≤ U) :
+    (configurationCellTheta row col m a b).toReal ≤
+      Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) := by
+  have hrowENN : (row a : ℝ≥0∞) ≤ (U : ℝ≥0∞) := by
+    exact_mod_cast hrow
+  have hcolENN : (col b : ℝ≥0∞) ≤ (U : ℝ≥0∞) := by
+    exact_mod_cast hcol
+  have hproduct :
+      (row a : ℝ≥0∞) * (col b : ℝ≥0∞) ≤
+        (U : ℝ≥0∞) * (U : ℝ≥0∞) := by
+    exact mul_le_mul hrowENN hcolENN bot_le bot_le
+  have hnum :
+      eulerENNReal * (row a : ℝ≥0∞) * (col b : ℝ≥0∞) ≤
+        eulerENNReal * (U : ℝ≥0∞) ^ 2 := by
+    simpa only [pow_two, mul_assoc] using
+      mul_le_mul_right hproduct eulerENNReal
+  have htheta :
+      configurationCellTheta row col m a b ≤
+        eulerENNReal * (U : ℝ≥0∞) ^ 2 / (m : ℝ≥0∞) := by
+    unfold configurationCellTheta
+    exact ENNReal.div_le_div_right hnum _
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast hm.ne'
+  have heulerTop : eulerENNReal ≠ ∞ := ENNReal.ofReal_ne_top
+  have hUTop : (U : ℝ≥0∞) ^ 2 ≠ ∞ :=
+    ENNReal.pow_ne_top (ENNReal.natCast_ne_top U)
+  have hcapTop :
+      eulerENNReal * (U : ℝ≥0∞) ^ 2 / (m : ℝ≥0∞) ≠ ∞ :=
+    ENNReal.div_ne_top (ENNReal.mul_ne_top heulerTop hUTop) hm0
+  have hreal := ENNReal.toReal_mono hcapTop htheta
+  have heulerToReal : eulerENNReal.toReal = Real.exp 1 := by
+    rw [eulerENNReal, ENNReal.toReal_ofReal (Real.exp_pos 1).le]
+  simpa only [ENNReal.toReal_div, ENNReal.toReal_mul,
+    ENNReal.toReal_pow, ENNReal.toReal_natCast, heulerToReal] using hreal
+
+#print axioms configurationCellTheta_toReal_le_of_caps
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ThetaCap
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ThetaCap
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ThetaSquareEulerRescale
 Source: Erdos625/Section9ThetaSquareEulerRescale.lean
 Normalized SHA-256: c83deed24f12bece8c8febc586aec5c2a9bb7cb3cfacb81a92ef719313d5cef9
@@ -24557,7 +24630,7 @@ END SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ResidualQDegreeAssembly
 Source: Erdos625/Section9ResidualQDegreeAssembly.lean
-Normalized SHA-256: 09d13cb89233c4ae413598769c4b35e6e3d5b47bd34671bdbe861ff0601cdfa4
+Normalized SHA-256: 5e5b44e451a576b1b56e5633e5e57f16d60c6da3277dd97dfc6f43f1c595b0a1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ResidualQDegreeAssembly
 
@@ -24565,10 +24638,11 @@ section Erdos625SelfContained_Module_Erdos625_Section9ResidualQDegreeAssembly
 # Section IX: conditional residual-kernel row and column bound
 
 This module composes the established finite analytic residual-q estimate with
-the exact Euler rescaling and deterministic degree-sum bound.  Every
-configuration-model cap, total, and theta hypothesis remains explicit.  In
-particular, it does not identify a conditioned residual random family or
-assemble the manuscript's Lemma 9.1.
+the exact Euler rescaling and deterministic degree-sum bound.  The base
+theorem keeps every configuration-model cap, total, and theta hypothesis
+explicit; the second theorem discharges the theta cap deterministically from
+the degree caps.  Neither theorem identifies a conditioned residual random
+family or assembles the manuscript's Lemma 9.1.
 -/
 
 universe u v
@@ -24626,6 +24700,38 @@ theorem existsAbsoluteResidualQRowColumnBound :
     hm hrowTotal hcolTotal hrowCap hcolCap hdegree.2.2
 
 #print axioms existsAbsoluteResidualQRowColumnBound
+
+/-- The preceding residual-q row and column estimate with its deterministic
+theta-cap antecedent discharged from the row and column degree caps.  This
+does not identify the conditioned residual family or prove any attachment
+estimate. -/
+theorem existsAbsoluteResidualQRowColumnBound_of_degreeCaps :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        (∀ a, ∑ b, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) ∧
+        (∀ b, ∑ a, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) := by
+  obtain ⟨κ, hκpos, hκtop, hκ⟩ :=
+    existsAbsoluteResidualQRowColumnBound
+  refine ⟨κ, hκpos, hκtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
+    hR hpow
+  exact hκ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap hR
+    (fun a b _ ↦ configurationCellTheta_toReal_le_of_caps
+      row col m U a b hm (hrowCap a) (hcolCap b)) hpow
+
+#print axioms existsAbsoluteResidualQRowColumnBound_of_degreeCaps
 
 end
 
@@ -29965,7 +30071,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 8892cce6eea046aab5d2b8d80c20375c9b691d8ffe210ae42f40593a2379e46e
+Normalized SHA-256: 505f3fa3aac1a4940fb639483d5ae8a242c39338b07946b56141535ce054e3d1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30323,7 +30429,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.explicit_terms_le_kernel_masses
 #print axioms Erdos625.q_row_column_le_of_pointwise_degree_square
 #print axioms Erdos625.rescale_configurationCellTheta_square_to_degreeSquare
+#print axioms Erdos625.configurationCellTheta_toReal_le_of_caps
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
+#print axioms Erdos625.existsAbsoluteResidualQRowColumnBound_of_degreeCaps
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -30473,7 +30581,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 2fec69a177fb71aa39a0a133d6e56534817604613d6759cb6f9a93acf19d78ed
+Normalized SHA-256: ff1e5531fef5ecdfdeca6beab6145e4c4fb56d025ed08a778c900a3d2e04431b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

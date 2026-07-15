@@ -1,15 +1,17 @@
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ThetaSquareEulerRescale
 import Erdos625.Section9QDegreeBound
+import Erdos625.Section9ThetaCap
 
 /-!
 # Section IX: conditional residual-kernel row and column bound
 
 This module composes the established finite analytic residual-q estimate with
-the exact Euler rescaling and deterministic degree-sum bound.  Every
-configuration-model cap, total, and theta hypothesis remains explicit.  In
-particular, it does not identify a conditioned residual random family or
-assemble the manuscript's Lemma 9.1.
+the exact Euler rescaling and deterministic degree-sum bound.  The base
+theorem keeps every configuration-model cap, total, and theta hypothesis
+explicit; the second theorem discharges the theta cap deterministically from
+the degree caps.  Neither theorem identifies a conditioned residual random
+family or assembles the manuscript's Lemma 9.1.
 -/
 
 universe u v
@@ -67,6 +69,38 @@ theorem existsAbsoluteResidualQRowColumnBound :
     hm hrowTotal hcolTotal hrowCap hcolCap hdegree.2.2
 
 #print axioms existsAbsoluteResidualQRowColumnBound
+
+/-- The preceding residual-q row and column estimate with its deterministic
+theta-cap antecedent discharged from the row and column degree caps.  This
+does not identify the conditioned residual family or prove any attachment
+estimate. -/
+theorem existsAbsoluteResidualQRowColumnBound_of_degreeCaps :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        (∀ a, ∑ b, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) ∧
+        (∀ b, ∑ a, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) := by
+  obtain ⟨κ, hκpos, hκtop, hκ⟩ :=
+    existsAbsoluteResidualQRowColumnBound
+  refine ⟨κ, hκpos, hκtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
+    hR hpow
+  exact hκ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap hR
+    (fun a b _ ↦ configurationCellTheta_toReal_le_of_caps
+      row col m U a b hm (hrowCap a) (hcolCap b)) hpow
+
+#print axioms existsAbsoluteResidualQRowColumnBound_of_degreeCaps
 
 end
 

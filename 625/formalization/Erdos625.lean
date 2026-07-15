@@ -108,6 +108,7 @@ import Erdos625.Section9TraversalKernel
 import Erdos625.Section9EndpointKernel
 import Erdos625.Section9ExplicitPathTerms
 import Erdos625.Section9QDegreeBound
+import Erdos625.Section9ThetaCap
 import Erdos625.Section9ThetaSquareEulerRescale
 import Erdos625.Section9ResidualQDegreeAssembly
 import Erdos625.Section9MatchingTraversalBridge
