@@ -21157,7 +21157,7 @@ END SOURCE MODULE: Erdos625.UniformEquivTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformProductTransport
 Source: Erdos625/UniformProductTransport.lean
-Normalized SHA-256: 7c2b3f18edd1ba77890b8308ae93f46cfeb530f7def03684647ac5ac27f00aad
+Normalized SHA-256: 091d47c9f5a0c39c2c8e08b6504dc06028e54ab8b986e0d2f14dbfb656027f21
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformProductTransport
 
@@ -21184,6 +21184,9 @@ theorem uniformOfFintype_prod_map_snd
   classical
   ext b
   rw [PMF.map_apply, PMF.uniformOfFintype_apply, tsum_fintype]
+  -- `rw` does not descend through the finite-sum binder, so expose the
+  -- constant mass of the product uniform law explicitly before regrouping.
+  simp_rw [PMF.uniformOfFintype_apply]
   rw [← Finset.univ_product_univ, Finset.sum_product]
   simp only [Finset.sum_ite_eq, Finset.mem_univ, if_true,
     Finset.sum_const, Finset.card_univ, nsmul_eq_mul]

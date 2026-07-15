@@ -25,6 +25,9 @@ theorem uniformOfFintype_prod_map_snd
   classical
   ext b
   rw [PMF.map_apply, PMF.uniformOfFintype_apply, tsum_fintype]
+  -- `rw` does not descend through the finite-sum binder, so expose the
+  -- constant mass of the product uniform law explicitly before regrouping.
+  simp_rw [PMF.uniformOfFintype_apply]
   rw [← Finset.univ_product_univ, Finset.sum_product]
   simp only [Finset.sum_ite_eq, Finset.mem_univ, if_true,
     Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
