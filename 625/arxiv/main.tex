@@ -759,6 +759,12 @@ removed probabilistically by (2.9).
 \section{The four-size signed first-moment
 advantage}\label{the-four-size-signed-first-moment-advantage}
 
+A \emph{signed cocolouring} is a partition in which every class is
+declared either ``independent'' or ``complete''; it is realized when each
+class induces the graph specified by its declaration.  Thus the sign is a
+two-way declaration attached to a class, and the signed counts below count
+witnesses for ordinary cocolourings rather than a new graph invariant.
+
 For \(S\in\{S_+,S_4\}\), introduce the tilted weights, partition
 function, and mean map
 
@@ -1061,6 +1067,12 @@ Choose the midpoint integer
 \[
  k_{\mathrm{co}}=\left\lceil\frac{r_4^{\mathrm{co}}+r_+}{2}\right\rceil. \tag{5.13}
 \]
+
+We call the resulting profile the \emph{exact midpoint profile}: its total
+number of parts is the rounded midpoint between the signed four-size root
+\(r_4^{\mathrm{co}}\) and the unrestricted chromatic root \(r_+\).  The
+type counts are chosen next so that both finite-\(n\) conservation
+constraints hold exactly.
 
 At this exact \(k\), let \(p_i^{(n)}\) be the exact
 finite-\(n\) maximizer of \(L_{S_4}\).  Let
@@ -1395,6 +1407,12 @@ partial-diagonal estimate is the input used in Section~VIII to control the
 dense transportation sum. The counting identities in (7.1)--(7.4) are
 finite-\(n\) identities; asymptotic estimates are explicitly labelled below.
 
+A \emph{partial diagonal} is a specified collection of whole classes that
+the two partitions have in common.  It is marked: one overlap may contain
+several such collections and then contributes to every corresponding
+nonnegative marked term.  This intentional overcount is what makes the
+subsequent summation an upper-bound device.
+
 For a selected common subprofile \(\ell=(\ell_i)\), put
 
 \[
@@ -1408,6 +1426,7 @@ Here \(0\le\ell_i\le k_i\) coordinatewise.  Since the full profile has
 factorial in the counting formula below has its ordinary combinatorial
 meaning.
 
+\paragraph{Exact marked decomposition.}
 The signed first moment of such partial partitions occupying any
 \(m\) vertices of \([n]\) is
 
@@ -1477,9 +1496,13 @@ and
 Therefore
 
 \[
- \frac{B(h+e_i)}{B(h)}
+\frac{B(h+e_i)}{B(h)}
  =\frac{2(k_i-h_i)\mu_{u_i}(v+u_i)}{(h_i+1)^2}.          \tag{7.6}
 \]
+
+Equations (7.2)--(7.6) are exact finite-\(n\) counting identities.  We now
+use them only through uniform asymptotic bounds on the three ranges of
+selected mass.
 
 In Heckel's admissible-phase argument, the analogous control of partial
 profiles enters through the tame-colouring input used to prove
@@ -1559,7 +1582,7 @@ The residual vertex fraction is
  =R+\frac{I-TY}{\alpha-T}.                              \tag{7.13}
 \]
 
-\paragraph{Uniform Stirling control.}
+\paragraph{Uniform asymptotic estimate: Stirling control.}
 Uniform Stirling estimates in (7.3), retaining zeros, give
 
 \[
@@ -1633,7 +1656,7 @@ where
  \Phi_T(z)=R\ln R+\frac {\ln 2}2(I_r-TR).                     \tag{7.21}
 \]
 
-\paragraph{Uniform rate negativity.}
+\paragraph{Uniform asymptotic estimate: rate negativity.}
 This rate is uniformly negative away from its two corners. Indeed,
 
 \[
@@ -1692,7 +1715,9 @@ There are only \((k_{\mathrm{co}}+1)^4\) vectors, so their total is
 
 \subsubsection{Proof: the full corner}\label{proof-the-full-corner}
 
-It remains to take \(v=n-m\le n/32\). Uniformly for the
+The \emph{full corner} is the regime in which the selected common blocks
+occupy all but a small residual vertex mass, namely \(v=n-m\le n/32\).
+Uniformly for the
 four sizes,
 \(\mu_{u_i}(n)\le n^{6+o(1)}\)
 by (2.2) and (2.8), while
@@ -1738,7 +1763,10 @@ Put
 
 In every overlap matrix, the cells of multiplicity greater than
 \(R_0\) will be called \emph{high cells}. They form a matching: two high
-cells in one row or column would use more than \(u_{\max}\) stubs. Write the
+cells in one row or column would use more than \(u_{\max}\) stubs. The
+resulting skeleton is canonical: for a given overlap matrix it is exactly
+the collection of all high cells, together with their multiplicities, and
+there is no auxiliary choice. Write the
 resulting canonical high-cell skeleton and its multiplicities as
 
 \[
@@ -1769,6 +1797,7 @@ as
  u_i=a-i,\qquad 0\le i\le3,\qquad a=\alpha-2.             \tag{8.4}
 \]
 
+\paragraph{Exact endpoint bookkeeping.}
 For a typed full-containment matrix \(\mathbf L=(\ell_{ij})\), put
 
 \[
@@ -2048,6 +2077,11 @@ skeletons obtained by assigning to each such cell either \(e=0\) or
                                                                \tag{8.25a}
 \]
 
+Thus a near-containment decoration is simply an endpoint cell of smaller
+size \(m\) whose multiplicity has been lowered to \(m-e\) by fewer than
+\(m/4\) stubs; the terminology records its geometric proximity to full
+containment.
+
 Distinguishing and then forgetting identical typed cells is exactly the
 multinomial expansion, so there is no additional multiplicity. Since a
 high skeleton is a matching and has at most \(k_{\mathrm{co}}\) cells, (8.25a) is
@@ -2186,6 +2220,7 @@ further pair in a high cell. We prove a bound uniform over all feasible
 skeletons; Proposition~9.2 then combines that bound with the bare
 high-skeleton estimate from Section~VIII.
 
+\paragraph{Exact conditional decomposition.}
 Fix an actual canonical high skeleton \((\mathcal M,j)\) as in (8.2), and
 let \(m_0=n-J\) be the residual total degree. Its residual degrees
 are at most \(u_{\max}\). Define
@@ -2210,6 +2245,17 @@ law, the normalized moment is exactly
 The sum in (9.2) is over the finite set of feasible canonical high skeletons:
 typed matchings \(\mathcal M\), allowed multiplicities \(j_e>R_0\), and the induced
 nonnegative residual row and column degrees.
+
+Here \(\mathbb E_{\mathrm{res}}\) is only over the unexposed matching of
+the remaining stubs.  A \emph{residual attachment} is this conditional
+contribution: the local factors \(g(r'_e)\) record residual cell
+multiplicities, while \(2^{\beta(\mathcal M\cup H_{\mathrm{res}})}\)
+records the associated cycle-space contribution after the high skeleton has
+already been fixed.
+
+\paragraph{Uniform asymptotic bound.}
+We next bound the exact conditional quantity (9.1) uniformly over its
+finite family of feasible skeletons.
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 9.1 (uniform attachment bound)}

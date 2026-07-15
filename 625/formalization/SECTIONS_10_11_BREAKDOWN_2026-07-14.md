@@ -80,6 +80,13 @@ The remaining Section X obligations, in dependency order, are:
    complement graph and then to the
    lower-quarter binomial tail, count all `u0`-subsets, and prove that its
    failure probability tends to zero along the full sequence.
+   The currently isolated fixed-subset task has a strict boundary: its hard
+   missing step is the native pushforward law for restriction of
+   `randomGraphMeasure n` to one fixed induced set.  Complement invariance is
+   a separate finite-uniform bijection leaf, and the binomial lower-quarter
+   tail follows after the restriction law.  A fixed-set tail alone must not
+   be recorded as the simultaneous quarter-density event: the latter still
+   needs the subset union bound and the internal universal quantifier.
 2. Prove by averaging that the same event gives quarter density in every
    larger vertex set.  This must be one event with an internal `∀ U`, not
    a separately chosen event or exceptional set for each `U`.
