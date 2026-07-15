@@ -271,7 +271,7 @@ residual attachment estimates.  It does not supply the required cycle-to-walk
 and weight encodings, those upstream finite estimates, the conditioned probability
 bound, or the global Section 9 assembly.
 
-The newest Sections 10--11 checkpoint adds seven accepted source units.
+The newest Sections 10--11 checkpoint adds eight accepted source units.
 [`QuarterDensityDegree.lean`](formalization/Erdos625/QuarterDensityDegree.lean)
 proves the quarter-density high-degree vertex step, and
 [`QuarterRecurrence.lean`](formalization/Erdos625/QuarterRecurrence.lean)
@@ -293,6 +293,10 @@ threshold, including for `n`-dependent sample spaces.
 proves `quarterDensity_unionBound_tendsto_zero`, the full-sequence deterministic
 union-cost decay at
 `u₀ = ceil(n^(1/4))`, while
+[`Section10ComplementInvariance.lean`](formalization/Erdos625/Section10ComplementInvariance.lean)
+proves that graph complementation preserves the ambient finite `G(n,1/2)` law
+exactly.  This symmetry does not provide the still-missing fixed induced-
+restriction pushforward.
 [`Section10SimultaneousGreedyColoring.lean`](formalization/Erdos625/Section10SimultaneousGreedyColoring.lean)
 proves `simultaneous_induced_chromatic_bound`, the internal-`forall U` greedy
 chromatic bound from one graph-uniform independent-block hypothesis.  These

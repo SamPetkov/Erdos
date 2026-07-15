@@ -34,6 +34,7 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
 | `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
 | `binomialRandom_map_ncard_edgeSet_singleton` | fixed finite binomial edge-count law before Lemma 10.1 | local proved | The pushforward edge-count measure has the exact binomial singleton mass for Mathlib's finite binomial random graph.  Transport to each fixed induced complement graph, the lower-quarter tail, and the simultaneous event remain open. |
+| `randomGraphMeasure_map_compl` | ambient complement symmetry before Lemma 10.1 | local proved | The finite labelled `G(n,1/2)` law is exactly invariant under graph complementation. This does not provide the native pushforward through a fixed induced restriction, the lower-quarter tail, or the simultaneous event. |
 | `failure_probability_le_add_of_two_success_events` | quantitative capacity/leftover intersection in Lemma 10.2 | local proved | If two supplied success events imply `Good`, its failure probability is at most the sum of their supplied failure bounds, without independence.  Neither probabilistic input is proved here. |
 | `chromaticLowerEvent`, `cochromaticUpperEvent` | threshold events in Section 11 | defined | These are the strict natural chromatic lower event and real cochromatic upper event with deterministic error. |
 | `thresholdIntersection_subset_gapEvent` | deterministic Section 11 event inclusion | local proved | Given the exact threshold separation, the intersection is contained in `gapEvent`; the strict chromatic event contributes the necessary `+1`. |
@@ -83,7 +84,7 @@ The remaining Section X obligations, in dependency order, are:
    The currently isolated fixed-subset task has a strict boundary: its hard
    missing step is the native pushforward law for restriction of
    `randomGraphMeasure n` to one fixed induced set.  Complement invariance is
-   a separate finite-uniform bijection leaf, and the binomial lower-quarter
+   now a checked finite-uniform bijection leaf, and the binomial lower-quarter
    tail follows after the restriction law.  A fixed-set tail alone must not
    be recorded as the simultaneous quarter-density event: the latter still
    needs the subset union bound and the internal universal quantifier.
