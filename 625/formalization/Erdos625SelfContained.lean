@@ -26705,7 +26705,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: bae2ee1b8fbc446ed08865fce2549a80366a6b164042fef44ffcd681417744e7
+Normalized SHA-256: 84fab51cc2224e4574bba46c2d74b4e685373a65a545f773748e3258fbc94982
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -26900,7 +26900,7 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
       canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
   exact e₁.trans (e₂.trans (e₃.trans e₄))
 
-private theorem canonicalDemandEvent_equiv_sigma_fixedWitness
+private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :

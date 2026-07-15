@@ -191,7 +191,7 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
       canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
   exact e₁.trans (e₂.trans (e₃.trans e₄))
 
-private theorem canonicalDemandEvent_equiv_sigma_fixedWitness
+private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
