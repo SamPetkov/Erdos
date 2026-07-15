@@ -104,9 +104,90 @@ theorem uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstructi
         (canonicalDemandEventEquivSigmaResidual
           demand row col U hhigh).symm]
 
+/-- The residual configuration fibre is judgmentally independent of the
+labelled witness: residual degrees retain only `demand`, `row`, and `col`.
+This converts the joint sigma family into a product with any fixed residual
+fibre. -/
+noncomputable def sigmaCanonicalResidualEquivWitnessTimesResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness₀ : PrescribedDemandWitness demand row col) (U : ℕ) :
+    (Σ witness : PrescribedDemandWitness demand row col,
+      canonicalResidualCellEvent witness U) ≃
+      PrescribedDemandWitness demand row col ×
+        canonicalResidualCellEvent witness₀ U := by
+  change
+    (Σ _witness : PrescribedDemandWitness demand row col,
+      canonicalResidualCellEvent witness₀ U) ≃
+      PrescribedDemandWitness demand row col ×
+        canonicalResidualCellEvent witness₀ U
+  exact Equiv.sigmaEquivProd _ _
+
+/-- Under the high-demand condition, the canonical event is exactly a product
+of a labelled witness choice and one fixed standardized residual fibre.  This
+is a finite equivalence, without any claim that the canonical event is likely.
+-/
+noncomputable def canonicalDemandEventEquivWitnessTimesResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (witness₀ : PrescribedDemandWitness demand row col) :
+    canonicalDemandEvent demand row col U ≃
+      PrescribedDemandWitness demand row col ×
+        canonicalResidualCellEvent witness₀ U :=
+  (canonicalDemandEventEquivSigmaResidual demand row col U hhigh).trans
+    (sigmaCanonicalResidualEquivWitnessTimesResidual witness₀ U)
+
+/-- A nonempty canonical-demand event makes every standardized residual fibre
+nonempty.  This follows from the exact product equivalence and is not a
+probability lower bound. -/
+theorem nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness₀ : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (canonicalDemandEvent demand row col U)] :
+    Nonempty (canonicalResidualCellEvent witness₀ U) := by
+  let x : canonicalDemandEvent demand row col U := Classical.choice inferInstance
+  let product :=
+    canonicalDemandEventEquivWitnessTimesResidual
+      demand row col U hhigh witness₀ x
+  exact ⟨product.2⟩
+
+/-- The uniform canonical-event subtype law transports to the uniform product
+of labelled witnesses and one fixed standardized residual fibre.  The two
+nonemptiness instances on the right are derivable from the preceding exact
+nonemptiness lemma together with the displayed witness, but remain explicit so
+that `PMF.uniformOfFintype` can elaborate the proposition transparently. -/
+theorem uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (witness₀ : PrescribedDemandWitness demand row col)
+    [Nonempty (canonicalDemandEvent demand row col U)]
+    [Nonempty (PrescribedDemandWitness demand row col)]
+    [Nonempty (canonicalResidualCellEvent witness₀ U)] :
+    (PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+        (canonicalDemandEventEquivWitnessTimesResidual
+          demand row col U hhigh witness₀) =
+      PMF.uniformOfFintype
+        (PrescribedDemandWitness demand row col ×
+          canonicalResidualCellEvent witness₀ U) := by
+  exact uniformOfFintype_map_equiv
+    (canonicalDemandEventEquivWitnessTimesResidual
+      demand row col U hhigh witness₀)
+
 #print axioms nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
 #print axioms uniform_canonicalDemandEventSubtype_map_sigmaResidual
 #print axioms uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
+#print axioms sigmaCanonicalResidualEquivWitnessTimesResidual
+#print axioms canonicalDemandEventEquivWitnessTimesResidual
+#print axioms nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent
+#print axioms uniform_canonicalDemandEventSubtype_map_witnessTimesResidual
 
 end
 
