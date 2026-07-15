@@ -562,6 +562,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
 #print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
+#print axioms Erdos625.existsUnique_canonicalHighDemandWitness_residualProfile
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
@@ -574,6 +575,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
 #print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+#print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist

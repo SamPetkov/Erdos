@@ -78,4 +78,28 @@ theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 
 #print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 
+/-- Every feasible prescribed-demand witness leaves residual degrees bounded
+by their ambient row and column degrees, and preserves equality of the two
+residual totals. -/
+theorem residualDegreeProfile_of_witness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (witness : PrescribedDemandWitness demand row col) :
+    (∀ a, residualRowDegree witness a ≤ row a) ∧
+      (∀ b, residualColumnDegree witness b ≤ col b) ∧
+      ((∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b) := by
+  refine ⟨?_, ?_,
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness⟩
+  · intro a
+    change row a - (∑ b, demand a b) ≤ row a
+    exact Nat.sub_le _ _
+  · intro b
+    change col b - (∑ a, demand a b) ≤ col b
+    exact Nat.sub_le _ _
+
+#print axioms residualDegreeProfile_of_witness
+
 end Erdos625

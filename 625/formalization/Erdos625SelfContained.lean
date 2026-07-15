@@ -25961,7 +25961,7 @@ END SOURCE MODULE: Erdos625.ResidualDegreeMatching
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
 Source: Erdos625/Section8ResidualDegreeTotal.lean
-Normalized SHA-256: cc138baedd12e31628a1bebccefe52232db3bb1b07fabc65c1b034d6c7c300a5
+Normalized SHA-256: 08b5a0f2efdc1b60de2714abb034da3362758d50905b5481edaac3ccfce58e94
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
 
@@ -26041,6 +26041,30 @@ theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
       simpa only [totalDemand] using card_remainingColumnStub witness
 
 #print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+
+/-- Every feasible prescribed-demand witness leaves residual degrees bounded
+by their ambient row and column degrees, and preserves equality of the two
+residual totals. -/
+theorem residualDegreeProfile_of_witness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (witness : PrescribedDemandWitness demand row col) :
+    (∀ a, residualRowDegree witness a ≤ row a) ∧
+      (∀ b, residualColumnDegree witness b ≤ col b) ∧
+      ((∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b) := by
+  refine ⟨?_, ?_,
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness⟩
+  · intro a
+    change row a - (∑ b, demand a b) ≤ row a
+    exact Nat.sub_le _ _
+  · intro b
+    change col b - (∑ a, demand a b) ≤ col b
+    exact Nat.sub_le _ _
+
+#print axioms residualDegreeProfile_of_witness
 
 end Erdos625
 
@@ -26960,6 +26984,74 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalResidualProfile
+Source: Erdos625/Section8CanonicalResidualProfile.lean
+Normalized SHA-256: 5ffe86c4f9c02e305e19ea345e2bf1c701eafce34a8b6269f90d70afa5f7a15c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalResidualProfile
+
+/-!
+# Section VIII: canonical residual degree profile
+
+The canonical high-demand exposure of a fixed configuration matching has a
+uniquely determined labelled witness.  This module records the resulting
+finite residual degree caps and total balance.  It makes no assertion about
+the probability of the canonical event or the law of a conditioned residual
+matching.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- The unique canonical high-demand witness of a matching has residual row
+and column degrees bounded by any common ambient degree cap, with equal
+residual totals. -/
+theorem existsUnique_canonicalHighDemandWitness_residualProfile
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U) :
+    ∃! witness : PrescribedDemandWitness
+        (canonicalDemandOfMatching matching U) row col,
+      ExtendsPrescribedDemandWitness matching witness ∧
+        (∀ a, residualRowDegree witness a ≤ U) ∧
+        (∀ b, residualColumnDegree witness b ≤ U) ∧
+        ((∑ a, residualRowDegree witness a) =
+          ∑ b, residualColumnDegree witness b) := by
+  have htotal : (∑ a, row a) = ∑ b, col b := by
+    calc
+      (∑ a, row a) = Fintype.card (RowStub row) :=
+        (card_rowStub row).symm
+      _ = Fintype.card (ColumnStub col) :=
+        Fintype.card_congr matching
+      _ = ∑ b, col b := card_columnStub col
+  obtain ⟨witness, hwitness, hunique⟩ :=
+    existsUnique_canonicalHighDemandWitness row col matching U
+  have hprofile := residualDegreeProfile_of_witness htotal witness
+  refine ⟨witness, ?_, ?_⟩
+  · refine ⟨hwitness, ?_⟩
+    refine ⟨?_, ?_⟩
+    · intro a
+      exact (hprofile.1 a).trans (hrowCap a)
+    · refine ⟨?_, hprofile.2.2⟩
+      intro b
+      exact (hprofile.2.1 b).trans (hcolCap b)
+  · intro other hother
+    exact hunique other hother.1
+
+#print axioms existsUnique_canonicalHighDemandWitness_residualProfile
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalResidualProfile
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalResidualProfile
 ========================================================================== -/
 
 /- ==========================================================================
@@ -30071,7 +30163,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 505f3fa3aac1a4940fb639483d5ae8a242c39338b07946b56141535ce054e3d1
+Normalized SHA-256: 3e8870f169baf29427431c6dda6304c9f5910b128a37e781a72af9b9e9a95f19
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30489,6 +30581,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
 #print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
+#print axioms Erdos625.existsUnique_canonicalHighDemandWitness_residualProfile
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
@@ -30501,6 +30594,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
 #print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+#print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
@@ -30581,7 +30675,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: ff1e5531fef5ecdfdeca6beab6145e4c4fb56d025ed08a778c900a3d2e04431b
+Normalized SHA-256: 5d9b2621ee489221e9ce7b18c06c619147c70482244e791310c02686eca9ce3d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
