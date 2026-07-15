@@ -281,6 +281,16 @@ fibre, and the residual coordinate has the uniform finite marginal.  This
 does not prove the event nonempty or likely, instantiate the manuscript's
 skeleton parameters, or establish any quantitative skeleton bound.
 
+[`Section8CanonicalDemandGlobalResidual.lean`](Erdos625/Section8CanonicalDemandGlobalResidual.lean)
+adds the ambient finite counterpart without extending a fixed residual fibre
+outside its natural scope.  Every configuration matching is equivalent to the
+dependent sigma family of its attained canonical demand, its unique labelled
+witness, and the residual event for that demand.  Under equal total stub mass,
+the ambient uniform PMF transports to the uniform sigma PMF, and the demand
+marginal is its literal fibre cardinality divided by the total cardinality.
+This is not a common residual law across demands, a nonemptiness estimate, or
+a quantitative skeleton statement.
+
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and
 column stub mass, the probability of the literal canonical event is its finite

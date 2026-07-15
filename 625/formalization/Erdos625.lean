@@ -142,6 +142,7 @@ import Erdos625.Section8CanonicalConditionalLaw
 import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
+import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -283,9 +284,14 @@ residual sigma decomposition and finite probability factorization. Under the
 displayed strict high-demand and nonemptiness hypotheses, its ambient
 conditional law is the uniform joint witness/residual law; after a reference
 witness is chosen it has a product representation with a uniform standardized
-residual marginal. Manuscript-specific skeleton parameterization, event
-nonemptiness, quantitative probability bounds, and skeleton estimates remain
-open.
+residual marginal.  At the ambient level, every matching is also decomposed
+exactly by its attained canonical demand, labelled witness, and
+demand-dependent residual event.  The uniform law transports to that dependent
+sigma space, and the demand marginal is weighted by its literal fibre
+cardinality rather than declared uniform.  This does not identify one common
+residual law across demands. Manuscript-specific skeleton parameterization,
+event nonemptiness, quantitative probability bounds, and skeleton estimates
+remain open.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

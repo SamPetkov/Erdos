@@ -143,6 +143,15 @@ of these facts proves event nonemptiness or a quantitative skeleton estimate;
 the unlabelled typed-skeleton multiplicity bridge, ratio bounds, and the
 endpoint/near/middle estimates of Lemma 8.3 remain open.
 
+At the ambient level,
+[`Section8CanonicalDemandGlobalResidual.lean`](formalization/Erdos625/Section8CanonicalDemandGlobalResidual.lean)
+now decomposes every configuration matching by its attained canonical-demand
+table, its labelled witness, and its demand-dependent residual event.  It
+transports the ambient uniform law to this dependent sigma space and proves
+that a demand table has mass proportional to its exact fibre cardinality.  It
+does not claim that demands are uniformly distributed, that one residual law
+works across all demands, or that any canonical event is likely.
+
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,
 giving a generic `2 ^ |R|` cardinal bound.  Finite bipartite edge sets now have

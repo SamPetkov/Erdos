@@ -29,9 +29,13 @@ Under the strict high-demand premise and explicit nonemptiness, its ambient
 conditional law is a uniform joint witness/residual sigma law; after choosing
 a reference witness it is a uniform product with one standardized
 residual-event fibre, whose residual coordinate has the uniform finite
-marginal. These finite identities do not prove event nonemptiness or a
-quantitative probability bound, and the manuscript-specific skeleton
-parameterization and endpoint/near/middle estimates remain open.
+marginal. Globally, every configuration matching is also equivalent to its
+attained canonical demand, its labelled witness, and its demand-dependent
+residual event; the transported uniform law has the exact fibre-cardinality
+demand marginal. These finite identities do not claim a common residual law
+across demands, event nonemptiness, or a quantitative probability bound, and
+the manuscript-specific skeleton parameterization and endpoint/near/middle
+estimates remain open.
 
 In Section IX the generic restriction and support-cardinality bounds,
 injective parity-matrix encoding, literal residual even-edge family and its
