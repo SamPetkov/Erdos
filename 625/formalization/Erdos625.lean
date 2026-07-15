@@ -94,6 +94,10 @@ import Erdos625.ConfigurationResidualSupport
 import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
 import Erdos625.Section9ChooseTwoMass
+import Erdos625.Section9CycleRankResidual
+import Erdos625.Section9CycleRankConfigurationAssembly
+import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section9TraversalKernel
 import Erdos625.LocalSignReward
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -241,9 +245,16 @@ factorizations behind (9.13)--(9.14) are also checked, including positive-mass
 normalized bounds and the zero-total branch.  The explicitly defined residual
 even-edge family is injected into the verified parity-matrix restriction seam,
 giving its exact `2 ^ |R|` support bound; the finite division-free choose-two
-mass estimate (9.21) is proved as well.  Cycle-rank/decomposition, traversal and
-attachment estimates, and the complete Lemma 9.1/Proposition 9.2 assembly
-remain open.
+mass estimate (9.21) is proved as well.  The finite graph-theoretic part of
+(9.20) is now checked: adjoining a residual bipartite relation to a genuine
+matching raises cycle rank by at most the number of residual cells, and the
+literal configuration support contains at most half the residual stub mass.
+The binary cycle-space dimension and exact `2 ^ cycleRank` cardinality are now
+proved for literal finite even edge subsets.  Finite kernel walk mass is bounded
+by powers of its row norm, with the positive-length and even-length geometric
+tails used in (9.16)--(9.18).  The recoverable cycle-to-walk encodings, concrete
+kernel transfer, attachment estimates, and complete Lemma 9.1/Proposition 9.2
+assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

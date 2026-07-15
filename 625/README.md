@@ -131,9 +131,14 @@ actual configuration matching with multiplicity at least two is at most the
 total row-stub count divided by two.  The explicitly defined actual residual
 even-edge family is now connected to the generic restriction theorem, giving
 the precise `2 ^ |R|` support bound, and the division-free finite choose-two
-mass estimate (9.21) is proved.  The cycle-rank identity/decomposition and
-traversal count, asymptotic attachment estimate, and global Lemma 9.1/
-Proposition 9.2 assembly remain open.  Aristotle is used only for redundant
+mass estimate (9.21) is proved.  The finite forest-plus-residual-edge
+cycle-rank inequality in (9.20) is also kernel-checked, including its literal
+configuration-support and `m₀ / 2` forms.  The exact finite binary cycle-space
+cardinality and the abstract row-norm/geometric traversal kernel are also
+proved.  A recoverable edge-disjoint simple-cycle decomposition, the concrete
+cycle-to-walk and weight/kernel transfer (including eventual `tau < 1`), the
+asymptotic attachment estimate, and the global Lemma 9.1/Proposition 9.2
+assembly remain open.  Aristotle is used only for redundant
 isolated candidate generation; reviewed local Lean 4.31 source is
 authoritative.
 The capped degree moments and exact theta factorizations/bounds behind
@@ -150,8 +155,26 @@ encoding, evenness, and support hypotheses.
 discharges those encoding/evenness/support hypotheses for the literal finite
 family of even edge sets supported on the high matching or multiplicity-at-
 least-two cells.  [`Section9ChooseTwoMass.lean`](formalization/Erdos625/Section9ChooseTwoMass.lean)
-proves (9.21) in a division-free form.  The cycle decomposition, traversal
-estimates, attachment bound, and final Section 9 assembly remain open.
+proves (9.21) in a division-free form, while
+[`Section9CycleRankResidual.lean`](formalization/Erdos625/Section9CycleRankResidual.lean)
+proves that a matching plus a residual relation has cycle rank at most the
+number of residual cells.
+[`Section9CycleRankConfigurationAssembly.lean`](formalization/Erdos625/Section9CycleRankConfigurationAssembly.lean)
+identifies the literal residual-support finset and proves the full finite chain
+`cycleRank ≤ |E(H_res)| ≤ m₀ / 2`.  The recoverable edge-disjoint simple-cycle
+decomposition, concrete cycle-to-walk encoding and weight/kernel transfer
+(including eventual `tau < 1`), attachment bound, and final Section 9 assembly
+remain open; the exact binary cycle-space count and abstract traversal kernel
+are proved below.
+
+[`Section9CycleSpaceCardinality.lean`](formalization/Erdos625/Section9CycleSpaceCardinality.lean)
+proves the exact binary cycle-space count: finite even edge subsets are
+equivalent to the `ZMod 2` incidence kernel and number exactly
+`2 ^ cycleRank`.  [`Section9TraversalKernel.lean`](formalization/Erdos625/Section9TraversalKernel.lean)
+proves the finite row-norm walk estimate, the one-time marked-start factor, and
+the positive/even geometric tails behind (9.16)--(9.18).  What remains is the
+recoverable cycle decomposition and cycle-to-walk encoding, the concrete
+weight/kernel transfer with eventual `tau < 1`, and the attachment assembly.
 
 The newest Sections 10--11 checkpoint adds five accepted source units.
 [`QuarterDensityDegree.lean`](formalization/Erdos625/QuarterDensityDegree.lean)
@@ -194,7 +217,7 @@ limit remain open; the
 signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
 partial-diagonal ranges, canonical residual conditional law, full Sections 8--9
 assembly, the labelled canonical-witness/incidence and skeleton estimates,
-cycle assembly, residual attachment, Section 10's simultaneous leftover tail and concrete
+cycle-space assembly, residual attachment, Section 10's simultaneous leftover tail and concrete
 seed-amplification instantiation, and Section 11's actual chromatic tail and
 threshold/limit instantiation also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the

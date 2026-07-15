@@ -82,9 +82,13 @@ threshold expansion
 | `two_mul_card_selectedCells_le_total`, `card_selectedCells_le_half_total` | generic selected-cell cardinality | local proved | If each selected cell has mass at least two, the number of selected cells is at most the total mass divided by two. This is only a cardinality estimate. |
 | `configurationResidualSupportRelation`, `configurationResidualSupportFinset`, `sum_configurationCellCount_all`, `card_configurationResidualSupportFinset_le_half_stubMass`, `card_configurationResidualSupportFinset_le_half_rowStubCard` | actual configuration-table residual support | local proved | The number of cells containing at least two matched stub pairs is at most the total row-stub count divided by two. No cycle-space or attachment claim is asserted. |
 | `bipartiteEdgeRow`, `bipartiteEdgeColumn`, `bipartiteEdgeMatrix`, `bipartiteEdgeMatrix_injective`, `sum_bipartiteEdgeMatrix_row`, `sum_bipartiteEdgeMatrix_column`, `BipartiteEvenEdgeSet`, `bipartiteEdgeMatrix_even_iff` | finite bipartite incidence encoding | local proved | A finite edge set is encoded injectively by its zero-one `ZMod 2` matrix, whose row/column parity is equivalent to even row/column fibres. The actual residual-family instantiation is recorded below; this encoding alone proves no cycle decomposition or attachment estimate. |
-| `evenMatrix_eq_of_eq_on_residual`, `residualRestriction_injective`, `card_evenMatrixSupportedOn_le_pow_card_residualCell` | generic small-residual restriction count | local proved | Even matrices supported on a row matching plus a residual relation are determined by their residual-cell values and number at most `2 ^ |R|`. The actual residual even-edge family is instantiated below; the cycle-space and attachment arguments remain open. |
+| `evenMatrix_eq_of_eq_on_residual`, `residualRestriction_injective`, `card_evenMatrixSupportedOn_le_pow_card_residualCell` | generic small-residual restriction count | local proved | Even matrices supported on a row matching plus a residual relation are determined by their residual-cell values and number at most `2 ^ |R|`. The actual residual even-edge family is instantiated below; the exact finite binary cycle-space identity is proved separately below, while a recoverable simple-cycle decomposition and the attachment argument remain open. |
 | `ActualResidualEvenEdgeFamily`, `card_actualResidualEvenEdgeFamily_le_pow_support` | actual residual even-edge support/count bridge in Section 9 | defined; local proved | The family is literally the finite even edge sets supported on the row matching `M` together with cells whose supplied multiplicity is at least two. Under the displayed row-matching hypothesis its cardinal is at most `2 ^ Nat.card (ResidualCell (fun a b => 2 <= cellCount a b))`. This proves neither a cycle decomposition nor the traversal, attachment, or Lemma 9.1 estimates. |
-| `twice_sum_choose_two_le_cap_mass` | division-free form of (9.21) | local proved | If every residual multiplicity is at most `U` and the total residual mass is `m₀`, then `2 * sum_e (r e).choose 2 <= (U - 1) * m₀`. This finite arithmetic bound does not prove the cycle-rank bound (9.20), the integrand estimate (9.22), or Lemma 9.1. |
+| `twice_sum_choose_two_le_cap_mass` | division-free form of (9.21) | local proved | If every residual multiplicity is at most `U` and the total residual mass is `m₀`, then `2 * sum_e (r e).choose 2 <= (U - 1) * m₀`. This finite arithmetic bound does not by itself prove the cycle-rank bound (9.20), the integrand estimate (9.22), or Lemma 9.1. |
+| `cycleRank_matching_union_le_card_residual` | forest-plus-residual-edge part of (9.20) | local proved | A genuine bipartite matching is acyclic, and adjoining an arbitrary residual relation gives cyclomatic number at most the number of residual cells.  This does not prove the cycle-space identity/decomposition, traversal estimates, integrand estimate (9.22), or Lemma 9.1. |
+| `cycleRank_matching_union_configurationResidualSupport_le_card`, `cycleRank_matching_union_configurationResidualSupport_le_half_stubMass`, `cycleRank_matching_union_configurationResidualSupport_le_half_m₀` | literal configuration-support chain in (9.20) | local proved | The generic residual relation is identified with the actual multiplicity-at-least-two cell support, giving `cycleRank ≤ |support| ≤ m₀ / 2` once the residual row-stub mass is named `m₀`.  The canonical-skeleton instantiation, concrete cycle-to-walk and weight/kernel transfer (including eventual `tau < 1`), and attachment estimates remain open; the abstract row-norm/geometric traversal kernel is proved below. |
+| `finrank_graphCycleSpace_eq_cycleRank`, `natCard_evenEdgeSubset_eq_two_pow_cycleRank` | exact finite binary cycle-space count (6.7) | local proved | The `ZMod 2` incidence kernel is explicitly equivalent to literal finite even edge subsets and has cardinality `2 ^ cycleRank`.  A recoverable edge-disjoint simple-cycle decomposition and weighted cycle-to-walk encoding remain open. |
+| `finiteKernelWalkMass_le_pow`, `bipartiteCellKernel_walkMass_le_pow`, `sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric`, `sum_marked_range_finiteKernelWalkMass_succ_le_geometric` | analytic traversal kernel for (9.16)–(9.18) | local proved | Row norm propagates along finite walks, marked starts cost one cardinality factor, and the positive/even geometric tails are exact in `ENNReal`.  Eventual `tau < 1`, the concrete q-kernel transfer, and cycle-to-walk injections remain open. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -365,9 +369,9 @@ The six atomic local results in the first six rows below are accepted Lean 4.31
 proofs and are authoritative independently of the service.  Five corresponding
 service requests completed, while the pairing request completed with errors;
 all returned workspaces remain quarantined and no service source was imported.
-The full-Lemma requests are recorded only as search provenance: a
-`COMPLETE_WITH_ERRORS` or `IN_PROGRESS` service status is not a repository
-proof and does not close the non-atomic obligation.
+The full-Lemma requests and their follow-ups are recorded only as search
+provenance.  A service completion, cancellation, or diagnostic counterexample
+is not a repository proof and does not close the non-atomic obligation.
 
 | Atomic theorem or work package | Service request | Current service status | Repository status / local authority |
 |---|---|---:|---|
@@ -377,9 +381,16 @@ proof and does not close the non-atomic obligation.
 | support-indexed full/residual cap and no-return translation | `d4dff887-097c-4f54-bf04-e27b74128903` | `COMPLETE` | independently proved and accepted in `Section8CanonicalSkeleton.lean`; service workspace quarantined |
 | actual residual even-edge family and direct `2 ^ |R|` bound | `701408de-fc95-4dbf-b3f5-e264575082e9` | `COMPLETE` | independently proved and accepted in `Section9ActualResidualFamily.lean`; service workspace quarantined |
 | division-free choose-two mass inequality (9.21) | `7111f397-3732-45f7-bc95-bb99b96b5f8b` | `COMPLETE` | independently proved and accepted in `Section9ChooseTwoMass.lean`; service workspace quarantined |
-| cycle-rank bound for a row matching plus residual support | `5ac53fc2-d9fd-4574-ba02-5bae99c26efa` | `COMPLETE` | quarantined only: the exact returned source fails a warning-fatal Lean 4.31 replay at multiple graph-API/elaboration points and recovery introduces `sorryAx`; a genuine local reconstruction is still required |
+| cycle-rank bound for a row matching plus residual support | `5ac53fc2-d9fd-4574-ba02-5bae99c26efa` | `COMPLETE` | exact returned source remains quarantined because it fails Lean 4.31 replay and recovery introduces `sorryAx`; an independent local reconstruction in `Section9CycleRankResidual.lean` is warning-fatally proved and accepted with the unchanged theorem statement |
 | exact full Lemma 8.3 | `ae343c06-0ad1-40a3-aa0b-0a909b6f30f9` | `COMPLETE_WITH_ERRORS` | rejected: the returned target calls a renamed helper containing one live `sorry`, and `#print axioms` reports `sorryAx`; Lemma 8.3 remains open |
-| exact full Lemma 9.1 | `fe0c45b5-e074-4f9d-bd91-af93f2fed768` | `IN_PROGRESS` | no repository result; Lemma 9.1 remains open |
+| exact full Lemma 9.1 | `fe0c45b5-e074-4f9d-bd91-af93f2fed768` | `COMPLETE_WITH_ERRORS` | rejected: besides the live `sorry` and resulting `sorryAx`, the helper `sum_fourpow_le` is false because it drops the essential residual cap/no-return event; Lemma 9.1 remains open |
+| `sum_fourpow_le` subset-expansion follow-up | `857e6b3d-02cd-4400-bbd9-5bda925b3556` | `CANCELED` | no proof result; does not prove Lemma 9.1 |
+| `sum_fourpow_le` sequential-exposure follow-up | `5ee75c79-dee3-46d1-9a9c-15edd7c2900b` | `COMPLETE` | completed with a valid counterexample to the requested helper rather than a proof; does not prove Lemma 9.1 |
+| faithful fixed-`F` cap/no-return demand expansion (9.10)--(9.12) | `fe520e24-b80f-406e-b4d0-3a842fca287e` | `RUNNING` | exact locally type-checked request; no repository proof until a returned proof passes all local gates |
+| recoverable weighted even-subgraph polymer bound (9.15) | `25a033db-451f-4203-9593-fcb8b1f562d9` | `RUNNING` | decomposition must be constructed in the proof; no decomposition hypothesis or repository result |
+| matching-cycle weighted walk enumeration (9.17)--(9.18) | `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` | `RUNNING` | cycle cutting/encoding must be constructed in the proof; no aggregate-bound hypothesis or repository result |
+| deterministic small-residual integrand bound (9.20)--(9.22) | `29f7b05b-f22f-4266-bc04-795aa0cb709e` | `RUNNING` | exact locally type-checked request; no repository proof yet |
+| finite analytic endpoint estimate (9.7)--(9.9) | `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` | `RUNNING` | absolute constant is existential; no unjustified small numerical constant and no repository proof yet |
 
 ## Non-atomic obligations that must not be hidden
 
@@ -400,15 +411,20 @@ proof and does not close the non-atomic obligation.
    those steps by itself.
 4. Prove the endpoint transportation and all near/middle skeleton sums
    (8.16)--(8.29b), including the no-further-near conditioning event.
-5. The manuscript's actual residual even-edge family and its
-   row-matching-plus-multiplicity-at-least-two support/count bridge are proved.
-   Choose its even-cycle decomposition canonically enough to recover the
+5. The manuscript's actual residual even-edge family, its support/count bridge,
+   and the exact binary cycle-space cardinality are proved.  Choose an
+   edge-disjoint simple-cycle decomposition canonically enough to recover the
    original edge set and encode its cycles as the weighted walks used by the
    analytic bounds.
 6. The division-free choose-two mass inequality (9.21) is proved.  Assemble
-   (9.10)--(9.22), including the still-open cycle-rank and traversal steps,
-   with the actual degree sums and asymptotic error estimates, then prove
-   Lemma 9.1 and Proposition 9.2.
+   (9.10)--(9.22), including the still-open canonical-skeleton instantiation,
+   recoverable cycle decomposition, concrete cycle-to-walk encodings, and
+   weight/kernel transfer; the abstract traversal/geometric kernel is proved,
+   with the actual degree sums and asymptotic error estimates.  The rejected
+   raw `sum_fourpow_le` shortcut cannot replace the cap/no-return event: the
+   faithful event-restricted attachment argument in both residual-mass regimes
+   remains open.  Complete that argument, then prove Lemma 9.1 and
+   Proposition 9.2.
 
 ## RVE refinement: ordered Sections 8–9 work packages
 
@@ -461,9 +477,9 @@ axioms or aliases for the desired conclusion.
 9. **Actual residual-family support/count bridge completed locally:** the
    literal even-edge family supported on `M` together with cells of
    multiplicity at least two is defined and has the direct `2^|R|` bound under
-   the row-matching hypothesis.  Prove the actual cycle-space count (6.7) and
-   a recoverable cycle decomposition; neither may be hidden in a renamed
-   hypothesis.
+   the row-matching hypothesis; the exact binary cycle-space count (6.7) is
+   also proved.  Construct a recoverable cycle decomposition; it may not be
+   hidden in a renamed hypothesis.
 10. Port the mutually exclusive threshold-choice expansion and apply the
     all-cases theorem `jointPrescribedCellBound_cellwise` jointly to the
     combined per-cell demands before removing caps or forbidden-cell events.
@@ -488,7 +504,11 @@ axioms or aliases for the desired conclusion.
 15. **Completed locally:** the division-free choose-two estimate
     `2 * sum_e (r e).choose 2 <= (U - 1) * m₀` under the displayed cap and
     total-mass hypotheses, which is the finite arithmetic content of (9.21).
-    The cycle-rank bound (9.20) and integrand/attachment assembly remain open.
+    The full finite cycle-rank chain in (9.20), including the literal residual-
+    support and `m₀ / 2` forms, is now proved.  The exact binary cycle-space
+    cardinality and abstract traversal/geometric kernel are also proved.  The
+    canonical-skeleton instantiation, recoverable cycle decomposition,
+    cycle-to-walk encodings, and integrand/attachment assembly remain open.
 16. State the final attachment estimate with one deterministic error sequence
     and one eventual threshold uniform over every feasible skeleton.  A
     skeleton-dependent error sequence or threshold has the wrong quantifiers.

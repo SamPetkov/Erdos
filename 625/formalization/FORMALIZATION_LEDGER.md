@@ -184,6 +184,10 @@ target.
 | `card_family_le_pow_residualCells_of_even_encoding`, `configurationResidualCellEquivSupportSubtype`, `natCard_configurationResidualCell_eq_supportFinset_card`, `card_family_le_two_pow_half_stubMass` | generic Section 9 encoding/counting seam | proved under explicit encoding, injectivity, evenness, support, and row-matching hypotheses | An explicitly encoded finite family has cardinality at most `2 ^ |R|`; using the actual configuration residual-support relation bounds the exponent by half the row-stub count. This is a family-cardinality exponent bound, not an occupancy-mass statement. |
 | `ActualResidualEvenEdgeFamily`, `card_actualResidualEvenEdgeFamily_le_pow_support` | actual residual even-edge support bridge in Section 9 | defined; proved | The literal finite family of even edge sets supported on the high row matching or a multiplicity-at-least-two residual cell is injectively encoded by its incidence matrix and has cardinality at most `2 ^ |R|`. This is not a cycle-rank identity, traversal estimate, attachment bound, or proof of Lemma 9.1. |
 | `twice_sum_choose_two_le_cap_mass` | division-free finite form of (9.21) | proved | If residual multiplicities are bounded by `U` and sum to `m₀`, then twice their total choose-two mass is at most `(U-1)m₀`. It assumes no cycle-rank or attachment estimate. |
+| `bipartiteGraph`, `cycleRank`, `relationFinset`, `bipartiteGraph_matching_isAcyclic`, `acyclic_edge_add_component_le`, `cycleRank_matching_union_le_card_residual` | finite cycle-rank inequality in (9.20) | defined; proved | A relation satisfying both row- and column-matching uniqueness induces a forest.  After adjoining an arbitrary residual relation, its cyclomatic number is at most the number of residual cells.  This is the finite graph inequality only; it does not identify the residual cycle space, prove the even-cycle decomposition, or establish any traversal or attachment estimate. |
+| `relationFinset_configurationResidualSupportRelation`, `cycleRank_matching_union_configurationResidualSupport_le_card`, `cycleRank_matching_union_configurationResidualSupport_le_half_stubMass`, `cycleRank_matching_union_configurationResidualSupport_le_half_m₀`, `cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard`, `card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass` | literal configuration-support assembly of (9.20) | proved | The generic residual relation is identified exactly with the actual multiplicity-at-least-two support.  The resulting cycle rank is bounded first by its support cardinality and then by half the total residual row-stub mass, with explicit `m₀` and row-stub-cardinality forms.  The concrete actual even-edge family also inherits the `2^(m₀/2)` exponent bound.  The canonical-skeleton instantiation, recoverable edge-disjoint simple-cycle decomposition, concrete cycle-to-walk and weight/kernel transfer, and attachment estimates remain open. |
+| `graphIncidenceMatrix`, `graphCycleSpace`, `finrank_graphCycleSpace_eq_cycleRank`, `EvenEdgeSubset`, `evenEdgeSubsetEquivGraphCycleSpace`, `natCard_evenEdgeSubset_eq_two_pow_cycleRank` | exact finite binary cycle-space identity (6.7) | defined; proved | The `ZMod 2` vertex-edge incidence kernel has dimension `cycleRank G`; it is explicitly equivalent to finite edge subsets having even degree at every vertex, hence has cardinality `2 ^ cycleRank G`.  This does not supply an edge-disjoint simple-cycle decomposition, a canonical recoverable selector, or any weighted cycle-to-walk estimate. |
+| `finiteKernelWalkMass`, `finiteKernelWalkMass_le_pow`, `bipartiteCellKernel`, `bipartiteCellKernel_walkMass_le_pow`, `sum_range_pow_succ_le_geometric`, `sum_range_pow_even_add_four_le_geometric`, `sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric`, `sum_marked_range_finiteKernelWalkMass_succ_le_geometric` | deterministic traversal/geometric kernel in (9.16)–(9.18) | defined; proved | A finite nonnegative kernel with row norm at most `tau` has length-`ell` walk mass at most `tau^ell`; marking starts costs their cardinality once.  Positive lengths and even lengths from four obey the displayed `ENNReal` geometric bounds.  For `tau >= 1` the right sides are top, so the concrete application still needs eventual `tau < 1`, cycle-to-walk encodings, and weight/kernel transfer. |
 
 ## Remaining proof dependency graph
 
@@ -237,10 +241,14 @@ Lean axioms or claimed theorems.
    bipartite edge-set incidence encoding with exact parity equivalence, and
    generic restriction injection/count for even matrices supported on a row
    matching plus a residual relation are proved.  The actual residual even-edge
-   family has been instantiated in that seam, and the finite choose-two mass
-   estimate (9.21) is proved.  The cycle-rank/decomposition and traversal
-   enumeration, asymptotic attachment estimate, and global assembly remain
-   open.
+   family has been instantiated in that seam, the finite choose-two mass
+   estimate (9.21) is proved, and the forest-plus-residual-edge cycle-rank
+   inequality in (9.20) is checked through its literal configuration-support
+   and `m₀ / 2` forms.  The exact binary cycle-space cardinality and the
+   row-norm/geometric traversal kernel are also proved.  The canonical-skeleton
+   instantiation, recoverable cycle decomposition and cycle-to-walk encodings,
+   concrete weight transfer, asymptotic attachment estimate, and global
+   assembly remain open.
 8. Complete the simultaneous leftover-colouring and seed-amplification layer
    (Lemmas 10.1–10.2).  The induced-capacity statistic, event equivalence,
    block-count concentration input, generic rare-seed inversion, maximizing
@@ -322,11 +330,21 @@ quantifier, endpoint, and uniform error term must be explicit.
   with its core obligation moved into a helper containing one live `sorry`;
   `#print axioms` reports `sorryAx`, so it has no repository authority.  The
   cycle-rank request later completed with an unchanged statement and a
-  plausible forest-plus-added-edges route, but its exact source fails a
+  plausible forest-plus-added-edges route, but its exact source failed a
   warning-fatal Lean 4.31 replay at multiple graph-API/elaboration points and
-  error recovery introduces `sorryAx`; it remains quarantined pending a genuine
-  local reconstruction.  The full Lemma 9.1 request was still in progress at
-  the recorded checkpoint.
+  error recovery introduced `sorryAx`.  That raw workspace remains quarantined;
+  an independent 294-line Lean 4.31 reconstruction now proves the same theorem
+  warning-fatally with only standard Mathlib axioms.  The full Lemma 9.1 request
+  ended `COMPLETE_WITH_ERRORS`: its exact target uses one live `sorry` in
+  `sum_fourpow_le`, so `#print axioms` reports `sorryAx`.  More importantly,
+  the raw collision exponential-moment helper is false because it drops the
+  residual cap/no-return event.  The workspace is quarantined and has no
+  repository authority.  The subset-expansion follow-up
+  `857e6b3d-02cd-4400-bbd9-5bda925b3556` was canceled.  The
+  sequential-exposure follow-up `5ee75c79-dee3-46d1-9a9c-15edd7c2900b`
+  completed with a valid counterexample to the helper rather than the target.
+  Neither follow-up proves Lemma 9.1; the faithful event-restricted proof in
+  the manuscript's two residual-mass regimes remains open.
 - The Sections 10--11 wave independently accepts
   `QuarterDensityDegree.lean`, `QuarterRecurrence.lean`, and
   `Section11EventAssembly.lean`, followed by

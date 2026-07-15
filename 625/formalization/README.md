@@ -260,8 +260,13 @@ most the total row-stub count divided by two.  The actual residual even-edge
 family has now been defined and its literal incidence encoding is proved to
 meet the row-matching-plus-residual support condition, so it inherits the exact
 `2 ^ |R|` bound.  The finite division-free choose-two mass estimate (9.21) is
-also proved.  These results do not identify the residual cycle space or prove
-any traversal, attachment, or asymptotic estimate.  The earlier high-cell mass bound, weighted finite
+also proved.  The finite graph-theoretic inequality in (9.20) is checked as
+well: adding an arbitrary residual relation to a genuine bipartite matching
+raises cycle rank by at most the number of residual cells.  Its literal
+configuration-support specialization proves that this is at most half the
+residual row-stub mass, including the explicit `m₀ / 2` form.  These results do
+not identify the residual cycle space or prove any traversal, attachment, or
+asymptotic estimate.  The earlier high-cell mass bound, weighted finite
 Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
 kernel remain available as independent leaves.  Accepted Lean 4.31 source is
 the proof authority; any Aristotle output is only redundant candidate
@@ -272,7 +277,9 @@ The corresponding source units are
 [`EvenMatchingRestriction.lean`](Erdos625/EvenMatchingRestriction.lean), and
 [`ConfigurationResidualSupport.lean`](Erdos625/ConfigurationResidualSupport.lean),
 together with [`Section9ActualResidualFamily.lean`](Erdos625/Section9ActualResidualFamily.lean)
-and [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean).
+and [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
+[`Section9CycleRankResidual.lean`](Erdos625/Section9CycleRankResidual.lean) and
+[`Section9CycleRankConfigurationAssembly.lean`](Erdos625/Section9CycleRankConfigurationAssembly.lean).
 The finite capped degree moments, exact theta factorizations, normalized bounds
 in (9.13)--(9.14), and the total-zero branch are kernel-checked as a separate
 Section 9 arithmetic module.
@@ -285,9 +292,30 @@ the residual relation to the actual configuration support bounds that exponent
 by half the row-stub count.  This is a cardinality exponent bound under the
 stated encoding/evenness/support hypotheses; it is not a mass-occupancy claim.
 `Section9ActualResidualFamily.lean` verifies those hypotheses for the literal
-finite even-edge family used here.  Cycle-space/decomposition, traversal
-enumeration, attachment estimates, and the full Lemma 9.1/Proposition 9.2
-assembly remain open.
+finite even-edge family used here.  The recoverable edge-disjoint simple-cycle
+decomposition, concrete cycle-to-walk enumeration and weight/kernel transfer
+(including eventual `tau < 1`), attachment estimates, and full Lemma 9.1/
+Proposition 9.2 assembly remain open.  The separate cycle-rank module proves
+the finite forest-plus-residual-edge bound required in the small-residual
+regime, and its configuration assembly supplies both inequalities displayed
+in (9.20); the exact binary cycle-space cardinality and abstract traversal
+kernel are proved in the two modules below.
+
+[`Section9CycleSpaceCardinality.lean`](Erdos625/Section9CycleSpaceCardinality.lean)
+now constructs the vertex-edge incidence map over `ZMod 2`, computes its
+kernel dimension by rank-nullity and connected-component indicators, identifies
+that kernel with literal finite edge subsets of even degree at every vertex,
+and proves their exact cardinality `2 ^ cycleRank`.  This is the finite binary
+cycle-space identity used in (6.7).  It does not choose a recoverable
+edge-disjoint simple-cycle decomposition or encode cycles as weighted walks.
+
+[`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
+finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
+bipartite row/column specialization, a one-time marked-start cardinality cost,
+and the positive/even-length geometric bounds used analytically in
+(9.16)--(9.18).  These bounds become top for `tau >= 1`; the concrete
+application must still prove eventual `tau < 1`, construct the cycle-to-walk
+encodings, and transfer the manuscript weights into the kernel.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -335,7 +363,7 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, canonical residual
 conditioned-event packaging, labelled canonical-witness/incidence (8.3),
 skeleton estimates, and full Section 8 assembly,
-cycle-space/decomposition and traversal enumeration, residual attachment and full Section 9 assembly,
+cycle-space decomposition and traversal enumeration, residual attachment and full Section 9 assembly,
 Section 10's simultaneous leftover tail and concrete seed-amplification
 instantiation, and Section 11's actual chromatic tail and threshold/limit
 instantiation remain open.  The new seam theorems do not discharge these

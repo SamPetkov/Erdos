@@ -22,12 +22,16 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Series
+import Mathlib.Analysis.SpecificLimits.Basic
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.Combinatorics.Enumerative.Bell
+import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Finite
+import Mathlib.Combinatorics.SimpleGraph.IncMatrix
 import Mathlib.Data.Fin.Tuple.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Interval
@@ -45,6 +49,8 @@ import Mathlib.Data.Nat.Factorial.BigOperators
 import Mathlib.Data.Set.Card.Arithmetic
 import Mathlib.Data.Sym.NatCard
 import Mathlib.Data.ZMod.Basic
+import Mathlib.FieldTheory.Finiteness
+import Mathlib.LinearAlgebra.Matrix.Rank
 import Mathlib.Logic.Equiv.Fin.Basic
 import Mathlib.Logic.Equiv.Fintype
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
@@ -21174,6 +21180,1143 @@ END SOURCE MODULE: Erdos625.Section9ChooseTwoMass
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleRankResidual
+Source: Erdos625/Section9CycleRankResidual.lean
+Normalized SHA-256: 4f4e0268d9ce156b90d20ae860a75a8b9b66d9d59d740d17e64305caf8447590
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleRankResidual
+
+/-!
+# The cycle-rank residual bound in Section IX
+
+This module formalizes the finite graph-theoretic inequality in manuscript
+(9.20).  A bipartite matching is a forest, and adjoining an arbitrary residual
+support relation increases its cyclomatic number by at most the number of
+residual support cells.
+
+No cycle decomposition, traversal estimate, probability bound, or asymptotic
+attachment estimate is asserted here.
+-/
+
+namespace Erdos625
+
+open SimpleGraph
+
+/-- Turn a bipartite support relation into a simple graph on the disjoint union
+of row and column vertices. -/
+def bipartiteGraph {A B : Type*} (P : A → B → Prop) :
+    SimpleGraph (A ⊕ B) :=
+  SimpleGraph.fromRel fun u v ↦
+    match u, v with
+    | Sum.inl a, Sum.inr b => P a b
+    | _, _ => False
+
+/-- Finite cyclomatic number `|E| + c - |V|`, with `c` the number of connected
+components (isolated vertices included). -/
+noncomputable def cycleRank
+    {V : Type*} [Fintype V] (G : SimpleGraph V) : ℕ := by
+  classical
+  exact G.edgeFinset.card + Fintype.card G.ConnectedComponent - Fintype.card V
+
+/-- The finite set represented by a bipartite relation. -/
+noncomputable def relationFinset
+    {A B : Type*} [Fintype A] [Fintype B]
+    (R : A → B → Prop) : Finset (A × B) := by
+  classical
+  exact Finset.univ.filter fun e ↦ R e.1 e.2
+
+/-- A finite graph in which every vertex has at most one neighbour is acyclic. -/
+lemma isAcyclic_of_adj_unique {V : Type*} (G : SimpleGraph V)
+    (h : ∀ v w w', G.Adj v w → G.Adj v w' → w = w') : G.IsAcyclic := by
+  by_contra hAcyclic
+  simp_all +decide [SimpleGraph.isAcyclic_iff_forall_adj_isBridge]
+  obtain ⟨v, w, hvw, hNotBridge⟩ := hAcyclic
+  simp_all +decide [SimpleGraph.isBridge_iff]
+  obtain ⟨p, hp⟩ := hNotBridge
+  · exact hvw.ne rfl
+  · rename_i x hx p
+    specialize h v x w
+    simp_all +decide
+
+/-- The matching hypotheses make the associated bipartite graph acyclic. -/
+lemma bipartiteGraph_matching_isAcyclic
+    {A B : Type*} (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    (bipartiteGraph M).IsAcyclic := by
+  convert isAcyclic_of_adj_unique (bipartiteGraph M) _ using 1
+  intro v w w' hv hw
+  unfold bipartiteGraph at hv hw
+  rw [SimpleGraph.fromRel_adj] at hv hw
+  rcases v with (a | b) <;> rcases w with (c | d) <;>
+    rcases w' with (e | f) <;> tauto
+
+/-- The edge finsets of the connected components cover the ambient edge
+finset after applying the subtype embedding. -/
+lemma edgeFinset_eq_biUnion_component_edgeFinsets
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    [∀ c : G.ConnectedComponent, Fintype c]
+    [∀ c : G.ConnectedComponent, DecidableRel c.toSimpleGraph.Adj]
+    [∀ c : G.ConnectedComponent, Fintype c.toSimpleGraph.edgeSet] :
+    G.edgeFinset =
+      Finset.biUnion (Finset.univ : Finset G.ConnectedComponent)
+        (fun c => c.toSimpleGraph.edgeFinset.image
+          (Sym2.map fun v : c => v.1)) := by
+  ext e
+  constructor
+  · intro he
+    rw [Finset.mem_biUnion]
+    induction e using Sym2.inductionOn
+    rename_i u v
+    have huv : G.Adj u v := by
+      simpa [SimpleGraph.mem_edgeFinset] using he
+    let c : G.ConnectedComponent := G.connectedComponentMk u
+    have hu : u ∈ c.supp := by
+      simp [c]
+    have hv : v ∈ c.supp := c.mem_supp_of_adj_mem_supp hu huv
+    let eu : c := ⟨u, hu⟩
+    let ev : c := ⟨v, hv⟩
+    refine ⟨c, Finset.mem_univ c, ?_⟩
+    rw [Finset.mem_image]
+    refine ⟨s(eu, ev), ?_, rfl⟩
+    simpa [ConnectedComponent.toSimpleGraph, eu, ev,
+      SimpleGraph.mem_edgeFinset] using huv
+  · intro he
+    rw [Finset.mem_biUnion] at he
+    obtain ⟨c, _hc, hImage⟩ := he
+    rw [Finset.mem_image] at hImage
+    obtain ⟨f, hf, rfl⟩ := hImage
+    induction f using Sym2.inductionOn
+    rename_i u v
+    have huv : c.toSimpleGraph.Adj u v := by
+      simpa [SimpleGraph.mem_edgeFinset] using hf
+    have huv' : G.Adj u.1 v.1 :=
+      (c.toSimpleGraph_adj u.2 v.2).mp huv
+    simpa [SimpleGraph.mem_edgeFinset] using huv'
+
+/-- For a finite forest, the number of edges plus the number of connected
+components is at most the number of vertices. -/
+lemma acyclic_edge_add_component_le
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (hAcyclic : G.IsAcyclic) :
+    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≤ Fintype.card V := by
+  letI : ∀ c : G.ConnectedComponent, Fintype c :=
+    fun c ↦ Fintype.ofFinite c
+  letI : ∀ c : G.ConnectedComponent, DecidableRel c.toSimpleGraph.Adj :=
+    fun c ↦ Classical.decRel _
+  letI : ∀ c : G.ConnectedComponent, Fintype c.toSimpleGraph.edgeSet :=
+    fun c ↦ Fintype.ofFinite c.toSimpleGraph.edgeSet
+  have hComponent : ∀ c : G.ConnectedComponent,
+      c.toSimpleGraph.edgeFinset.card ≤ Fintype.card c - 1 := by
+    intro c
+    have hTree : c.toSimpleGraph.IsTree := hAcyclic.isTree_connectedComponent c
+    have hCard := hTree.card_edgeFinset
+    omega
+  have hEdges : G.edgeFinset.card ≤
+      ∑ c : G.ConnectedComponent, c.toSimpleGraph.edgeFinset.card := by
+    rw [edgeFinset_eq_biUnion_component_edgeFinsets G]
+    exact Finset.card_biUnion_le.trans
+      (Finset.sum_le_sum fun (c : G.ConnectedComponent) _ ↦
+        (Finset.card_image_le :
+          (c.toSimpleGraph.edgeFinset.image
+            (Sym2.map fun v : c ↦ v.1)).card ≤
+          c.toSimpleGraph.edgeFinset.card))
+  have hVertexPartition :
+      ∑ c : G.ConnectedComponent, Fintype.card c = Fintype.card V := by
+    let componentSigmaEquiv : V ≃ (Σ c : G.ConnectedComponent, c) :=
+      (Equiv.sigmaFiberEquiv G.connectedComponentMk).symm
+    calc
+      ∑ c : G.ConnectedComponent, Fintype.card c =
+          Fintype.card (Σ c : G.ConnectedComponent, c) :=
+        Fintype.card_sigma.symm
+      _ = Fintype.card V := (Fintype.card_congr componentSigmaEquiv).symm
+  calc
+    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≤
+        (∑ c : G.ConnectedComponent,
+          c.toSimpleGraph.edgeFinset.card) +
+          Fintype.card G.ConnectedComponent := Nat.add_le_add_right hEdges _
+    _ ≤ (∑ c : G.ConnectedComponent, (Fintype.card c - 1)) +
+          Fintype.card G.ConnectedComponent := by
+      gcongr with c
+      exact hComponent c
+    _ = ∑ c : G.ConnectedComponent, Fintype.card c := by
+      have hPos : ∀ c : G.ConnectedComponent, 0 < Fintype.card c := by
+        intro c
+        exact Fintype.card_pos_iff.mpr ⟨c.out, c.out_eq⟩
+      calc
+        (∑ c : G.ConnectedComponent, (Fintype.card c - 1)) +
+              Fintype.card G.ConnectedComponent =
+            (∑ c : G.ConnectedComponent, (Fintype.card c - 1)) +
+              ∑ _c : G.ConnectedComponent, 1 := by simp
+        _ = ∑ c : G.ConnectedComponent, ((Fintype.card c - 1) + 1) := by
+          rw [Finset.sum_add_distrib]
+        _ = ∑ c : G.ConnectedComponent, Fintype.card c := by
+          apply Finset.sum_congr rfl
+          intro c _
+          exact Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr
+            (Nat.ne_of_gt (hPos c)))
+    _ = Fintype.card V := hVertexPartition
+
+/-- The bipartite graph of `M ∨ R` is the join of the two bipartite graphs. -/
+lemma bipartiteGraph_or_eq_sup {A B : Type*} (M R : A → B → Prop) :
+    bipartiteGraph (fun a b ↦ M a b ∨ R a b) =
+      bipartiteGraph M ⊔ bipartiteGraph R := by
+  ext u v
+  simp [SimpleGraph.sup_adj]
+  cases u <;> cases v <;> simp [bipartiteGraph]
+
+/-- The number of graph edges represented by a bipartite relation is bounded
+by the number of true row-column pairs. -/
+lemma bipartiteGraph_edgeFinset_card_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (R : A → B → Prop) [DecidableRel (bipartiteGraph R).Adj] :
+    (bipartiteGraph R).edgeFinset.card ≤ (relationFinset R).card := by
+  classical
+  let encode : A × B → Sym2 (A ⊕ B) :=
+    fun p ↦ s(Sum.inl p.1, Sum.inr p.2)
+  have hImage : (bipartiteGraph R).edgeFinset =
+      (relationFinset R).image encode := by
+    ext e
+    induction e using Sym2.inductionOn
+    rename_i u v
+    rcases u with (a | b) <;> rcases v with (c | d) <;>
+      simp [SimpleGraph.mem_edgeFinset, relationFinset, encode, bipartiteGraph,
+        SimpleGraph.fromRel_adj, or_comm]
+  rw [hImage]
+  exact Finset.card_image_le
+
+/-- The number of new edges after adjoining `R` is at most the number of
+residual cells. -/
+lemma edge_diff_le_card_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop)
+    [DecidableRel (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).Adj]
+    [DecidableRel (bipartiteGraph M).Adj] :
+    (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset.card -
+        (bipartiteGraph M).edgeFinset.card ≤
+      (relationFinset R).card := by
+  classical
+  letI : DecidableRel (bipartiteGraph R).Adj := Classical.decRel _
+  have hUnion :
+      (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset ⊆
+        (bipartiteGraph M).edgeFinset ∪ (bipartiteGraph R).edgeFinset := by
+    intro e he
+    simpa [SimpleGraph.mem_edgeFinset, bipartiteGraph_or_eq_sup,
+      SimpleGraph.sup_adj] using he
+  have hCard :
+      (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset.card ≤
+        (bipartiteGraph M).edgeFinset.card +
+          (bipartiteGraph R).edgeFinset.card := by
+    exact (Finset.card_le_card hUnion).trans
+      ((Finset.card_union_le _ _).trans_eq rfl)
+  have hResidual := bipartiteGraph_edgeFinset_card_le R
+  rw [Nat.sub_le_iff_le_add]
+  calc
+    (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset.card ≤
+        (bipartiteGraph M).edgeFinset.card +
+          (bipartiteGraph R).edgeFinset.card := hCard
+    _ ≤ (bipartiteGraph M).edgeFinset.card + (relationFinset R).card :=
+      Nat.add_le_add_left hResidual _
+    _ = (relationFinset R).card + (bipartiteGraph M).edgeFinset.card :=
+      Nat.add_comm _ _
+
+/-- Adding an arbitrary residual bipartite relation to a genuine bipartite
+matching creates at most one unit of cycle rank per residual cell. -/
+theorem cycleRank_matching_union_le_card_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    (M R : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    cycleRank (bipartiteGraph fun a b ↦ M a b ∨ R a b) ≤
+      (relationFinset R).card := by
+  classical
+  have hEdgeDiff :
+      (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset.card -
+          (bipartiteGraph M).edgeFinset.card ≤
+      (relationFinset R).card := by
+    exact edge_diff_le_card_residual M R
+  have hForest :
+      (bipartiteGraph M).edgeFinset.card +
+          Nat.card (bipartiteGraph M).ConnectedComponent ≤
+        Nat.card (A ⊕ B) := by
+    simpa only [← Nat.card_eq_fintype_card] using
+      acyclic_edge_add_component_le (bipartiteGraph M)
+        (bipartiteGraph_matching_isAcyclic M hRowMatching hColumnMatching)
+  have hComponents :
+      Nat.card
+          (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).ConnectedComponent ≤
+        Nat.card (bipartiteGraph M).ConnectedComponent := by
+    apply SimpleGraph.ConnectedComponent.card_le_card_of_le
+    rw [bipartiteGraph_or_eq_sup]
+    exact le_sup_left
+  unfold cycleRank
+  simp only [← Nat.card_eq_fintype_card]
+  rw [Nat.sub_le_iff_le_add] at hEdgeDiff ⊢
+  calc
+    (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).edgeFinset.card +
+          Nat.card
+            (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).ConnectedComponent ≤
+        ((relationFinset R).card + (bipartiteGraph M).edgeFinset.card) +
+          Nat.card
+            (bipartiteGraph (fun a b ↦ M a b ∨ R a b)).ConnectedComponent :=
+      Nat.add_le_add_right hEdgeDiff _
+    _ ≤ ((relationFinset R).card + (bipartiteGraph M).edgeFinset.card) +
+          Nat.card (bipartiteGraph M).ConnectedComponent :=
+      Nat.add_le_add_left hComponents _
+    _ = (relationFinset R).card +
+          ((bipartiteGraph M).edgeFinset.card +
+            Nat.card (bipartiteGraph M).ConnectedComponent) := by
+      omega
+    _ ≤ (relationFinset R).card + Nat.card (A ⊕ B) :=
+      Nat.add_le_add_left hForest _
+
+#print axioms cycleRank_matching_union_le_card_residual
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleRankResidual
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleRankResidual
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleRankConfigurationAssembly
+Source: Erdos625/Section9CycleRankConfigurationAssembly.lean
+Normalized SHA-256: 31c2c551fade169394ff200df60ebd78bd4ce75fcaf1c880524e89e1fa604816
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleRankConfigurationAssembly
+
+/-!
+# Section IX cycle-rank assembly for the configuration residual support
+
+This module instantiates the generic cycle-rank residual theorem with the
+literal configuration-model relation of cells containing at least two matched
+stub pairs.  It records both the exact finite support-cardinality bound and
+the ensuing half-stub-mass bound from manuscript (9.20).
+
+The final theorem also places the already verified actual even-edge-family
+encoding over the same literal residual relation.  No cycle decomposition,
+attachment probability, or asymptotic estimate is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The generic relation finset for the literal configuration residual
+relation is exactly the previously defined configuration support finset. -/
+theorem relationFinset_configurationResidualSupportRelation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) :
+    relationFinset (configurationResidualSupportRelation matching) =
+      configurationResidualSupportFinset matching := by
+  classical
+  ext p
+  simp [relationFinset, configurationResidualSupportRelation,
+    configurationResidualSupportFinset]
+
+/-- Exact finite form of (9.20): adjoining the literal configuration residual
+support to a bipartite matching has cycle rank at most the number of actual
+residual support cells. -/
+theorem cycleRank_matching_union_configurationResidualSupport_le_card
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    cycleRank
+        (bipartiteGraph fun a b ↦
+          M a b ∨ configurationResidualSupportRelation matching a b) ≤
+      (configurationResidualSupportFinset matching).card := by
+  rw [← relationFinset_configurationResidualSupportRelation matching]
+  exact cycleRank_matching_union_le_card_residual M
+    (configurationResidualSupportRelation matching)
+    hRowMatching hColumnMatching
+
+/-- Literal half-stub-mass form of (9.20). -/
+theorem cycleRank_matching_union_configurationResidualSupport_le_half_stubMass
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    cycleRank
+        (bipartiteGraph fun a b ↦
+          M a b ∨ configurationResidualSupportRelation matching a b) ≤
+      (∑ a, row a) / 2 := by
+  exact
+    (cycleRank_matching_union_configurationResidualSupport_le_card
+      matching M hRowMatching hColumnMatching).trans
+      (card_configurationResidualSupportFinset_le_half_stubMass matching)
+
+/-- Manuscript-notation form of (9.20), with `m₀` explicitly identified as
+the total residual row-stub mass. -/
+theorem cycleRank_matching_union_configurationResidualSupport_le_half_m₀
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (M : A → B → Prop)
+    (m₀ : ℕ) (hm₀ : ∑ a, row a = m₀)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    cycleRank
+        (bipartiteGraph fun a b ↦
+          M a b ∨ configurationResidualSupportRelation matching a b) ≤
+      m₀ / 2 := by
+  simpa only [hm₀] using
+    cycleRank_matching_union_configurationResidualSupport_le_half_stubMass
+      matching M hRowMatching hColumnMatching
+
+/-- The same cycle-rank estimate with the ambient mass written as the
+cardinality of the row-stub type. -/
+theorem cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂)
+    (hColumnMatching : ∀ b a₁ a₂, M a₁ b → M a₂ b → a₁ = a₂) :
+    cycleRank
+        (bipartiteGraph fun a b ↦
+          M a b ∨ configurationResidualSupportRelation matching a b) ≤
+      Fintype.card (RowStub row) / 2 := by
+  exact
+    (cycleRank_matching_union_configurationResidualSupport_le_card
+      matching M hRowMatching hColumnMatching).trans
+      (card_configurationResidualSupportFinset_le_half_rowStubCard matching)
+
+/-- The concrete actual residual even-edge family over the configuration
+cell table is bounded by `2` to half the total row-stub mass. -/
+theorem card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (M : A → B → Prop)
+    (hRowMatching : ∀ a b₁ b₂, M a b₁ → M a b₂ → b₁ = b₂) :
+    Nat.card
+        (ActualResidualEvenEdgeFamily
+          (configurationCellCount matching) M) ≤
+      2 ^ ((∑ a, row a) / 2) := by
+  have hFamily :=
+    card_actualResidualEvenEdgeFamily_le_pow_support
+      (configurationCellCount matching) M hRowMatching
+  have hResidualCard :
+      Nat.card
+          (ResidualCell
+            (fun a b ↦ 2 ≤ configurationCellCount matching a b)) ≤
+        (∑ a, row a) / 2 := by
+    change
+      Nat.card
+          (ResidualCell
+            (configurationResidualSupportRelation matching)) ≤
+        (∑ a, row a) / 2
+    rw [natCard_configurationResidualCell_eq_supportFinset_card matching]
+    exact card_configurationResidualSupportFinset_le_half_stubMass matching
+  exact hFamily.trans
+    (Nat.pow_le_pow_right (by norm_num : 0 < 2) hResidualCard)
+
+#print axioms relationFinset_configurationResidualSupportRelation
+#print axioms cycleRank_matching_union_configurationResidualSupport_le_card
+#print axioms cycleRank_matching_union_configurationResidualSupport_le_half_stubMass
+#print axioms cycleRank_matching_union_configurationResidualSupport_le_half_m₀
+#print axioms cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard
+#print axioms card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleRankConfigurationAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleRankConfigurationAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
+Source: Erdos625/Section9CycleSpaceCardinality.lean
+Normalized SHA-256: cbd158bcea1e94b62054770beee33c1682b22532d9effb95b7b3547a52eeb425
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleSpaceCardinality
+
+/-!
+# The finite binary cycle-space cardinality identity
+
+For a finite simple graph `G`, the binary incidence map sends an edge
+coefficient vector to its vector of vertex parities.  This file proves that
+the kernel has dimension
+
+`|E(G)| + number of connected components - |V(G)|`
+
+and therefore has cardinality `2 ^ cycleRank G`.  It then identifies the
+kernel with the literal finite edge subsets having even degree at every
+vertex.  This is the finite identity used in manuscript equation (6.7).
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+open Matrix Module SimpleGraph
+
+noncomputable section
+
+/-- The vertex-by-edge incidence matrix of a finite simple graph over
+`ZMod 2`.  Columns are indexed only by actual edges. -/
+def graphIncidenceMatrix
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Matrix V G.edgeSet (ZMod 2) :=
+  fun v e => if v ∈ (e.1 : Sym2 V) then 1 else 0
+
+/-- In characteristic two, the sum of two coefficients vanishes exactly when
+the coefficients agree. -/
+lemma zmodTwo_add_eq_zero_iff (a b : ZMod 2) : a + b = 0 ↔ a = b := by
+  have hself (x : ZMod 2) : x + x = 0 := by
+    have htwo : (2 : ZMod 2) = 0 := ZMod.natCast_self 2
+    rw [← two_mul, htwo, zero_mul]
+  constructor
+  · intro h
+    apply add_right_cancel (b := b)
+    exact h.trans (hself b).symm
+  · intro h
+    subst a
+    exact hself _
+
+/-- A transposed incidence column evaluates to the sum of the values at the
+two endpoints of its edge. -/
+lemma graphIncidenceMatrix_transpose_mulVec_apply
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (x : V → ZMod 2) {u v : V} (huv : G.Adj u v) :
+    ((graphIncidenceMatrix G)ᵀ *ᵥ x)
+        ⟨s(u, v), G.mem_edgeSet.mpr huv⟩ = x u + x v := by
+  simp only [graphIncidenceMatrix, Matrix.mulVec, dotProduct,
+    Matrix.transpose_apply, ite_mul, one_mul, zero_mul, Sym2.mem_iff]
+  have hsplit (w : V) :
+      (if w = u ∨ w = v then x w else 0) =
+        (if w = u then x u else 0) + (if w = v then x v else 0) := by
+    by_cases hwu : w = u
+    · subst w
+      simp [huv.ne]
+    · by_cases hwv : w = v
+      · subst w
+        simp [hwu]
+      · simp [hwu, hwv]
+  calc
+    (∑ w, if w = u ∨ w = v then x w else 0) =
+        ∑ w, ((if w = u then x u else 0) +
+          (if w = v then x v else 0)) := by
+      exact Finset.sum_congr rfl fun w _ => hsplit w
+    _ = (∑ w, if w = u then x u else 0) +
+        ∑ w, if w = v then x v else 0 := Finset.sum_add_distrib
+    _ = x u + x v := by simp
+
+/-- The cardinality of a finset depends only on its underlying set, expressed
+with the instance-independent `Nat.card`. -/
+lemma finset_card_eq_natCard_set_of_coe_eq
+    {α : Type*} (F : Finset α) (S : Set α) (h : (F : Set α) = S) :
+    F.card = Nat.card S := by
+  rw [← Nat.card_eq_finsetCard]
+  exact Nat.card_congr (Equiv.setCongr h)
+
+/-- The kernel of the transposed incidence matrix consists exactly of vertex
+functions that are constant across every edge. -/
+lemma graphIncidenceMatrix_transpose_mulVec_eq_zero_iff_forall_adj
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] (x : V → ZMod 2) :
+    (graphIncidenceMatrix G)ᵀ *ᵥ x = 0 ↔
+      ∀ u v : V, G.Adj u v → x u = x v := by
+  constructor
+  · intro hx u v huv
+    have h := congrFun hx ⟨s(u, v), G.mem_edgeSet.mpr huv⟩
+    rw [graphIncidenceMatrix_transpose_mulVec_apply G x huv] at h
+    exact (zmodTwo_add_eq_zero_iff _ _).mp h
+  · intro hx
+    funext e
+    rcases e with ⟨e, he⟩
+    induction e using Sym2.inductionOn with
+    | _ u v =>
+      have huv : G.Adj u v := G.mem_edgeSet.mp he
+      rw [graphIncidenceMatrix_transpose_mulVec_apply G x huv]
+      exact (zmodTwo_add_eq_zero_iff _ _).mpr (hx u v huv)
+
+/-- Equivalently, a transposed-kernel vector is constant on every connected
+component. -/
+lemma graphIncidenceMatrix_transpose_mulVec_eq_zero_iff_forall_reachable
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] (x : V → ZMod 2) :
+    (graphIncidenceMatrix G)ᵀ *ᵥ x = 0 ↔
+      ∀ u v : V, G.Reachable u v → x u = x v := by
+  rw [graphIncidenceMatrix_transpose_mulVec_eq_zero_iff_forall_adj]
+  refine ⟨?_, fun h u v huv => h u v huv.reachable⟩
+  intro h u v ⟨w⟩
+  induction w with
+  | nil => rfl
+  | cons huv _ ih => exact (h _ _ huv).trans ih
+
+/-- The indicator vector of a connected component, regarded as an element of
+the transposed incidence kernel. -/
+def incidenceTransposeKerBasisAux
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    [DecidableEq G.ConnectedComponent]
+    (c : G.ConnectedComponent) :
+    LinearMap.ker (graphIncidenceMatrix G)ᵀ.mulVecLin := by
+  refine ⟨fun v => if G.connectedComponentMk v = c then 1 else 0, ?_⟩
+  rw [LinearMap.mem_ker, Matrix.mulVecLin_apply,
+    graphIncidenceMatrix_transpose_mulVec_eq_zero_iff_forall_reachable]
+  intro u v huv
+  rw [ConnectedComponent.sound huv]
+
+/-- Component indicator vectors are linearly independent. -/
+lemma incidenceTransposeKerBasisAux_linearIndependent
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    [DecidableEq G.ConnectedComponent] :
+    LinearIndependent (ZMod 2) (incidenceTransposeKerBasisAux G) := by
+  rw [Fintype.linearIndependent_iff]
+  intro coefficients hzero
+  rw [Subtype.ext_iff] at hzero
+  have hsum :
+      ∑ c, coefficients c • incidenceTransposeKerBasisAux G c =
+        fun v => coefficients (G.connectedComponentMk v) := by
+    simp only [incidenceTransposeKerBasisAux, SetLike.mk_smul_mk]
+    repeat rw [AddSubmonoid.coe_finsetSum]
+    ext v
+    simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul, mul_ite,
+      mul_one, mul_zero, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
+  rw [hsum] at hzero
+  intro c
+  obtain ⟨v, hv⟩ : ∃ v : V, G.connectedComponentMk v = c := Quot.exists_rep c
+  exact hv ▸ congrFun hzero v
+
+/-- Component indicator vectors span the whole transposed incidence kernel. -/
+lemma incidenceTransposeKerBasisAux_spans
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    [DecidableEq G.ConnectedComponent] :
+    ⊤ ≤ Submodule.span (ZMod 2)
+      (Set.range (incidenceTransposeKerBasisAux G)) := by
+  intro x _
+  rw [Submodule.mem_span_range_iff_exists_fun]
+  use Quot.lift x.val (by
+    rw [← graphIncidenceMatrix_transpose_mulVec_eq_zero_iff_forall_reachable G,
+      ← Matrix.mulVecLin_apply, LinearMap.map_coe_ker])
+  ext v
+  simp only [incidenceTransposeKerBasisAux]
+  rw [AddSubmonoid.coe_finsetSum]
+  simp only [SetLike.mk_smul_mk, Finset.sum_apply, Pi.smul_apply,
+    smul_eq_mul, mul_ite, mul_one, mul_zero, Finset.sum_ite_eq,
+    Finset.mem_univ, ↓reduceIte]
+  rfl
+
+/-- A basis of the transposed incidence kernel indexed by connected
+components. -/
+def incidenceTransposeKerBasis
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    [DecidableEq G.ConnectedComponent] :
+    Basis G.ConnectedComponent (ZMod 2)
+      (LinearMap.ker (graphIncidenceMatrix G)ᵀ.mulVecLin) :=
+  Basis.mk (incidenceTransposeKerBasisAux_linearIndependent G)
+    (incidenceTransposeKerBasisAux_spans G)
+
+/-- The nullity of the transposed incidence matrix is the number of connected
+components. -/
+lemma finrank_ker_graphIncidenceMatrix_transpose
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Module.finrank (ZMod 2)
+        (LinearMap.ker (graphIncidenceMatrix G)ᵀ.mulVecLin) =
+      Fintype.card G.ConnectedComponent := by
+  classical
+  rw [Module.finrank_eq_card_basis (incidenceTransposeKerBasis G)]
+
+/-- The binary cycle space is the kernel of the vertex-edge incidence map. -/
+abbrev graphCycleSpace
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :=
+  LinearMap.ker (graphIncidenceMatrix G).mulVecLin
+
+/-- Rank-nullity and transpose-rank invariance give the usual cyclomatic
+dimension formula for the binary cycle space. -/
+theorem finrank_graphCycleSpace_eq_cycleRank
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Module.finrank (ZMod 2) (graphCycleSpace G) = cycleRank G := by
+  classical
+  let A := graphIncidenceMatrix G
+  have hTranspose :
+      A.rank + Fintype.card G.ConnectedComponent = Fintype.card V := by
+    calc
+      A.rank + Fintype.card G.ConnectedComponent =
+          Aᵀ.rank + Module.finrank (ZMod 2) (LinearMap.ker Aᵀ.mulVecLin) := by
+        rw [Matrix.rank_transpose, finrank_ker_graphIncidenceMatrix_transpose G]
+      _ = Module.finrank (ZMod 2) (LinearMap.range Aᵀ.mulVecLin) +
+          Module.finrank (ZMod 2) (LinearMap.ker Aᵀ.mulVecLin) := rfl
+      _ = Module.finrank (ZMod 2) (V → ZMod 2) :=
+        LinearMap.finrank_range_add_finrank_ker Aᵀ.mulVecLin
+      _ = Fintype.card V := by simp
+  have hOriginal :
+      A.rank + Module.finrank (ZMod 2) (LinearMap.ker A.mulVecLin) =
+        Fintype.card G.edgeSet := by
+    calc
+      A.rank + Module.finrank (ZMod 2) (LinearMap.ker A.mulVecLin) =
+          Module.finrank (ZMod 2) (LinearMap.range A.mulVecLin) +
+            Module.finrank (ZMod 2) (LinearMap.ker A.mulVecLin) := rfl
+      _ = Module.finrank (ZMod 2) (G.edgeSet → ZMod 2) :=
+        LinearMap.finrank_range_add_finrank_ker A.mulVecLin
+      _ = Fintype.card G.edgeSet := by simp
+  have hTransposeNat :
+      A.rank + Nat.card G.ConnectedComponent = Nat.card V := by
+    simpa only [Nat.card_eq_fintype_card] using hTranspose
+  have hOriginalNat :
+      A.rank + Module.finrank (ZMod 2) (LinearMap.ker A.mulVecLin) =
+        Nat.card G.edgeSet := by
+    simpa only [Nat.card_eq_fintype_card] using hOriginal
+  have hDimension :
+      Module.finrank (ZMod 2) (graphCycleSpace G) =
+        Nat.card G.edgeSet + Nat.card G.ConnectedComponent - Nat.card V := by
+    change Module.finrank (ZMod 2) (LinearMap.ker A.mulVecLin) = _
+    omega
+  have hCycleRank :
+      cycleRank G =
+        Nat.card G.edgeSet + Nat.card G.ConnectedComponent - Nat.card V := by
+    letI : DecidableEq V := Classical.decEq V
+    letI : DecidableRel G.Adj := Classical.decRel _
+    unfold cycleRank
+    rw [G.edgeFinset_card]
+    simp only [← Nat.card_eq_fintype_card]
+  exact hDimension.trans hCycleRank.symm
+
+/-- Consequently the binary cycle space has exactly `2 ^ cycleRank G`
+elements. -/
+theorem natCard_graphCycleSpace_eq_two_pow_cycleRank
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Nat.card (graphCycleSpace G) = 2 ^ cycleRank G := by
+  calc
+    Nat.card (graphCycleSpace G) =
+        Nat.card (ZMod 2) ^ Module.finrank (ZMod 2) (graphCycleSpace G) :=
+      Module.natCard_eq_pow_finrank
+    _ = 2 ^ cycleRank G := by
+      rw [Nat.card_eq_fintype_card, ZMod.card,
+        finrank_graphCycleSpace_eq_cycleRank]
+
+/-- The edges of `F` incident with `v`. -/
+def graphEdgeSubsetAtVertex
+    {V : Type*} [Fintype V] [DecidableEq V]
+    {G : SimpleGraph V} [DecidableRel G.Adj]
+    (F : Finset G.edgeSet) (v : V) : Finset G.edgeSet :=
+  Finset.univ.filter fun e => e ∈ F ∧ v ∈ (e.1 : Sym2 V)
+
+/-- Literal finite edge subsets having even degree at every vertex. -/
+def EvenEdgeSubset
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :=
+  {F : Finset G.edgeSet //
+    ∀ v, Even (graphEdgeSubsetAtVertex F v).card}
+
+/-- The zero-one coefficient vector of a finite edge subset. -/
+def graphEdgeSubsetVector
+    {V : Type*} [Fintype V] [DecidableEq V]
+    {G : SimpleGraph V} [DecidableRel G.Adj]
+    (F : Finset G.edgeSet) : G.edgeSet → ZMod 2 :=
+  fun e => if e ∈ F then 1 else 0
+
+/-- Applying the incidence matrix to an edge-subset indicator gives the
+incident-edge cardinality modulo two at each vertex. -/
+lemma graphIncidenceMatrix_mulVec_graphEdgeSubsetVector_apply
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (F : Finset G.edgeSet) (v : V) :
+    (graphIncidenceMatrix G *ᵥ graphEdgeSubsetVector F) v =
+      ((graphEdgeSubsetAtVertex F v).card : ZMod 2) := by
+  simp only [graphIncidenceMatrix, graphEdgeSubsetVector,
+    graphEdgeSubsetAtVertex, Matrix.mulVec, dotProduct, ite_mul,
+    one_mul, zero_mul]
+  change (∑ e, if v ∈ (e.1 : Sym2 V) then
+      (if e ∈ F then (1 : ZMod 2) else 0) else 0) =
+    ((Finset.univ.filter fun e => e ∈ F ∧ v ∈ (e.1 : Sym2 V)).card : ZMod 2)
+  rw [← Finset.sum_filter]
+  rw [Finset.sum_boole]
+  have hfilter :
+      ((Finset.univ.filter fun e : G.edgeSet => v ∈ (e.1 : Sym2 V)).filter
+          fun e => e ∈ F) =
+        Finset.univ.filter fun e => e ∈ F ∧ v ∈ (e.1 : Sym2 V) := by
+    ext e
+    simp [and_comm]
+  rw [hfilter]
+
+/-- The zero-one vector of `F` belongs to the binary cycle space exactly when
+`F` has even degree at every vertex. -/
+lemma graphEdgeSubsetVector_mem_graphCycleSpace_iff
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (F : Finset G.edgeSet) :
+    graphEdgeSubsetVector F ∈ graphCycleSpace G ↔
+      ∀ v, Even (graphEdgeSubsetAtVertex F v).card := by
+  rw [LinearMap.mem_ker, Matrix.mulVecLin_apply]
+  constructor
+  · intro h v
+    apply ZMod.natCast_eq_zero_iff_even.mp
+    rw [← graphIncidenceMatrix_mulVec_graphEdgeSubsetVector_apply G F v]
+    exact congrFun h v
+  · intro h
+    funext v
+    rw [graphIncidenceMatrix_mulVec_graphEdgeSubsetVector_apply]
+    exact ZMod.natCast_eq_zero_iff_even.mpr (h v)
+
+/-- Every nonzero coefficient in `ZMod 2` is one. -/
+lemma zmodTwo_eq_one_of_ne_zero (x : ZMod 2) (hx : x ≠ 0) : x = 1 := by
+  have hlt : x.val < 2 := ZMod.val_lt x
+  have hval : x.val = 0 ∨ x.val = 1 := by omega
+  rcases hval with hzero | hone
+  · exfalso
+    apply hx
+    rw [← ZMod.natCast_zmod_val x, hzero]
+    norm_num
+  · rw [← ZMod.natCast_zmod_val x, hone]
+    norm_num
+
+/-- The support finset of a binary edge coefficient vector. -/
+def graphEdgeVectorSupport
+    {V : Type*} [Fintype V] [DecidableEq V]
+    {G : SimpleGraph V} [DecidableRel G.Adj]
+    (x : G.edgeSet → ZMod 2) : Finset G.edgeSet :=
+  Finset.univ.filter fun e => x e ≠ 0
+
+@[simp] lemma graphEdgeVectorSupport_graphEdgeSubsetVector
+    {V : Type*} [Fintype V] [DecidableEq V]
+    {G : SimpleGraph V} [DecidableRel G.Adj]
+    (F : Finset G.edgeSet) :
+    graphEdgeVectorSupport (graphEdgeSubsetVector F) = F := by
+  ext e
+  simp [graphEdgeVectorSupport, graphEdgeSubsetVector]
+
+lemma graphEdgeSubsetVector_graphEdgeVectorSupport
+    {V : Type*} [Fintype V] [DecidableEq V]
+    {G : SimpleGraph V} [DecidableRel G.Adj]
+    (x : G.edgeSet → ZMod 2) :
+    graphEdgeSubsetVector (graphEdgeVectorSupport x) = x := by
+  funext e
+  by_cases he : x e = 0
+  · simp [graphEdgeSubsetVector, graphEdgeVectorSupport, he]
+  · have heOne : x e = 1 := zmodTwo_eq_one_of_ne_zero (x e) he
+    simp [graphEdgeSubsetVector, graphEdgeVectorSupport, heOne]
+
+/-- Literal even edge subsets are equivalent to vectors in the binary cycle
+space. -/
+def evenEdgeSubsetEquivGraphCycleSpace
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    EvenEdgeSubset G ≃ graphCycleSpace G where
+  toFun F :=
+    ⟨graphEdgeSubsetVector F.1,
+      (graphEdgeSubsetVector_mem_graphCycleSpace_iff G F.1).mpr F.2⟩
+  invFun x := by
+    refine ⟨graphEdgeVectorSupport x.1, ?_⟩
+    apply (graphEdgeSubsetVector_mem_graphCycleSpace_iff G _).mp
+    rw [graphEdgeSubsetVector_graphEdgeVectorSupport]
+    exact x.2
+  left_inv F := by
+    apply Subtype.ext
+    exact graphEdgeVectorSupport_graphEdgeSubsetVector F.1
+  right_inv x := by
+    apply Subtype.ext
+    exact graphEdgeSubsetVector_graphEdgeVectorSupport x.1
+
+/-- Equation (6.7): the number of finite edge subsets having even degree at
+every vertex is exactly `2 ^ cycleRank G`. -/
+theorem natCard_evenEdgeSubset_eq_two_pow_cycleRank
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Nat.card (EvenEdgeSubset G) = 2 ^ cycleRank G := by
+  rw [Nat.card_congr (evenEdgeSubsetEquivGraphCycleSpace G),
+    natCard_graphCycleSpace_eq_two_pow_cycleRank]
+
+#print axioms natCard_graphCycleSpace_eq_two_pow_cycleRank
+#print axioms natCard_evenEdgeSubset_eq_two_pow_cycleRank
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleSpaceCardinality
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9TraversalKernel
+Source: Erdos625/Section9TraversalKernel.lean
+Normalized SHA-256: 1e1103de129ee471d0d6c02db8fbf837e61324bd08817fd40dffb0e154dcd4a0
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9TraversalKernel
+
+/-!
+# Finite traversal kernels for Section IX
+
+This module isolates the deterministic kernel estimate used in manuscript
+(9.16)--(9.18).  For a finite nonnegative kernel whose row sums are at most
+`tau`, the total weight of all length-`ell` walks from any fixed vertex is at
+most `tau ^ ell`.  A bipartite kernel inherits this hypothesis from separate
+row and column bounds on its cell weights.
+
+The final lemmas sum positive walk lengths over a finite cutoff and compare
+them with the exact extended-nonnegative geometric series
+`tau * (1 - tau)⁻¹`.  These statements formalize the finite traversal
+estimate and its geometric relaxation only.  They do not assert the
+cycle-to-walk injection, the marked-cycle count, or any probabilistic bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## Walk mass of a finite nonnegative kernel -/
+
+/-- Total kernel weight of all length-`ell` walks starting at `v`.
+
+The recursion sums over the first step.  At length zero there is one empty
+walk, of weight one. -/
+def finiteKernelWalkMass {V : Type*} [Fintype V]
+    (K : V → V → ℝ≥0∞) : ℕ → V → ℝ≥0∞
+  | 0, _ => 1
+  | ell + 1, v => ∑ w, K v w * finiteKernelWalkMass K ell w
+
+@[simp]
+theorem finiteKernelWalkMass_zero {V : Type*} [Fintype V]
+    (K : V → V → ℝ≥0∞) (v : V) :
+    finiteKernelWalkMass K 0 v = 1 := rfl
+
+@[simp]
+theorem finiteKernelWalkMass_succ {V : Type*} [Fintype V]
+    (K : V → V → ℝ≥0∞) (ell : ℕ) (v : V) :
+    finiteKernelWalkMass K (ell + 1) v =
+      ∑ w, K v w * finiteKernelWalkMass K ell w := rfl
+
+/-- A row-sum bound propagates multiplicatively along every finite walk. -/
+theorem finiteKernelWalkMass_le_pow
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (ell : ℕ) (v : V) :
+    finiteKernelWalkMass K ell v ≤ tau ^ ell := by
+  induction ell generalizing v with
+  | zero => simp
+  | succ ell ih =>
+      calc
+        finiteKernelWalkMass K (ell + 1) v =
+            ∑ w, K v w * finiteKernelWalkMass K ell w := rfl
+        _ ≤ ∑ w, K v w * tau ^ ell := by
+          apply Finset.sum_le_sum
+          intro w hw
+          exact mul_le_mul_right (ih w) (K v w)
+        _ = (∑ w, K v w) * tau ^ ell := by
+          rw [Finset.sum_mul]
+        _ ≤ tau * tau ^ ell :=
+          mul_le_mul_left (hRow v) (tau ^ ell)
+        _ = tau ^ (ell + 1) := by
+          rw [pow_succ]
+          ac_rfl
+
+/-- Summing over a finite set of marked starting vertices costs exactly its
+cardinality and no additional power of the walk-length parameter. -/
+theorem sum_marked_finiteKernelWalkMass_le
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (S : Finset V) (ell : ℕ) :
+    (∑ v ∈ S, finiteKernelWalkMass K ell v) ≤
+      (S.card : ℝ≥0∞) * tau ^ ell := by
+  calc
+    (∑ v ∈ S, finiteKernelWalkMass K ell v) ≤
+        ∑ v ∈ S, tau ^ ell := by
+      apply Finset.sum_le_sum
+      intro v hv
+      exact finiteKernelWalkMass_le_pow K tau hRow ell v
+    _ = (S.card : ℝ≥0∞) * tau ^ ell := by simp
+
+/-! ## The bipartite cell kernel -/
+
+/-- Symmetric kernel on the disjoint union induced by bipartite cell weights.
+It vanishes on pairs of vertices in the same part. -/
+def bipartiteCellKernel {A B : Type*} (q : A → B → ℝ≥0∞) :
+    A ⊕ B → A ⊕ B → ℝ≥0∞
+  | Sum.inl a, Sum.inr b => q a b
+  | Sum.inr b, Sum.inl a => q a b
+  | _, _ => 0
+
+@[simp]
+theorem sum_bipartiteCellKernel_inl
+    {A B : Type*} [Fintype A] [Fintype B]
+    (q : A → B → ℝ≥0∞) (a : A) :
+    ∑ v, bipartiteCellKernel q (Sum.inl a) v = ∑ b, q a b := by
+  rw [Fintype.sum_sum_type]
+  simp [bipartiteCellKernel]
+
+@[simp]
+theorem sum_bipartiteCellKernel_inr
+    {A B : Type*} [Fintype A] [Fintype B]
+    (q : A → B → ℝ≥0∞) (b : B) :
+    ∑ v, bipartiteCellKernel q (Sum.inr b) v = ∑ a, q a b := by
+  rw [Fintype.sum_sum_type]
+  simp [bipartiteCellKernel]
+
+/-- Separate row and column bounds give the row-sum norm bound for the
+symmetric bipartite kernel. -/
+theorem bipartiteCellKernel_rowSum_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (q : A → B → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau) :
+    ∀ v, ∑ w, bipartiteCellKernel q v w ≤ tau := by
+  intro v
+  rcases v with a | b
+  · rw [sum_bipartiteCellKernel_inl]
+    exact hRow a
+  · rw [sum_bipartiteCellKernel_inr]
+    exact hColumn b
+
+/-- Bipartite row and column bounds control all alternating walk weights. -/
+theorem bipartiteCellKernel_walkMass_le_pow
+    {A B : Type*} [Fintype A] [Fintype B]
+    (q : A → B → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau)
+    (ell : ℕ) (v : A ⊕ B) :
+    finiteKernelWalkMass (bipartiteCellKernel q) ell v ≤ tau ^ ell :=
+  finiteKernelWalkMass_le_pow (bipartiteCellKernel q) tau
+    (bipartiteCellKernel_rowSum_le q tau hRow hColumn) ell v
+
+/-! ## Finite geometric relaxation -/
+
+/-- Every finite initial segment of the positive-power geometric series is
+bounded by its exact `ENNReal` infinite sum.  The right side is finite when
+`tau < 1`; for `tau ≥ 1` it is top, so the inequality remains valid but is
+quantitatively vacuous. -/
+theorem sum_range_pow_succ_le_geometric (tau : ℝ≥0∞) (L : ℕ) :
+    (∑ ell ∈ Finset.range L, tau ^ (ell + 1)) ≤
+      tau * (1 - tau)⁻¹ := by
+  calc
+    (∑ ell ∈ Finset.range L, tau ^ (ell + 1)) ≤
+        ∑' ell : ℕ, tau ^ (ell + 1) := ENNReal.sum_le_tsum _
+    _ = tau * (1 - tau)⁻¹ := ENNReal.tsum_geometric_add_one tau
+
+/-- Finite relaxation of the even-length geometric tail beginning at length
+four, with exponents `4, 6, 8, ...`.  This is the scalar series in the
+residual-only cycle estimate (9.16).  It is quantitative when `tau < 1`. -/
+theorem sum_range_pow_even_add_four_le_geometric
+    (tau : ℝ≥0∞) (L : ℕ) :
+    (∑ k ∈ Finset.range L, tau ^ (2 * k + 4)) ≤
+      tau ^ 4 * (1 - tau ^ 2)⁻¹ := by
+  calc
+    (∑ k ∈ Finset.range L, tau ^ (2 * k + 4)) =
+        tau ^ 4 * ∑ k ∈ Finset.range L, (tau ^ 2) ^ k := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro k hk
+      rw [← pow_mul]
+      rw [← pow_add]
+      congr 1
+      omega
+    _ ≤ tau ^ 4 * ∑' k : ℕ, (tau ^ 2) ^ k := by
+      exact mul_le_mul_right (ENNReal.sum_le_tsum (Finset.range L)) (tau ^ 4)
+    _ = tau ^ 4 * (1 - tau ^ 2)⁻¹ := by
+      rw [ENNReal.tsum_geometric]
+
+/-- Marked finite walks of even length at least four satisfy the scalar tail
+from (9.16), with one cardinality factor for the selected starting vertex. -/
+theorem sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (S : Finset V) (L : ℕ) :
+    (∑ v ∈ S, ∑ k ∈ Finset.range L,
+        finiteKernelWalkMass K (2 * k + 4) v) ≤
+      (S.card : ℝ≥0∞) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) := by
+  calc
+    (∑ v ∈ S, ∑ k ∈ Finset.range L,
+        finiteKernelWalkMass K (2 * k + 4) v) ≤
+        ∑ v ∈ S, ∑ k ∈ Finset.range L, tau ^ (2 * k + 4) := by
+      apply Finset.sum_le_sum
+      intro v hv
+      apply Finset.sum_le_sum
+      intro k hk
+      exact finiteKernelWalkMass_le_pow K tau hRow (2 * k + 4) v
+    _ = (S.card : ℝ≥0∞) *
+        (∑ k ∈ Finset.range L, tau ^ (2 * k + 4)) := by simp
+    _ ≤ (S.card : ℝ≥0∞) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) :=
+      mul_le_mul_right (sum_range_pow_even_add_four_le_geometric tau L)
+        (S.card : ℝ≥0∞)
+
+/-- A finite sum over all positive walk lengths is controlled by the geometric
+kernel mass from manuscript (9.17). -/
+theorem sum_range_finiteKernelWalkMass_succ_le_geometric
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (L : ℕ) (v : V) :
+    (∑ ell ∈ Finset.range L, finiteKernelWalkMass K (ell + 1) v) ≤
+      tau * (1 - tau)⁻¹ := by
+  calc
+    (∑ ell ∈ Finset.range L, finiteKernelWalkMass K (ell + 1) v) ≤
+        ∑ ell ∈ Finset.range L, tau ^ (ell + 1) := by
+      apply Finset.sum_le_sum
+      intro ell hell
+      exact finiteKernelWalkMass_le_pow K tau hRow (ell + 1) v
+    _ ≤ tau * (1 - tau)⁻¹ := sum_range_pow_succ_le_geometric tau L
+
+/-- Finite positive-length traversals from a set of marked starts cost one
+cardinality factor.  To apply this to the `2h` term in manuscript (9.18), one
+must separately construct the oriented matching-edge start set and prove that
+its post-cut transition kernel has the required row bound. -/
+theorem sum_marked_range_finiteKernelWalkMass_succ_le_geometric
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (S : Finset V) (L : ℕ) :
+    (∑ v ∈ S, ∑ ell ∈ Finset.range L,
+        finiteKernelWalkMass K (ell + 1) v) ≤
+      (S.card : ℝ≥0∞) * (tau * (1 - tau)⁻¹) := by
+  calc
+    (∑ v ∈ S, ∑ ell ∈ Finset.range L,
+        finiteKernelWalkMass K (ell + 1) v) ≤
+        ∑ v ∈ S, tau * (1 - tau)⁻¹ := by
+      apply Finset.sum_le_sum
+      intro v hv
+      exact sum_range_finiteKernelWalkMass_succ_le_geometric K tau hRow L v
+    _ = (S.card : ℝ≥0∞) * (tau * (1 - tau)⁻¹) := by simp
+
+/-- Bipartite form of the finite positive-length traversal bound. -/
+theorem sum_range_bipartiteCellKernel_walkMass_succ_le_geometric
+    {A B : Type*} [Fintype A] [Fintype B]
+    (q : A → B → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau)
+    (L : ℕ) (v : A ⊕ B) :
+    (∑ ell ∈ Finset.range L,
+        finiteKernelWalkMass (bipartiteCellKernel q) (ell + 1) v) ≤
+      tau * (1 - tau)⁻¹ :=
+  sum_range_finiteKernelWalkMass_succ_le_geometric
+    (bipartiteCellKernel q) tau
+    (bipartiteCellKernel_rowSum_le q tau hRow hColumn) L v
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9TraversalKernel
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9TraversalKernel
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.LocalSignReward
 Source: Erdos625/LocalSignReward.lean
 Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
@@ -24578,7 +25721,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 03e27fd1ef57809a5cdd47d7bde8832327f818385a4b1bc68581981dbf1541c7
+Normalized SHA-256: 44d3f60c145f3ecacea75de97ddf9f1d9d9254016144249cd54c220a7f1c5f05
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -24916,6 +26059,24 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_family_le_two_pow_half_stubMass
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
+#print axioms Erdos625.cycleRank_matching_union_le_card_residual
+#print axioms Erdos625.relationFinset_configurationResidualSupportRelation
+#print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_card
+#print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_stubMass
+#print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_m₀
+#print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard
+#print axioms Erdos625.card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass
+#print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
+#print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
+#print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
+#print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.finiteKernelWalkMass_le_pow
+#print axioms Erdos625.sum_marked_finiteKernelWalkMass_le
+#print axioms Erdos625.bipartiteCellKernel_rowSum_le
+#print axioms Erdos625.bipartiteCellKernel_walkMass_le_pow
+#print axioms Erdos625.sum_range_pow_even_add_four_le_geometric
+#print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
+#print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
@@ -25030,7 +26191,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 8b03cf98d199886bce924abc1f3f17061d80abfd83075e3e5025d223cbf0a686
+Normalized SHA-256: 1c6fc75ab32419afac394af7b51e27be66cbea36fe3ba4d2003de4951bc1ba21
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -25157,9 +26318,16 @@ factorizations behind (9.13)--(9.14) are also checked, including positive-mass
 normalized bounds and the zero-total branch.  The explicitly defined residual
 even-edge family is injected into the verified parity-matrix restriction seam,
 giving its exact `2 ^ |R|` support bound; the finite division-free choose-two
-mass estimate (9.21) is proved as well.  Cycle-rank/decomposition, traversal and
-attachment estimates, and the complete Lemma 9.1/Proposition 9.2 assembly
-remain open.
+mass estimate (9.21) is proved as well.  The finite graph-theoretic part of
+(9.20) is now checked: adjoining a residual bipartite relation to a genuine
+matching raises cycle rank by at most the number of residual cells, and the
+literal configuration support contains at most half the residual stub mass.
+The binary cycle-space dimension and exact `2 ^ cycleRank` cardinality are now
+proved for literal finite even edge subsets.  Finite kernel walk mass is bounded
+by powers of its row norm, with the positive-length and even-length geometric
+tails used in (9.16)--(9.18).  The recoverable cycle-to-walk encodings, concrete
+kernel transfer, attachment estimates, and complete Lemma 9.1/Proposition 9.2
+assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
