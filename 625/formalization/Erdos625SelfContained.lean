@@ -26705,7 +26705,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 2f9110769a212fd7dad7fa824016ff9ac90e66d5d6536f584be0896df42fb7fe
+Normalized SHA-256: 5815cf3b9f30851caf2832008b0a5df550d88772b81d2b31b150521c3cc8cb71
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -26770,7 +26770,9 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
         (mem_fixedWitnessCanonicalDemandEvent_iff_residual
           witness U hhigh
           ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          residual.2⟩
+          (by
+            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
+            exact residual.2)⟩
     left_inv := by
       intro extension
       apply Subtype.ext
@@ -26838,49 +26840,59 @@ private theorem canonicalDemandEventWitness_unique
   have hgiven : witness = witness₀ := hunique _ hwitness
   exact hchosen.trans hgiven.symm
 
-private noncomputable def canonicalDemandEventPartitionMap
+private theorem canonicalDemandEventWitness_eq_iff_extends
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    ↑(canonicalDemandEvent demand row col U) →
-      Σ witness : PrescribedDemandWitness demand row col,
-        ↑(fixedWitnessCanonicalDemandEvent witness U) := fun x =>
-  ⟨canonicalDemandEventWitness demand row col U x,
-    ⟨⟨x.1, canonicalDemandEventWitness_extends demand row col U x⟩,
-      by
-        change canonicalDemandOfMatching x.1 U = demand
-        exact x.2⟩⟩
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U))
+    (witness : PrescribedDemandWitness demand row col) :
+    canonicalDemandEventWitness demand row col U x = witness ↔
+      ExtendsPrescribedDemandWitness x.1 witness := by
+  constructor
+  · intro h
+    exact h ▸ canonicalDemandEventWitness_extends demand row col U x
+  · intro h
+    exact canonicalDemandEventWitness_unique demand row col U x witness h
 
-private theorem canonicalDemandEventPartitionMap_injective
+private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Function.Injective (canonicalDemandEventPartitionMap demand row col U) := by
-  intro x y hxy
-  apply Subtype.ext
-  simpa [canonicalDemandEventPartitionMap] using
-    congrArg (fun z => z.2.1.1) hxy
-
-private theorem canonicalDemandEventPartitionMap_surjective
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Function.Surjective (canonicalDemandEventPartitionMap demand row col U) := by
-  rintro ⟨witness, extension⟩
-  let x : ↑(canonicalDemandEvent demand row col U) :=
-    ⟨extension.1.1, by
-      change canonicalDemandOfMatching extension.1.1 U = demand
-      exact extension.2⟩
-  refine ⟨x, ?_⟩
-  have hwitness : canonicalDemandEventWitness demand row col U x = witness :=
-    canonicalDemandEventWitness_unique demand row col U x witness extension.1.2
-  subst witness
-  dsimp [canonicalDemandEventPartitionMap, x]
-  apply Sigma.ext rfl
-  apply heq_of_eq
-  apply Subtype.ext
-  apply Subtype.ext
-  rfl
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    fixedWitnessCanonicalDemandEvent witness U ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        canonicalDemandEventWitness demand row col U x = witness} := by
+  let e₁ : fixedWitnessCanonicalDemandEvent witness U ≃
+      {m : ConfigurationMatching row col //
+        ExtendsPrescribedDemandWitness m witness ∧
+          canonicalDemandOfMatching m U = demand} := by
+    change {e : {m : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness m witness} //
+      canonicalDemandOfMatching e.1 U = demand} ≃ _
+    exact Equiv.subtypeSubtypeEquivSubtypeInter _ _
+  let e₂ : {m : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness m witness ∧
+        canonicalDemandOfMatching m U = demand} ≃
+      {m : ConfigurationMatching row col //
+        canonicalDemandOfMatching m U = demand ∧
+          ExtendsPrescribedDemandWitness m witness} :=
+    Equiv.subtypeEquivRight (fun _ => and_comm)
+  let e₃ : {m : ConfigurationMatching row col //
+      canonicalDemandOfMatching m U = demand ∧
+        ExtendsPrescribedDemandWitness m witness} ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        ExtendsPrescribedDemandWitness x.1 witness} := by
+    change _ ≃ {x : {m : ConfigurationMatching row col //
+      canonicalDemandOfMatching m U = demand} //
+      ExtendsPrescribedDemandWitness x.1 witness}
+    exact (Equiv.subtypeSubtypeEquivSubtypeInter _ _).symm
+  let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
+      ExtendsPrescribedDemandWitness x.1 witness} ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        canonicalDemandEventWitness demand row col U x = witness} :=
+    (Equiv.subtypeEquivRight (fun x =>
+      canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
+  exact e₁.trans (e₂.trans (e₃.trans e₄))
 
 private theorem canonicalDemandEvent_equiv_sigma_fixedWitness
     {A B : Type*}
@@ -26889,10 +26901,13 @@ private theorem canonicalDemandEvent_equiv_sigma_fixedWitness
     ↑(canonicalDemandEvent demand row col U) ≃
       Σ witness : PrescribedDemandWitness demand row col,
         ↑(fixedWitnessCanonicalDemandEvent witness U) := by
-  exact Equiv.ofBijective
-    (canonicalDemandEventPartitionMap demand row col U)
-    ⟨canonicalDemandEventPartitionMap_injective demand row col U,
-      canonicalDemandEventPartitionMap_surjective demand row col U⟩
+  exact
+    (Equiv.sigmaFiberEquiv
+      (canonicalDemandEventWitness demand row col U)).symm.trans
+      (Equiv.sigmaCongrRight
+      (fun witness =>
+        (fixedWitnessCanonicalDemandEventEquivFiber
+          (demand := demand) (row := row) (col := col) witness U).symm))
 
 private theorem card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
     {A B : Type*}
