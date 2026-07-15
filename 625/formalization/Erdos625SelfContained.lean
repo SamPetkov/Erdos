@@ -24988,7 +24988,7 @@ END SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
 Source: Erdos625/Section9ResidualQQuadratic.lean
-Normalized SHA-256: e99b661cf6f57f13dc0dce60aa40f73476631e8b74899529c07e79a41e754a9f
+Normalized SHA-256: 7410af82c2a656de8f7f19c7968cfdab12a3fb8fb2ef8c7e994ac3491c9dc94a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
 
@@ -25060,7 +25060,9 @@ theorem existsAbsoluteResidualQQuadraticBound :
         rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat ] at hi ⊢;
         split_ifs;
         · apply pow_le_pow_right₀ (by norm_num)
-          exact Nat.sub_le_sub_right (Nat.choose_le_succ (i + 2) 2) 1
+          first
+          | exact Nat.sub_le_sub_right (Nat.choose_le_succ (i + 2) 2) 1
+          | omega
         · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
   have h_residQ : configurationCellTheta row col m a b ^ 2 / 2 + ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) ≤ ENNReal.ofReal (endpointQ R (configurationCellTheta row col m a b).toReal) := by
     rw [ endpointQ ];

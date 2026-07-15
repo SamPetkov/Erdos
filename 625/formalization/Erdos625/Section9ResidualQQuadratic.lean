@@ -70,7 +70,9 @@ theorem existsAbsoluteResidualQQuadraticBound :
         rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat ] at hi ⊢;
         split_ifs;
         · apply pow_le_pow_right₀ (by norm_num)
-          exact Nat.sub_le_sub_right (Nat.choose_le_succ (i + 2) 2) 1
+          first
+          | exact Nat.sub_le_sub_right (Nat.choose_le_succ (i + 2) 2) 1
+          | omega
         · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
   have h_residQ : configurationCellTheta row col m a b ^ 2 / 2 + ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) ≤ ENNReal.ofReal (endpointQ R (configurationCellTheta row col m a b).toReal) := by
     rw [ endpointQ ];
