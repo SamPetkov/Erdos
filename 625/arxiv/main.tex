@@ -267,15 +267,29 @@ theorem used by Heckel is not imported.
 \end{enumerate}
 
 \begin{resultbox}{Main theorem (candidate statement)}
-For $G_n\sim G(n,1/2)$,
+For \(G_n\sim G(n,1/2)\),
 \[
  \Pr\!\left\{\chi(G_n)-\zeta(G_n)
  \ge \frac{(\ln 2)^2}{32}\ln\!\left(\frac{200}{153}\right)
        \frac{n}{(\ln n)^3}\right\}\longrightarrow 1.
-\]
-In particular, $\chi(G_n)-\zeta(G_n)$ diverges with high probability
-along the full sequence of integers $n$.
+ \]
+ In particular, \(\chi(G_n)-\zeta(G_n)\) diverges with high probability
+ along the full sequence of integers \(n\).
 \end{resultbox}
+
+\paragraph{Proof roadmap.}
+The candidate argument has the following structure. Sections~II--IV establish
+an unrestricted lower location for \(\chi(G_n)\). Section~V constructs a
+four-size signed cocolouring profile whose first moment is positive at a
+threshold lower by order \(n/(\ln n)^3\). Sections~VI--IX establish the
+corresponding normalized second-moment estimate: Section~VI gives the exact
+overlap and sign decomposition, Section~VII controls common whole classes,
+Section~VIII sums the high-cell skeletons, and Section~IX bounds the
+remaining conditional local and cycle contributions. Section~X amplifies the
+resulting possibly rare cocolouring event to a high-probability statement.
+Finally, Section~XI combines the chromatic lower location with the
+cocolouring upper location. The roadmap records dependencies only; each
+asymptotic estimate is proved at the point where it is used.
 
 \section{Notation and elementary
 facts}\label{notation-and-elementary-facts}
@@ -1372,12 +1386,21 @@ factorial before (6.9) is taken. \(\square\)
 
 \section{Exact partial diagonals}\label{exact-partial-diagonals}
 
+\paragraph{Purpose of this section.}
+The exact overlap representation of Section~VI still permits two partitions
+to share whole classes. The definitions below assign a nonnegative marked
+weight to each such common subprofile. We prove that the total marked
+contribution is \(1+o(1)\), uniformly through the phase. This
+partial-diagonal estimate is the input used in Section~VIII to control the
+dense transportation sum. The counting identities in (7.1)--(7.4) are
+finite-\(n\) identities; asymptotic estimates are explicitly labelled below.
+
 For a selected common subprofile \(\ell=(\ell_i)\), put
 
 \[
- L=\sum_i\ell_i,\qquad
+ \ell_\bullet=\sum_i\ell_i,\qquad
  m=\sum_i u_i\ell_i,\qquad
- M=\sum_i\binom{u_i}{2}\ell_i.                           \tag{7.1}
+ b_\ell=\sum_i\binom{u_i}{2}\ell_i.                           \tag{7.1}
 \]
 
 Here \(0\le\ell_i\le k_i\) coordinatewise.  Since the full profile has
@@ -1390,8 +1413,8 @@ The signed first moment of such partial partitions occupying any
 
 \[
  Y_{\ell}^{\mathrm{sgn}}
- =2^L\frac{n!}{(n-m)!\prod_i(u_i!)^{\ell_i}\ell_i!}
-       2^{-M}.                                           \tag{7.2}
+ =2^\ell_\bullet\frac{n!}{(n-m)!\prod_i(u_i!)^{\ell_i}\ell_i!}
+       2^{-b_\ell}.                                           \tag{7.2}
 \]
 
 Summing the possible matchings between selected row and column slots
@@ -1483,16 +1506,16 @@ For the exact midpoint profile,
 
 Let
 
-\[
- \eta=\frac{{\ln\ln n}}{32{\ln n}},\qquad
- \lambda_i=\frac{k_i^2}{2\mu_{u_i}(n)},\qquad
- \Lambda=\sum_i\lambda_i.                               \tag{7.8}
-\]
+ \[
+  \eta=\frac{{\ln\ln n}}{32{\ln n}},\qquad
+ \xi_i=\frac{k_i^2}{2\mu_{u_i}(n)},\qquad
+ \Xi_{\mathrm{empty}}=\sum_i\xi_i.                               \tag{7.8}
+ \]
 
 Equations (2.4), (2.8), and \(k_i=\Theta(n/{\ln n})\) imply
 
 \[
- \Lambda=O((\ln n)^{-(2/{\ln 2}-1/2)})=o(1).                        \tag{7.9}
+ \Xi_{\mathrm{empty}}=O((\ln n)^{-(2/{\ln 2}-1/2)})=o(1).        \tag{7.9}
 \]
 
 If the final selected mass is at most \(\eta n\), every
@@ -1506,15 +1529,15 @@ intermediate mass \(m'\) in (7.4) satisfies
 Iterating (7.4), in any order, yields
 
 \[
- D(\ell)\le\prod_i\frac{((\ln n)^{3/8}\lambda_i)^{\ell_i}}
-                              {\ell_i!}.
+ D(\ell)\le\prod_i\frac{((\ln n)^{3/8}\xi_i)^{\ell_i}}
+                               {\ell_i!}.
 \]
 
 Thus
 
 \[
  1\le\sum_{m\le\eta n}D(\ell)
- \le\exp((\ln n)^{3/8}\Lambda)=1+o(1).                       \tag{7.11}
+ \le\exp((\ln n)^{3/8}\Xi_{\mathrm{empty}})=1+o(1).       \tag{7.11}
 \]
 
 \subsubsection{Proof: the central range}\label{proof-the-central-range}
@@ -1536,6 +1559,7 @@ The residual vertex fraction is
  =R+\frac{I-TY}{\alpha-T}.                              \tag{7.13}
 \]
 
+\paragraph{Uniform Stirling control.}
 Uniform Stirling estimates in (7.3), retaining zeros, give
 
 \[
@@ -1609,6 +1633,7 @@ where
  \Phi_T(z)=R\ln R+\frac {\ln 2}2(I_r-TR).                     \tag{7.21}
 \]
 
+\paragraph{Uniform rate negativity.}
 This rate is uniformly negative away from its two corners. Indeed,
 
 \[
@@ -1696,25 +1721,35 @@ contribution. Together with (7.11) and (7.25), this proves (7.7).
 \section{Canonical high cells and dense endpoint
 transportation}\label{canonical-high-cells-and-dense-endpoint-transportation}
 
+\paragraph{Purpose of this section.}
+Section~VII controls the diagonal contribution coming from common whole
+classes. We now decompose every remaining overlap canonically according to
+its high cells and sum the resulting high-cell contribution, including
+unequal-type and nonendpoint cells. The local and cycle factors of the
+unexposed residual configuration are deliberately deferred: Section~IX will
+bound them uniformly after the present bare high-skeleton sum has been
+established.
+
 Put
 
 \[
- U=\alpha-2,\qquad R_0=\lfloor U/2\rfloor.                \tag{8.1}
+ u_{\max}=\alpha-2,\qquad R_0=\lfloor u_{\max}/2\rfloor.                \tag{8.1}
 \]
 
 In every overlap matrix, the cells of multiplicity greater than
-\(R_0\) form a matching: two such cells in one row or column would
-use more than \(U\) stubs. Let this canonical matching be
+\(R_0\) will be called \emph{high cells}. They form a matching: two high
+cells in one row or column would use more than \(u_{\max}\) stubs. Write the
+resulting canonical high-cell skeleton and its multiplicities as
 
 \[
- M=\{a_rb_r:1\le r\le h\},\qquad
+ \mathcal M=\{a_rb_r:1\le r\le h\},\qquad
  r_{a_rb_r}=j_r>R_0,\qquad J=\sum_rj_r.                  \tag{8.2}
 \]
 
 Selecting the exact stub pairs in these cells has incidence
 
 \[
- \pi(M,j)=
+ \pi(\mathcal M,j)=
  \frac{\prod_r(s_{a_r})_{j_r}(t_{b_r})_{j_r}}
       {(n)_J\prod_rj_r!}.                                \tag{8.3}
 \]
@@ -1722,32 +1757,32 @@ Selecting the exact stub pairs in these cells has incidence
 Conditional on the exposed pairs, the remaining matching is a uniform
 configuration model with total degree \(n-J\) and the residual row
 and column degrees. It is restricted to put no further pair in a cell of
-\(M\) and no cell above \(R_0\). Multiplication of (8.3) by
+\(\mathcal M\) and no cell above \(R_0\). Multiplication of (8.3) by
 the exact residual contingency-table law cancels to (6.2). Thus every
 overlap matrix occurs exactly once.
 
-We first sum the bare high matching, postponing all local and
-topological factors in the capped residual model. Index the four sizes
+ We first sum the bare high-skeleton contribution, postponing all local and
+ topological factors in the capped residual model. Index the four sizes
 as
 
 \[
  u_i=a-i,\qquad 0\le i\le3,\qquad a=\alpha-2.             \tag{8.4}
 \]
 
-For a typed full-containment matrix \(L=(\ell_{ij})\), put
+For a typed full-containment matrix \(\mathbf L=(\ell_{ij})\), put
 
 \[
  r_i=\sum_j\ell_{ij},\quad c_j=\sum_i\ell_{ij},\quad
- x_{ij}=\min(u_i,u_j),\quad J(L)=\sum_{ij}x_{ij}\ell_{ij}. \tag{8.5}
+ x_{ij}=\min(u_i,u_j),\quad J(\mathbf L)=\sum_{ij}x_{ij}\ell_{ij}. \tag{8.5}
 \]
 
 Its exact incidence, including its local signed rewards but not residual
 attachments, is
 
 \[
- W(L)=
+ W(\mathbf L)=
  \frac{\prod_i(k_i)_{r_i}\prod_j(k_j)_{c_j}}
-      {\prod_{ij}\ell_{ij}!}\frac1{(n)_{J(L)}}
+      {\prod_{ij}\ell_{ij}!}\frac1{(n)_{J(\mathbf L)}}
  \prod_{ij}\left[
   \frac{(u_i)_{x_{ij}}(u_j)_{x_{ij}}}{x_{ij}!}g(x_{ij})
  \right]^{\ell_{ij}}.                                   \tag{8.6}
@@ -1769,10 +1804,10 @@ This is exactly the common-subprofile weight (7.3).
 \label{lemma-8.1-geometric-mean-transportation-comparison}
 \begin{lemmabox}{Lemma 8.1 (geometric-mean transportation comparison)}
 
-For every feasible \(L\),
+For every feasible \(\mathbf L\),
 
 \[
- W(L)\le\sqrt{D(r)D(c)}
+ W(\mathbf L)\le\sqrt{D(r)D(c)}
  \frac{\sqrt{\prod_i r_i!c_i!}}{\prod_{ij}\ell_{ij}!}
  \prod_{ij}Q_{ij}^{\ell_{ij}},                          \tag{8.8}
 \]
@@ -1804,7 +1839,7 @@ every slope is at most \(\ln(n+1)\). Moreover,
 
 \[
  \frac{m_r+m_c}{2}
- =J(L)+\frac12\sum_{ij}|i-j|\ell_{ij}.                  \tag{8.11}
+ =J(\mathbf L)+\frac12\sum_{ij}|i-j|\ell_{ij}.                  \tag{8.11}
 \]
 
 Concavity first gives
@@ -1814,19 +1849,19 @@ Concavity first gives
  \le f\!\left(\frac{m_r+m_c}{2}\right).
 \]
 
-Using (8.11) and then moving from \(J(L)\) along a distance
+Using (8.11) and then moving from \(J(\mathbf L)\) along a distance
 \(\frac12\sum_{ij}|i-j|\ell_{ij}\), with slope at most
 \(\ln(n+1)\), gives
 
 \[
- \frac{f(m_r)+f(m_c)}2-f(J(L))
+ \frac{f(m_r)+f(m_c)}2-f(J(\mathbf L))
  \le\frac{\ln(n+1)}2\sum_{ij}|i-j|\ell_{ij}.
 \]
 
 Exponentiating this inequality gives
 
 \[
- \frac{\sqrt{(n)_{m_r}(n)_{m_c}}}{(n)_{J(L)}}
+ \frac{\sqrt{(n)_{m_r}(n)_{m_c}}}{(n)_{J(\mathbf L)}}
  \le(n+1)^{\frac12\sum_{ij}|i-j|\ell_{ij}}.            \tag{8.12}
 \]
 
@@ -1858,17 +1893,17 @@ uniformly in the phase. This proves (8.10). \(\square\)
 \label{lemma-8.2-sum-of-all-endpoint-tables}
 \begin{lemmabox}{Lemma 8.2 (sum of all endpoint tables)}
 
-Let \(\mathcal M\) be the finite set of feasible one-sided margin vectors.
-The first sum below is over all typed full-containment tables \(L\) whose
-row and column margins lie in \(\mathcal M\).  Then
+Let \(\mathcal P\) be the finite set of feasible one-sided margin vectors.
+The first sum below is over all typed full-containment tables \(\mathbf L\) whose
+row and column margins lie in \(\mathcal P\).  Then
 
 \[
  \begin{aligned}
- \sum_LW(L)
+  \sum_{\mathbf L}W(\mathbf L)
  &\le \exp\{O(\eta_n k_{\mathrm{co}})\}
-      \left(\sum_{\mathbf r\in\mathcal M}\sqrt{D(\mathbf r)}\right)^2\\
+      \left(\sum_{\mathbf r\in\mathcal P}\sqrt{D(\mathbf r)}\right)^2\\
  &\le \exp\{O(\sqrt{n{\ln n}})+O({\ln n})\}
-      \sum_{\mathbf r\in\mathcal M}D(\mathbf r)\\
+      \sum_{\mathbf r\in\mathcal P}D(\mathbf r)\\
  &=\exp\{O(\sqrt{n{\ln n}})+O({\ln n})\}.
  \end{aligned}
  \tag{8.16}
@@ -1881,25 +1916,34 @@ row and column margins lie in \(\mathcal M\).  Then
 For fixed margins, write
 
 \[
- A_L=\frac{\prod_i r_i!}{\prod_{ij}\ell_{ij}!},\qquad
- C_L=\frac{\prod_j c_j!}{\prod_{ij}\ell_{ij}!}.        \tag{8.17}
+ A_{\mathbf L}=\frac{\prod_i r_i!}{\prod_{ij}\ell_{ij}!},\qquad
+ C_{\mathbf L}=\frac{\prod_j c_j!}{\prod_{ij}\ell_{ij}!}.        \tag{8.17}
 \]
 
+Write \(Q^{\mathbf L}:=\prod_{ij}Q_{ij}^{\ell_{ij}}\).
 Cauchy's inequality gives
 
 \[
- \sum_L\sqrt{A_LC_L}\,Q^L
- \le\left(\sum_LA_LQ^L\right)^{1/2}
-      \left(\sum_LC_LQ^L\right)^{1/2}.                 \tag{8.18}
+ \sum_{\mathbf L}\sqrt{A_{\mathbf L}C_{\mathbf L}}\,Q^{\mathbf L}
+ \le\left(\sum_{\mathbf L}A_{\mathbf L}Q^{\mathbf L}\right)^{1/2}
+      \left(\sum_{\mathbf L}C_{\mathbf L}Q^{\mathbf L}\right)^{1/2}.
+                                                               \tag{8.18}
 \]
 
-Dropping the column constraints in the first sum and the row constraints
-in the second produces two exact multinomial expansions:
+All summands in (8.18) are nonnegative. In the first sum, remove the
+column-margin constraints while retaining the fixed row margins; this
+enlarges the summation domain and therefore gives an upper bound. The
+unrestricted allocation of the \(r_i\) row objects among the column types is
+then counted exactly by the multinomial theorem. The second inequality is
+obtained symmetrically by removing the row-margin constraints while
+retaining the column margins. Thus
 
 \[
- \sum_LA_LQ^L\le\prod_i\left(\sum_jQ_{ij}\right)^{r_i},
+ \sum_{\mathbf L}A_{\mathbf L}Q^{\mathbf L}
+ \le\prod_i\left(\sum_jQ_{ij}\right)^{r_i},
  \quad
- \sum_LC_LQ^L\le\prod_j\left(\sum_iQ_{ij}\right)^{c_j}.
+ \sum_{\mathbf L}C_{\mathbf L}Q^{\mathbf L}
+ \le\prod_j\left(\sum_iQ_{ij}\right)^{c_j}.
                                                                \tag{8.19}
 \]
 
@@ -1910,8 +1954,9 @@ cost is
 There are only \(O(k_{\mathrm{co}}^4)\) margin vectors, and
 
 \[
- \left(\sum_r\sqrt{D(r)}\right)^2
- \le O(k_{\mathrm{co}}^4)\sum_rD(r).                              \tag{8.20}
+  \left(\sum_{\mathbf r\in\mathcal P}\sqrt{D(\mathbf r)}\right)^2
+  \le O(k_{\mathrm{co}}^4)\sum_{\mathbf r\in\mathcal P}D(\mathbf r).
+                                                               \tag{8.20}
 \]
 
 Use Lemma 7.1 and
@@ -1987,16 +2032,18 @@ decreases geometrically and
  \sum_{1\le e<m/4}n^eR_{m,d}(e)=O((\ln n)^3/n).                \tag{8.25}
 \]
 
+\paragraph{Near-containment decorations.}
 The passage from this per-cell estimate to the full skeleton sum is as
-follows. For a full-containment table \(L\), temporarily distinguish its
-endpoint cells and let \(\mathcal S(L)\) be all near-containment
+follows. For a full-containment table \(\mathbf L\), temporarily distinguish its
+endpoint cells, write \(\operatorname{cells}(\mathbf L)\) for the resulting
+multiset, and let \(\mathcal S(\mathbf L)\) be all near-containment
 skeletons obtained by assigning to each such cell either \(e=0\) or
 \(1\le e<m/4\). If \(w(S)\) is its bare incidence and local weight,
 (8.21)--(8.25) give the nonnegative bound
 
 \[
- \sum_{S\in\mathcal S(L)}w(S)
- \le W(L)\prod_{c\in L}
+ \sum_{S\in\mathcal S(\mathbf L)}w(S)
+  \le W(\mathbf L)\prod_{c\in\operatorname{cells}(\mathbf L)}
    \left(1+\sum_{1\le e<m_c/4}n^eR_{m_c,d_c}(e)\right).
                                                                \tag{8.25a}
 \]
@@ -2004,15 +2051,18 @@ skeletons obtained by assigning to each such cell either \(e=0\) or
 Distinguishing and then forgetting identical typed cells is exactly the
 multinomial expansion, so there is no additional multiplicity. Since a
 high skeleton is a matching and has at most \(k_{\mathrm{co}}\) cells, (8.25a) is
-at most \(W(L)\) times
+at most \(W(\mathbf L)\) times
 
 \[
  (1+O((\ln n)^3/n))^{k_{\mathrm{co}}}=\exp(O((\ln n)^2)).                     \tag{8.26}
 \]
 
+\paragraph{Middle-strip residual factor.}
 It remains to cover the middle strip, rather than silently importing an
-equitable-profile estimate. First expose a near-containment skeleton and
-let \(m_0\) be its residual stub mass. Let \(\mathcal N(S)\) be the residual
+equitable-profile estimate. First expose a near-containment skeleton \(S\).
+Its underlying set of high cells is a matching; write \(\mathcal M(S)\) for
+that matching after multiplicities are forgotten, and let \(m_0\) be the
+residual stub mass. Let \(\mathcal N(S)\) be the residual
 event that there is no further near-containment cell. On \(\mathcal N(S)\),
 every unexposed high cell is in the range
 \(R_0<j\le3a/4+O(1)\). Define \(E_{\mathrm{mid}}(S)\) as the residual expectation of
@@ -2026,12 +2076,14 @@ truncated factor, then on \(\mathcal N(S)\)
           g(j)\mathbf1_{\{r_{ab}\ge j\}}.
 \]
 
-Expanding the product chooses distinct cells and at most one threshold
-in each selected cell.  Lemma 6.2 is applied jointly to that entire
-threshold family before any residual restriction is removed.  After
-this nonnegative expansion, the indicator may be dropped term by term;
-the local factor is still the truncated middle factor, so no newly
-admitted near cell is charged as a middle cell. If
+Expanding the product produces nonnegative monomials, each of which chooses
+distinct residual cells and at most one threshold in each selected cell.
+Apply Lemma~6.2 jointly to the entire threshold family before changing any
+residual restriction. Only afterwards do we discard
+\(\mathbf1_{\mathcal N(S)}\): this can only increase each nonnegative
+monomial. The local factor remains truncated to the stated middle range, so
+the relaxation does not create a new charge for a newly admitted
+near-containment cell. If
 \(m_0\ge n/(\ln n)^6\), expand over distinct residual cells and their threshold
 demands. With
 \(\theta_{ab}=\mathrm e\,d_ad'_b/m_0\le \mathrm e\,a^2/m_0\), Lemma 6.2 is applied jointly
@@ -2077,12 +2129,16 @@ on this interval. Hence
 \(\Xi_4=2^{-\Omega(\ell_n^2)}\).
 
 If instead \(m_0<n/(\ln n)^6\), leave the entire residual matching unexposed.
-Every residual degree is at most \(a\), so every residual cell has
+For an upper bound, replace \(\mathbf1_{\mathcal N(S)}\) by \(1\) and the
+truncated local product by the full product \(\prod_e g(r_e)\); both
+replacements enlarge the nonnegative integrand. Every residual degree is at
+most \(a\), so every residual cell has
 \(r_e\le a\) and therefore \(\binom{r_e}{2}\le((a-1)/2)r_e\). The near
 skeleton is a matching, so pointwise
 
 \[
- \beta(M\cup H_{\mathrm{res}})\le|E(H_{\mathrm{res}})|\le m_0/2,
+ \beta(\mathcal M(S)\cup H_{\mathrm{res}})
+ \le|E(H_{\mathrm{res}})|\le m_0/2,
  \quad
  \sum_e\binom{r_e}{2}\le(a-1)m_0/2.                    \tag{8.29}
 \]
@@ -2095,7 +2151,7 @@ explicit conditional bound
 \[
  E_{\mathrm{mid}}(S)
  \le\mathbb E_{\mathrm{res}}\left[
-      \prod_e g(r_e)2^{\beta(S\cup H_{\mathrm{res}})}\right]
+       \prod_e g(r_e)2^{\beta(\mathcal M(S)\cup H_{\mathrm{res}})}\right]
  \le\exp(Cam_0).                                         \tag{8.29a}
 \]
 
@@ -2104,7 +2160,7 @@ now gives the global inequality
 
 \[
  \sum_{\text{all high skeletons}}\text{bare weight}
- \le e^{O((\ln n)^2)}\left(\sum_LW(L)\right)
+  \le e^{O((\ln n)^2)}\left(\sum_{\mathbf L}W(\mathbf L)\right)
       \max\{e^{\Xi_4},e^{Cn/(\ln n)^5}\}.                     \tag{8.29b}
 \]
 
@@ -2121,29 +2177,38 @@ Therefore
 \section{All residual local and cycle
 attachments}\label{all-residual-local-and-cycle-attachments}
 
-Fix an actual canonical high skeleton \((M,j)\) as in (8.2), and
+\paragraph{Purpose of this section.}
+Fixing a canonical high skeleton does not yet control the local multiplicity
+factors or the cycle-space factor of the residual overlap graph. The
+conditional quantity defined below collects precisely these residual
+contributions, subject to the residual cap and the prohibition on adding a
+further pair in a high cell. We prove a bound uniform over all feasible
+skeletons; Proposition~9.2 then combines that bound with the bare
+high-skeleton estimate from Section~VIII.
+
+Fix an actual canonical high skeleton \((\mathcal M,j)\) as in (8.2), and
 let \(m_0=n-J\) be the residual total degree. Its residual degrees
-are at most \(U\). Define
+are at most \(u_{\max}\). Define
 
 \[
- \mathcal A(M,j)=\mathbb E_{\mathrm{res}}\left[
+ \mathcal A(\mathcal M,j)=\mathbb E_{\mathrm{res}}\left[
   \left(\prod_e g(r'_e)\right)
-  2^{\beta(M\cup H_{\mathrm{res}})}\mathbf1_{\mathcal E(M,j)}
+  2^{\beta(\mathcal M\cup H_{\mathrm{res}})}\mathbf1_{\mathcal E(\mathcal M,j)}
  \right],                                                \tag{9.1}
 \]
 
-where \(\mathcal E(M,j)\) imposes the residual cap
+where \(\mathcal E(\mathcal M,j)\) imposes the residual cap
 \(r'_e\le R_0\) and forbids a further
-pair in a cell of \(M\). By (6.4), (8.3), and the exact conditional
+pair in a cell of \(\mathcal M\). By (6.4), (8.3), and the exact conditional
 law, the normalized moment is exactly
 
 \[
- \sum_{(M,j)}\pi(M,j)\left(\prod_{e\in M}g(j_e)\right)
- \mathcal A(M,j).                                       \tag{9.2}
+ \sum_{(\mathcal M,j)}\pi(\mathcal M,j)\left(\prod_{e\in \mathcal M}g(j_e)\right)
+ \mathcal A(\mathcal M,j).                                       \tag{9.2}
 \]
 
 The sum in (9.2) is over the finite set of feasible canonical high skeletons:
-typed matchings \(M\), allowed multiplicities \(j_e>R_0\), and the induced
+typed matchings \(\mathcal M\), allowed multiplicities \(j_e>R_0\), and the induced
 nonnegative residual row and column degrees.
 
 \phantomsection
@@ -2156,7 +2221,7 @@ canonical high skeleton, such that for every feasible skeleton and all
 sufficiently large \(n\),
 
 \[
- \mathcal A(M,j)\le
+ \mathcal A(\mathcal M,j)\le
  \exp\!\left\{\varepsilon_n\frac n{(\ln n)^4}\right\}.       \tag{9.3}
 \]
 
@@ -2172,12 +2237,12 @@ degree}\label{proof-large-residual-degree}
 Suppose \(m_0\ge n/(\ln n)^6\). Since
 
 \[
- U=(2+o(1))\log_2 n,\qquad
+ u_{\max}=(2+o(1))\log_2 n,\qquad
  \log_2 m_0=\log_2 n-O(\log_2\ln n),                           \tag{9.4}
 \]
 
-we have \(U<3 \log_2 m_0\) for all sufficiently large
-\(n\). For a residual cell outside \(M\), put
+we have \(u_{\max}<3 \log_2 m_0\) for all sufficiently large
+\(n\). For a residual cell outside \(\mathcal M\), put
 
 \[
  \theta_{ab}=\frac{\mathrm e\, d_ad'_b}{m_0},\quad
@@ -2187,13 +2252,14 @@ we have \(U<3 \log_2 m_0\) for all sufficiently large
 and
 
 \[
- \lambda_{ab}=\sum_{x=3}^{R_0}\Delta_x
+ \lambda^{\mathrm{loc}}_{ab}=\sum_{x=3}^{R_0}\Delta_x
                     \frac{\theta_{ab}^x}{x!},\qquad
- q_{ab}=\frac{\theta_{ab}^2}{2}+\lambda_{ab}.            \tag{9.6}
+ q_{ab}=\frac{\theta_{ab}^2}{2}+\lambda^{\mathrm{loc}}_{ab}.
+                                                               \tag{9.6}
 \]
 
-Set both quantities to zero on \(M\). Let
-\(\theta_*=\mathrm e\,U^2/m_0\). The ratio of consecutive majorants
+Set both quantities to zero on \(\mathcal M\). Let
+\(\theta_*=\mathrm e\,u_{\max}^2/m_0\). The ratio of consecutive majorants
 \(g(x)\theta_*^x/x!\) is
 
 \[
@@ -2209,14 +2275,14 @@ increasing tail is dominated by its right endpoint, and
 
 \[
  \log_2\left(g(R_0)\frac{\theta_*^{R_0}}{R_0!}\right)
- \le\frac{R_0^2}{2}-R_0\log_2 m_0+O(R_0\log_2U)
+ \le\frac{R_0^2}{2}-R_0\log_2 m_0+O(R_0\log_2u_{\max})
  =-\Omega(R_0\log n),                                   \tag{9.8}
 \]
 
-using \(R_0=U/2\) and (9.4). Thus, uniformly in the cell,
+using \(R_0=u_{\max}/2\) and (9.4). Thus, uniformly in the cell,
 
 \[
- \lambda_{ab}\le C\theta_{ab}^3,\qquad
+ \lambda^{\mathrm{loc}}_{ab}\le C\theta_{ab}^3,\qquad
  q_{ab}\le C\theta_{ab}^2.                              \tag{9.9}
 \]
 
@@ -2235,23 +2301,30 @@ If an edge is selected in a fixed even subgraph, use instead
   +\sum_{x=3}^{R_0}\Delta_x\mathbf1_{\{r'_e\ge x\}}.   \tag{9.11}
 \]
 
-The terms on the right of (9.11) are alternatives, so a triple cell is
-not charged twice. Fix an even subgraph in (6.7), expand (9.10)--(9.11),
-and apply Lemma 6.2 jointly to all demanded cells. Dropping the cap only
-after this nonnegative expansion gives
+In the product expansion, a selected cycle-space edge contributes either
+the base demand \(\mathbf1_{\{r'_e\ge2\}}\) or one increment term
+\(\Delta_x\mathbf1_{\{r'_e\ge x\}}\), but not both in the same monomial.
+Thus a cell of multiplicity at least three is not charged simultaneously as
+a separate double-cell demand and as a higher-threshold local-factor demand.
+After fixing an even subgraph and expanding these alternatives, apply
+Lemma~6.2 jointly to all demanded cells. Every coefficient and event
+indicator is nonnegative, so the residual cap may be removed only after this
+joint bound is taken; doing so enlarges the event and preserves the stated
+upper-bound direction. This gives
 
 \[
- \mathcal A(M,j)
- \le e^{\Lambda_0}
-  \sum_{F\in\mathcal C_{\rm even}(M,R)}
-       \prod_{e\in F\setminus M}q_e,\qquad
- \Lambda_0=\sum_e\lambda_e.                              \tag{9.12}
+ \mathcal A(\mathcal M,j)
+  \le e^{\Lambda_{\mathrm{loc}}}
+  \sum_{F\in\mathcal C_{\rm even}(\mathcal M,R)}
+       \prod_{e\in F\setminus \mathcal M}q_e,\qquad
+  \Lambda_{\mathrm{loc}}=\sum_e\lambda^{\mathrm{loc}}_e.
+                                                               \tag{9.12}
 \]
 
 Here \(R\) is the finite potential residual support graph (all residual
-row--column cells), and \(\mathcal C_{\rm even}(M,R)\) is the finite family of
-edge subsets \(F\subseteq E(M\cup R)\) having even degree at every vertex;
-the edges of \(M\) have weight one in the displayed product.
+row--column cells), and \(\mathcal C_{\rm even}(\mathcal M,R)\) is the finite family of
+edge subsets \(F\subseteq E(\mathcal M\cup R)\) having even degree at every vertex;
+the edges of \(\mathcal M\) have weight one in the displayed product.
 
 By (9.9),
 
@@ -2261,15 +2334,15 @@ By (9.9),
    \left(\sum_a d_a^3\right)\left(\sum_b(d'_b)^3\right).
 \]
 
-Every residual degree is at most \(U\), and both degree sums equal
+Every residual degree is at most \(u_{\max}\), and both degree sums equal
 \(m_0\).  Therefore
-\(\sum_a d_a^3\le U^2m_0\) and
-\(\sum_b(d'_b)^3\le U^2m_0\), which gives
+\(\sum_a d_a^3\le u_{\max}^2m_0\) and
+\(\sum_b(d'_b)^3\le u_{\max}^2m_0\), which gives
 
 \[
- \Lambda_0\le\frac C{m_0^3}
+ \Lambda_{\mathrm{loc}}\le\frac C{m_0^3}
    \left(\sum_a d_a^3\right)\left(\sum_b(d'_b)^3\right)
- \le C\frac{U^4}{m_0},                                  \tag{9.13}
+ \le C\frac{u_{\max}^4}{m_0},                                  \tag{9.13}
 \]
 
 For a fixed row \(a\), the quadratic bound in (9.9) also gives
@@ -2277,23 +2350,25 @@ For a fixed row \(a\), the quadratic bound in (9.9) also gives
 \[
  \sum_b\theta_{ab}^2
  =\frac{\mathrm e^2d_a^2}{m_0^2}\sum_b(d'_b)^2
- \le C\frac{U^3}{m_0},
+ \le C\frac{u_{\max}^3}{m_0},
 \]
 
 and the same calculation holds for every column.  Hence
 
 \[
  \max_a\sum_bq_{ab}\ \vee\ \max_b\sum_aq_{ab}
- \le C\frac{U^3}{m_0}=:\tau=o(1).                       \tag{9.14}
+ \le C\frac{u_{\max}^3}{m_0}=:\tau=o(1).                       \tag{9.14}
 \]
 
-Every even graph is a union of edge-disjoint simple cycles. Choose one
-such decomposition deterministically.  The resulting map from an even
-edge set to its cycle family is injective, because the original edge set
-is recovered as the union of those cycles.  If
-\(w(C)=\prod_{e\in C\setminus M}q_e\), then dropping the
-edge-disjointness constraint gives, with
-\(w(F):=\prod_{e\in F\setminus M}q_e\),
+\paragraph{Cycle-kernel estimate.}
+Every even edge set has a deterministic decomposition into edge-disjoint
+simple cycles, and the map from an even edge set to that chosen cycle family
+is injective because the original edge set is recovered by taking the
+union. We now enlarge the image of this map to all finite families of simple
+cycles, allowing cycles in the family to share edges. Since all cycle
+weights are nonnegative, this relaxation can only increase the sum. If
+\(w(C)=\prod_{e\in C\setminus \mathcal M}q_e\), then, with
+\(w(F):=\prod_{e\in F\setminus \mathcal M}q_e\),
 
 \[
  \sum_{F\ {\rm even}}w(F)
@@ -2304,55 +2379,57 @@ edge-disjointness constraint gives, with
 which is precisely
 
 \[
- \sum_{F\text{ even}}\prod_{e\in F\setminus M}q_e
+ \sum_{F\text{ even}}\prod_{e\in F\setminus \mathcal M}q_e
  \le\exp\left\{\sum_{C\text{ simple cycle}}
-                  \prod_{e\in C\setminus M}q_e\right\}. \tag{9.15}
+                  \prod_{e\in C\setminus \mathcal M}q_e\right\}. \tag{9.15}
 \]
 
-For cycles disjoint from \(M\), mark a row start and drop
-simplicity and the closing constraint. The weighted row and column sums
-are at most \(\tau\), and a bipartite cycle has length at least
-four. Hence
+For cycles disjoint from \(\mathcal M\), orient the cycle and distinguish
+one row vertex. We obtain an upper bound by enlarging the family of simple
+cycles to alternating walks: repeated vertices are permitted and the final
+return-to-start constraint is omitted. The resulting walks still have at
+least four residual edges, and successive row- and column-sum bounds by
+\(\tau\) give the geometric series in (9.16):
 
 \[
- \sum_{C:C\cap M=\varnothing}\prod_{e\in C}q_e
+ \sum_{C:C\cap \mathcal M=\varnothing}\prod_{e\in C}q_e
  \le\frac{n\tau^4}{1-\tau^2}.                            \tag{9.16}
 \]
 
-For a cycle meeting \(M\), mark and orient one matching edge. There
-are at most \(2h\) choices. Cutting at all matching edges leaves
-nonempty residual walks. The residual-walk kernel has row-sum norm at
-most
+For a cycle meeting \(\mathcal M\), distinguish and orient one matching
+edge. There are at most \(2h\) choices. Cutting at every matching edge
+leaves nonempty residual walk segments. The residual-walk kernel has
+row-sum norm at most
 
 \[
  b=\sum_{\ell\ge1}\tau^\ell=\frac\tau{1-\tau},          \tag{9.17}
 \]
 
-while traversal of the matching is a partial permutation of norm one.
-Thus, if the relaxed cycle uses \(r\) matching edges, its total
-remaining weight is at most \(b^r\); there is no fresh factor
-\(h\) after the first marked edge. Therefore
+while traversal of a matching edge is a partial permutation of norm one.
+After the initial distinguished matching edge there is no further factor
+\(h\). Thus, if the relaxed cycle uses \(r\) matching edges, its total
+remaining weight is at most \(b^r\). Therefore
 
 \[
- \sum_{C:C\cap M\ne\varnothing}
-       \prod_{e\in C\setminus M}q_e
+ \sum_{C:C\cap \mathcal M\ne\varnothing}
+       \prod_{e\in C\setminus \mathcal M}q_e
  \le2h\sum_{r\ge1}b^r\le Ch\tau.                        \tag{9.18}
 \]
 
-Every high cell uses more than \(U/2\) stubs, so
-\(h<2n/U\).  At the cutoff \(m_0\ge n/(\ln n)^6\),
+Every high cell uses more than \(u_{\max}/2\) stubs, so
+\(h<2n/u_{\max}\).  At the cutoff \(m_0\ge n/(\ln n)^6\),
 
 \[
  \tau=O((\ln n)^9/n),\qquad
  h\tau=O((\ln n)^8),\qquad
- \frac{U^4}{m_0}+n\tau^4=o(1).
+ \frac{u_{\max}^4}{m_0}+n\tau^4=o(1).
 \]
 
 Combining (9.12)--(9.18),
 
 \[
- \mathcal A(M,j)
- \le\exp\left[C\left\{\frac{U^4}{m_0}+n\tau^4+h\tau\right\}\right]
+ \mathcal A(\mathcal M,j)
+ \le\exp\left[C\left\{\frac{u_{\max}^4}{m_0}+n\tau^4+h\tau\right\}\right]
  \le\exp(C'(\ln n)^8)                                          \tag{9.19}
 \]
 
@@ -2361,26 +2438,27 @@ at the cutoff \(m_0\ge n/(\ln n)^6\).
 \subsubsection{Proof: small residual
 degree}\label{proof-small-residual-degree}
 
-Suppose \(m_0<n/(\ln n)^6\). Since \(M\) is a
+Suppose \(m_0<n/(\ln n)^6\). Since \(\mathcal M\) is a
 matching, it is a forest, and adding a residual support edge increases
 cycle rank by at most one. Hence
 
 \[
- \beta(M\cup H_{\mathrm{res}})\le|E(H_{\mathrm{res}})|\le m_0/2.           \tag{9.20}
+ \beta(\mathcal M\cup H_{\mathrm{res}})\le|E(H_{\mathrm{res}})|\le m_0/2.           \tag{9.20}
 \]
 
 Also, pointwise,
 
 \[
  \sum_e\binom{r'_e}{2}
- \le\frac{U-1}{2}\sum_er'_e=\frac{U-1}{2}m_0.           \tag{9.21}
+ \le\frac{u_{\max}-1}{2}\sum_er'_e=\frac{u_{\max}-1}{2}m_0.           \tag{9.21}
 \]
 
 Equations (6.5), (9.20), and (9.21) bound the integrand in (9.1) by
-\(2^{Um_0/2}\). Therefore
+\(2^{u_{\max}m_0/2}\). Therefore
 
 \[
- \mathcal A(M,j)\le\exp(O(Um_0))\le\exp(Cn/(\ln n)^5).       \tag{9.22}
+ \mathcal A(\mathcal M,j)
+ \le\exp(O(u_{\max}m_0))\le\exp(Cn/(\ln n)^5).             \tag{9.22}
 \]
 
 Both exponents in (9.19) and (9.22) are \(o(n/(\ln n)^4)\).
@@ -2405,7 +2483,7 @@ For the exact midpoint profile,
 
 Equation (9.2) is an exact canonical decomposition.  Write
 \[
- w(M,j):=\pi(M,j)\prod_{e\in M}g(j_e).
+ w(\mathcal M,j):=\pi(\mathcal M,j)\prod_{e\in \mathcal M}g(j_e).
 \]
 Lemma 8.3 sums all
 bare high skeletons by \(\exp(o(n/(\ln n)^4))\), including the empty
@@ -2418,8 +2496,8 @@ skeleton.  Thus (9.2) gives the explicit estimate
  \frac{\mathbb E[(Z_{\mathbf k}^{\mathrm{sgn}})^2]}
       {(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}})^2}
  \le
- \left(\sup_{(M,j)}\mathcal A(M,j)\right)
- \sum_{(M,j)}w(M,j)
+ \left(\sup_{(\mathcal M,j)}\mathcal A(\mathcal M,j)\right)
+ \sum_{(\mathcal M,j)}w(\mathcal M,j)
  =\exp\{o(n/(\ln n)^4)\}.
 \]
 
@@ -2463,10 +2541,10 @@ into a typical one.
 \begin{lemmabox}{Lemma 10.1 (simultaneous leftover colouring)}
 
 There is an absolute \(C\) such that, with probability \(1-o(1)\), every
-\(U\subseteq[n]\) satisfies
+\(S\subseteq[n]\) satisfies
 
 \[
- \chi(G_n[U])\le C\frac{|U|}{{\ln n}}+n^{1/3}.                 \tag{10.3}
+ \chi(G_n[S])\le C\frac{|S|}{{\ln n}}+n^{1/3}.                 \tag{10.3}
 \]
 
 \end{lemmabox}
@@ -2508,17 +2586,17 @@ least \(\lfloor {\ln n}/(13\ln4)\rfloor\) steps. Thus it constructs at least
 \(c{\ln n}\) vertices for an absolute \(c>0\). They are an independent set in
 \(G_n\).
 
-For an arbitrary \(U\), repeatedly remove such independent sets and
+For an arbitrary \(S\), repeatedly remove such independent sets and
 give each a new colour until fewer than \(n^{1/3}\) vertices
 remain; colour the rest singly.  Every removed set has at least
 \(c\ln n\) vertices, so the total number of colours is at most
 
 \[
- \left\lceil\frac{|U|}{c\ln n}\right\rceil+n^{1/3}.
+ \left\lceil\frac{|S|}{c\ln n}\right\rceil+n^{1/3}.
 \]
 
 After enlarging the absolute constant, this is (10.3), simultaneously for
-every \(U\). \(\square\)
+every \(S\). \(\square\)
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 10.2 (amplification from a seed)}
@@ -2587,16 +2665,16 @@ probability \(e^{-r}\),
 \]
 
 Choose a maximizing set \(W\) and put
-\(U=[n]\setminus W\). Concatenating a
+\(V_{\mathrm{left}}=[n]\setminus W\). Concatenating a
 \(k_n\)-part cocolouring of \(G[W]\) with an ordinary
-colouring of \(G[U]\) gives
+colouring of \(G[V_{\mathrm{left}}]\) gives
 
 \[
- \zeta(G_n)\le k_n+\chi(G_n[U]).                         \tag{10.9}
+ \zeta(G_n)\le k_n+\chi(G_n[V_{\mathrm{left}}]).         \tag{10.9}
 \]
 
 Intersect (10.8) with the simultaneous event in Lemma 10.1 and apply
-(10.3).  Since \(|U|=n-S_k\), equations (10.3), (10.8), and (10.9)
+(10.3).  Since \(|V_{\mathrm{left}}|=n-S_k\), equations (10.3), (10.8), and (10.9)
 give exactly the number of additional parts displayed in (10.5).
 The simultaneous event's failure probability is the same deterministic
 \(\varepsilon_n=o(1)\) for every choice of the three deterministic
@@ -2654,10 +2732,10 @@ For every sufficiently large \(n\), the right side is at least
 \]
 
 This proves (0.1). Since \(n/(\ln n)^3\) tends to infinity, for
-every fixed \(M\),
+every fixed \(K\),
 
 \[
- \Pr\{\chi(G_n)-\zeta(G_n)\ge M\}\longrightarrow1.      \tag{11.3}
+ \Pr\{\chi(G_n)-\zeta(G_n)\ge K\}\longrightarrow1.      \tag{11.3}
 \]
 
 Every estimate used above is uniform for \(\delta \in [0,1)\) and
