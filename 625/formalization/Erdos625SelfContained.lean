@@ -32,7 +32,9 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Combinatorics.SimpleGraph.IncMatrix
+import Mathlib.Data.ENNReal.BigOperators
 import Mathlib.Data.Fin.Tuple.Basic
+import Mathlib.Data.Finite.Prod
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Interval
 import Mathlib.Data.Finset.Max
@@ -40,7 +42,9 @@ import Mathlib.Data.Finset.Powerset
 import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Fintype.CardEmbedding
 import Mathlib.Data.Fintype.EquivFin
+import Mathlib.Data.Fintype.Option
 import Mathlib.Data.Fintype.Perm
+import Mathlib.Data.Fintype.Pi
 import Mathlib.Data.Fintype.Powerset
 import Mathlib.Data.Nat.Choose.Basic
 import Mathlib.Data.Nat.Choose.Cast
@@ -5367,9 +5371,291 @@ END SOURCE MODULE: Erdos625.QuarterRecurrence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
+Source: Erdos625/Section10QuarterUnionDecay.lean
+Normalized SHA-256: 871796e915311d681b801f308442d76e8dedc7228de0c34bd18f404b6e50ee90
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterUnionDecay
+
+/-!
+# Section 10: quarter-density union-bound decay
+
+This module proves the deterministic full-sequence asymptotic used after the
+fixed-set lower-quarter binomial tail in Lemma 10.1.  It does not assert the
+probabilistic tail or the simultaneous graph event.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The cutoff `u₀ = ceil(n^(1/4))` from Lemma 10.1. -/
+noncomputable def quarterDensityCutoff (n : ℕ) : ℕ :=
+  ⌈(n : ℝ) ^ (1 / 4 : ℝ)⌉₊
+
+/-- For every fixed positive lower-tail constant `c`, the union-bound cost
+`choose(n,u₀) * exp(-c*u₀²)` tends to zero along the full natural sequence. -/
+theorem quarterDensity_unionBound_tendsto_zero
+    (c : ℝ) (hc : 0 < c) :
+    Tendsto
+      (fun n : ℕ ↦
+        (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+          Real.exp (-c * (quarterDensityCutoff n : ℝ) ^ 2))
+      atTop (nhds 0) := by
+  set u₀ := fun n : ℕ => ⌈(n : ℝ) ^ (1 / 4 : ℝ)⌉₊
+  have hu₀_inf : Filter.Tendsto u₀ Filter.atTop Filter.atTop := by
+    exact tendsto_nat_ceil_atTop.comp
+      ((tendsto_rpow_atTop (by norm_num)).comp
+        tendsto_natCast_atTop_atTop)
+  have h_log_div_u₀_zero :
+      Filter.Tendsto (fun n : ℕ => Real.log n / u₀ n)
+        Filter.atTop (nhds 0) := by
+    have h_log_div_n_root :
+        Filter.Tendsto
+          (fun n : ℕ => Real.log n / (n : ℝ) ^ (1 / 4 : ℝ))
+          Filter.atTop (nhds 0) := by
+      suffices h_log :
+          Filter.Tendsto (fun y : ℝ => y / Real.exp (y / 4))
+            Filter.atTop (nhds 0) by
+        have h := h_log.comp
+          (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
+        refine h.congr' ?_
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        rw [Function.comp_apply, Function.comp_apply,
+          Real.rpow_def_of_pos (Nat.cast_pos.mpr hn)]
+        ring_nf
+      suffices h_z :
+          Filter.Tendsto (fun z : ℝ => 4 * z / Real.exp z)
+            Filter.atTop (nhds 0) by
+        convert h_z.comp
+          (Filter.tendsto_id.atTop_mul_const
+            (by norm_num : 0 < (4 : ℝ)⁻¹)) using 2
+        all_goals norm_num
+        all_goals ring_nf
+      simpa only [pow_one, Real.exp_neg, div_eq_mul_inv, mul_assoc, mul_zero] using
+        (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1).const_mul 4
+    refine' squeeze_zero_norm' _ h_log_div_n_root
+    filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+    rw [Real.norm_of_nonneg (by positivity)]
+    gcongr
+    exact Nat.le_ceil _
+  have h_tendsto_zero :
+      Filter.Tendsto
+        (fun n : ℕ =>
+          Real.exp (u₀ n * Real.log n - c * u₀ n ^ 2))
+        Filter.atTop (nhds 0) := by
+    have h_tendsto_zero :
+        Filter.Tendsto
+          (fun n : ℕ => u₀ n * (Real.log n - c * u₀ n))
+          Filter.atTop Filter.atBot := by
+      have h_tendsto_zero :
+          Filter.Tendsto
+            (fun n : ℕ => Real.log n - c * u₀ n)
+            Filter.atTop Filter.atBot := by
+        have h_tendsto_zero :
+            Filter.Tendsto
+              (fun n : ℕ => (Real.log n / u₀ n - c) * u₀ n)
+              Filter.atTop Filter.atBot := by
+          apply Filter.Tendsto.neg_mul_atTop
+          exacts
+            [show (-c : ℝ) < 0 by linarith,
+              by simpa using h_log_div_u₀_zero.sub_const c,
+              tendsto_natCast_atTop_atTop.comp hu₀_inf]
+        refine h_tendsto_zero.congr' ?_
+        filter_upwards [hu₀_inf.eventually_ne_atTop 0] with n hn
+        rw [sub_mul, div_mul_cancel₀ _ (Nat.cast_ne_zero.mpr hn)]
+      exact Filter.Tendsto.atTop_mul_atBot₀
+        (tendsto_natCast_atTop_atTop.comp hu₀_inf) h_tendsto_zero
+    exact Real.tendsto_exp_atBot.comp <|
+      h_tendsto_zero.congr fun n => by ring
+  refine' squeeze_zero_norm' _ h_tendsto_zero
+  filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+  have h_bound :
+      (Nat.choose n (u₀ n) : ℝ) ≤
+        Real.exp (u₀ n * Real.log n) := by
+    have h_bound : (Nat.choose n (u₀ n) : ℝ) ≤ n ^ (u₀ n) := by
+      exact_mod_cast Nat.le_trans (Nat.choose_le_pow _ _) (by norm_num)
+    exact h_bound.trans_eq
+      (by rw [Real.exp_nat_mul, Real.exp_log (by positivity)])
+  rw [Real.norm_of_nonneg
+    (mul_nonneg (Nat.cast_nonneg _) (Real.exp_nonneg _))]
+  calc
+    (Nat.choose n (u₀ n) : ℝ) * Real.exp (-c * (u₀ n : ℝ) ^ 2) ≤
+        Real.exp ((u₀ n : ℝ) * Real.log (n : ℝ)) *
+          Real.exp (-c * (u₀ n : ℝ) ^ 2) :=
+      mul_le_mul_of_nonneg_right h_bound (Real.exp_nonneg _)
+    _ = Real.exp
+        ((u₀ n : ℝ) * Real.log (n : ℝ) - c * (u₀ n : ℝ) ^ 2) := by
+      rw [← Real.exp_add]
+      congr 1
+      ring
+
+#print axioms quarterDensity_unionBound_tendsto_zero
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterUnionDecay
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10SimultaneousGreedyColoring
+Source: Erdos625/Section10SimultaneousGreedyColoring.lean
+Normalized SHA-256: 3fad934472e0954c8dfd50a65adae94f2d99ff87ead00a3f74bb4ae8bb7a00e3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10SimultaneousGreedyColoring
+
+/-!
+# Section 10: simultaneous greedy colouring
+
+This is the deterministic recursion behind the last paragraph of Lemma 10.1.
+The independent-set hypothesis is uniform over all sufficiently large vertex
+sets, so the conclusion retains the required internal `∀ U`.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Ceiling division, used below only with a positive denominator. -/
+def ceilDivNat (a b : ℕ) : ℕ :=
+  (a + b - 1) / b
+
+/-- If every vertex set of cardinality at least `cutoff` contains an
+independent set of at least `block` vertices, then every induced subgraph is
+colourable by greedily deleting such sets and colouring the final fewer-than-
+`cutoff` vertices singly. -/
+theorem simultaneous_induced_chromatic_bound
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (cutoff block : ℕ) (hblock : 1 ≤ block)
+    (hIndependent : ∀ S : Finset V, cutoff ≤ S.card →
+      ∃ I : Finset V,
+        I ⊆ S ∧ block ≤ I.card ∧ G.IsIndepSet (I : Set V)) :
+    ∀ U : Finset V,
+      chromaticNumberNat (G.induce (U : Set V)) ≤
+        ceilDivNat U.card block + cutoff := by
+  intro U
+  induction' U using Finset.strongInduction with U ih
+  by_cases hU : U.card < cutoff
+  · have h_chromatic_le_card :
+        ∀ H : SimpleGraph (↑U), chromaticNumberNat H ≤ U.card := by
+      intro H
+      have h_colorable : H.Colorable U.card := by
+        convert H.colorable_of_fintype
+        rw [Fintype.card_coe]
+      exact Nat.cast_le.mp
+        (le_trans
+          (ENat.toNat_le_toNat
+            (SimpleGraph.chromaticNumber_le_iff_colorable.mpr h_colorable)
+            (by simp +decide))
+          (by simp +decide))
+    exact le_trans (h_chromatic_le_card _) (by linarith)
+  · obtain ⟨I, hI₁, hI₂, hI₃⟩ :=
+      hIndependent U (le_of_not_gt hU)
+    simp_all +decide [SimpleGraph.induce]
+    have h_coloring :
+        ∃ f : (↑U) →
+            Fin (ceilDivNat (U.card - I.card) block + cutoff + 1),
+          ∀ u v : ↑U, u ≠ v → G.Adj u v → f u ≠ f v := by
+      have h_coloring :
+          ∃ f : (↑(U \ I)) →
+              Fin (ceilDivNat (U.card - I.card) block + cutoff),
+            ∀ u v : ↑(U \ I), u ≠ v → G.Adj u v → f u ≠ f v := by
+        have h_coloring :
+            chromaticNumberNat
+                (SimpleGraph.comap
+                  (⇑(Function.Embedding.subtype
+                    fun x => x ∈ (↑(U \ I) : Set V))) G) ≤
+              ceilDivNat (U.card - I.card) block + cutoff := by
+          have hI_nonempty : I.Nonempty := by
+            exact Finset.card_pos.mp (by omega)
+          have hdiff : U \ I ⊂ U :=
+            Finset.sdiff_ssubset hI₁ hI_nonempty
+          convert ih (U \ I) hdiff using 1
+          · congr 1
+          · rw [Finset.card_sdiff_of_subset hI₁]
+        have h_coloring :
+            SimpleGraph.Colorable
+                (SimpleGraph.comap
+                  (⇑(Function.Embedding.subtype
+                    fun x => x ∈ (↑(U \ I) : Set V))) G)
+              (ceilDivNat (U.card - I.card) block + cutoff) := by
+          refine' SimpleGraph.chromaticNumber_le_iff_colorable.mp _ |>
+            fun h => h.mono h_coloring
+          rw [chromaticNumberNat, ENat.coe_toNat]
+          exact ne_of_lt
+            (lt_of_le_of_lt
+              (SimpleGraph.colorable_of_fintype _ |>
+                SimpleGraph.Colorable.chromaticNumber_le)
+              (WithTop.coe_lt_top _))
+        obtain ⟨f, hf⟩ := h_coloring
+        exact ⟨f, fun u v huv huv' => by simpa [huv] using hf huv'⟩
+      obtain ⟨f, hf⟩ := h_coloring
+      use fun u =>
+        if hu : u.val ∈ I then Fin.last _
+        else Fin.castSucc (f ⟨u.val, by aesop⟩)
+      simp_all +decide [Fin.ext_iff]
+      intro a ha b hb hab h
+      split_ifs <;> simp_all +decide
+      · exact hI₃ ‹_› ‹_› hab h
+      · exact ne_of_gt (Fin.is_lt _)
+      · exact ne_of_lt (Fin.is_lt _)
+    have h_coloring :
+        SimpleGraph.Colorable
+            (SimpleGraph.comap
+              (⇑(Function.Embedding.subtype fun x => x ∈ (↑U : Set V))) G)
+          (ceilDivNat (U.card - I.card) block + cutoff + 1) := by
+      obtain ⟨f, hf⟩ := h_coloring
+      use fun u => f u
+      aesop
+    have h_coloring :
+        chromaticNumberNat
+            (SimpleGraph.comap
+              (⇑(Function.Embedding.subtype fun x => x ∈ (↑U : Set V))) G) ≤
+          ceilDivNat (U.card - I.card) block + cutoff + 1 := by
+      convert h_coloring.chromaticNumber_le using 1
+      rw [← ENat.coe_le_coe, chromaticNumberNat, ENat.coe_toNat]
+      exact ne_of_lt
+        (lt_of_le_of_lt
+          (SimpleGraph.chromaticNumber_le_iff_colorable.mpr h_coloring)
+          (WithTop.coe_lt_top _))
+    refine' le_trans _ (h_coloring.trans _)
+    · exact le_rfl
+    · unfold ceilDivNat
+      simp +arith +decide
+      rw [Nat.div_lt_iff_lt_mul <| by positivity]
+      rw [tsub_lt_iff_left]
+      · linarith
+          [Nat.div_add_mod (block + U.card - 1) block,
+            Nat.mod_lt (block + U.card - 1) hblock,
+            Nat.sub_add_cancel
+              (show 1 ≤ block + U.card by linarith),
+            Nat.sub_add_cancel
+              (show I.card ≤ U.card from Finset.card_le_card hI₁)]
+      · exact le_add_right hblock
+
+#print axioms simultaneous_induced_chromatic_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10SimultaneousGreedyColoring
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10SimultaneousGreedyColoring
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10AmplificationScales
 Source: Erdos625/Section10AmplificationScales.lean
-Normalized SHA-256: 9255951231aceddf989f09adbde031788e97397a34d048964f6a7528dbadd921
+Normalized SHA-256: b40f92be543749258e31209ef1bbe411ff2112dc5cff11ad8b96e1de1a05df19
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section10AmplificationScales
 
@@ -5377,7 +5663,7 @@ section Erdos625SelfContained_Module_Erdos625_Section10AmplificationScales
 # Asymptotic scales in rare-event amplification
 
 This file isolates the deterministic asymptotic transformations in manuscript
-Section 10.  The functions are exactly those in (10.10)--(10.11); no
+Section 10.  The functions are exactly those in (10.10)--(10.12); no
 probabilistic seed or leftover-colouring assertion is introduced here.
 -/
 
@@ -5393,6 +5679,19 @@ noncomputable def amplificationBase (n : ℕ) : ℝ :=
 /-- The deterministic, genuinely growing choice `r_n = sqrt B_n`. -/
 noncomputable def amplificationRadius (n : ℕ) : ℝ :=
   Real.sqrt (amplificationBase n)
+
+/-- The unscaled target gap `n / (log n)^3`. -/
+noncomputable def gapBase (n : ℕ) : ℝ :=
+  (n : ℝ) / (Real.log (n : ℝ)) ^ 3
+
+/-- The complete deterministic amplification loss from (10.12). -/
+noncomputable def amplificationError
+    (C : ℝ) (Lambda : ℕ → ℝ) (n : ℕ) : ℝ :=
+  C *
+    (Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+      Real.sqrt ((n : ℝ) * amplificationRadius n) /
+        Real.log (n : ℝ) +
+      (n : ℝ) ^ (1 / 3 : ℝ) + 1)
 
 /-- The deterministic radius used in the manuscript tends to infinity. -/
 theorem amplificationRadius_tendsto_atTop :
@@ -5570,11 +5869,64 @@ theorem one_isLittleO_gapScale :
   refine Tendsto.congr (fun n => ?_) (tendsto_norm_atTop_atTop.comp hnat)
   simp [Function.comp]
 
+/-- A nonnegative seed exponent `Lambda_n = o(n/(log n)^4)` makes the full
+deterministic amplification loss negligible on the target gap scale. -/
+theorem amplificationError_isLittleO_gapBase
+    (C : ℝ) (Lambda : ℕ → ℝ)
+    (hLambdaNonneg : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hLambda : Lambda =o[atTop] amplificationBase) :
+    amplificationError C Lambda =o[atTop] gapBase := by
+  change (fun n : ℕ ↦ Lambda n) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 4) at hLambda
+  have hSeed :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ)) =o[atTop]
+        gapBase := by
+    change (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact sqrt_seedTerm_isLittleO Lambda hLambdaNonneg hLambda
+  have hRadius :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ)) =o[atTop]
+        gapBase := by
+    change (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact sqrt_radiusTerm_isLittleO
+  have hCubeRoot :
+      (fun n : ℕ ↦ (n : ℝ) ^ (1 / 3 : ℝ)) =o[atTop] gapBase := by
+    change (fun n : ℕ ↦ (n : ℝ) ^ (1 / 3 : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact realCubeRoot_isLittleO
+  have hOne :
+      (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop] gapBase := by
+    change (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact one_isLittleO_gapScale
+  have hSum :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+          Real.sqrt ((n : ℝ) * amplificationRadius n) /
+            Real.log (n : ℝ) +
+          (n : ℝ) ^ (1 / 3 : ℝ) + 1) =o[atTop]
+        gapBase :=
+    ((hSeed.add hRadius).add hCubeRoot).add hOne
+  change (fun n : ℕ ↦ C *
+      (Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ) +
+        (n : ℝ) ^ (1 / 3 : ℝ) + 1)) =o[atTop] gapBase
+  exact hSum.const_mul_left C
+
 #print axioms amplificationRadius_tendsto_atTop
 #print axioms sqrt_seedTerm_isLittleO
 #print axioms sqrt_radiusTerm_isLittleO
 #print axioms realCubeRoot_isLittleO
 #print axioms one_isLittleO_gapScale
+#print axioms amplificationError_isLittleO_gapBase
 
 end Erdos625
 
@@ -5659,7 +6011,7 @@ END SOURCE MODULE: Erdos625.Section11EventAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
 Source: Erdos625/Section11AsymptoticAssembly.lean
-Normalized SHA-256: da7dbf5392ebe50ca376eb91df977ec96ca5e9b2c679564fcea7d8ba6122057e
+Normalized SHA-256: f191b31619e8114260db1a866302d5a4eabf4667314a3593730c0e980ea07818
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
 
@@ -5753,6 +6105,30 @@ theorem tendsto_measure_inter_one
       (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
       (by simpa using hInterReal)
 
+/-- If a real statistic exceeds a deterministic threshold tending to infinity
+with probability tending to one, then it exceeds every fixed real threshold
+with probability tending to one.  The sample space may depend on `n`. -/
+theorem fixedThreshold_tail_of_movingThreshold
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (X : ∀ n, Omega n → ℝ) (threshold : ℕ → ℝ)
+    (hThreshold : Tendsto threshold atTop atTop)
+    (hMovingTail : Tendsto
+      (fun n ↦ mu n {omega | threshold n ≤ X n omega})
+      atTop (nhds 1)) :
+    ∀ M : ℝ,
+      Tendsto (fun n ↦ mu n {omega | M ≤ X n omega})
+        atTop (nhds 1) := by
+  intro M
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hMovingTail tendsto_const_nhds ?_ ?_
+  · filter_upwards [hThreshold.eventually_gt_atTop M] with n hn
+    exact measure_mono fun _ hx ↦ hn.le.trans hx
+  · exact Filter.Eventually.of_forall fun n ↦
+      (measure_mono (subset_univ _)).trans (by simp)
+
 /-- The manuscript's unscaled `n / (ln n)^3` factor. -/
 noncomputable def baseScale (n : ℕ) : ℝ :=
   (n : ℝ) / (Real.log (n : ℝ)) ^ 3
@@ -5840,6 +6216,8 @@ theorem tendsto_explicit_gap_scale_atTop :
   simpa only [mul_div_assoc] using
     hLimit.const_mul_atTop (by positivity :
       0 < (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ))
+
+#print axioms fixedThreshold_tail_of_movingThreshold
 
 end Erdos625
 
@@ -22060,6 +22438,259 @@ END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CyclePolymerBound
+Source: Erdos625/Section9CyclePolymerBound.lean
+Normalized SHA-256: 48c2fc0c28f4dd6a4203b80ca447a00e6110d0e6c1031af45b183786816729b9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CyclePolymerBound
+
+/-!
+# Finite weighted even-subgraph polymer bound for Section IX
+
+This module formalizes the finite algebraic and combinatorial polymer bound
+used in manuscript (9.15).  Every finite even bipartite edge set is decomposed
+into pairwise edge-disjoint inclusion-minimal nonempty even edge sets.  The
+decomposition is recoverable from its union, so no injectivity assumption is
+added.  The resulting subset sum is bounded by the full polymer product and
+then by the exponential of the total polymer weight.
+
+The distinguished edge set `M` is required to be a matching because that is
+the Section IX application.  The algebraic estimate itself only uses `M` to
+omit those edge weights.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- Every row and every column has even degree in the finite cell set `F`. -/
+def IsBipartiteEven
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (F : Finset (A × B)) : Prop :=
+  (∀ a, Even (F.filter (fun e ↦ e.1 = a)).card) ∧
+  (∀ b, Even (F.filter (fun e ↦ e.2 = b)).card)
+
+/-- An intrinsic finite-edge-set formulation of a simple bipartite cycle:
+it is a nonempty inclusion-minimal even edge set. -/
+def IsSimpleBipartiteCycle
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) : Prop :=
+  IsBipartiteEven C ∧ C.Nonempty ∧
+    ∀ D : Finset (A × B),
+      D ⊆ C → IsBipartiteEven D → D.Nonempty → D = C
+
+/-- A cell set is a bipartite matching: no two cells share a row or column. -/
+def IsBipartiteMatching
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : Prop :=
+  (∀ a b₁ b₂, (a, b₁) ∈ M → (a, b₂) ∈ M → b₁ = b₂) ∧
+  (∀ b a₁ a₂, (a₁, b) ∈ M → (a₂, b) ∈ M → a₁ = a₂)
+
+/-- All even bipartite edge sets on the finite vertex classes. -/
+noncomputable def bipartiteEvenEdgeSets
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B] : Finset (Finset (A × B)) := by
+  classical
+  exact Finset.univ.filter IsBipartiteEven
+
+/-- All simple bipartite cycles, represented by their edge sets. -/
+noncomputable def simpleBipartiteCycles
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B] : Finset (Finset (A × B)) := by
+  classical
+  exact Finset.univ.filter IsSimpleBipartiteCycle
+
+/-- Product of the cell weights on `F \ M`, exactly the weight used in (9.15). -/
+def edgeWeightOutside
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ) (M F : Finset (A × B)) : ℝ :=
+  ∏ e ∈ F \ M, q e.1 e.2
+
+private lemma bipartiteEven_sdiff
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {D F : Finset (A × B)} (hDF : D ⊆ F)
+    (hF : IsBipartiteEven F) (hD : IsBipartiteEven D) :
+    IsBipartiteEven (F \ D) := by
+  constructor
+  · intro a
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.1 = a) F) =
+          Finset.card (Finset.filter (fun e => e.1 = a) D) +
+            Finset.card (Finset.filter (fun e => e.1 = a) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.1 a)).mp (hD.1 a)
+  · intro b
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.2 = b) F) =
+          Finset.card (Finset.filter (fun e => e.2 = b) D) +
+            Finset.card (Finset.filter (fun e => e.2 = b) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.2 b)).mp (hD.2 b)
+
+private lemma exists_minimal_even_subset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {F : Finset (A × B)} (hF : IsBipartiteEven F) (hne : F.Nonempty) :
+    ∃ C, C ⊆ F ∧ IsSimpleBipartiteCycle C := by
+  obtain ⟨C, hC⟩ :
+      ∃ C ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+        ∀ D ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+          C.card ≤ D.card := by
+    apply_rules [Set.exists_min_image]
+    · exact Set.toFinite _
+    · exact ⟨F, ⟨Finset.Subset.refl _, hF, hne⟩⟩
+  refine' ⟨C, hC.1.1, hC.1.2.1, hC.1.2.2, _⟩
+  exact fun D hDC hD hDne =>
+    Finset.eq_of_subset_of_card_le hDC
+      (hC.2 D ⟨Finset.Subset.trans hDC hC.1.1, hD, hDne⟩ |>
+        le_trans <| by simp +decide)
+
+private lemma exists_disjoint_cycle_decomposition
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (F : Finset (A × B)) (hF : IsBipartiteEven F) :
+    ∃ s : Finset (Finset (A × B)),
+      s ⊆ simpleBipartiteCycles A B ∧
+      F = s.biUnion id ∧
+      (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+  induction' F using Finset.strongInduction with F ih
+  by_cases hF_empty : F = ∅
+  · exact ⟨∅, by simp +decide [hF_empty]⟩
+  · obtain ⟨C, hC⟩ : ∃ C ⊆ F, IsSimpleBipartiteCycle C := by
+      exact exists_minimal_even_subset hF (Finset.nonempty_of_ne_empty hF_empty) |>
+        fun ⟨C, hC₁, hC₂⟩ => ⟨C, hC₁, hC₂⟩
+    obtain ⟨s, hs⟩ :
+        ∃ s ⊆ simpleBipartiteCycles A B,
+          F \ C = s.biUnion id ∧
+            ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂ := by
+      apply ih (F \ C)
+      · simp_all +decide [Finset.ssubset_def, Finset.subset_iff]
+        exact Exists.elim hC.2.2.1 fun x hx => ⟨_, _, hC.1 _ _ hx, hx⟩
+      · exact bipartiteEven_sdiff hC.1 hF hC.2.1
+    refine' ⟨Insert.insert C s, _, _, _⟩ <;>
+      simp_all +decide [Finset.subset_iff]
+    · unfold simpleBipartiteCycles
+      aesop
+    · grind
+    · simp_all +decide [Finset.ext_iff, Finset.disjoint_left]
+      grind +ring
+
+private lemma biUnion_recovery_injective
+    {α : Type*} [DecidableEq α]
+    (U : Finset (Finset α)) (s : Finset α → Finset (Finset α))
+    (hrecover : ∀ F ∈ U, F = (s F).biUnion id) :
+    ∀ F ∈ U, ∀ G ∈ U, s F = s G → F = G := by
+  intro F hF G hG hFG
+  rw [hrecover F hF, hrecover G hG, hFG]
+
+private lemma edgeWeightOutside_biUnion
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ) (M : Finset (A × B))
+    (s : Finset (Finset (A × B)))
+    (hdisj : ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) :
+    edgeWeightOutside q M (s.biUnion id) =
+      ∏ C ∈ s, edgeWeightOutside q M C := by
+  unfold edgeWeightOutside
+  rw [← Finset.prod_biUnion]
+  · rcongr e
+    aesop
+  · exact fun x hx y hy hxy =>
+      Disjoint.mono Finset.sdiff_subset Finset.sdiff_subset
+        (hdisj x hx y hy hxy)
+
+/-- Equation (9.15), including both finite polymer-product and exponential
+steps.  The finite cycle decomposition, edge-disjointness, and recoverability
+are constructed in the proof rather than assumed. -/
+theorem weighted_evenSubgraph_polymer_bound
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ) (M : Finset (A × B))
+    (_hM : IsBipartiteMatching M)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    ((∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F) ≤
+      (∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C))) ∧
+    ((∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C)) ≤
+      Real.exp
+        (∑ C ∈ simpleBipartiteCycles A B,
+          edgeWeightOutside q M C)) := by
+  constructor
+  · have h_decomp :
+        ∀ F ∈ bipartiteEvenEdgeSets A B,
+          ∃ s : Finset (Finset (A × B)),
+            s ⊆ simpleBipartiteCycles A B ∧
+            F = s.biUnion id ∧
+            (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+      exact fun F hF =>
+        exists_disjoint_cycle_decomposition F
+          (by
+            unfold bipartiteEvenEdgeSets at hF
+            aesop)
+    choose! s hs using h_decomp
+    have h_inj := biUnion_recovery_injective
+      (bipartiteEvenEdgeSets A B) s (fun F hF ↦ (hs F hF).2.1)
+    have h_sum_prod :
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F ≤
+          ∑ s' ∈ Finset.powerset (simpleBipartiteCycles A B),
+            ∏ C ∈ s', edgeWeightOutside q M C := by
+      have h_sum_prod :
+          ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F ≤
+            ∑ s' ∈ Finset.image s (bipartiteEvenEdgeSets A B),
+              ∏ C ∈ s', edgeWeightOutside q M C := by
+        rw [Finset.sum_image]
+        · refine' Finset.sum_le_sum fun F hF => _
+          rw [(hs F hF).2.1, edgeWeightOutside_biUnion]
+          · rw [← (hs F hF).2.1]
+          · exact (hs F hF).2.2
+        · exact h_inj
+      refine' le_trans h_sum_prod (Finset.sum_le_sum_of_subset_of_nonneg _ _)
+      · exact Finset.image_subset_iff.mpr fun F hF =>
+          Finset.mem_powerset.mpr (hs F hF).1
+      · exact fun _ _ _ =>
+          Finset.prod_nonneg fun _ _ =>
+            Finset.prod_nonneg fun _ _ => hq _ _
+    convert h_sum_prod using 1
+    simp +decide [add_comm, Finset.prod_add]
+  · rw [Real.exp_sum]
+    exact Finset.prod_le_prod
+      (fun _ _ =>
+        add_nonneg zero_le_one (Finset.prod_nonneg fun _ _ => hq _ _))
+      fun _ _ => by
+        rw [add_comm]
+        exact Real.add_one_le_exp _
+
+#print axioms weighted_evenSubgraph_polymer_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CyclePolymerBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CyclePolymerBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TraversalKernel
 Source: Erdos625/Section9TraversalKernel.lean
 Normalized SHA-256: 1e1103de129ee471d0d6c02db8fbf837e61324bd08817fd40dffb0e154dcd4a0
@@ -22317,6 +22948,229 @@ END SOURCE MODULE: Erdos625.Section9TraversalKernel
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
+Source: Erdos625/Section9MatchingTraversalBridge.lean
+Normalized SHA-256: 2043628ce6bb659136e47ddc9c146a6702a3517e5a28b9a9ce71127ec2f3243d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MatchingTraversalBridge
+
+/-!
+# Matching traversal bridge for Section IX
+
+This module proves the finite operator-algebra bridge used after cutting a
+mixed simple cycle at its matching edges.  The matching traversal is a partial
+permutation with row norm at most one, so composing a residual-block kernel
+with it does not introduce a new factor of `|M|`.  Marking and orienting the
+first matching edge costs exactly `2 * |M|`, once, and the remaining finite
+block-walk sum is bounded by a geometric series.
+
+This is deliberately not the full cycle-to-walk theorem.  In particular, it
+does not construct the positive residual-walk kernel from cell weights or the
+injective, weight-preserving code from simple cycles to the relaxed block
+walks below.  Those are the remaining combinatorial obligations in
+manuscript (9.17)--(9.18).
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Symmetric zero-one traversal kernel of the distinguished matching. -/
+def matchingTraversalKernel
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : A ⊕ B → A ⊕ B → ℝ≥0∞
+  | Sum.inl a, Sum.inr b => if (a, b) ∈ M then 1 else 0
+  | Sum.inr b, Sum.inl a => if (a, b) ∈ M then 1 else 0
+  | _, _ => 0
+
+/-- A genuine bipartite matching defines a partial permutation: every row of
+its traversal kernel has mass at most one. -/
+theorem matchingTraversalKernel_rowSum_le_one
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    ∀ v, ∑ w, matchingTraversalKernel M v w ≤ 1 := by
+  intro v
+  rcases v with a | b
+  · have hcard :
+        (Finset.univ.filter (fun b => (a, b) ∈ M)).card ≤ 1 := by
+      apply Finset.card_le_one.mpr
+      intro b₁ hb₁ b₂ hb₂
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hb₁ hb₂
+      exact hM.1 a b₁ b₂ hb₁ hb₂
+    rw [Fintype.sum_sum_type]
+    simp only [matchingTraversalKernel, Finset.sum_const_zero]
+    rw [← Finset.sum_filter]
+    simpa only [Finset.sum_const, nsmul_eq_mul, mul_one, zero_add] using
+      (show ((Finset.univ.filter (fun b => (a, b) ∈ M)).card : ℝ≥0∞) ≤ 1 by
+        exact_mod_cast hcard)
+  · have hcard :
+        (Finset.univ.filter (fun a => (a, b) ∈ M)).card ≤ 1 := by
+      apply Finset.card_le_one.mpr
+      intro a₁ ha₁ a₂ ha₂
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha₁ ha₂
+      exact hM.2 b a₁ a₂ ha₁ ha₂
+    rw [Fintype.sum_sum_type]
+    simp only [matchingTraversalKernel, Finset.sum_const_zero]
+    rw [← Finset.sum_filter]
+    simpa only [Finset.sum_const, nsmul_eq_mul, mul_one, add_zero] using
+      (show ((Finset.univ.filter (fun a => (a, b) ∈ M)).card : ℝ≥0∞) ≤ 1 by
+        exact_mod_cast hcard)
+
+/-- Composition of two finite nonnegative kernels. -/
+def finiteKernelComp {V : Type*} [Fintype V]
+    (K P : V → V → ℝ≥0∞) (v w : V) : ℝ≥0∞ :=
+  ∑ u, K v u * P u w
+
+/-- Row norms multiply under finite kernel composition. -/
+theorem finiteKernelComp_rowSum_le
+    {V : Type*} [Fintype V]
+    (K P : V → V → ℝ≥0∞) (r s : ℝ≥0∞)
+    (hK : ∀ v, ∑ u, K v u ≤ r)
+    (hP : ∀ u, ∑ w, P u w ≤ s) :
+    ∀ v, ∑ w, finiteKernelComp K P v w ≤ r * s := by
+  intro v
+  calc
+    (∑ w, finiteKernelComp K P v w) =
+        ∑ u, K v u * ∑ w, P u w := by
+      simp only [finiteKernelComp]
+      rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro u hu
+      rw [Finset.mul_sum]
+    _ ≤ ∑ u, K v u * s := by
+      apply Finset.sum_le_sum
+      intro u hu
+      simpa only [mul_comm] using mul_le_mul_left (hP u) (K v u)
+    _ = (∑ u, K v u) * s := by rw [Finset.sum_mul]
+    _ ≤ r * s := by
+      simpa only [mul_comm] using mul_le_mul_right (hK v) s
+
+/-- Traversing a residual block and then the matching preserves the residual
+block row-norm bound; in particular, no fresh matching-cardinality factor is
+introduced. -/
+theorem residualThenMatchingKernel_rowSum_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (S : A ⊕ B → A ⊕ B → ℝ≥0∞) (b : ℝ≥0∞)
+    (hS : ∀ v, ∑ w, S v w ≤ b) :
+    ∀ v,
+      ∑ w, finiteKernelComp S (matchingTraversalKernel M) v w ≤ b := by
+  intro v
+  simpa using
+    finiteKernelComp_rowSum_le S (matchingTraversalKernel M) b 1 hS
+      (matchingTraversalKernel_rowSum_le_one M hM) v
+
+/-- Matching edges with one of their two orientations. -/
+def orientedMatchingStarts
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : Finset ((A × B) × Bool) :=
+  M.product Finset.univ
+
+@[simp]
+theorem card_orientedMatchingStarts
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) :
+    (orientedMatchingStarts M).card = 2 * M.card := by
+  simp [orientedMatchingStarts, Nat.mul_comm]
+
+/-- State immediately after selecting an orientation of the marked matching
+edge. -/
+def orientedMatchingStartState
+    {A B : Type*} : ((A × B) × Bool) → A ⊕ B
+  | ((a, _), true) => Sum.inl a
+  | ((_, b), false) => Sum.inr b
+
+/-- The finite relaxed block-walk enumeration costs exactly one factor
+`2 * |M|`.  Later matching traversals are carried by the partial-permutation
+kernel and therefore introduce no additional cardinality factor. -/
+theorem orientedMatchingStarts_blockWalkMass_le_geometric
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (S : A ⊕ B → A ⊕ B → ℝ≥0∞) (b : ℝ≥0∞)
+    (hS : ∀ v, ∑ w, S v w ≤ b) (L : ℕ) :
+    (∑ z ∈ orientedMatchingStarts M,
+        ∑ r ∈ Finset.range L,
+          finiteKernelWalkMass
+            (finiteKernelComp S (matchingTraversalKernel M)) (r + 1)
+            (orientedMatchingStartState z)) ≤
+      (((2 * M.card : ℕ) : ℝ≥0∞) * (b * (1 - b)⁻¹)) := by
+  have hBlock :
+      ∀ v, ∑ w, finiteKernelComp S (matchingTraversalKernel M) v w ≤ b :=
+    residualThenMatchingKernel_rowSum_le M hM S b hS
+  calc
+    _ ≤ ∑ z ∈ orientedMatchingStarts M, b * (1 - b)⁻¹ := by
+      apply Finset.sum_le_sum
+      intro z hz
+      exact sum_range_finiteKernelWalkMass_succ_le_geometric
+        (finiteKernelComp S (matchingTraversalKernel M)) b hBlock L
+        (orientedMatchingStartState z)
+    _ = (((2 * M.card : ℕ) : ℝ≥0∞) * (b * (1 - b)⁻¹)) := by
+      simp
+
+/-- The positive-walk ratio `b = tau / (1 - tau)` is strictly below one
+under the manuscript's quantitative assumption `tau < 1/3`. -/
+theorem residualWalkRatio_lt_one
+    (tau : ℝ≥0∞) (htau : tau < (1 / 3 : ℝ≥0∞)) :
+    tau * (1 - tau)⁻¹ < 1 := by
+  have htau_one : tau < 1 := htau.trans (by norm_num)
+  have hdenom : 0 < 1 - tau := tsub_pos_iff_lt.mpr htau_one
+  have hsum : tau + tau < 1 := by
+    calc
+      tau + tau < (1 / 3 : ℝ≥0∞) + (1 / 3 : ℝ≥0∞) :=
+        ENNReal.add_lt_add htau htau
+      _ < 1 := by
+        have hthird :
+            ((↑((1 : NNReal) / (3 : NNReal)) : ENNReal)) =
+              (1 / 3 : ENNReal) := by
+          exact ENNReal.coe_div (p := 1) (r := 3) (by norm_num)
+        rw [← hthird]
+        norm_cast
+        norm_num
+  rw [← div_eq_mul_inv]
+  exact (ENNReal.div_lt_iff (Or.inl hdenom.ne') (Or.inl (by simp))).mpr
+    (by simpa using (lt_tsub_iff_right.mpr hsum))
+
+/-- Finite algebraic form of (9.17)--(9.18) after a positive residual-block
+kernel has been constructed.  The missing cycle-cutting injection is not an
+assumption or conclusion of this theorem. -/
+theorem finite_relaxed_matchingTraversal_enumeration
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (tau : ℝ≥0∞) (htau : tau < (1 / 3 : ℝ≥0∞))
+    (S : A ⊕ B → A ⊕ B → ℝ≥0∞)
+    (hS : ∀ v, ∑ w, S v w ≤ tau * (1 - tau)⁻¹)
+    (L : ℕ) :
+    let b := tau * (1 - tau)⁻¹
+    b < 1 ∧
+      (∑ z ∈ orientedMatchingStarts M,
+          ∑ r ∈ Finset.range L,
+            finiteKernelWalkMass
+              (finiteKernelComp S (matchingTraversalKernel M)) (r + 1)
+              (orientedMatchingStartState z)) ≤
+        (((2 * M.card : ℕ) : ℝ≥0∞) * (b * (1 - b)⁻¹)) := by
+  dsimp only
+  exact ⟨residualWalkRatio_lt_one tau htau,
+    orientedMatchingStarts_blockWalkMass_le_geometric M hM S
+      (tau * (1 - tau)⁻¹) hS L⟩
+
+#print axioms finite_relaxed_matchingTraversal_enumeration
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MatchingTraversalBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.LocalSignReward
 Source: Erdos625/LocalSignReward.lean
 Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
@@ -22368,6 +23222,1223 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_LocalSignReward
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.LocalSignReward
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RewardTelescoping
+Source: Erdos625/Section9RewardTelescoping.lean
+Normalized SHA-256: 0c2ad548c2b3f8c4fe475d8028507106459787132cf18d45adb5161172b3709f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RewardTelescoping
+
+/-!
+# Capped local-reward telescoping for Section IX
+
+This module records the exact finite telescoping identities in manuscript
+(9.10)--(9.11), using the repository's existing local signed reward from
+(6.5).  It contains no configuration-model probability estimate and no
+attachment bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- The finite increment `Delta_x = g(x) - g(x-1)` from manuscript (9.5). -/
+def rewardIncrement (x : ℕ) : ℕ :=
+  localSignRewardNat x - localSignRewardNat (x - 1)
+
+/-- Exact capped forms of manuscript (9.10) and (9.11).  The hypothesis
+`r ≤ R` is essential because both displayed sums stop at the cap `R`. -/
+theorem cappedReward_telescoping (r R : ℕ) (hr : r ≤ R) :
+    localSignRewardNat r =
+        1 + (∑ x ∈ Finset.Icc 3 R,
+          if x ≤ r then rewardIncrement x else 0) ∧
+      (if 2 ≤ r then localSignRewardNat r else 0) =
+        (if 2 ≤ r then 1 else 0) +
+          ∑ x ∈ Finset.Icc 3 R,
+            if x ≤ r then rewardIncrement x else 0 := by
+  have h_reward_step_mono : ∀ n,
+      localSignRewardNat n ≤ localSignRewardNat (n + 1) := by
+    intro n
+    rcases n with (_ | _ | _ | n)
+    · norm_num [localSignRewardNat]
+    · norm_num [localSignRewardNat]
+    · norm_num [localSignRewardNat]
+    · simp only [localSignRewardNat]
+      exact Nat.pow_le_pow_right (by decide)
+        (Nat.sub_le_sub_right (Nat.choose_le_succ _ _) 1)
+  have h_telescope : ∀ r,
+      localSignRewardNat r =
+        1 + ∑ x ∈ Finset.Icc 3 r, rewardIncrement x := by
+    intro n
+    induction n with
+    | zero =>
+        norm_num [localSignRewardNat]
+    | succ n ih =>
+        by_cases h3 : 3 ≤ n + 1
+        · rw [Finset.sum_Icc_succ_top h3, ← add_assoc, ← ih]
+          exact (Nat.add_sub_of_le (h_reward_step_mono n)).symm
+        · have hn : n ≤ 1 := by omega
+          interval_cases n <;>
+            norm_num [localSignRewardNat, rewardIncrement]
+  have h_filter :
+      Finset.filter (fun x => x ≤ r) (Finset.Icc 3 R) =
+        Finset.Icc 3 r := by
+    ext x
+    simp only [Finset.mem_filter, Finset.mem_Icc]
+    constructor
+    · intro hx
+      exact ⟨hx.1.1, hx.2⟩
+    · intro hx
+      exact ⟨⟨hx.1, hx.2.trans hr⟩, hx.2⟩
+  have h_capped_sum :
+      (∑ x ∈ Finset.Icc 3 R,
+        if x ≤ r then rewardIncrement x else 0) =
+        ∑ x ∈ Finset.Icc 3 r, rewardIncrement x := by
+    rw [← Finset.sum_filter, h_filter]
+  have h_first :
+      localSignRewardNat r =
+        1 + ∑ x ∈ Finset.Icc 3 R,
+          if x ≤ r then rewardIncrement x else 0 := by
+    rw [h_capped_sum]
+    exact h_telescope r
+  refine ⟨h_first, ?_⟩
+  by_cases h2 : 2 ≤ r
+  · simp only [if_pos h2]
+    exact h_first
+  · have hIcc : Finset.Icc 3 r = ∅ :=
+      Finset.Icc_eq_empty (by omega)
+    have hzero :
+        (∑ x ∈ Finset.Icc 3 R,
+          if x ≤ r then rewardIncrement x else 0) = 0 := by
+      rw [h_capped_sum, hIcc, Finset.sum_empty]
+    simp only [if_neg h2, hzero, zero_add]
+
+#print axioms cappedReward_telescoping
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RewardTelescoping
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RewardTelescoping
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FiniteFamilyAlgebra
+Source: Erdos625/Section9FiniteFamilyAlgebra.lean
+Normalized SHA-256: 8c34c4305ba2acbdd378a3f7c549ac0ad4891c483534f7742d8bd844a54d9e6f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FiniteFamilyAlgebra
+
+/-!
+# Finite family product-to-exponential algebra for Section IX
+
+This module isolates the algebra used after an injective finite decomposition
+and its pointwise weight estimate have already been supplied.  It asserts no
+graph-cycle decomposition and no configuration-model probability estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- An injectively encoded finite family whose weights are bounded by products
+of nonnegative atom weights is bounded first by the full subset product and
+then by the exponential of the total atom weight. -/
+theorem finiteInjectiveFamily_product_exp_bound
+    {F C : Type*}
+    [Fintype F] [Fintype C] [DecidableEq C]
+    (wF : F → ℝ) (wC : C → ℝ)
+    (cycles : F → Finset C)
+    (hcycles : Function.Injective cycles)
+    (hwF : ∀ f, wF f ≤ ∏ c ∈ cycles f, wC c)
+    (hwC : ∀ c, 0 ≤ wC c) :
+    (∑ f, wF f) ≤ ∏ c, (1 + wC c) ∧
+      (∏ c, (1 + wC c)) ≤ Real.exp (∑ c, wC c) := by
+  constructor
+  · refine le_trans (Finset.sum_le_sum fun f _ => hwF f) ?_
+    have h_sum_subset :
+        (∑ f : F, ∏ c ∈ cycles f, wC c) ≤
+          ∑ t ∈ Finset.powerset (Finset.univ : Finset C),
+            ∏ c ∈ t, wC c := by
+      have h_sum_image :
+          (∑ f : F, ∏ c ∈ cycles f, wC c) ≤
+            ∑ t ∈ Finset.image cycles Finset.univ,
+              ∏ c ∈ t, wC c := by
+        rw [Finset.sum_image <| by tauto]
+      exact h_sum_image.trans
+        (Finset.sum_le_sum_of_subset_of_nonneg
+          (Finset.image_subset_iff.mpr fun f _ =>
+            Finset.mem_powerset.mpr <| Finset.subset_univ _)
+          fun _ _ _ => Finset.prod_nonneg fun _ _ => hwC _)
+    simpa only [Finset.prod_add, Finset.prod_const_one, mul_one, add_comm] using
+      h_sum_subset
+  · rw [Real.exp_sum]
+    exact Finset.prod_le_prod
+      (fun c _ => by linarith [hwC c])
+      (fun c _ => by
+        rw [add_comm]
+        exact Real.add_one_le_exp (wC c))
+
+#print axioms finiteInjectiveFamily_product_exp_bound
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FiniteFamilyAlgebra
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FiniteFamilyAlgebra
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
+Source: Erdos625/Section9AttachmentAsymptotics.lean
+Normalized SHA-256: 07cc2c12569e0e6fdbd37d7017be1d721e0600ad5d1ffecaaf02f78c6e1bc162
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9AttachmentAsymptotics
+
+/-!
+# Analytic attachment bridges for Section IX
+
+This module contains two asymptotic consequences of the explicit finite
+estimates in Section IX.  The first converts the large-residual profile bounds
+into eventual smallness of the traversal parameter.  The second combines the
+large- and small-residual attachment estimates into one deterministic error
+sequence tending to zero.  Neither theorem proves the upstream finite
+probability, cycle, or row/column estimates supplied in its hypotheses.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+/-- The large-residual inequalities force `C U^3 / m₀` below the fixed
+geometric-series threshold `1/3`, uniformly over all admissible `U` and `m₀`.
+-/
+theorem eventually_tau_lt_one_third
+    (C : ℝ) (hC : 0 ≤ C) :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ (U m₀ : ℕ),
+        0 < m₀ →
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ : ℝ) →
+        (U : ℝ) ≤ 4 * (Real.log (n : ℝ) / Real.log 2) →
+        C * (U : ℝ) ^ 3 / (m₀ : ℝ) < (1 : ℝ) / 3 := by
+  have h_bound : ∀ᶠ n : ℕ in atTop,
+      ∀ (U m₀ : ℕ),
+        0 < m₀ →
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ : ℝ) →
+        (U : ℝ) ≤ 4 * (Real.log (n : ℝ) / Real.log 2) →
+        C * (U : ℝ) ^ 3 / (m₀ : ℝ) ≤
+          (64 * C / Real.log 2 ^ 3) *
+            (Real.log (n : ℝ) ^ 9 / (n : ℝ)) := by
+    refine Filter.eventually_atTop.mpr ⟨2, fun n hn => ?_⟩
+    intro U m₀ hm₀ hmass hU
+    have hUcube :
+        (U : ℝ) ^ 3 ≤
+          (4 * (Real.log (n : ℝ) / Real.log 2)) ^ 3 := by
+      gcongr
+    have hinv :
+        (1 : ℝ) / (m₀ : ℝ) ≤
+          Real.log (n : ℝ) ^ 6 / (n : ℝ) := by
+      simpa using inv_anti₀
+        (by
+          exact div_pos (by positivity)
+            (pow_pos (Real.log_pos (by norm_cast)) _))
+        hmass
+    have hraw :
+        C * (U : ℝ) ^ 3 / (m₀ : ℝ) ≤
+          C * (4 * (Real.log (n : ℝ) / Real.log 2)) ^ 3 *
+            Real.log (n : ℝ) ^ 6 / (n : ℝ) := by
+      calc
+        C * (U : ℝ) ^ 3 / (m₀ : ℝ) =
+            C * ((U : ℝ) ^ 3 * ((1 : ℝ) / (m₀ : ℝ))) := by ring
+        _ ≤ C *
+            ((4 * (Real.log (n : ℝ) / Real.log 2)) ^ 3 *
+              (Real.log (n : ℝ) ^ 6 / (n : ℝ))) := by
+          exact mul_le_mul_of_nonneg_left
+            (mul_le_mul hUcube hinv (by positivity) (by positivity)) hC
+        _ = C * (4 * (Real.log (n : ℝ) / Real.log 2)) ^ 3 *
+              Real.log (n : ℝ) ^ 6 / (n : ℝ) := by ring
+    have hsimplify :
+        C * (4 * (Real.log (n : ℝ) / Real.log 2)) ^ 3 *
+            Real.log (n : ℝ) ^ 6 / (n : ℝ) ≤
+          (64 * C / Real.log 2 ^ 3) *
+            (Real.log (n : ℝ) ^ 9 / (n : ℝ)) := by
+      ring_nf
+      norm_num
+    exact hraw.trans hsimplify
+  have h_limit :
+      Tendsto
+        (fun n : ℕ => Real.log (n : ℝ) ^ 9 / (n : ℝ))
+        atTop (nhds 0) := by
+    suffices h_log :
+        Tendsto (fun y : ℝ => y ^ 9 / Real.exp y) atTop (nhds 0) by
+      have hcomp := h_log.comp
+        (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
+      exact hcomp.congr' (by
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        simp +decide [Real.exp_log (Nat.cast_pos.mpr hn)])
+    simpa only [Real.exp_neg, div_eq_mul_inv] using
+      Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 9
+  have hscaled := h_limit.const_mul (64 * C / Real.log 2 ^ 3)
+  filter_upwards
+    [hscaled.eventually
+      (gt_mem_nhds <| show
+        64 * C / Real.log 2 ^ 3 * 0 < (1 : ℝ) / 3 by norm_num),
+      h_bound] with n hn hmajorant
+  exact fun U m₀ hm₀ hmass hU =>
+    lt_of_le_of_lt (hmajorant U m₀ hm₀ hmass hU) hn
+
+/-- The bounds `exp(C log(n)^8)` and `exp(C n/log(n)^5)` are uniformly
+`exp(o(n/log(n)^4))`, even when the applicable residual regime varies with
+the finite index. -/
+theorem exists_uniform_twoRegime_error
+    (S : ℕ → Type*)
+    (attachment : ∀ n, S n → ℝ)
+    (m₀ : ∀ n, S n → ℕ)
+    (C : ℝ) (hC : 0 ≤ C)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      ∀ s : S n,
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ n s : ℝ) →
+        attachment n s ≤ Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      ∀ s : S n,
+        (m₀ n s : ℝ) < (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+        attachment n s ≤
+          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    ∃ εAtt : ℕ → ℝ,
+      Tendsto εAtt atTop (nhds 0) ∧
+        ∀ᶠ n : ℕ in atTop,
+          0 ≤ εAtt n ∧
+            ∀ s : S n,
+              attachment n s ≤
+                Real.exp
+                  (εAtt n * (n : ℝ) / Real.log (n : ℝ) ^ 4) := by
+  refine ⟨fun n =>
+    C * (Real.log (n : ℝ) ^ 12 / (n : ℝ) +
+      1 / Real.log (n : ℝ)), ?_, ?_⟩ <;>
+    norm_num at *
+  · have h_log_div_n :
+        Tendsto
+          (fun n : ℕ => Real.log (n : ℝ) ^ 12 / (n : ℝ))
+          atTop (nhds 0) := by
+      suffices h_log :
+          Tendsto (fun y : ℝ => y ^ 12 / Real.exp y) atTop (nhds 0) by
+        have hcomp := h_log.comp
+          (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
+        exact hcomp.congr' (by
+          filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+          simp +decide [Real.exp_log (Nat.cast_pos.mpr hn)])
+      simpa only [Real.exp_neg, div_eq_mul_inv] using
+        Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 12
+    simpa using tendsto_const_nhds.mul
+      (h_log_div_n.add
+        (tendsto_inv_atTop_zero.comp
+          (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)))
+  · obtain ⟨a₁, ha₁⟩ := hlarge
+    obtain ⟨a₂, ha₂⟩ := hsmall
+    use Nat.max (Nat.max a₁ a₂) 3
+    intro b hb
+    refine ⟨?_, ?_⟩
+    · exact mul_nonneg hC
+        (add_nonneg
+          (div_nonneg
+            (pow_nonneg (Real.log_natCast_nonneg _) _)
+            (Nat.cast_nonneg _))
+          (inv_nonneg.mpr (Real.log_natCast_nonneg _)))
+    · intro s
+      by_cases hmass :
+          (m₀ b s : ℝ) <
+            (b : ℝ) / Real.log (b : ℝ) ^ 6 <;>
+        simp_all +decide [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]
+      · refine (ha₂ b hb.2.1 s hmass).trans (Real.exp_le_exp.mpr ?_)
+        gcongr
+        ring_nf
+        exact le_add_of_nonneg_left (by positivity)
+      · refine (ha₁ b hb.1 s hmass).trans (Real.exp_le_exp.mpr ?_)
+        by_cases hbzero : b = 0 <;>
+          simp_all +decide [mul_add, add_mul, mul_assoc]
+        exact le_add_of_le_of_nonneg
+          (mul_le_mul_of_nonneg_left
+            (by
+              rw [← div_eq_mul_inv]
+              rw [le_div_iff₀
+                (by
+                  exact pow_pos
+                    (Real.log_pos
+                      (Nat.one_lt_cast.mpr (by linarith))) _) ]
+              nlinarith)
+            hC)
+          (by positivity)
+
+#print axioms eventually_tau_lt_one_third
+#print axioms exists_uniform_twoRegime_error
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9AttachmentAsymptotics
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
+Source: Erdos625/Section9FiniteAnalyticEndpoint.lean
+Normalized SHA-256: 06d4008ccf38069c9fa696d4eaf44dbe86224b5380038ed603078787780925de
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
+
+/-!
+# Finite analytic endpoint estimate for Section IX
+
+This module proves the finite version of manuscript (9.7)--(9.9).  It keeps
+the exact local reward, its increments, the truncated sum through
+`R = floor(U / 2)`, the cell parameter bound, and the finite exponential form
+of `U ≤ 3 log_2 m`.  The conclusion asserts one absolute constant, uniform in
+all finite parameters.  It does not supply the upstream probabilistic event
+or identify these finite parameters with a random residual table.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Local signed reward `g` from manuscript (6.5). -/
+def endpointRewardNat (x : ℕ) : ℕ :=
+  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
+
+/-- Real increment `Delta_x = g(x) - g(x-1)` from (9.5). -/
+def endpointIncrement (x : ℕ) : ℝ :=
+  (endpointRewardNat x : ℝ) - (endpointRewardNat (x - 1) : ℝ)
+
+/-- Truncated local correction `lambda` from (9.6). -/
+noncomputable def endpointLambda (R : ℕ) (theta : ℝ) : ℝ :=
+  ∑ x ∈ Finset.Icc 3 R,
+    endpointIncrement x * theta ^ x / (x.factorial : ℝ)
+
+/-- Quadratic-plus-higher local correction `q` from (9.6). -/
+noncomputable def endpointQ (R : ℕ) (theta : ℝ) : ℝ :=
+  theta ^ 2 / 2 + endpointLambda R theta
+
+lemma monotoneRatio_le_endpoint
+    (R x : ℕ) (a q : ℕ → ℝ)
+    (hx3 : 3 ≤ x) (hxR : x ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hq : ∀ i j, 3 ≤ i → i ≤ j → j < R → q i ≤ q j)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n) :
+    a x ≤ max (a 3) (a R) := by
+  -- If there exists an index $i$ ($3 \leq i \leq x-1$) with $q_i > 1$, then pick the first such $i$.
+  by_cases h_exists_i : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1;
+  · -- Let $i$ be the smallest index such that $q_i > 1$.
+    obtain ⟨i, hi₁, hi₂, hi₃⟩ : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1 ∧ ∀ j, 3 ≤ j → j < i → q j ≤ 1 := by
+      exact ⟨ Nat.find h_exists_i, Nat.find_spec h_exists_i |>.1, Nat.find_spec h_exists_i |>.2.1, Nat.find_spec h_exists_i |>.2.2, fun j hj₁ hj₂ => not_lt.1 fun hj₃ => Nat.find_min h_exists_i hj₂ ⟨ hj₁, by linarith [ Nat.find_spec h_exists_i |>.2.1 ], hj₃ ⟩ ⟩;
+    -- Since $q_i > 1$, we have $a_{i+1} \geq a_i$.
+    have h_inc : ∀ j, i ≤ j → j < R → a (j + 1) ≥ a j := by
+      exact fun j hj₁ hj₂ => by rw [ hrec j ( by linarith ) hj₂ ] ; nlinarith [ ha j ( by linarith ) ( by linarith ), hq i j hi₁ hj₁ hj₂ ] ;
+    -- Since $a_{i+1} \geq a_i$, we have $a_x \leq a_R$.
+    have h_le_R : a x ≤ a R := by
+      have h_le_R : ∀ j, x ≤ j → j ≤ R → a x ≤ a j := by
+        intro j hj₁ hj₂; induction hj₁ <;> norm_num at *;
+        exact le_trans ( by solve_by_elim [ Nat.le_of_lt ] ) ( h_inc _ ( by linarith ) hj₂ );
+      exact h_le_R R hxR le_rfl;
+    exact le_trans h_le_R ( le_max_right _ _ );
+  · -- Since there's no i with q i > 1, the sequence a n is non-increasing from 3 to x.
+    have h_noninc : ∀ n, 3 ≤ n → n ≤ x → a n ≤ a 3 := by
+      intro n hn hn'; induction hn <;> simp_all +decide ;
+      exact hrec _ ‹_› ( by linarith ) ▸ le_trans ( mul_le_of_le_one_right ( ha _ ‹_› ( by linarith ) ) ( h_exists_i _ ‹_› hn' ) ) ( by solve_by_elim [ Nat.le_of_lt ] );
+    exact le_max_of_le_left ( h_noninc x hx3 le_rfl )
+
+lemma sum_before_half_crossing
+    (R i : ℕ) (a q : ℕ → ℝ)
+    (hi : 3 ≤ i) (hiR : i ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
+    (hhalf : ∀ n, 3 ≤ n → n < i → q n ≤ (1/2 : ℝ)) :
+    ∑ n ∈ Finset.Ico 3 i, a n ≤ 2 * a 3 := by
+  -- By induction, we show that $a_n \leq a_3 \cdot 2^{-(n-3)}$ for all $n$ such that $3 \leq n < i$.
+  have h_ind : ∀ n, 3 ≤ n → n < i → a n ≤ a 3 * (1 / 2) ^ (n - 3) := by
+    intro n hn hn'; induction hn <;> norm_num at *;
+    rename_i k hk ih; rw [ hrec k hk ( by linarith ) ] ; rw [ Nat.succ_sub ( by linarith ) ] ; norm_num [ pow_succ' ] at * ; nlinarith [ ih ( by linarith ), hhalf k hk ( by linarith ), ha k hk ( by linarith ) ] ;
+  refine' le_trans ( Finset.sum_le_sum fun n hn => h_ind n ( Finset.mem_Ico.mp hn |>.1 ) ( Finset.mem_Ico.mp hn |>.2 ) ) _;
+  erw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ mul_comm, ← Finset.mul_sum _ _ _, geom_sum_eq ] ; ring_nf;
+  exact sub_le_self _ ( mul_nonneg ( mul_nonneg ( ha 3 ( by norm_num ) ( by linarith ) ) ( pow_nonneg ( by norm_num ) _ ) ) ( by norm_num ) )
+
+lemma sum_after_double_crossing
+    (R i : ℕ) (a q : ℕ → ℝ)
+    (hi : 3 ≤ i) (hiR : i ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
+    (hdouble : ∀ n, i ≤ n → n < R → (2 : ℝ) ≤ q n) :
+    ∑ n ∈ Finset.Icc i R, a n ≤ 2 * a R := by
+  -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_R (1/2)^{R-j}$.
+  have h_ind : ∀ j, i ≤ j ∧ j ≤ R → a j ≤ a R * (1 / 2) ^ (R - j) := by
+    intro j hj;
+    -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_{j+1} / 2$.
+    have h_ind_step : ∀ j, i ≤ j ∧ j < R → a j ≤ a (j + 1) / 2 := by
+      exact fun n hn => by rw [ hrec n ( by linarith ) hn.2 ] ; nlinarith [ hdouble n hn.1 hn.2, ha n ( by linarith ) ( by linarith ) ] ;
+    -- By induction on $R - j$, we show that $a_j \leq a_R / 2^{R-j}$.
+    have h_induction : ∀ k, 0 ≤ k → k ≤ R - i → ∀ j, i ≤ j ∧ j + k ≤ R → a j ≤ a (j + k) / 2 ^ k := by
+      intro k hk hk' j hj; induction' k with k ih generalizing j <;> norm_num [ Nat.pow_succ', ← div_div ] at *;
+      convert le_trans ( ih ( Nat.le_of_lt hk' ) j hj.1 ( by linarith ) ) ( div_le_div_of_nonneg_right ( h_ind_step ( j + k ) ( by linarith ) ( by linarith ) ) ( by positivity ) ) using 1 <;> first | rfl | ring
+    convert h_induction ( R - j ) ( Nat.zero_le _ ) ( Nat.sub_le_sub_left hj.1 _ ) j ⟨ hj.1, by omega ⟩ using 1 ; norm_num [ Nat.add_sub_of_le hj.2 ];
+    ring;
+    norm_num;
+  refine' le_trans ( Finset.sum_le_sum fun x hx => h_ind x <| Finset.mem_Icc.mp hx ) _;
+  erw [ Finset.sum_Ico_eq_sum_range ];
+  rw [ ← Finset.mul_sum _ _ _, ← Finset.sum_range_reflect ];
+  rw [ mul_comm ] ; gcongr;
+  · grind;
+  · rw [ Finset.sum_congr rfl fun x hx => by rw [ show R - ( i + ( R + 1 - i - 1 - x ) ) = x by norm_num at *; omega ] ] ; rw [ geom_sum_eq ] <;> ring <;> norm_num
+
+lemma ratio_transition_length
+    (R i j : ℕ) (q : ℕ → ℝ)
+    (_hi : 3 ≤ i) (hij : i ≤ j) (_hjR : j < R)
+    (_hpos : ∀ n, i ≤ n → n ≤ j → 0 ≤ q n)
+    (hgrow : ∀ n, i ≤ n → n < j → 3 * q n ≤ 2 * q (n + 1))
+    (hlo : (1/2 : ℝ) < q i) (hhi : q j < 2) :
+    j - i ≤ 4 := by
+  by_contra h_contra;
+  -- Since $j - i > 4$, we have $q_j \geq (3/2)^{j-i} q_i$.
+  have h_qj_ge : q j ≥ (3 / 2 : ℝ) ^ (j - i) * q i := by
+    have h_qj_ge : ∀ n, i ≤ n → n ≤ j → q n ≥ (3 / 2 : ℝ) ^ (n - i) * q i := by
+      intro n hn hn'; induction hn <;> norm_num at *;
+      rename_i k hk₁ hk₂; rw [ Nat.succ_sub ( by linarith ) ] ; rw [ pow_succ' ] ; nlinarith [ hk₂ ( by linarith ), hgrow k ( by linarith ) ( by linarith ), pow_pos ( by norm_num : ( 0 : ℝ ) < 3 / 2 ) ( k - i ) ] ;
+    exact h_qj_ge j hij le_rfl;
+  nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 3 / 2 ) ( not_le.mp h_contra ) ]
+
+
+lemma geometricRatioEndpointBound
+    (R : ℕ) (a q : ℕ → ℝ)
+    (ha : ∀ x, 0 ≤ a x)
+    (hq : ∀ x, 3 ≤ x → x < R → 0 ≤ q x)
+    (hrec : ∀ x, 3 ≤ x → x < R → a (x + 1) = a x * q x)
+    (hgrow : ∀ x, 3 ≤ x → x + 1 < R → 3 * q x ≤ 2 * q (x + 1)) :
+    ∑ x ∈ Finset.Icc 3 R, a x ≤ 10 * (a 3 + a R) := by
+  by_cases hR : 3 ≤ R
+  · have hmono : ∀ x y, 3 ≤ x → x ≤ y → y < R → q x ≤ q y := by
+      intro x y hx hxy hyR
+      induction hxy <;> norm_num at *
+      grind
+    by_cases hall : ∀ x, 3 ≤ x → x < R → q x ≤ (1 / 2 : ℝ)
+    · have hh := sum_before_half_crossing R R a q hR le_rfl (fun x _ _ => ha x) hrec hall
+      change (∑ x ∈ Finset.Ico 3 (R+1), a x) ≤ _
+      rw [Finset.sum_Ico_succ_top hR]
+      have h3 := ha 3
+      have hlast := ha R
+      nlinarith
+    · push Not at hall
+      obtain ⟨i, hi3, hiR, hiq⟩ := hall
+      let i₀ := Nat.find (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
+      have hi₀ := Nat.find_spec (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
+      have hbefore : ∀ n, 3 ≤ n → n < i₀ → q n ≤ (1 / 2 : ℝ) := by
+        intro n hn hni
+        exact le_of_not_gt (fun hh => Nat.find_min (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩) hni ⟨hn, by omega, hh⟩)
+      have hhead := sum_before_half_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec hbefore
+      by_cases htail : ∀ x, i₀ ≤ x → x < R → (2 : ℝ) ≤ q x
+      · have ht := sum_after_double_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec htail
+        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
+            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ R, a x := by
+          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
+          have hright : (∑ x ∈ Finset.Icc i₀ R, a x) = ∑ x ∈ Finset.Ico i₀ (R+1), a x := by rfl
+          rw [hwhole, hright]
+          exact (Finset.sum_Ico_consecutive a hi₀.1 (by omega)).symm
+        rw [hsplit]
+        have h3 := ha 3
+        have hlast := ha R
+        nlinarith
+      · push Not at htail
+        obtain ⟨j, hij, hjR, hjq⟩ := htail
+        let j₀ := Finset.max' (Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R))
+          ⟨j, by simp [hij, hjR, hjq]⟩
+        have hjmem : j₀ ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) :=
+          Finset.max'_mem _ _
+        have hjprops : i₀ ≤ j₀ ∧ j₀ < R ∧ q j₀ < 2 := by
+          have hp := (Finset.mem_filter.mp hjmem)
+          have hiR : i₀ ≤ j₀ ∧ j₀ < R := (Finset.mem_Ico.mp hp.1)
+          exact ⟨hiR.1, hiR.2, hp.2⟩
+        have hafter : ∀ n, j₀ < n → n < R → (2 : ℝ) ≤ q n := by
+          intro n hjn hnR
+          exact le_of_not_gt (fun hnq => by
+            have hnmem : n ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) := by
+              simp only [Finset.mem_filter, Finset.mem_Ico]
+              exact ⟨⟨by omega, hnR⟩, hnq⟩
+            have := Finset.le_max' _ n hnmem
+            omega)
+        have htail' := sum_after_double_crossing R (j₀ + 1) a q (by omega)
+          (by omega) (fun x _ _ => ha x) hrec (by intro n hn hnR; exact hafter n (by omega) hnR)
+        have hlen : j₀ - i₀ ≤ 4 := ratio_transition_length R i₀ j₀ q hi₀.1 hjprops.1 hjprops.2.1
+          (by intro n hn hnj; exact hq n (hi₀.1.trans hn) (hnj.trans_lt hjprops.2.1))
+          (by intro n hn hnj; exact hgrow n (hi₀.1.trans hn) (by omega)) hi₀.2.2 hjprops.2.2
+        have hmiddle_point : ∀ x ∈ Finset.Icc i₀ j₀, a x ≤ max (a 3) (a R) := by
+          intro x hx
+          rw [Finset.mem_Icc] at hx
+          exact monotoneRatio_le_endpoint R x a q (hi₀.1.trans hx.1)
+            (hx.2.trans hjprops.2.1.le) (fun x _ _ => ha x) hmono hrec
+        have hmiddle : ∑ x ∈ Finset.Icc i₀ j₀, a x ≤ 5 * max (a 3) (a R) := by
+          calc
+            _ ≤ ∑ _x ∈ Finset.Icc i₀ j₀, max (a 3) (a R) := Finset.sum_le_sum hmiddle_point
+            _ = ((j₀ + 1 - i₀ : ℕ) : ℝ) * max (a 3) (a R) := by
+              rw [Finset.sum_const, Nat.card_Icc, nsmul_eq_mul]
+            _ ≤ 5 * max (a 3) (a R) := by
+              have hm : 0 ≤ max (a 3) (a R) := le_max_of_le_left (ha 3)
+              have hc : ((j₀ + 1 - i₀ : ℕ) : ℝ) ≤ 5 := by exact_mod_cast (by omega : j₀ + 1 - i₀ ≤ 5)
+              nlinarith
+        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
+            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ j₀, a x +
+              ∑ x ∈ Finset.Icc (j₀ + 1) R, a x := by
+          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
+          have hmid : (∑ x ∈ Finset.Icc i₀ j₀, a x) = ∑ x ∈ Finset.Ico i₀ (j₀+1), a x := by rfl
+          have hright : (∑ x ∈ Finset.Icc (j₀+1) R, a x) = ∑ x ∈ Finset.Ico (j₀+1) (R+1), a x := by rfl
+          rw [hwhole, hmid, hright]
+          rw [Finset.sum_Ico_consecutive a hi₀.1 (by omega)]
+          rw [Finset.sum_Ico_consecutive a (by omega : 3 ≤ j₀ + 1) (by omega)]
+        rw [hsplit]
+        have h3 := ha 3
+        have hlast := ha R
+        have hm1 : max (a 3) (a R) ≤ a 3 + a R := max_le (le_add_of_nonneg_right hlast) (le_add_of_nonneg_left h3)
+        nlinarith
+  · have : Finset.Icc 3 R = ∅ := by ext x; simp; omega
+    rw [this]
+    simp
+    nlinarith [ha 3, ha R]
+
+lemma dyadic_logconvex_sum_bound (R : ℕ) (t : ℝ) (ht : 0 ≤ t) :
+    ∑ x ∈ Finset.Icc 3 R,
+      (2 : ℝ) ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)
+      ≤ 10 * ((2 : ℝ) ^ (Nat.choose 3 2 - 1) * t ^ 3 / (Nat.factorial 3 : ℝ) +
+        (2 : ℝ) ^ (R.choose 2 - 1) * t ^ R / (R.factorial : ℝ)) := by
+  apply geometricRatioEndpointBound R (fun x => 2 ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)) (fun x => 2^x * t / (x + 1));
+  · exact fun x => by positivity;
+  · exact fun _ _ _ => by positivity;
+  · intro x hx₁ hx₂; rw [ Nat.choose_succ_succ ] ; ring;
+    norm_num [ Nat.add_comm 1, Nat.factorial_succ ] ; ring;
+    rw [ show x + x.choose 2 - 1 = x + ( x.choose 2 - 1 ) by rw [ Nat.add_sub_assoc ( Nat.choose_pos ( by linarith ) ) ] ] ; ring;
+  · intro x hx₁ hx₂; rw [ mul_div, mul_div, div_le_div_iff₀ ] <;> try positivity;
+    norm_num [ pow_succ' ] ; nlinarith [ show ( x : ℝ ) ≥ 3 by norm_cast, show ( 2 : ℝ ) ^ x * t ≥ 0 by positivity ]
+
+
+lemma exp_poly_le_dyadic_eventually24 :
+    ∀ U : ℕ, 2000 ≤ U →
+      Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
+  intro U hU
+  by_cases hU_le_2048 : U ≤ 2048
+  · have h := Real.exp_one_lt_d9.le
+    exact le_trans (mul_le_mul_of_nonneg_right h (sq_nonneg _)) (by interval_cases U <;> norm_num)
+  · induction' U using Nat.strong_induction_on with U ih
+    by_cases hU_le_2072 : U ≤ 2072
+    · have h := Real.exp_one_lt_d9.le
+      norm_num1 at *
+      interval_cases U <;> norm_num at * <;> linarith
+    · have h_ind : Real.exp 1 * (U - 24 : ℝ) ^ 2 ≤ 2 ^ ((U - 24) / 24) := by
+        convert ih (U - 24) (Nat.sub_lt (by linarith) (by linarith))
+          (Nat.le_sub_of_add_le (by linarith)) (by omega) using 1
+        rw [Nat.cast_sub (by linarith)]
+        push_cast
+        ring
+      have h_ineq : 2 * (U - 24 : ℝ) ^ 2 ≥ U ^ 2 := by
+        nlinarith only [show (U : ℝ) ≥ 2073 by norm_cast; linarith]
+      rw [show U / 24 = (U - 24) / 24 + 1 by omega]
+      norm_num [pow_add]
+      nlinarith [Real.exp_pos 1]
+
+lemma dyadic_upper_endpoint_large (U : ℕ) (hU : 2000 ≤ U) :
+      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
+          ((U / 2).factorial : ℝ) *
+        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ 1 := by
+  -- Use the inequality $eU^2/2^{U/3} \le 2^{U/24-U/3}$ to bound $T$.
+  have hT_bound : (Real.exp 1 * U ^ 2 / 2 ^ (U / 3)) ^ ((U / 2 - 3) : ℕ) ≤ (1 / 2 ^ ((U / 3 - U / 24) : ℕ)) ^ ((U / 2 - 3) : ℕ) := by
+    have hT_bound : Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
+      convert exp_poly_le_dyadic_eventually24 U hU using 1;
+    refine' pow_le_pow_left₀ ( by positivity ) _ _;
+    convert div_le_div_of_nonneg_right hT_bound ( by positivity : ( 0 : ℝ ) ≤ 2 ^ ( U / 3 ) ) using 1 ; rw [ div_eq_div_iff ] <;> first | positivity | ring;
+    rw [ ← pow_add, Nat.add_sub_of_le ( by omega ) ];
+  refine le_trans ( mul_le_mul_of_nonneg_left hT_bound ( by positivity ) ) ?_;
+  rw [ div_pow, mul_div, div_le_one ];
+  · rw [ ← pow_mul, mul_comm ];
+    refine' le_trans ( mul_le_mul_of_nonneg_left ( div_le_self ( by positivity ) ( mod_cast Nat.factorial_pos _ ) ) ( by positivity ) ) _;
+    norm_num [ Nat.choose_two_right ];
+    gcongr <;> norm_num;
+    rw [ Nat.div_le_iff_le_mul_add_pred ] <;> norm_num;
+    zify;
+    rw [ Nat.cast_sub, Nat.cast_sub, Nat.cast_sub ] <;> push_cast <;> repeat omega;
+    nlinarith [ Nat.div_mul_le_self U 2, Nat.div_mul_le_self U 3, Nat.div_mul_le_self U 24, Nat.div_add_mod U 2, Nat.mod_lt U two_pos, Nat.div_add_mod U 3, Nat.mod_lt U three_pos, Nat.div_add_mod U 24, Nat.mod_lt U ( by decide : 0 < 24 ) ];
+  · positivity
+
+lemma dyadic_upper_endpoint_uniform :
+    ∃ K : ℝ, 0 < K ∧ ∀ U : ℕ,
+      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
+          ((U / 2).factorial : ℝ) *
+        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
+  -- Let's choose any $K > 0$ and show that the inequality holds for all $U$.
+  obtain ⟨K, hK⟩ : ∃ K : ℝ, ∀ U : ℕ, U < 2000 → (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
+    have h_finite : Set.Finite (Set.image (fun U : ℕ => (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3)) (Set.Iio 2000)) := by
+      exact Set.Finite.image _ <| Set.finite_Iio _;
+    exact ⟨ h_finite.bddAbove.choose, fun U hU => h_finite.bddAbove.choose_spec <| Set.mem_image_of_mem _ hU ⟩;
+  refine' ⟨ Max.max K 1, by positivity, fun U => _ ⟩ ; cases lt_or_ge U 2000 <;> simp_all +decide;
+  exact Or.inr ( dyadic_upper_endpoint_large U ‹_› )
+
+
+
+lemma endpointIncrement_le_majorant (x : ℕ) (hx : 3 ≤ x) :
+    endpointIncrement x ≤ (2 : ℝ) ^ (x.choose 2 - 1) := by
+  unfold endpointIncrement endpointRewardNat
+  rw [if_pos hx]
+  push_cast
+  exact sub_le_self ((2 : ℝ) ^ (x.choose 2 - 1)) (by positivity)
+
+lemma cell_size_dyadic_lower (U m : ℕ) (hm : (2 : ℕ)^U ≤ m^3) :
+    (2 : ℕ)^(U/3) ≤ m := by
+  by_contra h
+  have hlt : m < 2^(U/3) := Nat.lt_of_not_ge h
+  have hc := Nat.pow_lt_pow_left hlt (by omega : 3 ≠ 0)
+  rw [← pow_mul] at hc
+  have he : U / 3 * 3 ≤ U := Nat.div_mul_le_self U 3
+  have hp : (2 : ℕ)^(U/3*3) ≤ 2^U := Nat.pow_le_pow_right (by omega) he
+  exact (Nat.not_lt_of_ge hm) (hc.trans_le hp)
+
+lemma theta_cap_uniform :
+    ∃ B : ℝ, 0 < B ∧ ∀ U : ℕ,
+      Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) ≤ B := by
+  let f : ℕ → ℝ := fun U => Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3)
+  let S := Set.image f (Set.Iio 2000)
+  have hfin : S.Finite := Set.Finite.image _ (Set.finite_Iio 2000)
+  let B := max 1 hfin.bddAbove.choose
+  refine ⟨B, by positivity, ?_⟩
+  intro U
+  by_cases hU : U < 2000
+  · exact le_trans (hfin.bddAbove.choose_spec (Set.mem_image_of_mem f hU)) (le_max_right _ _)
+  · have he := exp_poly_le_dyadic_eventually24 U (by omega)
+    have hle : f U ≤ 1 := by
+      dsimp [f]
+      calc
+        _ ≤ (2 : ℝ)^(U/24) / (2 : ℝ)^(U/3) := div_le_div_of_nonneg_right he (by positivity)
+        _ ≤ 1 := by
+          rw [div_le_one (by positivity)]
+          exact pow_le_pow_right₀ (by norm_num) (by omega)
+    exact hle.trans (le_max_left _ _)
+
+/-- Finite uniform analytic endpoint theorem.
+
+The natural inequality `2^U ≤ m^3` is an exact finite replacement for
+`U ≤ 3 log_2 m` when `m > 0`.  The witness `C` is quantified before every
+cell parameter, so it is genuinely absolute. -/
+theorem existsAbsoluteFiniteEndpointConstant :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ (U m R : ℕ) (theta : ℝ),
+        0 < m →
+        R = U / 2 →
+        0 ≤ theta →
+        theta ≤ Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) →
+        (2 : ℕ) ^ U ≤ m ^ 3 →
+        endpointLambda R theta ≤ C * theta ^ 3 ∧
+          endpointQ R theta ≤ C * theta ^ 2 := by
+  obtain ⟨K, hKpos, hK⟩ := dyadic_upper_endpoint_uniform
+  obtain ⟨B, hBpos, hB⟩ := theta_cap_uniform
+  let A : ℝ := 10 * (1 + K)
+  let C : ℝ := 1 + A + A * B
+  refine ⟨C, by dsimp [C, A]; positivity, ?_⟩
+  intro U m R theta hm hR htheta htheta_m hpow
+  have hm_lower_nat := cell_size_dyadic_lower U m hpow
+  have hm_lower : (2 : ℝ) ^ (U / 3) ≤ (m : ℝ) := by exact_mod_cast hm_lower_nat
+  have hmreal : (0 : ℝ) < m := by exact_mod_cast hm
+  have hT : theta ≤ Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) := by
+    exact htheta_m.trans (div_le_div_of_nonneg_left (by positivity) (by positivity) hm_lower)
+  have hthetaB : theta ≤ B := hT.trans (hB U)
+  have hlambda : endpointLambda R theta ≤ A * theta^3 := by
+    rw [hR]
+    by_cases hsmall : U / 2 < 3
+    · unfold endpointLambda
+      have hzero : Finset.Icc 3 (U/2) = ∅ := by ext x; simp; omega
+      simp [hzero]
+      dsimp [A]
+      positivity
+    · unfold endpointLambda
+      calc
+        _ ≤ ∑ x ∈ Finset.Icc 3 (U / 2),
+            (2 : ℝ)^(x.choose 2 - 1) * theta^x / (x.factorial : ℝ) := by
+          apply Finset.sum_le_sum
+          intro x hx
+          rw [Finset.mem_Icc] at hx
+          have hi := endpointIncrement_le_majorant x hx.1
+          exact div_le_div_of_nonneg_right
+            (mul_le_mul_of_nonneg_right hi (pow_nonneg htheta x)) (by positivity)
+        _ ≤ 10 * ((2 : ℝ)^(Nat.choose 3 2 - 1) * theta^3 /
+              (Nat.factorial 3 : ℝ) +
+            (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
+              ((U/2).factorial : ℝ)) := dyadic_logconvex_sum_bound (U/2) theta htheta
+        _ ≤ A * theta^3 := by
+          have hpow_split : theta^(U/2) = theta^3 * theta^(U/2-3) := by
+            rw [← pow_add, Nat.add_sub_of_le (by omega)]
+          have htail :
+              (2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
+                theta^(U/2-3) ≤ K := by
+            refine le_trans ?_ (hK U)
+            gcongr
+          have htail' :
+              (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
+                ((U/2).factorial : ℝ) ≤ K * theta^3 := by
+            rw [hpow_split]
+            calc
+              _ = ((2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
+                    theta^(U/2-3)) * theta^3 := by ring
+              _ ≤ K * theta^3 := mul_le_mul_of_nonneg_right htail (pow_nonneg htheta 3)
+          norm_num [A, Nat.choose]
+          nlinarith [htail', hKpos, pow_nonneg htheta 3]
+
+  constructor
+  · have hA : 0 ≤ A := by dsimp [A]; positivity
+    have hAC : A ≤ C := by dsimp [C]; nlinarith [hBpos]
+    exact hlambda.trans (mul_le_mul_of_nonneg_right hAC (pow_nonneg htheta 3))
+  · unfold endpointQ
+    have hc : 1 / 2 + A * theta ≤ C := by
+      have hab : A * theta ≤ A * B := mul_le_mul_of_nonneg_left hthetaB (by dsimp [A]; positivity)
+      dsimp [C]
+      linarith [show 0 ≤ A by dsimp [A]; positivity]
+    calc
+      theta^2 / 2 + endpointLambda R theta ≤ theta^2 / 2 + A * theta^3 := add_le_add_right hlambda _
+      _ = (1/2 + A * theta) * theta^2 := by ring
+      _ ≤ C * theta^2 := mul_le_mul_of_nonneg_right hc (sq_nonneg theta)
+
+#print axioms existsAbsoluteFiniteEndpointConstant
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
+Source: Erdos625/Section9CappedFixedFExpansion.lean
+Normalized SHA-256: 4c4ac5cfb761c4efccfe4d359ea4ee5afac1319de89e8726fad8790d402b5a41
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
+
+/-!
+# Capped fixed-F prescribed-demand expansion
+
+This is the finite configuration-model obligation extracted from manuscript
+(9.10)--(9.12).  It retains the cap/no-return event, the actual local reward
+`g`, its threshold increments, and the literal uniform matching law.  The fixed
+edge set `F` need not be even: evenness enters only when this estimate is later
+summed over the residual cycle-space family.
+
+This module proves only the fixed-`F` expansion.  It does not perform that
+even-family summation, prove the polymer/cycle bounds, or assemble Lemma 9.1.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-- The local topological reward from manuscript (6.5):
+`g(0)=g(1)=g(2)=1` and `g(x)=2^(choose(x,2)-1)` for `x >= 3`. -/
+def residualReward (x : ℕ) : ℕ :=
+  if x ≤ 2 then 1 else 2 ^ (Nat.choose x 2 - 1)
+
+/-- The nonnegative threshold increment `Delta_x = g(x)-g(x-1)`. -/
+def residualRewardIncrement (x : ℕ) : ℕ :=
+  residualReward x - residualReward (x - 1)
+
+/-- The residual event retained before the nonnegative threshold expansion:
+every cell is capped by `R`, and a cell exposed in the high skeleton `M`
+receives no residual pair. -/
+def ResidualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ) :
+    Set (ConfigurationMatching row col) :=
+  {matching |
+    (∀ a b, configurationCellCount matching a b ≤ R) ∧
+      ∀ e ∈ M, configurationCellCount matching e.1 e.2 = 0}
+
+/-- The manuscript quantity
+`lambda_ab = sum_{x=3}^R Delta_x theta_ab^x / x!`, set to zero on the
+already-exposed high skeleton. -/
+noncomputable def residualLambda
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) : ℝ≥0∞ :=
+  if (a, b) ∈ M then 0 else
+    ∑ x ∈ Finset.Icc 3 R,
+      (residualRewardIncrement x : ℝ≥0∞) *
+          configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
+        (x.factorial : ℝ≥0∞)
+
+/-- The fixed-selected-edge weight
+`q_ab = theta_ab^2/2 + lambda_ab`, again zero on the high skeleton. -/
+noncomputable def residualQ
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) : ℝ≥0∞ :=
+  if (a, b) ∈ M then 0 else
+    configurationCellTheta row col (Finset.univ.sum row) a b ^ 2 / 2 +
+      residualLambda M R row col a b
+
+/-- The capped local factor for one fixed cycle-space edge set `F`.
+Edges of `F ∩ M` are already exposed and carry weight one.  Every edge of
+`F \ M` imposes the base residual threshold two. -/
+noncomputable def residualFixedFWeight
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (matching : ConfigurationMatching row col) : ℝ≥0∞ := by
+  classical
+  exact
+    if matching ∈ ResidualCapNoReturnEvent M R row col then
+      (∏ a : A, ∏ b : B,
+        (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
+      (∏ e ∈ F,
+        if e ∈ M then 1 else
+          if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0)
+    else 0
+
+/-- Uniform expectation of the capped fixed-`F` factor, written as the exact
+finite PMF sum so that no measurability or integrability abstraction is added. -/
+noncomputable def residualFixedFExpectation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ :=
+  ∑ matching : ConfigurationMatching row col,
+    uniformConfigurationMatching row col htotal matching *
+      residualFixedFWeight M F R row col matching
+
+/-- The reward is the sum of its threshold increments. -/
+private theorem residualReward_threshold_sum (n : ℕ) :
+    (residualReward n : ℝ≥0∞) =
+      1 + ∑ x ∈ Finset.Icc 3 n, (residualRewardIncrement x : ℝ≥0∞) := by
+  induction' n with n ih;
+  · norm_cast;
+  · rcases n with ( _ | _ | _ | n ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
+    · norm_cast;
+    · convert congr_arg ( · + ( residualRewardIncrement ( n + 3 + 1 ) : ℝ≥0∞ ) ) ih using 1;
+      · unfold residualReward residualRewardIncrement;
+        unfold residualReward; simp +arith +decide [ Nat.choose_succ_succ ] ;
+        rw [ add_tsub_cancel_of_le ( pow_le_pow_right₀ ( by norm_num ) ( by linarith ) ) ];
+      · ring
+
+/-- A finite weighted threshold expansion, with the joint prescribed-cell
+bound applied once to every demand occurring in the expansion. -/
+private theorem weighted_prescribedDemand_product_bound
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (S : A → B → Finset ℕ) (w : A → B → ℕ → ℝ≥0∞)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    (∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (∏ a : A, ∏ b : B,
+          ∑ x ∈ S a b,
+            if x ≤ configurationCellCount matching a b then w a b x else 0)) ≤
+      ∏ a : A, ∏ b : B,
+        ∑ x ∈ S a b,
+          w a b x *
+            configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
+              (x.factorial : ℝ≥0∞) := by
+  revert S w;
+  -- Apply the jointPrescribedCellBound_cellwise theorem to each demand in the expansion.
+  have h_jointPrescribedCellBound_cellwise : ∀ (demand : A → B → ℕ) (w : A → B → ℕ → ℝ≥0∞),
+    (∑ matching : ConfigurationMatching row col,
+      (uniformConfigurationMatching row col htotal) matching *
+        (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then (w a b (demand a b)) else 0)) ≤
+    (∏ a : A, ∏ b : B, (w a b (demand a b) * configurationCellTheta row col (Finset.univ.sum row) a b ^ demand a b / ((demand a b).factorial : ℝ≥0∞))) := by
+      intro demand w
+      have hjointPrescribedCellBound_cellwise : (∑ matching : ConfigurationMatching row col,
+        (uniformConfigurationMatching row col htotal) matching *
+          (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then 1 else 0)) ≤
+        (∏ a : A, ∏ b : B, (configurationCellTheta row col (Finset.univ.sum row) a b ^ (demand a b) / ((demand a b).factorial : ℝ≥0∞))) := by
+          convert jointPrescribedCellBound_cellwise demand row col htotal hm using 1;
+          unfold prescribedCellEvent; simp +decide [ Finset.prod_ite ] ;
+          congr! 1;
+          by_cases h : ∀ a b, demand a b ≤ configurationCellCount ‹_› a b <;> simp_all +decide [ Finset.prod_eq_zero_iff ];
+          simp +decide [ Finset.card_eq_zero.mpr, h ];
+      convert mul_le_mul_left hjointPrescribedCellBound_cellwise ( ∏ a : A, ∏ b : B, w a b ( demand a b ) ) using 1;
+      · simp +decide [ Finset.sum_mul _ _ _ ];
+        simp +decide only [mul_assoc, ← Finset.prod_mul_distrib];
+        exact Finset.sum_congr rfl fun _ _ => by congr; ext; congr; ext; split_ifs <;> ring;
+      · simp +decide only [mul_div_assoc, mul_comm, ← Finset.prod_mul_distrib];
+  intro S w;
+  simp only [ Finset.prod_univ_sum ];
+  simp only [ Finset.mul_sum _ _ _ ];
+  rw [ Finset.sum_comm ];
+  refine' Finset.sum_le_sum fun demand hdemand => _;
+  exact h_jointPrescribedCellBound_cellwise demand w
+
+/-- Faithful fixed-`F` form of the capped prescribed-demand expansion behind
+(9.10)--(9.12).  The cap/no-return indicator is dropped only after expanding
+the nonnegative threshold alternatives, and the same joint configuration-model
+bound is applied to all demanded cells at once. -/
+theorem capped_fixedF_prescribedDemand_expansion
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualFixedFExpectation M F R row col htotal ≤
+      ∏ a : A, ∏ b : B,
+        if (a, b) ∈ M then 1
+        else if (a, b) ∈ F then residualQ M R row col a b
+        else 1 + residualLambda M R row col a b := by
+  refine' le_trans ( Finset.sum_le_sum _ ) _;
+  use fun matching => uniformConfigurationMatching row col htotal matching * ( ∏ a : A, ∏ b : B, ∑ x ∈ if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R, if x ≤ configurationCellCount matching a b then ( if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) else 0 );
+  · intro matching;
+    by_cases h : matching ∈ ResidualCapNoReturnEvent M R row col <;> simp +decide;
+    · unfold residualFixedFWeight;
+      rw [ if_pos h ];
+      let badCells := Finset.filter
+        ( fun x => configurationCellCount matching x.1 x.2 < 2 )
+        ( Finset.filter ( fun x => x ∉ M ) F );
+      by_cases hbad : badCells.Nonempty;
+      · rcases hbad with ⟨ e, he ⟩;
+        have he' := he;
+        simp only [ badCells, Finset.mem_filter ] at he';
+        rcases he' with ⟨ ⟨ heF, heM ⟩, heLow ⟩;
+        have hzero :
+            (∏ e ∈ F,
+              if e ∈ M then (1 : ℝ≥0∞)
+              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) = 0 :=
+          Finset.prod_eq_zero heF ( by simp [ heM, Nat.not_le.mpr heLow ] );
+        simp [ hzero ];
+      · have hNoBad (a : A) (b : B)
+            (habF : (a, b) ∈ F) (habM : (a, b) ∉ M) :
+            2 ≤ configurationCellCount matching a b := by
+          by_contra hlt;
+          apply hbad;
+          refine' ⟨ (a, b), _ ⟩;
+          simp only [ badCells, Finset.mem_filter ];
+          exact ⟨ ⟨ habF, habM ⟩, Nat.lt_of_not_ge hlt ⟩;
+        apply mul_le_mul_right;
+        have hF :
+            (∏ e ∈ F,
+              if e ∈ M then (1 : ℝ≥0∞)
+              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+            ∏ a : A, ∏ b : B,
+              if (a, b) ∈ F then
+                (if (a, b) ∈ M then 1
+                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
+              else 1 := by
+          rw [ ← Fintype.prod_ite_mem ];
+          exact Fintype.prod_prod_type'
+            ( fun a : A => fun b : B =>
+              if (a, b) ∈ F then
+                (if (a, b) ∈ M then (1 : ℝ≥0∞)
+                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
+              else 1 );
+        rw [ hF ];
+        simp only [ ← Finset.prod_mul_distrib ];
+        refine' Finset.prod_le_prod' fun a _ => Finset.prod_le_prod' fun b _ => _;
+        by_cases habM : (a, b) ∈ M;
+        · have hzero := h.2 (a, b) habM;
+          simp [ habM, hzero, residualReward ];
+        · have hcap : configurationCellCount matching a b ≤ R := h.1 a b;
+          have hfilter :
+              (Finset.Icc 3 R).filter
+                  (fun x => x ≤ configurationCellCount matching a b) =
+                Finset.Icc 3 (configurationCellCount matching a b) := by
+            ext x;
+            simp only [ Finset.mem_filter, Finset.mem_Icc ];
+            constructor;
+            · rintro ⟨ ⟨ hx3, hxR ⟩, hxCount ⟩;
+              exact ⟨ hx3, hxCount ⟩;
+            · rintro ⟨ hx3, hxCount ⟩;
+              exact ⟨ ⟨ hx3, hxCount.trans hcap ⟩, hxCount ⟩;
+          have hthreshold :
+              (∑ x ∈ Finset.Icc 3 R,
+                if x ≤ configurationCellCount matching a b then
+                  (residualRewardIncrement x : ℝ≥0∞)
+                else 0) =
+                ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
+                  (residualRewardIncrement x : ℝ≥0∞) := by
+            calc
+              (∑ x ∈ Finset.Icc 3 R,
+                if x ≤ configurationCellCount matching a b then
+                  (residualRewardIncrement x : ℝ≥0∞)
+                else 0) =
+                  ∑ x ∈ (Finset.Icc 3 R).filter
+                      (fun x => x ≤ configurationCellCount matching a b),
+                    (residualRewardIncrement x : ℝ≥0∞) := by
+                      rw [ Finset.sum_filter ];
+              _ = ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
+                    (residualRewardIncrement x : ℝ≥0∞) := by
+                      rw [ hfilter ];
+          by_cases habF : (a, b) ∈ F;
+          · have htwo := hNoBad a b habF habM;
+            simp only [ if_neg habM, if_pos habF, if_pos htwo, mul_one ];
+            rw [ residualReward_threshold_sum ];
+            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
+            simp only [ if_pos htwo ];
+            have hsumInner :
+                (∑ x ∈ Finset.Icc 3 R,
+                  if x ≤ configurationCellCount matching a b then
+                    (if x = 2 then 1
+                      else (residualRewardIncrement x : ℝ≥0∞))
+                  else 0) =
+                  ∑ x ∈ Finset.Icc 3 R,
+                    if x ≤ configurationCellCount matching a b then
+                      (residualRewardIncrement x : ℝ≥0∞)
+                    else 0 := by
+              apply Finset.sum_congr rfl;
+              intro x hx;
+              have hxne : x ≠ 2 := by
+                have hx3 := (Finset.mem_Icc.mp hx).1;
+                omega;
+              simp only [ hxne, if_false ];
+            rw [ hsumInner, hthreshold ];
+            simp only [ if_true ];
+            exact le_rfl;
+          · simp only [ if_neg habM, if_neg habF, mul_one ];
+            rw [ residualReward_threshold_sum ];
+            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
+            simp only [ if_pos (Nat.zero_le _) ];
+            have hsumInner :
+                (∑ x ∈ Finset.Icc 3 R,
+                  if x ≤ configurationCellCount matching a b then
+                    (if x = 0 then 1
+                      else (residualRewardIncrement x : ℝ≥0∞))
+                  else 0) =
+                  ∑ x ∈ Finset.Icc 3 R,
+                    if x ≤ configurationCellCount matching a b then
+                      (residualRewardIncrement x : ℝ≥0∞)
+                    else 0 := by
+              apply Finset.sum_congr rfl;
+              intro x hx;
+              have hxne : x ≠ 0 := by
+                have hx3 := (Finset.mem_Icc.mp hx).1;
+                omega;
+              simp only [ hxne, if_false ];
+            rw [ hsumInner, hthreshold ];
+            simp only [ if_true ];
+            exact le_rfl;
+    · unfold residualFixedFWeight; simp +decide [ h ] ;
+  · convert weighted_prescribedDemand_product_bound ( fun a b => if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R ) ( fun a b x => if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) row col htotal hm using 1;
+    · rfl;
+    · apply Fintype.sum_congr;
+      intro matching;
+      congr 1;
+      norm_cast;
+    · refine' Finset.prod_congr rfl fun a ha => Finset.prod_congr rfl fun b hb => _ ; split_ifs <;> simp +decide [ *, residualQ, residualLambda ] ;
+      · exact congr_arg _ ( Finset.sum_congr rfl fun x hx => by aesop );
+      · exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_Icc.mp hx ] ) ] ;
+
+#print axioms capped_fixedF_prescribedDemand_expansion
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
+Source: Erdos625/Section9SmallResidualDeterministic.lean
+Normalized SHA-256: 00df3c8b05783178642675c392d8424f303cd74e7a177a7833b52ee04507865a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
+
+/-!
+# Deterministic small-residual attachment bound
+
+This module proves the finite arithmetic seam behind manuscript
+(9.20)--(9.22).  It retains the literal full-table cap/no-return event and
+keeps the residual-mass and cycle-rank inputs explicit.  It does not identify
+the random residual table or prove the preceding probabilistic estimates.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Literal full-table cap/no-return event.  On the exposed support the full
+cell equals its exposed demand, and every cell obeys its cap. -/
+def FullCapNoReturnEvent
+    {A B : Type*}
+    (full demand cap : A → B → ℕ) (support : A → B → Prop) : Prop :=
+  ∀ a b,
+    full a b ≤ cap a b ∧
+      (support a b → full a b = demand a b)
+
+/-- The exact deterministic small-residual integrand bound from
+manuscript (9.20)--(9.22). -/
+theorem smallResidualDeterministicBound
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (full demand residual cap : A → B → ℕ)
+    (support : A → B → Prop)
+    (U m cycleRank : ℕ)
+    (hsplit : ∀ a b, full a b = demand a b + residual a b)
+    (hEvent : FullCapNoReturnEvent full demand cap support)
+    (hcap : ∀ a b, cap a b ≤ U)
+    (hmass : ∑ a, ∑ b, residual a b = m)
+    (hcycle : cycleRank ≤ m / 2) :
+    2 ^ cycleRank *
+        (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
+      2 ^ (U * m / 2) := by
+  have hres : ∀ a b, residual a b ≤ U := by
+    exact fun a b => by
+      linarith [hsplit a b, hEvent a b, hcap a b]
+  have hprod :
+      (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
+        2 ^ (∑ a, ∑ b, ((U - 1) * residual a b) / 2) := by
+    have hpoint : ∀ a b,
+        localSignRewardNat (residual a b) ≤
+          2 ^ ((U - 1) * residual a b / 2) := by
+      intro a b
+      unfold localSignRewardNat
+      split_ifs <;> simp_all +decide [Nat.choose_two_right]
+      · gcongr <;> try omega
+        rw [Nat.le_div_iff_mul_le zero_lt_two]
+        nlinarith only
+          [ Nat.sub_add_cancel (by linarith : 1 ≤ residual a b),
+            Nat.sub_add_cancel
+              (show 1 ≤ U from
+                Nat.one_le_iff_ne_zero.mpr <| by linarith [hres a b]),
+            hres a b,
+            Nat.div_mul_le_self (residual a b * (residual a b - 1)) 2,
+            Nat.sub_add_cancel
+              (show 1 ≤ residual a b * (residual a b - 1) / 2 from
+                Nat.div_pos
+                  (by
+                    nlinarith only
+                      [ ‹3 ≤ residual a b›,
+                        Nat.sub_add_cancel (by linarith : 1 ≤ residual a b) ])
+                  zero_lt_two) ]
+      · exact Nat.one_le_pow _ _ (by decide)
+    exact le_trans
+      (Finset.prod_le_prod' fun a _ =>
+        Finset.prod_le_prod' fun b _ => hpoint a b)
+      (by simp +decide [Finset.prod_pow_eq_pow_sum])
+  have hcombine :
+      cycleRank + (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
+        U * m / 2 := by
+    have hlocal :
+        (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
+          (U - 1) * m / 2 := by
+      rw [← hmass, Nat.le_div_iff_mul_le zero_lt_two]
+      simp +decide only [Finset.mul_sum _ _ _]
+      rw [Finset.sum_mul _ _ _]
+      exact Finset.sum_le_sum fun a _ => by
+        rw [Finset.sum_mul _ _ _]
+        exact Finset.sum_le_sum fun b _ => Nat.div_mul_le_self _ _
+    rcases U with (_ | _ | U) <;> simp_all +decide
+    all_goals grind
+  exact le_trans (Nat.mul_le_mul_left _ hprod) (by
+    rw [← pow_add]
+    exact pow_le_pow_right₀ (by decide) hcombine)
+
+#print axioms smallResidualDeterministicBound
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 ========================================================================== -/
 
 /- ==========================================================================
@@ -23363,7 +25434,7 @@ END SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
 Source: Erdos625/Section8CanonicalSkeleton.lean
-Normalized SHA-256: bfe2dc24eae64b91d16af03d3f36ef35321a9e2a39247cb8358783007df4480b
+Normalized SHA-256: 1acf1ef4036b14a61c195807a5a15dbe59bd559a4fa4a3738cf4bb0ebd326122
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
 
@@ -23476,6 +25547,33 @@ theorem canonicalHighDemand_partialMatching_and_incidence
   · intro a b h
     simp [canonicalHighDemand, h]
 
+/-- A table has canonical high demand `demand` exactly when it equals `demand`
+on its nonzero support and is capped by the cutoff off that support.  This is a
+deterministic cutoff identity; it does not by itself identify a labelled
+witness event or its configuration-model probability. -/
+theorem canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    {A B : Type*} (table demand : A → B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    canonicalHighDemand table U = demand ↔
+      (∀ a b, demand a b ≠ 0 → table a b = demand a b) ∧
+      (∀ a b, demand a b = 0 → table a b ≤ U / 2) := by
+  constructor
+  · intro h_eq
+    constructor
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      unfold canonicalHighDemand at hab
+      aesop
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      simp_all [canonicalHighDemand]
+      grind
+  · rintro ⟨hsupport, hcapped⟩
+    funext a b
+    by_cases hab : demand a b = 0 <;> simp_all [canonicalHighDemand]
+
+#print axioms canonicalHighDemand_eq_iff_exact_support_and_capped_off
+
 /-- Translate the simultaneous full-cell cap/no-return condition into the
 unshifted residual cap and zero residual mass on the canonical support. -/
 theorem supportIndexed_fullConstraints_iff_residual
@@ -23521,6 +25619,403 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
+Source: Erdos625/Section8CanonicalLabelledWitness.lean
+Normalized SHA-256: 4f1fcaee9ef845c16c05b9223d95c3fb135dcd0e840030f9a35dfde4d0557e5f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
+
+/-!
+# Canonical labelled witness
+
+For a fixed configuration matching, retain the complete cell precisely when
+its multiplicity is above the canonical cutoff.  The resulting demand has one
+and only one labelled prescribed-demand witness extended by that matching.
+This is the missing labelled-witness identification before manuscript (8.3).
+-/
+
+namespace Erdos625
+
+/-- Canonical high-cell demand extracted from one literal configuration
+matching. -/
+def canonicalDemandOfMatching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) : A → B → ℕ :=
+  canonicalHighDemand (configurationCellCount matching) U
+
+private theorem rowAllocation_subset_cellFiber_of_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (witness : PrescribedDemandWitness demand row col)
+    (hextends : ExtendsPrescribedDemandWitness matching witness)
+    (a : A) (b : B) :
+    (witness.1 a).1 b ⊆
+      Finset.univ.filter
+        (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+  intro stub hstub
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  have hpair :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching witness).1
+      hextends a b ⟨stub, hstub⟩
+  exact congrArg Sigma.fst hpair
+
+private theorem cellPairings_eq_of_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (rowAllocation : ∀ a, StubAllocation (row a) (demand a))
+    (colAllocation : ∀ b, StubAllocation (col b) (fun a ↦ demand a b))
+    (pairing₁ pairing₂ : ∀ a b,
+      (↑((rowAllocation a).1 b)) ≃ (↑((colAllocation b).1 a)))
+    (h₁ : ExtendsPrescribedDemandWitness matching
+      ⟨rowAllocation, colAllocation, pairing₁⟩)
+    (h₂ : ExtendsPrescribedDemandWitness matching
+      ⟨rowAllocation, colAllocation, pairing₂⟩) :
+    pairing₁ = pairing₂ := by
+  funext a b
+  apply Equiv.ext
+  intro stub
+  apply Subtype.ext
+  have hpair₁ :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching
+      ⟨rowAllocation, colAllocation, pairing₁⟩).1 h₁ a b stub
+  have hpair₂ :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching
+      ⟨rowAllocation, colAllocation, pairing₂⟩).1 h₂ a b stub
+  exact eq_of_heq (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
+
+private theorem extendingWitness_unique_of_full_or_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (hfull : ∀ a b, demand a b = configurationCellCount matching a b ∨
+      demand a b = 0)
+    (w₁ w₂ : PrescribedDemandWitness demand row col)
+    (h₁ : ExtendsPrescribedDemandWitness matching w₁)
+    (h₂ : ExtendsPrescribedDemandWitness matching w₂) :
+    w₁ = w₂ := by
+  obtain ⟨w₁_row, w₁_col, w₁_eq⟩ := w₁
+  obtain ⟨w₂_row, w₂_col, w₂_eq⟩ := w₂
+  have h_row : w₁_row = w₂_row := by
+    funext a
+    apply Subtype.ext
+    funext b
+    by_cases h_demand :
+        demand a b = configurationCellCount matching a b
+    · have hw₁_full :
+          (w₁_row a).1 b =
+            Finset.univ.filter
+              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+        refine Finset.eq_of_subset_of_card_le
+          (rowAllocation_subset_cellFiber_of_extends matching
+            ⟨w₁_row, w₁_col, w₁_eq⟩ h₁ a b) ?_
+        rw [(w₁_row a).2.1 b, h_demand]
+        rfl
+      have hw₂_full :
+          (w₂_row a).1 b =
+            Finset.univ.filter
+              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+        refine Finset.eq_of_subset_of_card_le
+          (rowAllocation_subset_cellFiber_of_extends matching
+            ⟨w₂_row, w₂_col, w₂_eq⟩ h₂ a b) ?_
+        rw [(w₂_row a).2.1 b, h_demand]
+        rfl
+      exact hw₁_full.trans hw₂_full.symm
+    · have hzero : demand a b = 0 :=
+        (hfull a b).resolve_left h_demand
+      have hw₁_zero : (w₁_row a).1 b = ∅ := by
+        apply Finset.card_eq_zero.mp
+        exact ((w₁_row a).2.1 b).trans hzero
+      have hw₂_zero : (w₂_row a).1 b = ∅ := by
+        apply Finset.card_eq_zero.mp
+        exact ((w₂_row a).2.1 b).trans hzero
+      exact hw₁_zero.trans hw₂_zero.symm
+  cases h_row
+  have h_col : w₁_col = w₂_col := by
+    funext b
+    apply Subtype.ext
+    funext a
+    apply Finset.eq_of_subset_of_card_le
+    · intro x hx
+      let y : ↑((w₁_row a).1 b) :=
+        (w₁_eq a b).symm ⟨x, hx⟩
+      have hy : (w₁_eq a b y).1 = x :=
+        congrArg Subtype.val ((w₁_eq a b).apply_symm_apply ⟨x, hx⟩)
+      have hpair₁ :=
+        (extendsPrescribedDemandWitness_iff_cellwise matching
+          ⟨w₁_row, w₁_col, w₁_eq⟩).1 h₁ a b y
+      have hpair₂ :=
+        (extendsPrescribedDemandWitness_iff_cellwise matching
+          ⟨w₁_row, w₂_col, w₂_eq⟩).1 h₂ a b y
+      have hvalue : (w₁_eq a b y).1 = (w₂_eq a b y).1 :=
+        eq_of_heq
+          (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
+      have hxvalue : x = (w₂_eq a b y).1 := hy.symm.trans hvalue
+      rw [hxvalue]
+      exact (w₂_eq a b y).2
+    · rw [(w₂_col b).2.1 a, (w₁_col b).2.1 a]
+  cases h_col
+  have h_eq : w₁_eq = w₂_eq :=
+    cellPairings_eq_of_extends matching w₁_row w₁_col
+      w₁_eq w₂_eq h₁ h₂
+  cases h_eq
+  rfl
+
+private theorem canonicalDemandOfMatching_le_cellCount
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∀ a b,
+      canonicalDemandOfMatching matching U a b ≤
+        configurationCellCount matching a b := by
+  intro a b
+  by_cases hhigh : U / 2 < configurationCellCount matching a b
+  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
+  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
+    exact Nat.zero_le _
+
+private theorem canonicalDemandOfMatching_full_or_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∀ a b,
+      canonicalDemandOfMatching matching U a b =
+          configurationCellCount matching a b ∨
+        canonicalDemandOfMatching matching U a b = 0 := by
+  intro a b
+  by_cases hhigh : U / 2 < configurationCellCount matching a b
+  · left
+    rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
+  · right
+    rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
+
+/-- The canonical full-cell demand determines a unique labelled exposure of
+the supplied matching.  No witness-existence or uniqueness premise is assumed. -/
+theorem existsUnique_canonicalHighDemandWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ)
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∃! witness : PrescribedDemandWitness
+        (canonicalDemandOfMatching matching U) row col,
+      ExtendsPrescribedDemandWitness matching witness := by
+  obtain ⟨w₁, hw₁⟩ :=
+    exists_extendingWitness_of_mem_prescribedCellEvent
+      (matching := matching)
+      (canonicalDemandOfMatching_le_cellCount matching U)
+  refine ⟨w₁, hw₁, ?_⟩
+  intro w₂ hw₂
+  exact extendingWitness_unique_of_full_or_zero matching
+    (canonicalDemandOfMatching_full_or_zero matching U)
+    w₂ w₁ hw₂ hw₁
+
+#print axioms existsUnique_canonicalHighDemandWitness
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
+Source: Erdos625/Section8LabelledIncidence.lean
+Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
+
+/-!
+# Normalized labelled-witness incidence for Section VIII
+
+This module isolates the algebraic normalized labelled-exposure incidence
+used in manuscript (8.3).  It is not, by itself, the full configuration-model
+event-probability identity: that application still requires equal ambient
+row and column totals, matching-extension normalization, and specialization
+to the canonical partial-matching demand.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-- The number of labelled prescribed-demand witnesses, normalized by the
+ambient row-stub descending factorial `(m)_J`. -/
+noncomputable def labelledWitnessIncidence
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) : ℝ≥0∞ :=
+  (Fintype.card (PrescribedDemandWitness demand row col) : ℝ≥0∞) /
+    ((Finset.univ.sum row).descFactorial (totalDemand demand) : ℝ≥0∞)
+
+/-- Exact algebraic form of the normalized labelled-witness incidence.  The
+displayed total-demand hypothesis makes every ENNReal denominator nonzero;
+the result remains a counting identity rather than the full probability
+statement of manuscript (8.3). -/
+theorem labelledWitnessIncidence_eq
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ)
+    (hDemand : totalDemand demand ≤ Finset.univ.sum row) :
+    labelledWitnessIncidence demand row col =
+      ((rowDescendingProduct demand row *
+        columnDescendingProduct demand col : ℕ) : ℝ≥0∞) /
+      (((Finset.univ.sum row).descFactorial (totalDemand demand) *
+        demandFactorialProduct demand : ℕ) : ℝ≥0∞) := by
+  have hdesc_pos :
+      0 < (Finset.univ.sum row).descFactorial (totalDemand demand) :=
+    Nat.descFactorial_pos.mpr hDemand
+  have hfactorial_pos : 0 < demandFactorialProduct demand := by
+    exact Finset.prod_pos fun a _ ↦
+      Finset.prod_pos fun b _ ↦ Nat.factorial_pos _
+  unfold labelledWitnessIncidence
+  rw [ENNReal.div_eq_div_iff]
+  · norm_cast
+    simpa only [demandFactorialProduct, rowDescendingProduct,
+      columnDescendingProduct, mul_assoc, mul_comm, mul_left_comm] using
+      congr_arg
+        (fun n ↦
+          (Finset.univ.sum row).descFactorial (totalDemand demand) * n)
+        (card_prescribedDemandWitness_mul_factorials demand row col)
+  · exact ne_of_gt (by exact_mod_cast mul_pos hdesc_pos hfactorial_pos)
+  · exact ENNReal.natCast_ne_top _
+  · exact ne_of_gt (by exact_mod_cast hdesc_pos)
+  · exact ENNReal.natCast_ne_top _
+
+#print axioms labelledWitnessIncidence_eq
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8LabelledIncidence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonExpansion
+Source: Erdos625/Section8NearSkeletonExpansion.lean
+Normalized SHA-256: 47e631e5ba863b2b825447c81831237dda6c1644829a6dc336ec56ac64f0c78d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExpansion
+
+/-!
+# Distinguishable near-skeleton expansion for Section VIII
+
+This module proves the exact finite product expansion over optional deficit
+choices attached to distinguishable cells.  It does not identify these choices
+with unlabelled typed near-skeletons, prove that forgetting identical typed
+cells introduces no multiplicity, or establish the ratio estimates required
+for manuscript (8.25a).  Those application bridges remain separate proof
+obligations.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-- For each distinguishable cell, choose no deficit or one allowed deficit. -/
+def NearSkeletonChoice
+    (Cell Deficit : Type*) [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit) :=
+  (c : Cell) → Option {e : Deficit // e ∈ allowed c}
+
+noncomputable instance instFintypeNearSkeletonChoice
+    (Cell Deficit : Type*) [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit) :
+    Fintype (NearSkeletonChoice Cell Deficit allowed) := by
+  classical
+  unfold NearSkeletonChoice
+  infer_instance
+
+/-- Product weight of one distinguishable near-skeleton choice. -/
+noncomputable def nearSkeletonChoiceWeight
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ℝ≥0∞)
+    (choice : NearSkeletonChoice Cell Deficit allowed) : ℝ≥0∞ :=
+  ∏ c, match choice c with
+    | none => 1
+    | some e => weight c e.1
+
+private lemma direct_finset_prod_sum
+    {ι R : Type*} [CommSemiring R] [DecidableEq ι]
+    {κ : ι → Type*} (s : Finset ι) (t : ∀ i, Finset (κ i))
+    (f : ∀ i, κ i → R) :
+    ∏ a ∈ s, ∑ b ∈ t a, f a b =
+      ∑ p ∈ s.pi t, ∏ x ∈ s.attach, f x.1 (p x.1 x.2) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp
+  | insert a s ha ih =>
+    have h₁ : ∀ x ∈ t a, ∀ y ∈ t a, x ≠ y →
+        Disjoint (Finset.image (Finset.Pi.cons s a x) (s.pi t))
+          (Finset.image (Finset.Pi.cons s a y) (s.pi t)) := by
+      intro x _ y _ h
+      simp only [Finset.disjoint_iff_ne, Finset.mem_image]
+      rintro _ ⟨p₂, _, eq₂⟩ _ ⟨p₃, _, eq₃⟩ eq
+      have hx : Finset.Pi.cons s a x p₂ a (Finset.mem_insert_self _ _) =
+          Finset.Pi.cons s a y p₃ a (Finset.mem_insert_self _ _) := by
+        rw [eq₂, eq₃, eq]
+      rw [Finset.Pi.cons_same, Finset.Pi.cons_same] at hx
+      exact h hx
+    rw [Finset.prod_insert ha, Finset.pi_insert ha, ih, Finset.sum_mul,
+      Finset.sum_biUnion h₁]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    have h₂ : ∀ p₁ ∈ s.pi t, ∀ p₂ ∈ s.pi t,
+        Finset.Pi.cons s a b p₁ = Finset.Pi.cons s a b p₂ → p₁ = p₂ :=
+      fun p₁ _ p₂ _ eq => Finset.Pi.cons_injective ha eq
+    rw [Finset.sum_image h₂, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun g _ => ?_
+    rw [Finset.attach_insert, Finset.prod_insert, Finset.prod_image]
+    · simp only [Finset.Pi.cons_same]
+      congr with ⟨v, hv⟩
+      congr
+      exact (Finset.Pi.cons_ne (by rintro rfl; exact ha hv)).symm
+    · exact fun _ _ _ _ => Subtype.ext ∘ Subtype.mk.inj
+    · simpa only [Finset.mem_image, Finset.mem_attach, Subtype.mk.injEq,
+        true_and, Subtype.exists, exists_prop, exists_eq_right] using ha
+
+/-- Exact finite expansion over all distinguishable near-skeleton choices. -/
+theorem sum_nearSkeletonChoiceWeight_eq_product
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ℝ≥0∞) :
+    (∑ choice : NearSkeletonChoice Cell Deficit allowed,
+      nearSkeletonChoiceWeight allowed weight choice) =
+      ∏ c, (1 + ∑ e ∈ allowed c, weight c e) := by
+  classical
+  let f : (c : Cell) → Option {e : Deficit // e ∈ allowed c} → ℝ≥0∞ :=
+    fun c x => match x with
+      | none => 1
+      | some e => weight c e.1
+  have expand := direct_finset_prod_sum (Finset.univ : Finset Cell)
+    (fun c => (Finset.univ : Finset (Option {e : Deficit // e ∈ allowed c}))) f
+  simp only [Finset.prod_attach_univ, Finset.sum_univ_pi] at expand
+  rw [show (∏ c, (1 + ∑ e ∈ allowed c, weight c e)) =
+      ∏ c, ∑ x, f c x by
+        apply Fintype.prod_congr
+        intro c
+        simp [f, Finset.sum_attach]]
+  exact expand.symm
+
+#print axioms sum_nearSkeletonChoiceWeight_eq_product
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExpansion
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearSkeletonExpansion
 ========================================================================== -/
 
 /- ==========================================================================
@@ -25721,7 +28216,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 44d3f60c145f3ecacea75de97ddf9f1d9d9254016144249cd54c220a7f1c5f05
+Normalized SHA-256: 76aefa036f9f8f294ce0909f6598b9ad2cc7afc7a6de807847c892c99f110ea5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -25748,6 +28243,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
 #print axioms Erdos625.phaseDelta_mem_Ico
@@ -25759,11 +28255,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
 #print axioms Erdos625.quarterRecurrence_lowerBound
+#print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
+#print axioms Erdos625.simultaneous_induced_chromatic_bound
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
 #print axioms Erdos625.sqrt_seedTerm_isLittleO
 #print axioms Erdos625.sqrt_radiusTerm_isLittleO
 #print axioms Erdos625.realCubeRoot_isLittleO
 #print axioms Erdos625.one_isLittleO_gapScale
+#print axioms Erdos625.amplificationError_isLittleO_gapBase
 #print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
 #print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
 #print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
@@ -26059,6 +28558,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_family_le_two_pow_half_stubMass
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
+#print axioms Erdos625.smallResidualDeterministicBound
 #print axioms Erdos625.cycleRank_matching_union_le_card_residual
 #print axioms Erdos625.relationFinset_configurationResidualSupportRelation
 #print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_card
@@ -26070,6 +28570,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.weighted_evenSubgraph_polymer_bound
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
 #print axioms Erdos625.sum_marked_finiteKernelWalkMass_le
 #print axioms Erdos625.bipartiteCellKernel_rowSum_le
@@ -26077,7 +28578,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_range_pow_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric
+#print axioms Erdos625.finite_relaxed_matchingTraversal_enumeration
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
+#print axioms Erdos625.cappedReward_telescoping
+#print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
+#print axioms Erdos625.eventually_tau_lt_one_third
+#print axioms Erdos625.exists_uniform_twoRegime_error
+#print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
+#print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
@@ -26112,6 +28620,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.compatiblePairing_unique
 #print axioms Erdos625.selectedFiber_eq_fullFiber_of_zero_residual
 #print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
+#print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
+#print axioms Erdos625.existsUnique_canonicalHighDemandWitness
+#print axioms Erdos625.labelledWitnessIncidence_eq
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
@@ -26191,7 +28703,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1c6fc75ab32419afac394af7b51e27be66cbea36fe3ba4d2003de4951bc1ba21
+Normalized SHA-256: 2e2744626468cbf08059ac190f709cdc0599751544b1e9a4de30d47f85fda5cc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

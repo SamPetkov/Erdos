@@ -19,6 +19,8 @@ import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
+import Erdos625.Section10QuarterUnionDecay
+import Erdos625.Section10SimultaneousGreedyColoring
 import Erdos625.Section10AmplificationScales
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
@@ -97,8 +99,16 @@ import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9TraversalKernel
+import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
+import Erdos625.Section9RewardTelescoping
+import Erdos625.Section9FiniteFamilyAlgebra
+import Erdos625.Section9AttachmentAsymptotics
+import Erdos625.Section9FiniteAnalyticEndpoint
+import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
 import Erdos625.EvenMatchingRestriction
@@ -109,6 +119,9 @@ import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
+import Erdos625.Section8CanonicalLabelledWitness
+import Erdos625.Section8LabelledIncidence
+import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights

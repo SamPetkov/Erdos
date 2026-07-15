@@ -2,12 +2,25 @@
 
 ## Scope and status rule
 
+### Status reconciliation (2026-07-15)
+
+This reconciliation supersedes older submission-time labels below without
+changing module-count, hash, or full-build metrics.  The exact returned
+statements N, O, P, and Q were independently audited for statement identity,
+source policy, axioms, and mathematical dependency boundary, ported into
+tracked source, and replayed successfully in local Lean 4.31 warning-fatal
+builds.  Acceptance is strictly limited to the atomic theorem and displayed
+hypotheses in each row: these leaves do not supply omitted graph-law transport
+or probabilistic inputs, do not turn a pointwise event into a simultaneous
+one, and do not by themselves complete Section X, Section XI, or the final
+Erdős 625 theorem.
+
 This document records the accepted deterministic Lean atoms and the exact
 remaining proof obligations for manuscript Sections 10 and 11.  A declaration
 marked **local proved** is accepted Lean 4.31 source.  Aristotle service output
-is quarantined provenance only; all ten requests in these waves completed with
-successful isolated builds and standard-axiom reports, but accepted local Lean
-4.31 source remains authoritative and no service source was imported directly.
+is quarantined provenance only; the request ledger below records the completed
+isolated builds and standard-axiom reports, but accepted local Lean 4.31 source
+remains authoritative and no service source was imported directly.
 
 Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 
@@ -17,13 +30,16 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 |---|---|---:|---|
 | `exists_vertex_quarter_degree` | deterministic averaging step in Lemma 10.1 | local proved | The denominator-cleared quarter-density premise yields one vertex with `card - 1 <= 4 * degree`.  It does not prove the random simultaneous-density event or construct the full greedy colouring. |
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
-| `amplificationBase`, `amplificationRadius`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3` under their exact displayed hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
+| `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
+| `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
+| `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
 | `chromaticLowerEvent`, `cochromaticUpperEvent` | threshold events in Section 11 | defined | These are the strict natural chromatic lower event and real cochromatic upper event with deterministic error. |
 | `thresholdIntersection_subset_gapEvent` | deterministic Section 11 event inclusion | local proved | Given the exact threshold separation, the intersection is contained in `gapEvent`; the strict chromatic event contributes the necessary `+1`. |
 | `explicitThresholdIntersection_subset_gapEvent` | expanded form of (11.2) | local proved | The same inclusion displays the constant explicitly.  It supplies no sequence choice, probability limit, or eventual separation theorem. |
 | `tendsto_measure_inter_one` | probability intersection in Section 11 | local proved | Two measurable event families whose probabilities tend to one have intersection probability tending to one, with no independence hypothesis and with sample spaces allowed to depend on `n`. |
 | `baseScale`, `eventually_explicit_gap_threshold` | eventual threshold (11.2) | defined; local proved | Abstract root separation with vanishing `rho` and `a = o(baseScale)` eventually gives the explicit separated thresholds, including the strict-event `+1`.  The actual manuscript sequences and upstream hypotheses are not instantiated. |
 | `tendsto_explicit_gap_scale_atTop` | divergence used for (11.3) | local proved | The explicit positive scale tends to infinity along the full sequence.  The actual fixed-`M` probability-tail implication is not yet assembled. |
+| `fixedThreshold_tail_of_movingThreshold` | moving-to-fixed threshold implication in (11.3) | local proved | An assumed probability-one tail above a deterministic threshold tending to infinity implies every fixed-threshold tail, even for `n`-dependent finite sample spaces.  The concrete moving-threshold tail remains open. |
 | `capacityDeficitEvent`, `simultaneousLeftoverColoringEvent`, `capacityDeficitEvent_probability_tendsto_one`, `cochromaticNumber_le_of_capacityDeficit_and_leftover`, `tendsto_measure_one_of_eventually_subset`, `erdos625Statement_of_capacity_leftover_thresholds` | conditional Sections 10--11 closure | defined; local proved under explicit hypotheses | The capacity and simultaneous-leftover events have the correct internal quantifiers; a rounded capacity tail is derived from the displayed seed/radius assumptions; and five named full-sequence inputs imply `Erdos625Statement`.  The theorem does not prove any of those concrete manuscript inputs and is not an unconditional target proof. |
 
 The previously accepted amplification infrastructure also includes the induced
@@ -139,7 +155,7 @@ qualification.
 
 ## Aristotle request ledger
 
-All ten requests completed successfully and are quarantined.  Their isolated
+The initial ten requests completed successfully and are quarantined.  Their isolated
 service projects reported successful builds and only standard axioms.  The
 corresponding Lean 4.31 declarations were replayed and accepted locally; those
 local files are authoritative and no service source was imported directly.
@@ -161,3 +177,20 @@ The service tasks are redundant candidate generation only.  A returned proof
 must still be reviewed, reconstructed or ported to Lean 4.31, source-scanned,
 built with warnings fatal, axiom-audited, and integrated without changing its
 quantifiers before it can become accepted repository source.
+
+### Wave-two requests submitted 2026-07-15
+
+These four additional projects were independently statement-audited and
+elaborated under the service's exact Lean 4.28/Mathlib revision before
+submission.  Each source-only payload contained exactly one intentional
+target `sorry` and no cache or binary artifacts.  Their exact returned
+statements have now passed independent review and the local Lean 4.31
+acceptance gates; the tracked ports named below, not the quarantined service
+workspaces, are authoritative.  The scope column remains a strict limitation.
+
+| Section | Isolated target | Request ID | Status at submission | Scope |
+|---|---|---|---:|---|
+| X | `quarterDensity_unionBound_tendsto_zero` | `e569e37b-3486-4909-b5dd-3ebbbbe64049` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | full-sequence analytic union-bound decay only; graph-law transport remains separate; local authority is `Section10QuarterUnionDecay.lean` |
+| X | `simultaneous_induced_chromatic_bound` | `78638bbc-5941-4275-9ea3-b0022cc640dc` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | deterministic greedy colouring under one supplied uniform internal-`∀ U` hypothesis; it does not prove that random event; local authority is `Section10SimultaneousGreedyColoring.lean` |
+| X | `amplificationError_isLittleO_gapBase` | `3fcd655d-a5cd-42b8-bcb0-85767126b3a7` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | exact deterministic (10.10)--(10.12) error assembly under its displayed little-o hypotheses; local authority is `Section10AmplificationScales.lean` |
+| XI | `fixedThreshold_tail_of_movingThreshold` | `20da6297-c83e-4800-8724-cc2551a31409` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | moving-threshold tail implies every fixed-threshold tail only; intentionally redundant with accepted measure monotonicity; local authority is `Section11AsymptoticAssembly.lean` |

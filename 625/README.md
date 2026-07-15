@@ -117,10 +117,24 @@ now defines the deterministic canonical high demand and proves that its support
 is a partial matching with exact on- and off-support values.  It also proves
 compatibility uniqueness after the selected fibres are fixed, that zero
 residual mass makes a selected fibre the whole fibre, and an exact generic
-translation of support-indexed cap/no-return constraints.  It does **not**
-construct or count the labelled canonical witness, prove the manuscript's
-incidence formula (8.3), identify the global conditioned event, or prove the
-endpoint/near/middle skeleton estimates of Lemma 8.3.
+translation of support-indexed cap/no-return constraints.  The added theorem
+`canonicalHighDemand_eq_iff_exact_support_and_capped_off` characterizes the
+same cutoff by exact support values and the off-support `U/2` cap.
+[`Section8CanonicalLabelledWitness.lean`](formalization/Erdos625/Section8CanonicalLabelledWitness.lean)
+then proves `existsUnique_canonicalHighDemandWitness`: for one fixed
+configuration matching, its literal canonical high-cell demand has a unique
+labelled prescribed-demand witness extended by that matching.  This is a
+deterministic fixed-matching identification, not a count or probability for
+the global canonical event.
+[`Section8LabelledIncidence.lean`](formalization/Erdos625/Section8LabelledIncidence.lean)
+proves `labelledWitnessIncidence_eq`, the normalized labelled-witness
+descending-factorial identity, while
+[`Section8NearSkeletonExpansion.lean`](formalization/Erdos625/Section8NearSkeletonExpansion.lean)
+proves `sum_nearSkeletonChoiceWeight_eq_product` for distinguishable optional
+deficit choices.  These are deterministic/counting leaves: they do **not**
+establish the full event-probability form of (8.3), the canonical conditioned
+event, the unlabelled typed-skeleton multiplicity bridge and ratio bounds, or
+the endpoint/near/middle estimates of Lemma 8.3.
 
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,
@@ -134,10 +148,17 @@ the precise `2 ^ |R|` support bound, and the division-free finite choose-two
 mass estimate (9.21) is proved.  The finite forest-plus-residual-edge
 cycle-rank inequality in (9.20) is also kernel-checked, including its literal
 configuration-support and `m₀ / 2` forms.  The exact finite binary cycle-space
-cardinality and the abstract row-norm/geometric traversal kernel are also
-proved.  A recoverable edge-disjoint simple-cycle decomposition, the concrete
-cycle-to-walk and weight/kernel transfer (including eventual `tau < 1`), the
-asymptotic attachment estimate, and the global Lemma 9.1/Proposition 9.2
+cardinality, a recoverable real-valued minimal-even polymer decomposition, and
+the abstract row-norm/geometric traversal kernel are also proved.  The accepted
+[`Section9MatchingTraversalBridge.lean`](formalization/Erdos625/Section9MatchingTraversalBridge.lean)
+adds the relaxed finite matching-operator/walk-mass bridge: matching traversal
+preserves the residual row bound, oriented starts cost exactly `2 * |M|`, and
+the finite block-walk sum has the stated geometric bound.  It does not build
+the positive residual kernel from `q` or an injective, weight-preserving
+cycle-to-walk encoding.  Those steps, the actual residual-family/`ENNReal`
+weight specialization, instantiation of the accepted eventual-`tau` bridge,
+the finite attachment estimates, and the global Lemma
+9.1/Proposition 9.2
 assembly remain open.  Aristotle is used only for redundant
 isolated candidate generation; reviewed local Lean 4.31 source is
 authoritative.
@@ -161,11 +182,21 @@ proves that a matching plus a residual relation has cycle rank at most the
 number of residual cells.
 [`Section9CycleRankConfigurationAssembly.lean`](formalization/Erdos625/Section9CycleRankConfigurationAssembly.lean)
 identifies the literal residual-support finset and proves the full finite chain
-`cycleRank ≤ |E(H_res)| ≤ m₀ / 2`.  The recoverable edge-disjoint simple-cycle
-decomposition, concrete cycle-to-walk encoding and weight/kernel transfer
-(including eventual `tau < 1`), attachment bound, and final Section 9 assembly
+`cycleRank ≤ |E(H_res)| ≤ m₀ / 2`.  A separate accepted real-valued polymer
+theorem constructs a recoverable disjoint minimal-even decomposition.  Its
+actual-family/`ENNReal` specialization, concrete cycle-to-walk encoding and
+weight/kernel transfer, instantiation of the accepted eventual-`tau` bridge,
+attachment bound, and final Section 9 assembly
 remain open; the exact binary cycle-space count and abstract traversal kernel
 are proved below.
+
+[`Section9SmallResidualDeterministic.lean`](formalization/Erdos625/Section9SmallResidualDeterministic.lean)
+proves the finite arithmetic conclusion (9.22).  Given the literal
+cap/no-return table event, the exact demand-plus-residual split, residual mass,
+and the separated cycle-rank estimate, it bounds the component factor times
+the complete local sign-reward product by `2^(U*m₀/2)`.  It does not yet
+identify the conditioned random residual table or close the full attachment
+expectation in Lemma 9.1.
 
 [`Section9CycleSpaceCardinality.lean`](formalization/Erdos625/Section9CycleSpaceCardinality.lean)
 proves the exact binary cycle-space count: finite even edge subsets are
@@ -173,10 +204,33 @@ equivalent to the `ZMod 2` incidence kernel and number exactly
 `2 ^ cycleRank`.  [`Section9TraversalKernel.lean`](formalization/Erdos625/Section9TraversalKernel.lean)
 proves the finite row-norm walk estimate, the one-time marked-start factor, and
 the positive/even geometric tails behind (9.16)--(9.18).  What remains is the
-recoverable cycle decomposition and cycle-to-walk encoding, the concrete
-weight/kernel transfer with eventual `tau < 1`, and the attachment assembly.
+actual-family specialization and cycle-to-walk encoding, the concrete
+weight/kernel transfer and attachment assembly.
 
-The newest Sections 10--11 checkpoint adds five accepted source units.
+[`Section9CappedFixedFExpansion.lean`](formalization/Erdos625/Section9CappedFixedFExpansion.lean)
+proves the faithful capped/no-return prescribed-demand expansion for one fixed
+`F`.  [`Section9CyclePolymerBound.lean`](formalization/Erdos625/Section9CyclePolymerBound.lean)
+constructs the recoverable disjoint minimal-even decomposition and proves the
+finite real polymer product/exponential bound.
+[`Section9FiniteAnalyticEndpoint.lean`](formalization/Erdos625/Section9FiniteAnalyticEndpoint.lean)
+proves one absolute-constant finite real endpoint bound for `lambda` and `q`
+under its exact hypotheses.  These modules do not themselves instantiate the
+actual residual family and `ENNReal` kernel weights, build the required
+cycle-to-walk code, or supply the upstream random event.
+
+[`Section9RewardTelescoping.lean`](formalization/Erdos625/Section9RewardTelescoping.lean)
+proves `cappedReward_telescoping`, the exact capped reward identities under
+`r <= R`.  [`Section9FiniteFamilyAlgebra.lean`](formalization/Erdos625/Section9FiniteFamilyAlgebra.lean)
+proves `finiteInjectiveFamily_product_exp_bound` under explicit injectivity and
+pointwise nonnegative product bounds.
+[`Section9AttachmentAsymptotics.lean`](formalization/Erdos625/Section9AttachmentAsymptotics.lean)
+proves `eventually_tau_lt_one_third` from the stated large-residual profile
+inequalities and `exists_uniform_twoRegime_error` from assumed large-/small-
+residual attachment estimates.  It does not supply the required cycle-to-walk
+and weight encodings, those upstream finite estimates, the conditioned probability
+bound, or the global Section 9 assembly.
+
+The newest Sections 10--11 checkpoint adds seven accepted source units.
 [`QuarterDensityDegree.lean`](formalization/Erdos625/QuarterDensityDegree.lean)
 proves the quarter-density high-degree vertex step, and
 [`QuarterRecurrence.lean`](formalization/Erdos625/QuarterRecurrence.lean)
@@ -187,15 +241,30 @@ constant and strict-event `+1`.
 [`Section10AmplificationScales.lean`](formalization/Erdos625/Section10AmplificationScales.lean)
 proves growth of the chosen radius together with the seed, transformed-radius,
 real cube-root, and additive-constant little-o terms on the
-`n/(log n)^3` scale.
+`n/(log n)^3` scale.  Its `amplificationError_isLittleO_gapBase` now assembles
+the exact displayed deterministic error from those four components.
 [`Section11AsymptoticAssembly.lean`](formalization/Erdos625/Section11AsymptoticAssembly.lean)
 proves the generic full-sequence intersection, eventual threshold, and scale-
-divergence lemmas.  These atoms do not prove the one simultaneous event
-controlling every `U`, Lemma 10.1, Lemma 10.2, the actual Section 11
+divergence lemmas.  Its `fixedThreshold_tail_of_movingThreshold` proves the
+generic implication from an assumed diverging moving tail to every fixed
+threshold, including for `n`-dependent sample spaces.
+[`Section10QuarterUnionDecay.lean`](formalization/Erdos625/Section10QuarterUnionDecay.lean)
+proves `quarterDensity_unionBound_tendsto_zero`, the full-sequence deterministic
+union-cost decay at
+`u₀ = ceil(n^(1/4))`, while
+[`Section10SimultaneousGreedyColoring.lean`](formalization/Erdos625/Section10SimultaneousGreedyColoring.lean)
+proves `simultaneous_induced_chromatic_bound`, the internal-`forall U` greedy
+chromatic bound from one graph-uniform independent-block hypothesis.  These
+atoms do not prove the random event
+supplying that hypothesis, Lemma 10.1, Lemma 10.2, the actual Section 11
 sequence/tail instantiation, or the final theorem.  The exact remaining DAG,
-quantifier order, and ten
-completed/quarantined Aristotle requests are recorded in the
+quantifier order, and the declaration-scoped Aristotle request ledger are
+recorded in the
 [`Sections X--XI breakdown`](formalization/SECTIONS_10_11_BREAKDOWN_2026-07-14.md).
+
+The newly named Section 8--11 leaves have local Lean 4.31 warning-fatal builds.
+This is statement-scoped acceptance of their deterministic, algebraic, or
+conditional content, not completion of a manuscript section or the target.
 
 [`Section10_11ConditionalAssembly.lean`](formalization/Erdos625/Section10_11ConditionalAssembly.lean)
 adds three auditable seams: the rounded capacity-deficit tail from explicit
@@ -215,9 +284,13 @@ interfaces are kernel-checked.  In Section 4, the concrete phase objective,
 its center/slope corridor, its integer decrement, and the resulting probability
 limit remain open; the
 signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
-partial-diagonal ranges, canonical residual conditional law, full Sections 8--9
-assembly, the labelled canonical-witness/incidence and skeleton estimates,
-cycle-space assembly, residual attachment, Section 10's simultaneous leftover tail and concrete
+partial-diagonal ranges, canonical residual conditional law, the full
+probability/specialization form of labelled canonical-witness incidence (8.3),
+the skeleton quotient/estimates, and full Section 8 assembly, actual-family
+and weight specialization of the accepted polymer decomposition, concrete
+cycle-to-walk encoding and weight transfer, finite residual attachment and
+conditioned probability control, and full Section 9 assembly, Section 10's
+simultaneous leftover tail and concrete
 seed-amplification instantiation, and Section 11's actual chromatic tail and
 threshold/limit instantiation also remain open.
 See the [`formalization ledger`](formalization/FORMALIZATION_LEDGER.md) for the

@@ -91,6 +91,30 @@ theorem tendsto_measure_inter_one
       (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
       (by simpa using hInterReal)
 
+/-- If a real statistic exceeds a deterministic threshold tending to infinity
+with probability tending to one, then it exceeds every fixed real threshold
+with probability tending to one.  The sample space may depend on `n`. -/
+theorem fixedThreshold_tail_of_movingThreshold
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (X : ∀ n, Omega n → ℝ) (threshold : ℕ → ℝ)
+    (hThreshold : Tendsto threshold atTop atTop)
+    (hMovingTail : Tendsto
+      (fun n ↦ mu n {omega | threshold n ≤ X n omega})
+      atTop (nhds 1)) :
+    ∀ M : ℝ,
+      Tendsto (fun n ↦ mu n {omega | M ≤ X n omega})
+        atTop (nhds 1) := by
+  intro M
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hMovingTail tendsto_const_nhds ?_ ?_
+  · filter_upwards [hThreshold.eventually_gt_atTop M] with n hn
+    exact measure_mono fun _ hx ↦ hn.le.trans hx
+  · exact Filter.Eventually.of_forall fun n ↦
+      (measure_mono (subset_univ _)).trans (by simp)
+
 /-- The manuscript's unscaled `n / (ln n)^3` factor. -/
 noncomputable def baseScale (n : ℕ) : ℝ :=
   (n : ℝ) / (Real.log (n : ℝ)) ^ 3
@@ -178,5 +202,7 @@ theorem tendsto_explicit_gap_scale_atTop :
   simpa only [mul_div_assoc] using
     hLimit.const_mul_atTop (by positivity :
       0 < (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ))
+
+#print axioms fixedThreshold_tail_of_movingThreshold
 
 end Erdos625

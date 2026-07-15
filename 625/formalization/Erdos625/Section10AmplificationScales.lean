@@ -4,7 +4,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 # Asymptotic scales in rare-event amplification
 
 This file isolates the deterministic asymptotic transformations in manuscript
-Section 10.  The functions are exactly those in (10.10)--(10.11); no
+Section 10.  The functions are exactly those in (10.10)--(10.12); no
 probabilistic seed or leftover-colouring assertion is introduced here.
 -/
 
@@ -20,6 +20,19 @@ noncomputable def amplificationBase (n : ℕ) : ℝ :=
 /-- The deterministic, genuinely growing choice `r_n = sqrt B_n`. -/
 noncomputable def amplificationRadius (n : ℕ) : ℝ :=
   Real.sqrt (amplificationBase n)
+
+/-- The unscaled target gap `n / (log n)^3`. -/
+noncomputable def gapBase (n : ℕ) : ℝ :=
+  (n : ℝ) / (Real.log (n : ℝ)) ^ 3
+
+/-- The complete deterministic amplification loss from (10.12). -/
+noncomputable def amplificationError
+    (C : ℝ) (Lambda : ℕ → ℝ) (n : ℕ) : ℝ :=
+  C *
+    (Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+      Real.sqrt ((n : ℝ) * amplificationRadius n) /
+        Real.log (n : ℝ) +
+      (n : ℝ) ^ (1 / 3 : ℝ) + 1)
 
 /-- The deterministic radius used in the manuscript tends to infinity. -/
 theorem amplificationRadius_tendsto_atTop :
@@ -197,10 +210,63 @@ theorem one_isLittleO_gapScale :
   refine Tendsto.congr (fun n => ?_) (tendsto_norm_atTop_atTop.comp hnat)
   simp [Function.comp]
 
+/-- A nonnegative seed exponent `Lambda_n = o(n/(log n)^4)` makes the full
+deterministic amplification loss negligible on the target gap scale. -/
+theorem amplificationError_isLittleO_gapBase
+    (C : ℝ) (Lambda : ℕ → ℝ)
+    (hLambdaNonneg : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hLambda : Lambda =o[atTop] amplificationBase) :
+    amplificationError C Lambda =o[atTop] gapBase := by
+  change (fun n : ℕ ↦ Lambda n) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 4) at hLambda
+  have hSeed :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ)) =o[atTop]
+        gapBase := by
+    change (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact sqrt_seedTerm_isLittleO Lambda hLambdaNonneg hLambda
+  have hRadius :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ)) =o[atTop]
+        gapBase := by
+    change (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact sqrt_radiusTerm_isLittleO
+  have hCubeRoot :
+      (fun n : ℕ ↦ (n : ℝ) ^ (1 / 3 : ℝ)) =o[atTop] gapBase := by
+    change (fun n : ℕ ↦ (n : ℝ) ^ (1 / 3 : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact realCubeRoot_isLittleO
+  have hOne :
+      (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop] gapBase := by
+    change (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / Real.log (n : ℝ) ^ 3)
+    exact one_isLittleO_gapScale
+  have hSum :
+      (fun n : ℕ ↦
+        Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+          Real.sqrt ((n : ℝ) * amplificationRadius n) /
+            Real.log (n : ℝ) +
+          (n : ℝ) ^ (1 / 3 : ℝ) + 1) =o[atTop]
+        gapBase :=
+    ((hSeed.add hRadius).add hCubeRoot).add hOne
+  change (fun n : ℕ ↦ C *
+      (Real.sqrt ((n : ℝ) * Lambda n) / Real.log (n : ℝ) +
+        Real.sqrt ((n : ℝ) * amplificationRadius n) /
+          Real.log (n : ℝ) +
+        (n : ℝ) ^ (1 / 3 : ℝ) + 1)) =o[atTop] gapBase
+  exact hSum.const_mul_left C
+
 #print axioms amplificationRadius_tendsto_atTop
 #print axioms sqrt_seedTerm_isLittleO
 #print axioms sqrt_radiusTerm_isLittleO
 #print axioms realCubeRoot_isLittleO
 #print axioms one_isLittleO_gapScale
+#print axioms amplificationError_isLittleO_gapBase
 
 end Erdos625

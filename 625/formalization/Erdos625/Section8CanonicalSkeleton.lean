@@ -109,6 +109,33 @@ theorem canonicalHighDemand_partialMatching_and_incidence
   · intro a b h
     simp [canonicalHighDemand, h]
 
+/-- A table has canonical high demand `demand` exactly when it equals `demand`
+on its nonzero support and is capped by the cutoff off that support.  This is a
+deterministic cutoff identity; it does not by itself identify a labelled
+witness event or its configuration-model probability. -/
+theorem canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    {A B : Type*} (table demand : A → B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    canonicalHighDemand table U = demand ↔
+      (∀ a b, demand a b ≠ 0 → table a b = demand a b) ∧
+      (∀ a b, demand a b = 0 → table a b ≤ U / 2) := by
+  constructor
+  · intro h_eq
+    constructor
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      unfold canonicalHighDemand at hab
+      aesop
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      simp_all [canonicalHighDemand]
+      grind
+  · rintro ⟨hsupport, hcapped⟩
+    funext a b
+    by_cases hab : demand a b = 0 <;> simp_all [canonicalHighDemand]
+
+#print axioms canonicalHighDemand_eq_iff_exact_support_and_capped_off
+
 /-- Translate the simultaneous full-cell cap/no-return condition into the
 unshifted residual cap and zero residual mass on the canonical support. -/
 theorem supportIndexed_fullConstraints_iff_residual

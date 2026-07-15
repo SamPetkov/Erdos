@@ -10,6 +10,8 @@ import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
+import Erdos625.Section10QuarterUnionDecay
+import Erdos625.Section10SimultaneousGreedyColoring
 import Erdos625.Section10AmplificationScales
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
@@ -92,8 +94,16 @@ import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9TraversalKernel
+import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
+import Erdos625.Section9RewardTelescoping
+import Erdos625.Section9FiniteFamilyAlgebra
+import Erdos625.Section9AttachmentAsymptotics
+import Erdos625.Section9FiniteAnalyticEndpoint
+import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
 import Erdos625.EvenMatchingRestriction
@@ -104,6 +114,9 @@ import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
+import Erdos625.Section8CanonicalLabelledWitness
+import Erdos625.Section8LabelledIncidence
+import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -140,6 +153,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
 #print axioms Erdos625.phaseDelta_mem_Ico
@@ -151,11 +165,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
 #print axioms Erdos625.quarterRecurrence_lowerBound
+#print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
+#print axioms Erdos625.simultaneous_induced_chromatic_bound
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
 #print axioms Erdos625.sqrt_seedTerm_isLittleO
 #print axioms Erdos625.sqrt_radiusTerm_isLittleO
 #print axioms Erdos625.realCubeRoot_isLittleO
 #print axioms Erdos625.one_isLittleO_gapScale
+#print axioms Erdos625.amplificationError_isLittleO_gapBase
 #print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
 #print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
 #print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
@@ -451,6 +468,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_family_le_two_pow_half_stubMass
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
+#print axioms Erdos625.smallResidualDeterministicBound
 #print axioms Erdos625.cycleRank_matching_union_le_card_residual
 #print axioms Erdos625.relationFinset_configurationResidualSupportRelation
 #print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_card
@@ -462,6 +480,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.weighted_evenSubgraph_polymer_bound
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
 #print axioms Erdos625.sum_marked_finiteKernelWalkMass_le
 #print axioms Erdos625.bipartiteCellKernel_rowSum_le
@@ -469,7 +488,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_range_pow_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric
+#print axioms Erdos625.finite_relaxed_matchingTraversal_enumeration
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
+#print axioms Erdos625.cappedReward_telescoping
+#print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
+#print axioms Erdos625.eventually_tau_lt_one_third
+#print axioms Erdos625.exists_uniform_twoRegime_error
+#print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
+#print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
@@ -504,6 +530,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.compatiblePairing_unique
 #print axioms Erdos625.selectedFiber_eq_fullFiber_of_zero_residual
 #print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
+#print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
+#print axioms Erdos625.existsUnique_canonicalHighDemandWitness
+#print axioms Erdos625.labelledWitnessIncidence_eq
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist

@@ -49,7 +49,7 @@ threshold expansion
 | `sum_table_rows_eq_sum_table_columns` | overlap margins | local proved | Instantiate it for the actual overlap table. |
 | `sum_demand_le_sum_table` | before (6.8) | local proved | Combine with the exact witness enumeration. |
 | `no_contingencyTable_of_infeasible_demands` | Lemma 6.2 impossible branch | local proved; integrated | The feasible prescribed-cell count and probability ratio are handled by the configuration-model modules. |
-| `highCells_form_matching` | assertion before (8.2) | local proved | Connect this generic matching fact to the canonical cutoff-demand atoms recorded below, then construct and count the labelled skeleton witness and prove its residual conditional law. |
+| `highCells_form_matching` | assertion before (8.2) | local proved | The canonical cutoff-demand and fixed-matching unique labelled-witness leaves are recorded below.  Counting or bounding the global canonical event and proving its residual conditional law remain separate. |
 | `card_iUnion_stubAllocation` | allocation count before (6.8) | local proved | Use it in the full disjoint-allocation enumeration. |
 | `card_disjoint_extension` | one-cell extension step before (6.8) | local proved | Iterate or replace it by an audited global allocation equivalence. |
 | `card_stubAllocation_mul_factorials` | falling-factorial allocation factor in (6.8) | local proved | Combine row and column selections with the cell bijections. |
@@ -61,16 +61,17 @@ threshold expansion
 | `uniformConfigurationMatching_prescribedCellEvent_apply`, `uniformConfigurationMatching_prescribedCellEvent_le_witness`, `jointPrescribedCellBound` | uniform-law transport and equation (6.8) | local proved | Exact ENNReal probability ratio, witness union bound, and factorial normalization to one global `(m)_x`. |
 | `pow_sub_add_one_le_descFactorial`, `factorial_pow_le_descFactorial_pow`, `real_div_exp_one_pow_le_descFactorial`, `ennreal_div_euler_pow_le_descFactorial` | effective bound (6.10) | local proved | The global lower bound `(m/e)^x ≤ (m)_x` is proved with `0<m` and `x≤m`; no asymptotic replacement is used. |
 | `cellDegreePowerProduct`, `row_column_descendingProduct_le_cellDegreePowerProduct`, `configurationCellTheta`, `configurationCellTheta_pow_product`, `configurationCellWeight_product_eq_global`, `jointPrescribedCellBound_cellwise_of_totalDemand_le`, `not_mem_prescribedCellEvent_of_total_lt`, `jointPrescribedCellBound_cellwise` | product majorant (6.9) | local proved, all cases | Exact cellwise `ℝ≥0∞` product bound with `θ_ab=e d_a d'_b/m`. The feasible-total theorem proves the analytic inequality; the public theorem removes that premise by proving the prescribed event empty when total demand exceeds `m`. All finite-product inversions and denominator conditions are explicit. |
-| `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | first concrete bridge before (8.2) | local proved | The actual configuration cell table has its exact row and column degree margins; under a common cap, its high cells form a partial matching. The canonical cutoff-demand atoms are recorded below; constructing and counting the labelled witness and proving the residual law remain open. |
+| `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | first concrete bridge before (8.2) | local proved | The actual configuration cell table has its exact row and column degree margins; under a common cap, its high cells form a partial matching. The canonical cutoff-demand atoms and fixed-matching labelled-witness uniqueness are recorded below; counting the global event and proving its residual law remain open. |
 | `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | structural complement equivalence after (8.3) | local proved | Extending a fixed exposed witness is exactly equivalent to a bijection of unused stubs, with exact remaining cardinalities. |
 | `uniformOfFintype_map_equiv` | uniform finite-law transport after the residual equivalence | local proved | An equivalence maps the uniform PMF to the uniform PMF. |
 | `uniform_filter_eq_uniformSubtype_map` | generic conditioning of a finite uniform law | local proved | Conditioning on a nonempty finite event is the pushforward of the subtype's uniform law. It does not identify the canonical skeleton event or transport its cap conditions. |
 | `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise witness-fibre counts after (8.3) | local proved | The selected stubs in each row or column class have the exact demand-sum cardinality. |
 | `residualRowDegree`, `residualColumnDegree`, `card_remainingRowFiber`, `card_remainingColumnFiber`, `remainingRowStubEquivResidual`, `remainingColumnStubEquivResidual` | exact residual degree fibres after (8.3) | local proved | The unused local fibres have the exact residual degrees and class-preserving equivalences to standard residual stub dependent sums. |
-| `extensionsOfWitnessEquivResidualConfiguration`, `uniform_extensionSubtype_map_residual` | fixed-witness residual matching space after (8.3) | local proved | The extension subtype is equivalent to the residual `ConfigurationMatching` space, and its uniform law pushes forward to the residual uniform law. The deterministic cutoff/support and fixed-fibre uniqueness atoms are recorded below; choosing and counting the labelled witness, proving manuscript incidence (8.3), and packaging the global canonical event remain open. |
-| `card_targetFiber_eq_usedTarget_add_residual`, `remainingRowStubEquivResidual_apply_in_class`, `residualConfiguration_targetClass`, `usedRowTargetIndices_eq_witnessCell`, `configurationCellCount_eq_demand_add_residual` | exact fixed-witness residual cell-count decomposition | local proved | Row-class transport and the exact used-cell identification yield `full configurationCellCount = demand + residual configurationCellCount` for every cell of a fixed witness extension. The zero/cap consequences are recorded in the next row; the actual labelled skeleton witness and manuscript incidence (8.3) remain open. |
+| `extensionsOfWitnessEquivResidualConfiguration`, `uniform_extensionSubtype_map_residual` | fixed-witness residual matching space after (8.3) | local proved | The extension subtype is equivalent to the residual `ConfigurationMatching` space, and its uniform law pushes forward to the residual uniform law. The deterministic cutoff/support, fixed-fibre uniqueness, and canonical labelled-witness identification for one matching are recorded below; counting the global event, proving manuscript incidence (8.3), and packaging its conditioned law remain open. |
+| `card_targetFiber_eq_usedTarget_add_residual`, `remainingRowStubEquivResidual_apply_in_class`, `residualConfiguration_targetClass`, `usedRowTargetIndices_eq_witnessCell`, `configurationCellCount_eq_demand_add_residual` | exact fixed-witness residual cell-count decomposition | local proved | Row-class transport and the exact used-cell identification yield `full configurationCellCount = demand + residual configurationCellCount` for every cell of a fixed witness extension. The zero/cap consequences and fixed-matching canonical witness theorem are recorded below; the event-level manuscript incidence (8.3) remains open. |
 | `nat_add_eq_left_iff_right_eq_zero`, `nat_add_le_iff_le_sub_of_le`, `exposedCell_constraints_iff_residual`, `configurationCell_constraints_iff_residual` | exact fixed-witness zero/cap constraints | local proved | The supporting zero equivalence is cap-free. The packaged theorem assumes `hcap : demand a b <= cap` and returns `full = demand` iff residual count is zero together with `full <= cap` iff `residual <= cap - demand a b`. High-skeleton cells use the zero branch; the unshifted off-skeleton cap requires a prior proof that `demand a b = 0`. Canonical event packaging remains open. |
-| `canonicalHighDemand`, `compatiblePairing_unique`, `selectedFiber_eq_fullFiber_of_zero_residual`, `canonicalHighDemand_partialMatching_and_incidence`, `supportIndexed_fullConstraints_iff_residual` | deterministic canonical-support atoms around (8.2)–(8.3) | defined; local proved | The strict `U/2` cutoff retains whole cell demands, has partial-matching support, and has exact on/off-cutoff values. Once source and target fibres are fixed their compatible pairing is unique, zero residual plus the displayed cardinal identities forces a selected fibre to be full, and the simultaneous support-indexed cap/no-return constraints translate exactly under explicit split, demand-cap, and off-support-zero hypotheses. These facts do **not** construct or count the labelled canonical witness, prove manuscript incidence (8.3), identify the global conditioned skeleton law, or prove Lemma 8.3. |
+| `canonicalHighDemand`, `compatiblePairing_unique`, `selectedFiber_eq_fullFiber_of_zero_residual`, `canonicalHighDemand_partialMatching_and_incidence`, `supportIndexed_fullConstraints_iff_residual` | deterministic canonical-support atoms around (8.2)–(8.3) | defined; local proved | The strict `U/2` cutoff retains whole cell demands, has partial-matching support, and has exact on/off-cutoff values. Once source and target fibres are fixed their compatible pairing is unique, zero residual plus the displayed cardinal identities forces a selected fibre to be full, and the simultaneous support-indexed cap/no-return constraints translate exactly under explicit split, demand-cap, and off-support-zero hypotheses. These atoms alone do **not** identify the labelled canonical witness, prove manuscript incidence (8.3), identify the global conditioned skeleton law, or prove Lemma 8.3. |
+| `canonicalDemandOfMatching`, `existsUnique_canonicalHighDemandWitness` | canonical labelled witness for one fixed matching | defined; local proved | For every supplied configuration matching, its literal canonical high-cell demand has exactly one labelled prescribed-demand witness extended by that matching.  This deterministic `∃!` theorem neither counts the global canonical event nor proves its probability or conditioned law. |
 | `highCellFinset_card_mul_succ_le_total` | high-cell mass bound in Section 8 | local proved | The number of entries above `R`, multiplied by `R+1`, is at most the total table mass. This is not a canonical-skeleton construction. |
 | `sum_sqrt_mul_weight_le` | weighted Cauchy step in the margin-pair sum | local proved | The finite nonnegative square-root inequality is exact. Instantiating it with the actual margin weights and assembling Lemma 8.2 remain open. |
 | `descFactorial_endpoint_transport`, `descFactorial_endpoint_transport_succ`, `descFactorial_min_transport`, `descFactorial_min_transport_succ` | endpoint transport (8.12) | local proved | Exact total natural-number theorem with stronger loss `n^gap`; the manuscript's `(n+1)^gap` and exact `min`/`Nat.dist` forms follow. |
@@ -82,13 +83,18 @@ threshold expansion
 | `two_mul_card_selectedCells_le_total`, `card_selectedCells_le_half_total` | generic selected-cell cardinality | local proved | If each selected cell has mass at least two, the number of selected cells is at most the total mass divided by two. This is only a cardinality estimate. |
 | `configurationResidualSupportRelation`, `configurationResidualSupportFinset`, `sum_configurationCellCount_all`, `card_configurationResidualSupportFinset_le_half_stubMass`, `card_configurationResidualSupportFinset_le_half_rowStubCard` | actual configuration-table residual support | local proved | The number of cells containing at least two matched stub pairs is at most the total row-stub count divided by two. No cycle-space or attachment claim is asserted. |
 | `bipartiteEdgeRow`, `bipartiteEdgeColumn`, `bipartiteEdgeMatrix`, `bipartiteEdgeMatrix_injective`, `sum_bipartiteEdgeMatrix_row`, `sum_bipartiteEdgeMatrix_column`, `BipartiteEvenEdgeSet`, `bipartiteEdgeMatrix_even_iff` | finite bipartite incidence encoding | local proved | A finite edge set is encoded injectively by its zero-one `ZMod 2` matrix, whose row/column parity is equivalent to even row/column fibres. The actual residual-family instantiation is recorded below; this encoding alone proves no cycle decomposition or attachment estimate. |
-| `evenMatrix_eq_of_eq_on_residual`, `residualRestriction_injective`, `card_evenMatrixSupportedOn_le_pow_card_residualCell` | generic small-residual restriction count | local proved | Even matrices supported on a row matching plus a residual relation are determined by their residual-cell values and number at most `2 ^ |R|`. The actual residual even-edge family is instantiated below; the exact finite binary cycle-space identity is proved separately below, while a recoverable simple-cycle decomposition and the attachment argument remain open. |
-| `ActualResidualEvenEdgeFamily`, `card_actualResidualEvenEdgeFamily_le_pow_support` | actual residual even-edge support/count bridge in Section 9 | defined; local proved | The family is literally the finite even edge sets supported on the row matching `M` together with cells whose supplied multiplicity is at least two. Under the displayed row-matching hypothesis its cardinal is at most `2 ^ Nat.card (ResidualCell (fun a b => 2 <= cellCount a b))`. This proves neither a cycle decomposition nor the traversal, attachment, or Lemma 9.1 estimates. |
+| `evenMatrix_eq_of_eq_on_residual`, `residualRestriction_injective`, `card_evenMatrixSupportedOn_le_pow_card_residualCell` | generic small-residual restriction count | local proved | Even matrices supported on a row matching plus a residual relation are determined by their residual-cell values and number at most `2 ^ |R|`. The actual residual even-edge family is instantiated below and the real-valued finite polymer theorem now constructs a recoverable minimal-even decomposition; specializing its weights to the residual `ENNReal` kernel and completing the attachment argument remain open. |
+| `ActualResidualEvenEdgeFamily`, `card_actualResidualEvenEdgeFamily_le_pow_support` | actual residual even-edge support/count bridge in Section 9 | defined; local proved | The family is literally the finite even edge sets supported on the row matching `M` together with cells whose supplied multiplicity is at least two. Under the displayed row-matching hypothesis its cardinal is at most `2 ^ Nat.card (ResidualCell (fun a b => 2 <= cellCount a b))`. The accepted polymer theorem is still not instantiated with this family or its `ENNReal` weights, and the traversal, attachment, and Lemma 9.1 estimates remain open. |
 | `twice_sum_choose_two_le_cap_mass` | division-free form of (9.21) | local proved | If every residual multiplicity is at most `U` and the total residual mass is `m₀`, then `2 * sum_e (r e).choose 2 <= (U - 1) * m₀`. This finite arithmetic bound does not by itself prove the cycle-rank bound (9.20), the integrand estimate (9.22), or Lemma 9.1. |
+| `FullCapNoReturnEvent`, `smallResidualDeterministicBound` | deterministic small-residual integrand estimate (9.20)--(9.22) | local proved | The literal cap/no-return event and table split imply the residual cap; combining the local sign rewards, residual mass, and explicit cycle-rank hypothesis gives `2^cycleRank * product g(residual) <= 2^(U*m₀/2)`.  The random conditioned-law instantiation and the remaining attachment expectation are not part of this finite theorem. |
 | `cycleRank_matching_union_le_card_residual` | forest-plus-residual-edge part of (9.20) | local proved | A genuine bipartite matching is acyclic, and adjoining an arbitrary residual relation gives cyclomatic number at most the number of residual cells.  This does not prove the cycle-space identity/decomposition, traversal estimates, integrand estimate (9.22), or Lemma 9.1. |
-| `cycleRank_matching_union_configurationResidualSupport_le_card`, `cycleRank_matching_union_configurationResidualSupport_le_half_stubMass`, `cycleRank_matching_union_configurationResidualSupport_le_half_m₀` | literal configuration-support chain in (9.20) | local proved | The generic residual relation is identified with the actual multiplicity-at-least-two cell support, giving `cycleRank ≤ |support| ≤ m₀ / 2` once the residual row-stub mass is named `m₀`.  The canonical-skeleton instantiation, concrete cycle-to-walk and weight/kernel transfer (including eventual `tau < 1`), and attachment estimates remain open; the abstract row-norm/geometric traversal kernel is proved below. |
-| `finrank_graphCycleSpace_eq_cycleRank`, `natCard_evenEdgeSubset_eq_two_pow_cycleRank` | exact finite binary cycle-space count (6.7) | local proved | The `ZMod 2` incidence kernel is explicitly equivalent to literal finite even edge subsets and has cardinality `2 ^ cycleRank`.  A recoverable edge-disjoint simple-cycle decomposition and weighted cycle-to-walk encoding remain open. |
-| `finiteKernelWalkMass_le_pow`, `bipartiteCellKernel_walkMass_le_pow`, `sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric`, `sum_marked_range_finiteKernelWalkMass_succ_le_geometric` | analytic traversal kernel for (9.16)–(9.18) | local proved | Row norm propagates along finite walks, marked starts cost one cardinality factor, and the positive/even geometric tails are exact in `ENNReal`.  Eventual `tau < 1`, the concrete q-kernel transfer, and cycle-to-walk injections remain open. |
+| `cycleRank_matching_union_configurationResidualSupport_le_card`, `cycleRank_matching_union_configurationResidualSupport_le_half_stubMass`, `cycleRank_matching_union_configurationResidualSupport_le_half_m₀` | literal configuration-support chain in (9.20) | local proved | The generic residual relation is identified with the actual multiplicity-at-least-two cell support, giving `cycleRank ≤ |support| ≤ m₀ / 2` once the residual row-stub mass is named `m₀`.  The canonical-skeleton instantiation, concrete cycle-to-walk and weight/kernel transfer, and attachment estimates remain open; the abstract row-norm/geometric traversal kernel and conditional eventual-`tau` bridge are proved separately. |
+| `finrank_graphCycleSpace_eq_cycleRank`, `natCard_evenEdgeSubset_eq_two_pow_cycleRank` | exact finite binary cycle-space count (6.7) | local proved | The `ZMod 2` incidence kernel is explicitly equivalent to literal finite even edge subsets and has cardinality `2 ^ cycleRank`.  The accepted real-valued polymer theorem constructs a recoverable disjoint minimal-even decomposition; the actual residual-family specialization and weighted `ENNReal` cycle-to-walk encoding remain open. |
+| `finiteKernelWalkMass_le_pow`, `bipartiteCellKernel_walkMass_le_pow`, `sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric`, `sum_marked_range_finiteKernelWalkMass_succ_le_geometric` | analytic traversal kernel for (9.16)–(9.18) | local proved | Row norm propagates along finite walks, marked starts cost one cardinality factor, and the positive/even geometric tails are exact in `ENNReal`.  The accepted asymptotic bridge gives eventual `tau < 1/3` under its displayed hypotheses; the actual profile instantiation, concrete `q`-kernel transfer, and cycle-to-walk injections remain open. |
+| `matchingTraversalKernel_rowSum_le_one`, `residualThenMatchingKernel_rowSum_le`, `card_orientedMatchingStarts`, `finite_relaxed_matchingTraversal_enumeration` | relaxed finite matching-traversal bridge for (9.17)–(9.18) | local proved | Matching traversal is a partial-permutation kernel, preserves the residual row bound after composition, and has exactly `2 * |M|` oriented starts; their finite relaxed block-walk mass obeys the geometric bound when `tau < 1/3`.  The theorem does not construct the positive residual kernel from `q` or an injective, weight-preserving cycle-to-walk code. |
+| `residualReward`, `residualRewardIncrement`, `ResidualCapNoReturnEvent`, `capped_fixedF_prescribedDemand_expansion` | fixed-`F` capped expansion (9.10)--(9.12) | defined; local proved | Under the exact positive/equal stub-total hypotheses, the literal uniform configuration expectation with cap/no-return event is bounded by the product of local `q` and `1 + lambda` factors.  The theorem fixes one arbitrary `F`; it does not sum over the even family or prove Lemma 9.1. |
+| `IsBipartiteEven`, `IsSimpleBipartiteCycle`, `weighted_evenSubgraph_polymer_bound` | finite real polymer bound (9.15) | defined; local proved | Every finite even bipartite edge set receives a recoverable disjoint decomposition into inclusion-minimal nonempty even sets, giving the real-valued subset-product and exponential bounds.  Instantiation with the actual residual family, `ENNReal` weights, and the cycle-to-walk kernel is separate. |
+| `endpointLambda`, `endpointQ`, `existsAbsoluteFiniteEndpointConstant` | finite endpoint bridge (9.7)--(9.9) | defined; local proved | One absolute real constant uniformly gives `lambda ≤ C theta^3` and `q ≤ C theta^2` from the exact finite cap, positivity, cell-parameter, and dyadic-size hypotheses.  It does not prove the upstream probabilistic event or parameter identification. |
 
 These four declarations are in `OverlapContingencyTools.lean`, 109 lines,
 SHA-256
@@ -213,11 +219,16 @@ displayed cardinal hypotheses, and a generic support-indexed full/residual
 constraint equivalence.  `Section9ActualResidualFamily.lean` instantiates the
 literal multiplicity-at-least-two residual family and proves its direct
 `2 ^ |R|` count, while `Section9ChooseTwoMass.lean` proves the division-free
-finite inequality (9.21).  These accepted atoms still do not construct or
-count the labelled canonical witness, prove manuscript incidence (8.3),
-identify the global conditioned skeleton law, choose and recover a cycle
-decomposition, establish the attachment estimate, or prove Lemma 8.3 or
-Lemma 9.1.
+finite inequality (9.21).  Subsequent accepted modules add the fixed-`F`
+capped expansion, recoverable real-valued polymer decomposition/bound, and
+finite endpoint bridge.  It now also identifies uniquely the labelled
+canonical witness for each one fixed matching and proves a relaxed finite
+matching-traversal/geometric bridge.  The accepted collection still does not
+count or bound the global canonical event, prove manuscript incidence (8.3),
+identify its conditioned law, specialize the polymer theorem to the actual
+residual family and `ENNReal` weights, construct the positive residual kernel
+from `q` or the injective weight-preserving cycle-to-walk code, establish the
+attachment estimate, or prove Lemma 8.3 or Lemma 9.1.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -386,11 +397,74 @@ is not a repository proof and does not close the non-atomic obligation.
 | exact full Lemma 9.1 | `fe0c45b5-e074-4f9d-bd91-af93f2fed768` | `COMPLETE_WITH_ERRORS` | rejected: besides the live `sorry` and resulting `sorryAx`, the helper `sum_fourpow_le` is false because it drops the essential residual cap/no-return event; Lemma 9.1 remains open |
 | `sum_fourpow_le` subset-expansion follow-up | `857e6b3d-02cd-4400-bbd9-5bda925b3556` | `CANCELED` | no proof result; does not prove Lemma 9.1 |
 | `sum_fourpow_le` sequential-exposure follow-up | `5ee75c79-dee3-46d1-9a9c-15edd7c2900b` | `COMPLETE` | completed with a valid counterexample to the requested helper rather than a proof; does not prove Lemma 9.1 |
-| faithful fixed-`F` cap/no-return demand expansion (9.10)--(9.12) | `fe520e24-b80f-406e-b4d0-3a842fca287e` | `RUNNING` | exact locally type-checked request; no repository proof until a returned proof passes all local gates |
-| recoverable weighted even-subgraph polymer bound (9.15) | `25a033db-451f-4203-9593-fcb8b1f562d9` | `RUNNING` | decomposition must be constructed in the proof; no decomposition hypothesis or repository result |
-| matching-cycle weighted walk enumeration (9.17)--(9.18) | `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` | `RUNNING` | cycle cutting/encoding must be constructed in the proof; no aggregate-bound hypothesis or repository result |
-| deterministic small-residual integrand bound (9.20)--(9.22) | `29f7b05b-f22f-4266-bc04-795aa0cb709e` | `RUNNING` | exact locally type-checked request; no repository proof yet |
-| finite analytic endpoint estimate (9.7)--(9.9) | `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` | `RUNNING` | absolute constant is existential; no unjustified small numerical constant and no repository proof yet |
+| faithful fixed-`F` cap/no-return demand expansion (9.10)--(9.12) | `fe520e24-b80f-406e-b4d0-3a842fca287e` | original rejected; bounded continuation accepted | continuation `819e5c2f-ba0e-4b85-acc4-68018958acc2` kept the statement unchanged, passed strict Lean 4.28 in about 67 seconds, and is accepted in `Section9CappedFixedFExpansion.lean` after a 48.5-second warning-fatal Lean 4.31 build, clean trust scan, and standard-axiom audit |
+| recoverable weighted even-subgraph polymer bound (9.15) | `25a033db-451f-4203-9593-fcb8b1f562d9` | original rejected; bounded continuation accepted | continuation `aa66bdd6-3c5b-4259-b35b-15ff3c66acb7` passed strict Lean 4.28 after only `hM` to `_hM`; `Section9CyclePolymerBound.lean` passed warning-fatally in 122.856 seconds with the standard axiom trio.  It proves the real-valued finite polymer bound and a recoverable disjoint minimal-even decomposition, but not the actual residual-family/`ENNReal` weight-kernel or cycle-to-walk bridge |
+| matching-cycle weighted walk enumeration (9.17)--(9.18) | `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` | `COMPLETE_WITH_ERRORS`; rejected | the original target `sorry` remains.  The separate local replacement `Section9MatchingTraversalBridge.lean` is accepted after a 34.4-second warning-fatal Lean 4.31 build (about 27 seconds for the module), an axiom audit reporting only `propext`, `Classical.choice`, and `Quot.sound`, and aggregate integration.  It proves only the relaxed finite matching-operator/geometric bridge, not the positive residual `q`-kernel or the required injective weight-preserving cycle encoding |
+| deterministic small-residual integrand bound (9.20)--(9.22) | `29f7b05b-f22f-4266-bc04-795aa0cb709e` | `COMPLETE`; audited | exact returned theorem passed source/semantic review and warning-fatal Lean 4.28 replay; the cleaned Lean 4.31 port is accepted in `Section9SmallResidualDeterministic.lean` with only the standard axiom trio |
+| finite analytic endpoint estimate (9.7)--(9.9) | `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` | `COMPLETE`; audited and accepted | strict Lean 4.28 replay passed; `Section9FiniteAnalyticEndpoint.lean` passed a 47-second warning-fatal Lean 4.31 build, clean trust scan, and standard-axiom audit.  It is only the finite real endpoint bridge under its exact hypotheses and does not supply the upstream probabilistic event |
+
+## Status reconciliation (2026-07-15)
+
+This reconciliation supersedes older submission-time status cells below.  It
+records no new module-count, hash, or full-build metric and makes no claim that
+a full section or either full manuscript lemma has been formalized.
+
+- D, the deterministic small-residual integrand bound, was already accepted
+  in `Section9SmallResidualDeterministic.lean`.
+- G, H, and I were independently source/statement audited, ported, and pass
+  local Lean 4.31 warning-fatal builds, but only at the exact atomic scopes in
+  their table rows: G is the normalized labelled-witness incidence identity
+  (not the equal-total extension count or global-event identification); H is
+  the literal finite cutoff-event characterization; and I is the
+  distinguishable-cell product expansion (not the unlabelled typed-skeleton
+  bridge).
+- J and K were independently audited, ported, and warning-fatally replayed in
+  `Section9RewardTelescoping.lean` and
+  `Section9FiniteFamilyAlgebra.lean`.  J is only the finite capped-reward
+  telescoping identity.  K is only the finite injective-family/product/
+  exponential algebra under its displayed hypotheses; it does not construct
+  the manuscript's required random or cycle family.
+- L and M were independently audited, ported, and warning-fatally replayed in
+  `Section9AttachmentAsymptotics.lean`.  L is only the eventual
+  `tau < 1/3` consequence of its explicit asymptotic hypotheses.  M is only
+  the uniform two-regime analytic error consequence of its displayed bound;
+  neither supplies the missing combinatorial/probabilistic estimate.
+- F's clean continuation `a1b4fe23-5553-48b7-88db-20d2f75b0ef0` is accepted
+  in `Section8CanonicalLabelledWitness.lean`.  The 198-line source has SHA-256
+  `4F1FCAEE9EF845C16C05B9223D95C3FB135DCD0E840030F9A35DFDE4D0557E5F`,
+  passed warning-fatally in about 304 seconds (about 286 seconds for the
+  module), reports only the standard axiom trio, and passed aggregate
+  integration.  It proves only deterministic existence and uniqueness of the
+  literal labelled canonical witness for one fixed matching, not a count or
+  global-event probability.
+- The original A and B returns fail the resource/source-policy gates, but their
+  bounded continuations are accepted under A
+  `819e5c2f-ba0e-4b85-acc4-68018958acc2` and B
+  `aa66bdd6-3c5b-4259-b35b-15ff3c66acb7`, in
+  `Section9CappedFixedFExpansion.lean` and
+  `Section9CyclePolymerBound.lean`, respectively.
+- C ended `COMPLETE_WITH_ERRORS` with its target `sorry` still present and is
+  rejected.  E passed strict Lean 4.28 and is accepted in
+  `Section9FiniteAnalyticEndpoint.lean` after warning-fatal Lean 4.31 replay.
+
+## Aristotle wave 12: canonical-event and analytic assembly leaves
+
+Twelve additional source-only projects were submitted on 2026-07-15 after
+local Lean 4.28 elaboration and a one-`sorry` trust scan.  The eight
+Sections VIII--IX requests are listed here; the four Sections X--XI requests
+are recorded in their own breakdown.  No running request is a repository
+proof.
+
+| Section | Isolated target | Service request | Status at submission | Exact scope |
+|---|---|---|---:|---|
+| VIII | `existsUnique_canonicalHighDemandWitness` | `3a103aa6-bb8f-4ee4-840d-6a307fa13a1e` | original completed with suggestion-enabled automation; clean continuation `a1b4fe23-5553-48b7-88db-20d2f75b0ef0` audited and accepted as `Section8CanonicalLabelledWitness.lean` after warning-fatal Lean 4.31 replay and aggregate integration | deterministic existence and uniqueness of the literal labelled canonical witness for one fixed matching; no global-event probability |
+| VIII | `labelledWitnessIncidence_eq` | `2521afcb-76cd-4887-b4d3-8d5dd2525bac` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | algebraic normalized witness incidence only; the equal-total extension count and global event identification are separate; local authority is `Section8LabelledIncidence.lean` |
+| VIII | `canonicalHighDemand_eq_iff_exact_support_and_capped_off` | `3752e0d3-ded9-40a9-b921-13b86511dda7` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | exact finite cutoff-event characterization only; local authority is `Section8CanonicalSkeleton.lean` |
+| VIII | `sum_nearSkeletonChoiceWeight_eq_product` | `3bf1699a-829c-4a08-96db-46ec367e2f8e` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | distinguishable-cell product expansion only; no unlabelled typed-skeleton bridge; local authority is `Section8NearSkeletonExpansion.lean` |
+| IX | `cappedReward_telescoping` | `a59bc485-46ae-470d-bb47-8cc5112493ab` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | exact finite telescoping in (9.10)--(9.11) only; local authority is `Section9RewardTelescoping.lean` |
+| IX | `finiteInjectiveFamily_product_exp_bound` | `76396761-3a66-4129-bbaf-ddea479a0ada` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | injective finite family/product/exponential algebra after a decomposition is supplied; local authority is `Section9FiniteFamilyAlgebra.lean` |
+| IX | `eventually_tau_lt_one_third` | `b19e923c-6617-463f-bfd3-d8dc4cf9ff54` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | analytic conversion of the explicit cap and mass bounds to eventual `tau < 1/3` only; local authority is `Section9AttachmentAsymptotics.lean` |
+| IX | `exists_uniform_twoRegime_error` | `f1f67e1a-3aa0-4da4-931d-b6530804ed2f` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | uniform deterministic error sequence combining the displayed large- and small-residual bounds only; local authority is `Section9AttachmentAsymptotics.lean` |
 
 ## Non-atomic obligations that must not be hidden
 
@@ -405,22 +479,26 @@ is not a repository proof and does not close the non-atomic obligation.
    cutoff demand has partial-matching support and exact on/off-cutoff values;
    pairing uniqueness once both fibres are fixed, selected-fibre fullness
    under zero residual, and the generic support-indexed cap/no-return
-   translation are also proved.  What remains is to construct and count the
-   labelled witness, prove manuscript incidence (8.3), and identify the global
-   conditioned skeleton law.  The generic support theorem does not supply
-   those steps by itself.
+   translation are also proved.  The literal labelled canonical witness now
+   has a deterministic existence-and-uniqueness theorem for each fixed
+   matching.  What remains is to count or bound the global event, prove
+   manuscript incidence (8.3), and identify its conditioned skeleton law.
 4. Prove the endpoint transportation and all near/middle skeleton sums
    (8.16)--(8.29b), including the no-further-near conditioning event.
 5. The manuscript's actual residual even-edge family, its support/count bridge,
-   and the exact binary cycle-space cardinality are proved.  Choose an
-   edge-disjoint simple-cycle decomposition canonically enough to recover the
-   original edge set and encode its cycles as the weighted walks used by the
-   analytic bounds.
-6. The division-free choose-two mass inequality (9.21) is proved.  Assemble
-   (9.10)--(9.22), including the still-open canonical-skeleton instantiation,
-   recoverable cycle decomposition, concrete cycle-to-walk encodings, and
-   weight/kernel transfer; the abstract traversal/geometric kernel is proved,
-   with the actual degree sums and asymptotic error estimates.  The rejected
+   and the exact binary cycle-space cardinality are proved.  The accepted
+   real-valued polymer theorem also constructs a recoverable disjoint
+   minimal-even decomposition.  What remains is to specialize that theorem to
+   the actual residual family and `ENNReal` weights and encode its components
+   as the weighted walks used by the analytic bounds.
+6. The division-free choose-two mass inequality (9.21), fixed-`F` capped
+   expansion (9.10)--(9.12), finite real polymer bound (9.15), and finite
+   endpoint bridge (9.7)--(9.9) are proved.  Assemble the remaining chain,
+   including the canonical-skeleton instantiation, actual-family/weight
+   specialization, the positive residual kernel from `q`, concrete injective
+   weight-preserving cycle-to-walk encodings, and weight/kernel transfer; the
+   abstract traversal/geometric kernel, relaxed finite matching-traversal
+   bridge, and conditional eventual-`tau` bridge are proved.  The rejected
    raw `sum_fourpow_le` shortcut cannot replace the cap/no-return event: the
    faithful event-restricted attachment argument in both residual-mass regimes
    remains open.  Complete that argument, then prove Lemma 9.1 and
@@ -478,17 +556,20 @@ axioms or aliases for the desired conclusion.
    literal even-edge family supported on `M` together with cells of
    multiplicity at least two is defined and has the direct `2^|R|` bound under
    the row-matching hypothesis; the exact binary cycle-space count (6.7) is
-   also proved.  Construct a recoverable cycle decomposition; it may not be
-   hidden in a renamed hypothesis.
+   also proved.  The accepted real-valued polymer theorem now constructs a
+   recoverable disjoint minimal-even decomposition rather than hiding it in a
+   hypothesis.  Its actual-family and `ENNReal` weight specialization remains.
 10. Port the mutually exclusive threshold-choice expansion and apply the
     all-cases theorem `jointPrescribedCellBound_cellwise` jointly to the
     combined per-cell demands before removing caps or forbidden-cell events.
 11. **Completed locally:** finite degree-sum bounds, exact theta
     factorizations, normalized square/cube estimates (9.13)–(9.14), and the
     zero-total branch.
-12. Construct the simple-cycle deletion recursion manually, prove union
-    recovery, choose decompositions injectively, and only then apply the
-    exponential family overcount in (9.15).
+12. **Completed locally in the real-valued finite setting:** the polymer proof
+    constructs the deletion recursion, proves union recovery, chooses the
+    decomposition injectively, and derives the subset-product and exponential
+    overcount in (9.15).  The actual residual-family/`ENNReal` specialization
+    is a separate open bridge.
 13. Build the cycle-to-closed-walk and marked-cycle-to-traversal encodings
     used in (9.16)–(9.18).  The analytic geometric bounds do not supply these
     encodings, and a marked traversal receives no fresh cardinal factor after
@@ -506,9 +587,13 @@ axioms or aliases for the desired conclusion.
     total-mass hypotheses, which is the finite arithmetic content of (9.21).
     The full finite cycle-rank chain in (9.20), including the literal residual-
     support and `m₀ / 2` forms, is now proved.  The exact binary cycle-space
-    cardinality and abstract traversal/geometric kernel are also proved.  The
-    canonical-skeleton instantiation, recoverable cycle decomposition,
-    cycle-to-walk encodings, and integrand/attachment assembly remain open.
+    cardinality, real-valued recoverable polymer decomposition, abstract
+    traversal/geometric kernel, relaxed finite matching-traversal bridge,
+    fixed-`F` capped expansion, finite endpoint bridge, and deterministic
+    small-residual integrand are also proved.  The canonical-event and actual-
+    family/weight instantiations, positive residual `q`-kernel, injective
+    weight-preserving cycle-to-walk encoding, conditioned attachment estimate,
+    and global assembly remain open.
 16. State the final attachment estimate with one deterministic error sequence
     and one eventual threshold uniform over every feasible skeleton.  A
     skeleton-dependent error sequence or threshold has the wrong quantifiers.
@@ -519,11 +604,12 @@ exponential overcount, closed-walk and marked-traversal geometric bounds,
 sign-exponent bookkeeping, and component-constant sign count.  Its original
 weighted-Cauchy artifact remains rejected because it retained `sorryAx`; the
 separate corrected wave-8 theorem was manually reviewed and accepted in
-`WeightedCauchyTools.lean`.  The old cycle decomposition remains rejected
-because it contains forbidden `grind +suggestions`.  A capped residual-pair
-theorem is mathematically reusable after removing an unused hypothesis that
-currently fails warnings-fatal.  Raw external outputs stay quarantined unless
-and until an exact local port passes every repository gate.
+`WeightedCauchyTools.lean`.  The old suggestion-enabled cycle-decomposition
+artifact remains rejected, while its clean bounded continuation is accepted
+through `Section9CyclePolymerBound.lean`.  The faithful capped fixed-`F`
+continuation is likewise accepted through
+`Section9CappedFixedFExpansion.lean`.  Raw external outputs stay quarantined
+unless and until an exact local port passes every repository gate.
 
 Only those assemblies, followed by the amplification layer and exact final
 target, can close the proof.  Successful isolated arithmetic or enumeration

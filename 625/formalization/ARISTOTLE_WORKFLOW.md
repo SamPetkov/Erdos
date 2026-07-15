@@ -173,6 +173,40 @@ to `sum_fourpow_le`, rather than a proof of the requested target.  Neither
 follow-up proves Lemma 9.1.  A faithful proof retaining the cap/no-return event
 and treating the manuscript's two residual-mass regimes remains open.
 
+### Status reconciliation (2026-07-15)
+
+This reconciliation supersedes older submission-time labels below; it does
+not change any module-count, hash, or full-build metric.
+
+- Work package D was already independently accepted.
+- For work packages G, H, I, J, K, L, M, N, O, P, and Q, the exact returned
+  theorem statements were independently audited, ported into tracked source,
+  and replayed successfully in local Lean 4.31 warning-fatal builds.  This is
+  acceptance of those atomic statements only.  The exact-scope/caveat columns
+  in the wave tables remain controlling; in particular these leaves do not by
+  themselves prove full Lemma 8.3, full Lemma 9.1, or complete Sections
+  VIII--XI.
+- Work package F's clean bounded continuation
+  `a1b4fe23-5553-48b7-88db-20d2f75b0ef0` is accepted as the independently
+  reviewed `Section8CanonicalLabelledWitness.lean`.  Its 198-line source has
+  SHA-256
+  `4F1FCAEE9EF845C16C05B9223D95C3FB135DCD0E840030F9A35DFDE4D0557E5F`,
+  passed a warning-fatal Lean 4.31 build in about 304 seconds (about 286
+  seconds for the module), passed aggregate integration, and reports only
+  `propext`, `Classical.choice`, and `Quot.sound`.  The accepted theorem is
+  only deterministic `∃!` identification for one fixed matching, not the
+  probability of the global canonical event.
+- The original A and B returns remain rejected by the repository's resource
+  and source-policy gates.  Their bounded continuations are independently
+  accepted: A `819e5c2f-ba0e-4b85-acc4-68018958acc2` in
+  `Section9CappedFixedFExpansion.lean`, and B
+  `aa66bdd6-3c5b-4259-b35b-15ff3c66acb7` in
+  `Section9CyclePolymerBound.lean`.
+- C `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` ended
+  `COMPLETE_WITH_ERRORS` with the original target `sorry` still present and is
+  rejected.  E `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` is accepted in
+  `Section9FiniteAnalyticEndpoint.lean` after strict local replay.
+
 ### Faithful Section IX wave (2026-07-15)
 
 The false unrestricted collision-moment helper was not resubmitted.  Instead,
@@ -184,11 +218,11 @@ payloads deliberately excluded the local 1.6 GB dependency cache.
 
 | Work package | Service project | Status at submission |
 |---|---|---:|
-| fixed-`F` cap/no-return prescribed-demand expansion behind (9.10)--(9.12) | `fe520e24-b80f-406e-b4d0-3a842fca287e` | `RUNNING` |
-| recoverable even-subgraph decomposition and weighted polymer bound (9.15) | `25a033db-451f-4203-9593-fcb8b1f562d9` | `RUNNING` |
-| matching-cycle cutting and one-time-mark weighted walk bound (9.17)--(9.18) | `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` | `RUNNING` |
-| deterministic small-residual integrand bound from (9.20)--(9.22) | `29f7b05b-f22f-4266-bc04-795aa0cb709e` | `RUNNING` |
-| finite absolute-constant endpoint estimate for `lambda` and `q` in (9.7)--(9.9) | `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` | `RUNNING` |
+| fixed-`F` cap/no-return prescribed-demand expansion behind (9.10)--(9.12) | `fe520e24-b80f-406e-b4d0-3a842fca287e` | original rejected; bounded continuation `819e5c2f-ba0e-4b85-acc4-68018958acc2` passed strict Lean 4.28 and is accepted in `Section9CappedFixedFExpansion.lean` |
+| recoverable even-subgraph decomposition and weighted polymer bound (9.15) | `25a033db-451f-4203-9593-fcb8b1f562d9` | original rejected; bounded continuation `aa66bdd6-3c5b-4259-b35b-15ff3c66acb7` passed strict Lean 4.28 and is accepted in `Section9CyclePolymerBound.lean` |
+| matching-cycle cutting and one-time-mark weighted walk bound (9.17)--(9.18) | `d433e6aa-0ba2-44e0-9519-3b1f897eb3e4` | `COMPLETE_WITH_ERRORS`; rejected because the original target `sorry` remains |
+| deterministic small-residual integrand bound from (9.20)--(9.22) | `29f7b05b-f22f-4266-bc04-795aa0cb709e` | `COMPLETE`; audited and ported |
+| finite absolute-constant endpoint estimate for `lambda` and `q` in (9.7)--(9.9) | `0be16581-1f1d-4781-a58c-2cb46e4d1bcf` | `COMPLETE`; strict Lean 4.28 replay and accepted Lean 4.31 port `Section9FiniteAnalyticEndpoint.lean` |
 
 The first request imports the literal locally proved joint prescribed-cell
 bound rather than assuming an abstract probability inequality.  The cycle
@@ -198,3 +232,66 @@ analytic request quantifies an absolute constant instead of asserting a false
 small finite constant.  A service completion will remain quarantined until the
 returned statement, source, warning-fatal Lean 4.31 replay, axiom output, and
 mathematical dependency boundary all pass local review.
+
+The original polymer proof preserved the proposition but inserted both
+`set_option maxHeartbeats 0` and `grind +suggestions`, so that source remains
+quarantined.  Its bounded continuation passed strict Lean 4.28 after only the
+unused-binder rename `hM` to `_hM`; the accepted Lean 4.31 port
+`Section9CyclePolymerBound.lean` passed warning-fatally in 122.856 seconds with
+the standard `propext`, `Classical.choice`, and `Quot.sound` axiom trio.  It is
+a real-valued finite even-edge polymer bound and constructs a recoverable
+edge-disjoint minimal-even decomposition.  It does not instantiate the actual
+residual family or provide the `ENNReal` weight/kernel and cycle-to-walk bridge.
+
+The bounded fixed-`F` continuation kept the theorem statement unchanged and
+passed strict Lean 4.28 in about 67 seconds.  Its accepted Lean 4.31 port
+`Section9CappedFixedFExpansion.lean` passed warning-fatally in 48.5 seconds,
+with a clean trust scan and the same standard axiom trio.  The endpoint result
+likewise passed strict Lean 4.28; its accepted Lean 4.31 port
+`Section9FiniteAnalyticEndpoint.lean` passed warning-fatally in about 47
+seconds with the standard trio.  It proves only the finite real analytic
+endpoint bridge under its exact hypotheses, not the upstream random event.
+
+The returned matching-cycle request C retains its original target `sorry` and
+is rejected.  The separate local replacement
+`Section9MatchingTraversalBridge.lean` is accepted after a 34.4-second
+warning-fatal Lean 4.31 build (about 27 seconds for the module), clean trust
+scan, an axiom audit reporting only `propext`, `Classical.choice`, and
+`Quot.sound`, and aggregate integration.  Its stated scope is
+only the relaxed finite matching-operator/geometric bridge; it does not
+construct the positive residual kernel from `q` or an injective,
+weight-preserving cycle-to-walk code.
+
+The returned small-residual theorem preserved the exact statement, passed two
+semantic audits and a warning-fatal Lean 4.28 replay, and was ported to the
+accepted Lean 4.31 module `Section9SmallResidualDeterministic.lean`; its axiom
+output is the standard trio.
+
+### Second faithful wave (2026-07-15)
+
+Twelve more isolated requests were checked under the service's exact
+Lean/Mathlib revision and submitted as source-only payloads.  Each payload had
+exactly one target `sorry`, no other placeholder or trust escape, and no local
+cache, manifest, or binary artifact.  Two Section VIII targets are explicitly
+intermediate identities: the labelled incidence is not yet the complete
+configuration-model probability identity (8.3), and the distinguishable-cell
+product expansion is not yet the unlabelled typed-skeleton bridge.
+
+| Package | Service project | Status at submission |
+|---|---|---:|
+| canonical labelled high-demand witness uniqueness | `3a103aa6-bb8f-4ee4-840d-6a307fa13a1e` | original completed with suggestion-enabled automation; clean continuation `a1b4fe23-5553-48b7-88db-20d2f75b0ef0` audited and accepted as `Section8CanonicalLabelledWitness.lean` after warning-fatal Lean 4.31 replay and aggregate integration; exact scope is deterministic `∃!` for one fixed matching |
+| normalized labelled-witness incidence algebra | `2521afcb-76cd-4887-b4d3-8d5dd2525bac` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| exact canonical cutoff-event identification | `3752e0d3-ded9-40a9-b921-13b86511dda7` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| distinguishable near-skeleton product expansion | `3bf1699a-829c-4a08-96db-46ec367e2f8e` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| capped local-reward telescoping (9.10)--(9.11) | `a59bc485-46ae-470d-bb47-8cc5112493ab` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| injective finite-family product/exponential bound | `76396761-3a66-4129-bbaf-ddea479a0ada` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| eventual traversal parameter `tau < 1/3` | `b19e923c-6617-463f-bfd3-d8dc4cf9ff54` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| uniform two-regime attachment error | `f1f67e1a-3aa0-4da4-931d-b6530804ed2f` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| quarter-cutoff union-bound decay | `e569e37b-3486-4909-b5dd-3ebbbbe64049` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| simultaneous deterministic greedy colouring | `78638bbc-5941-4275-9ea3-b0022cc640dc` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| amplification-error little-o assembly | `3fcd655d-a5cd-42b8-bcb0-85767126b3a7` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+| moving-threshold to fixed-threshold tail | `20da6297-c83e-4800-8724-cc2551a31409` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
+
+The request IDs are provenance and scheduling records, not proof certificates.
+Every completion remains quarantined until statement identity, trust scan,
+warning-fatal v4.28 and v4.31 replay, axiom output, and semantic scope all pass.
