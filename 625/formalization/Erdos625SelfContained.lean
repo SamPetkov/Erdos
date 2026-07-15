@@ -27537,7 +27537,7 @@ END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
 Source: Erdos625/Section8CanonicalEventProbabilityFactorization.lean
-Normalized SHA-256: cbdf0649f0df3725a25c8296bc3644b013feb3e28f9f8f312852c5c3c3e12671
+Normalized SHA-256: d72c1d3805ecdca1bce9625123061a8b6d06e8c0f8539c132d1ea03e136b9fe5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
 
@@ -27575,8 +27575,8 @@ local instance instFintypeCanonicalResidualCellEventProbabilityFactorization
 private theorem card_factorial_factorization
     (m J W R : ℕ) (hJ : J ≤ m) :
     ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
-      (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
-        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) := by
+      ((W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞)) *
+        ((R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞)) := by
   have hdescPos : 0 < m.descFactorial J := Nat.descFactorial_pos.mpr hJ
   have hdescZero : (m.descFactorial J : ℝ≥0∞) ≠ 0 := by
     exact_mod_cast hdescPos.ne'

@@ -40,8 +40,8 @@ local instance instFintypeCanonicalResidualCellEventProbabilityFactorization
 private theorem card_factorial_factorization
     (m J W R : ℕ) (hJ : J ≤ m) :
     ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
-      (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
-        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) := by
+      ((W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞)) *
+        ((R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞)) := by
   have hdescPos : 0 < m.descFactorial J := Nat.descFactorial_pos.mpr hJ
   have hdescZero : (m.descFactorial J : ℝ≥0∞) ≠ 0 := by
     exact_mod_cast hdescPos.ne'
