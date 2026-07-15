@@ -8,10 +8,10 @@ import Erdos625.UniformProductTransport
 Under the strict high-demand condition, the literal canonical-demand event is
 already partitioned by a labelled prescribed-demand witness and its residual
 cap/no-return configuration.  This module records the corresponding exact
-finite-uniform-law transport.  It is deliberately a law on the *joint* sigma
-space of a witness and a residual configuration: it does not assert that the
-residual coordinate alone has one fixed marginal law, nor does it estimate the
-probability or nonemptiness of the canonical event.
+finite-uniform-law transport: first on the *joint* sigma space, then (after a
+reference witness is fixed) as a product law with a uniform standardized
+residual-coordinate marginal.  It does not estimate the probability or
+nonemptiness of the canonical event.
 -/
 
 namespace Erdos625
@@ -204,9 +204,15 @@ theorem uniform_canonicalDemandEventSubtype_map_fixedResidual
     _ = ((PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
           (canonicalDemandEventEquivWitnessTimesResidual
             demand row col U hhigh witness₀)).map
+           (fun product : PrescribedDemandWitness demand row col ×
+             canonicalResidualCellEvent witness₀ U => product.2) := by
+      simpa only [Function.comp_def] using
+        (PMF.map_comp
+          (p := PMF.uniformOfFintype (canonicalDemandEvent demand row col U))
+          (f := canonicalDemandEventEquivWitnessTimesResidual
+            demand row col U hhigh witness₀)
           (fun product : PrescribedDemandWitness demand row col ×
-            canonicalResidualCellEvent witness₀ U => product.2) := by
-      rw [PMF.map_comp]
+            canonicalResidualCellEvent witness₀ U => product.2)).symm
     _ = (PMF.uniformOfFintype
           (PrescribedDemandWitness demand row col ×
             canonicalResidualCellEvent witness₀ U)).map
