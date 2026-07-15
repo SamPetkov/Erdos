@@ -570,6 +570,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
+#print axioms Erdos625.fixedWitnessCanonicalDemandEventEquivResidual
+#print axioms Erdos625.canonicalDemandEventEquivSigmaFixedWitness
+#print axioms Erdos625.canonicalDemandEventEquivSigmaResidual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

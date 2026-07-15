@@ -27309,7 +27309,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 84fab51cc2224e4574bba46c2d74b4e685373a65a545f773748e3258fbc94982
+Normalized SHA-256: 81d21fc85db6fb922bdb064555d44fa542bc2f654c8b140762703ddd200f8d48
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -27349,6 +27349,39 @@ local instance instFintypeCanonicalResidualCellEvent
     (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
     Fintype (canonicalResidualCellEvent witness U) :=
   Fintype.ofFinite _
+
+/-- For a fixed labelled witness, transport the canonical full-event fibre to
+the corresponding residual half-cap/no-return fibre. -/
+noncomputable def fixedWitnessCanonicalDemandEventEquivResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    fixedWitnessCanonicalDemandEvent witness U ≃
+      canonicalResidualCellEvent witness U := by
+  classical
+  exact
+  { toFun := fun extension =>
+      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh extension.1).mp extension.2⟩
+    invFun := fun residual =>
+      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh
+          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
+          (by
+            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
+            exact residual.2)⟩
+    left_inv := by
+      intro extension
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
+    right_inv := by
+      intro residual
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
 
 private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     {A B : Type*}
@@ -27518,6 +27551,33 @@ private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
       (fun witness =>
         (fixedWitnessCanonicalDemandEventEquivFiber
           (demand := demand) (row := row) (col := col) witness U).symm))
+
+/-- Exact partition of a fixed canonical-demand event by its unique labelled
+canonical witness.  No high-demand hypothesis is needed for this first
+finite decomposition. -/
+noncomputable def canonicalDemandEventEquivSigmaFixedWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    ↑(canonicalDemandEvent demand row col U) ≃
+      Σ witness : PrescribedDemandWitness demand row col,
+        ↑(fixedWitnessCanonicalDemandEvent witness U) :=
+  canonicalDemandEvent_equiv_sigma_fixedWitness demand row col U
+
+/-- Under the strict high-demand condition, the canonical-demand event is
+exactly the sigma family of residual half-cap/no-return fibres.  This is a
+finite equivalence, not a conditional-probability assertion. -/
+noncomputable def canonicalDemandEventEquivSigmaResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    ↑(canonicalDemandEvent demand row col U) ≃
+      Σ witness : PrescribedDemandWitness demand row col,
+        ↑(canonicalResidualCellEvent witness U) :=
+  (canonicalDemandEventEquivSigmaFixedWitness demand row col U).trans
+    (Equiv.sigmaCongrRight (fun witness =>
+      fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh))
 
 private theorem card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
     {A B : Type*}
@@ -30243,7 +30303,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2f96e39f8e2ca1f6db153955669c9421edda1badf0875e5be344ab6ce44f4e8f
+Normalized SHA-256: f7523948d7acf71c95db85162bae7382b4d05b276cf7748e6b2e10786ccbfedd
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30667,6 +30727,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
+#print axioms Erdos625.fixedWitnessCanonicalDemandEventEquivResidual
+#print axioms Erdos625.canonicalDemandEventEquivSigmaFixedWitness
+#print axioms Erdos625.canonicalDemandEventEquivSigmaResidual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
