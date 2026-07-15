@@ -27768,6 +27768,129 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalConditionalLaw
+Source: Erdos625/Section8CanonicalConditionalLaw.lean
+Normalized SHA-256: b1b2f95822141fd65214a07c7fb7d89979a7731c7b6ed30c9eee9ba8410ab08e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalConditionalLaw
+
+/-!
+# Section VIII: exact canonical conditional-law transport
+
+Under the strict high-demand condition, the literal canonical-demand event is
+already partitioned by a labelled prescribed-demand witness and its residual
+cap/no-return configuration.  This module records the corresponding exact
+finite-uniform-law transport.  It is deliberately a law on the *joint* sigma
+space of a witness and a residual configuration: it does not assert that the
+residual coordinate alone has one fixed marginal law, nor does it estimate the
+probability or nonemptiness of the canonical event.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-! Keep finite instances local, just as in the cardinality and normalization
+modules.  This avoids changing instance search outside this law-transport
+module. -/
+local instance instFintypeCanonicalDemandEventConditionalLaw
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeCanonicalResidualCellEventConditionalLaw
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- A nonempty canonical-demand event gives a nonempty joint sigma family of
+its labelled witnesses and residual configurations.  This is only an exact
+finite equivalence; it supplies no probability lower bound. -/
+theorem nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (canonicalDemandEvent demand row col U)] :
+    Nonempty
+      (Σ witness : PrescribedDemandWitness demand row col,
+        canonicalResidualCellEvent witness U) := by
+  let x : canonicalDemandEvent demand row col U := Classical.choice inferInstance
+  exact ⟨canonicalDemandEventEquivSigmaResidual demand row col U hhigh x⟩
+
+/-- The uniform law on the canonical-demand event transports exactly to the
+uniform law on the joint sigma space of a labelled witness and its residual
+canonical event. -/
+theorem uniform_canonicalDemandEventSubtype_map_sigmaResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (canonicalDemandEvent demand row col U)]
+    [Nonempty
+      (Σ witness : PrescribedDemandWitness demand row col,
+        canonicalResidualCellEvent witness U)] :
+    (PMF.uniformOfFintype (canonicalDemandEvent demand row col U)).map
+        (canonicalDemandEventEquivSigmaResidual demand row col U hhigh) =
+      PMF.uniformOfFintype
+        (Σ witness : PrescribedDemandWitness demand row col,
+          canonicalResidualCellEvent witness U) := by
+  exact uniformOfFintype_map_equiv
+    (canonicalDemandEventEquivSigmaResidual demand row col U hhigh)
+
+/-- Conditioning the ambient uniform configuration law on the nonempty
+canonical-demand event is exactly reconstruction from the uniform joint sigma
+law of its witness and residual configuration.  This does not yet identify a
+fixed residual marginal or establish any global canonical-event estimate. -/
+theorem uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    [Nonempty (ConfigurationMatching row col)]
+    [Nonempty (canonicalDemandEvent demand row col U)]
+    [Nonempty
+      (Σ witness : PrescribedDemandWitness demand row col,
+        canonicalResidualCellEvent witness U)] :
+    (PMF.uniformOfFintype (ConfigurationMatching row col)).filter
+        (canonicalDemandEvent demand row col U)
+        (uniformFilterWitness (canonicalDemandEvent demand row col U)) =
+      ((PMF.uniformOfFintype
+        (Σ witness : PrescribedDemandWitness demand row col,
+          canonicalResidualCellEvent witness U)).map
+        (canonicalDemandEventEquivSigmaResidual
+          demand row col U hhigh).symm).map
+        (fun x : canonicalDemandEvent demand row col U => x.1) := by
+  calc
+    _ = (PMF.uniformOfFintype
+          (canonicalDemandEvent demand row col U)).map
+          (fun x : canonicalDemandEvent demand row col U => x.1) :=
+      uniform_filter_eq_uniformSubtype_map
+        (canonicalDemandEvent demand row col U)
+    _ = _ := by
+      rw [uniformOfFintype_map_equiv
+        (canonicalDemandEventEquivSigmaResidual
+          demand row col U hhigh).symm]
+
+#print axioms nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
+#print axioms uniform_canonicalDemandEventSubtype_map_sigmaResidual
+#print axioms uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalConditionalLaw
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalConditionalLaw
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
 Source: Erdos625/Section8CanonicalEventProbabilityNormalization.lean
 Normalized SHA-256: 18dc25744548aa3ba445ac02c28b65b287e51172998b5a4be853a7511ddbf614
@@ -30437,7 +30560,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: c37e482ff6729463a96b87c2eabb1d0a000dc4978c2744b65744fd6f4d3d9f63
+Normalized SHA-256: 6e33c2137f2b736bd3b4f68c419d74ec1fc1dce030f6ce4bad6637d60b94424f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30865,6 +30988,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fixedWitnessCanonicalDemandEventEquivResidual
 #print axioms Erdos625.canonicalDemandEventEquivSigmaFixedWitness
 #print axioms Erdos625.canonicalDemandEventEquivSigmaResidual
+#print axioms Erdos625.nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent
+#print axioms Erdos625.uniform_canonicalDemandEventSubtype_map_sigmaResidual
+#print axioms Erdos625.uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -30955,7 +31081,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 209346fca268ba3c24394d0a7cd3832a356e6f34d7a154c69f0b08f8ac9884e5
+Normalized SHA-256: 2e19de2695908f17d2cf148d739cb9f8a73d562b84aca57199949463eb3e8d32
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
