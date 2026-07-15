@@ -25567,6 +25567,57 @@ END SOURCE MODULE: Erdos625.ResidualDegreeMatching
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
+Source: Erdos625/Section8ResidualDegreeTotal.lean
+Normalized SHA-256: be2cc573bedc795c87bfe4ab335653b5c24f78ba2da75f2806fc6bf0a3b499c0
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
+
+/-!
+# Section 8: total residual degree balance
+
+Removing a feasible labelled prescribed-demand witness preserves equality of
+the total row and column residual degrees.  This is a finite deterministic
+bridge used by the canonical-residual construction.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Removing one feasible prescribed-demand witness preserves equality of the
+total row and column residual degrees. -/
+theorem sum_residualRowDegree_eq_sum_residualColumnDegree
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ a, residualRowDegree witness a) =
+      ∑ b, residualColumnDegree witness b := by
+  calc
+    (∑ a, residualRowDegree witness a) =
+        Fintype.card (RowStub (residualRowDegree witness)) :=
+      (card_rowStub (residualRowDegree witness)).symm
+    _ = Fintype.card (RemainingRowStub witness) :=
+      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
+    _ = Fintype.card (RemainingColumnStub witness) :=
+      card_remainingStubs_eq witness htotal
+    _ = Fintype.card (ColumnStub (residualColumnDegree witness)) :=
+      Fintype.card_congr (remainingColumnStubEquivResidual witness)
+    _ = ∑ b, residualColumnDegree witness b :=
+      card_columnStub (residualColumnDegree witness)
+
+#print axioms sum_residualRowDegree_eq_sum_residualColumnDegree
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ConfigurationResidualCellCounts
 Source: Erdos625/ConfigurationResidualCellCounts.lean
 Normalized SHA-256: 40e6121a0c72160f1ae7c0907ef65488bb3d682fa00a51a2789ea1acd692cdd7
@@ -26608,6 +26659,47 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
+Source: Erdos625/Section8CanonicalEventCharacterization.lean
+Normalized SHA-256: 302979dcc00452ec5f8218a21cfda4c6e7b2479a943e9f551ec0bd4e513f128b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
+
+/-!
+# Section 8: canonical-event characterization
+
+This names the event-level form of the existing exact support/cap
+characterization for a full configuration matching.
+-/
+
+namespace Erdos625
+
+/-- A matching has the prescribed canonical high-demand table exactly when it
+equals that table on its nonzero support and is half-capped off the support. -/
+theorem mem_canonicalDemandEvent_iff_exact_support_and_capped_off
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (matching : ConfigurationMatching row col) :
+    matching ∈ canonicalDemandEvent demand row col U ↔
+      (∀ a b, demand a b ≠ 0 →
+        configurationCellCount matching a b = demand a b) ∧
+      (∀ a b, demand a b = 0 →
+        configurationCellCount matching a b ≤ U / 2) := by
+  exact canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    (configurationCellCount matching) demand U hhigh
+
+#print axioms mem_canonicalDemandEvent_iff_exact_support_and_capped_off
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 ========================================================================== -/
 
 /- ==========================================================================
@@ -29042,7 +29134,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 78a65abc08de5328eda3653dab0451ad653d0578b7d3c56eb33b78bb8761bfc4
+Normalized SHA-256: 25324d7cae16634580a8f298a74e4825a33bc091c5a25fc5d4f7f98004cd28c9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -29456,8 +29548,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
+#print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
+#print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
@@ -29538,7 +29632,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: cd38d1ea414fbeb8eb921db309cddae7d27f4515544954161dccef0e540da6d4
+Normalized SHA-256: 48fabc963f22b9a6301b2b8f90fab16803f8624684c662dbb72a8c293e6b10a2
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

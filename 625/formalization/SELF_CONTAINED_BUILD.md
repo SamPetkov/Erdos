@@ -16,7 +16,9 @@ equivalence, and deterministic existence and uniqueness of the labelled
 canonical witness for one supplied matching are also proved. Existence of a
 labelled demand witness forces total demand below the ambient row-stub mass,
 and for one fixed witness the full canonical event transports exactly to the
-residual half-cap/no-return event. The normalized
+residual half-cap/no-return event. Total residual row and column degrees agree,
+and the full canonical-demand event has a named exact support/cap
+characterization. The normalized
 labelled-witness incidence identity and the distinguishable near-skeleton
 product expansion are checked as finite algebra. Counting and identifying the
 global canonical event, its conditioned law, the remaining incidence
@@ -76,12 +78,12 @@ The source checkpoint generated on 2026-07-15 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 146;
+- local source modules included: 148;
 - external Mathlib imports: 75;
-- central `#print axioms` commands included: 521;
-- newline count: 29,719;
+- central `#print axioms` commands included: 525;
+- newline count: 29,813;
 - generated source SHA-256:
-  `0485E877E86B64C0430C1B665D918BB007963FB561D97362F30232E830EDA4BD`.
+  `C8EFF51CB599E73CA2D1154E36CC4B43F08C0EA126B7E4DB5076B0305FBEF60A`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`

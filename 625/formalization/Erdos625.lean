@@ -122,12 +122,14 @@ import Erdos625.EvenMatchingRestriction
 import Erdos625.WeightedCauchyTools
 import Erdos625.ResidualFiberCounts
 import Erdos625.ResidualDegreeMatching
+import Erdos625.Section8ResidualDegreeTotal
 import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalEventResidual
+import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion

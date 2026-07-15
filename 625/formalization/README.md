@@ -255,6 +255,13 @@ canonical-demand event transports through the residual equivalence precisely
 to the half-cap/no-return event.  It does not count the union over canonical
 witnesses or identify that global event's conditioned law.
 
+[`Section8CanonicalEventCharacterization.lean`](Erdos625/Section8CanonicalEventCharacterization.lean)
+names the corresponding full-event support/cap characterization, while
+[`Section8ResidualDegreeTotal.lean`](Erdos625/Section8ResidualDegreeTotal.lean)
+records equality of total residual row and column degrees.  Both are finite
+deterministic bridges; neither supplies the missing canonical-event probability
+or conditioned-law argument.
+
 [`Section8LabelledIncidence.lean`](Erdos625/Section8LabelledIncidence.lean)
 proves `labelledWitnessIncidence_eq`, the exact normalized descending-factorial
 identity for labelled prescribed-demand witnesses.  It is counting algebra,

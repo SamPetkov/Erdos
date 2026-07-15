@@ -293,7 +293,7 @@ product expansion is not yet the unlabelled typed-skeleton bridge.
 | moving-threshold to fixed-threshold tail | `20da6297-c83e-4800-8724-cc2551a31409` | `COMPLETE`; exact statement audited, ported, and warning-fatally accepted in Lean 4.31 |
 
 The request IDs are provenance and scheduling records, not proof certificates.
-Every completion remains quarantined until statement identity, trust scan,
+Every not-yet-integrated completion remains quarantined until statement identity, trust scan,
 warning-fatal v4.28 and v4.31 replay, axiom output, and semantic scope all pass.
 
 ### Endpoint, edge-law, and decomposition queue (2026-07-15)
@@ -315,14 +315,23 @@ revision.  The two elementary seams in
 `Section11ChromaticLowerTailBridge.lean` were proved locally and have no
 service-completion provenance.
 
-The source-only staging queue also contains finer Section VIII canonical-event
-packages, the remaining Section IX covering-cycle and mixed-cycle encoder
-packages, and the Section X sequence from fixed-subset quarter tails through
-universal leftover colouring and amplification.  Each payload is kept small,
-pinned to the service's Lean 4.28 environment, and contains one intentional
-target hole; full targets may be submitted in parallel with decomposed leaves
-when slots permit.  A failure is split into smaller faithful statements, while
-a completion is downloaded, statement-audited, replayed, source-scanned,
-axiom-audited, and scope-checked before integration.  Thus staged, queued, or
-running packages are proposals, not accepted theorems, and they do not prove
-Lemma 9.1, Proposition 9.2, Lemma 10.1, Lemma 10.2, or the final theorem.
+### Current Section VIII/X quarantine snapshot (2026-07-15)
+
+| Target | Service status | Repository status |
+|---|---|---|
+| X02 density lift; X03 quarter chain; X05f generic tail; X07c generic assembly | `COMPLETE` | Lean 4.28 sources quarantined for 4.31 ports; not tracked acceptances |
+| X04 survival asymptotics | `COMPLETE_WITH_ERRORS` | returned source quarantined; not a clean service completion or tracked acceptance |
+| Section VIII witness feasibility, fixed canonical residual, canonical sigma witness, residual-degree total, canonical characterization | `COMPLETE` | each service return remains subject to the repository acceptance gate; only the separately tracked Lean 4.31 leaves are authoritative |
+| Section VIII canonical probability, canonical cardinality, fixed-canonical conditioned law | `IN_PROGRESS` | proposal only |
+
+The source-only queue also contains the remaining Section IX covering-cycle and
+mixed-cycle encoder packages and the Section X sequence from fixed-subset
+quarter tails through universal leftover colouring and amplification.  Each
+payload is pinned to the service's Lean 4.28 environment and contains one
+intentional target hole; full targets may be submitted in parallel with
+decomposed leaves when slots permit. A failure is split into smaller faithful
+statements, while a completion is downloaded, statement-audited, replayed,
+source-scanned, axiom-audited, and scope-checked before integration. Thus
+staged, queued, running, or quarantined packages are not accepted theorems and
+do not prove Lemma 9.1, Proposition 9.2, Lemma 10.1, Lemma 10.2, or the final
+theorem.

@@ -117,12 +117,14 @@ import Erdos625.EvenMatchingRestriction
 import Erdos625.WeightedCauchyTools
 import Erdos625.ResidualFiberCounts
 import Erdos625.ResidualDegreeMatching
+import Erdos625.Section8ResidualDegreeTotal
 import Erdos625.ConfigurationResidualCellCounts
 import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalEventResidual
+import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8NearSkeletonExpansion
@@ -549,8 +551,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
+#print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
+#print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist

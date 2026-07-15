@@ -22,61 +22,37 @@ The remaining work separates into three layers:
 
 | ID | Target | Kind | Immediate dependencies | Aristotle status |
 |---|---|---|---|---|
-| X01 | fixed-subset complement-edge lower-quarter tail | graph probability | binomial random graph law | send now |
-| X02 | exact-size density implies all-larger density | deterministic | finite double counting | send now |
-| X03 | quarter-neighbourhood chain yields an independent set | deterministic | X02-style density hypothesis; accepted degree/recurrence atoms | send now |
-| X04 | concrete cutoff/step survival | asymptotic | real powers, floor and ceiling bounds | send now |
-| X05 | one simultaneous leftover-colouring event has probability tending to one | graph probability transport | X01--X04; accepted union decay and greedy recursion | stage after X01--X04 |
-| X06 | quantitative two-success-event failure bound | generic probability transport | finite probability measure | send now |
-| X07 | quantifier-correct rare-seed amplification bound | graph probability assembly | X05, X06, accepted capacity concentration and concatenation | stage after X05/X06 |
-| XI01 | at-most tail zero gives strict-lower tail one | generic probability transport | complement identity | send now |
+| X01 | fixed-subset complement-edge lower-quarter tail | graph probability | binomial random graph law | service return quarantined; repository transport remains open |
+| X02 | exact-size density implies all-larger density | deterministic | finite double counting | `COMPLETE` at Lean 4.28; 4.31 port quarantine |
+| X03 | quarter-neighbourhood chain yields an independent set | deterministic | X02-style density hypothesis; accepted degree/recurrence atoms | `COMPLETE` at Lean 4.28; 4.31 port quarantine |
+| X04 | concrete cutoff/step survival | asymptotic | real powers, floor and ceiling bounds | `COMPLETE_WITH_ERRORS`; returned source remains quarantined |
+| X05 | one simultaneous leftover-colouring event has probability tending to one | graph probability transport | X01--X04; accepted union decay and greedy recursion | generic X05f `COMPLETE` at Lean 4.28; concrete assembly open |
+| X06 | quantitative two-success-event failure bound | generic probability transport | finite probability measure | independently accepted locally in Lean 4.31 |
+| X07 | quantifier-correct rare-seed amplification bound | graph probability assembly | X05, X06, accepted capacity concentration and concatenation | generic X07c `COMPLETE` at Lean 4.28; concrete assembly open |
+| XI01 | at-most tail zero gives strict-lower tail one | generic probability transport | complement identity | independently accepted locally in Lean 4.31 |
 | XI02 | concrete manuscript threshold separation | sequence instantiation | Sections IV--V, X07, and Sections VIII--IX | blocked upstream |
 
 The corresponding specifications are in the sibling files named by ID.
 
 ## Live proof-search checkpoint
 
-On 2026-07-15 X01 completed at the service and remains quarantined while its
-uniform-graph formulation is ported to the repository's
-`randomGraphMeasure`; X02 was submitted and is in progress.  X03, X03a, X04,
-and the finer X05/X07 packages remain source-only proposals.  X06 and XI01
-have independent local Lean 4.31 warning-fatal proofs in
+On 2026-07-15 the service returned Lean 4.28 candidates for X02, X03, generic
+X05f, and generic X07c.  X04 ended `COMPLETE_WITH_ERRORS`; its returned source
+is likewise quarantined.  These artifacts are retained only under
+`.aristotle/ports-2026-07-15/` for audit and porting, and none is a repository
+Lean 4.31 acceptance.  X05f and X07c are generic interfaces only: the concrete
+X05/X07 manuscript instantiations remain open.  X06 and XI01 have independent
+local Lean 4.31 warning-fatal proofs in
 `Section10CapacityLeftoverQuantitative.lean` and
 `Section11ChromaticLowerTailBridge.lean`, so their isolated service packages
 are now only redundant fallbacks.  None of these scheduling facts changes the
 open status of Lemma 10.1, Lemma 10.2, or the final theorem.
 
-## Isolated Lean 4.28 packages
+## Historical Lean 4.28 skeleton checks
 
-The six send-now targets are packaged under the ignored local directory
-`.aristotle/pending-next`.  Each package pins Lean 4.28.0 and Mathlib revision
-`8f9d9cff6bd728b17a24e163c9402775d9e6a365`, and contains exactly one target
-proof hole.
-
-| ID | Local package |
-|---|---|
-| X01 | `.aristotle/pending-next/x01_fixed_subset_quarter_tail` |
-| X02 | `.aristotle/pending-next/x02_density_lift` |
-| X03 | `.aristotle/pending-next/x03_quarter_chain` |
-| X03a fallback | `.aristotle/pending-next/x03a_quarter_neighborhood_step` |
-| X04 | `.aristotle/pending-next/x04_survival_asymptotics` |
-| X06 | `.aristotle/pending-next/x06_capacity_leftover_quantitative` |
-| XI01 | `.aristotle/pending-next/xi01_chromatic_lower_bridge` |
-
-X03a is a smaller one-step fallback preserving the exact quarter constant; it
-does not replace the chain/clique invariant required by X03.  X05 and X07 have
-since been split into faithful generic leaves recorded in
-`X05_X07_NEXT_WAVE.md`; those leaves may be used for proof search before all
-concrete inputs exist, but no concrete X07 instantiation is legitimate until
-its Section IX seed is available.  XI02 remains blocked.  Submitting the final
-theorem as a single goal would merely conceal the unresolved probability
-transport and sequence instantiation.
-
-## Lean 4.28 skeleton replay
-
-Each packaged declaration was elaborated with the cached toolchain and the
-exact pinned Mathlib revision.  These runs validate imports and statement
-typing only; they do not validate the missing target proof.
+The following are historical statement-typing checks from earlier isolated
+Lean 4.28 packages.  They validate imports and declarations only; they are not
+the current package inventory and do not validate a missing target proof.
 
 | ID | Result | Elapsed seconds | Note |
 |---|---:|---:|---|
