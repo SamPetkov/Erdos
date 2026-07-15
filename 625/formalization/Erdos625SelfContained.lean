@@ -90,8 +90,9 @@ dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII global canonical-event estimates, conditioned law,
-and skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+the remaining Section VIII event-nonemptiness, manuscript-specific
+parameterization, and quantitative canonical-event/skeleton estimates; the
+Section IX concrete residual-weight/cycle encoding,
 attachment, and second-moment assembly; the Section X simultaneous-leftover
 and seed-amplification inputs; and the final probabilistic theorem are open.
 The target proposition remains deliberately unproved.  The included #print
@@ -30822,7 +30823,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: c35bb545082ff7419dbc5f8810435e9d0e7b6e7ad817e0287945fd045219e0a0
+Normalized SHA-256: c8543b5a31c0341a2bb87bd4ae07f12554db746629271add057b909223c13076
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31351,7 +31352,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 78e6f2a0408d6f836f90b3fcbbb235dd20e1cef2666aba75d8b7c453723d9621
+Normalized SHA-256: bdda538b48d1cb0b69ad46ab5e8f5ef8cbf8189dd13109cbc74bef39255ebdc7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -31471,10 +31472,15 @@ decomposition, and cellwise zero/cap translations are proved.  The canonical
 high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
-support-indexed cap/no-return translation are also checked.  Constructing and
-counting the global labelled canonical event are now checked through its
-unique labelled-witness fibres.  The remaining incidence/factorial
-specialization, global conditioned law, and skeleton estimates remain open.
+support-indexed cap/no-return translation are also checked. For one fixed
+demand, the literal canonical-demand event has an exact labelled-witness/
+residual sigma decomposition and finite probability factorization. Under the
+displayed strict high-demand and nonemptiness hypotheses, its ambient
+conditional law is the uniform joint witness/residual law; after a reference
+witness is chosen it has a product representation with a uniform standardized
+residual marginal. Manuscript-specific skeleton parameterization, event
+nonemptiness, quantitative probability bounds, and skeleton estimates remain
+open.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

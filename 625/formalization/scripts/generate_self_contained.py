@@ -115,8 +115,9 @@ dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII global canonical-event estimates, conditioned law,
-and skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+the remaining Section VIII event-nonemptiness, manuscript-specific
+parameterization, and quantitative canonical-event/skeleton estimates; the
+Section IX concrete residual-weight/cycle encoding,
 attachment, and second-moment assembly; the Section X simultaneous-leftover
 and seed-amplification inputs; and the final probabilistic theorem are open.
 The target proposition remains deliberately unproved.  The included #print

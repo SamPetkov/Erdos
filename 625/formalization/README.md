@@ -244,44 +244,61 @@ This module alone does not identify the labelled witness.  The accepted
 now proves `existsUnique_canonicalHighDemandWitness`: for each one fixed
 configuration matching, the literal canonical high-cell demand determines a
 unique labelled prescribed-demand witness extended by that matching.  This is
-a deterministic `exists unique` theorem, not a witness count or the
-probability of the global canonical event.  The event-probability form of
-manuscript incidence (8.3), global conditioned-event identification, and the
-endpoint/near/middle skeleton estimates remain open.
+a deterministic `exists unique` theorem, not itself a probability estimate.
+The later fixed-demand conditional-law and factorization bridges below use
+additional displayed hypotheses.  The manuscript-specific skeleton
+specialization and the endpoint/near/middle skeleton estimates remain open.
 
 [`Section8CanonicalEventResidual.lean`](Erdos625/Section8CanonicalEventResidual.lean)
 now proves the exact next deterministic seam for one fixed witness: the full
 canonical-demand event transports through the residual equivalence precisely
 to the half-cap/no-return event.  It does not count the union over canonical
-witnesses or identify that global event's conditioned law.
+witnesses by itself; the later conditional-law module uses the resulting
+fixed-demand equivalence.
 
 [`Section8CanonicalEventCharacterization.lean`](Erdos625/Section8CanonicalEventCharacterization.lean)
 names the corresponding full-event support/cap characterization, while
 [`Section8ResidualDegreeTotal.lean`](Erdos625/Section8ResidualDegreeTotal.lean)
 records equality of total residual row and column degrees.  Both are finite
-deterministic bridges; neither supplies the missing canonical-event probability
-or conditioned-law argument.
+deterministic bridges; neither by itself supplies event nonemptiness, a
+quantitative canonical-event probability estimate, or a skeleton estimate.
 
 [`Section8CanonicalEventCardinality.lean`](Erdos625/Section8CanonicalEventCardinality.lean)
-partitions the literal canonical event by its unique labelled witness and
-proves the exact product of witness count and residual-event count.  It passed
-the remote warning-fatal Lean 4.31 gates.  This is finite counting only;
-the global conditioned-law identification remains open.
+decomposes one fixed-demand literal canonical event by its unique labelled
+witness and proves the exact product of witness count and residual-event count. It passed
+the remote warning-fatal Lean 4.31 gates.  This finite decomposition supplies
+the sigma-space transport used below; it does not prove event nonemptiness or
+any quantitative skeleton estimate.
+
+[`Section8CanonicalConditionalLaw.lean`](Erdos625/Section8CanonicalConditionalLaw.lean)
+formalizes the exact finite conditional-law transport for a *fixed* demand.
+Under the strict high-demand premise and explicit nonemptiness of the literal
+canonical-demand event, conditioning the ambient uniform configuration law on
+that event is reconstruction from the uniform joint sigma law of a labelled
+witness and its residual event.  After choosing a reference witness, this
+joint space is equivalent to a product with one standardized residual-event
+fibre, and the residual coordinate has the uniform finite marginal.  This
+does not prove the event nonempty or likely, instantiate the manuscript's
+skeleton parameters, or establish any quantitative skeleton bound.
 
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and
 column stub mass, the probability of the literal canonical event is its finite
 cardinality divided by the total matching factorial. It passed the remote
-warning-fatal Lean 4.31 gates. It does not yet rewrite
-that numerator through labelled witnesses, formulate a global conditioned law,
-or establish any high-skeleton estimate.
+warning-fatal Lean 4.31 gates.  The companion
+[`Section8CanonicalEventProbabilityFactorization.lean`](Erdos625/Section8CanonicalEventProbabilityFactorization.lean)
+combines this normalization with the fixed-demand cardinality and incidence
+identities to factor that exact probability into labelled-witness incidence
+times the fixed residual-event probability.  These finite identities do not
+prove nonemptiness, a quantitative probability bound, or a high-skeleton
+estimate.
 
 [`Section8LabelledIncidence.lean`](Erdos625/Section8LabelledIncidence.lean)
 proves `labelledWitnessIncidence_eq`, the exact normalized descending-factorial
-identity for labelled prescribed-demand witnesses.  It is counting algebra,
-not yet the full configuration-model probability identity.  Equal ambient
-totals, matching-extension normalization, and canonical-demand specialization
-remain.  [`Section8WitnessDemandFeasibility.lean`](Erdos625/Section8WitnessDemandFeasibility.lean)
+identity for labelled prescribed-demand witnesses.  It is the finite incidence
+factor used by the fixed-demand probability factorization above; the
+manuscript-specific skeleton parameterization and estimates remain separate.
+[`Section8WitnessDemandFeasibility.lean`](Erdos625/Section8WitnessDemandFeasibility.lean)
 proves the separate finite side condition that existence of such a labelled
 witness forces its total demand to be at most the ambient row-stub mass.
 [`Section8NearSkeletonExpansion.lean`](Erdos625/Section8NearSkeletonExpansion.lean)
@@ -523,10 +540,10 @@ prove `Erdos625Statement`; those probabilistic and asymptotic inputs remain to
 be supplied for the manuscript's concrete sequences.
 
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
-signed-moment/overlap assembly, asymptotic diagonal ranges, canonical residual
-conditioned-event packaging, the full probability/specialization form of
-labelled canonical-witness incidence (8.3), skeleton quotient/estimates, and
-full Section 8 assembly, actual-family/weight specialization of the accepted
+signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
+specialization of the exact fixed-demand canonical conditional law and
+probability factorization, skeleton quotient/estimates, and full Section 8
+assembly, actual-family/weight specialization of the accepted
 polymer decomposition, concrete cycle-to-walk enumeration and weight transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,

@@ -275,10 +275,15 @@ decomposition, and cellwise zero/cap translations are proved.  The canonical
 high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
-support-indexed cap/no-return translation are also checked.  Constructing and
-counting the global labelled canonical event are now checked through its
-unique labelled-witness fibres.  The remaining incidence/factorial
-specialization, global conditioned law, and skeleton estimates remain open.
+support-indexed cap/no-return translation are also checked. For one fixed
+demand, the literal canonical-demand event has an exact labelled-witness/
+residual sigma decomposition and finite probability factorization. Under the
+displayed strict high-demand and nonemptiness hypotheses, its ambient
+conditional law is the uniform joint witness/residual law; after a reference
+witness is chosen it has a product representation with a uniform standardized
+residual marginal. Manuscript-specific skeleton parameterization, event
+nonemptiness, quantitative probability bounds, and skeleton estimates remain
+open.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

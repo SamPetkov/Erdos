@@ -131,10 +131,17 @@ proves `labelledWitnessIncidence_eq`, the normalized labelled-witness
 descending-factorial identity, while
 [`Section8NearSkeletonExpansion.lean`](formalization/Erdos625/Section8NearSkeletonExpansion.lean)
 proves `sum_nearSkeletonChoiceWeight_eq_product` for distinguishable optional
-deficit choices.  These are deterministic/counting leaves: they do **not**
-establish the full event-probability form of (8.3), the canonical conditioned
-event, the unlabelled typed-skeleton multiplicity bridge and ratio bounds, or
-the endpoint/near/middle estimates of Lemma 8.3.
+deficit choices.  These are deterministic/counting leaves.  For a fixed demand,
+the formalization also proves the exact finite canonical conditional-law
+transport: under its strict high-demand and nonemptiness hypotheses, the
+ambient conditional law is the uniform joint law of a labelled witness and a
+residual-event fibre.  With a reference witness this becomes a product law,
+and the standardized residual coordinate has the uniform finite marginal.
+The corresponding exact event-probability factorization is also proved as
+labelled-witness incidence times the fixed residual-event probability.  None
+of these facts proves event nonemptiness or a quantitative skeleton estimate;
+the unlabelled typed-skeleton multiplicity bridge, ratio bounds, and the
+endpoint/near/middle estimates of Lemma 8.3 remain open.
 
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,
@@ -284,10 +291,10 @@ interfaces are kernel-checked.  In Section 4, the concrete phase objective,
 its center/slope corridor, its integer decrement, and the resulting probability
 limit remain open; the
 signed first-moment certificate, unordered/sign-summed overlap assembly, asymptotic
-partial-diagonal ranges, canonical residual conditional law, the full
-probability/specialization form of labelled canonical-witness incidence (8.3),
-the skeleton quotient/estimates, and full Section 8 assembly, actual-family
-and weight specialization of the accepted polymer decomposition, concrete
+partial-diagonal ranges, manuscript-specific specialization of the exact
+fixed-demand canonical conditional law and probability factorization, the
+skeleton quotient/estimates, and full Section 8 assembly, actual-family and
+weight specialization of the accepted polymer decomposition, concrete
 cycle-to-walk encoding and weight transfer, finite residual attachment and
 conditioned probability control, and full Section 9 assembly, Section 10's
 simultaneous leftover tail and concrete

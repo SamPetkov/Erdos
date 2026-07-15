@@ -21,10 +21,17 @@ and the full canonical-demand event has a named exact support/cap
 characterization. The normalized
 labelled-witness incidence identity and the distinguishable near-skeleton
 product expansion are checked as finite algebra. The literal global canonical
-event is also counted exactly by partitioning it into labelled-witness fibres.
-Its ambient probability normalization is also proved as a finite bridge; the
-conditioned law, the remaining incidence specialization, and the
-endpoint/near/middle skeleton estimates remain open.
+event for one fixed demand is also counted exactly through its labelled-witness
+fibres.
+Its ambient probability normalization and fixed-demand factorization into
+labelled-witness incidence times a residual-event probability are also proved.
+Under the strict high-demand premise and explicit nonemptiness, its ambient
+conditional law is a uniform joint witness/residual sigma law; after choosing
+a reference witness it is a uniform product with one standardized
+residual-event fibre, whose residual coordinate has the uniform finite
+marginal. These finite identities do not prove event nonemptiness or a
+quantitative probability bound, and the manuscript-specific skeleton
+parameterization and endpoint/near/middle estimates remain open.
 
 In Section IX the generic restriction and support-cardinality bounds,
 injective parity-matrix encoding, literal residual even-edge family and its

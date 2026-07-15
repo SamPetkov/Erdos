@@ -49,7 +49,7 @@ threshold expansion
 | `sum_table_rows_eq_sum_table_columns` | overlap margins | local proved | Instantiate it for the actual overlap table. |
 | `sum_demand_le_sum_table` | before (6.8) | local proved | Combine with the exact witness enumeration. |
 | `no_contingencyTable_of_infeasible_demands` | Lemma 6.2 impossible branch | local proved; integrated | The feasible prescribed-cell count and probability ratio are handled by the configuration-model modules. |
-| `highCells_form_matching` | assertion before (8.2) | local proved | The canonical cutoff-demand and fixed-matching unique labelled-witness leaves are recorded below.  Counting or bounding the global canonical event and proving its residual conditional law remain separate. |
+| `highCells_form_matching` | assertion before (8.2) | local proved | The canonical cutoff-demand and fixed-matching unique labelled-witness leaves are recorded below. The later fixed-demand conditional-law transport is also proved; counting or bounding the event and the skeleton remains separate. |
 | `card_iUnion_stubAllocation` | allocation count before (6.8) | local proved | Use it in the full disjoint-allocation enumeration. |
 | `card_disjoint_extension` | one-cell extension step before (6.8) | local proved | Iterate or replace it by an audited global allocation equivalence. |
 | `card_stubAllocation_mul_factorials` | falling-factorial allocation factor in (6.8) | local proved | Combine row and column selections with the cell bijections. |
@@ -61,19 +61,19 @@ threshold expansion
 | `uniformConfigurationMatching_prescribedCellEvent_apply`, `uniformConfigurationMatching_prescribedCellEvent_le_witness`, `jointPrescribedCellBound` | uniform-law transport and equation (6.8) | local proved | Exact ENNReal probability ratio, witness union bound, and factorial normalization to one global `(m)_x`. |
 | `pow_sub_add_one_le_descFactorial`, `factorial_pow_le_descFactorial_pow`, `real_div_exp_one_pow_le_descFactorial`, `ennreal_div_euler_pow_le_descFactorial` | effective bound (6.10) | local proved | The global lower bound `(m/e)^x ≤ (m)_x` is proved with `0<m` and `x≤m`; no asymptotic replacement is used. |
 | `cellDegreePowerProduct`, `row_column_descendingProduct_le_cellDegreePowerProduct`, `configurationCellTheta`, `configurationCellTheta_pow_product`, `configurationCellWeight_product_eq_global`, `jointPrescribedCellBound_cellwise_of_totalDemand_le`, `not_mem_prescribedCellEvent_of_total_lt`, `jointPrescribedCellBound_cellwise` | product majorant (6.9) | local proved, all cases | Exact cellwise `ℝ≥0∞` product bound with `θ_ab=e d_a d'_b/m`. The feasible-total theorem proves the analytic inequality; the public theorem removes that premise by proving the prescribed event empty when total demand exceeds `m`. All finite-product inversions and denominator conditions are explicit. |
-| `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | first concrete bridge before (8.2) | local proved | The actual configuration cell table has its exact row and column degree margins; under a common cap, its high cells form a partial matching. The canonical cutoff-demand atoms and fixed-matching labelled-witness uniqueness are recorded below; counting the global event and proving its residual law remain open. |
+| `sum_configurationCellCount_row`, `sum_configurationCellCount_column`, `configurationCellCount_highCells_form_matching` | first concrete bridge before (8.2) | local proved | The actual configuration cell table has its exact row and column degree margins; under a common cap, its high cells form a partial matching. The canonical cutoff-demand atoms and fixed-matching labelled-witness uniqueness are recorded below; the later fixed-demand residual conditional law is proved, while quantitative event and skeleton estimates remain open. |
 | `witnessSelectedRowStubs`, `witnessSelectedColumnStubs`, `RemainingRowStub`, `RemainingColumnStub`, `extensionsOfPrescribedDemandWitnessEquivRemaining`, `card_remainingRowStub`, `card_remainingColumnStub`, `card_remainingStubs_eq` | structural complement equivalence after (8.3) | local proved | Extending a fixed exposed witness is exactly equivalent to a bijection of unused stubs, with exact remaining cardinalities. |
 | `uniformOfFintype_map_equiv` | uniform finite-law transport after the residual equivalence | local proved | An equivalence maps the uniform PMF to the uniform PMF. |
 | `uniform_filter_eq_uniformSubtype_map` | generic conditioning of a finite uniform law | local proved | Conditioning on a nonempty finite event is the pushforward of the subtype's uniform law. It does not identify the canonical skeleton event or transport its cap conditions. |
 | `card_selectedRowStubs_in_class`, `card_selectedColumnStubs_in_class` | classwise witness-fibre counts after (8.3) | local proved | The selected stubs in each row or column class have the exact demand-sum cardinality. |
 | `residualRowDegree`, `residualColumnDegree`, `card_remainingRowFiber`, `card_remainingColumnFiber`, `remainingRowStubEquivResidual`, `remainingColumnStubEquivResidual` | exact residual degree fibres after (8.3) | local proved | The unused local fibres have the exact residual degrees and class-preserving equivalences to standard residual stub dependent sums. |
-| `extensionsOfWitnessEquivResidualConfiguration`, `uniform_extensionSubtype_map_residual` | fixed-witness residual matching space after (8.3) | local proved | The extension subtype is equivalent to the residual `ConfigurationMatching` space, and its uniform law pushes forward to the residual uniform law. The deterministic cutoff/support, fixed-fibre uniqueness, and canonical labelled-witness identification for one matching are recorded below; counting the global event, proving manuscript incidence (8.3), and packaging its conditioned law remain open. |
+| `extensionsOfWitnessEquivResidualConfiguration`, `uniform_extensionSubtype_map_residual` | fixed-witness residual matching space after (8.3) | local proved | The extension subtype is equivalent to the residual `ConfigurationMatching` space, and its uniform law pushes forward to the residual uniform law. The deterministic cutoff/support, fixed-fibre uniqueness, and canonical labelled-witness identification for one matching are recorded below; the later fixed-demand conditional-law and factorization packages are proved, while manuscript-specific skeleton specialization and quantitative estimates remain open. |
 | `card_targetFiber_eq_usedTarget_add_residual`, `remainingRowStubEquivResidual_apply_in_class`, `residualConfiguration_targetClass`, `usedRowTargetIndices_eq_witnessCell`, `configurationCellCount_eq_demand_add_residual` | exact fixed-witness residual cell-count decomposition | local proved | Row-class transport and the exact used-cell identification yield `full configurationCellCount = demand + residual configurationCellCount` for every cell of a fixed witness extension. The zero/cap consequences and fixed-matching canonical witness theorem are recorded below; the event-level manuscript incidence (8.3) remains open. |
 | `nat_add_eq_left_iff_right_eq_zero`, `nat_add_le_iff_le_sub_of_le`, `exposedCell_constraints_iff_residual`, `configurationCell_constraints_iff_residual` | exact fixed-witness zero/cap constraints | local proved | The supporting zero equivalence is cap-free. The packaged theorem assumes `hcap : demand a b <= cap` and returns `full = demand` iff residual count is zero together with `full <= cap` iff `residual <= cap - demand a b`. High-skeleton cells use the zero branch; the unshifted off-skeleton cap requires a prior proof that `demand a b = 0`. Canonical event packaging remains open. |
-| `canonicalHighDemand`, `compatiblePairing_unique`, `selectedFiber_eq_fullFiber_of_zero_residual`, `canonicalHighDemand_partialMatching_and_incidence`, `supportIndexed_fullConstraints_iff_residual` | deterministic canonical-support atoms around (8.2)–(8.3) | defined; local proved | The strict `U/2` cutoff retains whole cell demands, has partial-matching support, and has exact on/off-cutoff values. Once source and target fibres are fixed their compatible pairing is unique, zero residual plus the displayed cardinal identities forces a selected fibre to be full, and the simultaneous support-indexed cap/no-return constraints translate exactly under explicit split, demand-cap, and off-support-zero hypotheses. These atoms alone do **not** identify the labelled canonical witness, prove manuscript incidence (8.3), identify the global conditioned skeleton law, or prove Lemma 8.3. |
+| `canonicalHighDemand`, `compatiblePairing_unique`, `selectedFiber_eq_fullFiber_of_zero_residual`, `canonicalHighDemand_partialMatching_and_incidence`, `supportIndexed_fullConstraints_iff_residual` | deterministic canonical-support atoms around (8.2)–(8.3) | defined; local proved | The strict `U/2` cutoff retains whole cell demands, has partial-matching support, and has exact on/off-cutoff values. Once source and target fibres are fixed their compatible pairing is unique, zero residual plus the displayed cardinal identities forces a selected fibre to be full, and the simultaneous support-indexed cap/no-return constraints translate exactly under explicit split, demand-cap, and off-support-zero hypotheses. These atoms alone do **not** identify the labelled canonical witness, prove manuscript incidence (8.3), or prove Lemma 8.3; the later fixed-demand conditional-law transport is recorded below. |
 | `canonicalDemandOfMatching`, `existsUnique_canonicalHighDemandWitness` | canonical labelled witness for one fixed matching | defined; local proved | For every supplied configuration matching, its literal canonical high-cell demand has exactly one labelled prescribed-demand witness extended by that matching.  This deterministic `∃!` theorem neither counts the global canonical event nor proves its probability or conditioned law. |
 | `totalDemand_le_rowTotal_of_witness` | feasibility of a labelled demand witness | local proved | Rowwise disjoint selected stubs imply that total prescribed demand is at most the ambient row-stub mass.  This supplies the natural side condition for later factorial cancellation but no canonical-event probability. |
-| `canonicalDemandEvent`, `fixedWitnessCanonicalDemandEvent`, `canonicalResidualCellEvent`, `mem_fixedWitnessCanonicalDemandEvent_iff_residual` | fixed-witness canonical-event transport | defined; local proved | Under the residual matching equivalence, exact canonical high demand in the ambient extension is equivalent to the residual half-cap/no-return event.  This does not count or condition the global canonical event. |
+| `canonicalDemandEvent`, `fixedWitnessCanonicalDemandEvent`, `canonicalResidualCellEvent`, `mem_fixedWitnessCanonicalDemandEvent_iff_residual` | fixed-witness canonical-event transport | defined; local proved | Under the residual matching equivalence, exact canonical high demand in the ambient extension is equivalent to the residual half-cap/no-return event. This fixed-witness equivalence is used by the later fixed-demand conditional-law transport; it does not itself give event nonemptiness or a quantitative estimate. |
 | `highCellFinset_card_mul_succ_le_total` | high-cell mass bound in Section 8 | local proved | The number of entries above `R`, multiplied by `R+1`, is at most the total table mass. This is not a canonical-skeleton construction. |
 | `sum_sqrt_mul_weight_le` | weighted Cauchy step in the margin-pair sum | local proved | The finite nonnegative square-root inequality is exact. Instantiating it with the actual margin weights and assembling Lemma 8.2 remain open. |
 | `descFactorial_endpoint_transport`, `descFactorial_endpoint_transport_succ`, `descFactorial_min_transport`, `descFactorial_min_transport_succ` | endpoint transport (8.12) | local proved | Exact total natural-number theorem with stronger loss `n^gap`; the manuscript's `(n+1)^gap` and exact `min`/`Nat.dist` forms follow. |
@@ -226,14 +226,17 @@ literal multiplicity-at-least-two residual family and proves its direct
 `2 ^ |R|` count, while `Section9ChooseTwoMass.lean` proves the division-free
 finite inequality (9.21).  Subsequent accepted modules add the fixed-`F`
 capped expansion, recoverable real-valued polymer decomposition/bound, and
-finite endpoint bridge.  It now also identifies uniquely the labelled
-canonical witness for each one fixed matching and proves a relaxed finite
-matching-traversal/geometric bridge.  The accepted collection still does not
-count or bound the global canonical event, prove manuscript incidence (8.3),
-identify its conditioned law, specialize the polymer theorem to the actual
-residual family and `ENNReal` weights, construct the positive residual kernel
-from `q` or the injective weight-preserving cycle-to-walk code, establish the
-attachment estimate, or prove Lemma 8.3 or Lemma 9.1.
+finite endpoint bridge. It also identifies uniquely the labelled canonical
+witness for each one fixed matching and proves a relaxed finite
+matching-traversal/geometric bridge. For a fixed demand, the exact canonical
+conditional law, product representation, standardized residual marginal, and
+event-probability factorization are now formalized under their displayed
+hypotheses. The accepted collection still does not prove event nonemptiness,
+quantitative canonical-event or skeleton estimates, the manuscript-specific
+skeleton specialization, the polymer theorem's actual residual-family and
+`ENNReal` weight instantiation, the positive residual kernel from `q`, an
+injective weight-preserving cycle-to-walk code, the attachment estimate, or
+Lemma 8.3 or Lemma 9.1.
 
 ## Aristotle wave 3: analytic and traversal leaves
 
@@ -476,9 +479,11 @@ proof.
 
 The current source-only proposal queue further splits Section VIII into
 demand-feasibility, residual-total, canonical-characterization, fixed-residual,
-sigma-witness, cardinality, conditioned-law, and probability packages.  For
-Section IX it keeps the full mixed-cycle encoder in parallel with a smaller
-covering-cycle package and the accepted endpoint/path/norm leaves above.  Each
+and open quantitative/skeleton-estimate packages; the fixed-demand
+conditional-law and factorization packages are already recorded as accepted
+local results above. For Section IX it keeps the full mixed-cycle encoder in
+parallel with a smaller covering-cycle package and the accepted endpoint/path/
+norm leaves above. Each
 proposal is pinned to the service's Lean 4.28 environment with one intentional
 target hole.  Queued, running, failed, or completed service status is not
 acceptance; failures are split again, and every returned proof must pass the
@@ -492,15 +497,12 @@ local Lean 4.31 warning-fatal, trust-scan, axiom, and scope gates.
 2. Prove the uniform partial-diagonal estimates (7.7)–(7.25), including the
    phase reduction and deterministic uniform error sequence.  The exact finite
    setup, endpoint factorization, and recurrences (7.1)–(7.6) are locally proved.
-3. Connect the proved deterministic canonical-support atoms to an actual
-   labelled high-skeleton witness and its global conditioned event.  The
-   cutoff demand has partial-matching support and exact on/off-cutoff values;
-   pairing uniqueness once both fibres are fixed, selected-fibre fullness
-   under zero residual, and the generic support-indexed cap/no-return
-   translation are also proved.  The literal labelled canonical witness now
-   has a deterministic existence-and-uniqueness theorem for each fixed
-   matching.  What remains is to count or bound the global event, prove
-   manuscript incidence (8.3), and identify its conditioned skeleton law.
+3. The fixed-demand canonical conditional law and its exact probability
+   factorization are proved under their displayed high-demand, equal-total,
+   reference-witness, and nonemptiness hypotheses. What remains is the
+   manuscript-specific skeleton parameterization and quotient, event
+   nonemptiness and quantitative bounds, and the endpoint/near/middle skeleton
+   estimates; these are not supplied by the finite conditional-law identities.
 4. Prove the endpoint transportation and all near/middle skeleton sums
    (8.16)--(8.29b), including the no-further-near conditioning event.
 5. The manuscript's actual residual even-edge family, its support/count bridge,
@@ -530,6 +532,14 @@ local Lean 4.31 warning-fatal, trust-scan, axiom, and scope gates.
 A second local replay split the remaining Sections 8–9 argument into the
 following dependency-ordered packages.  These are proof obligations, not
 axioms or aliases for the desired conclusion.
+
+**Current-status note (2026-07-15).** Packages 1--4 below are retained as the
+historical decomposition of the fixed-demand setup.  The checked current
+result is narrower than any partition of all matchings by canonical demand:
+under the explicit hypotheses, one fixed canonical-demand event has the exact
+conditional joint/product law, standardized residual marginal, and probability
+factorization recorded above.  Event nonemptiness, manuscript-specific
+skeleton parameterization, and quantitative skeleton estimates remain open.
 
 1. **Deterministic cutoff/support atom completed locally:** the canonical high
    demand is defined, its support is a partial matching, and its on- and
