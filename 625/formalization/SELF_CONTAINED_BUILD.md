@@ -81,7 +81,7 @@ metrics:
 - central `#print axioms` commands included: 521;
 - newline count: 29,719;
 - generated source SHA-256:
-  `740CECACF88EEF3D7D115C0D37B56CEE5A59AFCE49BF965A36259FF9CE95D121`.
+  `0485E877E86B64C0430C1B665D918BB007963FB561D97362F30232E830EDA4BD`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`

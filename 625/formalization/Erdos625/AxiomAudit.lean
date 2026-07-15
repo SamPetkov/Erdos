@@ -123,6 +123,7 @@ import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalEventResidual
+import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.EndpointTransportBounds
