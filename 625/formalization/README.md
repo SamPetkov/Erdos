@@ -403,6 +403,12 @@ proves `existsAbsoluteFiniteEndpointConstant`, the uniform finite real bounds
 `lambda <= C * theta^3` and `q <= C * theta^2` under the exact displayed
 hypotheses.  It does not supply the upstream probabilistic event or parameter
 identification.
+[`Section9ResidualQQuadratic.lean`](Erdos625/Section9ResidualQQuadratic.lean)
+is pending remote Lean 4.31 gates. It transports that real endpoint estimate
+to the literal `ENNReal` `residualQ`, including its exposed-skeleton zero
+branch and the finite/top cell-parameter split. It does not identify a
+conditioned residual table, prove an attachment estimate, or establish Lemma
+9.1.
 
 Three further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)

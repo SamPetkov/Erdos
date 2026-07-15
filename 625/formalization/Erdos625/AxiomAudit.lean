@@ -110,6 +110,7 @@ import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -515,6 +516,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_tau_lt_one_third
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
+#print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff

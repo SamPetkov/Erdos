@@ -115,6 +115,7 @@ import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
