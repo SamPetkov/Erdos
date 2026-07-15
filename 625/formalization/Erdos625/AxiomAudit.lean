@@ -128,6 +128,7 @@ import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalResidualProfile
 import Erdos625.Section8CanonicalEventResidual
+import Erdos625.Section8ResidualEventToSection9
 import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.Section8CanonicalEventProbabilityNormalization
@@ -565,6 +566,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness_residualProfile
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
+#print axioms Erdos625.canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+#print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply

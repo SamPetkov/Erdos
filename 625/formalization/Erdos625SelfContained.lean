@@ -27186,6 +27186,86 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
+Source: Erdos625/Section8ResidualEventToSection9.lean
+Normalized SHA-256: 5714d0c5217c8f65f8795a1f8e90d1d4bf9ceb10c8b42907ab5bc874a5ed40c7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
+
+/-!
+# Section VIII--IX: canonical residual event in Section IX form
+
+The canonical residual half-cap/no-return event of Section VIII is exactly the
+cap/no-return event used by the fixed-`F` expansion of Section IX, once the
+exposed support is written as a finite set.  This is a deterministic event
+identification only; it does not establish a conditioned law or any global
+probability estimate.
+-/
+
+namespace Erdos625
+
+/-- The finite support of the nonzero cells of a prescribed demand table. -/
+def positiveDemandSupport
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) : Finset (A × B) :=
+  Finset.univ.filter (fun e ↦ demand e.1 e.2 ≠ 0)
+
+/-- The Section VIII canonical residual event is the Section IX cap/no-return
+event for the finite support of the exposed demand table. -/
+theorem canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    canonicalResidualCellEvent witness U =
+      ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) := by
+  ext residual
+  constructor
+  · intro h
+    refine ⟨?_, ?_⟩
+    · intro a b
+      exact (h a b).1
+    · intro e he
+      exact (h e.1 e.2).2 (by
+        simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+          true_and] using he)
+  · rintro ⟨hcap, hreturn⟩ a b
+    refine ⟨hcap a b, ?_⟩
+    intro hpositive
+    exact hreturn (a, b) (by
+      simp only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+        true_and]
+      exact hpositive)
+
+/-- The fixed-witness canonical event transports to the Section IX
+cap/no-return event under the existing residual matching equivalence. -/
+theorem mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
+      fixedWitnessExtensionEquivResidual witness extension ∈
+        ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness) := by
+  rw [mem_fixedWitnessCanonicalDemandEvent_iff_residual witness U hhigh extension,
+    canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
+
+#print axioms canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 Source: Erdos625/Section8CanonicalEventCharacterization.lean
 Normalized SHA-256: 302979dcc00452ec5f8218a21cfda4c6e7b2479a943e9f551ec0bd4e513f128b
@@ -30163,7 +30243,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 9df2588a8a6dcb45567a2954e993735470fab4023e3f62bb07d72272a3484dd9
+Normalized SHA-256: 2f96e39f8e2ca1f6db153955669c9421edda1badf0875e5be344ab6ce44f4e8f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -30583,6 +30663,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness_residualProfile
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
+#print axioms Erdos625.canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+#print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
@@ -30675,7 +30757,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 5d9b2621ee489221e9ce7b18c06c619147c70482244e791310c02686eca9ce3d
+Normalized SHA-256: 209346fca268ba3c24394d0a7cd3832a356e6f34d7a154c69f0b08f8ac9884e5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
