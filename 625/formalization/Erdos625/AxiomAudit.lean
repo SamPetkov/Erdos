@@ -185,6 +185,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mcdiarmid_two_sided_of_subgaussian
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
+#print axioms Erdos625.quarterDense_all_larger_of_all_exact
 #print axioms Erdos625.quarterRecurrence_lowerBound
 #print axioms Erdos625.binomialRandom_map_ncard_edgeSet_singleton
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
