@@ -62,7 +62,7 @@ theorem existsAbsoluteResidualQQuadraticBound :
         rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
         · norm_num;
         · rw [ Nat.cast_sub ] <;> norm_num;
-          exact pow_le_pow_right₀ ( by norm_num ) ( Nat.sub_le_sub_right ( Nat.choose_le_succ _ _ ) _ );
+          exact pow_le_pow_right₀ ( by norm_num ) ( by omega );
     · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
         rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat ] at hi ⊢;
         split_ifs <;> norm_num [ Nat.choose ];
