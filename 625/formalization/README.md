@@ -449,6 +449,12 @@ endpoint estimate to the literal `ENNReal` `residualQ`, including its
 exposed-skeleton zero branch and the finite/top cell-parameter split. It does
 not identify a conditioned residual table, prove an attachment estimate, or
 establish Lemma 9.1.
+[`Section9ResidualQDegreeAssembly.lean`](Erdos625/Section9ResidualQDegreeAssembly.lean)
+then composes that pointwise estimate with Euler rescaling and the proved
+degree-square summation bound. Its degree-cap corollary supplies one finite
+positive absolute constant for both residual-q row and column sums at scale
+`U^3 / m`, but still does not identify a conditioned residual family or prove
+an attachment estimate.
 
 Three further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)
