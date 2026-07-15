@@ -33,6 +33,7 @@ import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Combinatorics.SimpleGraph.IncMatrix
 import Mathlib.Data.ENNReal.BigOperators
+import Mathlib.Data.ENNReal.Inv
 import Mathlib.Data.Fin.Tuple.Basic
 import Mathlib.Data.Finite.Prod
 import Mathlib.Data.Finset.Card
@@ -59,6 +60,8 @@ import Mathlib.Logic.Equiv.Fin.Basic
 import Mathlib.Logic.Equiv.Fintype
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 import Mathlib.MeasureTheory.Integral.MeanInequalities
+import Mathlib.MeasureTheory.Measure.Real
+import Mathlib.MeasureTheory.Measure.WithDensityFinite
 import Mathlib.Probability.Combinatorics.BinomialRandomGraph.Defs
 import Mathlib.Probability.Distributions.Binomial
 import Mathlib.Probability.Distributions.Uniform
@@ -67,6 +70,7 @@ import Mathlib.Probability.ProbabilityMassFunction.Constructions
 import Mathlib.Probability.ProbabilityMassFunction.Integrals
 import Mathlib.Probability.UniformOn
 import Mathlib.Tactic
+import Mathlib.Topology.Instances.ENNReal.Lemmas
 import Mathlib.Topology.Order.IntermediateValue
 import Mathlib.Topology.UniformSpace.HeineCantor
 
@@ -85,11 +89,12 @@ dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII conditional residual-law/skeleton estimates,
-Section IX restriction/attachment/second-moment assembly, and the final
-probabilistic theorem are open.  The target proposition remains deliberately
-unproved.  The included #print axioms commands audit the central declarations
-that have actually been proved.
+the remaining Section VIII global canonical-event count, conditioned law, and
+skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+attachment, and second-moment assembly; the Section X simultaneous-leftover
+and seed-amplification inputs; and the final probabilistic theorem are open.
+The target proposition remains deliberately unproved.  The included #print
+axioms commands audit the central declarations that have actually been proved.
 
 Generated deterministically from Erdos625.lean and its transitive local import
 closure.  Each source boundary records the normalized source SHA-256.
@@ -3177,6 +3182,96 @@ END SOURCE MODULE: Erdos625.ProbabilityTools
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RandomGraphUniformLaw
+Source: Erdos625/RandomGraphUniformLaw.lean
+Normalized SHA-256: 3beab4700538bf5e3efc474670aed7dcc6f9631c468c5c5e32e82c55b797df8a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RandomGraphUniformLaw
+
+/-!
+# The half-binomial graph law is uniform
+
+On the finite type of labelled graphs, every singleton under `G(n,1/2)` has
+the same mass. Probability normalization therefore identifies the repository
+measure exactly with `uniformOn Set.univ`.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory
+
+noncomputable section
+
+private theorem probabilityMeasure_eq_uniformOn_univ_of_singleton_eq
+    {Ω : Type*} [Fintype Ω] [MeasurableSpace Ω]
+    [MeasurableSingletonClass Ω] [Nonempty Ω]
+    (μ : Measure Ω) [IsProbabilityMeasure μ]
+    (hμ : ∀ x y : Ω, μ {x} = μ {y}) :
+    μ = uniformOn Set.univ := by
+  classical
+  apply Measure.ext_of_singleton
+  intro x
+  have hsumμ : ∑ y : Ω, μ {y} = 1 := by
+    calc
+      ∑ y : Ω, μ {y} = μ (Finset.univ : Finset Ω) := by
+        simpa using
+          (MeasureTheory.sum_measure_singleton
+            (μ := μ) (s := (Finset.univ : Finset Ω)))
+      _ = 1 := by simp
+  have hsumU : ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} = 1 := by
+    calc
+      ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} =
+          uniformOn (Set.univ : Set Ω) (Finset.univ : Finset Ω) := by
+        simpa using
+          (MeasureTheory.sum_measure_singleton
+            (μ := uniformOn (Set.univ : Set Ω))
+            (s := (Finset.univ : Finset Ω)))
+      _ = 1 := by simp
+  have hμcard : (Fintype.card Ω : ENNReal) * μ {x} = 1 := by
+    calc
+      (Fintype.card Ω : ENNReal) * μ {x} = ∑ y : Ω, μ {y} := by
+        simp only [hμ y x, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+      _ = 1 := hsumμ
+  have hUcard :
+      (Fintype.card Ω : ENNReal) * uniformOn (Set.univ : Set Ω) {x} = 1 := by
+    have hU : ∀ y : Ω,
+        uniformOn (Set.univ : Set Ω) {y} =
+          uniformOn (Set.univ : Set Ω) {x} := by
+      intro y
+      simp [uniformOn_univ]
+    calc
+      (Fintype.card Ω : ENNReal) * uniformOn (Set.univ : Set Ω) {x} =
+          ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} := by
+        simp only [hU y, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+      _ = 1 := hsumU
+  apply (ENNReal.mul_left_inj
+    (a := μ {x}) (b := uniformOn (Set.univ : Set Ω) {x})
+    (by positivity : (Fintype.card Ω : ENNReal) ≠ 0)
+    (by simp : (Fintype.card Ω : ENNReal) ≠ ∞)).mp
+  simpa [mul_comm] using hμcard.trans hUcard.symm
+
+/-- The repository's `G(n,1/2)` measure is exactly uniform on all labelled
+graphs on `Fin n`. -/
+theorem randomGraphMeasure_eq_uniformOn_univ (n : ℕ) :
+    randomGraphMeasure n = uniformOn Set.univ := by
+  classical
+  apply probabilityMeasure_eq_uniformOn_univ_of_singleton_eq
+  intro G H
+  rw [randomGraphMeasure_singleton_uniform,
+    randomGraphMeasure_singleton_uniform]
+
+#print axioms randomGraphMeasure_eq_uniformOn_univ
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RandomGraphUniformLaw
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RandomGraphUniformLaw
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.BoundedDifferences
 Source: Erdos625/BoundedDifferences.lean
 Normalized SHA-256: ef24694e4c30a8770b5368268c62be6a35f441aa5ab6f41174bf7423caaaf3da
@@ -5371,6 +5466,117 @@ END SOURCE MODULE: Erdos625.QuarterRecurrence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10BinomialEdgeCount
+Source: Erdos625/Section10BinomialEdgeCount.lean
+Normalized SHA-256: 00bd7eea4c04c81eb33893f7a82871658fc6c191bacfb35f910e14b0ce51fb0e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10BinomialEdgeCount
+
+/-!
+# Section 10: edge-count law for a finite binomial random graph
+
+This module proves the exact singleton distribution of the number of edges in
+`G(V,p)`.  The statement is the `proof_wanted` currently recorded in
+Mathlib's binomial-random-graph definitions and is the finite probability-law
+bridge needed before applying the quarter-tail estimate to a fixed induced
+vertex set.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory unitInterval
+open scoped ENNReal Finset
+
+/-- The edge count of a finite binomial random graph has the expected
+binomial singleton mass. -/
+theorem binomialRandom_map_ncard_edgeSet_singleton
+    {V : Type*} {p : I} [Finite V] (n : ℕ) :
+    (SimpleGraph.binomialRandom V p).map (fun G ↦ G.edgeSet.ncard) {n} =
+      ((Nat.card V).choose 2).choose n * toNNReal p ^ n *
+        toNNReal (σ p) ^ ((Nat.card V).choose 2 - n) := by
+  classical
+  cases nonempty_fintype V
+  letI : MeasurableSingletonClass (SimpleGraph V) := by
+    constructor
+    intro G
+    rw [← SimpleGraph.measurableEmbedding_edgeSet.measurableSet_image]
+    simp
+  rw [Measure.map_apply (measurable_of_finite _) (MeasurableSet.singleton n)]
+  have hpre : (fun G : SimpleGraph V ↦ G.edgeSet.ncard) ⁻¹' {n} =
+      ↑(Finset.univ.filter fun G : SimpleGraph V ↦ G.edgeSet.ncard = n) := by
+    ext G
+    simp
+  rw [hpre]
+  rw [← MeasureTheory.sum_measure_singleton]
+  simp_rw [SimpleGraph.binomialRandom_singleton]
+  let U : Finset (Sym2 V) := Sym2.diagSetᶜ.toFinset
+  have hcard :
+      #(Finset.univ.filter fun G : SimpleGraph V ↦ G.edgeSet.ncard = n) =
+        ((Fintype.card V).choose 2).choose n := by
+    calc
+      #(Finset.univ.filter fun G : SimpleGraph V ↦ G.edgeSet.ncard = n) =
+          #(U.powersetCard n) := by
+        apply Finset.card_bij (fun G _ ↦ G.edgeSet.toFinset)
+        · intro G hG
+          simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hG
+          rw [Finset.mem_powersetCard]
+          constructor
+          · exact Set.toFinset_subset_toFinset.2 G.edgeSet_subset_compl_diagSet
+          · rw [← Set.ncard_coe_finset]
+            simpa using hG
+        · intro G₁ h₁ G₂ h₂ h
+          apply SimpleGraph.edgeSet_injective
+          exact Set.toFinset_inj.mp h
+        · intro s hs
+          have hs' := Finset.mem_powersetCard.mp hs
+          have hsub : (s : Set (Sym2 V)) ⊆ Sym2.diagSetᶜ := by
+            intro e he
+            have : e ∈ U := hs'.1 he
+            simpa [U] using this
+          have hedge : (SimpleGraph.fromEdgeSet (s : Set (Sym2 V))).edgeSet = s := by
+            rw [SimpleGraph.edgeSet_fromEdgeSet]
+            ext e
+            simp only [Set.mem_sdiff, Finset.mem_coe]
+            constructor
+            · exact fun h ↦ h.1
+            · exact fun he ↦ ⟨he, hsub he⟩
+          refine ⟨SimpleGraph.fromEdgeSet s, ?_, ?_⟩
+          · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+            rw [hedge, Set.ncard_coe_finset]
+            exact hs'.2
+          · apply Finset.coe_injective
+            simpa using hedge
+      _ = ((Fintype.card V).choose 2).choose n := by
+        rw [Finset.card_powersetCard]
+        congr 1
+        rw [show U.card = Fintype.card (Sym2.diagSetᶜ : Set (Sym2 V)) by
+          exact Set.toFinset_card _]
+        exact Sym2.card_diagSet_compl
+  have hsum :
+      ∑ x ∈ (Finset.univ.filter fun G : SimpleGraph V ↦ G.edgeSet.ncard = n),
+          (toNNReal p : ℝ≥0∞) ^ x.edgeSet.ncard *
+            (toNNReal (σ p) : ℝ≥0∞) ^
+              ((Nat.card V).choose 2 - x.edgeSet.ncard) =
+        #(Finset.univ.filter fun G : SimpleGraph V ↦ G.edgeSet.ncard = n) •
+          ((toNNReal p : ℝ≥0∞) ^ n *
+            (toNNReal (σ p) : ℝ≥0∞) ^ ((Nat.card V).choose 2 - n)) := by
+    rw [Finset.sum_congr rfl]
+    · exact Finset.sum_const _
+    · intro G hG
+      rw [(Finset.mem_filter.mp hG).2]
+  rw [hsum, nsmul_eq_mul, hcard, Nat.card_eq_fintype_card]
+  ring
+
+#print axioms binomialRandom_map_ncard_edgeSet_singleton
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10BinomialEdgeCount
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10BinomialEdgeCount
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
 Source: Erdos625/Section10QuarterUnionDecay.lean
 Normalized SHA-256: 871796e915311d681b801f308442d76e8dedc7228de0c34bd18f404b6e50ee90
@@ -5936,6 +6142,54 @@ END SOURCE MODULE: Erdos625.Section10AmplificationScales
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10CapacityLeftoverQuantitative
+Source: Erdos625/Section10CapacityLeftoverQuantitative.lean
+Normalized SHA-256: 04252e8d4ee18ab5a29a7e390d90f3c2dad9ba2460fe83af003736c2b0c8ab80
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10CapacityLeftoverQuantitative
+
+/-!
+# Section 10: quantitative capacity/leftover intersection
+
+This module records the elementary quantitative probability seam used when a
+capacity event and the simultaneous leftover-colouring event are combined.
+No independence hypothesis is needed: failure of their common consequence is
+contained in the union of the two failure events.
+-/
+
+namespace Erdos625
+
+open MeasureTheory Set
+
+/-- If two success events together imply `Good`, then the failure probability
+of `Good` is at most the sum of their two failure-probability bounds. -/
+theorem failure_probability_le_add_of_two_success_events
+    {Ω : Type*} [MeasurableSpace Ω]
+    (mu : Measure Ω) [IsProbabilityMeasure mu]
+    (A B Good : Set Ω)
+    (_hAmeas : MeasurableSet A) (_hBmeas : MeasurableSet B)
+    (hInter : A ∩ B ⊆ Good)
+    (delta epsilon : ℝ)
+    (hA : mu.real Aᶜ ≤ delta)
+    (hB : mu.real Bᶜ ≤ epsilon) :
+    mu.real Goodᶜ ≤ delta + epsilon := by
+  have hcompl : Goodᶜ ⊆ Aᶜ ∪ Bᶜ := by
+    simpa only [compl_inter] using Set.compl_subset_compl.mpr hInter
+  calc
+    mu.real Goodᶜ ≤ mu.real (Aᶜ ∪ Bᶜ) := measureReal_mono hcompl
+    _ ≤ mu.real Aᶜ + mu.real Bᶜ := measureReal_union_le _ _
+    _ ≤ delta + epsilon := add_le_add hA hB
+
+#print axioms failure_probability_le_add_of_two_success_events
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10CapacityLeftoverQuantitative
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10CapacityLeftoverQuantitative
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section11EventAssembly
 Source: Erdos625/Section11EventAssembly.lean
 Normalized SHA-256: c6ffc90927de0474a28ca75caf995524c82c23c2bbd2fe6c44a3666287ebf748
@@ -6224,6 +6478,59 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11ChromaticLowerTailBridge
+Source: Erdos625/Section11ChromaticLowerTailBridge.lean
+Normalized SHA-256: 0058691c39a6daffc5d860f8ecc584fb7077174ca60c590d725ccaedc8e74cf9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11ChromaticLowerTailBridge
+
+/-!
+# Section 11: strict chromatic lower-tail bridge
+
+For a natural-valued statistic, the strict lower event is exactly the
+complement of the corresponding at-most event.  This module transports a
+full-sequence probability-zero upper-tail statement to probability one for
+the strict lower event, allowing the sample space to depend on `n`.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+/-- If the probability that `X n` is at most `k n` tends to zero, then the
+probability of the complementary strict event tends to one. -/
+theorem strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+    {Ω : ℕ → Type*} [∀ n, MeasurableSpace (Ω n)]
+    (mu : ∀ n, Measure (Ω n)) [∀ n, IsProbabilityMeasure (mu n)]
+    (X : ∀ n, Ω n → ℕ) (k : ℕ → ℕ)
+    (hMeas : ∀ n, MeasurableSet {ω | X n ω ≤ k n})
+    (hAtMost : Tendsto
+      (fun n ↦ mu n {ω | X n ω ≤ k n}) atTop (nhds 0)) :
+    Tendsto (fun n ↦ mu n {ω | k n < X n ω}) atTop (nhds 1) := by
+  have hmeasure (n : ℕ) :
+      mu n {ω | k n < X n ω} = 1 - mu n {ω | X n ω ≤ k n} := by
+    rw [show {ω | k n < X n ω} = {ω | X n ω ≤ k n}ᶜ by
+      ext ω
+      simp]
+    simpa only [measure_univ] using
+      measure_compl (hMeas n) (measure_ne_top (mu n) _)
+  have hsub : Tendsto
+      (fun n ↦ (1 : ℝ≥0∞) - mu n {ω | X n ω ≤ k n}) atTop
+      (nhds ((1 : ℝ≥0∞) - 0)) :=
+    (ENNReal.continuous_sub_left (by simp)).tendsto 0 |>.comp hAtMost
+  simpa only [hmeasure, tsub_zero] using hsub
+
+#print axioms strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11ChromaticLowerTailBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11ChromaticLowerTailBridge
 ========================================================================== -/
 
 /- ==========================================================================
@@ -22948,6 +23255,347 @@ END SOURCE MODULE: Erdos625.Section9TraversalKernel
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9EndpointKernel
+Source: Erdos625/Section9EndpointKernel.lean
+Normalized SHA-256: cdec39ca8e78f488dbd17abfcd1c70e5b0a4c683788809ff1f983bee714ce5f8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9EndpointKernel
+
+/-!
+# Section 9: endpoint-refined positive walk kernels
+
+The scalar walk mass in `Section9TraversalKernel` forgets the endpoint.  The
+cycle-cutting argument also needs the endpoint-resolved kernel obtained by
+summing all positive path lengths up to a finite cutoff.  This module proves
+that summing over endpoints recovers the scalar walk mass and hence inherits
+the same exact geometric row bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Endpoint-resolved mass of all length-`ell` walks. -/
+def finiteKernelEndpointMass {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) : ℕ → V → V → ℝ≥0∞
+  | 0, v, w => if v = w then 1 else 0
+  | ell + 1, v, w => ∑ u, K v u * finiteKernelEndpointMass K ell u w
+
+/-- The endpoint kernel obtained by summing lengths `1, ..., L`. -/
+def finitePositiveWalkKernel {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (L : ℕ) (v w : V) : ℝ≥0∞ :=
+  ∑ ell ∈ Finset.range L, finiteKernelEndpointMass K (ell + 1) v w
+
+/-- The endpoint-refined positive kernel has row mass bounded by the exact
+finite geometric relaxation `tau * (1 - tau)⁻¹`. -/
+theorem finitePositiveWalkKernel_rowSum_le_geometric
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (tau : ℝ≥0∞)
+    (hRow : ∀ v, ∑ w, K v w ≤ tau) (L : ℕ) :
+    (∀ ell v,
+        (∑ w, finiteKernelEndpointMass K ell v w) =
+          finiteKernelWalkMass K ell v) ∧
+      ∀ v, ∑ w, finitePositiveWalkKernel K L v w ≤
+        tau * (1 - tau)⁻¹ := by
+  have hEndpoint : ∀ ell v,
+      (∑ w, finiteKernelEndpointMass K ell v w) =
+        finiteKernelWalkMass K ell v := by
+    intro ell v
+    induction ell generalizing v with
+    | zero => simp [finiteKernelEndpointMass, finiteKernelWalkMass]
+    | succ ell ih =>
+        simp only [finiteKernelEndpointMass, finiteKernelWalkMass]
+        rw [Finset.sum_comm]
+        apply Finset.sum_congr rfl
+        intro u hu
+        rw [← Finset.mul_sum, ih u]
+  refine ⟨hEndpoint, ?_⟩
+  intro v
+  calc
+    (∑ w, finitePositiveWalkKernel K L v w) =
+        ∑ ell ∈ Finset.range L,
+          ∑ w, finiteKernelEndpointMass K (ell + 1) v w := by
+      simp only [finitePositiveWalkKernel]
+      rw [Finset.sum_comm]
+    _ = ∑ ell ∈ Finset.range L,
+          finiteKernelWalkMass K (ell + 1) v := by
+      apply Finset.sum_congr rfl
+      intro ell hell
+      rw [hEndpoint]
+    _ ≤ ∑ ell ∈ Finset.range L, tau ^ (ell + 1) := by
+      apply Finset.sum_le_sum
+      intro ell hell
+      exact finiteKernelWalkMass_le_pow K tau hRow (ell + 1) v
+    _ ≤ tau * (1 - tau)⁻¹ := sum_range_pow_succ_le_geometric tau L
+
+#print axioms finitePositiveWalkKernel_rowSum_le_geometric
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9EndpointKernel
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9EndpointKernel
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ExplicitPathTerms
+Source: Erdos625/Section9ExplicitPathTerms.lean
+Normalized SHA-256: aa7957ccb1fc7a3779d769d26fa815c8080706c7fa83371e0fc76988a9d9b45f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ExplicitPathTerms
+
+/-!
+# Section 9: explicit paths as kernel summands
+
+Each residual path appearing in a cycle cut contributes one nonnegative term
+to the endpoint kernel.  Likewise, every explicit sequence of block states is
+one term of the scalar walk-mass recursion.  These are pointwise weight
+transfers; no cycle encoding or aggregate enumeration is assumed.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Weight of one explicitly specified length-`ell` vertex path. -/
+def explicitPathWeight {V : Type*} [Fintype V]
+    (K : V → V → ℝ≥0∞) {ell : ℕ}
+    (vertex : Fin (ell + 1) → V) : ℝ≥0∞ :=
+  ∏ i : Fin ell, K (vertex i.castSucc) (vertex i.succ)
+
+/-- Weight of one explicitly specified chain starting at `v`. -/
+def explicitChainWeight {V : Type*}
+    (K : V → V → ℝ≥0∞) : V → List V → ℝ≥0∞
+  | _, [] => 1
+  | v, w :: tail => K v w * explicitChainWeight K w tail
+
+/-- An explicit path is one summand of its endpoint kernel, a positive path
+of length at most `L` is one summand of the positive kernel, and an explicit
+state chain is one summand of the scalar walk mass. -/
+theorem explicit_terms_le_kernel_masses
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) :
+    (∀ (ell : ℕ) (vertex : Fin (ell + 1) → V),
+      explicitPathWeight K vertex ≤
+        finiteKernelEndpointMass K ell (vertex 0) (vertex (Fin.last ell))) ∧
+    (∀ (L ell : ℕ), 0 < ell → ell ≤ L →
+      ∀ vertex : Fin (ell + 1) → V,
+        explicitPathWeight K vertex ≤
+          finitePositiveWalkKernel K L (vertex 0) (vertex (Fin.last ell))) ∧
+    (∀ (v : V) (tail : List V),
+      explicitChainWeight K v tail ≤
+        finiteKernelWalkMass K tail.length v) := by
+  have hPath : ∀ (ell : ℕ) (vertex : Fin (ell + 1) → V),
+      explicitPathWeight K vertex ≤
+        finiteKernelEndpointMass K ell (vertex 0) (vertex (Fin.last ell)) := by
+    intro ell vertex
+    induction' ell with ell ih
+    · simp +decide [explicitPathWeight, finiteKernelEndpointMass]
+    · have hsplit : explicitPathWeight K vertex =
+          K (vertex 0) (vertex 1) *
+            explicitPathWeight K (fun i : Fin (ell + 1) => vertex i.succ) := by
+        simpa [explicitPathWeight, Fin.castSucc_succ] using
+          (Fin.prod_univ_succ
+            (fun i : Fin (ell + 1) =>
+              K (vertex i.castSucc) (vertex i.succ)))
+      rw [hsplit]
+      refine (mul_le_mul_right
+        (ih (fun i : Fin (ell + 1) => vertex i.succ))
+        (K (vertex 0) (vertex 1))).trans ?_
+      simpa [finiteKernelEndpointMass, Fin.succ_last] using
+        (Finset.single_le_sum
+          (s := Finset.univ)
+          (f := fun u : V =>
+            K (vertex 0) u *
+              finiteKernelEndpointMass K ell u (vertex (Fin.last (ell + 1))))
+          (fun u _ => bot_le) (Finset.mem_univ (vertex 1)))
+  have hPositive : ∀ (L ell : ℕ), 0 < ell → ell ≤ L →
+      ∀ vertex : Fin (ell + 1) → V,
+        explicitPathWeight K vertex ≤
+          finitePositiveWalkKernel K L (vertex 0) (vertex (Fin.last ell)) := by
+    intro L ell hpos hle vertex
+    refine (hPath ell vertex).trans ?_
+    unfold finitePositiveWalkKernel
+    have hmem : ell - 1 ∈ Finset.range L :=
+      Finset.mem_range.mpr
+        (show ell - 1 < L from
+          lt_of_lt_of_le (Nat.pred_lt hpos.ne') hle)
+    have hsingle :
+        finiteKernelEndpointMass K ((ell - 1) + 1)
+            (vertex 0) (vertex (Fin.last ell)) ≤
+          ∑ j ∈ Finset.range L,
+            finiteKernelEndpointMass K (j + 1)
+              (vertex 0) (vertex (Fin.last ell)) :=
+      Finset.single_le_sum
+        (s := Finset.range L)
+        (f := fun j => finiteKernelEndpointMass K (j + 1)
+          (vertex 0) (vertex (Fin.last ell)))
+        (fun j _ => bot_le) hmem
+    simpa only [Nat.sub_add_cancel hpos] using hsingle
+  have hChain : ∀ (v : V) (tail : List V),
+      explicitChainWeight K v tail ≤
+        finiteKernelWalkMass K tail.length v := by
+    intro v tail
+    induction tail generalizing v with
+    | nil => rfl
+    | cons w tail ih =>
+        simp only [explicitChainWeight, List.length_cons,
+          finiteKernelWalkMass]
+        exact (mul_le_mul_right (ih w) (K v w)).trans
+          (Finset.single_le_sum
+            (s := Finset.univ)
+            (f := fun u : V => K v u * finiteKernelWalkMass K tail.length u)
+            (fun u _ => bot_le) (Finset.mem_univ w))
+  exact ⟨hPath, hPositive, hChain⟩
+
+#print axioms explicit_terms_le_kernel_masses
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ExplicitPathTerms
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ExplicitPathTerms
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9QDegreeBound
+Source: Erdos625/Section9QDegreeBound.lean
+Normalized SHA-256: 4dc84d1a3baaedec815d905acd5a4913b6236f342ee712002218c800f0e614f1
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9QDegreeBound
+
+/-!
+# Section 9: row and column norm of the residual `q` kernel
+
+The endpoint estimate supplies a pointwise quadratic bound for each residual
+cell.  Degree caps and the exact row/column totals turn that estimate into the
+uniform row and column norms required by the positive traversal kernel.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- A pointwise degree-square estimate gives both row and column kernel-norm
+bounds `kappa * U^3 / m`. -/
+theorem q_row_column_le_of_pointwise_degree_square
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (q : A → B → ℝ≥0∞)
+    (U m : ℕ) (kappa : ℝ≥0∞)
+    (hm : 0 < m)
+    (hrowTotal : ∑ a, row a = m)
+    (hcolTotal : ∑ b, col b = m)
+    (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U)
+    (hq : ∀ a b,
+      q a b ≤
+        kappa * (row a : ℝ≥0∞) ^ 2 * (col b : ℝ≥0∞) ^ 2 /
+          (m : ℝ≥0∞) ^ 2) :
+    (∀ a, ∑ b, q a b ≤ kappa * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) ∧
+    (∀ b, ∑ a, q a b ≤ kappa * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) := by
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by exact_mod_cast hm.ne'
+  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
+  have hcancel (x : ℝ≥0∞) :
+      x / (m : ℝ≥0∞) =
+        (x * (m : ℝ≥0∞)) / (m : ℝ≥0∞) ^ 2 := by
+    apply (ENNReal.eq_div_iff (pow_ne_zero 2 hm0) (by finiteness)).2
+    have hdiv : (m : ℝ≥0∞) * (x / (m : ℝ≥0∞)) = x :=
+      (ENNReal.eq_div_iff hm0 hmt).1 rfl
+    calc
+      (m : ℝ≥0∞) ^ 2 * (x / (m : ℝ≥0∞)) =
+          (m : ℝ≥0∞) * ((m : ℝ≥0∞) * (x / (m : ℝ≥0∞))) := by ring
+      _ = (m : ℝ≥0∞) * x := by rw [hdiv]
+      _ = x * (m : ℝ≥0∞) := mul_comm _ _
+  refine' ⟨fun a => le_trans (Finset.sum_le_sum fun b _ => hq a b) _,
+    fun b => le_trans (Finset.sum_le_sum fun a _ => hq a b) _⟩
+  · simp +decide only [div_eq_mul_inv, mul_right_comm]
+    simp +decide [← Finset.mul_sum _ _ _, ← Finset.sum_mul]
+    have h_simp : (row a : ℝ≥0∞) ^ 2 *
+        (∑ b, (col b : ℝ≥0∞) ^ 2) ≤ U ^ 3 * m := by
+      have h_simp : (row a : ℝ≥0∞) ^ 2 *
+          (∑ b, (col b : ℝ≥0∞) ^ 2) ≤
+          (U : ℝ≥0∞) ^ 2 * (∑ b, (col b : ℝ≥0∞) * U) := by
+        gcongr <;> norm_cast
+        · exact hrowCap a
+        · nlinarith only [hcolCap ‹_›]
+      convert h_simp using 1
+      all_goals norm_cast
+      all_goals simp +decide [← Finset.sum_mul _ _ _, hcolTotal]
+      all_goals ring
+    convert mul_le_mul_right h_simp
+      (kappa * (m ^ 2 : ℝ≥0∞)⁻¹) using 1
+    · rfl
+    · ring
+    · calc
+        kappa * (m : ℝ≥0∞)⁻¹ * (U : ℝ≥0∞) ^ 3 =
+            (kappa * (U : ℝ≥0∞) ^ 3) / (m : ℝ≥0∞) := by
+          rw [div_eq_mul_inv]
+          ring
+        _ = ((kappa * (U : ℝ≥0∞) ^ 3) * (m : ℝ≥0∞)) /
+            (m : ℝ≥0∞) ^ 2 := hcancel _
+        _ = kappa * ((m : ℝ≥0∞) ^ 2)⁻¹ *
+            ((U : ℝ≥0∞) ^ 3 * (m : ℝ≥0∞)) := by
+          rw [div_eq_mul_inv]
+          ring
+  · simp +decide only [mul_assoc, div_eq_mul_inv]
+    simp +decide [← mul_assoc, ← Finset.mul_sum _ _ _, ← Finset.sum_mul]
+    have h_simp : (∑ i, (row i : ℝ≥0∞) ^ 2) *
+        (col b : ℝ≥0∞) ^ 2 ≤
+        (U : ℝ≥0∞) ^ 3 * (m : ℝ≥0∞) := by
+      have h_simp : (∑ i, (row i : ℝ≥0∞) ^ 2) ≤
+          (U : ℝ≥0∞) * (m : ℝ≥0∞) := by
+        norm_cast
+        exact le_trans
+          (Finset.sum_le_sum fun _ _ => Nat.mul_le_mul_left _ (hrowCap _))
+          (by simp +decide [← hrowTotal, mul_comm, Finset.mul_sum _ _ _])
+      refine' le_trans (mul_le_mul_left h_simp _) _
+      norm_cast
+      nlinarith only
+        [show U * m * col b ^ 2 ≤ U * m * U ^ 2 by
+            exact Nat.mul_le_mul_left _
+              (Nat.pow_le_pow_left (hcolCap b) 2),
+          show U ^ 3 * m ≥ U * m * U ^ 2 by
+            nlinarith only
+              [show U ^ 3 ≥ U ^ 2 * U by
+                  nlinarith only [show U ^ 2 ≥ 0 by positivity],
+                show U * m ≥ 0 by positivity]]
+    convert mul_le_mul_right h_simp kappa |>
+      mul_le_mul_left <| (m ^ 2 : ℝ≥0∞)⁻¹ using 1
+    · rfl
+    · ring
+    · calc
+        kappa * (U : ℝ≥0∞) ^ 3 * (m : ℝ≥0∞)⁻¹ =
+            (kappa * (U : ℝ≥0∞) ^ 3) / (m : ℝ≥0∞) := by
+          rw [div_eq_mul_inv]
+        _ = ((kappa * (U : ℝ≥0∞) ^ 3) * (m : ℝ≥0∞)) /
+            (m : ℝ≥0∞) ^ 2 := hcancel _
+        _ = kappa * ((U : ℝ≥0∞) ^ 3 * (m : ℝ≥0∞)) *
+            ((m : ℝ≥0∞) ^ 2)⁻¹ := by
+          rw [div_eq_mul_inv]
+          ring
+
+#print axioms q_row_column_le_of_pointwise_degree_square
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9QDegreeBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9QDegreeBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
 Source: Erdos625/Section9MatchingTraversalBridge.lean
 Normalized SHA-256: 2043628ce6bb659136e47ddc9c146a6702a3517e5a28b9a9ce71127ec2f3243d
@@ -25830,6 +26478,137 @@ END SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
+Source: Erdos625/Section8CanonicalEventResidual.lean
+Normalized SHA-256: b1bdee927da3d5615f5eec59e3bebe5de6db13ed3095f1545ba213c80c24988c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
+
+/-!
+# Section 8: canonical event under the residual equivalence
+
+For one fixed labelled prescribed-demand exposure, this module identifies the
+event that the full matching has exactly the canonical high-cell table with
+the residual event imposing the half-cap off that table and no return to its
+nonzero support.  This is a deterministic event equivalence; counting the
+global event and identifying its conditioned probability law remain separate.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Full configurations whose literal canonical high-cell demand is the fixed
+table `demand`. -/
+def canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Set (ConfigurationMatching row col) :=
+  {matching | canonicalDemandOfMatching matching U = demand}
+
+/-- Inside the extension subtype of one labelled witness, require the ambient
+matching to have exactly the prescribed canonical high-cell table. -/
+def fixedWitnessCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Set (fixedWitnessExtensionEvent witness) :=
+  {extension | canonicalDemandOfMatching extension.1 U = demand}
+
+/-- The canonical residual cap/no-return event: every residual cell is at most
+`U / 2`, and cells in the nonzero exposed support receive no further pair. -/
+def canonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Set (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness)) :=
+  {residual | ∀ a b,
+    configurationCellCount residual a b ≤ U / 2 ∧
+      (demand a b ≠ 0 → configurationCellCount residual a b = 0)}
+
+/-- For one fixed labelled exposure, the canonical full event transports
+exactly to the residual half-cap/no-return event. -/
+theorem mem_fixedWitnessCanonicalDemandEvent_iff_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
+      fixedWitnessExtensionEquivResidual witness extension ∈
+        canonicalResidualCellEvent witness U := by
+  change canonicalHighDemand (configurationCellCount extension.1) U = demand ↔ _
+  rw [canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    (configurationCellCount extension.1) demand U hhigh]
+  constructor
+  · rintro ⟨hsupport, hcapped⟩ a b
+    have hsplit := configurationCellCount_eq_demand_add_residual
+      witness extension a b
+    change configurationCellCount extension.1 a b = demand a b +
+      configurationCellCount
+        (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+    by_cases hab : demand a b = 0
+    · constructor
+      · calc
+          configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b =
+              configurationCellCount extension.1 a b := by
+                simpa [hab] using hsplit.symm
+          _ ≤ U / 2 := hcapped a b hab
+      · exact fun h ↦ (h hab).elim
+    · have hzero : configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b = 0 := by
+        have heq := hsupport a b hab
+        apply Nat.add_left_cancel (n := demand a b)
+        simpa using hsplit.symm.trans heq
+      exact ⟨by simp [hzero], fun _ ↦ hzero⟩
+  · intro h
+    constructor
+    · intro a b hab
+      have hsplit := configurationCellCount_eq_demand_add_residual
+        witness extension a b
+      change configurationCellCount extension.1 a b = demand a b +
+        configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+      have hzero := (h a b).2 hab
+      calc
+        configurationCellCount extension.1 a b = demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
+        _ = demand a b := by simp [hzero]
+    · intro a b hab
+      have hsplit := configurationCellCount_eq_demand_add_residual
+        witness extension a b
+      change configurationCellCount extension.1 a b = demand a b +
+        configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+      have hcap := (h a b).1
+      calc
+        configurationCellCount extension.1 a b = demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
+        _ = configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := by
+            simp [hab]
+        _ ≤ U / 2 := hcap
+
+#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
 Source: Erdos625/Section8LabelledIncidence.lean
 Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
@@ -25900,6 +26679,51 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8LabelledIncidence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
+Source: Erdos625/Section8WitnessDemandFeasibility.lean
+Normalized SHA-256: f22be5b82d996e47d647dce7c2fe81c2501f48e32d26c24a536b9b4d592810de
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
+
+/-!
+# Section 8: prescribed-demand feasibility
+
+A labelled prescribed-demand witness chooses pairwise disjoint row stubs in
+every row class.  Consequently its total demand cannot exceed the ambient
+row-stub mass.  This is the finite feasibility condition needed before
+factorial cancellation in the canonical-event count.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Existence of a labelled prescribed-demand witness forces total demand not
+to exceed the ambient row-stub mass. -/
+theorem totalDemand_le_rowTotal_of_witness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    totalDemand demand ≤ ∑ a, row a := by
+  refine Finset.sum_le_sum fun a _ ↦ ?_
+  have hcard := card_iUnion_stubAllocation (witness.1 a)
+  calc
+    ∑ b, demand a b =
+        (Finset.univ.biUnion (witness.1 a).1).card := hcard.symm
+    _ ≤ (Finset.univ : Finset (Fin (row a))).card := Finset.card_le_univ _
+    _ = row a := by simp
+
+#print axioms totalDemand_le_rowTotal_of_witness
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
 ========================================================================== -/
 
 /- ==========================================================================
@@ -28216,7 +29040,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 76aefa036f9f8f294ce0909f6598b9ad2cc7afc7a6de807847c892c99f110ea5
+Normalized SHA-256: 2b507aeda069c4f62cf3caa5a768998424ae130e38ca9864e79119ba6e9368d4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -28237,6 +29061,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.gapConstant_pos
 #print axioms Erdos625.randomGraphMeasure_singleton
 #print axioms Erdos625.randomGraphMeasure_singleton_uniform
+#print axioms Erdos625.randomGraphMeasure_eq_uniformOn_univ
 #print axioms Erdos625.measurableSet_gapEvent
 #print axioms Erdos625.gapProbability_le_one
 #print axioms Erdos625.erdos625Statement_iff_real
@@ -28255,6 +29080,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.binomialHalf_lowerQuarter_le_exp
 #print axioms Erdos625.exists_vertex_quarter_degree
 #print axioms Erdos625.quarterRecurrence_lowerBound
+#print axioms Erdos625.binomialRandom_map_ncard_edgeSet_singleton
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
 #print axioms Erdos625.simultaneous_induced_chromatic_bound
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
@@ -28263,9 +29089,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.realCubeRoot_isLittleO
 #print axioms Erdos625.one_isLittleO_gapScale
 #print axioms Erdos625.amplificationError_isLittleO_gapBase
+#print axioms Erdos625.failure_probability_le_add_of_two_success_events
 #print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
 #print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
 #print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
+#print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -28566,6 +29394,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_m₀
 #print axioms Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard
 #print axioms Erdos625.card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass
+#print axioms Erdos625.finitePositiveWalkKernel_rowSum_le_geometric
+#print axioms Erdos625.explicit_terms_le_kernel_masses
+#print axioms Erdos625.q_row_column_le_of_pointwise_degree_square
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -28622,7 +29453,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.canonicalHighDemand_partialMatching_and_incidence
 #print axioms Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off
 #print axioms Erdos625.existsUnique_canonicalHighDemandWitness
+#print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.labelledWitnessIncidence_eq
+#print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
@@ -28703,7 +29536,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 2e2744626468cbf08059ac190f709cdc0599751544b1e9a4de30d47f85fda5cc
+Normalized SHA-256: cd38d1ea414fbeb8eb921db309cddae7d27f4515544954161dccef0e540da6d4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -28734,7 +29567,11 @@ tail is also inverted with the exact `sqrt (2 * v * Lambda)` cost used in
 `sqrt ((n - 1) * Lambda / 2)` endpoint-to-expectation bound for `n ≥ 2`.
 The matching one-sided lower tail then proves the exact manuscript (10.8)
 failure bound `exp (-r)`, including the non-strict boundary event and with no
-two-sided factor.
+two-sided factor.  The exact finite binomial law for graph edge-count
+singletons, the quantitative two-success-event failure seam, and the generic
+strict-lower-event complement limit are also checked.  The fixed induced-
+complement transport, one simultaneous leftover-colouring event, and the
+concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon
@@ -28820,9 +29657,12 @@ high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
 support-indexed cap/no-return translation are also checked.  Constructing and
-counting the labelled canonical witness, proving the manuscript incidence
-formula (8.3), packaging the global conditioned event, and the skeleton
-estimates remain open.  The exact descending-factorial endpoint transport used
+counting the global labelled canonical event, proving the manuscript incidence
+formula (8.3), packaging its conditioned law, and the skeleton estimates remain
+open.  For each fixed matching, the literal canonical demand already has a
+unique extended labelled witness; existence of any labelled demand witness
+also forces total demand not to exceed the ambient row-stub mass.  The exact
+descending-factorial endpoint transport used
 in (8.12) is proved independently, with the stronger loss `n^gap` and exact
 minimum/absolute-difference specializations.
 The finite degree-moment estimates and exact configuration-cell theta
@@ -28837,9 +29677,12 @@ literal configuration support contains at most half the residual stub mass.
 The binary cycle-space dimension and exact `2 ^ cycleRank` cardinality are now
 proved for literal finite even edge subsets.  Finite kernel walk mass is bounded
 by powers of its row norm, with the positive-length and even-length geometric
-tails used in (9.16)--(9.18).  The recoverable cycle-to-walk encodings, concrete
-kernel transfer, attachment estimates, and complete Lemma 9.1/Proposition 9.2
-assembly remain open.
+tails used in (9.16)--(9.18).  Endpoint-resolved positive walk mass inherits the
+same geometric row bound, each explicit path or chain is bounded by its kernel
+summand, and a supplied pointwise degree-square estimate yields the required
+abstract `q` row and column norms.  The recoverable cycle-to-walk encodings,
+concrete residual-table/kernel transfer, attachment estimates, and complete
+Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

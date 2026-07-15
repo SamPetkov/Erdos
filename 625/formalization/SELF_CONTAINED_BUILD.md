@@ -13,7 +13,10 @@ zero/cap translations are proved. The canonical cutoff demand, its
 partial-matching and exact on/off-support values, conditional selected-fibre and
 compatible-pairing uniqueness, the support-indexed full/residual constraint
 equivalence, and deterministic existence and uniqueness of the labelled
-canonical witness for one supplied matching are also proved. The normalized
+canonical witness for one supplied matching are also proved. Existence of a
+labelled demand witness forces total demand below the ambient row-stub mass,
+and for one fixed witness the full canonical event transports exactly to the
+residual half-cap/no-return event. The normalized
 labelled-witness incidence identity and the distinguishable near-skeleton
 product expansion are checked as finite algebra. Counting and identifying the
 global canonical event, its conditioned law, the remaining incidence
@@ -27,21 +30,27 @@ fixed-`F` capped expansion, finite analytic endpoint bounds, and deterministic
 small-residual estimate are proved. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound, plus abstract and matching-aware finite geometric traversal
-bounds. The canonical-skeleton instantiation, actual residual-family and
-`ENNReal` weight specialization, positive residual kernel from `q`, injective
-weight-preserving cycle-to-walk encoding, conditioned attachment estimate, and
-second-moment assembly remain open.
+bounds. It now also contains the endpoint-resolved positive kernel, pointwise
+explicit-path/chain summand bounds, and the generic row/column norm consequence
+of a supplied degree-square `q` estimate. The canonical-skeleton
+instantiation, actual residual-family and `ENNReal` weight specialization,
+concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
+encoding, conditioned attachment estimate, and second-moment assembly remain
+open.
 
 Section X's quarter-density high-degree step, exact neighbourhood recurrence,
 quarter-union decay, deterministic simultaneous greedy-colouring implication,
 growing amplification radius, and all four deterministic little-`o`
-contributions in (10.11)--(10.12) are proved. The graph-probability transport
-giving the required one simultaneous event and the concrete seed-amplification
-assembly remain open. Section XI's deterministic event inclusion, generic
-probability-one intersection, eventual threshold reduction, exact scale
-divergence, and final conditional seam are proved, but the seam's concrete tail
-inputs and threshold instantiation—and therefore the final probabilistic
-theorem—remain open.
+contributions in (10.11)--(10.12) are proved. The exact finite binomial
+edge-count law, equality of the half-binomial graph law with the uniform law,
+and the no-independence quantitative two-event failure seam are also checked.
+The graph-probability transport giving the required one
+simultaneous event and the concrete seed-amplification assembly remain open.
+Section XI's deterministic event inclusion, generic probability-one
+intersection, strict-lower complement bridge, eventual threshold reduction,
+exact scale divergence, and final conditional seam are proved, but the seam's
+concrete tail inputs and threshold instantiation—and therefore the final
+probabilistic theorem—remain open.
 
 ## Regeneration
 
@@ -63,20 +72,22 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean `
   -o .lake/build/lib/lean/Erdos625SelfContained.olean
 ```
 
-Verification performed on 2026-07-15 with the pinned Lean 4.31.0 toolchain and
-Mathlib v4.31.0:
+The source checkpoint generated on 2026-07-15 has the following reproducible
+metrics:
 
-- result: success, exit code 0;
-- wall time: 332.304 seconds in the current warmed dependency environment;
-- local source modules included: 137;
-- external Mathlib imports: 71;
-- central `#print axioms` commands included: 503;
-- physical lines: 28,874;
+- regeneration check: success, exit code 0;
+- local source modules included: 146;
+- external Mathlib imports: 75;
+- central `#print axioms` commands included: 521;
+- newline count: 29,717;
 - generated source SHA-256:
-  `E2BEE24D196309FAB3500CC361DA57605AC24905F1A337858477EC90C8B7C29B`;
-- generated `.olean` size: 26,860,200 bytes;
-- generated `.olean` SHA-256:
-  `AE68AE47EC242E6048F635A870C3B35E3BA930270F34999D5C8B105E97171DFD`.
+  `6B8E39E0DA31B1692B0A229D97541D3442E9CAE577E1741B644AE3166724BED1`.
+
+The warning-fatal compilation of this exact checkpoint is performed by the
+repository's GitHub Actions workflow, after the modular `lake build --wfail`
+gate.  This deliberately moves the memory-intensive whole-project acceptance
+run off the development workstation.  A checkpoint is accepted only when both
+remote compilation gates and the placeholder scan succeed.
 
 The included central `#print axioms` audit reports only the standard
 `propext`, `Classical.choice`, and `Quot.sound` dependencies (or subsets of
@@ -85,7 +96,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 137
+The ordered module manifest is embedded in the generated file as 146
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

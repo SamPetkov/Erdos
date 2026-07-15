@@ -295,3 +295,34 @@ product expansion is not yet the unlabelled typed-skeleton bridge.
 The request IDs are provenance and scheduling records, not proof certificates.
 Every completion remains quarantined until statement identity, trust scan,
 warning-fatal v4.28 and v4.31 replay, axiom output, and semantic scope all pass.
+
+### Endpoint, edge-law, and decomposition queue (2026-07-15)
+
+Four later service completions have passed the repository gates at strictly
+atomic scope:
+
+| Isolated target | Service project | Accepted local authority | Limitation |
+|---|---|---|---|
+| endpoint-resolved positive-kernel row bound | `955531da-fb82-490e-a884-bdeaaa6984e9` | `Section9EndpointKernel.lean` | endpoint resolution and inherited geometric row norm only |
+| explicit path/chain kernel summands | `cf3a9bd2-3191-4b6d-aeb1-f5973430458e` | `Section9ExplicitPathTerms.lean` | pointwise summand bounds only; no cycle encoding |
+| degree-cap `q` row/column norm | `75de0fb8-61f2-4628-96e1-015df6a58424` | `Section9QDegreeBound.lean` | abstract norm estimate; concrete manuscript instantiation remains open |
+| exact binomial edge-count singleton law | `f3ca6d6a-200a-42bc-810e-9799b721f7e7` | `Section10BinomialEdgeCount.lean` | finite graph law only; fixed-induced-set transport and universal event remain open |
+
+The edge-law return changed the Mathlib revision; acceptance followed only
+after replay and a compatibility repair on the repository's Lean 4.31
+revision.  The two elementary seams in
+`Section10CapacityLeftoverQuantitative.lean` and
+`Section11ChromaticLowerTailBridge.lean` were proved locally and have no
+service-completion provenance.
+
+The source-only staging queue also contains finer Section VIII canonical-event
+packages, the remaining Section IX covering-cycle and mixed-cycle encoder
+packages, and the Section X sequence from fixed-subset quarter tails through
+universal leftover colouring and amplification.  Each payload is kept small,
+pinned to the service's Lean 4.28 environment, and contains one intentional
+target hole; full targets may be submitted in parallel with decomposed leaves
+when slots permit.  A failure is split into smaller faithful statements, while
+a completion is downloaded, statement-audited, replayed, source-scanned,
+axiom-audited, and scope-checked before integration.  Thus staged, queued, or
+running packages are proposals, not accepted theorems, and they do not prove
+Lemma 9.1, Proposition 9.2, Lemma 10.1, Lemma 10.2, or the final theorem.

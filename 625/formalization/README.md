@@ -249,12 +249,21 @@ probability of the global canonical event.  The event-probability form of
 manuscript incidence (8.3), global conditioned-event identification, and the
 endpoint/near/middle skeleton estimates remain open.
 
+[`Section8CanonicalEventResidual.lean`](Erdos625/Section8CanonicalEventResidual.lean)
+now proves the exact next deterministic seam for one fixed witness: the full
+canonical-demand event transports through the residual equivalence precisely
+to the half-cap/no-return event.  It does not count the union over canonical
+witnesses or identify that global event's conditioned law.
+
 [`Section8LabelledIncidence.lean`](Erdos625/Section8LabelledIncidence.lean)
 proves `labelledWitnessIncidence_eq`, the exact normalized descending-factorial
 identity for labelled prescribed-demand witnesses.  It is counting algebra,
 not yet the full configuration-model probability identity.  Equal ambient
 totals, matching-extension normalization, and canonical-demand specialization
-remain.  [`Section8NearSkeletonExpansion.lean`](Erdos625/Section8NearSkeletonExpansion.lean)
+remain.  [`Section8WitnessDemandFeasibility.lean`](Erdos625/Section8WitnessDemandFeasibility.lean)
+proves the separate finite side condition that existence of such a labelled
+witness forces its total demand to be at most the ambient row-stub mass.
+[`Section8NearSkeletonExpansion.lean`](Erdos625/Section8NearSkeletonExpansion.lean)
 proves `sum_nearSkeletonChoiceWeight_eq_product` for distinguishable optional
 deficit choices.  The unlabelled typed-skeleton quotient, multiplicity bridge,
 ratio estimates, and (8.25a) remain open.
@@ -388,6 +397,20 @@ attachment estimates.  These leaves do not construct the required
 cycle-to-walk encoding or weight transfer, prove those upstream finite attachment
 estimates, identify the conditioned probability law, or assemble Section 9.
 
+Three additional warning-fatal Section 9 leaves sharpen the still-incomplete
+cycle-to-walk interface.  [`Section9EndpointKernel.lean`](Erdos625/Section9EndpointKernel.lean)
+defines the endpoint-resolved positive-walk kernel, proves that its row sum
+recovers the scalar walk mass, and inherits the finite geometric row bound.
+[`Section9ExplicitPathTerms.lean`](Erdos625/Section9ExplicitPathTerms.lean)
+proves that each explicitly supplied path or chain is one nonnegative summand
+of the corresponding endpoint or scalar kernel mass.
+[`Section9QDegreeBound.lean`](Erdos625/Section9QDegreeBound.lean) turns a
+pointwise quadratic `q` estimate, the exact degree totals, and degree caps into
+the required row and column bounds `kappa * U^3 / m`.  These results do not
+construct a covering-cycle decomposition, an injective weight-preserving
+cycle code, or the concrete manuscript kernel, and therefore do not prove
+Lemma 9.1 or Proposition 9.2.
+
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
 denominator-cleared quarter-density averaging step, and
@@ -424,6 +447,27 @@ block hypothesis implies the required internal `forall U` chromatic bound with
 ceiling division.  The first theorem does not build the graph event, and the
 second does not prove its uniform hypothesis with high probability or perform
 the concrete manuscript parameter arithmetic.
+
+[`Section10BinomialEdgeCount.lean`](Erdos625/Section10BinomialEdgeCount.lean)
+proves the exact singleton law for the number of edges in Mathlib's finite
+binomial random graph.  It supplies the finite edge-count distribution bridge,
+but not yet its transport to every fixed induced complement graph or the
+simultaneous quarter-density event of Lemma 10.1.
+[`RandomGraphUniformLaw.lean`](Erdos625/RandomGraphUniformLaw.lean) proves that
+the repository's half-binomial graph measure is exactly `uniformOn univ`, from
+its equal singleton masses and probability normalization.  This removes the
+measure mismatch for uniform finite counting arguments while leaving the
+fixed-induced-set transport itself open.
+[`Section10CapacityLeftoverQuantitative.lean`](Erdos625/Section10CapacityLeftoverQuantitative.lean)
+locally proves the two-event quantitative union seam: if two success events
+imply a good event, its failure probability is at most the sum of the two
+failure bounds, without independence.  It does not supply either input tail
+or prove Lemma 10.2.
+[`Section11ChromaticLowerTailBridge.lean`](Erdos625/Section11ChromaticLowerTailBridge.lean)
+locally converts a full-sequence probability-zero bound for `X n <= k n` into
+probability one for the complementary strict event `k n < X n`, allowing the
+sample space to depend on `n`.  The actual chromatic at-most tail and its
+manuscript threshold remain open.
 
 The named Section 8--11 leaves above have local Lean 4.31 warning-fatal builds.
 That acceptance is declaration-scoped: it verifies their displayed algebraic,

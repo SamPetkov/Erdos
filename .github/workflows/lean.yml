@@ -36,3 +36,14 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
+      - name: Check the generated self-contained proof is current
+        working-directory: 625/formalization
+        shell: bash
+        run: python3 scripts/generate_self_contained.py --check
+      - name: Compile the self-contained proof warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          mkdir -p .lake/build/lib/lean
+          lake env lean -DwarningAsError=true Erdos625SelfContained.lean \
+            -o .lake/build/lib/lean/Erdos625SelfContained.olean

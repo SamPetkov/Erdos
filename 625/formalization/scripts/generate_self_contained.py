@@ -115,11 +115,12 @@ dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII conditional residual-law/skeleton estimates,
-Section IX restriction/attachment/second-moment assembly, and the final
-probabilistic theorem are open.  The target proposition remains deliberately
-unproved.  The included #print axioms commands audit the central declarations
-that have actually been proved.
+the remaining Section VIII global canonical-event count, conditioned law, and
+skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+attachment, and second-moment assembly; the Section X simultaneous-leftover
+and seed-amplification inputs; and the final probabilistic theorem are open.
+The target proposition remains deliberately unproved.  The included #print
+axioms commands audit the central declarations that have actually been proved.
 
 Generated deterministically from Erdos625.lean and its transitive local import
 closure.  Each source boundary records the normalized source SHA-256.

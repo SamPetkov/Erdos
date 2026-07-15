@@ -33,6 +33,8 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 | `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
 | `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
+| `binomialRandom_map_ncard_edgeSet_singleton` | fixed finite binomial edge-count law before Lemma 10.1 | local proved | The pushforward edge-count measure has the exact binomial singleton mass for Mathlib's finite binomial random graph.  Transport to each fixed induced complement graph, the lower-quarter tail, and the simultaneous event remain open. |
+| `failure_probability_le_add_of_two_success_events` | quantitative capacity/leftover intersection in Lemma 10.2 | local proved | If two supplied success events imply `Good`, its failure probability is at most the sum of their supplied failure bounds, without independence.  Neither probabilistic input is proved here. |
 | `chromaticLowerEvent`, `cochromaticUpperEvent` | threshold events in Section 11 | defined | These are the strict natural chromatic lower event and real cochromatic upper event with deterministic error. |
 | `thresholdIntersection_subset_gapEvent` | deterministic Section 11 event inclusion | local proved | Given the exact threshold separation, the intersection is contained in `gapEvent`; the strict chromatic event contributes the necessary `+1`. |
 | `explicitThresholdIntersection_subset_gapEvent` | expanded form of (11.2) | local proved | The same inclusion displays the constant explicitly.  It supplies no sequence choice, probability limit, or eventual separation theorem. |
@@ -40,6 +42,7 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 | `baseScale`, `eventually_explicit_gap_threshold` | eventual threshold (11.2) | defined; local proved | Abstract root separation with vanishing `rho` and `a = o(baseScale)` eventually gives the explicit separated thresholds, including the strict-event `+1`.  The actual manuscript sequences and upstream hypotheses are not instantiated. |
 | `tendsto_explicit_gap_scale_atTop` | divergence used for (11.3) | local proved | The explicit positive scale tends to infinity along the full sequence.  The actual fixed-`M` probability-tail implication is not yet assembled. |
 | `fixedThreshold_tail_of_movingThreshold` | moving-to-fixed threshold implication in (11.3) | local proved | An assumed probability-one tail above a deterministic threshold tending to infinity implies every fixed-threshold tail, even for `n`-dependent finite sample spaces.  The concrete moving-threshold tail remains open. |
+| `strictLower_probability_tendsto_one_of_atMost_tendsto_zero` | strict chromatic lower-event bridge | local proved | A full-sequence probability-zero tail for `X n <= k n` gives probability one for `k n < X n`, with `n`-dependent sample spaces.  The actual chromatic at-most tail and threshold are not supplied. |
 | `capacityDeficitEvent`, `simultaneousLeftoverColoringEvent`, `capacityDeficitEvent_probability_tendsto_one`, `cochromaticNumber_le_of_capacityDeficit_and_leftover`, `tendsto_measure_one_of_eventually_subset`, `erdos625Statement_of_capacity_leftover_thresholds` | conditional Sections 10--11 closure | defined; local proved under explicit hypotheses | The capacity and simultaneous-leftover events have the correct internal quantifiers; a rounded capacity tail is derived from the displayed seed/radius assumptions; and five named full-sequence inputs imply `Erdos625Statement`.  The theorem does not prove any of those concrete manuscript inputs and is not an unconditional target proof. |
 
 The previously accepted amplification infrastructure also includes the induced
@@ -72,7 +75,9 @@ rare cochromatic seed
 The remaining Section X obligations, in dependency order, are:
 
 1. Define the complement-graph quarter-density event at
-   `u0 = ceil(n^(1/4))`.  Transport the exact induced-edge law to the
+   `u0 = ceil(n^(1/4))`.  The exact singleton edge-count law for Mathlib's
+   finite binomial random graph is proved.  Transport it to the fixed induced
+   complement graph and then to the
    lower-quarter binomial tail, count all `u0`-subsets, and prove that its
    failure probability tends to zero along the full sequence.
 2. Prove by averaging that the same event gives quarter density in every
@@ -91,7 +96,9 @@ The remaining Section X obligations, in dependency order, are:
    simultaneous event.  The quantifiers must choose `C` and a deterministic
    `epsilon_n -> 0` before quantifying over deterministic `k_n`, `Lambda_n`,
    and `r_n`; the error sequence may not depend on any of those three choices.
-   The conclusion must be uniform for every deterministic `r_n > 0`.
+   The conclusion must be uniform for every deterministic `r_n > 0`.  The
+   local two-success-event failure bound supplies only the final union seam;
+   both quantitative input tails still have to be constructed.
 6. **Completed locally as deterministic scale facts:**
    `r_n = sqrt(n/(log n)^4)` tends to infinity; the seed hypothesis
    `Lambda_n = o(n/(log n)^4)` gives the required seed square-root term; and
@@ -138,7 +145,10 @@ closure.  The remaining actual sequence/tail instantiation is:
    event `+1`, by proving its root-separation, `rho_n -> 0`, and
    `a_n = o(baseScale)` hypotheses for the actual sequences.
 3. Prove measurability and full-sequence convergence to one for the actual
-   chromatic-lower and cochromatic-upper event probabilities.
+   chromatic-lower and cochromatic-upper event probabilities.  For the
+   chromatic side, the accepted strict-lower bridge reduces this to proving
+   the corresponding at-most probability tends to zero at the actual
+   threshold.
 4. Prove the actual capacity and simultaneous-leftover tails and the eventual
    cochromatic threshold comparison.  Then supply those, the chromatic tail,
    and the gap threshold to the proved conditional theorem
@@ -172,6 +182,7 @@ local files are authoritative and no service source was imported directly.
 | XI | probability intersection | `cb039d44-1e81-4b0b-a0e2-481eeb8fc8a0` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
 | XI | eventual parameter threshold | `e451963a-2f93-407c-aa0e-28467d87642e` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
 | XI | explicit gap-scale divergence | `764866b6-c929-48fb-b476-ec61925d250c` | completed; quarantined; local `Section11AsymptoticAssembly.lean` accepted |
+| X | exact binomial edge-count singleton law | `f3ca6d6a-200a-42bc-810e-9799b721f7e7` | completed; returned revision differed; audited and replayed warning-fatally on the repository revision as `Section10BinomialEdgeCount.lean` |
 
 The service tasks are redundant candidate generation only.  A returned proof
 must still be reviewed, reconstructed or ported to Lean 4.31, source-scanned,
@@ -194,3 +205,13 @@ workspaces, are authoritative.  The scope column remains a strict limitation.
 | X | `simultaneous_induced_chromatic_bound` | `78638bbc-5941-4275-9ea3-b0022cc640dc` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | deterministic greedy colouring under one supplied uniform internal-`∀ U` hypothesis; it does not prove that random event; local authority is `Section10SimultaneousGreedyColoring.lean` |
 | X | `amplificationError_isLittleO_gapBase` | `3fcd655d-a5cd-42b8-bcb0-85767126b3a7` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | exact deterministic (10.10)--(10.12) error assembly under its displayed little-o hypotheses; local authority is `Section10AmplificationScales.lean` |
 | XI | `fixedThreshold_tail_of_movingThreshold` | `20da6297-c83e-4800-8724-cc2551a31409` | `COMPLETE`; audited, ported, Lean 4.31 warning-fatal accepted | moving-threshold tail implies every fixed-threshold tail only; intentionally redundant with accepted measure monotonicity; local authority is `Section11AsymptoticAssembly.lean` |
+
+The quantitative two-event failure seam and strict-lower complement bridge
+were proved locally in `Section10CapacityLeftoverQuantitative.lean` and
+`Section11ChromaticLowerTailBridge.lean`; they are not attributed to an
+Aristotle completion.  Current source-only proposal packages split the open
+Section X chain into fixed-subset quarter tail, density lift, recurrence-chain,
+survival-asymptotic, uniform leftover-event, and final amplification atoms.
+They are scheduling/proof-search payloads only: queued, running, failed, or
+completed service status does not make any target accepted until the local
+Lean 4.31 warning-fatal, trust-scan, axiom, and scope gates pass.

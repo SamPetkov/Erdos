@@ -7,6 +7,7 @@ import Erdos625.PhaseAsymptotic
 import Erdos625.PhaseConsequences
 import Erdos625.ProbabilityTools
 import Erdos625.Target
+import Erdos625.RandomGraphUniformLaw
 import Erdos625.IndependentSets
 import Erdos625.BoundedDifferences
 import Erdos625.BlockBoundedDifferences
@@ -19,11 +20,14 @@ import Erdos625.CochromaticSeedGap
 import Erdos625.CochromaticCapacityLowerTail
 import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
+import Erdos625.Section10BinomialEdgeCount
 import Erdos625.Section10QuarterUnionDecay
 import Erdos625.Section10SimultaneousGreedyColoring
 import Erdos625.Section10AmplificationScales
+import Erdos625.Section10CapacityLeftoverQuantitative
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
+import Erdos625.Section11ChromaticLowerTailBridge
 import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
@@ -101,6 +105,9 @@ import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9TraversalKernel
+import Erdos625.Section9EndpointKernel
+import Erdos625.Section9ExplicitPathTerms
+import Erdos625.Section9QDegreeBound
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
@@ -120,7 +127,9 @@ import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
+import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8LabelledIncidence
+import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
@@ -162,7 +171,11 @@ tail is also inverted with the exact `sqrt (2 * v * Lambda)` cost used in
 `sqrt ((n - 1) * Lambda / 2)` endpoint-to-expectation bound for `n ≥ 2`.
 The matching one-sided lower tail then proves the exact manuscript (10.8)
 failure bound `exp (-r)`, including the non-strict boundary event and with no
-two-sided factor.
+two-sided factor.  The exact finite binomial law for graph edge-count
+singletons, the quantitative two-success-event failure seam, and the generic
+strict-lower-event complement limit are also checked.  The fixed induced-
+complement transport, one simultaneous leftover-colouring event, and the
+concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon
@@ -248,9 +261,12 @@ high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
 support-indexed cap/no-return translation are also checked.  Constructing and
-counting the labelled canonical witness, proving the manuscript incidence
-formula (8.3), packaging the global conditioned event, and the skeleton
-estimates remain open.  The exact descending-factorial endpoint transport used
+counting the global labelled canonical event, proving the manuscript incidence
+formula (8.3), packaging its conditioned law, and the skeleton estimates remain
+open.  For each fixed matching, the literal canonical demand already has a
+unique extended labelled witness; existence of any labelled demand witness
+also forces total demand not to exceed the ambient row-stub mass.  The exact
+descending-factorial endpoint transport used
 in (8.12) is proved independently, with the stronger loss `n^gap` and exact
 minimum/absolute-difference specializations.
 The finite degree-moment estimates and exact configuration-cell theta
@@ -265,9 +281,12 @@ literal configuration support contains at most half the residual stub mass.
 The binary cycle-space dimension and exact `2 ^ cycleRank` cardinality are now
 proved for literal finite even edge subsets.  Finite kernel walk mass is bounded
 by powers of its row norm, with the positive-length and even-length geometric
-tails used in (9.16)--(9.18).  The recoverable cycle-to-walk encodings, concrete
-kernel transfer, attachment estimates, and complete Lemma 9.1/Proposition 9.2
-assembly remain open.
+tails used in (9.16)--(9.18).  Endpoint-resolved positive walk mass inherits the
+same geometric row bound, each explicit path or chain is bounded by its kernel
+summand, and a supplied pointwise degree-square estimate yields the required
+abstract `q` row and column norms.  The recoverable cycle-to-walk encodings,
+concrete residual-table/kernel transfer, attachment estimates, and complete
+Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
