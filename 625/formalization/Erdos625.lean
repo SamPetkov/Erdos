@@ -112,6 +112,7 @@ import Erdos625.Section9QDegreeBound
 import Erdos625.Section9ThetaCap
 import Erdos625.Section9ThetaSquareEulerRescale
 import Erdos625.Section9ResidualQDegreeAssembly
+import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
@@ -294,9 +295,10 @@ residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
 bounds, and skeleton estimates remain open.
-Every tagged state of that global disintegration also satisfies the literal
+Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
-degrees. This is a pointwise bridge, not an untagged residual law or an
+degrees; the ambient uniform PMF transports exactly to the uniform law on
+that tagged Section IX family. This is not an untagged residual law or an
 expectation estimate.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
@@ -319,7 +321,9 @@ by powers of its row norm, with the positive-length and even-length geometric
 tails used in (9.16)--(9.18).  Endpoint-resolved positive walk mass inherits the
 same geometric row bound, each explicit path or chain is bounded by its kernel
 summand, and a supplied pointwise degree-square estimate yields the required
-abstract `q` row and column norms.  The recoverable cycle-to-walk encodings,
+abstract `q` row and column norms.  The literal residual `q` has this
+degree-cap norm, and its symmetric bipartite cell kernel inherits the same
+row bound.  The recoverable cycle-to-walk encodings,
 concrete residual-table/kernel transfer, attachment estimates, and complete
 Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an

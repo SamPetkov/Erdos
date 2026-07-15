@@ -24934,6 +24934,70 @@ END SOURCE MODULE: Erdos625.Section9ResidualQDegreeAssembly
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualQTraversalBridge
+Source: Erdos625/Section9ResidualQTraversalBridge.lean
+Normalized SHA-256: a96db8d0ca302512b71d7a19ccd250c2e33ba20975437dd89da5d1ee23867b68
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualQTraversalBridge
+
+/-!
+# Section IX: residual `q` as a bipartite traversal kernel
+
+This module composes the accepted degree-cap residual-q row/column estimate
+with the accepted generic bipartite-kernel interface.  It is a deterministic
+finite kernel-norm bridge only: it neither identifies a conditioned residual
+law, encodes cycles as walks, nor proves an attachment estimate.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Under the same finite degree-cap hypotheses as the residual-q norm
+theorem, the literal symmetric bipartite kernel has the corresponding uniform
+row norm. -/
+theorem existsAbsoluteResidualQBipartiteKernelRowBound_of_degreeCaps :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        ∀ v : A ⊕ B,
+          ∑ w, bipartiteCellKernel (residualQ M R row col) v w ≤
+            κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
+  obtain ⟨κ, hκpos, hκtop, hκ⟩ :=
+    existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+  refine ⟨κ, hκpos, hκtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
+    hR hpow
+  obtain ⟨hRow, hColumn⟩ :=
+    hκ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap hR hpow
+  exact bipartiteCellKernel_rowSum_le (residualQ M R row col)
+    (κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) hRow hColumn
+
+#print axioms existsAbsoluteResidualQBipartiteKernelRowBound_of_degreeCaps
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualQTraversalBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualQTraversalBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
 Source: Erdos625/Section9MatchingTraversalBridge.lean
 Normalized SHA-256: 2043628ce6bb659136e47ddc9c146a6702a3517e5a28b9a9ce71127ec2f3243d
@@ -28914,7 +28978,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
-Normalized SHA-256: 9ac19f71ec9467afa5db55711c1ac7e481a8dd6693358d18e5f1766faddf97df
+Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
 
@@ -28930,6 +28994,23 @@ bound.
 -/
 
 namespace Erdos625
+
+noncomputable section
+
+local instance fintypeCanonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance fintypeResidualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
+    Fintype (ResidualCapNoReturnEvent M R row col) :=
+  Fintype.ofFinite _
 
 /-- A tagged state in the global canonical residual disintegration supplies
 the exact cap/no-return hypothesis used by the Section IX fixed-family
@@ -28947,7 +29028,95 @@ theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
   simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
     using z.2.2.2
 
+/-- Fibrewise retyping of the global canonical residual sigma family by its
+literal Section IX cap/no-return events.  The attained demand and labelled
+witness remain part of the state, so this is not an identification of a
+single residual space across demands. -/
+noncomputable def sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    (Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  refine Equiv.sigmaCongrRight fun demand => ?_
+  refine Equiv.sigmaCongrRight fun witness => ?_
+  exact Equiv.setCongr
+    (canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U)
+
+/-- The matching-space equivalence followed by fibrewise Section IX
+retyping. -/
+noncomputable def configurationMatchingEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    ConfigurationMatching row col ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).trans
+    (sigmaCanonicalDemandResidualEquivSigmaCapNoReturn row col U)
+
+/-- The uniform law on the tagged global Section IX cap/no-return family.
+Its nonemptiness is supplied by the ambient matching equivalence. -/
+noncomputable def uniformSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    PMF
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  exact PMF.uniformOfFintype _
+
+/-- Exact global finite-law transport to the tagged Section IX cap/no-return
+family.  It retains demand and witness tags, and therefore asserts neither an
+untagged residual law, conditioning statement, expectation, nor asymptotic
+bound. -/
+theorem uniformConfigurationMatching_map_sigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    (uniformConfigurationMatching row col htotal).map
+        (configurationMatchingEquivSigmaCapNoReturn row col U) =
+      uniformSigmaCapNoReturn row col U htotal := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
+  simpa only [uniformSigmaCapNoReturn] using
+    (uniformOfFintype_map_equiv equivalence)
+
 #print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+#print axioms sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+#print axioms configurationMatchingEquivSigmaCapNoReturn
+#print axioms uniformSigmaCapNoReturn
+#print axioms uniformConfigurationMatching_map_sigmaCapNoReturn
+
+end
 
 end Erdos625
 
@@ -31566,7 +31735,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 01c6b88bd8da3bd11d1ebcf0be630e3b827bbb1c04ff9ac146cb5fc8801e39cc
+Normalized SHA-256: fb35c2627161fdb26e359d1c16bceb53cb478e369e22ece2ca29e9b2abfe7935
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31929,6 +32098,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.configurationCellTheta_toReal_le_of_caps
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+#print axioms Erdos625.existsAbsoluteResidualQBipartiteKernelRowBound_of_degreeCaps
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -32017,6 +32187,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
 #print axioms Erdos625.sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+#print axioms Erdos625.sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+#print axioms Erdos625.configurationMatchingEquivSigmaCapNoReturn
+#print axioms Erdos625.uniformSigmaCapNoReturn
+#print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
@@ -32112,7 +32286,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 17365ceeffa396dc6f288093fe53cbc15c98d14b3dceb8475391f3b95ec2994a
+Normalized SHA-256: f7eb5c10c1724c2bbb5a2cb89d5302b992231219dc20c6beb60d5ebef44f6ead
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -32247,9 +32421,10 @@ residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
 bounds, and skeleton estimates remain open.
-Every tagged state of that global disintegration also satisfies the literal
+Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
-degrees. This is a pointwise bridge, not an untagged residual law or an
+degrees; the ambient uniform PMF transports exactly to the uniform law on
+that tagged Section IX family. This is not an untagged residual law or an
 expectation estimate.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
@@ -32272,7 +32447,9 @@ by powers of its row norm, with the positive-length and even-length geometric
 tails used in (9.16)--(9.18).  Endpoint-resolved positive walk mass inherits the
 same geometric row bound, each explicit path or chain is bounded by its kernel
 summand, and a supplied pointwise degree-square estimate yields the required
-abstract `q` row and column norms.  The recoverable cycle-to-walk encodings,
+abstract `q` row and column norms.  The literal residual `q` has this
+degree-cap norm, and its symmetric bipartite cell kernel inherits the same
+row bound.  The recoverable cycle-to-walk encodings,
 concrete residual-table/kernel transfer, attachment estimates, and complete
 Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an

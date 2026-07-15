@@ -299,10 +299,11 @@ fibre cardinality, divided by the ambient matching-space cardinality.
 
 [`Section9GlobalCanonicalResidualBridge.lean`](Erdos625/Section9GlobalCanonicalResidualBridge.lean)
 adds the precise downstream handoff: each element of that dependent global
-sigma family satisfies `ResidualCapNoReturnEvent` for its own support and
-residual degrees. This is a pointwise event-membership theorem only; it does
-not turn the dependent family into one residual PMF or establish an
-expectation or an asymptotic bound.
+sigma family is retyped as `ResidualCapNoReturnEvent` for its own support and
+residual degrees, and the ambient uniform matching PMF transports exactly to
+the uniform PMF on this still-tagged Section 9 sigma family. It does not turn
+the dependent family into one residual PMF or establish an expectation or an
+asymptotic bound.
 
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and
@@ -455,6 +456,11 @@ degree-square summation bound. Its degree-cap corollary supplies one finite
 positive absolute constant for both residual-q row and column sums at scale
 `U^3 / m`, but still does not identify a conditioned residual family or prove
 an attachment estimate.
+[`Section9ResidualQTraversalBridge.lean`](Erdos625/Section9ResidualQTraversalBridge.lean)
+then lifts those two bounds to the symmetric `bipartiteCellKernel` of the
+literal residual `q`, so the existing finite kernel-walk estimates apply under
+the same degree-cap hypotheses. It still does not encode cycles as walks or
+prove an attachment estimate.
 
 Three further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)

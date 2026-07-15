@@ -106,6 +106,7 @@ import Erdos625.Section9ExplicitPathTerms
 import Erdos625.Section9QDegreeBound
 import Erdos625.Section9ThetaSquareEulerRescale
 import Erdos625.Section9ResidualQDegreeAssembly
+import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
@@ -516,6 +517,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.configurationCellTheta_toReal_le_of_caps
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
 #print axioms Erdos625.existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+#print axioms Erdos625.existsAbsoluteResidualQBipartiteKernelRowBound_of_degreeCaps
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -604,6 +606,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
 #print axioms Erdos625.sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+#print axioms Erdos625.sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+#print axioms Erdos625.configurationMatchingEquivSigmaCapNoReturn
+#print axioms Erdos625.uniformSigmaCapNoReturn
+#print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing

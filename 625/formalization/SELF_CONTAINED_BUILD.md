@@ -44,14 +44,17 @@ injective parity-matrix encoding, literal residual even-edge family and its
 through literal support and `m₀ / 2`, exact binary cycle-space cardinality,
 fixed-`F` capped expansion, finite analytic endpoint bounds, and deterministic
 small-residual estimate are proved. Every tagged state in the global Section
-VIII canonical-demand disintegration is also proved to satisfy its own
-literal Section IX cap/no-return event. This pointwise handoff does not create
-an untagged residual law or an expectation bound. The file also contains a recoverable
+VIII canonical-demand disintegration is retyped by its own literal Section IX
+cap/no-return event, and the ambient uniform PMF transports exactly to the
+uniform law on that tagged sigma family. This does not create an untagged
+residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound, plus abstract and matching-aware finite geometric traversal
 bounds. It now also contains the endpoint-resolved positive kernel, pointwise
 explicit-path/chain summand bounds, and the generic row/column norm consequence
-of a supplied degree-square `q` estimate. The canonical-skeleton
+of a supplied degree-square `q` estimate. The literal residual `q` has a
+degree-cap row/column bound and its symmetric bipartite kernel inherits that
+row norm. The canonical-skeleton
 instantiation, actual residual-family and `ENNReal` weight specialization,
 concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
 encoding, conditioned attachment estimate, and second-moment assembly remain

@@ -159,10 +159,12 @@ cardinality times that demand-specific residual-fibre cardinality, divided by
 the ambient matching-space cardinality.
 
 [`Section9GlobalCanonicalResidualBridge.lean`](formalization/Erdos625/Section9GlobalCanonicalResidualBridge.lean)
-then records the exact pointwise handoff to Section 9: every tagged global
-residual is in the cap/no-return event associated with its own canonical
-support and residual degrees. It is not an untagged residual distribution,
-conditioning statement, expectation bound, or asymptotic estimate.
+then retypes every residual fibre by its literal Section 9 cap/no-return
+event and transports the ambient uniform matching PMF exactly to the uniform
+PMF on that tagged Section 9 sigma family. The attained demand and labelled
+witness remain explicit tags, so this is not an untagged residual
+distribution, conditioning statement, expectation bound, or asymptotic
+estimate.
 
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,
@@ -191,7 +193,10 @@ assembly remain open.  Aristotle is used only for redundant
 isolated candidate generation; reviewed local Lean 4.31 source is
 authoritative.
 The capped degree moments and exact theta factorizations/bounds behind
-(9.13)--(9.14) are also kernel-checked.
+(9.13)--(9.14) are also kernel-checked.  The literal residual `q` now has a
+finite degree-cap row/column norm bound, and hence its symmetric bipartite
+cell kernel has the corresponding row norm; this still supplies neither a
+conditioned residual law nor a cycle-to-walk encoding.
 
 [`Section9EncodingAssembly.lean`](formalization/Erdos625/Section9EncodingAssembly.lean)
 packages the generic counting seam.  An explicit injective even-matrix
