@@ -30163,7 +30163,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 3e8870f169baf29427431c6dda6304c9f5910b128a37e781a72af9b9e9a95f19
+Normalized SHA-256: 9df2588a8a6dcb45567a2954e993735470fab4023e3f62bb07d72272a3484dd9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 

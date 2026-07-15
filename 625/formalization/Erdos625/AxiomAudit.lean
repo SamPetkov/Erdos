@@ -126,6 +126,7 @@ import Erdos625.ConfigurationResidualCellConstraints
 import Erdos625.Section8FixedWitnessAssembly
 import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
+import Erdos625.Section8CanonicalResidualProfile
 import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
