@@ -82,15 +82,15 @@ Regenerate it with scripts/generate_self_contained.py.
 
 ## Honest status
 
-This is the complete, kernel-checkable source closure of the current verified
-partial formalization.  It is self-contained with respect to this repository:
+This is the complete, kernel-checkable source closure of the current partial
+formalization.  It is self-contained with respect to this repository:
 it imports no Erdos625 project module and instead includes every declaration in
 dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII global canonical-event count, conditioned law, and
-skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+the remaining Section VIII global canonical-event estimates, conditioned law,
+and skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
 attachment, and second-moment assembly; the Section X simultaneous-leftover
 and seed-amplification inputs; and the final probabilistic theorem are open.
 The target proposition remains deliberately unproved.  The included #print
@@ -20066,7 +20066,7 @@ END SOURCE MODULE: Erdos625.FallingFactorialBounds
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ConfigurationModelProbability
 Source: Erdos625/ConfigurationModelProbability.lean
-Normalized SHA-256: 6043a1688dd68084a6ecb9f04f9460cb2a02c62bf41b9412b32197167afc509d
+Normalized SHA-256: a671db49d3ecb560cfc1076110f152eeddd4497634ae8157323ce258c5ce1462
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_ConfigurationModelProbability
 
@@ -20349,6 +20349,26 @@ noncomputable def uniformConfigurationMatching
   letI : Nonempty (ConfigurationMatching row col) :=
     ⟨configurationMatchingEquiv row col htotal⟩
   exact PMF.uniformOfFintype _
+
+/-- Under the uniform configuration law, any finite event has probability
+equal to its finite cardinality divided by the ambient matching cardinality. -/
+theorem uniformConfigurationMatching_event_apply
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (event : Set (ConfigurationMatching row col)) [Fintype event] :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure event =
+      (Fintype.card event : ℝ≥0∞) /
+        ((Finset.univ.sum row).factorial : ℝ≥0∞) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).toOuterMeasure
+      event = _
+  rw [PMF.toOuterMeasure_uniformOfFintype_apply,
+    card_configurationMatching row col htotal]
+
+#print axioms uniformConfigurationMatching_event_apply
 
 /-- Under the uniform configuration law, an event has probability equal to
 its finite cardinality divided by the ambient `m!` cardinality. -/
@@ -23598,6 +23618,1023 @@ END SOURCE MODULE: Erdos625.Section9QDegreeBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ThetaSquareEulerRescale
+Source: Erdos625/Section9ThetaSquareEulerRescale.lean
+Normalized SHA-256: c83deed24f12bece8c8febc586aec5c2a9bb7cb3cfacb81a92ef719313d5cef9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ThetaSquareEulerRescale
+
+/-!
+# Section IX: Euler rescaling of the cell parameter
+
+This module is a finite algebraic bridge.  It rewrites a pointwise quadratic
+bound in the configuration-cell parameter as a degree-square bound with the
+required factor `e^2`.  It does not provide a residual conditioned law, a
+degree cap, or an asymptotic estimate.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+/-- A pointwise `K * theta^2` bound rewrites exactly as a degree-square bound
+with coefficient `K * e^2`. -/
+theorem rescale_configurationCellTheta_square_to_degreeSquare
+    {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ)
+    (q : A → B → ℝ≥0∞) (K : ℝ≥0∞)
+    (hKpos : 0 < K) (hKtop : K ≠ ∞)
+    (hq : ∀ a b,
+      q a b ≤ K * configurationCellTheta row col m a b ^ 2) :
+    0 < K * eulerENNReal ^ 2 ∧
+      K * eulerENNReal ^ 2 ≠ ∞ ∧
+      ∀ a b,
+        q a b ≤
+          (K * eulerENNReal ^ 2) *
+            (row a : ℝ≥0∞) ^ 2 * (col b : ℝ≥0∞) ^ 2 /
+              (m : ℝ≥0∞) ^ 2 := by
+  have heulerPos : 0 < eulerENNReal := by
+    rw [eulerENNReal, ENNReal.ofReal_pos]
+    exact Real.exp_pos 1
+  have heulerFinite : eulerENNReal ≠ ∞ := by
+    exact ENNReal.ofReal_ne_top
+  have heulerNe : eulerENNReal ≠ 0 := heulerPos.ne'
+  refine ⟨pos_iff_ne_zero.mpr
+      (mul_ne_zero hKpos.ne' (pow_ne_zero 2 heulerNe)), ?_, ?_⟩
+  · exact ENNReal.mul_ne_top hKtop (ENNReal.pow_ne_top heulerFinite)
+  · intro a b
+    calc
+      q a b ≤ K * configurationCellTheta row col m a b ^ 2 := hq a b
+      _ = (K * eulerENNReal ^ 2) *
+            (row a : ℝ≥0∞) ^ 2 * (col b : ℝ≥0∞) ^ 2 /
+              (m : ℝ≥0∞) ^ 2 := by
+        unfold configurationCellTheta
+        simp only [div_eq_mul_inv]
+        rw [ENNReal.inv_pow]
+        ring
+
+#print axioms rescale_configurationCellTheta_square_to_degreeSquare
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ThetaSquareEulerRescale
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ThetaSquareEulerRescale
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
+Source: Erdos625/Section9CappedFixedFExpansion.lean
+Normalized SHA-256: 4c4ac5cfb761c4efccfe4d359ea4ee5afac1319de89e8726fad8790d402b5a41
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
+
+/-!
+# Capped fixed-F prescribed-demand expansion
+
+This is the finite configuration-model obligation extracted from manuscript
+(9.10)--(9.12).  It retains the cap/no-return event, the actual local reward
+`g`, its threshold increments, and the literal uniform matching law.  The fixed
+edge set `F` need not be even: evenness enters only when this estimate is later
+summed over the residual cycle-space family.
+
+This module proves only the fixed-`F` expansion.  It does not perform that
+even-family summation, prove the polymer/cycle bounds, or assemble Lemma 9.1.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-- The local topological reward from manuscript (6.5):
+`g(0)=g(1)=g(2)=1` and `g(x)=2^(choose(x,2)-1)` for `x >= 3`. -/
+def residualReward (x : ℕ) : ℕ :=
+  if x ≤ 2 then 1 else 2 ^ (Nat.choose x 2 - 1)
+
+/-- The nonnegative threshold increment `Delta_x = g(x)-g(x-1)`. -/
+def residualRewardIncrement (x : ℕ) : ℕ :=
+  residualReward x - residualReward (x - 1)
+
+/-- The residual event retained before the nonnegative threshold expansion:
+every cell is capped by `R`, and a cell exposed in the high skeleton `M`
+receives no residual pair. -/
+def ResidualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ) :
+    Set (ConfigurationMatching row col) :=
+  {matching |
+    (∀ a b, configurationCellCount matching a b ≤ R) ∧
+      ∀ e ∈ M, configurationCellCount matching e.1 e.2 = 0}
+
+/-- The manuscript quantity
+`lambda_ab = sum_{x=3}^R Delta_x theta_ab^x / x!`, set to zero on the
+already-exposed high skeleton. -/
+noncomputable def residualLambda
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) : ℝ≥0∞ :=
+  if (a, b) ∈ M then 0 else
+    ∑ x ∈ Finset.Icc 3 R,
+      (residualRewardIncrement x : ℝ≥0∞) *
+          configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
+        (x.factorial : ℝ≥0∞)
+
+/-- The fixed-selected-edge weight
+`q_ab = theta_ab^2/2 + lambda_ab`, again zero on the high skeleton. -/
+noncomputable def residualQ
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) : ℝ≥0∞ :=
+  if (a, b) ∈ M then 0 else
+    configurationCellTheta row col (Finset.univ.sum row) a b ^ 2 / 2 +
+      residualLambda M R row col a b
+
+/-- The capped local factor for one fixed cycle-space edge set `F`.
+Edges of `F ∩ M` are already exposed and carry weight one.  Every edge of
+`F \ M` imposes the base residual threshold two. -/
+noncomputable def residualFixedFWeight
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (matching : ConfigurationMatching row col) : ℝ≥0∞ := by
+  classical
+  exact
+    if matching ∈ ResidualCapNoReturnEvent M R row col then
+      (∏ a : A, ∏ b : B,
+        (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
+      (∏ e ∈ F,
+        if e ∈ M then 1 else
+          if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0)
+    else 0
+
+/-- Uniform expectation of the capped fixed-`F` factor, written as the exact
+finite PMF sum so that no measurability or integrability abstraction is added. -/
+noncomputable def residualFixedFExpectation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ :=
+  ∑ matching : ConfigurationMatching row col,
+    uniformConfigurationMatching row col htotal matching *
+      residualFixedFWeight M F R row col matching
+
+/-- The reward is the sum of its threshold increments. -/
+private theorem residualReward_threshold_sum (n : ℕ) :
+    (residualReward n : ℝ≥0∞) =
+      1 + ∑ x ∈ Finset.Icc 3 n, (residualRewardIncrement x : ℝ≥0∞) := by
+  induction' n with n ih;
+  · norm_cast;
+  · rcases n with ( _ | _ | _ | n ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
+    · norm_cast;
+    · convert congr_arg ( · + ( residualRewardIncrement ( n + 3 + 1 ) : ℝ≥0∞ ) ) ih using 1;
+      · unfold residualReward residualRewardIncrement;
+        unfold residualReward; simp +arith +decide [ Nat.choose_succ_succ ] ;
+        rw [ add_tsub_cancel_of_le ( pow_le_pow_right₀ ( by norm_num ) ( by linarith ) ) ];
+      · ring
+
+/-- A finite weighted threshold expansion, with the joint prescribed-cell
+bound applied once to every demand occurring in the expansion. -/
+private theorem weighted_prescribedDemand_product_bound
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (S : A → B → Finset ℕ) (w : A → B → ℕ → ℝ≥0∞)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    (∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (∏ a : A, ∏ b : B,
+          ∑ x ∈ S a b,
+            if x ≤ configurationCellCount matching a b then w a b x else 0)) ≤
+      ∏ a : A, ∏ b : B,
+        ∑ x ∈ S a b,
+          w a b x *
+            configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
+              (x.factorial : ℝ≥0∞) := by
+  revert S w;
+  -- Apply the jointPrescribedCellBound_cellwise theorem to each demand in the expansion.
+  have h_jointPrescribedCellBound_cellwise : ∀ (demand : A → B → ℕ) (w : A → B → ℕ → ℝ≥0∞),
+    (∑ matching : ConfigurationMatching row col,
+      (uniformConfigurationMatching row col htotal) matching *
+        (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then (w a b (demand a b)) else 0)) ≤
+    (∏ a : A, ∏ b : B, (w a b (demand a b) * configurationCellTheta row col (Finset.univ.sum row) a b ^ demand a b / ((demand a b).factorial : ℝ≥0∞))) := by
+      intro demand w
+      have hjointPrescribedCellBound_cellwise : (∑ matching : ConfigurationMatching row col,
+        (uniformConfigurationMatching row col htotal) matching *
+          (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then 1 else 0)) ≤
+        (∏ a : A, ∏ b : B, (configurationCellTheta row col (Finset.univ.sum row) a b ^ (demand a b) / ((demand a b).factorial : ℝ≥0∞))) := by
+          convert jointPrescribedCellBound_cellwise demand row col htotal hm using 1;
+          unfold prescribedCellEvent; simp +decide [ Finset.prod_ite ] ;
+          congr! 1;
+          by_cases h : ∀ a b, demand a b ≤ configurationCellCount ‹_› a b <;> simp_all +decide [ Finset.prod_eq_zero_iff ];
+          simp +decide [ Finset.card_eq_zero.mpr, h ];
+      convert mul_le_mul_left hjointPrescribedCellBound_cellwise ( ∏ a : A, ∏ b : B, w a b ( demand a b ) ) using 1;
+      · simp +decide [ Finset.sum_mul _ _ _ ];
+        simp +decide only [mul_assoc, ← Finset.prod_mul_distrib];
+        exact Finset.sum_congr rfl fun _ _ => by congr; ext; congr; ext; split_ifs <;> ring;
+      · simp +decide only [mul_div_assoc, mul_comm, ← Finset.prod_mul_distrib];
+  intro S w;
+  simp only [ Finset.prod_univ_sum ];
+  simp only [ Finset.mul_sum _ _ _ ];
+  rw [ Finset.sum_comm ];
+  refine' Finset.sum_le_sum fun demand hdemand => _;
+  exact h_jointPrescribedCellBound_cellwise demand w
+
+/-- Faithful fixed-`F` form of the capped prescribed-demand expansion behind
+(9.10)--(9.12).  The cap/no-return indicator is dropped only after expanding
+the nonnegative threshold alternatives, and the same joint configuration-model
+bound is applied to all demanded cells at once. -/
+theorem capped_fixedF_prescribedDemand_expansion
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualFixedFExpectation M F R row col htotal ≤
+      ∏ a : A, ∏ b : B,
+        if (a, b) ∈ M then 1
+        else if (a, b) ∈ F then residualQ M R row col a b
+        else 1 + residualLambda M R row col a b := by
+  refine' le_trans ( Finset.sum_le_sum _ ) _;
+  use fun matching => uniformConfigurationMatching row col htotal matching * ( ∏ a : A, ∏ b : B, ∑ x ∈ if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R, if x ≤ configurationCellCount matching a b then ( if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) else 0 );
+  · intro matching;
+    by_cases h : matching ∈ ResidualCapNoReturnEvent M R row col <;> simp +decide;
+    · unfold residualFixedFWeight;
+      rw [ if_pos h ];
+      let badCells := Finset.filter
+        ( fun x => configurationCellCount matching x.1 x.2 < 2 )
+        ( Finset.filter ( fun x => x ∉ M ) F );
+      by_cases hbad : badCells.Nonempty;
+      · rcases hbad with ⟨ e, he ⟩;
+        have he' := he;
+        simp only [ badCells, Finset.mem_filter ] at he';
+        rcases he' with ⟨ ⟨ heF, heM ⟩, heLow ⟩;
+        have hzero :
+            (∏ e ∈ F,
+              if e ∈ M then (1 : ℝ≥0∞)
+              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) = 0 :=
+          Finset.prod_eq_zero heF ( by simp [ heM, Nat.not_le.mpr heLow ] );
+        simp [ hzero ];
+      · have hNoBad (a : A) (b : B)
+            (habF : (a, b) ∈ F) (habM : (a, b) ∉ M) :
+            2 ≤ configurationCellCount matching a b := by
+          by_contra hlt;
+          apply hbad;
+          refine' ⟨ (a, b), _ ⟩;
+          simp only [ badCells, Finset.mem_filter ];
+          exact ⟨ ⟨ habF, habM ⟩, Nat.lt_of_not_ge hlt ⟩;
+        apply mul_le_mul_right;
+        have hF :
+            (∏ e ∈ F,
+              if e ∈ M then (1 : ℝ≥0∞)
+              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+            ∏ a : A, ∏ b : B,
+              if (a, b) ∈ F then
+                (if (a, b) ∈ M then 1
+                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
+              else 1 := by
+          rw [ ← Fintype.prod_ite_mem ];
+          exact Fintype.prod_prod_type'
+            ( fun a : A => fun b : B =>
+              if (a, b) ∈ F then
+                (if (a, b) ∈ M then (1 : ℝ≥0∞)
+                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
+              else 1 );
+        rw [ hF ];
+        simp only [ ← Finset.prod_mul_distrib ];
+        refine' Finset.prod_le_prod' fun a _ => Finset.prod_le_prod' fun b _ => _;
+        by_cases habM : (a, b) ∈ M;
+        · have hzero := h.2 (a, b) habM;
+          simp [ habM, hzero, residualReward ];
+        · have hcap : configurationCellCount matching a b ≤ R := h.1 a b;
+          have hfilter :
+              (Finset.Icc 3 R).filter
+                  (fun x => x ≤ configurationCellCount matching a b) =
+                Finset.Icc 3 (configurationCellCount matching a b) := by
+            ext x;
+            simp only [ Finset.mem_filter, Finset.mem_Icc ];
+            constructor;
+            · rintro ⟨ ⟨ hx3, hxR ⟩, hxCount ⟩;
+              exact ⟨ hx3, hxCount ⟩;
+            · rintro ⟨ hx3, hxCount ⟩;
+              exact ⟨ ⟨ hx3, hxCount.trans hcap ⟩, hxCount ⟩;
+          have hthreshold :
+              (∑ x ∈ Finset.Icc 3 R,
+                if x ≤ configurationCellCount matching a b then
+                  (residualRewardIncrement x : ℝ≥0∞)
+                else 0) =
+                ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
+                  (residualRewardIncrement x : ℝ≥0∞) := by
+            calc
+              (∑ x ∈ Finset.Icc 3 R,
+                if x ≤ configurationCellCount matching a b then
+                  (residualRewardIncrement x : ℝ≥0∞)
+                else 0) =
+                  ∑ x ∈ (Finset.Icc 3 R).filter
+                      (fun x => x ≤ configurationCellCount matching a b),
+                    (residualRewardIncrement x : ℝ≥0∞) := by
+                      rw [ Finset.sum_filter ];
+              _ = ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
+                    (residualRewardIncrement x : ℝ≥0∞) := by
+                      rw [ hfilter ];
+          by_cases habF : (a, b) ∈ F;
+          · have htwo := hNoBad a b habF habM;
+            simp only [ if_neg habM, if_pos habF, if_pos htwo, mul_one ];
+            rw [ residualReward_threshold_sum ];
+            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
+            simp only [ if_pos htwo ];
+            have hsumInner :
+                (∑ x ∈ Finset.Icc 3 R,
+                  if x ≤ configurationCellCount matching a b then
+                    (if x = 2 then 1
+                      else (residualRewardIncrement x : ℝ≥0∞))
+                  else 0) =
+                  ∑ x ∈ Finset.Icc 3 R,
+                    if x ≤ configurationCellCount matching a b then
+                      (residualRewardIncrement x : ℝ≥0∞)
+                    else 0 := by
+              apply Finset.sum_congr rfl;
+              intro x hx;
+              have hxne : x ≠ 2 := by
+                have hx3 := (Finset.mem_Icc.mp hx).1;
+                omega;
+              simp only [ hxne, if_false ];
+            rw [ hsumInner, hthreshold ];
+            simp only [ if_true ];
+            exact le_rfl;
+          · simp only [ if_neg habM, if_neg habF, mul_one ];
+            rw [ residualReward_threshold_sum ];
+            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
+            simp only [ if_pos (Nat.zero_le _) ];
+            have hsumInner :
+                (∑ x ∈ Finset.Icc 3 R,
+                  if x ≤ configurationCellCount matching a b then
+                    (if x = 0 then 1
+                      else (residualRewardIncrement x : ℝ≥0∞))
+                  else 0) =
+                  ∑ x ∈ Finset.Icc 3 R,
+                    if x ≤ configurationCellCount matching a b then
+                      (residualRewardIncrement x : ℝ≥0∞)
+                    else 0 := by
+              apply Finset.sum_congr rfl;
+              intro x hx;
+              have hxne : x ≠ 0 := by
+                have hx3 := (Finset.mem_Icc.mp hx).1;
+                omega;
+              simp only [ hxne, if_false ];
+            rw [ hsumInner, hthreshold ];
+            simp only [ if_true ];
+            exact le_rfl;
+    · unfold residualFixedFWeight; simp +decide [ h ] ;
+  · convert weighted_prescribedDemand_product_bound ( fun a b => if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R ) ( fun a b x => if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) row col htotal hm using 1;
+    · rfl;
+    · apply Fintype.sum_congr;
+      intro matching;
+      congr 1;
+      norm_cast;
+    · refine' Finset.prod_congr rfl fun a ha => Finset.prod_congr rfl fun b hb => _ ; split_ifs <;> simp +decide [ *, residualQ, residualLambda ] ;
+      · exact congr_arg _ ( Finset.sum_congr rfl fun x hx => by aesop );
+      · exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_Icc.mp hx ] ) ] ;
+
+#print axioms capped_fixedF_prescribedDemand_expansion
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
+Source: Erdos625/Section9FiniteAnalyticEndpoint.lean
+Normalized SHA-256: 06d4008ccf38069c9fa696d4eaf44dbe86224b5380038ed603078787780925de
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
+
+/-!
+# Finite analytic endpoint estimate for Section IX
+
+This module proves the finite version of manuscript (9.7)--(9.9).  It keeps
+the exact local reward, its increments, the truncated sum through
+`R = floor(U / 2)`, the cell parameter bound, and the finite exponential form
+of `U ≤ 3 log_2 m`.  The conclusion asserts one absolute constant, uniform in
+all finite parameters.  It does not supply the upstream probabilistic event
+or identify these finite parameters with a random residual table.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Local signed reward `g` from manuscript (6.5). -/
+def endpointRewardNat (x : ℕ) : ℕ :=
+  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
+
+/-- Real increment `Delta_x = g(x) - g(x-1)` from (9.5). -/
+def endpointIncrement (x : ℕ) : ℝ :=
+  (endpointRewardNat x : ℝ) - (endpointRewardNat (x - 1) : ℝ)
+
+/-- Truncated local correction `lambda` from (9.6). -/
+noncomputable def endpointLambda (R : ℕ) (theta : ℝ) : ℝ :=
+  ∑ x ∈ Finset.Icc 3 R,
+    endpointIncrement x * theta ^ x / (x.factorial : ℝ)
+
+/-- Quadratic-plus-higher local correction `q` from (9.6). -/
+noncomputable def endpointQ (R : ℕ) (theta : ℝ) : ℝ :=
+  theta ^ 2 / 2 + endpointLambda R theta
+
+lemma monotoneRatio_le_endpoint
+    (R x : ℕ) (a q : ℕ → ℝ)
+    (hx3 : 3 ≤ x) (hxR : x ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hq : ∀ i j, 3 ≤ i → i ≤ j → j < R → q i ≤ q j)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n) :
+    a x ≤ max (a 3) (a R) := by
+  -- If there exists an index $i$ ($3 \leq i \leq x-1$) with $q_i > 1$, then pick the first such $i$.
+  by_cases h_exists_i : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1;
+  · -- Let $i$ be the smallest index such that $q_i > 1$.
+    obtain ⟨i, hi₁, hi₂, hi₃⟩ : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1 ∧ ∀ j, 3 ≤ j → j < i → q j ≤ 1 := by
+      exact ⟨ Nat.find h_exists_i, Nat.find_spec h_exists_i |>.1, Nat.find_spec h_exists_i |>.2.1, Nat.find_spec h_exists_i |>.2.2, fun j hj₁ hj₂ => not_lt.1 fun hj₃ => Nat.find_min h_exists_i hj₂ ⟨ hj₁, by linarith [ Nat.find_spec h_exists_i |>.2.1 ], hj₃ ⟩ ⟩;
+    -- Since $q_i > 1$, we have $a_{i+1} \geq a_i$.
+    have h_inc : ∀ j, i ≤ j → j < R → a (j + 1) ≥ a j := by
+      exact fun j hj₁ hj₂ => by rw [ hrec j ( by linarith ) hj₂ ] ; nlinarith [ ha j ( by linarith ) ( by linarith ), hq i j hi₁ hj₁ hj₂ ] ;
+    -- Since $a_{i+1} \geq a_i$, we have $a_x \leq a_R$.
+    have h_le_R : a x ≤ a R := by
+      have h_le_R : ∀ j, x ≤ j → j ≤ R → a x ≤ a j := by
+        intro j hj₁ hj₂; induction hj₁ <;> norm_num at *;
+        exact le_trans ( by solve_by_elim [ Nat.le_of_lt ] ) ( h_inc _ ( by linarith ) hj₂ );
+      exact h_le_R R hxR le_rfl;
+    exact le_trans h_le_R ( le_max_right _ _ );
+  · -- Since there's no i with q i > 1, the sequence a n is non-increasing from 3 to x.
+    have h_noninc : ∀ n, 3 ≤ n → n ≤ x → a n ≤ a 3 := by
+      intro n hn hn'; induction hn <;> simp_all +decide ;
+      exact hrec _ ‹_› ( by linarith ) ▸ le_trans ( mul_le_of_le_one_right ( ha _ ‹_› ( by linarith ) ) ( h_exists_i _ ‹_› hn' ) ) ( by solve_by_elim [ Nat.le_of_lt ] );
+    exact le_max_of_le_left ( h_noninc x hx3 le_rfl )
+
+lemma sum_before_half_crossing
+    (R i : ℕ) (a q : ℕ → ℝ)
+    (hi : 3 ≤ i) (hiR : i ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
+    (hhalf : ∀ n, 3 ≤ n → n < i → q n ≤ (1/2 : ℝ)) :
+    ∑ n ∈ Finset.Ico 3 i, a n ≤ 2 * a 3 := by
+  -- By induction, we show that $a_n \leq a_3 \cdot 2^{-(n-3)}$ for all $n$ such that $3 \leq n < i$.
+  have h_ind : ∀ n, 3 ≤ n → n < i → a n ≤ a 3 * (1 / 2) ^ (n - 3) := by
+    intro n hn hn'; induction hn <;> norm_num at *;
+    rename_i k hk ih; rw [ hrec k hk ( by linarith ) ] ; rw [ Nat.succ_sub ( by linarith ) ] ; norm_num [ pow_succ' ] at * ; nlinarith [ ih ( by linarith ), hhalf k hk ( by linarith ), ha k hk ( by linarith ) ] ;
+  refine' le_trans ( Finset.sum_le_sum fun n hn => h_ind n ( Finset.mem_Ico.mp hn |>.1 ) ( Finset.mem_Ico.mp hn |>.2 ) ) _;
+  erw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ mul_comm, ← Finset.mul_sum _ _ _, geom_sum_eq ] ; ring_nf;
+  exact sub_le_self _ ( mul_nonneg ( mul_nonneg ( ha 3 ( by norm_num ) ( by linarith ) ) ( pow_nonneg ( by norm_num ) _ ) ) ( by norm_num ) )
+
+lemma sum_after_double_crossing
+    (R i : ℕ) (a q : ℕ → ℝ)
+    (hi : 3 ≤ i) (hiR : i ≤ R)
+    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
+    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
+    (hdouble : ∀ n, i ≤ n → n < R → (2 : ℝ) ≤ q n) :
+    ∑ n ∈ Finset.Icc i R, a n ≤ 2 * a R := by
+  -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_R (1/2)^{R-j}$.
+  have h_ind : ∀ j, i ≤ j ∧ j ≤ R → a j ≤ a R * (1 / 2) ^ (R - j) := by
+    intro j hj;
+    -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_{j+1} / 2$.
+    have h_ind_step : ∀ j, i ≤ j ∧ j < R → a j ≤ a (j + 1) / 2 := by
+      exact fun n hn => by rw [ hrec n ( by linarith ) hn.2 ] ; nlinarith [ hdouble n hn.1 hn.2, ha n ( by linarith ) ( by linarith ) ] ;
+    -- By induction on $R - j$, we show that $a_j \leq a_R / 2^{R-j}$.
+    have h_induction : ∀ k, 0 ≤ k → k ≤ R - i → ∀ j, i ≤ j ∧ j + k ≤ R → a j ≤ a (j + k) / 2 ^ k := by
+      intro k hk hk' j hj; induction' k with k ih generalizing j <;> norm_num [ Nat.pow_succ', ← div_div ] at *;
+      convert le_trans ( ih ( Nat.le_of_lt hk' ) j hj.1 ( by linarith ) ) ( div_le_div_of_nonneg_right ( h_ind_step ( j + k ) ( by linarith ) ( by linarith ) ) ( by positivity ) ) using 1 <;> first | rfl | ring
+    convert h_induction ( R - j ) ( Nat.zero_le _ ) ( Nat.sub_le_sub_left hj.1 _ ) j ⟨ hj.1, by omega ⟩ using 1 ; norm_num [ Nat.add_sub_of_le hj.2 ];
+    ring;
+    norm_num;
+  refine' le_trans ( Finset.sum_le_sum fun x hx => h_ind x <| Finset.mem_Icc.mp hx ) _;
+  erw [ Finset.sum_Ico_eq_sum_range ];
+  rw [ ← Finset.mul_sum _ _ _, ← Finset.sum_range_reflect ];
+  rw [ mul_comm ] ; gcongr;
+  · grind;
+  · rw [ Finset.sum_congr rfl fun x hx => by rw [ show R - ( i + ( R + 1 - i - 1 - x ) ) = x by norm_num at *; omega ] ] ; rw [ geom_sum_eq ] <;> ring <;> norm_num
+
+lemma ratio_transition_length
+    (R i j : ℕ) (q : ℕ → ℝ)
+    (_hi : 3 ≤ i) (hij : i ≤ j) (_hjR : j < R)
+    (_hpos : ∀ n, i ≤ n → n ≤ j → 0 ≤ q n)
+    (hgrow : ∀ n, i ≤ n → n < j → 3 * q n ≤ 2 * q (n + 1))
+    (hlo : (1/2 : ℝ) < q i) (hhi : q j < 2) :
+    j - i ≤ 4 := by
+  by_contra h_contra;
+  -- Since $j - i > 4$, we have $q_j \geq (3/2)^{j-i} q_i$.
+  have h_qj_ge : q j ≥ (3 / 2 : ℝ) ^ (j - i) * q i := by
+    have h_qj_ge : ∀ n, i ≤ n → n ≤ j → q n ≥ (3 / 2 : ℝ) ^ (n - i) * q i := by
+      intro n hn hn'; induction hn <;> norm_num at *;
+      rename_i k hk₁ hk₂; rw [ Nat.succ_sub ( by linarith ) ] ; rw [ pow_succ' ] ; nlinarith [ hk₂ ( by linarith ), hgrow k ( by linarith ) ( by linarith ), pow_pos ( by norm_num : ( 0 : ℝ ) < 3 / 2 ) ( k - i ) ] ;
+    exact h_qj_ge j hij le_rfl;
+  nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 3 / 2 ) ( not_le.mp h_contra ) ]
+
+
+lemma geometricRatioEndpointBound
+    (R : ℕ) (a q : ℕ → ℝ)
+    (ha : ∀ x, 0 ≤ a x)
+    (hq : ∀ x, 3 ≤ x → x < R → 0 ≤ q x)
+    (hrec : ∀ x, 3 ≤ x → x < R → a (x + 1) = a x * q x)
+    (hgrow : ∀ x, 3 ≤ x → x + 1 < R → 3 * q x ≤ 2 * q (x + 1)) :
+    ∑ x ∈ Finset.Icc 3 R, a x ≤ 10 * (a 3 + a R) := by
+  by_cases hR : 3 ≤ R
+  · have hmono : ∀ x y, 3 ≤ x → x ≤ y → y < R → q x ≤ q y := by
+      intro x y hx hxy hyR
+      induction hxy <;> norm_num at *
+      grind
+    by_cases hall : ∀ x, 3 ≤ x → x < R → q x ≤ (1 / 2 : ℝ)
+    · have hh := sum_before_half_crossing R R a q hR le_rfl (fun x _ _ => ha x) hrec hall
+      change (∑ x ∈ Finset.Ico 3 (R+1), a x) ≤ _
+      rw [Finset.sum_Ico_succ_top hR]
+      have h3 := ha 3
+      have hlast := ha R
+      nlinarith
+    · push Not at hall
+      obtain ⟨i, hi3, hiR, hiq⟩ := hall
+      let i₀ := Nat.find (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
+      have hi₀ := Nat.find_spec (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
+      have hbefore : ∀ n, 3 ≤ n → n < i₀ → q n ≤ (1 / 2 : ℝ) := by
+        intro n hn hni
+        exact le_of_not_gt (fun hh => Nat.find_min (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩) hni ⟨hn, by omega, hh⟩)
+      have hhead := sum_before_half_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec hbefore
+      by_cases htail : ∀ x, i₀ ≤ x → x < R → (2 : ℝ) ≤ q x
+      · have ht := sum_after_double_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec htail
+        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
+            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ R, a x := by
+          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
+          have hright : (∑ x ∈ Finset.Icc i₀ R, a x) = ∑ x ∈ Finset.Ico i₀ (R+1), a x := by rfl
+          rw [hwhole, hright]
+          exact (Finset.sum_Ico_consecutive a hi₀.1 (by omega)).symm
+        rw [hsplit]
+        have h3 := ha 3
+        have hlast := ha R
+        nlinarith
+      · push Not at htail
+        obtain ⟨j, hij, hjR, hjq⟩ := htail
+        let j₀ := Finset.max' (Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R))
+          ⟨j, by simp [hij, hjR, hjq]⟩
+        have hjmem : j₀ ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) :=
+          Finset.max'_mem _ _
+        have hjprops : i₀ ≤ j₀ ∧ j₀ < R ∧ q j₀ < 2 := by
+          have hp := (Finset.mem_filter.mp hjmem)
+          have hiR : i₀ ≤ j₀ ∧ j₀ < R := (Finset.mem_Ico.mp hp.1)
+          exact ⟨hiR.1, hiR.2, hp.2⟩
+        have hafter : ∀ n, j₀ < n → n < R → (2 : ℝ) ≤ q n := by
+          intro n hjn hnR
+          exact le_of_not_gt (fun hnq => by
+            have hnmem : n ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) := by
+              simp only [Finset.mem_filter, Finset.mem_Ico]
+              exact ⟨⟨by omega, hnR⟩, hnq⟩
+            have := Finset.le_max' _ n hnmem
+            omega)
+        have htail' := sum_after_double_crossing R (j₀ + 1) a q (by omega)
+          (by omega) (fun x _ _ => ha x) hrec (by intro n hn hnR; exact hafter n (by omega) hnR)
+        have hlen : j₀ - i₀ ≤ 4 := ratio_transition_length R i₀ j₀ q hi₀.1 hjprops.1 hjprops.2.1
+          (by intro n hn hnj; exact hq n (hi₀.1.trans hn) (hnj.trans_lt hjprops.2.1))
+          (by intro n hn hnj; exact hgrow n (hi₀.1.trans hn) (by omega)) hi₀.2.2 hjprops.2.2
+        have hmiddle_point : ∀ x ∈ Finset.Icc i₀ j₀, a x ≤ max (a 3) (a R) := by
+          intro x hx
+          rw [Finset.mem_Icc] at hx
+          exact monotoneRatio_le_endpoint R x a q (hi₀.1.trans hx.1)
+            (hx.2.trans hjprops.2.1.le) (fun x _ _ => ha x) hmono hrec
+        have hmiddle : ∑ x ∈ Finset.Icc i₀ j₀, a x ≤ 5 * max (a 3) (a R) := by
+          calc
+            _ ≤ ∑ _x ∈ Finset.Icc i₀ j₀, max (a 3) (a R) := Finset.sum_le_sum hmiddle_point
+            _ = ((j₀ + 1 - i₀ : ℕ) : ℝ) * max (a 3) (a R) := by
+              rw [Finset.sum_const, Nat.card_Icc, nsmul_eq_mul]
+            _ ≤ 5 * max (a 3) (a R) := by
+              have hm : 0 ≤ max (a 3) (a R) := le_max_of_le_left (ha 3)
+              have hc : ((j₀ + 1 - i₀ : ℕ) : ℝ) ≤ 5 := by exact_mod_cast (by omega : j₀ + 1 - i₀ ≤ 5)
+              nlinarith
+        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
+            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ j₀, a x +
+              ∑ x ∈ Finset.Icc (j₀ + 1) R, a x := by
+          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
+          have hmid : (∑ x ∈ Finset.Icc i₀ j₀, a x) = ∑ x ∈ Finset.Ico i₀ (j₀+1), a x := by rfl
+          have hright : (∑ x ∈ Finset.Icc (j₀+1) R, a x) = ∑ x ∈ Finset.Ico (j₀+1) (R+1), a x := by rfl
+          rw [hwhole, hmid, hright]
+          rw [Finset.sum_Ico_consecutive a hi₀.1 (by omega)]
+          rw [Finset.sum_Ico_consecutive a (by omega : 3 ≤ j₀ + 1) (by omega)]
+        rw [hsplit]
+        have h3 := ha 3
+        have hlast := ha R
+        have hm1 : max (a 3) (a R) ≤ a 3 + a R := max_le (le_add_of_nonneg_right hlast) (le_add_of_nonneg_left h3)
+        nlinarith
+  · have : Finset.Icc 3 R = ∅ := by ext x; simp; omega
+    rw [this]
+    simp
+    nlinarith [ha 3, ha R]
+
+lemma dyadic_logconvex_sum_bound (R : ℕ) (t : ℝ) (ht : 0 ≤ t) :
+    ∑ x ∈ Finset.Icc 3 R,
+      (2 : ℝ) ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)
+      ≤ 10 * ((2 : ℝ) ^ (Nat.choose 3 2 - 1) * t ^ 3 / (Nat.factorial 3 : ℝ) +
+        (2 : ℝ) ^ (R.choose 2 - 1) * t ^ R / (R.factorial : ℝ)) := by
+  apply geometricRatioEndpointBound R (fun x => 2 ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)) (fun x => 2^x * t / (x + 1));
+  · exact fun x => by positivity;
+  · exact fun _ _ _ => by positivity;
+  · intro x hx₁ hx₂; rw [ Nat.choose_succ_succ ] ; ring;
+    norm_num [ Nat.add_comm 1, Nat.factorial_succ ] ; ring;
+    rw [ show x + x.choose 2 - 1 = x + ( x.choose 2 - 1 ) by rw [ Nat.add_sub_assoc ( Nat.choose_pos ( by linarith ) ) ] ] ; ring;
+  · intro x hx₁ hx₂; rw [ mul_div, mul_div, div_le_div_iff₀ ] <;> try positivity;
+    norm_num [ pow_succ' ] ; nlinarith [ show ( x : ℝ ) ≥ 3 by norm_cast, show ( 2 : ℝ ) ^ x * t ≥ 0 by positivity ]
+
+
+lemma exp_poly_le_dyadic_eventually24 :
+    ∀ U : ℕ, 2000 ≤ U →
+      Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
+  intro U hU
+  by_cases hU_le_2048 : U ≤ 2048
+  · have h := Real.exp_one_lt_d9.le
+    exact le_trans (mul_le_mul_of_nonneg_right h (sq_nonneg _)) (by interval_cases U <;> norm_num)
+  · induction' U using Nat.strong_induction_on with U ih
+    by_cases hU_le_2072 : U ≤ 2072
+    · have h := Real.exp_one_lt_d9.le
+      norm_num1 at *
+      interval_cases U <;> norm_num at * <;> linarith
+    · have h_ind : Real.exp 1 * (U - 24 : ℝ) ^ 2 ≤ 2 ^ ((U - 24) / 24) := by
+        convert ih (U - 24) (Nat.sub_lt (by linarith) (by linarith))
+          (Nat.le_sub_of_add_le (by linarith)) (by omega) using 1
+        rw [Nat.cast_sub (by linarith)]
+        push_cast
+        ring
+      have h_ineq : 2 * (U - 24 : ℝ) ^ 2 ≥ U ^ 2 := by
+        nlinarith only [show (U : ℝ) ≥ 2073 by norm_cast; linarith]
+      rw [show U / 24 = (U - 24) / 24 + 1 by omega]
+      norm_num [pow_add]
+      nlinarith [Real.exp_pos 1]
+
+lemma dyadic_upper_endpoint_large (U : ℕ) (hU : 2000 ≤ U) :
+      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
+          ((U / 2).factorial : ℝ) *
+        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ 1 := by
+  -- Use the inequality $eU^2/2^{U/3} \le 2^{U/24-U/3}$ to bound $T$.
+  have hT_bound : (Real.exp 1 * U ^ 2 / 2 ^ (U / 3)) ^ ((U / 2 - 3) : ℕ) ≤ (1 / 2 ^ ((U / 3 - U / 24) : ℕ)) ^ ((U / 2 - 3) : ℕ) := by
+    have hT_bound : Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
+      convert exp_poly_le_dyadic_eventually24 U hU using 1;
+    refine' pow_le_pow_left₀ ( by positivity ) _ _;
+    convert div_le_div_of_nonneg_right hT_bound ( by positivity : ( 0 : ℝ ) ≤ 2 ^ ( U / 3 ) ) using 1 ; rw [ div_eq_div_iff ] <;> first | positivity | ring;
+    rw [ ← pow_add, Nat.add_sub_of_le ( by omega ) ];
+  refine le_trans ( mul_le_mul_of_nonneg_left hT_bound ( by positivity ) ) ?_;
+  rw [ div_pow, mul_div, div_le_one ];
+  · rw [ ← pow_mul, mul_comm ];
+    refine' le_trans ( mul_le_mul_of_nonneg_left ( div_le_self ( by positivity ) ( mod_cast Nat.factorial_pos _ ) ) ( by positivity ) ) _;
+    norm_num [ Nat.choose_two_right ];
+    gcongr <;> norm_num;
+    rw [ Nat.div_le_iff_le_mul_add_pred ] <;> norm_num;
+    zify;
+    rw [ Nat.cast_sub, Nat.cast_sub, Nat.cast_sub ] <;> push_cast <;> repeat omega;
+    nlinarith [ Nat.div_mul_le_self U 2, Nat.div_mul_le_self U 3, Nat.div_mul_le_self U 24, Nat.div_add_mod U 2, Nat.mod_lt U two_pos, Nat.div_add_mod U 3, Nat.mod_lt U three_pos, Nat.div_add_mod U 24, Nat.mod_lt U ( by decide : 0 < 24 ) ];
+  · positivity
+
+lemma dyadic_upper_endpoint_uniform :
+    ∃ K : ℝ, 0 < K ∧ ∀ U : ℕ,
+      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
+          ((U / 2).factorial : ℝ) *
+        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
+  -- Let's choose any $K > 0$ and show that the inequality holds for all $U$.
+  obtain ⟨K, hK⟩ : ∃ K : ℝ, ∀ U : ℕ, U < 2000 → (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
+    have h_finite : Set.Finite (Set.image (fun U : ℕ => (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3)) (Set.Iio 2000)) := by
+      exact Set.Finite.image _ <| Set.finite_Iio _;
+    exact ⟨ h_finite.bddAbove.choose, fun U hU => h_finite.bddAbove.choose_spec <| Set.mem_image_of_mem _ hU ⟩;
+  refine' ⟨ Max.max K 1, by positivity, fun U => _ ⟩ ; cases lt_or_ge U 2000 <;> simp_all +decide;
+  exact Or.inr ( dyadic_upper_endpoint_large U ‹_› )
+
+
+
+lemma endpointIncrement_le_majorant (x : ℕ) (hx : 3 ≤ x) :
+    endpointIncrement x ≤ (2 : ℝ) ^ (x.choose 2 - 1) := by
+  unfold endpointIncrement endpointRewardNat
+  rw [if_pos hx]
+  push_cast
+  exact sub_le_self ((2 : ℝ) ^ (x.choose 2 - 1)) (by positivity)
+
+lemma cell_size_dyadic_lower (U m : ℕ) (hm : (2 : ℕ)^U ≤ m^3) :
+    (2 : ℕ)^(U/3) ≤ m := by
+  by_contra h
+  have hlt : m < 2^(U/3) := Nat.lt_of_not_ge h
+  have hc := Nat.pow_lt_pow_left hlt (by omega : 3 ≠ 0)
+  rw [← pow_mul] at hc
+  have he : U / 3 * 3 ≤ U := Nat.div_mul_le_self U 3
+  have hp : (2 : ℕ)^(U/3*3) ≤ 2^U := Nat.pow_le_pow_right (by omega) he
+  exact (Nat.not_lt_of_ge hm) (hc.trans_le hp)
+
+lemma theta_cap_uniform :
+    ∃ B : ℝ, 0 < B ∧ ∀ U : ℕ,
+      Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) ≤ B := by
+  let f : ℕ → ℝ := fun U => Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3)
+  let S := Set.image f (Set.Iio 2000)
+  have hfin : S.Finite := Set.Finite.image _ (Set.finite_Iio 2000)
+  let B := max 1 hfin.bddAbove.choose
+  refine ⟨B, by positivity, ?_⟩
+  intro U
+  by_cases hU : U < 2000
+  · exact le_trans (hfin.bddAbove.choose_spec (Set.mem_image_of_mem f hU)) (le_max_right _ _)
+  · have he := exp_poly_le_dyadic_eventually24 U (by omega)
+    have hle : f U ≤ 1 := by
+      dsimp [f]
+      calc
+        _ ≤ (2 : ℝ)^(U/24) / (2 : ℝ)^(U/3) := div_le_div_of_nonneg_right he (by positivity)
+        _ ≤ 1 := by
+          rw [div_le_one (by positivity)]
+          exact pow_le_pow_right₀ (by norm_num) (by omega)
+    exact hle.trans (le_max_left _ _)
+
+/-- Finite uniform analytic endpoint theorem.
+
+The natural inequality `2^U ≤ m^3` is an exact finite replacement for
+`U ≤ 3 log_2 m` when `m > 0`.  The witness `C` is quantified before every
+cell parameter, so it is genuinely absolute. -/
+theorem existsAbsoluteFiniteEndpointConstant :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ (U m R : ℕ) (theta : ℝ),
+        0 < m →
+        R = U / 2 →
+        0 ≤ theta →
+        theta ≤ Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) →
+        (2 : ℕ) ^ U ≤ m ^ 3 →
+        endpointLambda R theta ≤ C * theta ^ 3 ∧
+          endpointQ R theta ≤ C * theta ^ 2 := by
+  obtain ⟨K, hKpos, hK⟩ := dyadic_upper_endpoint_uniform
+  obtain ⟨B, hBpos, hB⟩ := theta_cap_uniform
+  let A : ℝ := 10 * (1 + K)
+  let C : ℝ := 1 + A + A * B
+  refine ⟨C, by dsimp [C, A]; positivity, ?_⟩
+  intro U m R theta hm hR htheta htheta_m hpow
+  have hm_lower_nat := cell_size_dyadic_lower U m hpow
+  have hm_lower : (2 : ℝ) ^ (U / 3) ≤ (m : ℝ) := by exact_mod_cast hm_lower_nat
+  have hmreal : (0 : ℝ) < m := by exact_mod_cast hm
+  have hT : theta ≤ Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) := by
+    exact htheta_m.trans (div_le_div_of_nonneg_left (by positivity) (by positivity) hm_lower)
+  have hthetaB : theta ≤ B := hT.trans (hB U)
+  have hlambda : endpointLambda R theta ≤ A * theta^3 := by
+    rw [hR]
+    by_cases hsmall : U / 2 < 3
+    · unfold endpointLambda
+      have hzero : Finset.Icc 3 (U/2) = ∅ := by ext x; simp; omega
+      simp [hzero]
+      dsimp [A]
+      positivity
+    · unfold endpointLambda
+      calc
+        _ ≤ ∑ x ∈ Finset.Icc 3 (U / 2),
+            (2 : ℝ)^(x.choose 2 - 1) * theta^x / (x.factorial : ℝ) := by
+          apply Finset.sum_le_sum
+          intro x hx
+          rw [Finset.mem_Icc] at hx
+          have hi := endpointIncrement_le_majorant x hx.1
+          exact div_le_div_of_nonneg_right
+            (mul_le_mul_of_nonneg_right hi (pow_nonneg htheta x)) (by positivity)
+        _ ≤ 10 * ((2 : ℝ)^(Nat.choose 3 2 - 1) * theta^3 /
+              (Nat.factorial 3 : ℝ) +
+            (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
+              ((U/2).factorial : ℝ)) := dyadic_logconvex_sum_bound (U/2) theta htheta
+        _ ≤ A * theta^3 := by
+          have hpow_split : theta^(U/2) = theta^3 * theta^(U/2-3) := by
+            rw [← pow_add, Nat.add_sub_of_le (by omega)]
+          have htail :
+              (2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
+                theta^(U/2-3) ≤ K := by
+            refine le_trans ?_ (hK U)
+            gcongr
+          have htail' :
+              (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
+                ((U/2).factorial : ℝ) ≤ K * theta^3 := by
+            rw [hpow_split]
+            calc
+              _ = ((2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
+                    theta^(U/2-3)) * theta^3 := by ring
+              _ ≤ K * theta^3 := mul_le_mul_of_nonneg_right htail (pow_nonneg htheta 3)
+          norm_num [A, Nat.choose]
+          nlinarith [htail', hKpos, pow_nonneg htheta 3]
+
+  constructor
+  · have hA : 0 ≤ A := by dsimp [A]; positivity
+    have hAC : A ≤ C := by dsimp [C]; nlinarith [hBpos]
+    exact hlambda.trans (mul_le_mul_of_nonneg_right hAC (pow_nonneg htheta 3))
+  · unfold endpointQ
+    have hc : 1 / 2 + A * theta ≤ C := by
+      have hab : A * theta ≤ A * B := mul_le_mul_of_nonneg_left hthetaB (by dsimp [A]; positivity)
+      dsimp [C]
+      linarith [show 0 ≤ A by dsimp [A]; positivity]
+    calc
+      theta^2 / 2 + endpointLambda R theta ≤ theta^2 / 2 + A * theta^3 := add_le_add_right hlambda _
+      _ = (1/2 + A * theta) * theta^2 := by ring
+      _ ≤ C * theta^2 := mul_le_mul_of_nonneg_right hc (sq_nonneg theta)
+
+#print axioms existsAbsoluteFiniteEndpointConstant
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
+Source: Erdos625/Section9ResidualQQuadratic.lean
+Normalized SHA-256: bb273eb7c0d3fdcfdee0eb7f14b50ad50fb8c726812fc4e387002c2b915df8a7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
+
+/-!
+# Section IX: universal residual-q quadratic bound
+
+This module transports the accepted finite real endpoint estimate to the
+literal `ENNReal` residual kernel. It is a pointwise analytic bridge only: it
+does not identify a conditioned residual event, prove an attachment estimate,
+or assemble Lemma 9.1.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One finite positive `ENNReal` constant bounds the literal Section IX
+`residualQ` quadratically in the literal configuration-cell parameter,
+simultaneously for all finite row/column type families. -/
+theorem existsAbsoluteResidualQQuadraticBound :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        R = U / 2 →
+        (∀ a b, (a, b) ∉ M →
+          (configurationCellTheta row col m a b).toReal ≤
+            Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ)) →
+        2 ^ U ≤ m ^ 3 →
+        ∀ a b,
+          residualQ M R row col a b ≤
+            κ * configurationCellTheta row col m a b ^ 2 := by
+  obtain ⟨ C, hC₀, hC ⟩ := existsAbsoluteFiniteEndpointConstant;
+  use ENNReal.ofReal C;
+  refine' ⟨ ENNReal.ofReal_pos.mpr hC₀, ENNReal.ofReal_ne_top, _ ⟩;
+  intro A B _ _ _ _ M U R m row col hm hsum hR hbound hpow a b; by_cases hab : ( a, b ) ∈ M <;> simp +decide [ hab, residualQ ] ;
+  have h_residLambda : residualLambda M R row col a b = ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) := by
+    unfold residualLambda; simp +decide [ *, endpointLambda ] ;
+    rw [ ENNReal.ofReal_sum_of_nonneg ];
+    · refine' Finset.sum_congr rfl fun x hx => _;
+      rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by
+        unfold endpointIncrement; simp +decide [ endpointRewardNat ] ;
+        split_ifs <;> norm_num at *;
+        · exact pow_le_pow_right₀ ( by norm_num ) ( Nat.sub_le_sub_right ( Nat.choose_le_choose _ ( Nat.pred_le _ ) ) _ );
+        · omega;
+        · exact one_le_pow₀ ( by norm_num ) ), ENNReal.ofReal_pow ( by
+        exact ENNReal.toReal_nonneg ) ];
+      rw [ show endpointIncrement x = ( residualRewardIncrement x : ℝ ) from ?_ ];
+      · rw [ ENNReal.ofReal_natCast, ENNReal.ofReal_natCast, ENNReal.ofReal_toReal ];
+        unfold configurationCellTheta; simp +decide [ eulerENNReal ] ;
+        simp +decide [ ENNReal.div_eq_top, hm.ne' ];
+        exact ENNReal.mul_ne_top ( ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( by norm_num ) ) ( by norm_num );
+      · unfold endpointIncrement residualRewardIncrement; simp +decide [ residualReward ] ;
+        rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
+        · norm_num;
+        · rw [ Nat.cast_sub ] <;> norm_num;
+          apply pow_le_pow_right₀ (by norm_num)
+          have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
+            exact Nat.choose_le_succ (x + 3) 2
+          omega
+    · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
+        rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat, Nat.choose ] at hi ⊢;
+        split_ifs;
+        · apply pow_le_pow_right₀ (by norm_num)
+          omega
+        · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
+  have h_residQ : configurationCellTheta row col m a b ^ 2 / 2 + ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) ≤ ENNReal.ofReal (endpointQ R (configurationCellTheta row col m a b).toReal) := by
+    rw [ endpointQ ];
+    rw [ ENNReal.ofReal_add ];
+    · gcongr;
+      rw [ ENNReal.le_ofReal_iff_toReal_le ] <;> norm_num;
+      · simp +decide [ configurationCellTheta ];
+        simp +decide [ ENNReal.div_eq_top, ENNReal.mul_eq_top ];
+        exact fun _ _ _ => hm.ne';
+      · positivity;
+    · positivity;
+    · refine' Finset.sum_nonneg fun x hx => div_nonneg ( mul_nonneg _ _ ) _ <;> norm_num;
+      exact sub_nonneg_of_le ( mod_cast Nat.le_of_lt_succ ( by
+        unfold endpointRewardNat; rcases x with ( _ | _ | _ | x ) <;> simp +arith +decide [ Nat.choose ] at hx ⊢;
+        split_ifs <;> [ exact pow_le_pow_right₀ ( by norm_num ) ( by linarith ) ; exact Nat.one_le_pow _ _ ( by norm_num ) ] ) );
+  by_cases h : configurationCellTheta row col m a b = ⊤ <;> simp_all +decide;
+  refine le_trans h_residQ ?_;
+  calc
+    _ ≤ ENNReal.ofReal (C * (configurationCellTheta row col m a b).toReal ^ 2) :=
+      ENNReal.ofReal_le_ofReal
+        (hC U m (U / 2) (configurationCellTheta row col m a b).toReal hm rfl
+          ENNReal.toReal_nonneg (hbound a b hab) hpow).2
+    _ = ENNReal.ofReal C * configurationCellTheta row col m a b ^ 2 := by
+      rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow (by positivity),
+        ENNReal.ofReal_toReal h]
+
+#print axioms existsAbsoluteResidualQQuadraticBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualQDegreeAssembly
+Source: Erdos625/Section9ResidualQDegreeAssembly.lean
+Normalized SHA-256: 5fe6eeabcf4ec0f29f2f2a7410d13e20d8e99e1b3510d10dd227db1269bdcd5a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualQDegreeAssembly
+
+/-!
+# Section IX: conditional residual-kernel row and column bound
+
+This module composes the established finite analytic residual-q estimate with
+the exact Euler rescaling and deterministic degree-sum bound.  Every
+configuration-model cap, total, and theta hypothesis remains explicit.  In
+particular, it does not identify a conditioned residual random family or
+assemble the manuscript's Lemma 9.1.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Under the explicit finite endpoint, degree-cap, total-mass, and
+configuration-cell hypotheses, one absolute constant bounds both residual-q
+row and column sums at scale `U^3 / m`. -/
+theorem existsAbsoluteResidualQRowColumnBound :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        (∀ a b, (a, b) ∉ M →
+          (configurationCellTheta row col m a b).toReal ≤
+            Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ)) →
+        2 ^ U ≤ m ^ 3 →
+        (∀ a, ∑ b, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) ∧
+        (∀ b, ∑ a, residualQ M R row col a b ≤
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)) := by
+  obtain ⟨K, hKpos, hKtop, hquadratic⟩ :=
+    existsAbsoluteResidualQQuadraticBound
+  have heulerPos : 0 < eulerENNReal := by
+    rw [eulerENNReal, ENNReal.ofReal_pos]
+    exact Real.exp_pos 1
+  have heulerFinite : eulerENNReal ≠ ∞ :=
+    ENNReal.ofReal_ne_top
+  refine ⟨K * eulerENNReal ^ 2, mul_pos hKpos (pow_pos heulerPos 2),
+    ENNReal.mul_ne_top hKtop (ENNReal.pow_ne_top heulerFinite), ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap
+    hR htheta hpow
+  have hqtheta : ∀ a b,
+      residualQ M R row col a b ≤
+        K * configurationCellTheta row col m a b ^ 2 :=
+    hquadratic M U R m row col hm hrowTotal hR htheta hpow
+  have hdegree := rescale_configurationCellTheta_square_to_degreeSquare
+    row col m (residualQ M R row col) K hKpos hKtop hqtheta
+  exact q_row_column_le_of_pointwise_degree_square
+    row col (residualQ M R row col) U m (K * eulerENNReal ^ 2)
+    hm hrowTotal hcolTotal hrowCap hcolCap hdegree.2.2
+
+#print axioms existsAbsoluteResidualQRowColumnBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualQDegreeAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualQDegreeAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
 Source: Erdos625/Section9MatchingTraversalBridge.lean
 Normalized SHA-256: 2043628ce6bb659136e47ddc9c146a6702a3517e5a28b9a9ce71127ec2f3243d
@@ -24233,872 +25270,6 @@ END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
-Source: Erdos625/Section9FiniteAnalyticEndpoint.lean
-Normalized SHA-256: 06d4008ccf38069c9fa696d4eaf44dbe86224b5380038ed603078787780925de
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
-
-/-!
-# Finite analytic endpoint estimate for Section IX
-
-This module proves the finite version of manuscript (9.7)--(9.9).  It keeps
-the exact local reward, its increments, the truncated sum through
-`R = floor(U / 2)`, the cell parameter bound, and the finite exponential form
-of `U ≤ 3 log_2 m`.  The conclusion asserts one absolute constant, uniform in
-all finite parameters.  It does not supply the upstream probabilistic event
-or identify these finite parameters with a random residual table.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Local signed reward `g` from manuscript (6.5). -/
-def endpointRewardNat (x : ℕ) : ℕ :=
-  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
-
-/-- Real increment `Delta_x = g(x) - g(x-1)` from (9.5). -/
-def endpointIncrement (x : ℕ) : ℝ :=
-  (endpointRewardNat x : ℝ) - (endpointRewardNat (x - 1) : ℝ)
-
-/-- Truncated local correction `lambda` from (9.6). -/
-noncomputable def endpointLambda (R : ℕ) (theta : ℝ) : ℝ :=
-  ∑ x ∈ Finset.Icc 3 R,
-    endpointIncrement x * theta ^ x / (x.factorial : ℝ)
-
-/-- Quadratic-plus-higher local correction `q` from (9.6). -/
-noncomputable def endpointQ (R : ℕ) (theta : ℝ) : ℝ :=
-  theta ^ 2 / 2 + endpointLambda R theta
-
-lemma monotoneRatio_le_endpoint
-    (R x : ℕ) (a q : ℕ → ℝ)
-    (hx3 : 3 ≤ x) (hxR : x ≤ R)
-    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
-    (hq : ∀ i j, 3 ≤ i → i ≤ j → j < R → q i ≤ q j)
-    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n) :
-    a x ≤ max (a 3) (a R) := by
-  -- If there exists an index $i$ ($3 \leq i \leq x-1$) with $q_i > 1$, then pick the first such $i$.
-  by_cases h_exists_i : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1;
-  · -- Let $i$ be the smallest index such that $q_i > 1$.
-    obtain ⟨i, hi₁, hi₂, hi₃⟩ : ∃ i, 3 ≤ i ∧ i < x ∧ q i > 1 ∧ ∀ j, 3 ≤ j → j < i → q j ≤ 1 := by
-      exact ⟨ Nat.find h_exists_i, Nat.find_spec h_exists_i |>.1, Nat.find_spec h_exists_i |>.2.1, Nat.find_spec h_exists_i |>.2.2, fun j hj₁ hj₂ => not_lt.1 fun hj₃ => Nat.find_min h_exists_i hj₂ ⟨ hj₁, by linarith [ Nat.find_spec h_exists_i |>.2.1 ], hj₃ ⟩ ⟩;
-    -- Since $q_i > 1$, we have $a_{i+1} \geq a_i$.
-    have h_inc : ∀ j, i ≤ j → j < R → a (j + 1) ≥ a j := by
-      exact fun j hj₁ hj₂ => by rw [ hrec j ( by linarith ) hj₂ ] ; nlinarith [ ha j ( by linarith ) ( by linarith ), hq i j hi₁ hj₁ hj₂ ] ;
-    -- Since $a_{i+1} \geq a_i$, we have $a_x \leq a_R$.
-    have h_le_R : a x ≤ a R := by
-      have h_le_R : ∀ j, x ≤ j → j ≤ R → a x ≤ a j := by
-        intro j hj₁ hj₂; induction hj₁ <;> norm_num at *;
-        exact le_trans ( by solve_by_elim [ Nat.le_of_lt ] ) ( h_inc _ ( by linarith ) hj₂ );
-      exact h_le_R R hxR le_rfl;
-    exact le_trans h_le_R ( le_max_right _ _ );
-  · -- Since there's no i with q i > 1, the sequence a n is non-increasing from 3 to x.
-    have h_noninc : ∀ n, 3 ≤ n → n ≤ x → a n ≤ a 3 := by
-      intro n hn hn'; induction hn <;> simp_all +decide ;
-      exact hrec _ ‹_› ( by linarith ) ▸ le_trans ( mul_le_of_le_one_right ( ha _ ‹_› ( by linarith ) ) ( h_exists_i _ ‹_› hn' ) ) ( by solve_by_elim [ Nat.le_of_lt ] );
-    exact le_max_of_le_left ( h_noninc x hx3 le_rfl )
-
-lemma sum_before_half_crossing
-    (R i : ℕ) (a q : ℕ → ℝ)
-    (hi : 3 ≤ i) (hiR : i ≤ R)
-    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
-    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
-    (hhalf : ∀ n, 3 ≤ n → n < i → q n ≤ (1/2 : ℝ)) :
-    ∑ n ∈ Finset.Ico 3 i, a n ≤ 2 * a 3 := by
-  -- By induction, we show that $a_n \leq a_3 \cdot 2^{-(n-3)}$ for all $n$ such that $3 \leq n < i$.
-  have h_ind : ∀ n, 3 ≤ n → n < i → a n ≤ a 3 * (1 / 2) ^ (n - 3) := by
-    intro n hn hn'; induction hn <;> norm_num at *;
-    rename_i k hk ih; rw [ hrec k hk ( by linarith ) ] ; rw [ Nat.succ_sub ( by linarith ) ] ; norm_num [ pow_succ' ] at * ; nlinarith [ ih ( by linarith ), hhalf k hk ( by linarith ), ha k hk ( by linarith ) ] ;
-  refine' le_trans ( Finset.sum_le_sum fun n hn => h_ind n ( Finset.mem_Ico.mp hn |>.1 ) ( Finset.mem_Ico.mp hn |>.2 ) ) _;
-  erw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ mul_comm, ← Finset.mul_sum _ _ _, geom_sum_eq ] ; ring_nf;
-  exact sub_le_self _ ( mul_nonneg ( mul_nonneg ( ha 3 ( by norm_num ) ( by linarith ) ) ( pow_nonneg ( by norm_num ) _ ) ) ( by norm_num ) )
-
-lemma sum_after_double_crossing
-    (R i : ℕ) (a q : ℕ → ℝ)
-    (hi : 3 ≤ i) (hiR : i ≤ R)
-    (ha : ∀ n, 3 ≤ n → n ≤ R → 0 ≤ a n)
-    (hrec : ∀ n, 3 ≤ n → n < R → a (n + 1) = a n * q n)
-    (hdouble : ∀ n, i ≤ n → n < R → (2 : ℝ) ≤ q n) :
-    ∑ n ∈ Finset.Icc i R, a n ≤ 2 * a R := by
-  -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_R (1/2)^{R-j}$.
-  have h_ind : ∀ j, i ≤ j ∧ j ≤ R → a j ≤ a R * (1 / 2) ^ (R - j) := by
-    intro j hj;
-    -- By induction on $j$ from $i$ to $R$, we show that $a_j \leq a_{j+1} / 2$.
-    have h_ind_step : ∀ j, i ≤ j ∧ j < R → a j ≤ a (j + 1) / 2 := by
-      exact fun n hn => by rw [ hrec n ( by linarith ) hn.2 ] ; nlinarith [ hdouble n hn.1 hn.2, ha n ( by linarith ) ( by linarith ) ] ;
-    -- By induction on $R - j$, we show that $a_j \leq a_R / 2^{R-j}$.
-    have h_induction : ∀ k, 0 ≤ k → k ≤ R - i → ∀ j, i ≤ j ∧ j + k ≤ R → a j ≤ a (j + k) / 2 ^ k := by
-      intro k hk hk' j hj; induction' k with k ih generalizing j <;> norm_num [ Nat.pow_succ', ← div_div ] at *;
-      convert le_trans ( ih ( Nat.le_of_lt hk' ) j hj.1 ( by linarith ) ) ( div_le_div_of_nonneg_right ( h_ind_step ( j + k ) ( by linarith ) ( by linarith ) ) ( by positivity ) ) using 1 <;> first | rfl | ring
-    convert h_induction ( R - j ) ( Nat.zero_le _ ) ( Nat.sub_le_sub_left hj.1 _ ) j ⟨ hj.1, by omega ⟩ using 1 ; norm_num [ Nat.add_sub_of_le hj.2 ];
-    ring;
-    norm_num;
-  refine' le_trans ( Finset.sum_le_sum fun x hx => h_ind x <| Finset.mem_Icc.mp hx ) _;
-  erw [ Finset.sum_Ico_eq_sum_range ];
-  rw [ ← Finset.mul_sum _ _ _, ← Finset.sum_range_reflect ];
-  rw [ mul_comm ] ; gcongr;
-  · grind;
-  · rw [ Finset.sum_congr rfl fun x hx => by rw [ show R - ( i + ( R + 1 - i - 1 - x ) ) = x by norm_num at *; omega ] ] ; rw [ geom_sum_eq ] <;> ring <;> norm_num
-
-lemma ratio_transition_length
-    (R i j : ℕ) (q : ℕ → ℝ)
-    (_hi : 3 ≤ i) (hij : i ≤ j) (_hjR : j < R)
-    (_hpos : ∀ n, i ≤ n → n ≤ j → 0 ≤ q n)
-    (hgrow : ∀ n, i ≤ n → n < j → 3 * q n ≤ 2 * q (n + 1))
-    (hlo : (1/2 : ℝ) < q i) (hhi : q j < 2) :
-    j - i ≤ 4 := by
-  by_contra h_contra;
-  -- Since $j - i > 4$, we have $q_j \geq (3/2)^{j-i} q_i$.
-  have h_qj_ge : q j ≥ (3 / 2 : ℝ) ^ (j - i) * q i := by
-    have h_qj_ge : ∀ n, i ≤ n → n ≤ j → q n ≥ (3 / 2 : ℝ) ^ (n - i) * q i := by
-      intro n hn hn'; induction hn <;> norm_num at *;
-      rename_i k hk₁ hk₂; rw [ Nat.succ_sub ( by linarith ) ] ; rw [ pow_succ' ] ; nlinarith [ hk₂ ( by linarith ), hgrow k ( by linarith ) ( by linarith ), pow_pos ( by norm_num : ( 0 : ℝ ) < 3 / 2 ) ( k - i ) ] ;
-    exact h_qj_ge j hij le_rfl;
-  nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 3 / 2 ) ( not_le.mp h_contra ) ]
-
-
-lemma geometricRatioEndpointBound
-    (R : ℕ) (a q : ℕ → ℝ)
-    (ha : ∀ x, 0 ≤ a x)
-    (hq : ∀ x, 3 ≤ x → x < R → 0 ≤ q x)
-    (hrec : ∀ x, 3 ≤ x → x < R → a (x + 1) = a x * q x)
-    (hgrow : ∀ x, 3 ≤ x → x + 1 < R → 3 * q x ≤ 2 * q (x + 1)) :
-    ∑ x ∈ Finset.Icc 3 R, a x ≤ 10 * (a 3 + a R) := by
-  by_cases hR : 3 ≤ R
-  · have hmono : ∀ x y, 3 ≤ x → x ≤ y → y < R → q x ≤ q y := by
-      intro x y hx hxy hyR
-      induction hxy <;> norm_num at *
-      grind
-    by_cases hall : ∀ x, 3 ≤ x → x < R → q x ≤ (1 / 2 : ℝ)
-    · have hh := sum_before_half_crossing R R a q hR le_rfl (fun x _ _ => ha x) hrec hall
-      change (∑ x ∈ Finset.Ico 3 (R+1), a x) ≤ _
-      rw [Finset.sum_Ico_succ_top hR]
-      have h3 := ha 3
-      have hlast := ha R
-      nlinarith
-    · push Not at hall
-      obtain ⟨i, hi3, hiR, hiq⟩ := hall
-      let i₀ := Nat.find (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
-      have hi₀ := Nat.find_spec (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩)
-      have hbefore : ∀ n, 3 ≤ n → n < i₀ → q n ≤ (1 / 2 : ℝ) := by
-        intro n hn hni
-        exact le_of_not_gt (fun hh => Nat.find_min (show ∃ i, 3 ≤ i ∧ i < R ∧ (1 / 2 : ℝ) < q i from ⟨i, hi3, hiR, hiq⟩) hni ⟨hn, by omega, hh⟩)
-      have hhead := sum_before_half_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec hbefore
-      by_cases htail : ∀ x, i₀ ≤ x → x < R → (2 : ℝ) ≤ q x
-      · have ht := sum_after_double_crossing R i₀ a q hi₀.1 hi₀.2.1.le (fun x _ _ => ha x) hrec htail
-        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
-            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ R, a x := by
-          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
-          have hright : (∑ x ∈ Finset.Icc i₀ R, a x) = ∑ x ∈ Finset.Ico i₀ (R+1), a x := by rfl
-          rw [hwhole, hright]
-          exact (Finset.sum_Ico_consecutive a hi₀.1 (by omega)).symm
-        rw [hsplit]
-        have h3 := ha 3
-        have hlast := ha R
-        nlinarith
-      · push Not at htail
-        obtain ⟨j, hij, hjR, hjq⟩ := htail
-        let j₀ := Finset.max' (Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R))
-          ⟨j, by simp [hij, hjR, hjq]⟩
-        have hjmem : j₀ ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) :=
-          Finset.max'_mem _ _
-        have hjprops : i₀ ≤ j₀ ∧ j₀ < R ∧ q j₀ < 2 := by
-          have hp := (Finset.mem_filter.mp hjmem)
-          have hiR : i₀ ≤ j₀ ∧ j₀ < R := (Finset.mem_Ico.mp hp.1)
-          exact ⟨hiR.1, hiR.2, hp.2⟩
-        have hafter : ∀ n, j₀ < n → n < R → (2 : ℝ) ≤ q n := by
-          intro n hjn hnR
-          exact le_of_not_gt (fun hnq => by
-            have hnmem : n ∈ Finset.filter (fun x => q x < 2) (Finset.Ico i₀ R) := by
-              simp only [Finset.mem_filter, Finset.mem_Ico]
-              exact ⟨⟨by omega, hnR⟩, hnq⟩
-            have := Finset.le_max' _ n hnmem
-            omega)
-        have htail' := sum_after_double_crossing R (j₀ + 1) a q (by omega)
-          (by omega) (fun x _ _ => ha x) hrec (by intro n hn hnR; exact hafter n (by omega) hnR)
-        have hlen : j₀ - i₀ ≤ 4 := ratio_transition_length R i₀ j₀ q hi₀.1 hjprops.1 hjprops.2.1
-          (by intro n hn hnj; exact hq n (hi₀.1.trans hn) (hnj.trans_lt hjprops.2.1))
-          (by intro n hn hnj; exact hgrow n (hi₀.1.trans hn) (by omega)) hi₀.2.2 hjprops.2.2
-        have hmiddle_point : ∀ x ∈ Finset.Icc i₀ j₀, a x ≤ max (a 3) (a R) := by
-          intro x hx
-          rw [Finset.mem_Icc] at hx
-          exact monotoneRatio_le_endpoint R x a q (hi₀.1.trans hx.1)
-            (hx.2.trans hjprops.2.1.le) (fun x _ _ => ha x) hmono hrec
-        have hmiddle : ∑ x ∈ Finset.Icc i₀ j₀, a x ≤ 5 * max (a 3) (a R) := by
-          calc
-            _ ≤ ∑ _x ∈ Finset.Icc i₀ j₀, max (a 3) (a R) := Finset.sum_le_sum hmiddle_point
-            _ = ((j₀ + 1 - i₀ : ℕ) : ℝ) * max (a 3) (a R) := by
-              rw [Finset.sum_const, Nat.card_Icc, nsmul_eq_mul]
-            _ ≤ 5 * max (a 3) (a R) := by
-              have hm : 0 ≤ max (a 3) (a R) := le_max_of_le_left (ha 3)
-              have hc : ((j₀ + 1 - i₀ : ℕ) : ℝ) ≤ 5 := by exact_mod_cast (by omega : j₀ + 1 - i₀ ≤ 5)
-              nlinarith
-        have hsplit : ∑ x ∈ Finset.Icc 3 R, a x =
-            ∑ x ∈ Finset.Ico 3 i₀, a x + ∑ x ∈ Finset.Icc i₀ j₀, a x +
-              ∑ x ∈ Finset.Icc (j₀ + 1) R, a x := by
-          have hwhole : (∑ x ∈ Finset.Icc 3 R, a x) = ∑ x ∈ Finset.Ico 3 (R+1), a x := by rfl
-          have hmid : (∑ x ∈ Finset.Icc i₀ j₀, a x) = ∑ x ∈ Finset.Ico i₀ (j₀+1), a x := by rfl
-          have hright : (∑ x ∈ Finset.Icc (j₀+1) R, a x) = ∑ x ∈ Finset.Ico (j₀+1) (R+1), a x := by rfl
-          rw [hwhole, hmid, hright]
-          rw [Finset.sum_Ico_consecutive a hi₀.1 (by omega)]
-          rw [Finset.sum_Ico_consecutive a (by omega : 3 ≤ j₀ + 1) (by omega)]
-        rw [hsplit]
-        have h3 := ha 3
-        have hlast := ha R
-        have hm1 : max (a 3) (a R) ≤ a 3 + a R := max_le (le_add_of_nonneg_right hlast) (le_add_of_nonneg_left h3)
-        nlinarith
-  · have : Finset.Icc 3 R = ∅ := by ext x; simp; omega
-    rw [this]
-    simp
-    nlinarith [ha 3, ha R]
-
-lemma dyadic_logconvex_sum_bound (R : ℕ) (t : ℝ) (ht : 0 ≤ t) :
-    ∑ x ∈ Finset.Icc 3 R,
-      (2 : ℝ) ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)
-      ≤ 10 * ((2 : ℝ) ^ (Nat.choose 3 2 - 1) * t ^ 3 / (Nat.factorial 3 : ℝ) +
-        (2 : ℝ) ^ (R.choose 2 - 1) * t ^ R / (R.factorial : ℝ)) := by
-  apply geometricRatioEndpointBound R (fun x => 2 ^ (x.choose 2 - 1) * t ^ x / (x.factorial : ℝ)) (fun x => 2^x * t / (x + 1));
-  · exact fun x => by positivity;
-  · exact fun _ _ _ => by positivity;
-  · intro x hx₁ hx₂; rw [ Nat.choose_succ_succ ] ; ring;
-    norm_num [ Nat.add_comm 1, Nat.factorial_succ ] ; ring;
-    rw [ show x + x.choose 2 - 1 = x + ( x.choose 2 - 1 ) by rw [ Nat.add_sub_assoc ( Nat.choose_pos ( by linarith ) ) ] ] ; ring;
-  · intro x hx₁ hx₂; rw [ mul_div, mul_div, div_le_div_iff₀ ] <;> try positivity;
-    norm_num [ pow_succ' ] ; nlinarith [ show ( x : ℝ ) ≥ 3 by norm_cast, show ( 2 : ℝ ) ^ x * t ≥ 0 by positivity ]
-
-
-lemma exp_poly_le_dyadic_eventually24 :
-    ∀ U : ℕ, 2000 ≤ U →
-      Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
-  intro U hU
-  by_cases hU_le_2048 : U ≤ 2048
-  · have h := Real.exp_one_lt_d9.le
-    exact le_trans (mul_le_mul_of_nonneg_right h (sq_nonneg _)) (by interval_cases U <;> norm_num)
-  · induction' U using Nat.strong_induction_on with U ih
-    by_cases hU_le_2072 : U ≤ 2072
-    · have h := Real.exp_one_lt_d9.le
-      norm_num1 at *
-      interval_cases U <;> norm_num at * <;> linarith
-    · have h_ind : Real.exp 1 * (U - 24 : ℝ) ^ 2 ≤ 2 ^ ((U - 24) / 24) := by
-        convert ih (U - 24) (Nat.sub_lt (by linarith) (by linarith))
-          (Nat.le_sub_of_add_le (by linarith)) (by omega) using 1
-        rw [Nat.cast_sub (by linarith)]
-        push_cast
-        ring
-      have h_ineq : 2 * (U - 24 : ℝ) ^ 2 ≥ U ^ 2 := by
-        nlinarith only [show (U : ℝ) ≥ 2073 by norm_cast; linarith]
-      rw [show U / 24 = (U - 24) / 24 + 1 by omega]
-      norm_num [pow_add]
-      nlinarith [Real.exp_pos 1]
-
-lemma dyadic_upper_endpoint_large (U : ℕ) (hU : 2000 ≤ U) :
-      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
-          ((U / 2).factorial : ℝ) *
-        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ 1 := by
-  -- Use the inequality $eU^2/2^{U/3} \le 2^{U/24-U/3}$ to bound $T$.
-  have hT_bound : (Real.exp 1 * U ^ 2 / 2 ^ (U / 3)) ^ ((U / 2 - 3) : ℕ) ≤ (1 / 2 ^ ((U / 3 - U / 24) : ℕ)) ^ ((U / 2 - 3) : ℕ) := by
-    have hT_bound : Real.exp 1 * (U : ℝ) ^ 2 ≤ (2 : ℝ) ^ (U / 24) := by
-      convert exp_poly_le_dyadic_eventually24 U hU using 1;
-    refine' pow_le_pow_left₀ ( by positivity ) _ _;
-    convert div_le_div_of_nonneg_right hT_bound ( by positivity : ( 0 : ℝ ) ≤ 2 ^ ( U / 3 ) ) using 1 ; rw [ div_eq_div_iff ] <;> first | positivity | ring;
-    rw [ ← pow_add, Nat.add_sub_of_le ( by omega ) ];
-  refine le_trans ( mul_le_mul_of_nonneg_left hT_bound ( by positivity ) ) ?_;
-  rw [ div_pow, mul_div, div_le_one ];
-  · rw [ ← pow_mul, mul_comm ];
-    refine' le_trans ( mul_le_mul_of_nonneg_left ( div_le_self ( by positivity ) ( mod_cast Nat.factorial_pos _ ) ) ( by positivity ) ) _;
-    norm_num [ Nat.choose_two_right ];
-    gcongr <;> norm_num;
-    rw [ Nat.div_le_iff_le_mul_add_pred ] <;> norm_num;
-    zify;
-    rw [ Nat.cast_sub, Nat.cast_sub, Nat.cast_sub ] <;> push_cast <;> repeat omega;
-    nlinarith [ Nat.div_mul_le_self U 2, Nat.div_mul_le_self U 3, Nat.div_mul_le_self U 24, Nat.div_add_mod U 2, Nat.mod_lt U two_pos, Nat.div_add_mod U 3, Nat.mod_lt U three_pos, Nat.div_add_mod U 24, Nat.mod_lt U ( by decide : 0 < 24 ) ];
-  · positivity
-
-lemma dyadic_upper_endpoint_uniform :
-    ∃ K : ℝ, 0 < K ∧ ∀ U : ℕ,
-      (2 : ℝ) ^ ((U / 2).choose 2 - 1) /
-          ((U / 2).factorial : ℝ) *
-        (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
-  -- Let's choose any $K > 0$ and show that the inequality holds for all $U$.
-  obtain ⟨K, hK⟩ : ∃ K : ℝ, ∀ U : ℕ, U < 2000 → (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3) ≤ K := by
-    have h_finite : Set.Finite (Set.image (fun U : ℕ => (2 : ℝ) ^ ((U / 2).choose 2 - 1) / ((U / 2).factorial : ℝ) * (Real.exp 1 * (U : ℝ) ^ 2 / (2 : ℝ) ^ (U / 3)) ^ (U / 2 - 3)) (Set.Iio 2000)) := by
-      exact Set.Finite.image _ <| Set.finite_Iio _;
-    exact ⟨ h_finite.bddAbove.choose, fun U hU => h_finite.bddAbove.choose_spec <| Set.mem_image_of_mem _ hU ⟩;
-  refine' ⟨ Max.max K 1, by positivity, fun U => _ ⟩ ; cases lt_or_ge U 2000 <;> simp_all +decide;
-  exact Or.inr ( dyadic_upper_endpoint_large U ‹_› )
-
-
-
-lemma endpointIncrement_le_majorant (x : ℕ) (hx : 3 ≤ x) :
-    endpointIncrement x ≤ (2 : ℝ) ^ (x.choose 2 - 1) := by
-  unfold endpointIncrement endpointRewardNat
-  rw [if_pos hx]
-  push_cast
-  exact sub_le_self ((2 : ℝ) ^ (x.choose 2 - 1)) (by positivity)
-
-lemma cell_size_dyadic_lower (U m : ℕ) (hm : (2 : ℕ)^U ≤ m^3) :
-    (2 : ℕ)^(U/3) ≤ m := by
-  by_contra h
-  have hlt : m < 2^(U/3) := Nat.lt_of_not_ge h
-  have hc := Nat.pow_lt_pow_left hlt (by omega : 3 ≠ 0)
-  rw [← pow_mul] at hc
-  have he : U / 3 * 3 ≤ U := Nat.div_mul_le_self U 3
-  have hp : (2 : ℕ)^(U/3*3) ≤ 2^U := Nat.pow_le_pow_right (by omega) he
-  exact (Nat.not_lt_of_ge hm) (hc.trans_le hp)
-
-lemma theta_cap_uniform :
-    ∃ B : ℝ, 0 < B ∧ ∀ U : ℕ,
-      Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) ≤ B := by
-  let f : ℕ → ℝ := fun U => Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3)
-  let S := Set.image f (Set.Iio 2000)
-  have hfin : S.Finite := Set.Finite.image _ (Set.finite_Iio 2000)
-  let B := max 1 hfin.bddAbove.choose
-  refine ⟨B, by positivity, ?_⟩
-  intro U
-  by_cases hU : U < 2000
-  · exact le_trans (hfin.bddAbove.choose_spec (Set.mem_image_of_mem f hU)) (le_max_right _ _)
-  · have he := exp_poly_le_dyadic_eventually24 U (by omega)
-    have hle : f U ≤ 1 := by
-      dsimp [f]
-      calc
-        _ ≤ (2 : ℝ)^(U/24) / (2 : ℝ)^(U/3) := div_le_div_of_nonneg_right he (by positivity)
-        _ ≤ 1 := by
-          rw [div_le_one (by positivity)]
-          exact pow_le_pow_right₀ (by norm_num) (by omega)
-    exact hle.trans (le_max_left _ _)
-
-/-- Finite uniform analytic endpoint theorem.
-
-The natural inequality `2^U ≤ m^3` is an exact finite replacement for
-`U ≤ 3 log_2 m` when `m > 0`.  The witness `C` is quantified before every
-cell parameter, so it is genuinely absolute. -/
-theorem existsAbsoluteFiniteEndpointConstant :
-    ∃ C : ℝ, 0 < C ∧
-      ∀ (U m R : ℕ) (theta : ℝ),
-        0 < m →
-        R = U / 2 →
-        0 ≤ theta →
-        theta ≤ Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) →
-        (2 : ℕ) ^ U ≤ m ^ 3 →
-        endpointLambda R theta ≤ C * theta ^ 3 ∧
-          endpointQ R theta ≤ C * theta ^ 2 := by
-  obtain ⟨K, hKpos, hK⟩ := dyadic_upper_endpoint_uniform
-  obtain ⟨B, hBpos, hB⟩ := theta_cap_uniform
-  let A : ℝ := 10 * (1 + K)
-  let C : ℝ := 1 + A + A * B
-  refine ⟨C, by dsimp [C, A]; positivity, ?_⟩
-  intro U m R theta hm hR htheta htheta_m hpow
-  have hm_lower_nat := cell_size_dyadic_lower U m hpow
-  have hm_lower : (2 : ℝ) ^ (U / 3) ≤ (m : ℝ) := by exact_mod_cast hm_lower_nat
-  have hmreal : (0 : ℝ) < m := by exact_mod_cast hm
-  have hT : theta ≤ Real.exp 1 * (U : ℝ)^2 / (2 : ℝ)^(U/3) := by
-    exact htheta_m.trans (div_le_div_of_nonneg_left (by positivity) (by positivity) hm_lower)
-  have hthetaB : theta ≤ B := hT.trans (hB U)
-  have hlambda : endpointLambda R theta ≤ A * theta^3 := by
-    rw [hR]
-    by_cases hsmall : U / 2 < 3
-    · unfold endpointLambda
-      have hzero : Finset.Icc 3 (U/2) = ∅ := by ext x; simp; omega
-      simp [hzero]
-      dsimp [A]
-      positivity
-    · unfold endpointLambda
-      calc
-        _ ≤ ∑ x ∈ Finset.Icc 3 (U / 2),
-            (2 : ℝ)^(x.choose 2 - 1) * theta^x / (x.factorial : ℝ) := by
-          apply Finset.sum_le_sum
-          intro x hx
-          rw [Finset.mem_Icc] at hx
-          have hi := endpointIncrement_le_majorant x hx.1
-          exact div_le_div_of_nonneg_right
-            (mul_le_mul_of_nonneg_right hi (pow_nonneg htheta x)) (by positivity)
-        _ ≤ 10 * ((2 : ℝ)^(Nat.choose 3 2 - 1) * theta^3 /
-              (Nat.factorial 3 : ℝ) +
-            (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
-              ((U/2).factorial : ℝ)) := dyadic_logconvex_sum_bound (U/2) theta htheta
-        _ ≤ A * theta^3 := by
-          have hpow_split : theta^(U/2) = theta^3 * theta^(U/2-3) := by
-            rw [← pow_add, Nat.add_sub_of_le (by omega)]
-          have htail :
-              (2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
-                theta^(U/2-3) ≤ K := by
-            refine le_trans ?_ (hK U)
-            gcongr
-          have htail' :
-              (2 : ℝ)^((U/2).choose 2 - 1) * theta^(U/2) /
-                ((U/2).factorial : ℝ) ≤ K * theta^3 := by
-            rw [hpow_split]
-            calc
-              _ = ((2 : ℝ)^((U/2).choose 2 - 1) / ((U/2).factorial : ℝ) *
-                    theta^(U/2-3)) * theta^3 := by ring
-              _ ≤ K * theta^3 := mul_le_mul_of_nonneg_right htail (pow_nonneg htheta 3)
-          norm_num [A, Nat.choose]
-          nlinarith [htail', hKpos, pow_nonneg htheta 3]
-
-  constructor
-  · have hA : 0 ≤ A := by dsimp [A]; positivity
-    have hAC : A ≤ C := by dsimp [C]; nlinarith [hBpos]
-    exact hlambda.trans (mul_le_mul_of_nonneg_right hAC (pow_nonneg htheta 3))
-  · unfold endpointQ
-    have hc : 1 / 2 + A * theta ≤ C := by
-      have hab : A * theta ≤ A * B := mul_le_mul_of_nonneg_left hthetaB (by dsimp [A]; positivity)
-      dsimp [C]
-      linarith [show 0 ≤ A by dsimp [A]; positivity]
-    calc
-      theta^2 / 2 + endpointLambda R theta ≤ theta^2 / 2 + A * theta^3 := add_le_add_right hlambda _
-      _ = (1/2 + A * theta) * theta^2 := by ring
-      _ ≤ C * theta^2 := mul_le_mul_of_nonneg_right hc (sq_nonneg theta)
-
-#print axioms existsAbsoluteFiniteEndpointConstant
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9FiniteAnalyticEndpoint
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9FiniteAnalyticEndpoint
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
-Source: Erdos625/Section9CappedFixedFExpansion.lean
-Normalized SHA-256: 4c4ac5cfb761c4efccfe4d359ea4ee5afac1319de89e8726fad8790d402b5a41
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
-
-/-!
-# Capped fixed-F prescribed-demand expansion
-
-This is the finite configuration-model obligation extracted from manuscript
-(9.10)--(9.12).  It retains the cap/no-return event, the actual local reward
-`g`, its threshold increments, and the literal uniform matching law.  The fixed
-edge set `F` need not be even: evenness enters only when this estimate is later
-summed over the residual cycle-space family.
-
-This module proves only the fixed-`F` expansion.  It does not perform that
-even-family summation, prove the polymer/cycle bounds, or assemble Lemma 9.1.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-/-- The local topological reward from manuscript (6.5):
-`g(0)=g(1)=g(2)=1` and `g(x)=2^(choose(x,2)-1)` for `x >= 3`. -/
-def residualReward (x : ℕ) : ℕ :=
-  if x ≤ 2 then 1 else 2 ^ (Nat.choose x 2 - 1)
-
-/-- The nonnegative threshold increment `Delta_x = g(x)-g(x-1)`. -/
-def residualRewardIncrement (x : ℕ) : ℕ :=
-  residualReward x - residualReward (x - 1)
-
-/-- The residual event retained before the nonnegative threshold expansion:
-every cell is capped by `R`, and a cell exposed in the high skeleton `M`
-receives no residual pair. -/
-def ResidualCapNoReturnEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ) :
-    Set (ConfigurationMatching row col) :=
-  {matching |
-    (∀ a b, configurationCellCount matching a b ≤ R) ∧
-      ∀ e ∈ M, configurationCellCount matching e.1 e.2 = 0}
-
-/-- The manuscript quantity
-`lambda_ab = sum_{x=3}^R Delta_x theta_ab^x / x!`, set to zero on the
-already-exposed high skeleton. -/
-noncomputable def residualLambda
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (a : A) (b : B) : ℝ≥0∞ :=
-  if (a, b) ∈ M then 0 else
-    ∑ x ∈ Finset.Icc 3 R,
-      (residualRewardIncrement x : ℝ≥0∞) *
-          configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
-        (x.factorial : ℝ≥0∞)
-
-/-- The fixed-selected-edge weight
-`q_ab = theta_ab^2/2 + lambda_ab`, again zero on the high skeleton. -/
-noncomputable def residualQ
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (a : A) (b : B) : ℝ≥0∞ :=
-  if (a, b) ∈ M then 0 else
-    configurationCellTheta row col (Finset.univ.sum row) a b ^ 2 / 2 +
-      residualLambda M R row col a b
-
-/-- The capped local factor for one fixed cycle-space edge set `F`.
-Edges of `F ∩ M` are already exposed and carry weight one.  Every edge of
-`F \ M` imposes the base residual threshold two. -/
-noncomputable def residualFixedFWeight
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (matching : ConfigurationMatching row col) : ℝ≥0∞ := by
-  classical
-  exact
-    if matching ∈ ResidualCapNoReturnEvent M R row col then
-      (∏ a : A, ∏ b : B,
-        (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
-      (∏ e ∈ F,
-        if e ∈ M then 1 else
-          if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0)
-    else 0
-
-/-- Uniform expectation of the capped fixed-`F` factor, written as the exact
-finite PMF sum so that no measurability or integrability abstraction is added. -/
-noncomputable def residualFixedFExpectation
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ :=
-  ∑ matching : ConfigurationMatching row col,
-    uniformConfigurationMatching row col htotal matching *
-      residualFixedFWeight M F R row col matching
-
-/-- The reward is the sum of its threshold increments. -/
-private theorem residualReward_threshold_sum (n : ℕ) :
-    (residualReward n : ℝ≥0∞) =
-      1 + ∑ x ∈ Finset.Icc 3 n, (residualRewardIncrement x : ℝ≥0∞) := by
-  induction' n with n ih;
-  · norm_cast;
-  · rcases n with ( _ | _ | _ | n ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
-    · norm_cast;
-    · convert congr_arg ( · + ( residualRewardIncrement ( n + 3 + 1 ) : ℝ≥0∞ ) ) ih using 1;
-      · unfold residualReward residualRewardIncrement;
-        unfold residualReward; simp +arith +decide [ Nat.choose_succ_succ ] ;
-        rw [ add_tsub_cancel_of_le ( pow_le_pow_right₀ ( by norm_num ) ( by linarith ) ) ];
-      · ring
-
-/-- A finite weighted threshold expansion, with the joint prescribed-cell
-bound applied once to every demand occurring in the expansion. -/
-private theorem weighted_prescribedDemand_product_bound
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (S : A → B → Finset ℕ) (w : A → B → ℕ → ℝ≥0∞)
-    (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hm : 0 < Finset.univ.sum row) :
-    (∑ matching : ConfigurationMatching row col,
-      uniformConfigurationMatching row col htotal matching *
-        (∏ a : A, ∏ b : B,
-          ∑ x ∈ S a b,
-            if x ≤ configurationCellCount matching a b then w a b x else 0)) ≤
-      ∏ a : A, ∏ b : B,
-        ∑ x ∈ S a b,
-          w a b x *
-            configurationCellTheta row col (Finset.univ.sum row) a b ^ x /
-              (x.factorial : ℝ≥0∞) := by
-  revert S w;
-  -- Apply the jointPrescribedCellBound_cellwise theorem to each demand in the expansion.
-  have h_jointPrescribedCellBound_cellwise : ∀ (demand : A → B → ℕ) (w : A → B → ℕ → ℝ≥0∞),
-    (∑ matching : ConfigurationMatching row col,
-      (uniformConfigurationMatching row col htotal) matching *
-        (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then (w a b (demand a b)) else 0)) ≤
-    (∏ a : A, ∏ b : B, (w a b (demand a b) * configurationCellTheta row col (Finset.univ.sum row) a b ^ demand a b / ((demand a b).factorial : ℝ≥0∞))) := by
-      intro demand w
-      have hjointPrescribedCellBound_cellwise : (∑ matching : ConfigurationMatching row col,
-        (uniformConfigurationMatching row col htotal) matching *
-          (∏ a : A, ∏ b : B, if demand a b ≤ configurationCellCount matching a b then 1 else 0)) ≤
-        (∏ a : A, ∏ b : B, (configurationCellTheta row col (Finset.univ.sum row) a b ^ (demand a b) / ((demand a b).factorial : ℝ≥0∞))) := by
-          convert jointPrescribedCellBound_cellwise demand row col htotal hm using 1;
-          unfold prescribedCellEvent; simp +decide [ Finset.prod_ite ] ;
-          congr! 1;
-          by_cases h : ∀ a b, demand a b ≤ configurationCellCount ‹_› a b <;> simp_all +decide [ Finset.prod_eq_zero_iff ];
-          simp +decide [ Finset.card_eq_zero.mpr, h ];
-      convert mul_le_mul_left hjointPrescribedCellBound_cellwise ( ∏ a : A, ∏ b : B, w a b ( demand a b ) ) using 1;
-      · simp +decide [ Finset.sum_mul _ _ _ ];
-        simp +decide only [mul_assoc, ← Finset.prod_mul_distrib];
-        exact Finset.sum_congr rfl fun _ _ => by congr; ext; congr; ext; split_ifs <;> ring;
-      · simp +decide only [mul_div_assoc, mul_comm, ← Finset.prod_mul_distrib];
-  intro S w;
-  simp only [ Finset.prod_univ_sum ];
-  simp only [ Finset.mul_sum _ _ _ ];
-  rw [ Finset.sum_comm ];
-  refine' Finset.sum_le_sum fun demand hdemand => _;
-  exact h_jointPrescribedCellBound_cellwise demand w
-
-/-- Faithful fixed-`F` form of the capped prescribed-demand expansion behind
-(9.10)--(9.12).  The cap/no-return indicator is dropped only after expanding
-the nonnegative threshold alternatives, and the same joint configuration-model
-bound is applied to all demanded cells at once. -/
-theorem capped_fixedF_prescribedDemand_expansion
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hm : 0 < Finset.univ.sum row) :
-    residualFixedFExpectation M F R row col htotal ≤
-      ∏ a : A, ∏ b : B,
-        if (a, b) ∈ M then 1
-        else if (a, b) ∈ F then residualQ M R row col a b
-        else 1 + residualLambda M R row col a b := by
-  refine' le_trans ( Finset.sum_le_sum _ ) _;
-  use fun matching => uniformConfigurationMatching row col htotal matching * ( ∏ a : A, ∏ b : B, ∑ x ∈ if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R, if x ≤ configurationCellCount matching a b then ( if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) else 0 );
-  · intro matching;
-    by_cases h : matching ∈ ResidualCapNoReturnEvent M R row col <;> simp +decide;
-    · unfold residualFixedFWeight;
-      rw [ if_pos h ];
-      let badCells := Finset.filter
-        ( fun x => configurationCellCount matching x.1 x.2 < 2 )
-        ( Finset.filter ( fun x => x ∉ M ) F );
-      by_cases hbad : badCells.Nonempty;
-      · rcases hbad with ⟨ e, he ⟩;
-        have he' := he;
-        simp only [ badCells, Finset.mem_filter ] at he';
-        rcases he' with ⟨ ⟨ heF, heM ⟩, heLow ⟩;
-        have hzero :
-            (∏ e ∈ F,
-              if e ∈ M then (1 : ℝ≥0∞)
-              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) = 0 :=
-          Finset.prod_eq_zero heF ( by simp [ heM, Nat.not_le.mpr heLow ] );
-        simp [ hzero ];
-      · have hNoBad (a : A) (b : B)
-            (habF : (a, b) ∈ F) (habM : (a, b) ∉ M) :
-            2 ≤ configurationCellCount matching a b := by
-          by_contra hlt;
-          apply hbad;
-          refine' ⟨ (a, b), _ ⟩;
-          simp only [ badCells, Finset.mem_filter ];
-          exact ⟨ ⟨ habF, habM ⟩, Nat.lt_of_not_ge hlt ⟩;
-        apply mul_le_mul_right;
-        have hF :
-            (∏ e ∈ F,
-              if e ∈ M then (1 : ℝ≥0∞)
-              else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
-            ∏ a : A, ∏ b : B,
-              if (a, b) ∈ F then
-                (if (a, b) ∈ M then 1
-                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
-              else 1 := by
-          rw [ ← Fintype.prod_ite_mem ];
-          exact Fintype.prod_prod_type'
-            ( fun a : A => fun b : B =>
-              if (a, b) ∈ F then
-                (if (a, b) ∈ M then (1 : ℝ≥0∞)
-                  else if 2 ≤ configurationCellCount matching a b then 1 else 0)
-              else 1 );
-        rw [ hF ];
-        simp only [ ← Finset.prod_mul_distrib ];
-        refine' Finset.prod_le_prod' fun a _ => Finset.prod_le_prod' fun b _ => _;
-        by_cases habM : (a, b) ∈ M;
-        · have hzero := h.2 (a, b) habM;
-          simp [ habM, hzero, residualReward ];
-        · have hcap : configurationCellCount matching a b ≤ R := h.1 a b;
-          have hfilter :
-              (Finset.Icc 3 R).filter
-                  (fun x => x ≤ configurationCellCount matching a b) =
-                Finset.Icc 3 (configurationCellCount matching a b) := by
-            ext x;
-            simp only [ Finset.mem_filter, Finset.mem_Icc ];
-            constructor;
-            · rintro ⟨ ⟨ hx3, hxR ⟩, hxCount ⟩;
-              exact ⟨ hx3, hxCount ⟩;
-            · rintro ⟨ hx3, hxCount ⟩;
-              exact ⟨ ⟨ hx3, hxCount.trans hcap ⟩, hxCount ⟩;
-          have hthreshold :
-              (∑ x ∈ Finset.Icc 3 R,
-                if x ≤ configurationCellCount matching a b then
-                  (residualRewardIncrement x : ℝ≥0∞)
-                else 0) =
-                ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
-                  (residualRewardIncrement x : ℝ≥0∞) := by
-            calc
-              (∑ x ∈ Finset.Icc 3 R,
-                if x ≤ configurationCellCount matching a b then
-                  (residualRewardIncrement x : ℝ≥0∞)
-                else 0) =
-                  ∑ x ∈ (Finset.Icc 3 R).filter
-                      (fun x => x ≤ configurationCellCount matching a b),
-                    (residualRewardIncrement x : ℝ≥0∞) := by
-                      rw [ Finset.sum_filter ];
-              _ = ∑ x ∈ Finset.Icc 3 (configurationCellCount matching a b),
-                    (residualRewardIncrement x : ℝ≥0∞) := by
-                      rw [ hfilter ];
-          by_cases habF : (a, b) ∈ F;
-          · have htwo := hNoBad a b habF habM;
-            simp only [ if_neg habM, if_pos habF, if_pos htwo, mul_one ];
-            rw [ residualReward_threshold_sum ];
-            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
-            simp only [ if_pos htwo ];
-            have hsumInner :
-                (∑ x ∈ Finset.Icc 3 R,
-                  if x ≤ configurationCellCount matching a b then
-                    (if x = 2 then 1
-                      else (residualRewardIncrement x : ℝ≥0∞))
-                  else 0) =
-                  ∑ x ∈ Finset.Icc 3 R,
-                    if x ≤ configurationCellCount matching a b then
-                      (residualRewardIncrement x : ℝ≥0∞)
-                    else 0 := by
-              apply Finset.sum_congr rfl;
-              intro x hx;
-              have hxne : x ≠ 2 := by
-                have hx3 := (Finset.mem_Icc.mp hx).1;
-                omega;
-              simp only [ hxne, if_false ];
-            rw [ hsumInner, hthreshold ];
-            simp only [ if_true ];
-            exact le_rfl;
-          · simp only [ if_neg habM, if_neg habF, mul_one ];
-            rw [ residualReward_threshold_sum ];
-            rw [ Finset.sum_insert (by simp [ Finset.mem_Icc ]) ];
-            simp only [ if_pos (Nat.zero_le _) ];
-            have hsumInner :
-                (∑ x ∈ Finset.Icc 3 R,
-                  if x ≤ configurationCellCount matching a b then
-                    (if x = 0 then 1
-                      else (residualRewardIncrement x : ℝ≥0∞))
-                  else 0) =
-                  ∑ x ∈ Finset.Icc 3 R,
-                    if x ≤ configurationCellCount matching a b then
-                      (residualRewardIncrement x : ℝ≥0∞)
-                    else 0 := by
-              apply Finset.sum_congr rfl;
-              intro x hx;
-              have hxne : x ≠ 0 := by
-                have hx3 := (Finset.mem_Icc.mp hx).1;
-                omega;
-              simp only [ hxne, if_false ];
-            rw [ hsumInner, hthreshold ];
-            simp only [ if_true ];
-            exact le_rfl;
-    · unfold residualFixedFWeight; simp +decide [ h ] ;
-  · convert weighted_prescribedDemand_product_bound ( fun a b => if ( a, b ) ∈ M then { 0 } else if ( a, b ) ∈ F then { 2 } ∪ Finset.Icc 3 R else { 0 } ∪ Finset.Icc 3 R ) ( fun a b x => if ( a, b ) ∈ M then 1 else if ( a, b ) ∈ F then if x = 2 then 1 else residualRewardIncrement x else if x = 0 then 1 else residualRewardIncrement x ) row col htotal hm using 1;
-    · rfl;
-    · apply Fintype.sum_congr;
-      intro matching;
-      congr 1;
-      norm_cast;
-    · refine' Finset.prod_congr rfl fun a ha => Finset.prod_congr rfl fun b hb => _ ; split_ifs <;> simp +decide [ *, residualQ, residualLambda ] ;
-      · exact congr_arg _ ( Finset.sum_congr rfl fun x hx => by aesop );
-      · exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_Icc.mp hx ] ) ] ;
-
-#print axioms capped_fixedF_prescribedDemand_expansion
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CappedFixedFExpansion
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CappedFixedFExpansion
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
-Source: Erdos625/Section9ResidualQQuadratic.lean
-Normalized SHA-256: bb273eb7c0d3fdcfdee0eb7f14b50ad50fb8c726812fc4e387002c2b915df8a7
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
-
-/-!
-# Section IX: universal residual-q quadratic bound
-
-This module transports the accepted finite real endpoint estimate to the
-literal `ENNReal` residual kernel. It is a pointwise analytic bridge only: it
-does not identify a conditioned residual event, prove an attachment estimate,
-or assemble Lemma 9.1.
--/
-
-universe u v
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- One finite positive `ENNReal` constant bounds the literal Section IX
-`residualQ` quadratically in the literal configuration-cell parameter,
-simultaneously for all finite row/column type families. -/
-theorem existsAbsoluteResidualQQuadraticBound :
-    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
-      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
-          [DecidableEq A] [DecidableEq B]
-          (M : Finset (A × B)) (U R m : ℕ)
-          (row : A → ℕ) (col : B → ℕ),
-        0 < m →
-        (∑ a, row a) = m →
-        R = U / 2 →
-        (∀ a b, (a, b) ∉ M →
-          (configurationCellTheta row col m a b).toReal ≤
-            Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ)) →
-        2 ^ U ≤ m ^ 3 →
-        ∀ a b,
-          residualQ M R row col a b ≤
-            κ * configurationCellTheta row col m a b ^ 2 := by
-  obtain ⟨ C, hC₀, hC ⟩ := existsAbsoluteFiniteEndpointConstant;
-  use ENNReal.ofReal C;
-  refine' ⟨ ENNReal.ofReal_pos.mpr hC₀, ENNReal.ofReal_ne_top, _ ⟩;
-  intro A B _ _ _ _ M U R m row col hm hsum hR hbound hpow a b; by_cases hab : ( a, b ) ∈ M <;> simp +decide [ hab, residualQ ] ;
-  have h_residLambda : residualLambda M R row col a b = ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) := by
-    unfold residualLambda; simp +decide [ *, endpointLambda ] ;
-    rw [ ENNReal.ofReal_sum_of_nonneg ];
-    · refine' Finset.sum_congr rfl fun x hx => _;
-      rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by
-        unfold endpointIncrement; simp +decide [ endpointRewardNat ] ;
-        split_ifs <;> norm_num at *;
-        · exact pow_le_pow_right₀ ( by norm_num ) ( Nat.sub_le_sub_right ( Nat.choose_le_choose _ ( Nat.pred_le _ ) ) _ );
-        · omega;
-        · exact one_le_pow₀ ( by norm_num ) ), ENNReal.ofReal_pow ( by
-        exact ENNReal.toReal_nonneg ) ];
-      rw [ show endpointIncrement x = ( residualRewardIncrement x : ℝ ) from ?_ ];
-      · rw [ ENNReal.ofReal_natCast, ENNReal.ofReal_natCast, ENNReal.ofReal_toReal ];
-        unfold configurationCellTheta; simp +decide [ eulerENNReal ] ;
-        simp +decide [ ENNReal.div_eq_top, hm.ne' ];
-        exact ENNReal.mul_ne_top ( ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( by norm_num ) ) ( by norm_num );
-      · unfold endpointIncrement residualRewardIncrement; simp +decide [ residualReward ] ;
-        rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
-        · norm_num;
-        · rw [ Nat.cast_sub ] <;> norm_num;
-          apply pow_le_pow_right₀ (by norm_num)
-          have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
-            exact Nat.choose_le_succ (x + 3) 2
-          omega
-    · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
-        rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat, Nat.choose ] at hi ⊢;
-        split_ifs;
-        · apply pow_le_pow_right₀ (by norm_num)
-          omega
-        · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
-  have h_residQ : configurationCellTheta row col m a b ^ 2 / 2 + ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) ≤ ENNReal.ofReal (endpointQ R (configurationCellTheta row col m a b).toReal) := by
-    rw [ endpointQ ];
-    rw [ ENNReal.ofReal_add ];
-    · gcongr;
-      rw [ ENNReal.le_ofReal_iff_toReal_le ] <;> norm_num;
-      · simp +decide [ configurationCellTheta ];
-        simp +decide [ ENNReal.div_eq_top, ENNReal.mul_eq_top ];
-        exact fun _ _ _ => hm.ne';
-      · positivity;
-    · positivity;
-    · refine' Finset.sum_nonneg fun x hx => div_nonneg ( mul_nonneg _ _ ) _ <;> norm_num;
-      exact sub_nonneg_of_le ( mod_cast Nat.le_of_lt_succ ( by
-        unfold endpointRewardNat; rcases x with ( _ | _ | _ | x ) <;> simp +arith +decide [ Nat.choose ] at hx ⊢;
-        split_ifs <;> [ exact pow_le_pow_right₀ ( by norm_num ) ( by linarith ) ; exact Nat.one_le_pow _ _ ( by norm_num ) ] ) );
-  by_cases h : configurationCellTheta row col m a b = ⊤ <;> simp_all +decide;
-  refine le_trans h_residQ ?_;
-  calc
-    _ ≤ ENNReal.ofReal (C * (configurationCellTheta row col m a b).toReal ^ 2) :=
-      ENNReal.ofReal_le_ofReal
-        (hC U m (U / 2) (configurationCellTheta row col m a b).toReal hm rfl
-          ENNReal.toReal_nonneg (hbound a b hab) hpow).2
-    _ = ENNReal.ofReal C * configurationCellTheta row col m a b ^ 2 := by
-      rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow (by positivity),
-        ENNReal.ofReal_toReal h]
-
-#print axioms existsAbsoluteResidualQQuadraticBound
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ResidualQQuadratic
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ResidualQQuadratic
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 Source: Erdos625/Section9SmallResidualDeterministic.lean
 Normalized SHA-256: 00df3c8b05783178642675c392d8424f303cd74e7a177a7833b52ee04507865a
@@ -25682,7 +25853,7 @@ END SOURCE MODULE: Erdos625.ResidualDegreeMatching
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
 Source: Erdos625/Section8ResidualDegreeTotal.lean
-Normalized SHA-256: be2cc573bedc795c87bfe4ab335653b5c24f78ba2da75f2806fc6bf0a3b499c0
+Normalized SHA-256: cc138baedd12e31628a1bebccefe52232db3bb1b07fabc65c1b034d6c7c300a5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
 
@@ -25722,6 +25893,46 @@ theorem sum_residualRowDegree_eq_sum_residualColumnDegree
       card_columnStub (residualColumnDegree witness)
 
 #print axioms sum_residualRowDegree_eq_sum_residualColumnDegree
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total row residual degree. -/
+theorem sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ a, residualRowDegree witness a) =
+      (∑ a, row a) - totalDemand demand := by
+  calc
+    (∑ a, residualRowDegree witness a) =
+        Fintype.card (RowStub (residualRowDegree witness)) :=
+      (card_rowStub (residualRowDegree witness)).symm
+    _ = Fintype.card (RemainingRowStub witness) :=
+      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
+    _ = (∑ a, row a) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingRowStub witness
+
+#print axioms sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total column residual degree. -/
+theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ b, residualColumnDegree witness b) =
+      (∑ b, col b) - totalDemand demand := by
+  calc
+    (∑ b, residualColumnDegree witness b) =
+        Fintype.card (ColumnStub (residualColumnDegree witness)) :=
+      (card_columnStub (residualColumnDegree witness)).symm
+    _ = Fintype.card (RemainingColumnStub witness) :=
+      (Fintype.card_congr (remainingColumnStubEquivResidual witness)).symm
+    _ = (∑ b, col b) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingColumnStub witness
+
+#print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 
 end Erdos625
 
@@ -27143,6 +27354,67 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
+Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
+Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ResidualEventProbabilityNormalization
+
+/-!
+# Section 8: residual-event probability normalization
+
+This module specializes the exact finite-event uniform-law normalization to
+the residual canonical event after a fixed labelled witness is exposed.  It
+does not assert a conditional law for the ambient event or any asymptotic
+estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! The residual canonical-event subtype is finite; keep this instance local
+to avoid changing downstream instance search. -/
+local instance instFintypeCanonicalResidualCellEventProbabilityNormalization
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- Under the uniform residual configuration law, the literal residual
+canonical event has its exact finite-cardinality probability. -/
+theorem uniformConfigurationMatching_canonicalResidualCellEvent_apply
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hres : (∑ a, residualRowDegree witness a) =
+      ∑ b, residualColumnDegree witness b) :
+    (uniformConfigurationMatching (residualRowDegree witness)
+        (residualColumnDegree witness) hres).toOuterMeasure
+        (canonicalResidualCellEvent witness U) =
+      (Fintype.card ↑(canonicalResidualCellEvent witness U) : ℝ≥0∞) /
+        ((∑ a, residualRowDegree witness a).factorial : ℝ≥0∞) := by
+  exact uniformConfigurationMatching_event_apply
+    (residualRowDegree witness) (residualColumnDegree witness) hres
+    (canonicalResidualCellEvent witness U)
+
+#print axioms uniformConfigurationMatching_canonicalResidualCellEvent_apply
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ResidualEventProbabilityNormalization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
 Source: Erdos625/Section8LabelledIncidence.lean
 Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
@@ -27258,6 +27530,119 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
+Source: Erdos625/Section8CanonicalEventProbabilityFactorization.lean
+Normalized SHA-256: 6a998e338620d17d19b1cb2abfb6cf7902ef5535f1a2bf6070d04f4b9fb5a6cb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
+
+/-!
+# Section 8: exact canonical-event probability factorization
+
+This module combines only finite uniform-event normalizations, the exact
+once-only canonical-event cardinality, and factorial cancellation. Its
+right-hand side is a residual uniform-event probability, not a literal
+conditional-probability assertion for the ambient event; the corresponding
+conditional-law bookkeeping remains a separate obligation.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalDemandEventProbabilityFactorization
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeCanonicalResidualCellEventProbabilityFactorization
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+private theorem card_factorial_factorization
+    (m J W R : ℕ) (hJ : J ≤ m) :
+    ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
+      (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
+        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) := by
+  have hdescPos : 0 < m.descFactorial J := Nat.descFactorial_pos.mpr hJ
+  have hdescZero : (m.descFactorial J : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast hdescPos.ne'
+  have hdescTop : (m.descFactorial J : ℝ≥0∞) ≠ ∞ :=
+    ENNReal.natCast_ne_top _
+  have hfactorialNat : m.factorial =
+      m.descFactorial J * (m - J).factorial := by
+    simpa only [Nat.mul_comm] using (Nat.factorial_mul_descFactorial hJ).symm
+  have hfactorialENNReal : (m.factorial : ℝ≥0∞) =
+      (m.descFactorial J : ℝ≥0∞) * ((m - J).factorial : ℝ≥0∞) := by
+    exact_mod_cast hfactorialNat
+  calc
+    ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
+        ((W : ℝ≥0∞) * (R : ℝ≥0∞)) / (m.factorial : ℝ≥0∞) := by
+      simp only [Nat.cast_mul]
+    _ = ((W : ℝ≥0∞) * (R : ℝ≥0∞)) /
+        ((m.descFactorial J : ℝ≥0∞) * ((m - J).factorial : ℝ≥0∞)) := by
+      rw [hfactorialENNReal]
+    _ = (W : ℝ≥0∞) / (m.descFactorial J : ℝ≥0∞) *
+        (R : ℝ≥0∞) / ((m - J).factorial : ℝ≥0∞) :=
+      ENNReal.mul_div_mul_comm (Or.inl hdescZero) (Or.inl hdescTop)
+
+/-- Exact finite factorization of the ambient canonical-demand event into its
+normalised labelled-witness incidence and the residual canonical-event
+probability. -/
+theorem uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : ∑ a, row a = ∑ b, col b)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (witness₀ : PrescribedDemandWitness demand row col) :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure
+        (canonicalDemandEvent demand row col U) =
+      labelledWitnessIncidence demand row col *
+        (uniformConfigurationMatching
+          (residualRowDegree witness₀) (residualColumnDegree witness₀)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀))
+          .toOuterMeasure (canonicalResidualCellEvent witness₀ U) := by
+  have hJ : totalDemand demand ≤ ∑ a, row a :=
+    totalDemand_le_rowTotal_of_witness witness₀
+  have hres : (∑ a, residualRowDegree witness₀ a) =
+      ∑ b, residualColumnDegree witness₀ b :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness₀
+  have hrem : (∑ a, residualRowDegree witness₀ a) =
+      (∑ a, row a) - totalDemand demand :=
+    sum_residualRowDegree_eq_rowTotal_sub_totalDemand witness₀
+  rw [uniformConfigurationMatching_canonicalDemandEvent_apply
+    demand row col U htotal]
+  rw [card_canonicalDemandEvent_eq_witness_mul_residual
+    demand row col U hhigh witness₀]
+  rw [uniformConfigurationMatching_canonicalResidualCellEvent_apply
+    witness₀ U hres, hrem]
+  unfold labelledWitnessIncidence
+  exact card_factorial_factorization
+    (∑ a, row a) (totalDemand demand)
+    (Fintype.card (PrescribedDemandWitness demand row col))
+    (Fintype.card ↑(canonicalResidualCellEvent witness₀ U)) hJ
+
+#print axioms uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
 ========================================================================== -/
 
 /- ==========================================================================
@@ -29574,7 +29959,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 7f04f5c4431918b9967427361cdc778e058f000dc91370e402df7edf8d988fe4
+Normalized SHA-256: 8892cce6eea046aab5d2b8d80c20375c9b691d8ffe210ae42f40593a2379e46e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -29931,6 +30316,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.finitePositiveWalkKernel_rowSum_le_geometric
 #print axioms Erdos625.explicit_terms_le_kernel_masses
 #print axioms Erdos625.q_row_column_le_of_pointwise_degree_square
+#print axioms Erdos625.rescale_configurationCellTheta_square_to_degreeSquare
+#print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -29991,10 +30378,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
+#print axioms Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply
+#print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
+#print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+#print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
@@ -30075,7 +30467,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 28f3ec2e27d5ff4153972b16e0ba7e68ce61b633df9c713d2d8d02e9221fe4fe
+Normalized SHA-256: 2fec69a177fb71aa39a0a133d6e56534817604613d6759cb6f9a93acf19d78ed
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

@@ -108,15 +108,15 @@ Regenerate it with scripts/generate_self_contained.py.
 
 ## Honest status
 
-This is the complete, kernel-checkable source closure of the current verified
-partial formalization.  It is self-contained with respect to this repository:
+This is the complete, kernel-checkable source closure of the current partial
+formalization.  It is self-contained with respect to this repository:
 it imports no Erdos625 project module and instead includes every declaration in
 dependency order.  Its only imports are from the Mathlib version pinned by this
 project's lake-manifest.json and lean-toolchain.
 
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
-the remaining Section VIII global canonical-event count, conditioned law, and
-skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
+the remaining Section VIII global canonical-event estimates, conditioned law,
+and skeleton estimates; the Section IX concrete residual-weight/cycle encoding,
 attachment, and second-moment assembly; the Section X simultaneous-leftover
 and seed-amplification inputs; and the final probabilistic theorem are open.
 The target proposition remains deliberately unproved.  The included #print

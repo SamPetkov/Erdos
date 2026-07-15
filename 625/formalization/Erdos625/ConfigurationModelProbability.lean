@@ -282,6 +282,26 @@ noncomputable def uniformConfigurationMatching
     ⟨configurationMatchingEquiv row col htotal⟩
   exact PMF.uniformOfFintype _
 
+/-- Under the uniform configuration law, any finite event has probability
+equal to its finite cardinality divided by the ambient matching cardinality. -/
+theorem uniformConfigurationMatching_event_apply
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (event : Set (ConfigurationMatching row col)) [Fintype event] :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure event =
+      (Fintype.card event : ℝ≥0∞) /
+        ((Finset.univ.sum row).factorial : ℝ≥0∞) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).toOuterMeasure
+      event = _
+  rw [PMF.toOuterMeasure_uniformOfFintype_apply,
+    card_configurationMatching row col htotal]
+
+#print axioms uniformConfigurationMatching_event_apply
+
 /-- Under the uniform configuration law, an event has probability equal to
 its finite cardinality divided by the ambient `m!` cardinality. -/
 theorem uniformConfigurationMatching_prescribedCellEvent_apply

@@ -103,6 +103,8 @@ import Erdos625.Section9TraversalKernel
 import Erdos625.Section9EndpointKernel
 import Erdos625.Section9ExplicitPathTerms
 import Erdos625.Section9QDegreeBound
+import Erdos625.Section9ThetaSquareEulerRescale
+import Erdos625.Section9ResidualQDegreeAssembly
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
@@ -128,6 +130,8 @@ import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.Section8CanonicalEventProbabilityNormalization
+import Erdos625.Section8ResidualEventProbabilityNormalization
+import Erdos625.Section8CanonicalEventProbabilityFactorization
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8NearSkeletonExpansion
@@ -497,6 +501,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.finitePositiveWalkKernel_rowSum_le_geometric
 #print axioms Erdos625.explicit_terms_le_kernel_masses
 #print axioms Erdos625.q_row_column_le_of_pointwise_degree_square
+#print axioms Erdos625.rescale_configurationCellTheta_square_to_degreeSquare
+#print axioms Erdos625.existsAbsoluteResidualQRowColumnBound
 #print axioms Erdos625.finrank_graphCycleSpace_eq_cycleRank
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
@@ -557,10 +563,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
+#print axioms Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply
+#print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
+#print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+#print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist

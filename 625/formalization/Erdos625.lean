@@ -108,6 +108,8 @@ import Erdos625.Section9TraversalKernel
 import Erdos625.Section9EndpointKernel
 import Erdos625.Section9ExplicitPathTerms
 import Erdos625.Section9QDegreeBound
+import Erdos625.Section9ThetaSquareEulerRescale
+import Erdos625.Section9ResidualQDegreeAssembly
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
@@ -133,6 +135,8 @@ import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.Section8CanonicalEventProbabilityNormalization
+import Erdos625.Section8ResidualEventProbabilityNormalization
+import Erdos625.Section8CanonicalEventProbabilityFactorization
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion

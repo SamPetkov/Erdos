@@ -1,4 +1,5 @@
 import Erdos625.ResidualDegreeMatching
+import Erdos625.ConfigurationModelProbability
 
 /-!
 # Section 8: total residual degree balance
@@ -36,5 +37,45 @@ theorem sum_residualRowDegree_eq_sum_residualColumnDegree
       card_columnStub (residualColumnDegree witness)
 
 #print axioms sum_residualRowDegree_eq_sum_residualColumnDegree
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total row residual degree. -/
+theorem sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ a, residualRowDegree witness a) =
+      (∑ a, row a) - totalDemand demand := by
+  calc
+    (∑ a, residualRowDegree witness a) =
+        Fintype.card (RowStub (residualRowDegree witness)) :=
+      (card_rowStub (residualRowDegree witness)).symm
+    _ = Fintype.card (RemainingRowStub witness) :=
+      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
+    _ = (∑ a, row a) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingRowStub witness
+
+#print axioms sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total column residual degree. -/
+theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ b, residualColumnDegree witness b) =
+      (∑ b, col b) - totalDemand demand := by
+  calc
+    (∑ b, residualColumnDegree witness b) =
+        Fintype.card (ColumnStub (residualColumnDegree witness)) :=
+      (card_columnStub (residualColumnDegree witness)).symm
+    _ = Fintype.card (RemainingColumnStub witness) :=
+      (Fintype.card_congr (remainingColumnStubEquivResidual witness)).symm
+    _ = (∑ b, col b) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingColumnStub witness
+
+#print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 
 end Erdos625
