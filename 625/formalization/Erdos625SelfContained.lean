@@ -28626,7 +28626,7 @@ END SOURCE MODULE: Erdos625.UniformSigmaTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
 Source: Erdos625/Section8CanonicalDemandGlobalResidual.lean
-Normalized SHA-256: a7aea29bc2b4426e4038dd5dcafdfd9efb266a866522992fd01ca6c0eb8fd77d
+Normalized SHA-256: eb5923f1a7f5718fdedd0170a6cc5b4eceba47a432169a900f3d13bb9eabc17a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
 
@@ -28869,6 +28869,29 @@ theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
       exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
         (canonicalDemandImage_high row col U demand) witness0
 
+/-- The exact global canonical-demand mass is the labelled-witness count
+times one demand-specific standardized residual-event count, divided by the
+ambient matching cardinality.  The reference witness is explicit, so this
+does not identify residual spaces across different attained demands. -/
+theorem uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    ((uniformConfigurationMatching row col htotal).map
+        (fun matching =>
+          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+            matching).1)) demand =
+      ((Fintype.card (PrescribedDemandWitness demand.1 row col) : ENNReal) *
+        (Fintype.card (canonicalResidualCellEvent witness0 U) : ENNReal)) /
+        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
+  rw [uniformConfigurationMatching_map_canonicalDemand_apply]
+  rw [card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    row col U demand witness0]
+  simp only [Nat.cast_mul]
+
 #print axioms canonicalDemandOfMatching_high_of_ne_zero
 #print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
 #print axioms canonicalDemandImage_high
@@ -28877,6 +28900,7 @@ theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_canonicalDemand_apply
 #print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+#print axioms uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
 
 end
 
@@ -28885,6 +28909,51 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
+Normalized SHA-256: 9ac19f71ec9467afa5db55711c1ac7e481a8dd6693358d18e5f1766faddf97df
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+
+/-!
+# Section VIII--IX: tagged global canonical residuals
+
+Every state of the global dependent canonical-demand/witness/residual sigma
+space carries a residual configuration satisfying the literal Section IX
+cap/no-return event for that state's own demand support and residual degrees.
+This is a pointwise membership bridge only: it does not construct an untagged
+residual PMF, condition a law, take an expectation, or assert an asymptotic
+bound.
+-/
+
+namespace Erdos625
+
+/-- A tagged state in the global canonical residual disintegration supplies
+the exact cap/no-return hypothesis used by the Section IX fixed-family
+machinery. -/
+theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} (U : Nat)
+    (z : Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) :
+    z.2.2.1 ∈ ResidualCapNoReturnEvent
+      (positiveDemandSupport z.1.1) (U / 2)
+      (residualRowDegree z.2.1) (residualColumnDegree z.2.1) := by
+  simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
+    using z.2.2.2
+
+#print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 ========================================================================== -/
 
 /- ==========================================================================
@@ -31497,7 +31566,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b0ef4555d42826b4888274363ab96563594aff3130481060528a7dd9f7d603b3
+Normalized SHA-256: 01c6b88bd8da3bd11d1ebcf0be630e3b827bbb1c04ff9ac146cb5fc8801e39cc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31946,6 +32015,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply
 #print axioms Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
+#print axioms Erdos625.sigmaCanonicalDemandResidual_mem_residualCapNoReturn
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
@@ -32041,7 +32112,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1cbe57782fe870c883908efc577e8f569d48c2d900b88666e05af9a94f1635f8
+Normalized SHA-256: 17365ceeffa396dc6f288093fe53cbc15c98d14b3dceb8475391f3b95ec2994a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -32176,6 +32247,10 @@ residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
 bounds, and skeleton estimates remain open.
+Every tagged state of that global disintegration also satisfies the literal
+Section IX cap/no-return event for its own canonical support and residual
+degrees. This is a pointwise bridge, not an untagged residual law or an
+expectation estimate.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

@@ -143,6 +143,7 @@ import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8CanonicalDemandGlobalResidual
+import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -293,6 +294,10 @@ residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
 bounds, and skeleton estimates remain open.
+Every tagged state of that global disintegration also satisfies the literal
+Section IX cap/no-return event for its own canonical support and residual
+degrees. This is a pointwise bridge, not an untagged residual law or an
+expectation estimate.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

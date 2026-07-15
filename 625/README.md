@@ -154,6 +154,16 @@ demand-specific residual-fibre cardinality.  It does not claim that demands
 are uniformly distributed, that one residual law works across all demands, or
 that any canonical event is likely.
 
+The companion marginal theorem states this directly as the labelled-witness
+cardinality times that demand-specific residual-fibre cardinality, divided by
+the ambient matching-space cardinality.
+
+[`Section9GlobalCanonicalResidualBridge.lean`](formalization/Erdos625/Section9GlobalCanonicalResidualBridge.lean)
+then records the exact pointwise handoff to Section 9: every tagged global
+residual is in the cap/no-return event associated with its own canonical
+support and residual degrees. It is not an untagged residual distribution,
+conditioning statement, expectation bound, or asymptotic estimate.
+
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,
 giving a generic `2 ^ |R|` cardinal bound.  Finite bipartite edge sets now have

@@ -293,6 +293,17 @@ cardinality factorization for any explicitly supplied witness. This is not a
 common residual law across demands, a nonemptiness estimate, or a quantitative
 skeleton statement.
 
+Its marginal corollary gives the corresponding pushed-forward demand mass as
+the labelled-witness cardinality times the specified demand-specific residual
+fibre cardinality, divided by the ambient matching-space cardinality.
+
+[`Section9GlobalCanonicalResidualBridge.lean`](Erdos625/Section9GlobalCanonicalResidualBridge.lean)
+adds the precise downstream handoff: each element of that dependent global
+sigma family satisfies `ResidualCapNoReturnEvent` for its own support and
+residual degrees. This is a pointwise event-membership theorem only; it does
+not turn the dependent family into one residual PMF or establish an
+expectation or an asymptotic bound.
+
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and
 column stub mass, the probability of the literal canonical event is its finite

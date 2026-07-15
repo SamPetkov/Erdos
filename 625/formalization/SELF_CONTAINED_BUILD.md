@@ -43,7 +43,10 @@ injective parity-matrix encoding, literal residual even-edge family and its
 `2 ^ |R|` bound, division-free form of (9.21), full finite cycle-rank chain
 through literal support and `m₀ / 2`, exact binary cycle-space cardinality,
 fixed-`F` capped expansion, finite analytic endpoint bounds, and deterministic
-small-residual estimate are proved. The file also contains a recoverable
+small-residual estimate are proved. Every tagged state in the global Section
+VIII canonical-demand disintegration is also proved to satisfy its own
+literal Section IX cap/no-return event. This pointwise handoff does not create
+an untagged residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound, plus abstract and matching-aware finite geometric traversal
 bounds. It now also contains the endpoint-resolved positive kernel, pointwise

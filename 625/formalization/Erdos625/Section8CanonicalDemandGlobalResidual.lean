@@ -243,6 +243,29 @@ theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
       exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
         (canonicalDemandImage_high row col U demand) witness0
 
+/-- The exact global canonical-demand mass is the labelled-witness count
+times one demand-specific standardized residual-event count, divided by the
+ambient matching cardinality.  The reference witness is explicit, so this
+does not identify residual spaces across different attained demands. -/
+theorem uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    ((uniformConfigurationMatching row col htotal).map
+        (fun matching =>
+          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+            matching).1)) demand =
+      ((Fintype.card (PrescribedDemandWitness demand.1 row col) : ENNReal) *
+        (Fintype.card (canonicalResidualCellEvent witness0 U) : ENNReal)) /
+        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
+  rw [uniformConfigurationMatching_map_canonicalDemand_apply]
+  rw [card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    row col U demand witness0]
+  simp only [Nat.cast_mul]
+
 #print axioms canonicalDemandOfMatching_high_of_ne_zero
 #print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
 #print axioms canonicalDemandImage_high
@@ -251,6 +274,7 @@ theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_canonicalDemand_apply
 #print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+#print axioms uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
 
 end
 
