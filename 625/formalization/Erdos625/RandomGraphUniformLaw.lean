@@ -28,23 +28,22 @@ private theorem probabilityMeasure_eq_uniformOn_univ_of_singleton_eq
   have hsumμ : ∑ y : Ω, μ {y} = 1 := by
     calc
       ∑ y : Ω, μ {y} = μ (Finset.univ : Finset Ω) := by
-        simpa using
-          (MeasureTheory.sum_measure_singleton
-            (μ := μ) (s := (Finset.univ : Finset Ω)))
+        simp
       _ = 1 := by simp
   have hsumU : ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} = 1 := by
     calc
       ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} =
           uniformOn (Set.univ : Set Ω) (Finset.univ : Finset Ω) := by
-        simpa using
-          (MeasureTheory.sum_measure_singleton
-            (μ := uniformOn (Set.univ : Set Ω))
-            (s := (Finset.univ : Finset Ω)))
+        simp
       _ = 1 := by simp
   have hμcard : (Fintype.card Ω : ENNReal) * μ {x} = 1 := by
     calc
-      (Fintype.card Ω : ENNReal) * μ {x} = ∑ y : Ω, μ {y} := by
-        simp only [hμ y x, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+      (Fintype.card Ω : ENNReal) * μ {x} = ∑ _y : Ω, μ {x} := by
+        simp
+      _ = ∑ y : Ω, μ {y} := by
+        apply Finset.sum_congr rfl
+        intro y _
+        exact (hμ y x).symm
       _ = 1 := hsumμ
   have hUcard :
       (Fintype.card Ω : ENNReal) * uniformOn (Set.univ : Set Ω) {x} = 1 := by
@@ -55,14 +54,17 @@ private theorem probabilityMeasure_eq_uniformOn_univ_of_singleton_eq
       simp [uniformOn_univ]
     calc
       (Fintype.card Ω : ENNReal) * uniformOn (Set.univ : Set Ω) {x} =
-          ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} := by
-        simp only [hU y, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+          ∑ _y : Ω, uniformOn (Set.univ : Set Ω) {x} := by
+        simp
+      _ = ∑ y : Ω, uniformOn (Set.univ : Set Ω) {y} := by
+        apply Finset.sum_congr rfl
+        intro y _
+        exact (hU y).symm
       _ = 1 := hsumU
-  apply (ENNReal.mul_left_inj
-    (a := μ {x}) (b := uniformOn (Set.univ : Set Ω) {x})
+  apply (ENNReal.mul_right_inj
     (by positivity : (Fintype.card Ω : ENNReal) ≠ 0)
-    (by simp : (Fintype.card Ω : ENNReal) ≠ ∞)).mp
-  simpa [mul_comm] using hμcard.trans hUcard.symm
+    (by simp : (Fintype.card Ω : ENNReal) ≠ (⊤ : ENNReal))).mp
+  exact hμcard.trans hUcard.symm
 
 /-- The repository's `G(n,1/2)` measure is exactly uniform on all labelled
 graphs on `Fin n`. -/
