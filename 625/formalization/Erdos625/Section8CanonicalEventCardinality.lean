@@ -160,7 +160,10 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     change {e : {m : ConfigurationMatching row col //
       ExtendsPrescribedDemandWitness m witness} //
       canonicalDemandOfMatching e.1 U = demand} ≃ _
-    exact Equiv.subtypeSubtypeEquivSubtypeInter _ _
+    exact Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        ExtendsPrescribedDemandWitness m witness)
+      (fun m => canonicalDemandOfMatching m U = demand)
   let e₂ : {m : ConfigurationMatching row col //
       ExtendsPrescribedDemandWitness m witness ∧
         canonicalDemandOfMatching m U = demand} ≃
@@ -176,7 +179,10 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     change _ ≃ {x : {m : ConfigurationMatching row col //
       canonicalDemandOfMatching m U = demand} //
       ExtendsPrescribedDemandWitness x.1 witness}
-    exact (Equiv.subtypeSubtypeEquivSubtypeInter _ _).symm
+    exact (Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        canonicalDemandOfMatching m U = demand)
+      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
   let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
       ExtendsPrescribedDemandWitness x.1 witness} ≃
       {x : ↑(canonicalDemandEvent demand row col U) //

@@ -26705,7 +26705,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 5815cf3b9f30851caf2832008b0a5df550d88772b81d2b31b150521c3cc8cb71
+Normalized SHA-256: bae2ee1b8fbc446ed08865fce2549a80366a6b164042fef44ffcd681417744e7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -26869,7 +26869,10 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     change {e : {m : ConfigurationMatching row col //
       ExtendsPrescribedDemandWitness m witness} //
       canonicalDemandOfMatching e.1 U = demand} ≃ _
-    exact Equiv.subtypeSubtypeEquivSubtypeInter _ _
+    exact Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        ExtendsPrescribedDemandWitness m witness)
+      (fun m => canonicalDemandOfMatching m U = demand)
   let e₂ : {m : ConfigurationMatching row col //
       ExtendsPrescribedDemandWitness m witness ∧
         canonicalDemandOfMatching m U = demand} ≃
@@ -26885,7 +26888,10 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     change _ ≃ {x : {m : ConfigurationMatching row col //
       canonicalDemandOfMatching m U = demand} //
       ExtendsPrescribedDemandWitness x.1 witness}
-    exact (Equiv.subtypeSubtypeEquivSubtypeInter _ _).symm
+    exact (Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        canonicalDemandOfMatching m U = demand)
+      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
   let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
       ExtendsPrescribedDemandWitness x.1 witness} ≃
       {x : ↑(canonicalDemandEvent demand row col U) //
