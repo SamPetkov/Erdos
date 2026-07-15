@@ -83,9 +83,9 @@ metrics:
 - local source modules included: 151;
 - external Mathlib imports: 75;
 - central `#print axioms` commands included: 531;
-- newline count: 30,259;
+- newline count: 30,257;
 - generated source SHA-256:
-  `790CB4E11C23E3D28B163CD9D90E820A5E834BF39CBD3E213D4D242ADABF9681`.
+  `46BE3575A917F3F2AFCED5DB21AD91B185106DD97166AE5CBEC1CA4B3436C0E7`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
