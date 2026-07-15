@@ -130,6 +130,7 @@ import Erdos625.Section8CanonicalSkeleton
 import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8CanonicalEventCharacterization
+import Erdos625.Section8CanonicalEventCardinality
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion

@@ -78,12 +78,12 @@ The source checkpoint generated on 2026-07-15 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 148;
+- local source modules included: 149;
 - external Mathlib imports: 75;
-- central `#print axioms` commands included: 525;
-- newline count: 29,813;
+- central `#print axioms` commands included: 527;
+- newline count: 30,056;
 - generated source SHA-256:
-  `C8EFF51CB599E73CA2D1154E36CC4B43F08C0EA126B7E4DB5076B0305FBEF60A`.
+  `86696D0FE9F62F3E81209B33C5C34AE1851B8E05B2E784A790347274E847FB4F`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
