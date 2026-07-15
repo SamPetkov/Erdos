@@ -26970,6 +26970,66 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
+Source: Erdos625/Section8CanonicalEventProbabilityNormalization.lean
+Normalized SHA-256: c8e048debc46ff7686a205b8cf9094e5896d6028a0a9401ac089b7546dfdd2d5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityNormalization
+
+/-!
+# Section 8: canonical-event probability normalization
+
+This module evaluates the literal canonical-demand event under the ambient
+uniform configuration law. It is intentionally only a finite normalization
+identity: it makes no claim about a conditional law, event nonemptiness,
+high-demand separation, labelled witnesses, or asymptotics.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+/-! The event subtype is finite, but the project deliberately avoids a global
+instance-search change for canonical event subtypes. -/
+local instance instFintypeCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+/-- Under the uniform law on all configuration matchings, the literal
+canonical-demand event has its exact finite-cardinality probability. -/
+theorem uniformConfigurationMatching_canonicalDemandEvent_apply
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure
+        (canonicalDemandEvent demand row col U) =
+      (Fintype.card ↑(canonicalDemandEvent demand row col U) : ℝ≥0∞) /
+        ((Finset.univ.sum row).factorial : ℝ≥0∞) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).toOuterMeasure
+      (canonicalDemandEvent demand row col U) = _
+  rw [PMF.toOuterMeasure_uniformOfFintype_apply,
+    card_configurationMatching row col htotal]
+
+#print axioms uniformConfigurationMatching_canonicalDemandEvent_apply
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityNormalization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityNormalization
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
 Source: Erdos625/Section8LabelledIncidence.lean
 Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
@@ -29401,7 +29461,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 414412e3b5e0abbc23de985dcad747862ffeb0eb766fb3bafaaa7572e3d97545
+Normalized SHA-256: 57e10b12e18cb5ece800ac25df1a18cfae61a3b5d337201e59de96465c12b3e8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -29817,6 +29877,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual
 #print axioms Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off
 #print axioms Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
@@ -29900,7 +29961,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 93dc667a8ef2b8888c9b45cd055a96aaea22d27fb79191c73053a32d625ec66a
+Normalized SHA-256: 781930be1db8364c9fedccbdf14c825ec04375701c966d9e5271915c7d3b95f0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -30021,11 +30082,12 @@ high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
 support-indexed cap/no-return translation are also checked.  Constructing and
-counting the global labelled canonical event, proving the manuscript incidence
-formula (8.3), packaging its conditioned law, and the skeleton estimates remain
-open.  For each fixed matching, the literal canonical demand already has a
-unique extended labelled witness; existence of any labelled demand witness
-also forces total demand not to exceed the ambient row-stub mass.  The exact
+counting the global labelled canonical event are now checked through its
+unique labelled-witness fibres.  The remaining incidence/factorial
+specialization, global conditioned law, and skeleton estimates remain open.
+For each fixed matching, the literal canonical demand already has a unique
+extended labelled witness; existence of any labelled demand witness also
+forces total demand not to exceed the ambient row-stub mass.  The exact
 descending-factorial endpoint transport used
 in (8.12) is proved independently, with the stronger loss `n^gap` and exact
 minimum/absolute-difference specializations.

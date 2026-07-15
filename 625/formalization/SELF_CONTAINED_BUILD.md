@@ -20,9 +20,11 @@ residual half-cap/no-return event. Total residual row and column degrees agree,
 and the full canonical-demand event has a named exact support/cap
 characterization. The normalized
 labelled-witness incidence identity and the distinguishable near-skeleton
-product expansion are checked as finite algebra. Counting and identifying the
-global canonical event, its conditioned law, the remaining incidence
-specialization, and the endpoint/near/middle skeleton estimates remain open.
+product expansion are checked as finite algebra. The literal global canonical
+event is also counted exactly by partitioning it into labelled-witness fibres.
+Its ambient probability normalization is a separately gated finite bridge;
+the conditioned law, the remaining incidence specialization, and the
+endpoint/near/middle skeleton estimates remain open.
 
 In Section IX the generic restriction and support-cardinality bounds,
 injective parity-matrix encoding, literal residual even-edge family and its
@@ -78,12 +80,12 @@ The source checkpoint generated on 2026-07-15 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 149;
+- local source modules included: 150;
 - external Mathlib imports: 75;
-- central `#print axioms` commands included: 527;
-- newline count: 30,081;
+- central `#print axioms` commands included: 529;
+- newline count: 30,143;
 - generated source SHA-256:
-  `DD32F33775CA266FA4217DDFC2BB3D6A5E0157119319D859D88CD02619A077A6`.
+  `10D56C4199534DB7D39AA07AD810388631E4FBFB280807A40B08FFA0D10211AE`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
@@ -98,7 +100,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 146
+The ordered module manifest is embedded in the generated file as 150
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

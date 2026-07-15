@@ -131,6 +131,7 @@ import Erdos625.Section8CanonicalLabelledWitness
 import Erdos625.Section8CanonicalEventResidual
 import Erdos625.Section8CanonicalEventCharacterization
 import Erdos625.Section8CanonicalEventCardinality
+import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion
@@ -264,11 +265,12 @@ high-demand function is now defined; its support is proved to be a partial
 matching with exact on/off-support values.  Compatibility uniqueness for fixed
 selected fibres, the zero-residual full-fibre identity, and a generic
 support-indexed cap/no-return translation are also checked.  Constructing and
-counting the global labelled canonical event, proving the manuscript incidence
-formula (8.3), packaging its conditioned law, and the skeleton estimates remain
-open.  For each fixed matching, the literal canonical demand already has a
-unique extended labelled witness; existence of any labelled demand witness
-also forces total demand not to exceed the ambient row-stub mass.  The exact
+counting the global labelled canonical event are now checked through its
+unique labelled-witness fibres.  The remaining incidence/factorial
+specialization, global conditioned law, and skeleton estimates remain open.
+For each fixed matching, the literal canonical demand already has a unique
+extended labelled witness; existence of any labelled demand witness also
+forces total demand not to exceed the ambient row-stub mass.  The exact
 descending-factorial endpoint transport used
 in (8.12) is proved independently, with the stronger loss `n^gap` and exact
 minimum/absolute-difference specializations.
