@@ -289,9 +289,10 @@ exactly by its attained canonical demand, labelled witness, and
 demand-dependent residual event.  The uniform law transports to that dependent
 sigma space, and the demand marginal is weighted by its literal fibre
 cardinality rather than declared uniform.  This does not identify one common
-residual law across demands. Manuscript-specific skeleton parameterization,
-event nonemptiness, quantitative probability bounds, and skeleton estimates
-remain open.
+residual law across demands; each demand fibre has the exact labelled-witness
+times standardized-residual cardinality factorization. Manuscript-specific
+skeleton parameterization, event nonemptiness, quantitative probability
+bounds, and skeleton estimates remain open.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact

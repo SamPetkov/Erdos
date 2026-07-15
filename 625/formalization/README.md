@@ -288,8 +288,10 @@ dependent sigma family of its attained canonical demand, its unique labelled
 witness, and the residual event for that demand.  Under equal total stub mass,
 the ambient uniform PMF transports to the uniform sigma PMF, and the demand
 marginal is its literal fibre cardinality divided by the total cardinality.
-This is not a common residual law across demands, a nonemptiness estimate, or
-a quantitative skeleton statement.
+That fibre has the exact labelled-witness times standardized-residual
+cardinality factorization for any explicitly supplied witness. This is not a
+common residual law across demands, a nonemptiness estimate, or a quantitative
+skeleton statement.
 
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and

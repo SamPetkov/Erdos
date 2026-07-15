@@ -600,6 +600,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformSigmaCanonicalDemandResidual
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply
+#print axioms Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing

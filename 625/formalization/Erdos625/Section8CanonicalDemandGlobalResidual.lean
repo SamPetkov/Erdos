@@ -31,6 +31,13 @@ local instance instFintypeCanonicalResidualCellEventGlobalResidual
     Fintype (canonicalResidualCellEvent witness U) :=
   Fintype.ofFinite _
 
+local instance instFintypeCanonicalDemandEventGlobalResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
 /-- A nonzero entry retained by the literal canonical-demand map is strictly
 above the half-cutoff. -/
 theorem canonicalDemandOfMatching_high_of_ne_zero
@@ -209,6 +216,33 @@ theorem uniformConfigurationMatching_map_canonicalDemand_apply
     _ = _ := by
       rw [← Fintype.card_congr equivalence]
 
+/-- Each global demand fibre factors exactly into its labelled-witness count
+and one standardized residual-event count.  The reference witness remains an
+explicit parameter: the residual event varies with the attained demand. -/
+theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    Fintype.card
+      (Σ witness : PrescribedDemandWitness demand.1 row col,
+        canonicalResidualCellEvent witness U) =
+      Fintype.card (PrescribedDemandWitness demand.1 row col) *
+        Fintype.card (canonicalResidualCellEvent witness0 U) := by
+  calc
+    Fintype.card
+        (Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) =
+        Fintype.card (canonicalDemandEvent demand.1 row col U) := by
+      exact Fintype.card_congr
+        (canonicalDemandEventEquivSigmaResidual demand.1 row col U
+          (canonicalDemandImage_high row col U demand)).symm
+    _ = Fintype.card (PrescribedDemandWitness demand.1 row col) *
+          Fintype.card (canonicalResidualCellEvent witness0 U) := by
+      exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
+        (canonicalDemandImage_high row col U demand) witness0
+
 #print axioms canonicalDemandOfMatching_high_of_ne_zero
 #print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
 #print axioms canonicalDemandImage_high
@@ -216,6 +250,7 @@ theorem uniformConfigurationMatching_map_canonicalDemand_apply
 #print axioms uniformSigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_canonicalDemand_apply
+#print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 
 end
 

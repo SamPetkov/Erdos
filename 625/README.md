@@ -149,8 +149,10 @@ now decomposes every configuration matching by its attained canonical-demand
 table, its labelled witness, and its demand-dependent residual event.  It
 transports the ambient uniform law to this dependent sigma space and proves
 that a demand table has mass proportional to its exact fibre cardinality.  It
-does not claim that demands are uniformly distributed, that one residual law
-works across all demands, or that any canonical event is likely.
+also factors that fibre into its labelled-witness cardinality times one
+demand-specific residual-fibre cardinality.  It does not claim that demands
+are uniformly distributed, that one residual law works across all demands, or
+that any canonical event is likely.
 
 For Section 9, restriction to the residual relation is proved injective for
 even matrices supported on the union of that relation with a row matching,

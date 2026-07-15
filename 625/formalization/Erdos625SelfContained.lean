@@ -28626,7 +28626,7 @@ END SOURCE MODULE: Erdos625.UniformSigmaTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
 Source: Erdos625/Section8CanonicalDemandGlobalResidual.lean
-Normalized SHA-256: ca6c45ac927c70bb29ede5f962e1c5572c702b57d75848c5fff0cf923420b297
+Normalized SHA-256: a7aea29bc2b4426e4038dd5dcafdfd9efb266a866522992fd01ca6c0eb8fd77d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
 
@@ -28655,6 +28655,13 @@ local instance instFintypeCanonicalResidualCellEventGlobalResidual
     {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
     (witness : PrescribedDemandWitness demand row col) (U : Nat) :
     Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeCanonicalDemandEventGlobalResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    Fintype (canonicalDemandEvent demand row col U) :=
   Fintype.ofFinite _
 
 /-- A nonzero entry retained by the literal canonical-demand map is strictly
@@ -28835,6 +28842,33 @@ theorem uniformConfigurationMatching_map_canonicalDemand_apply
     _ = _ := by
       rw [← Fintype.card_congr equivalence]
 
+/-- Each global demand fibre factors exactly into its labelled-witness count
+and one standardized residual-event count.  The reference witness remains an
+explicit parameter: the residual event varies with the attained demand. -/
+theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    Fintype.card
+      (Σ witness : PrescribedDemandWitness demand.1 row col,
+        canonicalResidualCellEvent witness U) =
+      Fintype.card (PrescribedDemandWitness demand.1 row col) *
+        Fintype.card (canonicalResidualCellEvent witness0 U) := by
+  calc
+    Fintype.card
+        (Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) =
+        Fintype.card (canonicalDemandEvent demand.1 row col U) := by
+      exact Fintype.card_congr
+        (canonicalDemandEventEquivSigmaResidual demand.1 row col U
+          (canonicalDemandImage_high row col U demand)).symm
+    _ = Fintype.card (PrescribedDemandWitness demand.1 row col) *
+          Fintype.card (canonicalResidualCellEvent witness0 U) := by
+      exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
+        (canonicalDemandImage_high row col U demand) witness0
+
 #print axioms canonicalDemandOfMatching_high_of_ne_zero
 #print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
 #print axioms canonicalDemandImage_high
@@ -28842,6 +28876,7 @@ theorem uniformConfigurationMatching_map_canonicalDemand_apply
 #print axioms uniformSigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms uniformConfigurationMatching_map_canonicalDemand_apply
+#print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 
 end
 
@@ -31462,7 +31497,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: baca17efc0668b521d3ed76a6ee28c65bb12acaf74e73427b3f28ffd7096d6dc
+Normalized SHA-256: b0ef4555d42826b4888274363ab96563594aff3130481060528a7dd9f7d603b3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31910,6 +31945,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformSigmaCanonicalDemandResidual
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
 #print axioms Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply
+#print axioms Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
@@ -32005,7 +32041,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: fe902a6687eb5b0f008af435a70ff4f8a6117eced6c885097ccdd01740c61e31
+Normalized SHA-256: 1cbe57782fe870c883908efc577e8f569d48c2d900b88666e05af9a94f1635f8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -32136,9 +32172,10 @@ exactly by its attained canonical demand, labelled witness, and
 demand-dependent residual event.  The uniform law transports to that dependent
 sigma space, and the demand marginal is weighted by its literal fibre
 cardinality rather than declared uniform.  This does not identify one common
-residual law across demands. Manuscript-specific skeleton parameterization,
-event nonemptiness, quantitative probability bounds, and skeleton estimates
-remain open.
+residual law across demands; each demand fibre has the exact labelled-witness
+times standardized-residual cardinality factorization. Manuscript-specific
+skeleton parameterization, event nonemptiness, quantitative probability
+bounds, and skeleton estimates remain open.
 For each fixed matching, the literal canonical demand already has a unique
 extended labelled witness; existence of any labelled demand witness also
 forces total demand not to exceed the ambient row-stub mass.  The exact
