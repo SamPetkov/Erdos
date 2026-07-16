@@ -9148,7 +9148,7 @@ END SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10UniformAmplification
 Source: Erdos625/Section10UniformAmplification.lean
-Normalized SHA-256: 68aef56b108e390fe6e5695de03b65403ab6af67f7940ed99ac6f63f4b715195
+Normalized SHA-256: 22d8f0ede19538952ab6cc37d9b68355f7b41cccd29ed4cbb0d32b325f190a98
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section10UniformAmplification
 
@@ -9230,7 +9230,7 @@ theorem cochromaticCapacityDeficitRadius_lt_displayed
 
 /-- Transport of the natural chromatic number across extensionally equal
 inducing vertex sets. -/
-private theorem chromaticNumberNat_induce_eq_of_set_eq
+private theorem chromaticNumberNat_induce_eq_of_set_eq_uniform
     {V : Type*} [Fintype V] (G : SimpleGraph V) (S T : Set V)
     [Fintype S] [Fintype T]
     (hST : S = T) :
@@ -9284,7 +9284,7 @@ theorem capacityAmplification_inter_linear_subset_cochromaticUpperEvent
           (n : ℝ) ^ (1 / 3 : ℝ) := by
     have hAtU := hG.2 U
     rw [hUcard] at hAtU
-    rw [← chromaticNumberNat_induce_eq_of_set_eq
+    rw [← chromaticNumberNat_induce_eq_of_set_eq_uniform
       G (↑U : Set (Fin n)) ((↑W : Set (Fin n)))ᶜ hUset]
     exact hAtU
   have hlog : 0 < Real.log (n : ℝ) :=

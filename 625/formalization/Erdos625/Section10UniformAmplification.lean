@@ -81,7 +81,7 @@ theorem cochromaticCapacityDeficitRadius_lt_displayed
 
 /-- Transport of the natural chromatic number across extensionally equal
 inducing vertex sets. -/
-private theorem chromaticNumberNat_induce_eq_of_set_eq
+private theorem chromaticNumberNat_induce_eq_of_set_eq_uniform
     {V : Type*} [Fintype V] (G : SimpleGraph V) (S T : Set V)
     [Fintype S] [Fintype T]
     (hST : S = T) :
@@ -135,7 +135,7 @@ theorem capacityAmplification_inter_linear_subset_cochromaticUpperEvent
           (n : ℝ) ^ (1 / 3 : ℝ) := by
     have hAtU := hG.2 U
     rw [hUcard] at hAtU
-    rw [← chromaticNumberNat_induce_eq_of_set_eq
+    rw [← chromaticNumberNat_induce_eq_of_set_eq_uniform
       G (↑U : Set (Fin n)) ((↑W : Set (Fin n)))ᶜ hUset]
     exact hAtU
   have hlog : 0 < Real.log (n : ℝ) :=
