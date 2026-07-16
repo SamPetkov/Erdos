@@ -46,6 +46,7 @@ import Erdos625.Section11AsymptoticAssembly
 import Erdos625.Section11ChromaticLowerTailBridge
 import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.Section10QuarterChainLeftoverEvent
+import Erdos625.Section10UniformAmplification
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4

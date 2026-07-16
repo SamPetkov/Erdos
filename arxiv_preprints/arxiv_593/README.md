@@ -1,4 +1,4 @@
-# Erdős Problem 625 arXiv package
+# Erdős Problem 593 arXiv package
 
 The submission source is `main.tex`; bibliography data are in
 `references.bib`. The generated `main.bbl` is included for arXiv
@@ -8,10 +8,10 @@ Build with:
 
 ```text
 pdflatex main.tex
-bibtex main
+biber main
 pdflatex main.tex
 pdflatex main.tex
 ```
 
-The manuscript carries the fixed manuscript date 12 July 2026. arXiv records
+The manuscript carries the fixed manuscript date 11 July 2026. arXiv records
 submission and version dates separately.

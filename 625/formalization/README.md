@@ -527,8 +527,10 @@ infinity, and proves the seed square-root, transformed-radius, real cube-root,
 and additive-constant little-o statements, each relative to
 `n/(log n)^3`.  It now also defines `gapBase` and `amplificationError` and proves
 `amplificationError_isLittleO_gapBase` by assembling those four accepted
-components.  These deterministic limits do not supply the probabilistic seed,
-the uniform capacity amplification, or Lemma 10.2.
+components.  These deterministic limits do not supply the concrete
+probabilistic seed or its Section IX `Lambda` asymptotics; the
+quantifier-correct uniform amplification theorem is supplied separately
+below.
 [`Section11AsymptoticAssembly.lean`](Erdos625/Section11AsymptoticAssembly.lean)
 proves the generic full-sequence intersection theorem without independence,
 the eventual explicit threshold from abstract root/little-o hypotheses, and
@@ -586,8 +588,7 @@ to zero.
 then packages the exact manuscript-form event: for one positive absolute
 constant, every induced set satisfies
 `χ(G[U]) ≤ C |U| / log n + n^(1/3)` on one event whose probability tends to
-one.  This closes the exact statement of Lemma 10.1; it does not prove
-Lemma 10.2.
+one.  This closes the exact statement of Lemma 10.1.
 [`Section10QuarterChainLeftoverEvent.lean`](Erdos625/Section10QuarterChainLeftoverEvent.lean)
 specializes the same event to every deterministic deficit sequence, with
 leftover bound
@@ -607,8 +608,18 @@ transport is supplied separately by `Section10InducedRestriction.lean`.
 [`Section10CapacityLeftoverQuantitative.lean`](Erdos625/Section10CapacityLeftoverQuantitative.lean)
 locally proves the two-event quantitative union seam: if two success events
 imply a good event, its failure probability is at most the sum of the two
-failure bounds, without independence.  It does not supply either input tail
-or prove Lemma 10.2.
+failure bounds, without independence.
+[`Section10UniformAmplification.lean`](Erdos625/Section10UniformAmplification.lean)
+assembles that seam with the accepted capacity lower tail, an attaining core,
+deterministic concatenation, and the parameter-independent simultaneous
+colouring event.  Its theorem
+`exists_uniform_cochromatic_amplification` is the exact quantifier-correct
+form of Lemma 10.2: one constant `C ≥ 1` and one nonnegative deterministic
+sequence `epsilon_n → 0` are chosen before all deterministic `k_n`,
+`Lambda_n`, and `r_n`, and the fixed-index failure is at most
+`exp(-r_n) + epsilon_n` whenever the displayed seed inequality holds.  No
+independence is assumed.  The concrete Section IX seed estimate and its
+`Lambda` asymptotics are not proved by this module.
 [`Section11ChromaticLowerTailBridge.lean`](Erdos625/Section11ChromaticLowerTailBridge.lean)
 locally converts a full-sequence probability-zero bound for `X n <= k n` into
 probability one for the complementary strict event `k n < X n`, allowing the
@@ -620,12 +631,13 @@ That acceptance is declaration-scoped: it verifies their displayed algebraic,
 deterministic, or conditional implications and does not promote any enclosing
 manuscript lemma or section to complete.
 
-The one-event simultaneous colouring statement is now supplied, so the exact
-Lemma 10.1 quantifiers are closed.  In Lemma 10.2, the absolute `C` and deterministic
-`epsilon_n -> 0` must be chosen before the deterministic sequences `k_n`,
-`Lambda_n`, and `r_n`, and the result must hold along the full sequence.  The
-Section 11 set inclusion must still be instantiated with the actual parameter
-sequences and probability tails.  See
+The exact one-event Lemma 10.1 and the exact quantifier-correct uniform
+Lemma 10.2 are now formalized.  In the latter, the absolute `C ≥ 1` and
+nonnegative deterministic `epsilon_n → 0` are chosen before the deterministic
+sequences `k_n`, `Lambda_n`, and `r_n`, and the conclusion holds along the full
+sequence under its displayed seed hypothesis.  The concrete Section IX seed
+and `Lambda` asymptotics, and the Section 11 parameter sequences and
+probability tails, must still be supplied.  See
 [`SECTIONS_10_11_BREAKDOWN_2026-07-14.md`](SECTIONS_10_11_BREAKDOWN_2026-07-14.md)
 for the exact DAG and the declaration-scoped Aristotle request ledger.
 The complete remaining-work and model-allocation plan is recorded in
@@ -644,7 +656,8 @@ specialization
 `erdos625Statement_of_capacity_quarterChainLeftover_thresholds` discharges
 `hLeftoverTail`, reducing this route to four remaining inputs: capacity tail,
 chromatic tail, cochromatic threshold, and gap threshold.  Uniform Lemma 10.2
-and its concrete capacity seed remain open.
+is now available as a proved upstream interface, but its concrete Section IX
+capacity seed and the remaining Section XI inputs are open.
 
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
@@ -654,10 +667,10 @@ assembly, concrete cycle-to-walk enumeration and weight
 transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
-Section 10's uniform capacity seed-amplification and Lemma 10.2
-instantiation, and Section 11's actual chromatic tail and threshold/limit
-instantiation remain open.  The new seam theorems do not prove those inputs
-or the final theorem.  The project
+Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and
+Section 11's actual chromatic tail and threshold/limit instantiation remain
+open.  The proved uniform Lemma 10.2 interface does not supply those inputs or
+the final theorem.  The project
 therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative

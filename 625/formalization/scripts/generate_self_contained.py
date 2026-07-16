@@ -118,8 +118,10 @@ This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX concrete residual-weight/cycle encoding,
-attachment, and second-moment assembly; the Section X simultaneous-leftover
-and seed-amplification inputs; and the final probabilistic theorem are open.
+attachment, second-moment assembly, and concrete capacity seed/`Lambda`
+asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
+XI chromatic tail and threshold/limit inputs; and the final probabilistic
+theorem are open.
 The target proposition remains deliberately unproved.  The included #print
 axioms commands audit the central declarations that have actually been proved.
 

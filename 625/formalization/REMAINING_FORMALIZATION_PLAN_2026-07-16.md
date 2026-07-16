@@ -258,17 +258,21 @@ simultaneous leftover tail and its fixed-index quantitative failure bound.
 
 ### E4. Uniform Lemma 10.2
 
-Use the fixed-`n` bound
-`capacityDeficitEvent_compl_probability_le`, not the weaker asymptotic helper
-that assumes `r -> infinity`.  Combine it with
-`failure_probability_le_add_of_two_success_events`, capacity-radius rounding,
-the simultaneous leftover event, and the deterministic cochromatic bridge.
-Choose the absolute constant and the deterministic error sequence before all
-parameter sequences.
+Accepted in `Section10UniformAmplification.lean`.  It uses the fixed-index
+capacity failure bound, the two-success-event union seam, capacity-radius
+comparison, the simultaneous linear-colouring event, and the deterministic
+cochromatic bridge.  Its theorem chooses one absolute `C ≥ 1` and one
+nonnegative deterministic `epsilon_n → 0` before all deterministic `k_n`,
+`Lambda_n`, and `r_n`, then proves the eventual
+`exp(-r_n) + epsilon_n` failure bound under the displayed seed inequality.
+No independence is assumed.
 
-**Owner for E3--E4:** Sol designs/audits quantifier order and constants; Terra
-Ultra implements; Luna handles isolated measure/complement and rounding
-leaves.
+The remaining E-layer obligation is the concrete Section IX seed and its
+`Lambda` asymptotics, followed by the manuscript radius/error specialization.
+Those are not hidden inside the accepted uniform theorem.
+
+**Acceptance audit for E3--E4:** Sol-level quantifier and constant review;
+warning-fatal Lean 4.31 build; trust scan; and public `#print axioms` audit.
 
 ## Work package F — Section XI and final closure
 
@@ -280,7 +284,8 @@ The final plumbing is accepted.  The generic conditional theorem requires:
 4. `hCochromaticThreshold`;
 5. `hGapThreshold`.
 
-Once Work Packages A--E supply these concrete inputs, instantiate
+Once Work Packages A--D and the concrete Section IX seed/`Lambda`
+specialization supply these inputs, instantiate
 `erdos625Statement_of_capacity_leftover_thresholds`.  Then derive every fixed
 threshold statement from the accepted scale-divergence and moving-threshold
 lemmas.  The quarter-chain specialization
@@ -302,10 +307,11 @@ strict inequalities, rounding, and the final `#print axioms` report.
 3. **Completed:** the exact simultaneous greedy bound is converted to the
    manuscript constant; exact Lemma 10.1, the parameter-independent failure,
    and the deficit-indexed leftover tail are formalized.
-4. **Next:** assemble quantifier-correct uniform Lemma 10.2 using the fixed-`n`
-   capacity failure bound and the accepted leftover failure.
-5. **In parallel after Sol specification:** Section VIII skeleton type and
-   Section IX mixed-cycle code foundations.
+4. **Completed:** the quantifier-correct uniform Lemma 10.2 is assembled with
+   `C ≥ 1`, nonnegative `epsilon_n → 0`, and the required quantifier order.
+5. **Next/in parallel:** Section VIII skeleton type and Section IX mixed-cycle
+   code foundations, with priority on the concrete Section IX seed and
+   `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
 7. **Final:** integrate the concrete chromatic and cochromatic tails through

@@ -37,6 +37,7 @@ import Erdos625.Section11AsymptoticAssembly
 import Erdos625.Section11ChromaticLowerTailBridge
 import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.Section10QuarterChainLeftoverEvent
+import Erdos625.Section10UniformAmplification
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -282,6 +283,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterChainLeftoverBound_probability_tendsto_one
 #print axioms Erdos625.quarterChainLeftoverBound_compl_probability_le
 #print axioms Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+#print axioms Erdos625.quarterChainLinearColoringEvent_mono_constant
+#print axioms Erdos625.cochromaticCapacityDeficitRadius_lt_displayed
+#print axioms Erdos625.capacityAmplification_inter_linear_subset_cochromaticUpperEvent
+#print axioms Erdos625.cochromaticUpperEvent_compl_probability_le_exp_add
+#print axioms Erdos625.exists_uniform_cochromatic_amplification
 #print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
