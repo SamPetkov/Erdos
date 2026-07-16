@@ -510,6 +510,19 @@ construct a covering-cycle decomposition, an injective weight-preserving
 cycle code, or the concrete manuscript kernel, and therefore do not prove
 Lemma 9.1 or Proposition 9.2.
 
+Three further warning-fatal modules close the finite enumeration layer without
+claiming the remaining physical encoding.  [`Section9KernelPathEnumeration.lean`](Erdos625/Section9KernelPathEnumeration.lean)
+retains every internal vertex sequence and proves exact weighted-sum identities
+for endpoint and scalar kernel masses.  [`Section9BlockChainEnumeration.lean`](Erdos625/Section9BlockChainEnumeration.lean)
+iterates full positive-path codes and matching-transition states, giving the
+exact endpoint mass of the relaxed composed-kernel chain.
+[`Section9MinimalEvenCycleTour.lean`](Erdos625/Section9MinimalEvenCycleTour.lean)
+proves that every inclusion-minimal nonempty even bipartite edge set is covered
+exactly by a simple cycle walk.  Thus exact path multiplicity, relaxed
+block-chain enumeration, and minimal cycle coverage are proved.  The physical
+marked/oriented cycle-cut reconstruction and injective weight-preserving map
+into those codes, the attachment bound, and the final theorem remain open.
+
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
 fixed-size-to-larger density lift and the denominator-cleared quarter-density

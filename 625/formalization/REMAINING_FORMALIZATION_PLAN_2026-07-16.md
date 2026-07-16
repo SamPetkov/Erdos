@@ -179,17 +179,24 @@ actual residual even set
 
 Implementation order:
 
-1. prove that a minimal nonempty even bipartite edge set admits a covering
-   cycle walk;
-2. define the mixed-cycle block code, including enough reconstruction data
+1. **Completed:** prove that a minimal nonempty even bipartite edge set admits
+   a covering cycle walk;
+2. **Completed finite relaxation:** exact recursive path codes preserve every
+   internal-vertex multiplicity, and exact relaxed block-chain codes sum to
+   the endpoint mass of the iterated composed kernel;
+3. define the physical mixed-cycle block code, including enough reconstruction data
    without putting the desired encoding certificate into the input type;
-3. prove code reconstruction, injectivity, and weight preservation;
-4. instantiate the accepted traversal kernel with the literal `residualQ`;
-5. retain the single `2 * |M|` marked-start cost;
-6. transport the bound through the tagged dependent residual law;
-7. prove one deterministic threshold and one error sequence uniform over all
+4. prove code reconstruction, injectivity, and weight preservation;
+5. instantiate the accepted traversal kernel with the literal `residualQ`;
+6. retain the single `2 * |M|` marked-start cost;
+7. transport the bound through the tagged dependent residual law;
+8. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
-8. assemble Lemma 9.1 and Proposition 9.2.
+9. assemble Lemma 9.1 and Proposition 9.2.
+
+The accepted enumeration modules close exact path multiplicity, relaxed
+block-chain summation, and minimal cycle coverage.  They do not close the
+physical marked/oriented cycle-cut injection or `Erdos625Statement`.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may

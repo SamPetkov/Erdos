@@ -31,9 +31,11 @@ import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.Subgraph
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Combinatorics.SimpleGraph.IncMatrix
+import Mathlib.Combinatorics.SimpleGraph.Paths
 import Mathlib.Data.ENNReal.BigOperators
 import Mathlib.Data.ENNReal.Inv
 import Mathlib.Data.Fin.Tuple.Basic
@@ -26296,6 +26298,231 @@ END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MinimalEvenCycleTour
+Source: Erdos625/Section9MinimalEvenCycleTour.lean
+Normalized SHA-256: 3c2cde2b1f12d9777a72b30928a72108aefa4a8d55cb96dadf593f3c0c728fc5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MinimalEvenCycleTour
+
+/-!
+# A minimal nonempty even bipartite edge set is one simple cycle
+
+This is the traversal leaf that the mixed-cycle code requires.  The conclusion
+produces an actual `SimpleGraph.Walk.IsCycle`, covers every edge of `C` exactly
+once, and records the finite length bound.  No cyclic ordering is assumed.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-- The simple graph represented by a bipartite cell set. -/
+def cellGraph {A B : Type*} (C : Finset (A × B)) :
+    SimpleGraph (A ⊕ B) :=
+  SimpleGraph.fromRel fun u v ↦
+    match u, v with
+    | Sum.inl a, Sum.inr b => (a, b) ∈ C
+    | _, _ => False
+
+def cellSym2 {A B : Type*} (e : A × B) : Sym2 (A ⊕ B) :=
+  s(Sum.inl e.1, Sum.inr e.2)
+
+open Classical in
+lemma degree_toSimpleGraph_connectedComponent
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (c : G.ConnectedComponent) (x : c) :
+    c.toSimpleGraph.degree x = G.degree x.1 := by
+  refine' Finset.card_bij ( fun y hy => y ) _ _ _ <;> simp +decide;
+  · aesop;
+  · exact fun v hv => ⟨ c.mem_supp_of_adj_mem_supp x.property hv, hv ⟩
+
+lemma finite_nonempty_acyclic_graph_has_degree_one
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (hacyc : G.IsAcyclic) (hne : G ≠ ⊥) :
+    ∃ v, G.degree v = 1 := by
+  -- Let $c$ be a connected component of $G$ that contains at least one edge.
+  obtain ⟨c, hc⟩ : ∃ c : G.ConnectedComponent, Nontrivial c := by
+    obtain ⟨ u, v, h ⟩ := show ∃ u v : V, G.Adj u v from by contrapose! hne; ext u v; aesop;
+    refine' ⟨ G.connectedComponentMk u, _ ⟩;
+    refine' ⟨ ⟨ u, _ ⟩, ⟨ v, _ ⟩, _ ⟩ <;> simp_all +decide;
+    · exact SimpleGraph.ConnectedComponent.connectedComponentMk_mem;
+    · exact Quot.sound ( SimpleGraph.Reachable.symm ( SimpleGraph.Adj.reachable h ) );
+    · exact h.ne;
+  have := @SimpleGraph.IsTree.exists_vert_degree_one_of_nontrivial ( c );
+  contrapose! this;
+  refine' ⟨ c.toSimpleGraph, _, hc, _, _, _ ⟩;
+  exact Fintype.ofFinite ↥c;
+  exact Classical.decRel c.toSimpleGraph.Adj;
+  · exact SimpleGraph.IsAcyclic.isTree_connectedComponent hacyc c;
+  · intro v;
+    convert this v using 1;
+    convert degree_toSimpleGraph_connectedComponent G c v
+
+lemma finite_even_degree_graph_has_cycle
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (heven : ∀ v, Even (G.degree v))
+    (hne : G ≠ ⊥) :
+    ∃ (v : V) (p : G.Walk v v), p.IsCycle := by
+  by_contra h;
+  -- Apply the theorem that states a finite nonempty acyclic graph has a vertex of degree 1.
+  obtain ⟨v, hv⟩ : ∃ v : V, G.degree v = 1 := by
+    apply finite_nonempty_acyclic_graph_has_degree_one G (by
+    intro v p hp; specialize heven v; simp_all +decide ;) hne;
+  exact absurd ( heven v ) ( by simp +decide [ hv ] )
+
+lemma exists_cycleWalk_of_nonempty_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (heven : IsBipartiteEven C) (hne : C.Nonempty) :
+    ∃ (v : A ⊕ B) (p : (cellGraph C).Walk v v), p.IsCycle := by
+  obtain ⟨ v, hv ⟩ := hne;
+  -- Show that the graph is not bottom.
+  have h_nonbottom : cellGraph C ≠ ⊥ := by
+    intro h; have := congr_arg ( fun G => G.Adj ( Sum.inl v.1 ) ( Sum.inr v.2 ) ) h; simp +decide [ cellGraph ] at this;
+    contradiction;
+  convert finite_even_degree_graph_has_cycle ( cellGraph C ) _ h_nonbottom;
+  exact Classical.decRel (cellGraph C).Adj;
+  intro x; cases x <;> simp_all +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ] ;
+  · convert heven.1 ‹_› using 1;
+    refine' Finset.card_bij ( fun x hx => ( ‹_›, x.elim ( fun x => by aesop ) fun x => x ) ) _ _ _ <;> simp +decide [ cellGraph ];
+    aesop;
+  · convert heven.2 _ using 1;
+    convert Finset.card_image_of_injective _ ( show Function.Injective ( fun a : A => Sum.inl a ) from fun a b h => by simpa using h ) using 2;
+    any_goals exact Finset.image Prod.fst ( Finset.filter ( fun e => e.2 = ‹_› ) C );
+    any_goals exact ‹B›;
+    all_goals try infer_instance;
+    · ext; simp [cellGraph];
+      rename_i x; rcases x with ( _ | _ ) <;> simp +decide ;
+    · rw [ Finset.card_image_of_injOn ] ; intro a ha b hb ; aesop
+
+/-
+Every intrinsic simple bipartite cycle admits a genuine cyclic traversal
+whose edge set is exactly the supplied cell set.
+-/
+theorem exists_covering_cycleWalk_of_minimal_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (hC : IsSimpleBipartiteCycle C) :
+    ∃ (v : A ⊕ B) (p : (cellGraph C).Walk v v),
+      p.IsCycle ∧
+      p.edges.toFinset = C.image cellSym2 ∧
+      p.length = C.card ∧
+      p.length ≤ Fintype.card (A ⊕ B) := by
+  obtain ⟨ v, p, hp ⟩ := exists_cycleWalk_of_nonempty_even C hC.1 hC.2.1;
+  -- Let $D$ be the set of cells corresponding to the edges of $p$.
+  set D := C.filter (fun e => cellSym2 e ∈ p.edges);
+  -- Show that $D$ is bipartite even.
+  have hD_even : IsBipartiteEven D := by
+    constructor;
+    · intro a
+      have h_card : (Finset.filter (fun e => e.1 = a) D).card = (p.toSubgraph.neighborSet (Sum.inl a)).ncard := by
+        rw [ ← Set.ncard_coe_finset ];
+        fapply Set.ncard_congr;
+        use fun e he => Sum.inr e.2;
+        · simp +zetaDelta at *;
+          rintro a' b' ha' hb' rfl; exact (by
+          exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mpr hb');
+        · grind;
+        · intro b hb
+          obtain ⟨e, he⟩ : ∃ e ∈ p.edges, e = s(Sum.inl a, b) := by
+            simp_all +decide;
+            exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mp hb;
+          rcases b with ( _ | b ) <;> simp_all +decide [ cellGraph ];
+          · have := p.edges_subset_edgeSet he.1; simp_all +decide [cellGraph];
+          · exact Finset.mem_filter.mpr ⟨ by
+              have := p.edges_subset_edgeSet he.1; simp_all +decide [ cellGraph ] ;, by
+              aesop ⟩;
+      by_cases ha : Sum.inl a ∈ p.support <;> simp_all +decide [ SimpleGraph.Walk.IsCycle.ncard_neighborSet_toSubgraph_eq_two ];
+      rw [ show p.toSubgraph.neighborSet ( Sum.inl a ) = ∅ from _ ] ; simp +decide;
+      grind +suggestions;
+    · intro b
+      by_cases hb : Sum.inr b ∈ p.support;
+      · have hD_even_b : (Finset.filter (fun e => e.2 = b) D).card = (p.toSubgraph.neighborSet (Sum.inr b)).ncard := by
+          rw [ ← Set.ncard_coe_finset ];
+          fapply Set.ncard_congr;
+          use fun e he => Sum.inl e.1;
+          · simp +zetaDelta at *;
+            rintro a b ha hb rfl;
+            have h_adj : p.toSubgraph.Adj (Sum.inl a) (Sum.inr b) := by
+              (expose_names; exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mpr hb_1);
+            exact h_adj.symm;
+          · aesop;
+          · simp +decide;
+            constructor;
+            · intro a ha;
+              have h_edge : cellSym2 (a, b) ∈ p.edges := by
+                exact
+                (SimpleGraph.Walk.mem_edges_toSubgraph p).mp
+                  (id (SimpleGraph.Subgraph.adj_symm p.toSubgraph ha));
+              exact Finset.mem_filter.mpr ⟨ hC.1 |> fun h => by
+                have := p.edges_subset_edgeSet h_edge; simp_all +decide [ cellGraph ] ;
+                cases this ; tauto, h_edge ⟩;
+            · intro b' hb'
+              have h_adj : (cellGraph C).Adj (Sum.inr b) (Sum.inr b') := by
+                exact SimpleGraph.Subgraph.Adj.adj_sub hb';
+              cases h_adj ; aesop;
+        have := hp.ncard_neighborSet_toSubgraph_eq_two hb; aesop;
+      · rw [ Finset.card_eq_zero.mpr ] <;> simp_all +decide [ Finset.ext_iff ];
+        intro a b' hab' hb'; simp_all +decide [ D ] ;
+        have := p.snd_mem_support_of_mem_edges hab'.2; simp_all +decide [ cellGraph ] ;
+  -- Since $D$ is nonempty and bipartite even, by minimality, $D = C$.
+  have hD_eq_C : D = C := by
+    apply hC.2.2 D (Finset.filter_subset _ _) hD_even;
+    obtain ⟨e, he⟩ : ∃ e ∈ p.edges, ∃ a b, e = s(Sum.inl a, Sum.inr b) := by
+      rcases p with ( _ | ⟨ _, _, p ⟩ ) <;> simp_all +decide [ SimpleGraph.Walk.cons_isCycle_iff ];
+      · cases ‹ ( cellGraph C ).Adj v v › ; tauto;
+      · cases v <;> cases ‹A ⊕ B› <;> simp_all +decide;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inl _ ) ( Sum.inl _ ) › ; tauto;
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+        · cases ‹A ⊕ B› <;> aesop;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inr _ ) ( Sum.inr _ ) › ; tauto;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inr _ ) ( Sum.inr _ ) › ; tauto;
+    obtain ⟨ a, b, rfl ⟩ := he.2;
+    use (a, b);
+    simp +zetaDelta at *;
+    exact ⟨ by have := p.edges_subset_edgeSet he; unfold cellGraph at this; aesop, he ⟩;
+  -- Since $D = C$, the edges of $p$ are exactly the images of the cells in $C$ under $cellSym2$.
+  have h_edges_eq : p.edges.toFinset = Finset.image cellSym2 C := by
+    ext e; simp;
+    constructor;
+    · intro he;
+      have := p.edges_subset_edgeSet he;
+      rcases e with ⟨ u, v ⟩ ; simp_all +decide [ cellGraph ] ;
+      rcases u with ( u | u ) <;> rcases v with ( v | v ) <;> simp_all +decide [ cellSym2 ];
+    · rintro ⟨ a, b, h, rfl ⟩ ; replace hD_eq_C := Finset.ext_iff.mp hD_eq_C ( a, b ) ; aesop;
+  refine' ⟨ v, p, hp, h_edges_eq, _, _ ⟩;
+  · have h_card_edges : p.edges.toFinset.card = C.card := by
+      rw [ h_edges_eq, Finset.card_image_of_injective ];
+      intro x y; simp +decide [ cellSym2 ] ;
+      exact fun h1 h2 => Prod.ext h1 h2;
+    rw [ ← h_card_edges, List.toFinset_card_of_nodup ];
+    · exact Eq.symm (SimpleGraph.Walk.length_edges p);
+    · exact hp.edges_nodup;
+  · have := hp.isPath_tail.length_lt;
+    cases p <;> aesop
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MinimalEvenCycleTour
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MinimalEvenCycleTour
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TraversalKernel
 Source: Erdos625/Section9TraversalKernel.lean
 Normalized SHA-256: 1e1103de129ee471d0d6c02db8fbf837e61324bd08817fd40dffb0e154dcd4a0
@@ -26761,6 +26988,236 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ExplicitPathTerms
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ExplicitPathTerms
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9KernelPathEnumeration
+Source: Erdos625/Section9KernelPathEnumeration.lean
+Normalized SHA-256: bf9b99122e64ac274f71951f874a07972b61f6d6f1eb68ac858efa2ff7780a91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9KernelPathEnumeration
+
+/-!
+# Section 9: exact finite enumeration of kernel paths
+
+The endpoint kernel is a recursive sum over all intermediate vertices.  This
+module exposes the corresponding finite code type.  A code records each
+successive vertex, including the terminal equality witness at length zero, so
+different internal vertex sequences remain different summands even when they
+have the same weight.
+
+The main identities below are exact finite sums.  They do not use row bounds,
+geometric estimates, or an aggregate path certificate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## Fixed-length paths -/
+
+/-- Recursive codes for length-`ell` paths from `v` to `w`.
+
+At positive length, the first successor `u` is stored and the remainder is a
+code from `u` to `w`.  At length zero, the code stores a vertex proved equal
+to both endpoints, so its fiber is empty or a singleton according as the
+endpoints differ or agree.  Thus the nested sigma type preserves every
+internal vertex choice and its multiplicity. -/
+def KernelPathCode (V : Type*) : ℕ → V → V → Type _
+  | 0, v, w => {x : V // x = v ∧ x = w}
+  | ell + 1, _, w => Σ u : V, KernelPathCode V ell u w
+
+noncomputable instance instFintypeKernelPathCode
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (ell : ℕ) (v w : V) : Fintype (KernelPathCode V ell v w) := by
+  induction ell generalizing v with
+  | zero =>
+      change Fintype {x : V // x = v ∧ x = w}
+      infer_instance
+  | succ ell ih =>
+      change Fintype (Σ u : V, KernelPathCode V ell u w)
+      letI (u : V) : Fintype (KernelPathCode V ell u w) := ih u
+      infer_instance
+
+namespace KernelPathCode
+
+/-- The vertex function represented by a recursive path code. -/
+def vertex {V : Type*} :
+    {ell : ℕ} → {v w : V} →
+      KernelPathCode V ell v w → Fin (ell + 1) → V
+  | 0, v, _, _ => fun _ => v
+  | _ + 1, v, _, code =>
+      Fin.cases v (vertex code.2)
+
+@[simp]
+theorem vertex_zero {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    code.vertex 0 = v := by
+  cases ell with
+  | zero => rfl
+  | succ ell => rfl
+
+@[simp]
+theorem vertex_last {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    code.vertex (Fin.last ell) = w := by
+  induction ell generalizing v with
+  | zero =>
+      exact code.2.1.symm.trans code.2.2
+  | succ ell ih =>
+      exact ih code.2
+
+/-- Recursive product weight of one path code. -/
+def weight {V : Type*} (K : V → V → ℝ≥0∞) :
+    {ell : ℕ} → {v w : V} → KernelPathCode V ell v w → ℝ≥0∞
+  | 0, _, _, _ => 1
+  | _ + 1, v, _, code => K v code.1 * weight K code.2
+
+@[simp]
+theorem weight_zero {V : Type*} (K : V → V → ℝ≥0∞)
+    {v w : V} (code : KernelPathCode V 0 v w) :
+    code.weight K = 1 := rfl
+
+@[simp]
+theorem weight_succ {V : Type*} (K : V → V → ℝ≥0∞)
+    {ell : ℕ} {v w : V} (code : KernelPathCode V (ell + 1) v w) :
+    code.weight K = K v code.1 * code.2.weight K := rfl
+
+/-- The recursive weight is exactly the product attached to the represented
+vertex function by `explicitPathWeight`. -/
+theorem weight_eq_explicitPathWeight
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞)
+    {ell : ℕ} {v w : V} (code : KernelPathCode V ell v w) :
+    code.weight K = explicitPathWeight K code.vertex := by
+  induction ell generalizing v with
+  | zero =>
+      simp [explicitPathWeight]
+  | succ ell ih =>
+      rcases code with ⟨u, tail⟩
+      rw [weight_succ, ih]
+      simp only [explicitPathWeight]
+      rw [Fin.prod_univ_succ]
+      simp only [vertex, Fin.castSucc_zero, Fin.castSucc_succ,
+        Fin.cases_zero, Fin.cases_succ, vertex_zero]
+
+end KernelPathCode
+
+/-- Summing the weights of all recursive codes gives exactly the
+endpoint-refined kernel mass. -/
+theorem sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (ell : ℕ) (v w : V) :
+    (∑ code : KernelPathCode V ell v w, code.weight K) =
+      finiteKernelEndpointMass K ell v w := by
+  induction ell generalizing v with
+  | zero =>
+      by_cases h : v = w
+      · subst w
+        letI : Unique {x : V // x = v ∧ x = v} := {
+          default := ⟨v, rfl, rfl⟩
+          uniq x := Subtype.ext x.2.1
+        }
+        simp [KernelPathCode, KernelPathCode.weight,
+          finiteKernelEndpointMass]
+      · letI : IsEmpty {x : V // x = v ∧ x = w} :=
+          ⟨fun x => h (x.2.1.symm.trans x.2.2)⟩
+        simp [KernelPathCode, KernelPathCode.weight,
+          finiteKernelEndpointMass, h]
+  | succ ell ih =>
+      change
+        (∑ code : Σ u : V, KernelPathCode V ell u w,
+            K v code.1 * code.2.weight K) =
+          ∑ u, K v u * finiteKernelEndpointMass K ell u w
+      rw [Fintype.sum_sigma]
+      apply Finset.sum_congr rfl
+      intro u hu
+      change
+        (∑ tail : KernelPathCode V ell u w, K v u * tail.weight K) =
+          K v u * finiteKernelEndpointMass K ell u w
+      rw [← Finset.mul_sum, ih u]
+
+/-! ## All positive lengths up to a cutoff -/
+
+/-- Codes for positive paths of lengths `1, ..., L` from `v` to `w`.
+
+The `Fin L` coordinate is the length minus one. -/
+abbrev PositiveKernelPathCode (V : Type*) (L : ℕ) (v w : V) : Type _ :=
+  Σ ell : Fin L, KernelPathCode V (ell.1 + 1) v w
+
+namespace PositiveKernelPathCode
+
+/-- Length of a positive path code. -/
+def length {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) : ℕ :=
+  code.1.1 + 1
+
+/-- Vertex function of a positive path code. -/
+def vertex {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    Fin (code.length + 1) → V :=
+  code.2.vertex
+
+/-- Product weight of a positive path code. -/
+def weight {V : Type*} (K : V → V → ℝ≥0∞)
+    {L : ℕ} {v w : V} (code : PositiveKernelPathCode V L v w) : ℝ≥0∞ :=
+  code.2.weight K
+
+@[simp]
+theorem weight_eq_explicitPathWeight
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞)
+    {L : ℕ} {v w : V} (code : PositiveKernelPathCode V L v w) :
+    code.weight K = explicitPathWeight K code.vertex :=
+  KernelPathCode.weight_eq_explicitPathWeight K code.2
+
+end PositiveKernelPathCode
+
+/-- The total weight of all positive path codes up to length `L` is exactly
+the endpoint-resolved positive walk kernel. -/
+theorem sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (L : ℕ) (v w : V) :
+    (∑ code : PositiveKernelPathCode V L v w, code.weight K) =
+      finitePositiveWalkKernel K L v w := by
+  rw [Fintype.sum_sigma]
+  simp only [PositiveKernelPathCode.weight]
+  simp_rw [sum_kernelPathCode_weight_eq_finiteKernelEndpointMass]
+  rw [Fin.sum_univ_eq_sum_range
+    (fun ell => finiteKernelEndpointMass K (ell + 1) v w)]
+  unfold finitePositiveWalkKernel
+  rfl
+
+/-! ## Endpoint summation -/
+
+/-- Summing the endpoint-refined mass over all terminal vertices recovers the
+scalar finite walk mass. -/
+theorem sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (ell : ℕ) (v : V) :
+    (∑ w, finiteKernelEndpointMass K ell v w) =
+      finiteKernelWalkMass K ell v := by
+  induction ell generalizing v with
+  | zero =>
+      simp [finiteKernelEndpointMass, finiteKernelWalkMass]
+  | succ ell ih =>
+      simp only [finiteKernelEndpointMass, finiteKernelWalkMass]
+      rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro u hu
+      rw [← Finset.mul_sum, ih u]
+
+#print axioms sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+#print axioms sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+#print axioms sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9KernelPathEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9KernelPathEnumeration
 ========================================================================== -/
 
 /- ==========================================================================
@@ -28303,6 +28760,211 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9MatchingTraversalBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9BlockChainEnumeration
+Source: Erdos625/Section9BlockChainEnumeration.lean
+Normalized SHA-256: 9049003a6b78feac22afc44e6dcaf71bf70593336addb1283c199043e1843b98
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9BlockChainEnumeration
+
+/-!
+# Section 9: exact finite enumeration of relaxed block chains
+
+A relaxed block consists of a positive `K`-path of length at most `L`,
+followed by one transition of a second kernel `P`.  This module records every
+internal positive-path code, its endpoint before the `P` transition, and the
+state after that transition.  Iterating the construction therefore preserves
+all path multiplicities and all intermediate transition states.
+
+The main theorem identifies the sum of the resulting code weights exactly
+with the endpoint mass of the composed kernel
+`finiteKernelComp (finitePositiveWalkKernel K L) P`.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## One relaxed block -/
+
+/-- A positive `K`-path from `v` to some state `u`, ready to be followed by
+a `P` transition.
+
+The sigma coordinate stores `u`, while the second coordinate stores the full
+positive path code, including all of its internal vertices. -/
+abbrev PositiveKernelThenTransitionCode
+    (V : Type*) (L : ℕ) (v : V) : Type _ :=
+  Σ u : V, PositiveKernelPathCode V L v u
+
+namespace PositiveKernelThenTransitionCode
+
+/-- Exact weight of one relaxed block. -/
+def weight {V : Type*}
+    (K P : V → V → ℝ≥0∞) (x : V) {L : ℕ} {v : V}
+    (code : PositiveKernelThenTransitionCode V L v) : ℝ≥0∞ :=
+  code.2.weight K * P code.1 x
+
+@[simp]
+theorem weight_mk {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L : ℕ} {v u x : V}
+    (path : PositiveKernelPathCode V L v u) :
+    weight K P x (Sigma.mk u path :
+      PositiveKernelThenTransitionCode V L v) =
+      path.weight K * P u x := rfl
+
+end PositiveKernelThenTransitionCode
+
+/-- Summing all one-block codes gives exactly one entry of the composed
+positive-walk-then-transition kernel. -/
+theorem sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K P : V → V → ℝ≥0∞) (L : ℕ) (v x : V) :
+    (∑ code : PositiveKernelThenTransitionCode V L v,
+        code.weight K P x) =
+      finiteKernelComp (finitePositiveWalkKernel K L) P v x := by
+  rw [Fintype.sum_sigma]
+  unfold finiteKernelComp
+  apply Finset.sum_congr rfl
+  intro u hu
+  change
+    (∑ path : PositiveKernelPathCode V L v u,
+        path.weight K * P u x) =
+      finitePositiveWalkKernel K L v u * P u x
+  rw [← Finset.sum_mul]
+  rw [sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel]
+
+/-! ## Finite chains of relaxed blocks -/
+
+/-- Codes for exactly `r` relaxed blocks from `v` to `w`.
+
+At positive length, `x` is the state after the first `P` transition, the
+first component records the entire positive path and its pre-transition
+endpoint, and the last component records the remaining chain from `x` to
+`w`.  At length zero the code type is inhabited exactly when `v = w`, in
+agreement with the zero-step endpoint kernel. -/
+def RelaxedBlockChainCode (V : Type*) (L : ℕ) : ℕ → V → V → Type _
+  | 0, v, w => KernelPathCode V 0 v w
+  | r + 1, v, w =>
+      Σ x : V,
+        PositiveKernelThenTransitionCode V L v ×
+          RelaxedBlockChainCode V L r x w
+
+noncomputable instance instFintypeRelaxedBlockChainCode
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (L r : ℕ) (v w : V) : Fintype (RelaxedBlockChainCode V L r v w) := by
+  induction r generalizing v with
+  | zero =>
+      change Fintype (KernelPathCode V 0 v w)
+      infer_instance
+  | succ r ih =>
+      change Fintype
+        (Σ x : V,
+          PositiveKernelThenTransitionCode V L v ×
+            RelaxedBlockChainCode V L r x w)
+      letI (x : V) : Fintype (RelaxedBlockChainCode V L r x w) := ih x
+      infer_instance
+
+namespace RelaxedBlockChainCode
+
+/-- Product of all positive-path and `P`-transition weights in a chain. -/
+def weight {V : Type*} (K P : V → V → ℝ≥0∞) {L : ℕ} :
+    {r : ℕ} → {v w : V} → RelaxedBlockChainCode V L r v w → ℝ≥0∞
+  | 0, _, _, code => KernelPathCode.weight K code
+  | _ + 1, _, _, code =>
+      code.2.1.weight K P code.1 * weight K P code.2.2
+
+@[simp]
+theorem weight_zero {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L 0 v w) :
+    code.weight K P = 1 := rfl
+
+@[simp]
+theorem weight_succ {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L (r + 1) v w) :
+    code.weight K P =
+      code.2.1.weight K P code.1 * code.2.2.weight K P := rfl
+
+end RelaxedBlockChainCode
+
+/-- Exact relaxed-block-chain enumeration.
+
+No row bound or endpoint-only certificate is used: the left-hand side sums
+over every positive path code, every pre-transition endpoint, every
+post-transition state, and every remaining chain. -/
+theorem sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K P : V → V → ℝ≥0∞) (L r : ℕ) (v w : V) :
+    (∑ code : RelaxedBlockChainCode V L r v w,
+        code.weight K P) =
+      finiteKernelEndpointMass
+        (finiteKernelComp (finitePositiveWalkKernel K L) P) r v w := by
+  induction r generalizing v with
+  | zero =>
+      change
+        (∑ code : KernelPathCode V 0 v w, code.weight K) =
+          finiteKernelEndpointMass
+            (finiteKernelComp (finitePositiveWalkKernel K L) P) 0 v w
+      exact
+        sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+          (finiteKernelComp (finitePositiveWalkKernel K L) P) 0 v w
+  | succ r ih =>
+      change
+        (∑ code :
+            Σ x : V,
+              PositiveKernelThenTransitionCode V L v ×
+                RelaxedBlockChainCode V L r x w,
+            code.2.1.weight K P code.1 * code.2.2.weight K P) =
+          ∑ x,
+            finiteKernelComp (finitePositiveWalkKernel K L) P v x *
+              finiteKernelEndpointMass
+                (finiteKernelComp (finitePositiveWalkKernel K L) P) r x w
+      rw [Fintype.sum_sigma]
+      apply Finset.sum_congr rfl
+      intro x hx
+      rw [Fintype.sum_prod_type]
+      calc
+        (∑ block : PositiveKernelThenTransitionCode V L v,
+            ∑ tail : RelaxedBlockChainCode V L r x w,
+              block.weight K P x * tail.weight K P) =
+            ∑ block : PositiveKernelThenTransitionCode V L v,
+              block.weight K P x *
+                ∑ tail : RelaxedBlockChainCode V L r x w,
+                  tail.weight K P := by
+            apply Finset.sum_congr rfl
+            intro block hblock
+            rw [Finset.mul_sum]
+        _ =
+            (∑ block : PositiveKernelThenTransitionCode V L v,
+                block.weight K P x) *
+              ∑ tail : RelaxedBlockChainCode V L r x w,
+                tail.weight K P := by
+            rw [Finset.sum_mul]
+        _ =
+            finiteKernelComp (finitePositiveWalkKernel K L) P v x *
+              finiteKernelEndpointMass
+                (finiteKernelComp (finitePositiveWalkKernel K L) P) r x w := by
+            rw [
+              sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp,
+              ih x]
+
+#print axioms
+  sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+#print axioms
+  sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9BlockChainEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9BlockChainEnumeration
 ========================================================================== -/
 
 /- ==========================================================================
@@ -34820,7 +35482,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 1d9c03441d4de4a59c05978139bfe27494cabc7c5a2f483370f79889760e8d49
+Normalized SHA-256: e47689d4ce98009591a6f1ed9b6c22c3b2160c868c09bfe264f648183e99ce8d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -35257,7 +35919,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
 #print axioms Erdos625.weighted_evenSubgraph_polymer_bound
+#print axioms Erdos625.exists_covering_cycleWalk_of_minimal_even
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
+#print axioms Erdos625.sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+#print axioms Erdos625.sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+#print axioms Erdos625.sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
 #print axioms Erdos625.sum_marked_finiteKernelWalkMass_le
 #print axioms Erdos625.bipartiteCellKernel_rowSum_le
 #print axioms Erdos625.bipartiteCellKernel_walkMass_le_pow
@@ -35265,6 +35931,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric
 #print axioms Erdos625.finite_relaxed_matchingTraversal_enumeration
+#print axioms Erdos625.sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+#print axioms Erdos625.sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
@@ -35439,7 +36107,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 5525f28a4a34659e154ce34cedf764e8d1242f2fcbd009171cd51cb704559e3d
+Normalized SHA-256: 4630eee72bdaf9fc693bd1f42ebd2beef97a1d3a82778d603f89f832f6ba8a93
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
