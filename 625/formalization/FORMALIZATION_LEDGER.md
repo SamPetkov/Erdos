@@ -328,10 +328,13 @@ Lean axioms or claimed theorems.
    `u₀ = ceil(n^(1/4))` and the uniform-hypothesis greedy recursion with an
    internal `∀ U` are proved.  Ambient complement symmetry, the fixed induced
    restriction graph-law transport, and the corresponding fixed-set
-   lower-quarter tails are also proved.  What remains is one random
-   quarter-density event, averaging/iteration and concrete parameter
-   instantiation needed to supply that uniform hypothesis, plus the Lemma 10.2
-   probability assembly.  Its
+   lower-quarter tails are also proved.  The full-sequence all-larger
+   quarter-density event and its probability-one limit are now proved, as is
+   the chosen-scale shifted-potential survival inequality for the finite
+   clique chain.  What remains is the cutoff/start arithmetic, exact-start
+   subset and chain instantiation, complement-clique-to-independent-set
+   conversion, concrete greedy parameter bound, and the Lemma 10.2 probability
+   assembly.  Its
    quantifiers must choose one absolute `C` and deterministic
    `epsilon_n -> 0` before `k_n`, `Lambda_n`, and `r_n`.  Radius growth and all
    four deterministic little-o contributions in (10.11)--(10.12), including

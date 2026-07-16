@@ -2,7 +2,7 @@
 
 ## Scope and status rule
 
-### Status reconciliation (2026-07-15)
+### Status reconciliation (updated 2026-07-16)
 
 This reconciliation supersedes older submission-time labels below without
 changing module-count, hash, or full-build metrics.  The exact returned
@@ -24,12 +24,25 @@ remains authoritative and no service source was imported directly.
 
 Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 
+The X01--X02 graph-law and probability lane is now closed locally:
+`Section10InducedRestriction.lean`, `Section10QuarterDensityEvent.lean`,
+`Section10QuarterDensityLimit.lean`, `Section10QuarterDensityLift.lean`, and
+`Section10UniformQuarterDensityEvent.lean` prove one full-sequence event whose
+probability tends to one and which controls every subset at least as large as
+the cutoff.  `Section10QuarterDenseChain.lean` proves the exact finite clique
+chain under its displayed survival hypothesis, and
+`Section10QuarterChainSurvival.lean` proves that hypothesis eventually at the
+chosen manuscript scales.  The current frontier is the X03 adapter from these
+facts to a uniform independent block and the accepted greedy-colouring theorem.
+
 ## Accepted local atoms
 
 | Declaration | Manuscript role | Status | Exact limitation |
 |---|---|---:|---|
 | `exists_vertex_quarter_degree`, `quarterDense_all_larger_of_all_exact` | deterministic density lift and averaging steps in Lemma 10.1 | local proved | Quarter density on every set of one fixed size lifts to every larger set, and the denominator-cleared quarter-density premise then yields one vertex with `card - 1 <= 4 * degree`.  These theorems do not prove the random simultaneous-density event or construct the full greedy colouring. |
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
+| `cutoffComplementAllLargerQuarterDenseEvent`, `cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one` | one simultaneous random quarter-density event | defined; local proved | Along the full sequence, one event of probability tending to one asserts quarter density in the complement graph for every subset at least as large as the cutoff.  It does not itself initialize the clique chain, convert a complement clique to an independent set, or invoke greedy colouring. |
+| `exists_quarterDense_clique_chain`, `quarterChain_shifted_survival_eventually` | finite quarter-density chain and chosen-scale survival | local proved | Under the uniform density premise, the finite theorem produces a clique of the requested length and a common-neighbour residual; the chosen manuscript start and step scales eventually satisfy its shifted-potential survival premise.  The exact-start subset, cutoff/start comparison, complement-to-independent conversion, and uniform greedy instantiation remain open. |
 | `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
 | `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
@@ -245,38 +258,25 @@ committed directly.  A candidate becomes repository source only after:
    warning-fatal self-contained build before any promotion to `main`;
 6. green `main` CI after promotion.
 
-X01 is the next decision checkpoint: X02--X04 do not start from an assumed
-restriction law.  The plan uses five X01, three X02, four X03, three X04, and
-four parallel Section IX service calls, normally in small concurrent waves.
-Service queue time is unpredictable; focused local checks are typically
-minutes, while each clean full CI rebuild has recently taken about eight to
-ten minutes.  Failure of X01 therefore redirects effort to its fibre-count
-leaf rather than consuming full-build cycles on downstream assumptions.
+X01--X02 and the chosen-scale survival leaf are now accepted.  X03 is the next
+decision checkpoint: it must compose the single all-larger density event,
+exact-start subset selection, the finite clique chain, complement-to-independent
+conversion, and the accepted greedy theorem without changing the internal
+universal quantifier.  X04 remains downstream of that deterministic adapter.
 
 The remaining Section X obligations, in dependency order, are:
 
-1. Define the complement-graph quarter-density event at
-   `u0 = ceil(n^(1/4))`.  The exact singleton edge-count law for Mathlib's
-   finite binomial random graph is proved.  Transport it to the fixed induced
-   complement graph and then to the
-   lower-quarter binomial tail, count all `u0`-subsets, and prove that its
-   failure probability tends to zero along the full sequence.
-   The currently isolated fixed-subset task has a strict boundary: its hard
-   missing step is the native pushforward law for restriction of
-   `randomGraphMeasure n` to one fixed induced set.  Complement invariance is
-   now a checked finite-uniform bijection leaf, and the binomial lower-quarter
-   tail follows after the restriction law.  A fixed-set tail alone must not
-   be recorded as the simultaneous quarter-density event: the latter still
-   needs the subset union bound and the internal universal quantifier.
-2. **Completed locally as a deterministic implication:**
-   `quarterDense_all_larger_of_all_exact` proves that quarter density on every
-   set of the fixed cutoff size gives quarter density in every larger set.
-   Its X02 use must still occur inside one random event with an internal
-   `∀ U`, not a separately chosen event or exceptional set for each `U`.
-3. Combine that event with `exists_vertex_quarter_degree` and
-   `quarterRecurrence_lowerBound`.  Prove that a chain starting above
-   `n^(1/3)` survives for the required order-`log n` number of steps and yields
-   an independent set of size at least `c * log n`, for one absolute `c > 0`.
+1. **Completed locally:** the fixed induced complement law, lower-quarter
+   tail, finite subset union bound, and full-sequence probability-one event are
+   assembled in `cutoffComplementAllLargerQuarterDenseEvent`.
+2. **Completed locally:** the exact-size-to-all-larger deterministic lift is
+   used inside that one event with an internal `∀ U`.
+3. **Partially completed locally:** `exists_quarterDense_clique_chain` and
+   `quarterChain_shifted_survival_eventually` provide the finite chain and its
+   chosen-scale survival.  What remains is the cutoff/start arithmetic,
+   exact-start subset selection, instantiation inside every sufficiently large
+   `U`, and conversion of the complement clique to an original-graph
+   independent set of the required order-`log n` size.
 4. Formalize the greedy deletion/colouring recursion for an arbitrary `U` and
    prove the displayed bound (10.3) simultaneously for every `U` on the one
    event.  Extract one absolute constant `C` and one deterministic failure
