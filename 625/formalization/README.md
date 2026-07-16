@@ -519,9 +519,19 @@ exact endpoint mass of the relaxed composed-kernel chain.
 [`Section9MinimalEvenCycleTour.lean`](Erdos625/Section9MinimalEvenCycleTour.lean)
 proves that every inclusion-minimal nonempty even bipartite edge set is covered
 exactly by a simple cycle walk.  Thus exact path multiplicity, relaxed
-block-chain enumeration, and minimal cycle coverage are proved.  The physical
-marked/oriented cycle-cut reconstruction and injective weight-preserving map
-into those codes, the attachment bound, and the final theorem remain open.
+block-chain enumeration, and minimal cycle coverage are proved.
+[`Section9CycleWalkCutAtMatching.lean`](Erdos625/Section9CycleWalkCutAtMatching.lean)
+now defines a genuinely source-free closed block-chain target and proves its
+decoder, exact residual/transition projections, closure and cutoff facts, and
+nonnegative kernel-weight factorization.  The faithful-cut relation requires
+every raw edge to decode, preventing silent `filterMap` loss, and its exact
+weight theorem recovers the product of `q` over `C \ M` while every matching
+transition contributes one.  The relation exposes the reconstruction
+obligations and proves their downstream consequences.
+`PhysicalCycleCuttingStatement M` is only the named remaining proposition that
+each eligible physical cycle admits such a faithful code; it is not a theorem
+of the library.  The physical cut construction, injective family assembly,
+attachment bound, and final theorem remain open.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -676,8 +686,8 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, concrete cycle-to-walk enumeration and weight
-transfer,
+assembly, the physical cycle-cut existence theorem and injective family
+weight transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
 Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and

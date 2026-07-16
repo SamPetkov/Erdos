@@ -139,6 +139,7 @@ import Erdos625.Section9ResidualQDegreeAssembly
 import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.Section9BlockChainEnumeration
+import Erdos625.Section9CycleWalkCutAtMatching
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -356,7 +357,12 @@ same geometric row bound, each explicit path or chain is bounded by its kernel
 summand, and a supplied pointwise degree-square estimate yields the required
 abstract `q` row and column norms.  The literal residual `q` has this
 degree-cap norm, and its symmetric bipartite cell kernel inherits the same
-row bound.  The recoverable cycle-to-walk encodings,
+row bound.  A source-free closed block-chain code, its decoder, exact
+residual/transition projections, no-drop conditions, and exact nonnegative
+physical product-weight recovery from a faithful cut are now proved as the
+target interface for cutting a physical cycle.  The proposition
+`PhysicalCycleCuttingStatement M` only names the remaining construction; it is
+not proved.  The physical cycle-cut theorem, injective family assembly,
 concrete residual-table/kernel transfer, attachment estimates, and complete
 Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an

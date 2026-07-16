@@ -184,9 +184,13 @@ Implementation order:
 2. **Completed finite relaxation:** exact recursive path codes preserve every
    internal-vertex multiplicity, and exact relaxed block-chain codes sum to
    the endpoint mass of the iterated composed kernel;
-3. define the physical mixed-cycle block code, including enough reconstruction data
-   without putting the desired encoding certificate into the input type;
-4. prove code reconstruction, injectivity, and weight preservation;
+3. **Completed target interface:** define a source-free closed mixed-cycle
+   block code without a source cycle or stored reconstruction/injectivity
+   certificate; prove its decoder, projection, no-drop, closure, cutoff, and
+   exact nonnegative physical product-weight lemmas;
+4. prove `PhysicalCycleCuttingStatement M`, namely existence of a faithful code
+   for each eligible physical cycle, then assemble reconstruction, injectivity,
+   and weight preservation over the physical family;
 5. instantiate the accepted traversal kernel with the literal `residualQ`;
 6. retain the single `2 * |M|` marked-start cost;
 7. transport the bound through the tagged dependent residual law;
@@ -195,8 +199,11 @@ Implementation order:
 9. assemble Lemma 9.1 and Proposition 9.2.
 
 The accepted enumeration modules close exact path multiplicity, relaxed
-block-chain summation, and minimal cycle coverage.  They do not close the
-physical marked/oriented cycle-cut injection or `Erdos625Statement`.
+block-chain summation, minimal cycle coverage, and the source-free decoder,
+no-drop, and exact physical-weight target interface.
+`PhysicalCycleCuttingStatement M` is only the named
+remaining proposition, not a proved theorem; the physical marked/oriented
+cycle-cut construction, family injection, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may
