@@ -71,8 +71,13 @@ pushforward laws, their fixed-set lower-quarter tails, and the quantitative
 two-event seam are also checked. The literal finite cutoff-subset event has
 its exact union bound and a full-sequence probability-one limit. One
 deterministic complement-neighbourhood step and a finite chain under explicit
-density and shifted-potential survival hypotheses are checked as well. The literal cutoff event now also has deterministic event-to-density and larger-subset consequences (with an explicit cutoff-at-least-two hypothesis). The concrete survival/rounding estimates and complete simultaneous probability transport
-and concrete seed-amplification assembly remain open.
+density and shifted-potential survival hypotheses are checked as well. The
+chosen-scale eventual shifted-potential survival inequality is now checked
+separately. The literal cutoff event now also has deterministic event-to-density
+and larger-subset consequences (with an explicit cutoff-at-least-two
+hypothesis). The remaining chain-initialization/rounding transport, complete
+simultaneous probability transport, and concrete seed-amplification assembly
+remain open.
 Section XI's deterministic event inclusion, generic probability-one
 intersection, strict-lower complement bridge, eventual threshold reduction,
 exact scale divergence, and final conditional seam are proved, but the seam's
@@ -103,12 +108,12 @@ The source checkpoint generated on 2026-07-16 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 178;
+- local source modules included: 179;
 - external Mathlib imports: 78;
-- central `#print axioms` commands included: 683;
-- newline count: 34,069;
+- central `#print axioms` commands included: 685;
+- newline count: 34,178;
 - generated source SHA-256:
-  `1D521C1F09A649645A3D168635C840B9A5E4FCABC9B4C3435C3667337DD03357`.
+  `9F1FB6F095EAFF77B2BC2A38C4562581EA7164556BF6BE4540953CCAE362B198`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`

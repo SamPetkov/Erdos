@@ -6556,6 +6556,114 @@ END SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
+Source: Erdos625/Section10QuarterChainSurvival.lean
+Normalized SHA-256: 6ea26963df35290a9e3f2b639ea450f652eaf05a87fc80b3d0cdff4138fcd80a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvival
+
+/-!
+# Section X: shifted-potential survival leaf
+
+This module records the deterministic asymptotic inequality needed by the
+finite quarter-dense clique-chain theorem when its initial set has the chosen
+cube-root scale.  It is deliberately only an arithmetic survival leaf: it
+contains no random-graph, density-event, clique-to-independent-set, greedy,
+or probability conclusion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The deterministic starting size used for the complement-neighbour chain. -/
+def quarterChainStart (n : ℕ) : ℕ :=
+  ⌈(n : ℝ) ^ (1 / 3 : ℝ)⌉₊
+
+/-- The requested integer number of quarter-neighbourhood steps. -/
+def quarterChainSteps (n : ℕ) : ℕ :=
+  ⌊Real.log (n : ℝ) / (13 * Real.log 4)⌋₊
+
+/-- The eventual rounding-safe shifted-potential survival inequality for the
+chosen cutoff, chain start, and number of steps. -/
+theorem quarterChain_shifted_survival_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3 := by
+  suffices h_bound : ∀ᶠ (n : ℕ) in atTop, ∀ j < quarterChainSteps n,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (1 / 4 : ℝ) ^ j * ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    refine' h_bound.mono fun n hn j hj => le_trans _ (le_trans (hn j hj) _) <;>
+      norm_num [quarterDensityCutoff, quarterChainStart]
+    · exact le_of_lt <| Nat.ceil_lt_add_one <| by positivity
+    · exact Nat.le_ceil _
+  suffices h_bound : ∀ᶠ (n : ℕ) in atTop, ∀ j < quarterChainSteps n,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (1 / 4 : ℝ) ^ (Real.log n / (13 * Real.log 4)) *
+          ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    refine h_bound.mono fun n hn j hj => le_trans (hn j hj) ?_
+    gcongr
+    exact le_trans
+      (Real.rpow_le_rpow_of_exponent_ge (by norm_num) (by norm_num)
+        (show Real.log n / (13 * Real.log 4) ≥ ↑j from
+          (Nat.cast_le.mpr hj.le).trans (Nat.floor_le (by positivity))))
+      (by norm_num)
+  suffices h_exp : ∀ᶠ (n : ℕ) in atTop,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (n : ℝ) ^ (-1 / 13 : ℝ) * ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    filter_upwards [h_exp, Filter.eventually_gt_atTop 0] with n hn hn' j hj
+    refine le_trans hn ?_
+    norm_num [Real.rpow_def_of_pos]
+    ring_nf
+    norm_num [hn'.ne']
+    norm_num [Real.rpow_def_of_pos, hn']
+    ring_nf
+    norm_num [Real.log_div]
+    ring_nf
+    norm_num
+  suffices h_simp : ∀ᶠ (n : ℕ) in atTop,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (n : ℝ) ^ (10 / 39 : ℝ) + (1 / 3) * (n : ℝ) ^ (-1 / 13 : ℝ) - 1 / 3 by
+    filter_upwards [h_simp, Filter.eventually_gt_atTop 0] with n hn hn' using
+      hn.trans_eq (by
+        rw [mul_add, ← Real.rpow_add (by positivity)]
+        norm_num
+        ring)
+  have h_exp : Filter.Tendsto
+      (fun n : ℕ => (n : ℝ) ^ (10 / 39 : ℝ) - (n : ℝ) ^ (1 / 4 : ℝ))
+      Filter.atTop Filter.atTop := by
+    suffices h_factor : Filter.Tendsto
+        (fun n : ℕ => (n : ℝ) ^ (1 / 4 : ℝ) *
+          ((n : ℝ) ^ (10 / 39 - 1 / 4 : ℝ) - 1))
+        Filter.atTop Filter.atTop by
+      refine h_factor.congr' (by
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        rw [mul_sub, ← Real.rpow_add (by positivity)]
+        ring)
+    exact Filter.Tendsto.atTop_mul_atTop₀
+      ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop)
+      (Filter.tendsto_atTop_add_const_right _ _
+        ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop))
+  filter_upwards [h_exp.eventually_gt_atTop 2, Filter.eventually_gt_atTop 0]
+    with n hn hn' using by
+      linarith [(show (n : ℝ) ^ (-1 / 13 : ℝ) ≥ 0 by positivity)]
+
+#print axioms quarterChain_shifted_survival_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvival
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
 Source: Erdos625/Section10NeighborhoodDeletionStep.lean
 Normalized SHA-256: 31925d8d468533036a09cc8107c6d92bcfa6521cd137b9c7ec0d9f7df2831f42
@@ -33275,7 +33383,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 3c383b961b9a5164b8a7dec84c6153d2791b4971ebdad1b50210e23e08c9f285
+Normalized SHA-256: 5c9064546b5a98e1d1dbb32faecdea93f6cd501aa8ca6cb231726bc73daf7153
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -33340,6 +33448,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_exact
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+#print axioms Erdos625.quarterChain_shifted_survival_eventually
 #print axioms Erdos625.quarterDense_neighbor_step
 #print axioms Erdos625.exists_quarterDense_clique_chain
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
@@ -33861,7 +33970,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 186831aeccde7f992f5dcd7261c1c9c1087d826002855b1a5b106e73392400c9
+Normalized SHA-256: ca3f1f4209e533d15d5039d9df5806c74964d43ef65a68268599718379682443
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
