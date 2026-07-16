@@ -5367,7 +5367,7 @@ END SOURCE MODULE: Erdos625.CochromaticCapacityLowerTail
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.QuarterDensityDegree
 Source: Erdos625/QuarterDensityDegree.lean
-Normalized SHA-256: b4b8baa5a392ea37a9f0efe60c8c3977d0f3875dc3c38409ea0e12aa2cfb5c1c
+Normalized SHA-256: 507f514b7733e4bc2d3960b4a332b29aa74df8fb8d9567b5bc3d56b52811e3dc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_QuarterDensityDegree
 
@@ -5428,16 +5428,16 @@ noncomputable def QuarterDenseOn
   exact S.card * (S.card - 1) ≤
     8 * (H.induce (↑S : Set V)).edgeFinset.card
 
-private noncomputable def inducedEdgeCount
+private noncomputable def quarterDenseInducedEdgeCount
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) : ℕ := by
   classical
   exact (H.induce (↑S : Set V)).edgeFinset.card
 
-private lemma inducedEdgeCount_eq
+private lemma quarterDenseInducedEdgeCount_eq
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) :
-    inducedEdgeCount H S = (by
+    quarterDenseInducedEdgeCount H S = (by
       classical
       exact (H.induce (↑S : Set V)).edgeFinset.card) := by
   rfl
@@ -5469,10 +5469,10 @@ private noncomputable def ambientEdgeCount
   classical
   exact (H.edgeFinset.filter (fun e => e.toFinset ⊆ S)).card
 
-private lemma inducedEdgeCount_eq_filter_card
+private lemma quarterDenseInducedEdgeCount_eq_filter_card
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) :
-    inducedEdgeCount H S = ambientEdgeCount H S := by
+    quarterDenseInducedEdgeCount H S = ambientEdgeCount H S := by
   classical
   refine' Finset.card_bij _ _ _ _
   use fun a ha => Sym2.map (fun x => x.val) a
@@ -5493,10 +5493,10 @@ private lemma inducedEdgeCount_eq_filter_card
 private lemma sum_induced_edges_over_fixed_card
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) (u : ℕ) (hu : 2 ≤ u) :
-    (∑ T ∈ S.powersetCard u, inducedEdgeCount H T) =
-      (S.card - 2).choose (u - 2) * inducedEdgeCount H S := by
+    (∑ T ∈ S.powersetCard u, quarterDenseInducedEdgeCount H T) =
+      (S.card - 2).choose (u - 2) * quarterDenseInducedEdgeCount H S := by
   classical
-  rw [Finset.sum_congr rfl (fun T _ => inducedEdgeCount_eq_filter_card H T)]
+  rw [Finset.sum_congr rfl (fun T _ => quarterDenseInducedEdgeCount_eq_filter_card H T)]
   unfold ambientEdgeCount
   simp_rw [Finset.card_filter]
   rw [Finset.sum_comm]
@@ -5509,7 +5509,7 @@ private lemma sum_induced_edges_over_fixed_card
       convert card_powersetCard_containing_pair S u x y hy.ne
         (by tauto) (by tauto) hu using 1
     · grind
-  · simp +decide [Finset.sum_ite, inducedEdgeCount_eq_filter_card]
+  · simp +decide [Finset.sum_ite, quarterDenseInducedEdgeCount_eq_filter_card]
     exact mul_comm _ _
 
 private lemma choose_two_incidence_identity
@@ -5532,7 +5532,7 @@ theorem quarterDense_all_larger_of_all_exact
   set c := Nat.choose (S.card - 2) (u - 2) with hc_def
   have h_sum :
       ∑ T ∈ S.powersetCard u, (T.card * (T.card - 1)) ≤
-        ∑ T ∈ S.powersetCard u, 8 * inducedEdgeCount H T := by
+        ∑ T ∈ S.powersetCard u, 8 * quarterDenseInducedEdgeCount H T := by
     exact Finset.sum_le_sum fun T hT =>
       hExact T (Finset.mem_powersetCard.mp hT |>.2)
   have h_sum_identity :
@@ -5543,8 +5543,8 @@ theorem quarterDense_all_larger_of_all_exact
       rw [Finset.mem_powersetCard.mp hx |>.2]]
     simp +decide [mul_left_comm]
   have h_sum_identity :
-      ∑ T ∈ S.powersetCard u, 8 * inducedEdgeCount H T =
-        8 * c * inducedEdgeCount H S := by
+      ∑ T ∈ S.powersetCard u, 8 * quarterDenseInducedEdgeCount H T =
+        8 * c * quarterDenseInducedEdgeCount H S := by
     rw [← Finset.mul_sum _ _ _, sum_induced_edges_over_fixed_card H S u hu]
     ring
   unfold QuarterDenseOn
