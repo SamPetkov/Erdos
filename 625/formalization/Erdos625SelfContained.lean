@@ -66,6 +66,7 @@ import Mathlib.MeasureTheory.Measure.WithDensityFinite
 import Mathlib.Probability.Combinatorics.BinomialRandomGraph.Defs
 import Mathlib.Probability.Distributions.Binomial
 import Mathlib.Probability.Distributions.Uniform
+import Mathlib.Probability.Independence.InfinitePi
 import Mathlib.Probability.Moments.SubGaussian
 import Mathlib.Probability.ProbabilityMassFunction.Constructions
 import Mathlib.Probability.ProbabilityMassFunction.Integrals
@@ -5768,6 +5769,319 @@ END SOURCE MODULE: Erdos625.Section10ComplementInvariance
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10InducedRestriction
+Source: Erdos625/Section10InducedRestriction.lean
+Normalized SHA-256: 1e4f927ec7286745dcc49fa0245b92fd0c56a8b77a587eca112b63ea5a036099
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10InducedRestriction
+
+/-!
+# Fixed induced-subgraph restriction for `G(n, 1/2)`
+
+This module proves only the fixed-set restriction law needed at the beginning
+of the Section X argument.  For a fixed vertex subset `S`, inducing a graph
+sampled from `G(n,1/2)` has exactly the `G(S,1/2)` law.  The consequent
+lower-quarter edge-count tail is likewise fixed-set only.  No union bound over
+subsets and no simultaneous high-probability event are asserted here.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory unitInterval
+open scoped ENNReal Finset ProbabilityTheory
+
+noncomputable section
+
+/-- Restricting independent Bernoulli coordinates along an injection again
+gives the Bernoulli set measure on the restricted coordinate set. -/
+theorem setBernoulli_map_preimage_of_injective
+    {α β : Type*} {u : Set β} {p : I} {e : α → β}
+    (he : Function.Injective e) :
+    (setBernoulli u p).map (fun A : Set β => e ⁻¹' A) =
+      setBernoulli (e ⁻¹' u) p := by
+  have hpre : Measurable (fun A : Set β => e ⁻¹' A) := by
+    apply measurable_set_iff.mpr
+    intro a
+    simpa using (measurable_set_mem (e a))
+  rw [setBernoulli_eq_map u p, setBernoulli_eq_map (e ⁻¹' u) p]
+  rw [Measure.map_map hpre (by fun_prop)]
+  change
+    Measure.map ((fun A : Set β => e ⁻¹' A) ∘ fun q : β → Prop => {j | q j})
+      (MeasureTheory.Measure.infinitePi fun j : β =>
+        toNNReal p • Measure.dirac (j ∈ u) + toNNReal (σ p) • Measure.dirac False) =
+      Measure.map (fun q : α → Prop => {i | q i})
+        (MeasureTheory.Measure.infinitePi fun i : α =>
+          toNNReal p • Measure.dirac (i ∈ e ⁻¹' u) +
+            toNNReal (σ p) • Measure.dirac False)
+  have hpi :
+      Measure.map (fun ω i => ω (e i))
+        (MeasureTheory.Measure.infinitePi (fun j : β =>
+          toNNReal p • Measure.dirac (j ∈ u) + toNNReal (σ p) • Measure.dirac False)) =
+        MeasureTheory.Measure.infinitePi (fun i : α =>
+          toNNReal p • Measure.dirac (i ∈ e ⁻¹' u) +
+            toNNReal (σ p) • Measure.dirac False) := by
+    rw [Measure.map_infinitePi_infinitePi_of_inj he]
+    congr 1
+  have hcomp :
+      ((fun A : Set β => e ⁻¹' A) ∘ fun q : β → Prop => {j | q j}) =
+        (fun q : α → Prop => {i | q i}) ∘ (fun ω : β → Prop => fun i => ω (e i)) := by
+    funext ω
+    ext i
+    rfl
+  rw [hcomp, ← Measure.map_map (by fun_prop) (by fun_prop), hpi]
+
+/-- Encoding a graph by its edge set commutes with restriction to a fixed
+vertex set. -/
+theorem fromEdgeSet_induce_eq_preimage
+    {n : ℕ} (S : Set (Fin n)) (A : Set (Sym2 (Fin n))) :
+    (SimpleGraph.fromEdgeSet A).induce S =
+      SimpleGraph.fromEdgeSet
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A) := by
+  have heq (u v : S) : u = v ↔ (u : Fin n) = (v : Fin n) := by
+    constructor
+    · exact fun h => congrArg Subtype.val h
+    · exact Subtype.ext
+  ext u v
+  rw [SimpleGraph.induce_adj, SimpleGraph.fromEdgeSet_adj,
+    SimpleGraph.fromEdgeSet_adj]
+  change
+    (s((u : Fin n), (v : Fin n)) ∈ A ∧ (u : Fin n) ≠ (v : Fin n)) ↔
+      (s((u : Fin n), (v : Fin n)) ∈ A ∧ u ≠ v)
+  constructor
+  · rintro ⟨hA, huv⟩
+    exact ⟨hA, fun h => huv (congrArg Subtype.val h)⟩
+  · rintro ⟨hA, huv⟩
+    exact ⟨hA, fun h => huv (Subtype.ext h)⟩
+
+/-- The induced-edge embedding preserves the distinction between diagonal and
+non-diagonal symmetric pairs. -/
+theorem diagSet_compl_preimage_subtype_sym2Map
+    {n : ℕ} (S : Set (Fin n)) :
+    (((Function.Embedding.subtype S).sym2Map :
+      Sym2 S → Sym2 (Fin n)) ⁻¹'
+        Set.compl (Sym2.diagSet : Set (Sym2 (Fin n)))) =
+      Set.compl (Sym2.diagSet : Set (Sym2 S)) := by
+  ext e
+  change
+    (¬ (Sym2.map (fun x : S => (x : Fin n)) e).IsDiag) ↔ ¬ e.IsDiag
+  exact not_congr (Sym2.isDiag_map (z := e) (Function.Embedding.subtype S).injective)
+
+/-- For every fixed vertex set `S`, inducing a `G(n,1/2)` graph on `S` has
+exactly the binomial-random-graph law on `S`. -/
+theorem randomGraphMeasure_map_induce
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => G.induce S) =
+      SimpleGraph.binomialRandom S halfProbability := by
+  classical
+  have he : Function.Injective
+      (((Function.Embedding.subtype S).sym2Map : Sym2 S → Sym2 (Fin n))) :=
+    ((Function.Embedding.subtype S).sym2Map).injective
+  rw [randomGraphMeasure, SimpleGraph.binomialRandom_eq_map,
+    SimpleGraph.binomialRandom_eq_map]
+  rw [Measure.map_map (measurable_of_finite _) SimpleGraph.measurable_fromEdgeSet]
+  change
+    Measure.map
+        ((fun G : SimpleGraph (Fin n) => G.induce S) ∘
+          SimpleGraph.fromEdgeSet)
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability) =
+      Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 S)) halfProbability)
+  have hdet :
+      ((fun G : SimpleGraph (Fin n) => G.induce S) ∘
+          SimpleGraph.fromEdgeSet) =
+        SimpleGraph.fromEdgeSet ∘
+          (fun A : Set (Sym2 (Fin n)) =>
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)) ⁻¹' A)) := by
+    funext A
+    exact fromEdgeSet_induce_eq_preimage S A
+  have hpre : Measurable
+      (fun A : Set (Sym2 (Fin n)) =>
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A)) := by
+    apply measurable_set_iff.mpr
+    intro z
+    simpa using
+      (measurable_set_mem (((Function.Embedding.subtype S).sym2Map :
+        Sym2 S → Sym2 (Fin n)) z))
+  rw [hdet]
+  calc
+    Measure.map (SimpleGraph.fromEdgeSet ∘
+      (fun A : Set (Sym2 (Fin n)) =>
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A)))
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability) =
+      Measure.map SimpleGraph.fromEdgeSet
+        (Measure.map
+          (fun A : Set (Sym2 (Fin n)) =>
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)) ⁻¹' A))
+          (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability)) := by
+            rw [Measure.map_map SimpleGraph.measurable_fromEdgeSet hpre]
+    _ = Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli
+          (Set.preimage
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)))
+            (Sym2.diagSetᶜ : Set (Sym2 (Fin n))))
+          halfProbability) := by
+            rw [setBernoulli_map_preimage_of_injective
+              (e := ((Function.Embedding.subtype S).sym2Map :
+                Sym2 S → Sym2 (Fin n))) he]
+    _ = Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 S)) halfProbability) := by
+            congr 3
+            ext z
+            change
+              (¬ (Sym2.map (fun x : S => (x : Fin n)) z).IsDiag) ↔ ¬ z.IsDiag
+            exact not_congr
+              (Sym2.isDiag_map (z := z) (Function.Embedding.subtype S).injective)
+
+/-- The exact natural-valued edge-count distribution of a binomial random
+graph on a finite vertex type. -/
+theorem binomialRandom_map_edgeCount
+    {V : Type*} {p : I} [Finite V] :
+    (SimpleGraph.binomialRandom V p).map (fun G => G.edgeSet.ncard) =
+      Bin((Nat.card V).choose 2, p) := by
+  classical
+  apply Measure.ext_of_singleton
+  intro n
+  rw [binomialRandom_map_ncard_edgeSet_singleton,
+    ProbabilityTheory.binomial_singleton]
+  rw [← ENNReal.toReal_eq_toReal_iff' (by finiteness) (by finiteness)]
+  simp
+
+/-- The real threshold law obtained by casting the exact natural edge count. -/
+theorem binomialRandom_real_edgeCount_lowerTail
+    {V : Type*} {p : I} [Finite V] (t : ℝ) :
+    (SimpleGraph.binomialRandom V p).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ t} =
+      Bin(ℝ, (Nat.card V).choose 2, p).real {x | x ≤ t} := by
+  classical
+  cases nonempty_fintype V
+  letI : MeasurableSingletonClass (SimpleGraph V) := by
+    constructor
+    intro G
+    rw [← SimpleGraph.measurableEmbedding_edgeSet.measurableSet_image]
+    simp
+  have hmap :
+      (SimpleGraph.binomialRandom V p).map (fun G => (G.edgeSet.ncard : ℝ)) =
+        ((SimpleGraph.binomialRandom V p).map (fun G => G.edgeSet.ncard)).map
+          (fun k : ℕ => (k : ℝ)) := by
+    symm
+    rw [Measure.map_map (by fun_prop) (measurable_of_finite _)]
+    rfl
+  calc
+    (SimpleGraph.binomialRandom V p).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ t} =
+      ((SimpleGraph.binomialRandom V p).map (fun G => (G.edgeSet.ncard : ℝ))).real
+        {x | x ≤ t} := by
+          rw [map_measureReal_apply (measurable_of_finite _) (by measurability)]
+          rfl
+    _ = Bin(ℝ, (Nat.card V).choose 2, p).real {x | x ≤ t} := by
+      rw [hmap, binomialRandom_map_edgeCount]
+
+/-- The fixed-binomial lower-quarter edge-count tail at edge probability
+`1/2`. -/
+theorem binomialRandom_half_edgeCount_lowerQuarter
+    {V : Type*} [Finite V] :
+    (SimpleGraph.binomialRandom V halfProbability).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ ((Nat.card V).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card V).choose 2 : ℝ) / 16) := by
+  rw [binomialRandom_real_edgeCount_lowerTail]
+  exact binomialHalf_lowerQuarter_le_exp _
+
+/-- The number of edges in the subgraph induced by a fixed vertex set. -/
+noncomputable def inducedEdgeCount
+    {n : ℕ} (S : Set (Fin n)) (G : LabeledGraph n) : ℕ :=
+  (G.induce S).edgeSet.ncard
+
+/-- The lower-quarter edge-count tail for one fixed induced subgraph. -/
+theorem randomGraphMeasure_inducedEdgeCount_lowerQuarter
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).real
+        {G | (inducedEdgeCount S G : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) := by
+  let f : LabeledGraph n → SimpleGraph S := fun G => G.induce S
+  have hf : Measurable f := measurable_of_finite _
+  calc
+    (randomGraphMeasure n).real
+        {G | (inducedEdgeCount S G : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} =
+      ((randomGraphMeasure n).map f).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [map_measureReal_apply hf (by measurability)]
+          rfl
+    _ = (SimpleGraph.binomialRandom S halfProbability).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [randomGraphMeasure_map_induce]
+    _ ≤ Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) :=
+      binomialRandom_half_edgeCount_lowerQuarter
+
+/-- The number of edges of the complement after restriction to a fixed vertex
+set. -/
+noncomputable def inducedComplementEdgeCount
+    {n : ℕ} (S : Set (Fin n)) (G : LabeledGraph n) : ℕ :=
+  (Gᶜ.induce S).edgeSet.ncard
+
+/-- Ambient complement invariance and the fixed induced-restriction law give
+the same `G(S,1/2)` distribution for induced complement edges. -/
+theorem randomGraphMeasure_map_induce_complement
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => Gᶜ.induce S) =
+      SimpleGraph.binomialRandom S halfProbability := by
+  calc
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => Gᶜ.induce S) =
+      (randomGraphMeasure n).map
+        ((fun H : LabeledGraph n => H.induce S) ∘
+          (fun G : LabeledGraph n => Gᶜ)) := by
+            rfl
+    _ = ((randomGraphMeasure n).map (fun G : LabeledGraph n => Gᶜ)).map
+        (fun H : LabeledGraph n => H.induce S) := by
+            rw [Measure.map_map (measurable_of_finite _) (measurable_of_finite _)]
+    _ = (randomGraphMeasure n).map
+        (fun H : LabeledGraph n => H.induce S) := by
+            rw [randomGraphMeasure_map_compl]
+    _ = SimpleGraph.binomialRandom S halfProbability :=
+      randomGraphMeasure_map_induce n S
+
+/-- The lower-quarter tail for complement edges in one fixed induced
+subgraph.  This is not a simultaneous statement over vertex subsets. -/
+theorem randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).real
+        {G | (inducedComplementEdgeCount S G : ℝ) ≤
+          ((Nat.card S).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) := by
+  let f : LabeledGraph n → SimpleGraph S := fun G => Gᶜ.induce S
+  have hf : Measurable f := measurable_of_finite _
+  calc
+    (randomGraphMeasure n).real
+        {G | (inducedComplementEdgeCount S G : ℝ) ≤
+          ((Nat.card S).choose 2 : ℝ) / 4} =
+      ((randomGraphMeasure n).map f).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [map_measureReal_apply hf (by measurability)]
+          rfl
+    _ = (SimpleGraph.binomialRandom S halfProbability).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [randomGraphMeasure_map_induce_complement]
+    _ ≤ Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) :=
+      binomialRandom_half_edgeCount_lowerQuarter
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10InducedRestriction
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10InducedRestriction
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
 Source: Erdos625/Section10QuarterUnionDecay.lean
 Normalized SHA-256: 871796e915311d681b801f308442d76e8dedc7228de0c34bd18f404b6e50ee90
@@ -5899,6 +6213,462 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10QuarterUnionDecay
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDensityEvent
+Source: Erdos625/Section10QuarterDensityEvent.lean
+Normalized SHA-256: 7f18d7e36fd99504bd51095524dda307963571252523d158cce405579257b208
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityEvent
+
+/-!
+# One finite simultaneous cutoff event for Section X
+
+For each `n`, this module forms the literal finite family of
+`quarterDensityCutoff n` vertex subsets and defines the event on which no
+member of that family has a lower-quarter complement-edge count.  The event is
+measurable, and its failure probability is bounded by the finite union bound
+obtained from the fixed-subset tail.
+
+This file stops at that finite bound.  It asserts neither its full-sequence
+limit nor quarter density for any larger subset.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory Finset
+open scoped ENNReal BigOperators
+
+noncomputable section
+
+/-- The literal finite family of vertex subsets at the Section X cutoff. -/
+noncomputable def quarterDensityCutoffSubsets (n : ℕ) : Finset (Finset (Fin n)) :=
+  Finset.univ.powersetCard (quarterDensityCutoff n)
+
+/-- The lower-quarter bad event for one deterministic vertex subset. -/
+noncomputable def inducedComplementLowerQuarterEvent
+    (n : ℕ) (S : Finset (Fin n)) : Set (LabeledGraph n) :=
+  {G | (inducedComplementEdgeCount (↑S : Set (Fin n)) G : ℝ) ≤
+    ((Nat.card (↑S : Set (Fin n))).choose 2 : ℝ) / 4}
+
+/-- The finite simultaneous event that no cutoff-size subset has a
+lower-quarter complement-edge count. -/
+noncomputable def cutoffComplementQuarterDensityEvent (n : ℕ) : Set (LabeledGraph n) :=
+  (⋃ S ∈ quarterDensityCutoffSubsets n,
+    inducedComplementLowerQuarterEvent n S)ᶜ
+
+theorem measurableSet_cutoffComplementQuarterDensityEvent (n : ℕ) :
+    MeasurableSet (cutoffComplementQuarterDensityEvent n) :=
+  Set.toFinite _ |>.measurableSet
+
+/-- The fixed-subset complement lower-tail estimate in the event notation
+used by the finite union bound. -/
+theorem inducedComplementLowerQuarterEvent_tail
+    (n : ℕ) (S : Finset (Fin n)) :
+    (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) ≤
+      Real.exp (-((S.card.choose 2 : ℕ) : ℝ) / 16) := by
+  simpa [inducedComplementLowerQuarterEvent] using
+    (randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter n
+      (↑S : Set (Fin n)))
+
+theorem cutoffComplementQuarterDensityEvent_compl (n : ℕ) :
+    (cutoffComplementQuarterDensityEvent n)ᶜ =
+      ⋃ S ∈ quarterDensityCutoffSubsets n,
+        inducedComplementLowerQuarterEvent n S := by
+  simp [cutoffComplementQuarterDensityEvent]
+
+/-- The exact finite union bound, retaining one summand for each literal
+cutoff subset. -/
+theorem cutoffComplementQuarterDensityEvent_failure_le_sum
+    (n : ℕ) :
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+      ∑ S ∈ quarterDensityCutoffSubsets n,
+        (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) := by
+  rw [cutoffComplementQuarterDensityEvent_compl]
+  exact measureReal_biUnion_finset_le _ _
+
+theorem quarterDensityCutoffSubsets_card (n : ℕ) :
+    (quarterDensityCutoffSubsets n).card = n.choose (quarterDensityCutoff n) := by
+  simp [quarterDensityCutoffSubsets]
+
+/-- The finite failure probability bound after inserting the fixed-set tail
+and counting the literal cutoff-subset family. -/
+theorem cutoffComplementQuarterDensityEvent_failure_le
+    (n : ℕ) :
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+      (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+  calc
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+        ∑ S ∈ quarterDensityCutoffSubsets n,
+          (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) :=
+      cutoffComplementQuarterDensityEvent_failure_le_sum n
+    _ ≤ ∑ S ∈ quarterDensityCutoffSubsets n,
+        Real.exp (-((S.card.choose 2 : ℕ) : ℝ) / 16) := by
+      exact Finset.sum_le_sum fun S hS =>
+        inducedComplementLowerQuarterEvent_tail n S
+    _ = ∑ _S ∈ quarterDensityCutoffSubsets n,
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+      apply Finset.sum_congr rfl
+      intro S hS
+      rw [(Finset.mem_powersetCard.mp hS).2]
+    _ = (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+      rw [Finset.sum_const, quarterDensityCutoffSubsets_card, nsmul_eq_mul]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDensityEvent
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
+Source: Erdos625/Section10QuarterDensityLimit.lean
+Normalized SHA-256: 04f3ccb02307b4c9fc00b6dbdd779bc8f4c58e757508c4feb4960dc44e841383
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLimit
+
+/-!
+# Section X: full-sequence cutoff-event limit
+
+This module connects the literal finite cutoff-family failure bound to the
+already proved deterministic union-bound decay.  It proves only that the
+fixed cutoff-size simultaneous event has probability tending to one.  It does
+not lift quarter density to larger subsets and does not supply the subsequent
+greedy deletion chain.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The elementary quadratic comparison needed to absorb the `choose u 2`
+exponent into the established union-bound decay. -/
+theorem quarterDensity_choose_two_div_sixteen_lower_bound
+    (u : ℕ) (hu : 2 ≤ u) :
+    ((1 : ℝ) / 64) * (u : ℝ) ^ 2 ≤ ((u.choose 2 : ℕ) : ℝ) / 16 := by
+  rw [Nat.cast_choose_two]
+  have huReal : (2 : ℝ) ≤ (u : ℝ) := by
+    exact_mod_cast hu
+  norm_num
+  nlinarith
+
+/-- The quarter-density cutoff diverges along the full sequence. -/
+theorem quarterDensityCutoff_tendsto_atTop :
+    Tendsto quarterDensityCutoff atTop atTop := by
+  change Tendsto
+    ((fun x : ℝ => ⌈x⌉₊) ∘ (fun x : ℝ => x ^ (1 / 4 : ℝ)) ∘ Nat.cast)
+    atTop atTop
+  exact tendsto_nat_ceil_atTop.comp
+    ((tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 1 / 4)).comp
+      tendsto_natCast_atTop_atTop)
+
+/-- Eventually, the literal binomial lower-tail exponent is at least the
+quadratic exponent with constant `1/64`. -/
+theorem quarterDensity_eventually_exponent_bound :
+    ∀ᶠ n : ℕ in atTop,
+      Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) ≤
+        Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) := by
+  filter_upwards [quarterDensityCutoff_tendsto_atTop.eventually_ge_atTop 2] with n hn
+  apply Real.exp_le_exp.mpr
+  calc
+    -((quarterDensityCutoff n).choose 2 : ℕ) / 16 =
+        -(((quarterDensityCutoff n).choose 2 : ℕ) : ℝ) / 16 := by ring
+    _ = -((((quarterDensityCutoff n).choose 2 : ℕ) : ℝ) / 16) := by ring
+    _ ≤ -((1 : ℝ) / 64 * (quarterDensityCutoff n : ℝ) ^ 2) :=
+      neg_le_neg (quarterDensity_choose_two_div_sixteen_lower_bound
+        (quarterDensityCutoff n) hn)
+    _ = -((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2 := by ring
+
+/-- The failure probability of the literal finite cutoff-family event tends
+to zero along the full sequence. -/
+theorem cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero :
+    Tendsto
+      (fun n : ℕ ↦
+        (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ)
+      atTop (nhds 0) := by
+  have hDecay := quarterDensity_unionBound_tendsto_zero ((1 : ℝ) / 64)
+    (by norm_num : (0 : ℝ) < 1 / 64)
+  have hUpper : ∀ᶠ n : ℕ in atTop,
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+        (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+          Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) := by
+    filter_upwards [quarterDensity_eventually_exponent_bound] with n hn
+    calc
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+          (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+            Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) :=
+        cutoffComplementQuarterDensityEvent_failure_le n
+      _ ≤ (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+          Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) :=
+        mul_le_mul_of_nonneg_left hn (Nat.cast_nonneg _)
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    tendsto_const_nhds hDecay
+    (Filter.Eventually.of_forall fun _ ↦ measureReal_nonneg)
+    hUpper
+
+/-- The literal finite simultaneous cutoff event has probability tending to
+one.  This is still only the cutoff-size event, not a statement for all
+larger vertex subsets. -/
+theorem cutoffComplementQuarterDensityEvent_probability_tendsto_one :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n (cutoffComplementQuarterDensityEvent n))
+      atTop (nhds 1) := by
+  have hSuccessIdentity : ∀ n : ℕ,
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n) =
+        1 - (randomGraphMeasure n).real
+          (cutoffComplementQuarterDensityEvent n)ᶜ := by
+    intro n
+    have hCompl := measureReal_compl
+      (μ := randomGraphMeasure n)
+      (measurableSet_cutoffComplementQuarterDensityEvent n)
+    rw [probReal_univ] at hCompl
+    linarith
+  have hSuccessReal : Tendsto
+      (fun n : ℕ ↦
+        (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n))
+      atTop (nhds (1 : ℝ)) := by
+    have hOne : Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (nhds 1) :=
+      tendsto_const_nhds
+    have hSub := hOne.sub cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+    convert hSub using 1
+    · funext n
+      exact hSuccessIdentity n
+    · norm_num
+  exact
+    (ENNReal.tendsto_toReal_iff
+      (fun n ↦ measure_ne_top (randomGraphMeasure n)
+        (cutoffComplementQuarterDensityEvent n))
+      ENNReal.one_ne_top).mp (by
+        simpa only [Measure.real, ENNReal.toReal_one] using hSuccessReal)
+
+#print axioms quarterDensity_choose_two_div_sixteen_lower_bound
+#print axioms quarterDensityCutoff_tendsto_atTop
+#print axioms quarterDensity_eventually_exponent_bound
+#print axioms cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+#print axioms cutoffComplementQuarterDensityEvent_probability_tendsto_one
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLimit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
+Source: Erdos625/Section10NeighborhoodDeletionStep.lean
+Normalized SHA-256: 31925d8d468533036a09cc8107c6d92bcfa6521cd137b9c7ec0d9f7df2831f42
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10NeighborhoodDeletionStep
+
+/-!
+# Section 10: one deterministic neighbourhood-deletion step
+
+This module contains exactly the local deterministic step used in the
+complement-neighbourhood construction for Lemma 10.1.  From quarter density
+on one finite set it produces a vertex and its neighbourhood inside that set,
+with the denominator-cleared recurrence inequality.
+
+It does not construct a clique chain, prove a survival estimate, establish a
+simultaneous random event, or invoke the greedy-colouring theorem.
+-/
+
+open Finset
+
+namespace Erdos625
+
+noncomputable section
+
+/-- From a nonempty quarter-dense finite vertex set, choose a vertex and keep
+its neighbours inside the current set.  The retained neighbourhood has size
+at least one quarter of the current cardinality, up to the exact additive-one
+loss used in the recurrence. -/
+theorem quarterDense_neighbor_step
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (H : SimpleGraph V)
+    (S : Finset V) (hSpos : 0 < S.card)
+    (hDense : QuarterDenseOn H S) :
+    ∃ v ∈ S, ∃ T : Finset V,
+      T ⊆ S ∧ (∀ w ∈ T, H.Adj v w) ∧ S.card - 1 ≤ 4 * T.card := by
+  classical
+  obtain ⟨x, hx⟩ := Finset.card_pos.mp hSpos
+  letI : Nonempty (↥(↑S : Set V)) := ⟨⟨x, by simpa using hx⟩⟩
+  have hDense' : Fintype.card (↥(↑S : Set V)) *
+      (Fintype.card (↥(↑S : Set V)) - 1) ≤
+      8 * (H.induce (↑S : Set V)).edgeFinset.card := by
+    simpa [QuarterDenseOn, Fintype.card_coe] using hDense
+  obtain ⟨v, hv⟩ := exists_vertex_quarter_degree (H.induce (↑S : Set V)) hDense'
+  let T : Finset V := S.filter (fun w => H.Adj v.1 w)
+  have hTcard : T.card = (H.induce (↑S : Set V)).degree v := by
+    rw [← SimpleGraph.card_neighborFinset_eq_degree]
+    refine Finset.card_bij
+      (fun w hw => (⟨w, (Finset.mem_filter.mp hw).1⟩ : ↥(↑S : Set V))) ?_ ?_ ?_
+    · intro w hw
+      rw [SimpleGraph.mem_neighborFinset]
+      exact (Finset.mem_filter.mp hw).2
+    · intro w₁ hw₁ w₂ hw₂ h
+      exact congrArg Subtype.val h
+    · intro w hw
+      refine ⟨w.1, ?_, ?_⟩
+      · rw [Finset.mem_filter]
+        refine ⟨w.2, ?_⟩
+        rw [SimpleGraph.mem_neighborFinset] at hw
+        change H.Adj v.1 w.1 at hw
+        exact hw
+      · exact Subtype.ext rfl
+  refine ⟨v.1, v.2, T, ?_, ?_, ?_⟩
+  · exact Finset.filter_subset _ _
+  · intro w hw
+    exact (Finset.mem_filter.mp hw).2
+  · calc
+      S.card - 1 = Fintype.card (↥(↑S : Set V)) - 1 := by simp
+      _ ≤ 4 * (H.induce (↑S : Set V)).degree v := hv
+      _ = 4 * T.card := by rw [hTcard]
+
+#print axioms quarterDense_neighbor_step
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10NeighborhoodDeletionStep
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDenseChain
+Source: Erdos625/Section10QuarterDenseChain.lean
+Normalized SHA-256: b03cc3b2ffc63c9c0c9a11bd5d31a4f10ad1c98bb0aa00489c833f29aa069b68
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDenseChain
+
+/-!
+# Section 10: abstract quarter-dense neighbourhood chain
+
+This module turns the checked one-step neighbourhood lemma into a finite
+deterministic clique-and-residual chain.  Its hypotheses deliberately include
+the numerical survival condition needed to make every intermediate residual
+large enough for the quarter-density assumption.  It does not prove that
+survival condition, derive quarter density from the random graph, perform any
+rounding estimate, or invoke the later greedy-colouring argument.
+-/
+
+open Finset
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Repeating the deterministic quarter-dense neighbourhood step produces a
+clique of the requested finite length and a common-neighbour residual set.
+
+The shifted potential `4⁻¹^i * (|S| + 1/3) - 1/3` is used because it is
+preserved exactly by the recurrence `|T| ≥ (|S| - 1) / 4`.  The hypothesis
+`hSurvive` is therefore an explicit finite assumption: it is not an
+asymptotic estimate hidden inside this theorem. -/
+theorem exists_quarterDense_clique_chain
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (H : SimpleGraph V) (S : Finset V) (cutoff t : ℕ)
+    (hcutoff : 1 ≤ cutoff)
+    (hDense : ∀ U : Finset V, U ⊆ S → cutoff ≤ U.card → QuarterDenseOn H U)
+    (hSurvive : ∀ i : ℕ, i < t →
+      (cutoff : ℝ) ≤ (4 : ℝ)⁻¹ ^ i * ((S.card : ℝ) + 1 / 3) - 1 / 3) :
+    ∃ C R : Finset V,
+      C.card = t ∧ C ⊆ S ∧ H.IsClique (C : Set V) ∧ R ⊆ S ∧
+        (∀ v ∈ C, ∀ w ∈ R, H.Adj v w) ∧
+        (4 : ℝ)⁻¹ ^ t * ((S.card : ℝ) + 1 / 3) - 1 / 3 ≤ (R.card : ℝ) := by
+  induction t generalizing S with
+  | zero =>
+      refine ⟨∅, S, by simp, Finset.empty_subset _, ?_, (by intro x hx; exact hx), ?_, ?_⟩
+      · simp
+      · simp
+      · norm_num
+  | succ t ih =>
+      have hcutoffSreal : (cutoff : ℝ) ≤ (S.card : ℝ) := by
+        have h := hSurvive 0 (Nat.zero_lt_succ t)
+        norm_num at h ⊢
+        linarith
+      have hcutoffS : cutoff ≤ S.card := by
+        exact_mod_cast hcutoffSreal
+      have hSpos : 0 < S.card :=
+        lt_of_lt_of_le (Nat.zero_lt_succ 0) (hcutoff.trans hcutoffS)
+      obtain ⟨v, hv, T, hTsub, hTadj, hstep⟩ :=
+        quarterDense_neighbor_step H S hSpos (hDense S (by intro x hx; exact hx) hcutoffS)
+      have hSone : 1 ≤ S.card := Nat.succ_le_iff.mpr hSpos
+      have hstepReal : ((S.card : ℝ) - 1) / 4 ≤ (T.card : ℝ) := by
+        have hstepCast : ((S.card - 1 : ℕ) : ℝ) ≤ ((4 * T.card : ℕ) : ℝ) := by
+          exact_mod_cast hstep
+        rw [Nat.cast_sub hSone] at hstepCast
+        norm_num at hstepCast ⊢
+        linarith
+      have hpotentialStep : ∀ i : ℕ,
+          (4 : ℝ)⁻¹ ^ (i + 1) * ((S.card : ℝ) + 1 / 3) - 1 / 3 ≤
+            (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+        intro i
+        have hshift : ((S.card : ℝ) + 1 / 3) / 4 ≤ (T.card : ℝ) + 1 / 3 := by
+          linarith
+        have hpow : 0 ≤ (4 : ℝ)⁻¹ ^ i := by positivity
+        have hmul := mul_le_mul_of_nonneg_left hshift hpow
+        calc
+          (4 : ℝ)⁻¹ ^ (i + 1) * ((S.card : ℝ) + 1 / 3) - 1 / 3 =
+              (4 : ℝ)⁻¹ ^ i * (((S.card : ℝ) + 1 / 3) / 4) - 1 / 3 := by
+                rw [pow_succ]
+                norm_num
+                ring
+          _ ≤ (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+                linarith
+      have hDenseT : ∀ U : Finset V, U ⊆ T → cutoff ≤ U.card → QuarterDenseOn H U := by
+        intro U hUT hUcard
+        exact hDense U (hUT.trans hTsub) hUcard
+      have hSurviveT : ∀ i : ℕ, i < t →
+          (cutoff : ℝ) ≤ (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+        intro i hi
+        exact (hSurvive (i + 1) (Nat.succ_lt_succ hi)).trans (hpotentialStep i)
+      obtain ⟨C, R, hCcard, hCsub, hClique, hRsub, hCRadj, hRcard⟩ :=
+        ih (S := T) hDenseT hSurviveT
+      have hvnotC : v ∉ C := by
+        intro hvC
+        have hvT : v ∈ T := hCsub hvC
+        exact H.irrefl (hTadj v hvT)
+      refine ⟨insert v C, R, ?_, ?_, ?_, hRsub.trans hTsub, ?_, ?_⟩
+      · rw [card_insert_of_notMem hvnotC, hCcard]
+      · intro w hw
+        rw [mem_insert] at hw
+        rcases hw with rfl | hw
+        · exact hv
+        · exact hTsub (hCsub hw)
+      · push_cast
+        apply hClique.insert
+        intro w hw hne
+        exact hTadj w (hCsub hw)
+      · intro w hw z hz
+        rw [mem_insert] at hw
+        rcases hw with rfl | hw
+        · exact hTadj z (hRsub hz)
+        · exact hCRadj w hw z hz
+      · exact (hpotentialStep t).trans hRcard
+
+#print axioms exists_quarterDense_clique_chain
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDenseChain
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDenseChain
 ========================================================================== -/
 
 /- ==========================================================================
@@ -22484,6 +23254,376 @@ END SOURCE MODULE: Erdos625.Section9ActualResidualWeightedEmbedding
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualENNRealPolymerBridge
+Source: Erdos625/Section9ActualResidualENNRealPolymerBridge.lean
+Normalized SHA-256: aaa4495d6782dc121d13fb857c88c642fdddd557ede8fe2c8fb74d829ae6c825
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealPolymerBridge
+
+/-!
+# Section IX: actual-residual `ENNReal` polymer bridge
+
+This module gives a finite, nonnegative-extended-real version of the
+actual-residual polymer-product estimate.  It reconstructs the finite
+even-subgraph decomposition locally: an even edge set is written as a
+recoverable, pairwise edge-disjoint family of inclusion-minimal even edge
+sets.  The actual residual family is then embedded into the unrestricted
+even-edge family using the already checked literal-family inclusion.
+
+The result is only a finite algebraic estimate.  It does not identify the
+conditioned residual law, connect the weights to `residualQ`, bound the
+polymer product by a traversal series, or prove any Section IX probability
+estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Product of the `ENNReal` cell weights on the edges of `F` outside `M`. -/
+def edgeWeightOutsideENN
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A -> B -> ENNReal) (M F : Finset (A × B)) : ENNReal :=
+  ∏ e ∈ F \ M, q e.1 e.2
+
+private lemma ennreal_bipartiteEven_sdiff
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {D F : Finset (A × B)} (hDF : D ⊆ F)
+    (hF : IsBipartiteEven F) (hD : IsBipartiteEven D) :
+    IsBipartiteEven (F \ D) := by
+  constructor
+  · intro a
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.1 = a) F) =
+          Finset.card (Finset.filter (fun e => e.1 = a) D) +
+            Finset.card (Finset.filter (fun e => e.1 = a) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.1 a)).mp (hD.1 a)
+  · intro b
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.2 = b) F) =
+          Finset.card (Finset.filter (fun e => e.2 = b) D) +
+            Finset.card (Finset.filter (fun e => e.2 = b) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.2 b)).mp (hD.2 b)
+
+private lemma ennreal_exists_minimal_even_subset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {F : Finset (A × B)} (hF : IsBipartiteEven F) (hne : F.Nonempty) :
+    ∃ C, C ⊆ F ∧ IsSimpleBipartiteCycle C := by
+  obtain ⟨C, hC⟩ :
+      ∃ C ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+        ∀ D ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+          C.card ≤ D.card := by
+    apply_rules [Set.exists_min_image]
+    · exact Set.toFinite _
+    · exact ⟨F, ⟨Finset.Subset.refl _, hF, hne⟩⟩
+  refine ⟨C, hC.1.1, hC.1.2.1, hC.1.2.2, ?_⟩
+  intro D hDC hD hDne
+  exact Finset.eq_of_subset_of_card_le hDC
+    (hC.2 D ⟨Finset.Subset.trans hDC hC.1.1, hD, hDne⟩ |>
+      le_trans <| by simp +decide)
+
+private lemma ennreal_exists_disjoint_cycle_decomposition
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (F : Finset (A × B)) (hF : IsBipartiteEven F) :
+    ∃ s : Finset (Finset (A × B)),
+      s ⊆ simpleBipartiteCycles A B ∧
+      F = s.biUnion id ∧
+      (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+  induction' F using Finset.strongInduction with F ih
+  by_cases hF_empty : F = ∅
+  · exact ⟨∅, by simp +decide [hF_empty]⟩
+  · obtain ⟨C, hC⟩ : ∃ C ⊆ F, IsSimpleBipartiteCycle C := by
+      exact ennreal_exists_minimal_even_subset hF
+        (Finset.nonempty_of_ne_empty hF_empty) |>
+          fun ⟨C, hC₁, hC₂⟩ => ⟨C, hC₁, hC₂⟩
+    obtain ⟨s, hs⟩ :
+        ∃ s ⊆ simpleBipartiteCycles A B,
+          F \ C = s.biUnion id ∧
+            ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂ := by
+      apply ih (F \ C)
+      · simp_all +decide [Finset.ssubset_def, Finset.subset_iff]
+        exact Exists.elim hC.2.2.1 fun x hx => ⟨_, _, hC.1 _ _ hx, hx⟩
+      · exact ennreal_bipartiteEven_sdiff hC.1 hF hC.2.1
+    refine ⟨Insert.insert C s, ?_, ?_, ?_⟩ <;>
+      simp_all +decide [Finset.subset_iff]
+    · unfold simpleBipartiteCycles
+      aesop
+    · grind
+    · simp_all +decide [Finset.ext_iff, Finset.disjoint_left]
+      grind +ring
+
+private lemma ennreal_biUnion_recovery_injective
+    {α : Type*} [DecidableEq α]
+    (U : Finset (Finset α)) (s : Finset α → Finset (Finset α))
+    (hrecover : ∀ F ∈ U, F = (s F).biUnion id) :
+    ∀ F ∈ U, ∀ G ∈ U, s F = s G → F = G := by
+  intro F hF G hG hFG
+  rw [hrecover F hF, hrecover G hG, hFG]
+
+private lemma edgeWeightOutsideENN_biUnion
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (s : Finset (Finset (A × B)))
+    (hdisj : ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) :
+    edgeWeightOutsideENN q M (s.biUnion id) =
+      ∏ C ∈ s, edgeWeightOutsideENN q M C := by
+  unfold edgeWeightOutsideENN
+  rw [← Finset.prod_biUnion]
+  · rcongr e
+    aesop
+  · exact fun x hx y hy hxy =>
+      Disjoint.mono Finset.sdiff_subset Finset.sdiff_subset
+        (hdisj x hx y hy hxy)
+
+/-- The finite `ENNReal` polymer-product bound for all even bipartite edge
+sets.  It uses no finiteness or positivity hypothesis on the weights beyond
+their `ENNReal` type. -/
+theorem weighted_evenSubgraph_ennreal_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B)) :
+    (∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) := by
+  have h_decomp :
+      ∀ F ∈ bipartiteEvenEdgeSets A B,
+        ∃ s : Finset (Finset (A × B)),
+          s ⊆ simpleBipartiteCycles A B ∧
+          F = s.biUnion id ∧
+          (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+    intro F hF
+    exact ennreal_exists_disjoint_cycle_decomposition F (by
+      unfold bipartiteEvenEdgeSets at hF
+      aesop)
+  choose! s hs using h_decomp
+  have h_inj := ennreal_biUnion_recovery_injective
+    (bipartiteEvenEdgeSets A B) s (fun F hF ↦ (hs F hF).2.1)
+  have h_sum_prod :
+      ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F ≤
+        ∑ s' ∈ Finset.powerset (simpleBipartiteCycles A B),
+          ∏ C ∈ s', edgeWeightOutsideENN q M C := by
+    have h_sum_prod :
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F ≤
+          ∑ s' ∈ Finset.image s (bipartiteEvenEdgeSets A B),
+            ∏ C ∈ s', edgeWeightOutsideENN q M C := by
+      rw [Finset.sum_image]
+      · refine Finset.sum_le_sum fun F hF => ?_
+        rw [(hs F hF).2.1, edgeWeightOutsideENN_biUnion]
+        · rw [← (hs F hF).2.1]
+        · exact (hs F hF).2.2
+      · exact h_inj
+    apply le_trans h_sum_prod
+    apply Finset.sum_le_sum_of_subset
+    exact Finset.image_subset_iff.mpr fun F hF =>
+      Finset.mem_powerset.mpr (hs F hF).1
+  convert h_sum_prod using 1
+  simp +decide [add_comm, Finset.prod_add]
+
+local instance fintypeActualResidualEvenEdgeFamilyENNReal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+
+/-- The literal actual residual even-edge family is bounded by the finite
+`ENNReal` polymer product.  The matching hypothesis is retained for the
+Section IX interface; this finite algebraic estimate only uses `M` to omit
+the corresponding edge weights. -/
+theorem sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B))
+    (q : A → B → ENNReal)
+    (_hM : IsBipartiteMatching M) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F := by
+      simpa only [edgeWeightOutsideENN] using
+        (sum_actualResidualEvenEdgeFamily_weight_le_all_even cellCount M q)
+    _ ≤ ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) :=
+      weighted_evenSubgraph_ennreal_polymer_product q M
+
+#print axioms weighted_evenSubgraph_ennreal_polymer_product
+#print axioms sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualENNRealPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualRealPolymerBridge
+Source: Erdos625/Section9ActualResidualRealPolymerBridge.lean
+Normalized SHA-256: 6e26ffed984ff97f57cbbf861025bb3f1f5cc3263a40df2e68da4a6293c621cd
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualRealPolymerBridge
+
+/-!
+# Section IX: actual-residual real polymer bridge
+
+For nonnegative real cell weights, the literal actual residual even-edge
+family is a weighted subfamily of all finite bipartite even edge sets.  This
+module composes that finite inclusion with the established real-valued polymer
+bound.  It is deliberately separate from the `ENNReal` inclusion: it does not
+identify a residual probability law, specialize `residualQ`, supply an
+`ENNReal` polymer theorem, or provide a cycle-to-walk or attachment estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+local instance fintypeActualResidualEvenEdgeFamilyReal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+
+/-- For nonnegative real cell weights, the actual residual even-edge family
+is a weighted subfamily of all finite bipartite even edge sets. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F := by
+  classical
+  have hvalInj : Function.Injective
+      (fun F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M) => F.1) :=
+    Subtype.val_injective
+  have hsubset :
+      Finset.image
+          (fun F : ActualResidualEvenEdgeFamily cellCount
+            (fun a b => (a, b) ∈ M) => F.1)
+          Finset.univ ⊆
+        bipartiteEvenEdgeSets A B := by
+    intro F hF
+    rcases Finset.mem_image.mp hF with ⟨G, _, rfl⟩
+    simp only [bipartiteEvenEdgeSets, Finset.mem_filter,
+      Finset.mem_univ, true_and]
+    exact (bipartiteEvenEdgeSet_iff_isBipartiteEven G.1).mp G.2.1
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M), edgeWeightOutside q M F.1) =
+        ∑ F ∈ Finset.image
+            (fun G : ActualResidualEvenEdgeFamily cellCount
+              (fun a b => (a, b) ∈ M) => G.1)
+            Finset.univ, edgeWeightOutside q M F := by
+      symm
+      rw [Finset.sum_image]
+      exact fun _ _ _ _ hxy => hvalInj hxy
+    _ ≤ ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F := by
+      apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
+      intro F hF hnotmem
+      exact Finset.prod_nonneg fun e he => hq e.1 e.2
+
+/-- The finite real actual-residual weighted sum is bounded by the established
+polymer product whenever the distinguished high-cell set is a matching. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hM : IsBipartiteMatching M)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M), edgeWeightOutside q M F.1) ≤
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F :=
+      sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+        cellCount M q hq
+    _ ≤ ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C) :=
+      (weighted_evenSubgraph_polymer_bound q M hM hq).1
+
+/-- The same finite real bridge continues to the exponential endpoint of the
+established polymer theorem.  This remains a finite algebraic statement. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hM : IsBipartiteMatching M)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      Real.exp (∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutside q M C) := by
+  exact le_trans
+    (sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+      cellCount M q hM hq)
+    (weighted_evenSubgraph_polymer_bound q M hM hq).2
+
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualRealPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualRealPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ChooseTwoMass
 Source: Erdos625/Section9ChooseTwoMass.lean
 Normalized SHA-256: 7eee57ca52d6da9b2cd2950e599485a3e6016656d1145ebeb31ad7fc1607fb62
@@ -31942,7 +33082,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b235097d45e06acf6944d688f9293e496d9006e93100c13e11dd5279709ee29c
+Normalized SHA-256: aa111a20030295abc39c7e1d8f87967d9f8e19a42f1e47e450565bad91fbfc19
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31985,6 +33125,28 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterRecurrence_lowerBound
 #print axioms Erdos625.binomialRandom_map_ncard_edgeSet_singleton
 #print axioms Erdos625.randomGraphMeasure_map_compl
+#print axioms Erdos625.setBernoulli_map_preimage_of_injective
+#print axioms Erdos625.fromEdgeSet_induce_eq_preimage
+#print axioms Erdos625.diagSet_compl_preimage_subtype_sym2Map
+#print axioms Erdos625.randomGraphMeasure_map_induce
+#print axioms Erdos625.binomialRandom_map_edgeCount
+#print axioms Erdos625.binomialRandom_real_edgeCount_lowerTail
+#print axioms Erdos625.binomialRandom_half_edgeCount_lowerQuarter
+#print axioms Erdos625.randomGraphMeasure_inducedEdgeCount_lowerQuarter
+#print axioms Erdos625.randomGraphMeasure_map_induce_complement
+#print axioms Erdos625.randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter
+#print axioms Erdos625.measurableSet_cutoffComplementQuarterDensityEvent
+#print axioms Erdos625.inducedComplementLowerQuarterEvent_tail
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_le_sum
+#print axioms Erdos625.quarterDensityCutoffSubsets_card
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_le
+#print axioms Erdos625.quarterDensity_choose_two_div_sixteen_lower_bound
+#print axioms Erdos625.quarterDensityCutoff_tendsto_atTop
+#print axioms Erdos625.quarterDensity_eventually_exponent_bound
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one
+#print axioms Erdos625.quarterDense_neighbor_step
+#print axioms Erdos625.exists_quarterDense_clique_chain
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
 #print axioms Erdos625.simultaneous_induced_chromatic_bound
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
@@ -32292,6 +33454,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
 #print axioms Erdos625.bipartiteEvenEdgeSet_iff_isBipartiteEven
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_weight_le_all_even
+#print axioms Erdos625.weighted_evenSubgraph_ennreal_polymer_product
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
 #print axioms Erdos625.smallResidualDeterministicBound
 #print axioms Erdos625.cycleRank_matching_union_le_card_residual
@@ -32496,7 +33663,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: e3f56ba5fe2449c7b04866601ff2d17ed649a469958969e64ce27cdbc04a1d94
+Normalized SHA-256: 69119a93037e9afcbb02ec715f40f00c993a4640bfa4f050a2bf7116a1e2a8b9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -32530,9 +33697,14 @@ failure bound `exp (-r)`, including the non-strict boundary event and with no
 two-sided factor.  The exact finite binomial law for graph edge-count
 singletons and ambient complement invariance of `G(n,1/2)`, the quantitative
 two-success-event failure seam, and the generic strict-lower-event complement
-limit are also checked.  The fixed induced-complement restriction transport,
-one simultaneous leftover-colouring event, and the
-concrete Section 10--11 tails remain open.
+limit are also checked.  The fixed induced-subgraph and induced-complement
+pushforward laws, together with their fixed-set lower-quarter edge-count
+tails, the literal finite cutoff-family event and its finite union bound, and
+one deterministic complement-neighbourhood deletion step are now checked as
+well. The full-sequence cutoff-event limit and an abstract chain under
+explicit density and survival hypotheses are now checked. The
+event-to-density/larger-set bridge, concrete survival/rounding estimates,
+and concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon

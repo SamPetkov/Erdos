@@ -22,6 +22,11 @@ import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
 import Erdos625.Section10BinomialEdgeCount
 import Erdos625.Section10ComplementInvariance
+import Erdos625.Section10InducedRestriction
+import Erdos625.Section10QuarterDensityEvent
+import Erdos625.Section10QuarterDensityLimit
+import Erdos625.Section10NeighborhoodDeletionStep
+import Erdos625.Section10QuarterDenseChain
 import Erdos625.Section10QuarterUnionDecay
 import Erdos625.Section10SimultaneousGreedyColoring
 import Erdos625.Section10AmplificationScales
@@ -102,6 +107,8 @@ import Erdos625.ConfigurationResidualSupport
 import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
 import Erdos625.Section9ActualResidualWeightedEmbedding
+import Erdos625.Section9ActualResidualENNRealPolymerBridge
+import Erdos625.Section9ActualResidualRealPolymerBridge
 import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
@@ -196,9 +203,14 @@ failure bound `exp (-r)`, including the non-strict boundary event and with no
 two-sided factor.  The exact finite binomial law for graph edge-count
 singletons and ambient complement invariance of `G(n,1/2)`, the quantitative
 two-success-event failure seam, and the generic strict-lower-event complement
-limit are also checked.  The fixed induced-complement restriction transport,
-one simultaneous leftover-colouring event, and the
-concrete Section 10--11 tails remain open.
+limit are also checked.  The fixed induced-subgraph and induced-complement
+pushforward laws, together with their fixed-set lower-quarter edge-count
+tails, the literal finite cutoff-family event and its finite union bound, and
+one deterministic complement-neighbourhood deletion step are now checked as
+well. The full-sequence cutoff-event limit and an abstract chain under
+explicit density and survival hypotheses are now checked. The
+event-to-density/larger-set bridge, concrete survival/rounding estimates,
+and concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon

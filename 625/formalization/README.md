@@ -352,7 +352,13 @@ meet the row-matching-plus-residual support condition, so it inherits the exact
 `2 ^ |R|` bound.  The finite division-free choose-two mass estimate (9.21) is
 also proved.  For arbitrary `ENNReal` cell weights, its finite weighted sum
 has an exact one-sided inclusion into the sum over all even bipartite edge
-sets.  This is not an `ENNReal` polymer estimate.  The finite graph-theoretic
+sets. This inclusion is promoted by `Section9ActualResidualENNRealPolymerBridge.lean`
+to a finite `ENNReal` simple-cycle polymer product (but not an exponential endpoint). Separately, for pointwise
+nonnegative real cell weights and a literal matching high-cell set, the same
+actual residual family now inherits the established real polymer-product and
+exponential bounds.  That real bridge does not identify the weights with
+`residualQ` or prove a conditioned residual law, a cycle encoding, or an
+attachment estimate.  The finite graph-theoretic
 inequality in (9.20) is checked as
 well: adding an arbitrary residual relation to a genuine bipartite matching
 raises cycle rank by at most the number of residual cells.  Its literal
@@ -373,8 +379,10 @@ The corresponding source units are
 [`EvenMatchingRestriction.lean`](Erdos625/EvenMatchingRestriction.lean), and
 [`ConfigurationResidualSupport.lean`](Erdos625/ConfigurationResidualSupport.lean),
 together with [`Section9ActualResidualFamily.lean`](Erdos625/Section9ActualResidualFamily.lean)
-and [`Section9ActualResidualWeightedEmbedding.lean`](Erdos625/Section9ActualResidualWeightedEmbedding.lean),
-then [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
+[`Section9ActualResidualWeightedEmbedding.lean`](Erdos625/Section9ActualResidualWeightedEmbedding.lean),
+[`Section9ActualResidualENNRealPolymerBridge.lean`](Erdos625/Section9ActualResidualENNRealPolymerBridge.lean),
+[`Section9ActualResidualRealPolymerBridge.lean`](Erdos625/Section9ActualResidualRealPolymerBridge.lean),
+and [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
 [`Section9CycleRankResidual.lean`](Erdos625/Section9CycleRankResidual.lean) and
 [`Section9CycleRankConfigurationAssembly.lean`](Erdos625/Section9CycleRankConfigurationAssembly.lean).
 [`Section9SmallResidualDeterministic.lean`](Erdos625/Section9SmallResidualDeterministic.lean)
@@ -397,12 +405,17 @@ stated encoding/evenness/support hypotheses; it is not a mass-occupancy claim.
 `Section9ActualResidualFamily.lean` verifies those hypotheses for the literal
 finite even-edge family used here.  `Section9ActualResidualWeightedEmbedding.lean`
 also proves the exact one-sided finite `ENNReal` weighted inclusion into the
-all-even sum.  A separate accepted real-valued polymer theorem now constructs
-a recoverable disjoint minimal-even decomposition.  An `ENNReal` polymer
-bound for this actual family, concrete
-cycle-to-walk enumeration and weight/kernel transfer, instantiation of the
-accepted eventual-`tau` bridge, the upstream finite attachment estimates, and
-full Lemma 9.1/
+all-even sum.  `Section9ActualResidualRealPolymerBridge.lean` adds the distinct
+real-weight bridge from that literal actual family to the accepted polymer
+product and exponential endpoint, under a matching premise and pointwise
+nonnegative weights.  A separate accepted real-valued polymer theorem
+constructs a recoverable disjoint minimal-even decomposition.
+`Section9ActualResidualENNRealPolymerBridge.lean` additionally proves the
+finite actual-residual `ENNReal` sum is at most the finite simple-cycle polymer
+product. It does not provide the exponential endpoint. Concrete cycle-to-walk
+enumeration and weight/kernel transfer, instantiation of the accepted
+eventual-`tau` bridge, the upstream finite attachment estimates, and full
+Lemma 9.1/
 Proposition 9.2 assembly remain open.  The separate cycle-rank module proves
 the finite forest-plus-residual-edge bound required in the small-residual
 regime, and its configuration assembly supplies both inequalities displayed
@@ -416,10 +429,10 @@ now constructs the vertex-edge incidence map over `ZMod 2`, computes its
 kernel dimension by rank-nullity and connected-component indicators, identifies
 that kernel with literal finite edge subsets of even degree at every vertex,
 and proves their exact cardinality `2 ^ cycleRank`.  This is the finite binary
-cycle-space identity used in (6.7).  The separate accepted polymer theorem
-constructs a recoverable disjoint minimal-even decomposition, but neither
-theorem gives an `ENNReal` polymer bound for the actual residual family or
-encodes those components as the required weighted walks.
+cycle-space identity used in (6.7). The separate accepted polymer theorem
+constructs a recoverable disjoint minimal-even decomposition. The new finite
+`ENNReal` bridge gives the actual residual family a simple-cycle product bound,
+but no exponential endpoint or required weighted-walk encoding.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -444,9 +457,9 @@ over the even family remains separate.
 [`Section9CyclePolymerBound.lean`](Erdos625/Section9CyclePolymerBound.lean)
 proves `weighted_evenSubgraph_polymer_bound`, including a recoverable
 pairwise-disjoint decomposition into inclusion-minimal nonempty even sets and
-the real subset-product/exponential bound.  It is not yet specialized to the
-actual residual family as an `ENNReal` polymer bound; the separately proved
-one-sided finite weighted inclusion does not provide that strengthening.
+the real subset-product/exponential bound. The separate `ENNReal` bridge now
+specializes the actual residual family to a finite simple-cycle product, but
+does not supply an `ENNReal` exponential endpoint.
 [`Section9FiniteAnalyticEndpoint.lean`](Erdos625/Section9FiniteAnalyticEndpoint.lean)
 proves `existsAbsoluteFiniteEndpointConstant`, the uniform finite real bounds
 `lambda <= C * theta^3` and `q <= C * theta^2` under the exact displayed
@@ -538,13 +551,33 @@ the concrete manuscript parameter arithmetic.
 
 [`Section10BinomialEdgeCount.lean`](Erdos625/Section10BinomialEdgeCount.lean)
 proves the exact singleton law for the number of edges in Mathlib's finite
-binomial random graph.  It supplies the finite edge-count distribution bridge,
-but not yet its transport to every fixed induced complement graph or the
-simultaneous quarter-density event of Lemma 10.1.
+binomial random graph.  The native fixed-set transport and its scalar
+lower-quarter tail are now completed in
+[`Section10InducedRestriction.lean`](Erdos625/Section10InducedRestriction.lean):
+for every deterministic `S : Set (Fin n)`, the induced graph and the induced
+complement both have the exact `G(S,1/2)` law, and their edge counts satisfy
+the corresponding fixed-set exponential lower-quarter bound.  This does not
+form a union bound, a simultaneous event over `S`, or the quarter-density
+event of Lemma 10.1.
+[`Section10QuarterDensityEvent.lean`](Erdos625/Section10QuarterDensityEvent.lean)
+forms the literal finite event over all cutoff-size subsets, proves its
+measurability, and derives the exact finite union bound
+`choose(n,u0) * exp(-choose(u0,2)/16)`.
+[`Section10QuarterDensityLimit.lean`](Erdos625/Section10QuarterDensityLimit.lean)
+proves that this literal cutoff event has probability tending to one. The
+event-to-density bridge remains open.
+[`Section10NeighborhoodDeletionStep.lean`](Erdos625/Section10NeighborhoodDeletionStep.lean)
+proves one deterministic complement-neighbourhood step with the exact
+denominator-cleared recurrence inequality. [`Section10QuarterDenseChain.lean`](Erdos625/Section10QuarterDenseChain.lean)
+then assembles a finite clique and common-neighbour residual chain under
+explicit quarter-density and shifted-potential survival hypotheses. It does
+not prove those concrete survival hypotheses, the random event bridge, or a
+greedy-colouring instantiation.
+
 [`Section10ComplementInvariance.lean`](Erdos625/Section10ComplementInvariance.lean)
 proves that complementation exactly preserves the ambient labelled
-`G(n,1/2)` measure.  It is a symmetry only: the native pushforward through a
-fixed induced restriction remains the hard missing transport.
+`G(n,1/2)` measure; the new restriction module combines that symmetry with
+the native restriction pushforward only for fixed deterministic subsets.
 [`RandomGraphUniformLaw.lean`](Erdos625/RandomGraphUniformLaw.lean) proves that
 the repository's half-binomial graph measure is exactly `uniformOn univ`, from
 its equal singleton masses and probability normalization.  This removes the
@@ -591,9 +624,9 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, actual-family/weight specialization of the accepted
-polymer decomposition beyond the proved one-sided `ENNReal` subfamily
-inclusion, concrete cycle-to-walk enumeration and weight transfer,
+assembly, an `ENNReal` exponential endpoint beyond the proved finite
+actual-residual polymer product, concrete cycle-to-walk enumeration and weight
+transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
 Section 10's simultaneous leftover tail and concrete seed-amplification
