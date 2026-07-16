@@ -73,11 +73,12 @@ its exact union bound and a full-sequence probability-one limit. One
 deterministic complement-neighbourhood step and a finite chain under explicit
 density and shifted-potential survival hypotheses are checked as well. The
 chosen-scale eventual shifted-potential survival inequality is now checked
-separately. The literal cutoff event now also has deterministic event-to-density
-and larger-subset consequences (with an explicit cutoff-at-least-two
-hypothesis). The remaining chain-initialization/rounding transport, complete
-simultaneous probability transport, and concrete seed-amplification assembly
-remain open.
+separately. The literal cutoff event's deterministic event-to-density and
+larger-subset consequences are now packaged into one all-larger density event
+with a full-sequence probability-one limit. The remaining
+chain-initialization/rounding transport, complement clique-to-independent-set
+conversion, greedy-colouring instantiation, and concrete seed-amplification
+assembly remain open.
 Section XI's deterministic event inclusion, generic probability-one
 intersection, strict-lower complement bridge, eventual threshold reduction,
 exact scale divergence, and final conditional seam are proved, but the seam's
@@ -108,12 +109,12 @@ The source checkpoint generated on 2026-07-16 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 179;
+- local source modules included: 180;
 - external Mathlib imports: 78;
-- central `#print axioms` commands included: 685;
-- newline count: 34,178;
+- central `#print axioms` commands included: 689;
+- newline count: 34,252;
 - generated source SHA-256:
-  `9F1FB6F095EAFF77B2BC2A38C4562581EA7164556BF6BE4540953CCAE362B198`.
+  `0A2171FCDA3EEA922010E3BFD0B29D52B86E2663D0449611206B9EDD64E516A7`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`

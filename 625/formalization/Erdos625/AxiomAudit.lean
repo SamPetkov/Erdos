@@ -17,6 +17,7 @@ import Erdos625.Section10InducedRestriction
 import Erdos625.Section10QuarterDensityEvent
 import Erdos625.Section10QuarterDensityLift
 import Erdos625.Section10QuarterDensityLimit
+import Erdos625.Section10UniformQuarterDensityEvent
 import Erdos625.Section10QuarterChainSurvival
 import Erdos625.Section10NeighborhoodDeletionStep
 import Erdos625.Section10QuarterDenseChain
@@ -231,6 +232,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_exact
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
 #print axioms Erdos625.quarterChain_shifted_survival_eventually
 #print axioms Erdos625.quarterDense_neighbor_step
 #print axioms Erdos625.exists_quarterDense_clique_chain

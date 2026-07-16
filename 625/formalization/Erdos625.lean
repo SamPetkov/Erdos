@@ -26,6 +26,7 @@ import Erdos625.Section10InducedRestriction
 import Erdos625.Section10QuarterDensityEvent
 import Erdos625.Section10QuarterDensityLift
 import Erdos625.Section10QuarterDensityLimit
+import Erdos625.Section10UniformQuarterDensityEvent
 import Erdos625.Section10QuarterChainSurvival
 import Erdos625.Section10NeighborhoodDeletionStep
 import Erdos625.Section10QuarterDenseChain

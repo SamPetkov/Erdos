@@ -6556,6 +6556,78 @@ END SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10UniformQuarterDensityEvent
+Source: Erdos625/Section10UniformQuarterDensityEvent.lean
+Normalized SHA-256: acfa0e559b55e80c20a85080b03c80ebbe399458140235ff265da30985c71452
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10UniformQuarterDensityEvent
+
+/-!
+# Section X: high-probability all-larger quarter-density event
+
+This module packages the accepted literal cutoff event, its probability-one
+limit, and its deterministic larger-subset lift into one event whose
+probability tends to one.  It does not construct a clique chain, transfer a
+complement clique to an independent set, or invoke greedy colouring.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The event on which every vertex subset at least as large as the cutoff is
+quarter-dense in the complement graph. -/
+def cutoffComplementAllLargerQuarterDenseEvent (n : ℕ) : Set (LabeledGraph n) :=
+  {G | ∀ S : Finset (Fin n), quarterDensityCutoff n ≤ S.card →
+    QuarterDenseOn Gᶜ S}
+
+/-- Once the cutoff is at least two, the literal cutoff event is contained in
+the all-larger quarter-density event. -/
+theorem cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+    (n : ℕ) (hcutoff : 2 ≤ quarterDensityCutoff n) :
+    cutoffComplementQuarterDensityEvent n ⊆
+      cutoffComplementAllLargerQuarterDenseEvent n := by
+  intro G hG S hS
+  exact cutoffComplementQuarterDensityEvent_quarterDense_all_larger n G hG
+    hcutoff S hS
+
+/-- The all-larger complement quarter-density event has probability tending to
+one along the full natural sequence. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (cutoffComplementAllLargerQuarterDenseEvent n))
+      atTop (nhds 1) := by
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    cutoffComplementQuarterDensityEvent_probability_tendsto_one
+    tendsto_const_nhds ?_ ?_
+  · filter_upwards [quarterDensityCutoff_tendsto_atTop.eventually_ge_atTop 2]
+      with n hn
+    exact measure_mono
+      (cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent n hn)
+  · exact Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (cutoffComplementAllLargerQuarterDenseEvent n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ
+
+#print axioms cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10UniformQuarterDensityEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10UniformQuarterDensityEvent
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
 Source: Erdos625/Section10QuarterChainSurvival.lean
 Normalized SHA-256: 6ea26963df35290a9e3f2b639ea450f652eaf05a87fc80b3d0cdff4138fcd80a
@@ -33383,7 +33455,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 5c9064546b5a98e1d1dbb32faecdea93f6cd501aa8ca6cb231726bc73daf7153
+Normalized SHA-256: 4380f92928b691eaa7df9eb47a0475bbce398bbe82d37f70e2ac90429eaeeb46
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -33448,6 +33520,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_exact
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
 #print axioms Erdos625.quarterChain_shifted_survival_eventually
 #print axioms Erdos625.quarterDense_neighbor_step
 #print axioms Erdos625.exists_quarterDense_clique_chain
@@ -33970,7 +34044,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: ca3f1f4209e533d15d5039d9df5806c74964d43ef65a68268599718379682443
+Normalized SHA-256: e737cacb69e2c4e58da9cdf15791b0cd26b4bc1df6585d70f2645de9a2e565d3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
