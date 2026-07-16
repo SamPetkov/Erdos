@@ -81,6 +81,38 @@ event, and only then instantiate the already accepted deterministic density
 lift and greedy interfaces.  A fixed-set probability statement is not an
 acceptable substitute for the internal universal quantifier.
 
+### Execution ownership: Terra Max with Aristotle
+
+Terra Max is the designated primary implementation agent for this wave.
+Aristotle is its theorem-scoped proof-search assistant, not a second source of
+truth.  Terra Max owns the complete loop:
+
+1. read the current local declarations and preserve their exact quantifiers;
+2. prepare the full-theorem and leaf Aristotle payloads listed below;
+3. poll requests and keep every return quarantined until review;
+4. reconstruct or port useful arguments into the repository's Lean 4.31
+   source instead of importing service workspaces;
+5. compile focused declarations warning-fatally, inspect their mathematics,
+   scan trust boundaries, and audit axioms;
+6. integrate accepted leaves into the modular import tree, generated
+   self-contained proof, ledger, and user-facing documentation;
+7. require green branch and `main` CI before calling a batch accepted.
+
+Terra Max may send both a whole target and its independent leaves to Aristotle
+at the same time.  It should use returned compiler diagnostics to refine only
+the failing leaf, while continuing local work on other leaves.  It must not
+replace a hard theorem by an assumption, strengthen a hypothesis silently,
+weaken a conclusion, change a full-sequence limit to a subsequence, or turn a
+fixed-set result into a simultaneous event.  If a service return proves a
+nearby statement, Terra Max records that nearby statement honestly or rejects
+the return.
+
+At handoff, Terra Max should begin with X01 below.  X02--X04 are downstream
+work packages, not licenses to assume X01.  The parallel Section IX lane is
+safe background work while X01 requests run.  arXiv packaging remains
+secondary until the exact final target is fully represented in Lean or is
+still described explicitly as a candidate partial formalization.
+
 ### X01 -- fixed induced-restriction law and fixed-set tail
 
 1. Define the fixed restriction map on the subtype carried by
