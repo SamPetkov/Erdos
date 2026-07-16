@@ -6736,6 +6736,189 @@ END SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainParameters
+Source: Erdos625/Section10QuarterChainParameters.lean
+Normalized SHA-256: a8eedbe1a55c037eff572976cc195583edb358d12cee046a42e3af0fcd087c93
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainParameters
+
+/-!
+# Section X: quarter-chain parameter facts
+
+This module records the elementary eventual comparisons among the concrete
+cutoff, starting size, and step count used by the quarter-neighbourhood chain.
+It contains no graph-theoretic or probabilistic assertion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- Eventually, the quarter-density cutoff is no larger than the chosen
+cube-root starting size. -/
+theorem quarterDensityCutoff_le_quarterChainStart_eventually :
+    ∀ᶠ n : ℕ in atTop, quarterDensityCutoff n ≤ quarterChainStart n := by
+  filter_upwards [Filter.eventually_ge_atTop 1] with n hn
+  simp only [quarterDensityCutoff, quarterChainStart]
+  exact Nat.ceil_mono
+    (Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hn) (by norm_num))
+
+/-- Eventually, the quarter-density cutoff is positive. -/
+theorem one_le_quarterDensityCutoff_eventually :
+    ∀ᶠ n : ℕ in atTop, 1 ≤ quarterDensityCutoff n := by
+  filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+  simp only [quarterDensityCutoff, Nat.one_le_ceil_iff]
+  exact Real.rpow_pos_of_pos (Nat.cast_pos.mpr hn) _
+
+/-- The concrete number of quarter-neighbourhood steps diverges. -/
+theorem quarterChainSteps_tendsto_atTop :
+    Tendsto quarterChainSteps atTop atTop := by
+  unfold quarterChainSteps
+  exact tendsto_nat_floor_atTop.comp
+    (Tendsto.atTop_div_const (by positivity)
+      (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop))
+
+/-- Eventually, at least one quarter-neighbourhood step is requested. -/
+theorem one_le_quarterChainSteps_eventually :
+    ∀ᶠ n : ℕ in atTop, 1 ≤ quarterChainSteps n :=
+  quarterChainSteps_tendsto_atTop.eventually_ge_atTop 1
+
+/-- The floor in the concrete step count still leaves an eventual
+`1 / (14 * log 4)` logarithmic lower bound. -/
+theorem quarterChainSteps_real_lower_bound_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      Real.log (n : ℝ) / (14 * Real.log 4) ≤ (quarterChainSteps n : ℝ) := by
+  have hlog :
+      Tendsto (fun n : ℕ => Real.log (n : ℝ)) atTop atTop :=
+    Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop
+  have hc : 0 < (1 / (182 * Real.log 4) : ℝ) := by
+    positivity
+  have hmargin :
+      Tendsto
+        (fun n : ℕ => Real.log (n : ℝ) * (1 / (182 * Real.log 4)) - 1)
+        atTop atTop := by
+    simpa only [sub_eq_add_neg] using
+      Filter.tendsto_atTop_add_const_right atTop (-1 : ℝ)
+        (hlog.atTop_mul_const hc)
+  filter_upwards [hmargin.eventually_ge_atTop 0] with n hn
+  have hlogFour : Real.log (4 : ℝ) ≠ 0 := ne_of_gt (Real.log_pos (by norm_num))
+  have hidentity :
+      Real.log (n : ℝ) / (13 * Real.log 4) - 1 -
+          Real.log (n : ℝ) / (14 * Real.log 4) =
+        Real.log (n : ℝ) * (1 / (182 * Real.log 4)) - 1 := by
+    field_simp [hlogFour]
+    ring
+  have hgap :
+      Real.log (n : ℝ) / (14 * Real.log 4) ≤
+        Real.log (n : ℝ) / (13 * Real.log 4) - 1 := by
+    have hnonneg :
+        0 ≤ Real.log (n : ℝ) / (13 * Real.log 4) - 1 -
+          Real.log (n : ℝ) / (14 * Real.log 4) := by
+      rw [hidentity]
+      exact hn
+    linarith
+  calc
+    Real.log (n : ℝ) / (14 * Real.log 4) ≤
+        Real.log (n : ℝ) / (13 * Real.log 4) - 1 := hgap
+    _ ≤ (⌊Real.log (n : ℝ) / (13 * Real.log 4)⌋₊ : ℝ) :=
+      (Nat.sub_one_lt_floor _).le
+    _ = (quarterChainSteps n : ℝ) := by
+      rfl
+
+#print axioms quarterDensityCutoff_le_quarterChainStart_eventually
+#print axioms one_le_quarterDensityCutoff_eventually
+#print axioms quarterChainSteps_tendsto_atTop
+#print axioms one_le_quarterChainSteps_eventually
+#print axioms quarterChainSteps_real_lower_bound_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainParameters
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainParameters
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainSurvivalTransport
+Source: Erdos625/Section10QuarterChainSurvivalTransport.lean
+Normalized SHA-256: 22b7095846c5ba7fb577ed970c2bf808815576070745ea80cd1d3868a888876d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvivalTransport
+
+/-!
+# Section X: shifted-potential survival transport
+
+The chosen-start survival estimate is monotone in the initial residual
+cardinality.  This file records that deterministic transport separately so a
+later chain construction can be initialized on any vertex set whose size is
+at least `quarterChainStart n`.  It contains no density event, graph-chain,
+independent-set, colouring, or probability assertion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The shifted-potential survival estimate at `quarterChainStart n` transports
+to every finite vertex set whose cardinality is at least that starting scale. -/
+theorem quarterChain_shifted_survival_of_start_le_card
+    (n : ℕ) (U : Finset (Fin n))
+    (hU : quarterChainStart n ≤ U.card)
+    (hStart : ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3) :
+    ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+  intro j hj
+  have hUreal : (quarterChainStart n : ℝ) ≤ (U.card : ℝ) := by
+    exact_mod_cast hU
+  have hShift :
+      (quarterChainStart n : ℝ) + 1 / 3 ≤ (U.card : ℝ) + 1 / 3 := by
+    linarith
+  have hMultiplier : 0 ≤ (4 : ℝ)⁻¹ ^ j := by
+    positivity
+  have hPotential :
+      (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3 ≤
+        (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+    simpa using sub_le_sub_right
+      (mul_le_mul_of_nonneg_left hShift hMultiplier) (1 / 3 : ℝ)
+  exact (hStart j hj).trans hPotential
+
+/-- Along the full natural sequence, the chosen-start survival estimate holds
+uniformly for every finite residual set at least as large as the starting
+scale. -/
+theorem quarterChain_shifted_survival_all_larger_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ U : Finset (Fin n),
+      quarterChainStart n ≤ U.card →
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+  filter_upwards [quarterChain_shifted_survival_eventually] with n hStart
+  intro U hU
+  exact quarterChain_shifted_survival_of_start_le_card n U hU hStart
+
+#print axioms quarterChain_shifted_survival_of_start_le_card
+#print axioms quarterChain_shifted_survival_all_larger_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvivalTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainSurvivalTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
 Source: Erdos625/Section10NeighborhoodDeletionStep.lean
 Normalized SHA-256: 31925d8d468533036a09cc8107c6d92bcfa6521cd137b9c7ec0d9f7df2831f42
@@ -6942,6 +7125,45 @@ END SOURCE MODULE: Erdos625.Section10QuarterDenseChain
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainAdapters
+Source: Erdos625/Section10QuarterChainAdapters.lean
+Normalized SHA-256: c19df3b9208434c628eaca0046c714a2a80a306401c95118008e0c0ec4f13065
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainAdapters
+
+/-!
+# Section X: quarter-chain graph adapters
+
+Small deterministic adapters used to connect the accepted complement
+quarter-density chain to the accepted greedy-colouring interface.
+
+For exact-start subset selection, Mathlib already provides the exact statement
+needed downstream:
+`Finset.exists_subset_card_eq : s ≤ U.card -> ∃ S ⊆ U, S.card = s`.
+This module deliberately does not duplicate that declaration.
+-/
+
+namespace Erdos625
+
+/-- A clique in the complement graph is an independent set in the original
+graph, with the same vertex-set and pairwise quantifiers. -/
+theorem isIndepSet_of_compl_isClique
+    {V : Type*} [DecidableEq V]
+    (G : SimpleGraph V) (C : Finset V)
+    (hClique : Gᶜ.IsClique (C : Set V)) :
+    G.IsIndepSet (C : Set V) :=
+  by simpa using hClique
+
+#print axioms isIndepSet_of_compl_isClique
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainAdapters
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainAdapters
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10SimultaneousGreedyColoring
 Source: Erdos625/Section10SimultaneousGreedyColoring.lean
 Normalized SHA-256: 3fad934472e0954c8dfd50a65adae94f2d99ff87ead00a3f74bb4ae8bb7a00e3
@@ -7087,6 +7309,126 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10SimultaneousGreedyColoring
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10SimultaneousGreedyColoring
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainIndependentBlock
+Source: Erdos625/Section10QuarterChainIndependentBlock.lean
+Normalized SHA-256: af13881ce88603402ce86d31a9bf689ed05ef30e32bd056f3b6d237c208d9dcb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainIndependentBlock
+
+/-!
+# Section X: uniform independent blocks from the quarter-density event
+
+This module composes the accepted all-larger complement-density event, finite
+quarter-dense clique chain, and shifted-potential survival estimate.  On one
+event, every sufficiently large vertex set contains an independent block of
+the same deterministic cardinality.  The final theorem then exposes the exact
+uniform hypothesis consumed by the accepted greedy-colouring recursion.
+
+This is still a deterministic/probability-event bridge.  It does not prove the
+numerical `O(|U| / log n) + n^(1/3)` estimate, the simultaneous leftover event
+at a prescribed natural threshold, Lemma 10.2, or the final theorem.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- One event with the necessary internal universal quantifier: every vertex
+set at least as large as the chain start contains an independent block at
+least as large as the deterministic chain length. -/
+def quarterChainIndependentBlockEvent (n : ℕ) : Set (LabeledGraph n) :=
+  {G | ∀ U : Finset (Fin n), quarterChainStart n ≤ U.card →
+    ∃ I : Finset (Fin n),
+      I ⊆ U ∧ quarterChainSteps n ≤ I.card ∧
+        G.IsIndepSet (I : Set (Fin n))}
+
+/-- At one fixed `n`, the all-larger complement-density event implies the
+uniform independent-block event once the explicit cutoff positivity and
+shifted-potential survival hypotheses are supplied. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+    (n : ℕ) (hcutoff : 1 ≤ quarterDensityCutoff n)
+    (hStart : ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3) :
+    cutoffComplementAllLargerQuarterDenseEvent n ⊆
+      quarterChainIndependentBlockEvent n := by
+  intro G hG U hU
+  have hSurvive :
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 :=
+    quarterChain_shifted_survival_of_start_le_card n U hU hStart
+  obtain ⟨C, _R, hCcard, hCsub, hClique, _hRsub, _hCRadj, _hRcard⟩ :=
+    exists_quarterDense_clique_chain
+      Gᶜ U (quarterDensityCutoff n) (quarterChainSteps n) hcutoff
+      (fun T _hTU hTcard => hG T hTcard) hSurvive
+  refine ⟨C, hCsub, ?_, isIndepSet_of_compl_isClique G C hClique⟩
+  simp [hCcard]
+
+/-- The fixed-`n` event inclusion above holds eventually along the full natural
+sequence. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      cutoffComplementAllLargerQuarterDenseEvent n ⊆
+        quarterChainIndependentBlockEvent n := by
+  filter_upwards
+    [one_le_quarterDensityCutoff_eventually,
+      quarterChain_shifted_survival_eventually]
+    with n hcutoff hStart
+  exact
+    cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+      n hcutoff hStart
+
+/-- The one-event uniform independent-block property has probability tending
+to one along the full natural sequence. -/
+theorem quarterChainIndependentBlockEvent_probability_tendsto_one :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n (quarterChainIndependentBlockEvent n))
+      atTop (nhds 1) := by
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
+    tendsto_const_nhds ?_ ?_
+  · exact
+      cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually.mono
+        fun n hn ↦ measure_mono hn
+  · exact Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (quarterChainIndependentBlockEvent n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ
+
+/-- On the independent-block event, the accepted greedy recursion gives one
+chromatic bound simultaneously for every induced vertex set. -/
+theorem chromaticNumberNat_induce_le_of_independentBlockEvent
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ quarterChainIndependentBlockEvent n)
+    (hblock : 1 ≤ quarterChainSteps n) :
+    ∀ U : Finset (Fin n),
+      chromaticNumberNat (G.induce (U : Set (Fin n))) ≤
+        ceilDivNat U.card (quarterChainSteps n) + quarterChainStart n := by
+  classical
+  exact simultaneous_induced_chromatic_bound
+    G (quarterChainStart n) (quarterChainSteps n) hblock hG
+
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually
+#print axioms quarterChainIndependentBlockEvent_probability_tendsto_one
+#print axioms chromaticNumberNat_induce_le_of_independentBlockEvent
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainIndependentBlock
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainIndependentBlock
 ========================================================================== -/
 
 /- ==========================================================================
@@ -33455,7 +33797,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 4380f92928b691eaa7df9eb47a0475bbce398bbe82d37f70e2ac90429eaeeb46
+Normalized SHA-256: 9cb5ed6b866b5891da2cc7003919ad4b5b3e618a884a7320adc85631389e3a5a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -33523,10 +33865,22 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
 #print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
 #print axioms Erdos625.quarterChain_shifted_survival_eventually
+#print axioms Erdos625.quarterDensityCutoff_le_quarterChainStart_eventually
+#print axioms Erdos625.one_le_quarterDensityCutoff_eventually
+#print axioms Erdos625.quarterChainSteps_tendsto_atTop
+#print axioms Erdos625.one_le_quarterChainSteps_eventually
+#print axioms Erdos625.quarterChainSteps_real_lower_bound_eventually
+#print axioms Erdos625.quarterChain_shifted_survival_of_start_le_card
+#print axioms Erdos625.quarterChain_shifted_survival_all_larger_eventually
 #print axioms Erdos625.quarterDense_neighbor_step
 #print axioms Erdos625.exists_quarterDense_clique_chain
+#print axioms Erdos625.isIndepSet_of_compl_isClique
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
 #print axioms Erdos625.simultaneous_induced_chromatic_bound
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually
+#print axioms Erdos625.quarterChainIndependentBlockEvent_probability_tendsto_one
+#print axioms Erdos625.chromaticNumberNat_induce_le_of_independentBlockEvent
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
 #print axioms Erdos625.sqrt_seedTerm_isLittleO
 #print axioms Erdos625.sqrt_radiusTerm_isLittleO
@@ -34044,7 +34398,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: e737cacb69e2c4e58da9cdf15791b0cd26b4bc1df6585d70f2645de9a2e565d3
+Normalized SHA-256: 8259a5bca456f3be73a4d83952406f2ff28d9ba00ce9d8c69cf69f8c7748b560
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

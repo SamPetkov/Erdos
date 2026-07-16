@@ -32,8 +32,13 @@ probability tends to one and which controls every subset at least as large as
 the cutoff.  `Section10QuarterDenseChain.lean` proves the exact finite clique
 chain under its displayed survival hypothesis, and
 `Section10QuarterChainSurvival.lean` proves that hypothesis eventually at the
-chosen manuscript scales.  The current frontier is the X03 adapter from these
-facts to a uniform independent block and the accepted greedy-colouring theorem.
+chosen manuscript scales.  The parameter, survival-transport, complement, and
+chain adapters are now assembled further in
+`Section10QuarterChainIndependentBlock.lean`: one event of probability tending
+to one supplies an independent block of the same deterministic size in every
+sufficiently large vertex set, and the accepted greedy theorem gives its exact
+ceiling-division chromatic bound.  The current frontier is the numerical
+conversion of that bound and its deficit-indexed leftover-event packaging.
 
 ## Accepted local atoms
 
@@ -43,6 +48,9 @@ facts to a uniform independent block and the accepted greedy-colouring theorem.
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
 | `cutoffComplementAllLargerQuarterDenseEvent`, `cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one` | one simultaneous random quarter-density event | defined; local proved | Along the full sequence, one event of probability tending to one asserts quarter density in the complement graph for every subset at least as large as the cutoff.  It does not itself initialize the clique chain, convert a complement clique to an independent set, or invoke greedy colouring. |
 | `exists_quarterDense_clique_chain`, `quarterChain_shifted_survival_eventually` | finite quarter-density chain and chosen-scale survival | local proved | Under the uniform density premise, the finite theorem produces a clique of the requested length and a common-neighbour residual; the chosen manuscript start and step scales eventually satisfy its shifted-potential survival premise.  The exact-start subset, cutoff/start comparison, complement-to-independent conversion, and uniform greedy instantiation remain open. |
+| `quarterDensityCutoff_le_quarterChainStart_eventually`, `one_le_quarterDensityCutoff_eventually`, `quarterChainSteps_tendsto_atTop`, `one_le_quarterChainSteps_eventually`, `quarterChainSteps_real_lower_bound_eventually` | X03 parameter package | local proved | The cutoff/start and positivity facts are explicit, the step count tends to infinity, and its floor retains the lower bound `log n/(14 log 4)`. |
+| `quarterChain_shifted_survival_of_start_le_card`, `quarterChain_shifted_survival_all_larger_eventually`, `isIndepSet_of_compl_isClique` | X03 transport and complement adapters | local proved | The exact shifted potential transports to every larger initial set, and a complement clique is converted to an original-graph independent set without changing the vertex set. |
+| `quarterChainIndependentBlockEvent`, `cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually`, `quarterChainIndependentBlockEvent_probability_tendsto_one`, `chromaticNumberNat_induce_le_of_independentBlockEvent` | X03 uniform independent-block/greedy package | defined; local proved | On one event of probability tending to one, every set above the cube-root start contains a logarithmic independent block, and every induced graph satisfies the exact ceiling-division greedy bound. The explicit real constant, deficit-indexed leftover threshold, and Lemma 10.2 assembly remain open. |
 | `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
 | `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
@@ -258,11 +266,10 @@ committed directly.  A candidate becomes repository source only after:
    warning-fatal self-contained build before any promotion to `main`;
 6. green `main` CI after promotion.
 
-X01--X02 and the chosen-scale survival leaf are now accepted.  X03 is the next
-decision checkpoint: it must compose the single all-larger density event,
-exact-start subset selection, the finite clique chain, complement-to-independent
-conversion, and the accepted greedy theorem without changing the internal
-universal quantifier.  X04 remains downstream of that deterministic adapter.
+X01--X02 and the structural X03 independent-block/greedy package are now
+accepted.  The next decision checkpoint is the numerical X03 conversion to the
+displayed real bound and the exact deficit-indexed leftover event.  X04 remains
+downstream of that parameter-independent event.
 
 The remaining Section X obligations, in dependency order, are:
 
@@ -271,16 +278,15 @@ The remaining Section X obligations, in dependency order, are:
    assembled in `cutoffComplementAllLargerQuarterDenseEvent`.
 2. **Completed locally:** the exact-size-to-all-larger deterministic lift is
    used inside that one event with an internal `∀ U`.
-3. **Partially completed locally:** `exists_quarterDense_clique_chain` and
-   `quarterChain_shifted_survival_eventually` provide the finite chain and its
-   chosen-scale survival.  What remains is the cutoff/start arithmetic,
-   exact-start subset selection, instantiation inside every sufficiently large
-   `U`, and conversion of the complement clique to an original-graph
-   independent set of the required order-`log n` size.
+3. **Completed locally in structural form:** the cutoff/start arithmetic,
+   survival transport, finite-chain instantiation, complement conversion, and
+   one-event uniform independent-block theorem are proved.  The explicit
+   logarithmic lower bound on the block length is also proved.
 4. Formalize the greedy deletion/colouring recursion for an arbitrary `U` and
-   prove the displayed bound (10.3) simultaneously for every `U` on the one
-   event.  Extract one absolute constant `C` and one deterministic failure
-   sequence tending to zero.
+   convert its already accepted exact ceiling-division conclusion into the
+   displayed bound (10.3), simultaneously for every `U` on the one event.
+   Extract one absolute constant `C`, package the deficit-indexed leftover
+   event, and define one deterministic failure sequence tending to zero.
 5. Assemble Lemma 10.2 from the already proved capacity expectation and lower-
    tail bounds, the maximizing core, deterministic concatenation, and the
    simultaneous event.  The quantifiers must choose `C` and a deterministic

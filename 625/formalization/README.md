@@ -562,14 +562,20 @@ event of Lemma 10.1.
 forms the literal finite event over all cutoff-size subsets, proves its
 measurability, and derives the exact finite union bound
 `choose(n,u0) * exp(-choose(u0,2)/16)`.
-[`Section10QuarterDensityLimit.lean`](Erdos625/Section10QuarterDensityLimit.lean) proves that this literal cutoff event has probability tending to one. [`Section10QuarterDensityLift.lean`](Erdos625/Section10QuarterDensityLift.lean) converts event membership into quarter density on every cutoff-size complement set and, when the cutoff is at least two, on every larger subset. [`Section10UniformQuarterDensityEvent.lean`](Erdos625/Section10UniformQuarterDensityEvent.lean) packages those facts into one all-larger-subsets complement-density event with probability tending to one. [`Section10QuarterChainSurvival.lean`](Erdos625/Section10QuarterChainSurvival.lean) separately proves the eventual shifted-potential survival inequality at the chosen cube-root start and logarithmic step count. These leaves do not yet provide the remaining chain-initialization/rounding transport, complement clique-to-independent-set conversion, or greedy-colouring instantiation.
+[`Section10QuarterDensityLimit.lean`](Erdos625/Section10QuarterDensityLimit.lean) proves that this literal cutoff event has probability tending to one. [`Section10QuarterDensityLift.lean`](Erdos625/Section10QuarterDensityLift.lean) converts event membership into quarter density on every cutoff-size complement set and, when the cutoff is at least two, on every larger subset. [`Section10UniformQuarterDensityEvent.lean`](Erdos625/Section10UniformQuarterDensityEvent.lean) packages those facts into one all-larger-subsets complement-density event with probability tending to one. [`Section10QuarterChainSurvival.lean`](Erdos625/Section10QuarterChainSurvival.lean), [`Section10QuarterChainParameters.lean`](Erdos625/Section10QuarterChainParameters.lean), and [`Section10QuarterChainSurvivalTransport.lean`](Erdos625/Section10QuarterChainSurvivalTransport.lean) prove the chosen-scale shifted-potential survival inequality, cutoff/start and step-count facts, its explicit logarithmic lower bound, and transport to every larger initial set.
 [`Section10NeighborhoodDeletionStep.lean`](Erdos625/Section10NeighborhoodDeletionStep.lean)
 proves one deterministic complement-neighbourhood step with the exact
 denominator-cleared recurrence inequality. [`Section10QuarterDenseChain.lean`](Erdos625/Section10QuarterDenseChain.lean)
 then assembles a finite clique and common-neighbour residual chain under
-explicit quarter-density and shifted-potential survival hypotheses. It does
-not prove those concrete survival hypotheses, the random event bridge, or a
-greedy-colouring instantiation.
+explicit quarter-density and shifted-potential survival hypotheses.
+[`Section10QuarterChainAdapters.lean`](Erdos625/Section10QuarterChainAdapters.lean)
+provides the exact complement-clique-to-independent-set bridge, and
+[`Section10QuarterChainIndependentBlock.lean`](Erdos625/Section10QuarterChainIndependentBlock.lean)
+assembles all of these inputs into one probability-one event supplying a
+uniform independent block in every sufficiently large vertex set.  It also
+instantiates the accepted greedy theorem with the exact ceiling-division
+bound.  The remaining X03 work is the manuscript-constant numerical
+conversion and deficit-indexed leftover-event packaging.
 
 [`Section10ComplementInvariance.lean`](Erdos625/Section10ComplementInvariance.lean)
 proves that complementation exactly preserves the ambient labelled
@@ -578,8 +584,8 @@ the native restriction pushforward only for fixed deterministic subsets.
 [`RandomGraphUniformLaw.lean`](Erdos625/RandomGraphUniformLaw.lean) proves that
 the repository's half-binomial graph measure is exactly `uniformOn univ`, from
 its equal singleton masses and probability normalization.  This removes the
-measure mismatch for uniform finite counting arguments while leaving the
-fixed-induced-set transport itself open.
+measure mismatch for uniform finite counting arguments; the fixed-induced-set
+transport is supplied separately by `Section10InducedRestriction.lean`.
 [`Section10CapacityLeftoverQuantitative.lean`](Erdos625/Section10CapacityLeftoverQuantitative.lean)
 locally proves the two-event quantitative union seam: if two success events
 imply a good event, its failure probability is at most the sum of the two
@@ -606,6 +612,8 @@ Section 11 set inclusion must still be instantiated with the actual parameter
 sequences and probability tails.  See
 [`SECTIONS_10_11_BREAKDOWN_2026-07-14.md`](SECTIONS_10_11_BREAKDOWN_2026-07-14.md)
 for the exact DAG and the declaration-scoped Aristotle request ledger.
+The complete remaining-work and model-allocation plan is recorded in
+[`REMAINING_FORMALIZATION_PLAN_2026-07-16.md`](REMAINING_FORMALIZATION_PLAN_2026-07-16.md).
 
 [`Section10_11ConditionalAssembly.lean`](Erdos625/Section10_11ConditionalAssembly.lean)
 now packages the rounded capacity-deficit tail from explicit seed, rounding,

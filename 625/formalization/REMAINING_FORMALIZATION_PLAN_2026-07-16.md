@@ -215,7 +215,7 @@ bridge, and scale algebra are accepted.
 
 ### E1. Immediate small leaves
 
-Prove:
+Now accepted:
 
 - eventually `quarterDensityCutoff n ≤ quarterChainStart n`;
 - eventually `1 ≤ quarterDensityCutoff n`;
@@ -230,13 +230,16 @@ Sol audit of constants.
 
 ### E2. Uniform independent block and greedy bound
 
-On the one event
+The structural part is now accepted.  On the one event
 `cutoffComplementAllLargerQuarterDenseEvent n`, prove simultaneously for every
 `U` with `quarterChainStart n ≤ U.card` that `U` contains an independent set
 of cardinality `quarterChainSteps n`.  Then instantiate
 `simultaneous_induced_chromatic_bound`.
 
-No pointwise-in-`U` exceptional event is acceptable.
+This has been implemented as `quarterChainIndependentBlockEvent`, whose
+probability tends to one, together with the exact ceiling-division greedy
+bound.  No pointwise-in-`U` exceptional event is used.  The remaining E2 work
+is the explicit manuscript-constant conversion of that exact bound.
 
 **Owner:** Terra Max/Ultra implementation; Sol statement and semantic review.
 
@@ -282,11 +285,12 @@ strict inequalities, rounding, and the final `#print axioms` report.
 
 ## Immediate execution queue
 
-1. **Running:** Section X parameter and graph-adapter leaves.
-2. **Next:** one module proving the density-event-to-independent-block
-   implication.
-3. **Then:** instantiate the simultaneous greedy theorem and define the
-   parameter-independent leftover error.
+1. **Completed:** Section X parameter, graph-adapter, and survival-transport
+   leaves.
+2. **Completed:** the density-event-to-independent-block implication and its
+   probability-one limit.
+3. **Next:** convert the exact simultaneous greedy bound to the manuscript
+   constant and define the parameter-independent leftover error.
 4. **In parallel after Sol specification:** Section VIII skeleton type and
    Section IX mixed-cycle code foundations.
 5. **After those foundations:** delegate their bounded quotient, reindexing,
