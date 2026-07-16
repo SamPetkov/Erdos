@@ -28,7 +28,7 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 
 | Declaration | Manuscript role | Status | Exact limitation |
 |---|---|---:|---|
-| `exists_vertex_quarter_degree` | deterministic averaging step in Lemma 10.1 | local proved | The denominator-cleared quarter-density premise yields one vertex with `card - 1 <= 4 * degree`.  It does not prove the random simultaneous-density event or construct the full greedy colouring. |
+| `exists_vertex_quarter_degree`, `quarterDense_all_larger_of_all_exact` | deterministic density lift and averaging steps in Lemma 10.1 | local proved | Quarter density on every set of one fixed size lifts to every larger set, and the denominator-cleared quarter-density premise then yields one vertex with `card - 1 <= 4 * degree`.  These theorems do not prove the random simultaneous-density event or construct the full greedy colouring. |
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
 | `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
@@ -73,6 +73,154 @@ rare cochromatic seed
   -> cochromatic upper tail (10.13)
 ```
 
+## Next execution wave -- 2026-07-16
+
+The next checkpoint is deliberately narrower than Lemma 10.1: close the
+fixed-set graph-law transport, turn it into one simultaneous quarter-density
+event, and only then instantiate the already accepted deterministic density
+lift and greedy interfaces.  A fixed-set probability statement is not an
+acceptable substitute for the internal universal quantifier.
+
+### X01 -- fixed induced-restriction law and fixed-set tail
+
+1. Define the fixed restriction map on the subtype carried by
+   `S : Finset (Fin n)` and prove the native pushforward
+   ```text
+   (randomGraphMeasure n).map
+       (fun G : LabeledGraph n => G.induce (S : Set (Fin n)))
+     = SimpleGraph.binomialRandom (↥(S : Set (Fin n))) halfProbability.
+   ```
+   Prove the complement version by composing this restriction law with the
+   accepted `randomGraphMeasure_map_compl`; do not hide the restriction law
+   behind complement invariance.
+2. Push the restricted graph law through edge-set cardinality and identify the
+   scalar law with the half-binomial law on `S.card.choose 2` trials.  Keep the
+   natural-valued law and the real-cast law as separate declarations if that
+   avoids coercion-heavy proofs.
+3. Derive the exact fixed-`S` lower-quarter estimate from
+   `binomialHalf_lowerQuarter_le_exp`.  The theorem must quantify over one
+   deterministic `S`; it must not be named or documented as a simultaneous
+   event.
+
+Planned Aristotle calls for X01 will be submitted in parallel as redundant
+proof search, with the current repository imports and exact target
+declarations:
+
+- `AX-X01-FULL`: the complete fixed induced-restriction pushforward;
+- `AX-X01-FIBRE`: the finite fibre-cardinality/bijection lemma for one target
+  induced graph;
+- `AX-X01-MAP`: the measure-extensionality assembly from the fibre count;
+- `AX-X01-SCALAR`: the edge-count pushforward and natural/real cast bridge;
+- `AX-X01-TAIL`: the fixed-set lower-quarter bound assuming the scalar
+  pushforward equality.
+
+The already submitted X01 service task remains status-only until it reaches a
+terminal state.  Completion percentage, a dashboard badge, or a returned file
+is not acceptance.  If a full-theorem request fails, its exact Lean diagnostic
+is fed only to the smallest corresponding leaf request; repeated blind retries
+are not part of the workflow.
+
+### X02 -- one simultaneous quarter-density event
+
+1. Define the measurable event saying that every cutoff-size subset has the
+   required quarter-density property in the complement graph.
+2. Union-bound its failure event over the literal finite family of
+   `quarterDensityCutoff n`-subsets, using the X01 fixed-set tail.
+3. Combine the finite probability bound with
+   `quarterDensity_unionBound_tendsto_zero` to obtain one full-sequence
+   probability-one event.
+4. Reuse the already proved `quarterDense_all_larger_of_all_exact` on that one
+   event to obtain the internal statement for every larger subset.  No new
+   Aristotle request is needed for this deterministic lift.
+
+Planned Aristotle calls:
+
+- `AX-X02-EVENT`: measurability and exact complement-of-intersection/union
+  identities for the simultaneous event;
+- `AX-X02-UNION`: the finite measure union bound with the cutoff-subset count;
+- `AX-X02-LIMIT`: the short limit assembly from the explicit failure bound.
+
+### X03 -- recurrence chain and uniform greedy instantiation
+
+1. Combine `exists_vertex_quarter_degree`,
+   `quarterDense_all_larger_of_all_exact`, and
+   `quarterRecurrence_lowerBound` into an explicit neighbourhood-deletion
+   chain.
+2. Prove the chain survives for the required integer number of steps and
+   extracts an independent set of size at least `c * log n` whenever the
+   current induced set has size at least the manuscript cutoff.
+3. Instantiate `simultaneous_induced_chromatic_bound` on the X02 event, with
+   all rounding and positivity obligations explicit, to close the simultaneous
+   leftover-colouring input to Lemma 10.2.
+
+Planned Aristotle calls:
+
+- `AX-X03-CHAIN`: finite chain construction and pairwise nonadjacency;
+- `AX-X03-SURVIVE`: real/natural rounding and survival inequality;
+- `AX-X03-INSTANTIATE`: parameter arithmetic for the accepted greedy theorem;
+- `AX-X03-FULL`: the combined deterministic implication, submitted in parallel
+  as a cross-check rather than trusted as a monolithic replacement.
+
+### X04 -- Lemma 10.2 and Sections X--XI seam
+
+After X03 is accepted, assemble the already proved capacity seed inversion,
+one-sided lower tail, maximizing core, deterministic concatenation, and
+two-event failure bound.  The declaration must choose one absolute `C` and one
+deterministic `epsilon_n -> 0` before quantifying over `k_n`, `Lambda_n`, and
+`r_n`.  Then instantiate the accepted scale lemmas and pass the resulting
+cochromatic upper tail to the existing conditional Sections X--XI theorem.
+
+Planned Aristotle calls:
+
+- `AX-X04-QUANTIFIERS`: a statement-only audit of the required quantifier
+  order and uniformity;
+- `AX-X04-ASSEMBLY`: the finite probability inequality under the already
+  accepted input tails;
+- `AX-X04-LIMIT`: the full-sequence `exp (-r_n) + epsilon_n -> 0` closure.
+
+### Parallel Section IX lane
+
+While X01 service calls run, use separate requests for the next Section IX
+bridges without allowing them to block Section X:
+
+- `AIX-01-REAL`: actual-residual real-weight sum bounded by the accepted real
+  polymer product;
+- `AIX-02-ENNREAL`: a genuine `ENNReal` polymer analogue, kept separate from
+  the already proved one-sided subfamily inclusion;
+- `AIX-03-CYCLE-CODE`: an injective, weight-preserving minimal-cycle-to-walk
+  encoding;
+- `AIX-04-CONDITIONED-LAW`: the exact conditioned residual-table law, without
+  assuming the attachment estimate it is meant to support.
+
+These four targets are logically distinct.  In particular, the accepted
+one-sided `ENNReal` subfamily inequality is not an `ENNReal` polymer bound, and
+no request may conflate the actual residual family with the potential
+`residualQ` kernel.
+
+### Acceptance and compute checkpoint
+
+Every Aristotle payload contains one exact target placeholder and no project
+axiom.  Returned source stays in the ignored candidate area and is never
+committed directly.  A candidate becomes repository source only after:
+
+1. statement and quantifier comparison against the local target;
+2. manual proof review and adaptation to Lean 4.31/current Mathlib;
+3. warning-fatal focused compilation, placeholder/project-axiom scan, and
+   `#print axioms` showing only standard foundational axioms;
+4. root import, `AxiomAudit.lean`, ledger, README, and generated
+   `Erdos625SelfContained.lean` synchronization;
+5. fresh branch CI passing the modular build, generated-file freshness, and
+   warning-fatal self-contained build before any promotion to `main`;
+6. green `main` CI after promotion.
+
+X01 is the next decision checkpoint: X02--X04 do not start from an assumed
+restriction law.  The plan uses five X01, three X02, four X03, three X04, and
+four parallel Section IX service calls, normally in small concurrent waves.
+Service queue time is unpredictable; focused local checks are typically
+minutes, while each clean full CI rebuild has recently taken about eight to
+ten minutes.  Failure of X01 therefore redirects effort to its fibre-count
+leaf rather than consuming full-build cycles on downstream assumptions.
+
 The remaining Section X obligations, in dependency order, are:
 
 1. Define the complement-graph quarter-density event at
@@ -88,9 +236,11 @@ The remaining Section X obligations, in dependency order, are:
    tail follows after the restriction law.  A fixed-set tail alone must not
    be recorded as the simultaneous quarter-density event: the latter still
    needs the subset union bound and the internal universal quantifier.
-2. Prove by averaging that the same event gives quarter density in every
-   larger vertex set.  This must be one event with an internal `∀ U`, not
-   a separately chosen event or exceptional set for each `U`.
+2. **Completed locally as a deterministic implication:**
+   `quarterDense_all_larger_of_all_exact` proves that quarter density on every
+   set of the fixed cutoff size gives quarter density in every larger set.
+   Its X02 use must still occur inside one random event with an internal
+   `∀ U`, not a separately chosen event or exceptional set for each `U`.
 3. Combine that event with `exists_vertex_quarter_degree` and
    `quarterRecurrence_lowerBound`.  Prove that a chain starting above
    `n^(1/3)` survives for the required order-`log n` number of steps and yields

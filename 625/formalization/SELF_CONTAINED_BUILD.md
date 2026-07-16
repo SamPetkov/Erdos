@@ -62,7 +62,8 @@ concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
 encoding, conditioned attachment estimate, and second-moment assembly remain
 open.
 
-Section X's quarter-density high-degree step, exact neighbourhood recurrence,
+Section X's fixed-size-to-larger quarter-density lift, high-degree step,
+exact neighbourhood recurrence,
 quarter-union decay, deterministic simultaneous greedy-colouring implication,
 growing amplification radius, and all four deterministic little-`o`
 contributions in (10.11)--(10.12) are proved. The exact finite binomial

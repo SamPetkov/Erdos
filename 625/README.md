@@ -273,7 +273,8 @@ bound, or the global Section 9 assembly.
 
 The newest Sections 10--11 checkpoint adds eight accepted source units.
 [`QuarterDensityDegree.lean`](formalization/Erdos625/QuarterDensityDegree.lean)
-proves the quarter-density high-degree vertex step, and
+proves both the fixed-size-to-larger quarter-density lift and the high-degree
+vertex step, and
 [`QuarterRecurrence.lean`](formalization/Erdos625/QuarterRecurrence.lean)
 proves the exact real recurrence (10.3a).
 [`Section11EventAssembly.lean`](formalization/Erdos625/Section11EventAssembly.lean)

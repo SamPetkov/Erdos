@@ -500,7 +500,8 @@ Lemma 9.1 or Proposition 9.2.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
-denominator-cleared quarter-density averaging step, and
+fixed-size-to-larger density lift and the denominator-cleared quarter-density
+averaging step, and
 [`QuarterRecurrence.lean`](Erdos625/QuarterRecurrence.lean) proves the exact
 recurrence lower bound in (10.3a).
 [`Section11EventAssembly.lean`](Erdos625/Section11EventAssembly.lean) defines
