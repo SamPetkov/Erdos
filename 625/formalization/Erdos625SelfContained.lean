@@ -17,6 +17,7 @@ import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Stirling
@@ -23490,6 +23491,109 @@ END SOURCE MODULE: Erdos625.Section9ActualResidualENNRealPolymerBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualENNRealExpBridge
+Source: Erdos625/Section9ActualResidualENNRealExpBridge.lean
+Normalized SHA-256: db0d11937fcec6b443070cdd9f4b5690a0376eed3f75b54a89e9685f3fe8c8b5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealExpBridge
+
+/-!
+# Section IX: actual-residual `ENNReal` exponential endpoint
+
+This isolated module turns the finite `ENNReal` polymer product into an
+extended-real exponential bound.  Writing the exponent in `EReal` is
+intentional: it remains meaningful when a finite polymer weight is `∞`.
+
+It is a finite algebraic endpoint only.  It does not identify the conditioned
+residual law, connect the weights to `residualQ`, encode cycles as walks, or
+prove a Section IX probability estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance fintypeActualResidualEvenEdgeFamilyENNRealExp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+/-- The elementary finite-or-infinite `ENNReal` exponential estimate. -/
+theorem ennreal_one_add_le_ereal_exp (x : ENNReal) :
+    1 + x ≤ EReal.exp (x : EReal) := by
+  by_cases hx : x = ∞
+  · simp [hx]
+  calc
+    1 + x = ENNReal.ofReal (1 + x.toReal) := by
+      rw [ENNReal.ofReal_add zero_le_one ENNReal.toReal_nonneg,
+        ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
+    _ ≤ ENNReal.ofReal (Real.exp x.toReal) :=
+      ENNReal.ofReal_le_ofReal
+        (by simpa [add_comm] using Real.add_one_le_exp x.toReal)
+    _ = EReal.exp (x : EReal) := by
+      rw [← EReal.coe_ennreal_toReal hx, EReal.exp_coe]
+
+/-- A finite `ENNReal` polymer product is bounded by the corresponding
+extended-real exponential, including the case of an infinite weight. -/
+theorem ennreal_polymer_product_le_ereal_exp_sum
+    {ι : Type*} [DecidableEq ι] (s : Finset ι) (w : ι → ENNReal) :
+    (∏ i ∈ s, (1 + w i)) ≤
+      EReal.exp ((↑(∑ i ∈ s, w i) : ENNReal) : EReal) := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert a s ha ih =>
+      rw [Finset.prod_insert ha, Finset.sum_insert ha,
+        EReal.coe_ennreal_add, EReal.exp_add]
+      exact mul_le_mul' (ennreal_one_add_le_ereal_exp (w a)) ih
+
+/-- The actual residual even-edge family is bounded by the extended-real
+exponential of the total finite polymer weight. -/
+theorem sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B))
+    (q : A → B → ENNReal)
+    (_hM : IsBipartiteMatching M) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+      EReal.exp ((↑(∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) : ENNReal) : EReal) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+        ∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN q M C) :=
+      sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+        cellCount M q _hM
+    _ ≤ EReal.exp ((↑(∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) : ENNReal) : EReal) :=
+      ennreal_polymer_product_le_ereal_exp_sum
+        (simpleBipartiteCycles A B)
+        (fun C => edgeWeightOutsideENN q M C)
+
+#print axioms ennreal_one_add_le_ereal_exp
+#print axioms ennreal_polymer_product_le_ereal_exp_sum
+#print axioms sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealExpBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualENNRealExpBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualRealPolymerBridge
 Source: Erdos625/Section9ActualResidualRealPolymerBridge.lean
 Normalized SHA-256: 6e26ffed984ff97f57cbbf861025bb3f1f5cc3263a40df2e68da4a6293c621cd
@@ -33082,7 +33186,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: aa111a20030295abc39c7e1d8f87967d9f8e19a42f1e47e450565bad91fbfc19
+Normalized SHA-256: 5a40c3028dbe996766e8ed1536a3f35a698b0fa7bc170ff94cf43f19c3d6ee73
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -33456,6 +33560,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_weight_le_all_even
 #print axioms Erdos625.weighted_evenSubgraph_ennreal_polymer_product
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+#print axioms Erdos625.ennreal_one_add_le_ereal_exp
+#print axioms Erdos625.ennreal_polymer_product_le_ereal_exp_sum
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
@@ -33663,7 +33770,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 69119a93037e9afcbb02ec715f40f00c993a4640bfa4f050a2bf7116a1e2a8b9
+Normalized SHA-256: 5a223cd091acb060a9fca464c9c84b0b09a4268366a32adfd3d61cd413dbb720
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

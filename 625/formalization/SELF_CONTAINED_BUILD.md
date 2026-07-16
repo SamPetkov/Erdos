@@ -51,14 +51,13 @@ residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound. The actual residual even-edge family has an exact one-sided
 weighted `ENNReal` inclusion into the all-even finite sum and a finite
-simple-cycle polymer product bound, but not an exponential endpoint. The file also contains abstract and matching-aware finite geometric traversal
+simple-cycle polymer product bound and an `EReal` exponential endpoint, including infinite weights. The file also contains abstract and matching-aware finite geometric traversal
 bounds. It now also contains the endpoint-resolved positive kernel, pointwise
 explicit-path/chain summand bounds, and the generic row/column norm consequence
 of a supplied degree-square `q` estimate. The literal residual `q` has a
 degree-cap row/column bound and its symmetric bipartite kernel inherits that
 row norm. The canonical-skeleton
-instantiation, an `ENNReal` exponential endpoint beyond the finite product,
-concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
+instantiation, concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
 encoding, conditioned attachment estimate, and second-moment assembly remain
 open.
 
@@ -106,12 +105,12 @@ The source checkpoint generated on 2026-07-16 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 176;
-- external Mathlib imports: 77;
-- central `#print axioms` commands included: 673;
-- newline count: 33,871;
+- local source modules included: 177;
+- external Mathlib imports: 78;
+- central `#print axioms` commands included: 679;
+- newline count: 33,978;
 - generated source SHA-256:
-  `E3D93CC9730C32494D1BC58DB54B4A602AC2E6A6436DEC6E99D2170EE98707CD`.
+  `82B107D017599D5F8AA7295AC1B8B5EFDB1FF4FA2AD257320E043623CBB7B6A7`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`

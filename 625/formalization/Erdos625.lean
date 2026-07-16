@@ -108,6 +108,7 @@ import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
 import Erdos625.Section9ActualResidualWeightedEmbedding
 import Erdos625.Section9ActualResidualENNRealPolymerBridge
+import Erdos625.Section9ActualResidualENNRealExpBridge
 import Erdos625.Section9ActualResidualRealPolymerBridge
 import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual

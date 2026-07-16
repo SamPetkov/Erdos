@@ -353,7 +353,7 @@ meet the row-matching-plus-residual support condition, so it inherits the exact
 also proved.  For arbitrary `ENNReal` cell weights, its finite weighted sum
 has an exact one-sided inclusion into the sum over all even bipartite edge
 sets. This inclusion is promoted by `Section9ActualResidualENNRealPolymerBridge.lean`
-to a finite `ENNReal` simple-cycle polymer product (but not an exponential endpoint). Separately, for pointwise
+to a finite `ENNReal` simple-cycle polymer product. `Section9ActualResidualENNRealExpBridge.lean` then turns that actual-family product bound into an `EReal` exponential endpoint, including infinite weights. Separately, for pointwise
 nonnegative real cell weights and a literal matching high-cell set, the same
 actual residual family now inherits the established real polymer-product and
 exponential bounds.  That real bridge does not identify the weights with
@@ -381,6 +381,7 @@ The corresponding source units are
 together with [`Section9ActualResidualFamily.lean`](Erdos625/Section9ActualResidualFamily.lean)
 [`Section9ActualResidualWeightedEmbedding.lean`](Erdos625/Section9ActualResidualWeightedEmbedding.lean),
 [`Section9ActualResidualENNRealPolymerBridge.lean`](Erdos625/Section9ActualResidualENNRealPolymerBridge.lean),
+[`Section9ActualResidualENNRealExpBridge.lean`](Erdos625/Section9ActualResidualENNRealExpBridge.lean),
 [`Section9ActualResidualRealPolymerBridge.lean`](Erdos625/Section9ActualResidualRealPolymerBridge.lean),
 and [`Section9ChooseTwoMass.lean`](Erdos625/Section9ChooseTwoMass.lean), plus
 [`Section9CycleRankResidual.lean`](Erdos625/Section9CycleRankResidual.lean) and
@@ -412,7 +413,7 @@ nonnegative weights.  A separate accepted real-valued polymer theorem
 constructs a recoverable disjoint minimal-even decomposition.
 `Section9ActualResidualENNRealPolymerBridge.lean` additionally proves the
 finite actual-residual `ENNReal` sum is at most the finite simple-cycle polymer
-product. It does not provide the exponential endpoint. Concrete cycle-to-walk
+product. `Section9ActualResidualENNRealExpBridge.lean` turns that actual-family product bound into an `EReal` exponential endpoint, including infinite weights. Concrete cycle-to-walk
 enumeration and weight/kernel transfer, instantiation of the accepted
 eventual-`tau` bridge, the upstream finite attachment estimates, and full
 Lemma 9.1/
@@ -432,7 +433,7 @@ and proves their exact cardinality `2 ^ cycleRank`.  This is the finite binary
 cycle-space identity used in (6.7). The separate accepted polymer theorem
 constructs a recoverable disjoint minimal-even decomposition. The new finite
 `ENNReal` bridge gives the actual residual family a simple-cycle product bound,
-but no exponential endpoint or required weighted-walk encoding.
+and its `EReal` exponential endpoint; the required weighted-walk encoding remains open.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -457,9 +458,7 @@ over the even family remains separate.
 [`Section9CyclePolymerBound.lean`](Erdos625/Section9CyclePolymerBound.lean)
 proves `weighted_evenSubgraph_polymer_bound`, including a recoverable
 pairwise-disjoint decomposition into inclusion-minimal nonempty even sets and
-the real subset-product/exponential bound. The separate `ENNReal` bridge now
-specializes the actual residual family to a finite simple-cycle product, but
-does not supply an `ENNReal` exponential endpoint.
+the real subset-product/exponential bound. The separate `ENNReal` bridges now give the actual residual family a finite simple-cycle product and its corresponding `EReal` exponential endpoint, including infinite weights.
 [`Section9FiniteAnalyticEndpoint.lean`](Erdos625/Section9FiniteAnalyticEndpoint.lean)
 proves `existsAbsoluteFiniteEndpointConstant`, the uniform finite real bounds
 `lambda <= C * theta^3` and `q <= C * theta^2` under the exact displayed
@@ -624,8 +623,7 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, an `ENNReal` exponential endpoint beyond the proved finite
-actual-residual polymer product, concrete cycle-to-walk enumeration and weight
+assembly, concrete cycle-to-walk enumeration and weight
 transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
