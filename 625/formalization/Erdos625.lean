@@ -141,6 +141,8 @@ import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.Section9BlockChainEnumeration
 import Erdos625.Section9CycleWalkCutAtMatching
+import Erdos625.Section9PhysicalCycleCutting
+import Erdos625.Section9PhysicalCycleEncoder
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -362,10 +364,14 @@ degree-cap norm, and its symmetric bipartite cell kernel inherits the same
 row bound.  A source-free closed block-chain code, its decoder, exact
 residual/transition projections, no-drop conditions, and exact nonnegative
 physical product-weight recovery from a faithful cut are now proved as the
-target interface for cutting a physical cycle.  The proposition
-`PhysicalCycleCuttingStatement M` only names the remaining construction; it is
-not proved.  The physical cycle-cut theorem, injective family assembly,
-concrete residual-table/kernel transfer, attachment estimates, and complete
+target interface for cutting a physical cycle.  The physical construction is
+also proved: `physicalCycleCuttingStatement` rotates a covering cycle at a
+marked matching edge, cuts it into positive bounded residual runs, and produces
+a faithful source-free code.  A canonical classical choice of this code now
+has a decoder left inverse, is injective on mixed simple cycles, and has the
+exact physical residual weight.  Dependent marked-start/block-count packaging,
+finite weighted reindexing and traversal domination, concrete
+residual-table/kernel transfer, attachment estimates, and complete
 Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly

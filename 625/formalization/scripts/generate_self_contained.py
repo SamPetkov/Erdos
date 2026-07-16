@@ -117,13 +117,17 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX concrete residual-weight/cycle encoding,
+Section IX dependent marked-start/block-count packaging, finite weighted
+reindexing and traversal domination, concrete residual-kernel specialization,
 attachment, second-moment assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
-theorem are open.
-The target proposition remains deliberately unproved.  The included #print
-axioms commands audit the central declarations that have actually been proved.
+theorem are open.  The physical faithful cut of one eligible cycle and its
+canonical source-free encoder, decoder left inverse, injectivity, and exact
+weight are included and proved.
+The final target proposition `Erdos625Statement` remains deliberately
+unproved.  The included #print axioms commands audit the central declarations
+that have actually been proved.
 
 Generated deterministically from Erdos625.lean and its transitive local import
 closure.  Each source boundary records the normalized source SHA-256.

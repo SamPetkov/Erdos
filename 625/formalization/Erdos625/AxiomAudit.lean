@@ -135,6 +135,8 @@ import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
 import Erdos625.Section9BlockChainEnumeration
 import Erdos625.Section9CycleWalkCutAtMatching
+import Erdos625.Section9PhysicalCycleCutting
+import Erdos625.Section9PhysicalCycleEncoder
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -652,6 +654,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.IsFaithfulCycleCut.codeWeight_eq_sdiff_prod
 #print axioms Erdos625.IsFaithfulCycleCut.projection_orientedEdges_nodup
 #print axioms Erdos625.IsFaithfulCycleCut.blockCount_le_vertex_count
+#print axioms Erdos625.physicalCycleCuttingStatement
+#print axioms Erdos625.chosenPhysicalCycleCut_faithful
+#print axioms Erdos625.decode_chosenPhysicalCycleCut
+#print axioms Erdos625.chosenPhysicalCycleCut_injective
+#print axioms Erdos625.chosenPhysicalCycleCut_weight_eq
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound

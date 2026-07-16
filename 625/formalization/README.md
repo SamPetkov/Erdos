@@ -362,8 +362,9 @@ to a finite `ENNReal` simple-cycle polymer product. `Section9ActualResidualENNRe
 nonnegative real cell weights and a literal matching high-cell set, the same
 actual residual family now inherits the established real polymer-product and
 exponential bounds.  That real bridge does not identify the weights with
-`residualQ` or prove a conditioned residual law, a cycle encoding, or an
-attachment estimate.  The finite graph-theoretic
+`residualQ`, prove a conditioned residual law, package the canonical encoder
+by marked start and block count for finite weighted reindexing/traversal
+domination, or prove an attachment estimate.  The finite graph-theoretic
 inequality in (9.20) is checked as
 well: adding an arbitrary residual relation to a genuine bipartite matching
 raises cycle rank by at most the number of residual cells.  Its literal
@@ -371,9 +372,10 @@ configuration-support specialization proves that this is at most half the
 residual row-stub mass, including the explicit `m₀ / 2` form.  The exact
 binary cycle-space identity, recoverable real-valued polymer decomposition,
 and abstract traversal bounds are proved separately below.  The exact
-one-sided weighted inclusion does not specialize the polymer decomposition to
-`ENNReal`; that strengthening, the cycle-to-walk transfer, and the attachment
-estimate remain open.  The earlier high-cell mass bound, weighted finite
+one-sided weighted inclusion alone does not perform the dependent
+marked-start/block-count reindexing and traversal domination; that aggregate
+transfer and the attachment estimate remain open.  The earlier high-cell mass
+bound, weighted finite
 Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
 kernel remain available as independent leaves.  Accepted Lean 4.31 source is
 the proof authority; any Aristotle output is only redundant candidate
@@ -418,8 +420,8 @@ nonnegative weights.  A separate accepted real-valued polymer theorem
 constructs a recoverable disjoint minimal-even decomposition.
 `Section9ActualResidualENNRealPolymerBridge.lean` additionally proves the
 finite actual-residual `ENNReal` sum is at most the finite simple-cycle polymer
-product. `Section9ActualResidualENNRealExpBridge.lean` turns that actual-family product bound into an `EReal` exponential endpoint, including infinite weights. Concrete cycle-to-walk
-enumeration and weight/kernel transfer, instantiation of the accepted
+product. `Section9ActualResidualENNRealExpBridge.lean` turns that actual-family product bound into an `EReal` exponential endpoint, including infinite weights. Dependent marked-start/block-count
+packaging, finite weighted reindexing and traversal domination, instantiation of the accepted
 eventual-`tau` bridge, the upstream finite attachment estimates, and full
 Lemma 9.1/
 Proposition 9.2 assembly remain open.  The separate cycle-rank module proves
@@ -438,7 +440,9 @@ and proves their exact cardinality `2 ^ cycleRank`.  This is the finite binary
 cycle-space identity used in (6.7). The separate accepted polymer theorem
 constructs a recoverable disjoint minimal-even decomposition. The new finite
 `ENNReal` bridge gives the actual residual family a simple-cycle product bound,
-and its `EReal` exponential endpoint; the required weighted-walk encoding remains open.
+and its `EReal` exponential endpoint.  The canonical source-free cycle encoder
+and its exact weight are proved; dependent packaging and finite weighted
+reindexing/traversal domination remain open.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -446,14 +450,17 @@ bipartite row/column specialization, a one-time marked-start cardinality cost,
 and the positive/even-length geometric bounds used analytically in
 (9.16)--(9.18).  These bounds become top for `tau >= 1`; the concrete
 application must still instantiate the accepted eventual-`tau` bridge from
-the actual profile inequalities, construct the cycle-to-walk encodings, and
-transfer the manuscript weights into the kernel.  The accepted
+the actual profile inequalities, package the canonical codes by marked start
+and block count, and prove the finite weighted reindexing/traversal domination.
+The accepted
 [`Section9MatchingTraversalBridge.lean`](Erdos625/Section9MatchingTraversalBridge.lean)
 proves the relaxed finite matching-operator/geometric bridge: matching
 traversal keeps the residual row bound, there are exactly `2 * |M|` oriented
 starts, and their finite block-walk mass is bounded by the geometric series.
 It does not construct the positive residual kernel from `q`, nor an injective,
-weight-preserving code from the minimal even sets or cycles to those walks.
+weight-preserving code from the minimal even sets or cycles to those walks;
+that canonical encoder is now proved separately, while its dependent
+enumeration packaging is still open.
 
 Three accepted Section 9 modules now discharge further faithful finite leaves.
 [`Section9CappedFixedFExpansion.lean`](Erdos625/Section9CappedFixedFExpansion.lean)
@@ -484,8 +491,9 @@ an attachment estimate.
 [`Section9ResidualQTraversalBridge.lean`](Erdos625/Section9ResidualQTraversalBridge.lean)
 then lifts those two bounds to the symmetric `bipartiteCellKernel` of the
 literal residual `q`, so the existing finite kernel-walk estimates apply under
-the same degree-cap hypotheses. It still does not encode cycles as walks or
-prove an attachment estimate.
+the same degree-cap hypotheses. It still does not package the canonical
+cycle encoder into the required finite weighted traversal reindexing or prove
+an attachment estimate.
 
 Three further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)
@@ -497,12 +505,13 @@ pointwise product bounds, and nonnegative atom weights.
 [`Section9AttachmentAsymptotics.lean`](Erdos625/Section9AttachmentAsymptotics.lean)
 proves `eventually_tau_lt_one_third` from the displayed large-residual profile
 bounds and `exists_uniform_twoRegime_error` from assumed large-/small-residual
-attachment estimates.  These leaves do not construct the required
-cycle-to-walk encoding or weight transfer, prove those upstream finite attachment
-estimates, identify the conditioned probability law, or assemble Section 9.
+attachment estimates.  These leaves do not construct the required dependent
+marked-start/block-count packaging, finite weighted reindexing and traversal
+domination, prove those upstream finite attachment estimates, identify the
+conditioned probability law, or assemble Section 9.
 
 Three additional warning-fatal Section 9 leaves sharpen the still-incomplete
-cycle-to-walk interface.  [`Section9EndpointKernel.lean`](Erdos625/Section9EndpointKernel.lean)
+family-level weighted traversal interface.  [`Section9EndpointKernel.lean`](Erdos625/Section9EndpointKernel.lean)
 defines the endpoint-resolved positive-walk kernel, proves that its row sum
 recovers the scalar walk mass, and inherits the finite geometric row bound.
 [`Section9ExplicitPathTerms.lean`](Erdos625/Section9ExplicitPathTerms.lean)
@@ -515,8 +524,10 @@ construct a covering-cycle decomposition, an injective weight-preserving
 cycle code, or the concrete manuscript kernel, and therefore do not prove
 Lemma 9.1 or Proposition 9.2.
 
-Three further warning-fatal modules close the finite enumeration layer without
-claiming the remaining physical encoding.  [`Section9KernelPathEnumeration.lean`](Erdos625/Section9KernelPathEnumeration.lean)
+Six further warning-fatal modules close the finite enumeration, single-cycle
+cutting, and canonical encoding layers without claiming the remaining
+dependent weighted traversal enumeration.
+[`Section9KernelPathEnumeration.lean`](Erdos625/Section9KernelPathEnumeration.lean)
 retains every internal vertex sequence and proves exact weighted-sum identities
 for endpoint and scalar kernel masses.  [`Section9BlockChainEnumeration.lean`](Erdos625/Section9BlockChainEnumeration.lean)
 iterates full positive-path codes and matching-transition states, giving the
@@ -533,10 +544,23 @@ every raw edge to decode, preventing silent `filterMap` loss, and its exact
 weight theorem recovers the product of `q` over `C \ M` while every matching
 transition contributes one.  The relation exposes the reconstruction
 obligations and proves their downstream consequences.
-`PhysicalCycleCuttingStatement M` is only the named remaining proposition that
-each eligible physical cycle admits such a faithful code; it is not a theorem
-of the library.  The physical cut construction, injective family assembly,
-attachment bound, and final theorem remain open.
+[`Section9PhysicalCycleCutting.lean`](Erdos625/Section9PhysicalCycleCutting.lean)
+now proves `physicalCycleCuttingStatement`: every eligible physical cycle has
+a faithful source-free cut code.  The proof rotates a covering simple-cycle
+walk after a marked matching edge, splits at every matching transition into
+positive cutoff-bounded residual runs, and verifies exact decoding, block
+count, closure, no-drop, and nodup fields.  It does not construct an injection
+from a family of physical cycles into families of codes or prove the weighted
+family enumeration/transfer; the following canonical-encoder module discharges
+the injectivity and exact per-code weight parts.
+[`Section9PhysicalCycleEncoder.lean`](Erdos625/Section9PhysicalCycleEncoder.lean)
+now makes a canonical classical choice of faithful source-free code for every
+mixed simple cycle.  Its decoder is a left inverse, so the encoder is injective,
+and its code weight is exactly the product over the physical cells outside the
+matching.  The code remains source-free.  What is still open is the dependent
+marked-start/block-count packaging needed to reindex the finite family sum,
+the comparison with the complete relaxed traversal enumeration, the literal
+residual-kernel specialization, and the subsequent probability estimates.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -704,8 +728,8 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, the physical cycle-cut existence theorem and injective family
-weight transfer,
+assembly, dependent marked-start/block-count packaging of the canonical cycle
+encoder and its finite weighted reindexing/traversal domination,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
 Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and

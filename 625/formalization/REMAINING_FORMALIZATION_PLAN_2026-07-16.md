@@ -166,14 +166,18 @@ Critical rejection rules:
 ## Work package D — Section IX
 
 The residual family, degree/cap estimates, cycle-space cardinality, generic
-polymer bounds, traversal kernels, explicit path terms, and small-residual
-deterministic integrand bound are accepted.  The missing bridge is:
+polymer bounds, traversal kernels, explicit path terms, small-residual
+deterministic integrand bound, and the faithful physical cut of one eligible
+cycle together with its canonical injective source-free encoder and exact
+per-code weight are accepted.  The remaining bridge is:
 
 ```text
 actual residual even set
   -> recoverable minimal mixed cycles
-  -> marked/oriented/cut walk blocks
-  -> injective weight-preserving code
+  -> marked/oriented/cut walk blocks [proved cycle by cycle]
+  -> canonical injective weight-preserving code [proved]
+  -> dependent marked-start/block-count packaging
+  -> finite weighted reindexing and traversal domination
   -> residualQ traversal bound
   -> faithful large-/small-residual expectation estimates
   -> Lemma 9.1 and Proposition 9.2
@@ -190,27 +194,37 @@ Implementation order:
    block code without a source cycle or stored reconstruction/injectivity
    certificate; prove its decoder, projection, no-drop, closure, cutoff, and
    exact nonnegative physical product-weight lemmas;
-4. prove `PhysicalCycleCuttingStatement M`, namely existence of a faithful code
-   for each eligible physical cycle, then assemble reconstruction, injectivity,
-   and weight preservation over the physical family;
-5. instantiate the accepted traversal kernel with the literal `residualQ`;
-6. retain the single `2 * |M|` marked-start cost;
-7. transport the bound through the tagged dependent residual law;
-8. prove one deterministic threshold and one error sequence uniform over all
+4. **Completed physical construction:** prove
+   `physicalCycleCuttingStatement`, namely existence of a faithful source-free
+   code for each eligible physical cycle, with exact block count, marked final
+   transition, decoding, cutoff, no-drop, and nodup fields;
+5. **Completed canonical encoder:** choose one faithful source-free code for
+   every mixed simple cycle, prove decoding is a left inverse and hence the
+   encoder is injective, and transport the exact physical residual weight;
+6. package the encoder by its dependent marked start and block count, then
+   prove the finite weighted reindexing and domination by the complete relaxed
+   traversal enumeration;
+7. instantiate the accepted traversal kernel with the literal `residualQ`;
+8. retain the single `2 * |M|` marked-start cost;
+9. transport the bound through the tagged dependent residual law;
+10. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
-9. assemble Lemma 9.1 and Proposition 9.2.
+11. assemble Lemma 9.1 and Proposition 9.2.
 
 The accepted enumeration modules close exact path multiplicity, relaxed
 block-chain summation, minimal cycle coverage, and the source-free decoder,
 no-drop, and exact physical-weight target interface.
-`PhysicalCycleCuttingStatement M` is only the named
-remaining proposition, not a proved theorem; the physical marked/oriented
-cycle-cut construction, family injection, and `Erdos625Statement` remain open.
+`physicalCycleCuttingStatement` now proves the physical marked/oriented
+cycle-cut existence theorem, and `chosenPhysicalCycleCut` supplies a canonical
+source-free encoder with a decoder left inverse, injectivity, and exact weight.
+Dependent marked-start/block-count packaging, finite weighted
+reindexing/traversal domination, the later Section IX attachment/probability
+estimates, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may
 implement the literal kernel specialization.  Luna may prove product
-reindexing and injectivity leaves only after the reconstruction interface is
+reindexing and arithmetic leaves once the dependent enumeration packaging is
 fixed.
 
 Critical rejection rules:
@@ -331,8 +345,10 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX physical mixed-cycle construction, with priority on the
-   concrete Section IX seed and `Lambda` asymptotics consumed by Lemma 10.2.
+   and the Section IX dependent marked-start/block-count packaging plus finite
+   weighted reindexing/traversal domination built from the canonical physical
+   cycle encoder, with priority on the concrete Section IX seed and `Lambda`
+   asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
 7. **Final:** integrate the concrete chromatic and cochromatic tails through
