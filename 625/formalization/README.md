@@ -562,9 +562,7 @@ event of Lemma 10.1.
 forms the literal finite event over all cutoff-size subsets, proves its
 measurability, and derives the exact finite union bound
 `choose(n,u0) * exp(-choose(u0,2)/16)`.
-[`Section10QuarterDensityLimit.lean`](Erdos625/Section10QuarterDensityLimit.lean)
-proves that this literal cutoff event has probability tending to one. The
-event-to-density bridge remains open.
+[`Section10QuarterDensityLimit.lean`](Erdos625/Section10QuarterDensityLimit.lean) proves that this literal cutoff event has probability tending to one. [`Section10QuarterDensityLift.lean`](Erdos625/Section10QuarterDensityLift.lean) converts event membership into quarter density on every cutoff-size complement set and, when the cutoff is at least two, on every larger subset. These deterministic bridges do not yet supply the concrete survival/rounding, complement clique-to-independent-set, or greedy-colouring instantiation.
 [`Section10NeighborhoodDeletionStep.lean`](Erdos625/Section10NeighborhoodDeletionStep.lean)
 proves one deterministic complement-neighbourhood step with the exact
 denominator-cleared recurrence inequality. [`Section10QuarterDenseChain.lean`](Erdos625/Section10QuarterDenseChain.lean)

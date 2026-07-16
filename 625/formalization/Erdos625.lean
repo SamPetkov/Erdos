@@ -24,6 +24,7 @@ import Erdos625.Section10BinomialEdgeCount
 import Erdos625.Section10ComplementInvariance
 import Erdos625.Section10InducedRestriction
 import Erdos625.Section10QuarterDensityEvent
+import Erdos625.Section10QuarterDensityLift
 import Erdos625.Section10QuarterDensityLimit
 import Erdos625.Section10NeighborhoodDeletionStep
 import Erdos625.Section10QuarterDenseChain

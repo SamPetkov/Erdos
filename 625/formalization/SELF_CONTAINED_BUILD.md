@@ -71,9 +71,7 @@ pushforward laws, their fixed-set lower-quarter tails, and the quantitative
 two-event seam are also checked. The literal finite cutoff-subset event has
 its exact union bound and a full-sequence probability-one limit. One
 deterministic complement-neighbourhood step and a finite chain under explicit
-density and shifted-potential survival hypotheses are checked as well. These
-do not prove the event-to-density/larger-set bridge or the concrete
-survival/rounding estimates; the complete simultaneous probability transport
+density and shifted-potential survival hypotheses are checked as well. The literal cutoff event now also has deterministic event-to-density and larger-subset consequences (with an explicit cutoff-at-least-two hypothesis). The concrete survival/rounding estimates and complete simultaneous probability transport
 and concrete seed-amplification assembly remain open.
 Section XI's deterministic event inclusion, generic probability-one
 intersection, strict-lower complement bridge, eventual threshold reduction,
@@ -105,12 +103,12 @@ The source checkpoint generated on 2026-07-16 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 177;
+- local source modules included: 178;
 - external Mathlib imports: 78;
-- central `#print axioms` commands included: 679;
-- newline count: 33,978;
+- central `#print axioms` commands included: 683;
+- newline count: 34,069;
 - generated source SHA-256:
-  `82B107D017599D5F8AA7295AC1B8B5EFDB1FF4FA2AD257320E043623CBB7B6A7`.
+  `1D521C1F09A649645A3D168635C840B9A5E4FCABC9B4C3435C3667337DD03357`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
