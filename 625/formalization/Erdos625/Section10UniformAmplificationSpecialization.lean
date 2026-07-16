@@ -10,8 +10,8 @@ to the deterministic radius
 `r_n = sqrt (n / (log n)^4)`.
 
 The seed exponent remains an arbitrary nonnegative sequence satisfying the
-explicit little-`o` hypothesis from the manuscript.  In particular, no
-Section IX rare-event estimate is assumed here.
+explicit little-`o` hypothesis from the manuscript.  No concrete Section IX
+estimate is proved or imported here.
 -/
 
 namespace Erdos625

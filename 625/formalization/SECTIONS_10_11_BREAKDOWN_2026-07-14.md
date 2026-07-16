@@ -245,9 +245,13 @@ The earlier planned Aristotle calls are retained as request-design provenance:
   accepted input tails;
 - `AX-X04-LIMIT`: the full-sequence `exp (-r_n) + epsilon_n -> 0` closure.
 
-The remaining work is not another abstract Lemma 10.2 assembly: it is the
-concrete Section IX seed and `Lambda` asymptotics, followed by the concrete
-radius/error specialization and Section XI tail/threshold inputs.
+`Section10UniformAmplificationSpecialization.lean` now inserts the manuscript
+radius exactly, proves decay of its exponential failure term, supplies the
+complement-real-probability-to-one bridge, and conditionally derives both an
+`o(gapBase)` loss and probability one for the cochromatic upper event.  The
+remaining work is not another abstract Lemma 10.2 assembly or analytic radius
+limit: it is the concrete midpoint `kCo`/`Lambda` seed from Section IX and the
+Section XI chromatic/separation inputs.
 
 ### Parallel Section IX lane
 

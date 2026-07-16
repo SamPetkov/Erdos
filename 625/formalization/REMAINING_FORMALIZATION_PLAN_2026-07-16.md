@@ -283,9 +283,12 @@ nonnegative deterministic `epsilon_n → 0` before all deterministic `k_n`,
 `exp(-r_n) + epsilon_n` failure bound under the displayed seed inequality.
 No independence is assumed.
 
-The remaining E-layer obligation is the concrete Section IX seed and its
-`Lambda` asymptotics, followed by the manuscript radius/error specialization.
-Those are not hidden inside the accepted uniform theorem.
+`Section10UniformAmplificationSpecialization.lean` now proves the exact
+radius/error identity, exponential-radius decay, the complement-real
+probability bridge, and the conditional `o(gapBase)`/probability-one
+specialization.  The remaining E-layer obligation is the concrete midpoint
+`kCo`/`Lambda` seed and its Section IX asymptotics.  Those inputs are not hidden
+inside either accepted amplification theorem.
 
 **Acceptance audit for E3--E4:** Sol-level quantifier and constant review;
 warning-fatal Lean 4.31 build; trust scan; and public `#print axioms` audit.
@@ -324,7 +327,9 @@ strict inequalities, rounding, and the final `#print axioms` report.
    manuscript constant; exact Lemma 10.1, the parameter-independent failure,
    and the deficit-indexed leftover tail are formalized.
 4. **Completed:** the quantifier-correct uniform Lemma 10.2 is assembled with
-   `C ≥ 1`, nonnegative `epsilon_n → 0`, and the required quantifier order.
+   `C ≥ 1`, nonnegative `epsilon_n → 0`, and the required quantifier order;
+   its manuscript-radius specialization proves the exact error identity,
+   negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
    and the Section IX physical mixed-cycle construction, with priority on the
    concrete Section IX seed and `Lambda` asymptotics consumed by Lemma 10.2.

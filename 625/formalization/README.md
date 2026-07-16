@@ -648,6 +648,19 @@ sequence `epsilon_n → 0` are chosen before all deterministic `k_n`,
 `exp(-r_n) + epsilon_n` whenever the displayed seed inequality holds.  No
 independence is assumed.  The concrete Section IX seed estimate and its
 `Lambda` asymptotics are not proved by this module.
+
+[`Section10UniformAmplificationSpecialization.lean`](Erdos625/Section10UniformAmplificationSpecialization.lean)
+inserts the manuscript radius and proves that the displayed uniform error is
+exactly `amplificationError`, that `exp (-amplificationRadius n)` tends to
+zero, and that vanishing real complement probability yields event probability
+tending to one even when the finite probability space varies with `n`.
+Conditionally on eventual `Lambda n ≥ 0`,
+`Lambda = o(amplificationBase)`, and the displayed seed inequality, it gives
+an `o(gapBase)` loss and a cochromatic upper event of probability tending to
+one.  It proves or imports no concrete Section IX estimate: the midpoint
+`kCo`/`Lambda` seed remains open, together with the Section XI chromatic and
+separation inputs.
+
 [`Section11ChromaticLowerTailBridge.lean`](Erdos625/Section11ChromaticLowerTailBridge.lean)
 locally converts a full-sequence probability-zero bound for `X n <= k n` into
 probability one for the complementary strict event `k n < X n`, allowing the
