@@ -14,7 +14,8 @@ def Erdos625Statement : Prop :=
   Tendsto gapProbability atTop (nhds 1)
 ```
 
-and the repository contains only a conditional five-input route to it.  The
+and the repository contains a generic conditional five-input route plus a
+quarter-chain specialization with four remaining inputs.  The
 remaining work is substantive mathematics, concentrated in the phase/root
 asymptotics, the signed moment corridor, the Section VIII skeleton estimates,
 the Section IX attachment estimate, and the concrete Section X--XI
@@ -238,16 +239,22 @@ of cardinality `quarterChainSteps n`.  Then instantiate
 
 This has been implemented as `quarterChainIndependentBlockEvent`, whose
 probability tends to one, together with the exact ceiling-division greedy
-bound.  No pointwise-in-`U` exceptional event is used.  The remaining E2 work
-is the explicit manuscript-constant conversion of that exact bound.
+bound.  No pointwise-in-`U` exceptional event is used.  The explicit
+manuscript-constant conversion is also accepted in
+`Section10QuarterChainGreedyNumeric.lean`, with the faithful piecewise cost and
+the positive choice `C = 14 * log 4 + 2`.
 
 **Owner:** Terra Max/Ultra implementation; Sol statement and semantic review.
 
 ### E3. Parameter-independent leftover failure
 
-Define the leftover bound and an error sequence using only the complement of
-the single density event.  Prove the error tends to zero and is independent of
-`k`, `Lambda`, and `r`.
+Accepted.  `Section10QuarterChainFailure.lean` defines the error sequence using
+only the complement of the single independent-block event and proves that it
+tends to zero independently of `k`, `Lambda`, and `r`.
+`Section10QuarterChainLinearEvent.lean` closes the exact one-event
+manuscript-form Lemma 10.1, and
+`Section10QuarterChainLeftoverEvent.lean` supplies the deficit-indexed
+simultaneous leftover tail and its fixed-index quantitative failure bound.
 
 ### E4. Uniform Lemma 10.2
 
@@ -265,7 +272,7 @@ leaves.
 
 ## Work package F — Section XI and final closure
 
-The final plumbing is accepted.  The conditional theorem requires exactly:
+The final plumbing is accepted.  The generic conditional theorem requires:
 
 1. `hCapacityTail`;
 2. `hLeftoverTail`;
@@ -276,7 +283,10 @@ The final plumbing is accepted.  The conditional theorem requires exactly:
 Once Work Packages A--E supply these concrete inputs, instantiate
 `erdos625Statement_of_capacity_leftover_thresholds`.  Then derive every fixed
 threshold statement from the accepted scale-divergence and moving-threshold
-lemmas.
+lemmas.  The quarter-chain specialization
+`erdos625Statement_of_capacity_quarterChainLeftover_thresholds` now discharges
+`hLeftoverTail`, leaving four concrete inputs: capacity tail, chromatic tail,
+cochromatic threshold, and gap threshold.
 
 **Owner:** Sol Ultra performs the final semantic comparison between the Lean
 statement and Problem 625.  Terra Max performs the short Lean assembly.  A
@@ -289,14 +299,17 @@ strict inequalities, rounding, and the final `#print axioms` report.
    leaves.
 2. **Completed:** the density-event-to-independent-block implication and its
    probability-one limit.
-3. **Next:** convert the exact simultaneous greedy bound to the manuscript
-   constant and define the parameter-independent leftover error.
-4. **In parallel after Sol specification:** Section VIII skeleton type and
+3. **Completed:** the exact simultaneous greedy bound is converted to the
+   manuscript constant; exact Lemma 10.1, the parameter-independent failure,
+   and the deficit-indexed leftover tail are formalized.
+4. **Next:** assemble quantifier-correct uniform Lemma 10.2 using the fixed-`n`
+   capacity failure bound and the accepted leftover failure.
+5. **In parallel after Sol specification:** Section VIII skeleton type and
    Section IX mixed-cycle code foundations.
-5. **After those foundations:** delegate their bounded quotient, reindexing,
+6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
-6. **Final:** integrate the concrete chromatic and cochromatic tails through
-   the existing five-input seam.
+7. **Final:** integrate the concrete chromatic and cochromatic tails through
+   the four-input quarter-chain specialization of the existing seam.
 
 No milestone is described as a complete resolution until
 `Erdos625Statement` itself is kernel-checked under the repository trust gates.

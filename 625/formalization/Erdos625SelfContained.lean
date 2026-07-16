@@ -1,6 +1,7 @@
 import Mathlib
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Algebra.Order.Field.GeomSum
+import Mathlib.Algebra.Order.Floor.Div
 import Mathlib.Algebra.Order.Floor.Ring
 import Mathlib.Algebra.Order.Ring.Abs
 import Mathlib.Analysis.Asymptotics.SpecificAsymptotics
@@ -7432,6 +7433,508 @@ END SOURCE MODULE: Erdos625.Section10QuarterChainIndependentBlock
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainFailure
+Source: Erdos625/Section10QuarterChainFailure.lean
+Normalized SHA-256: 47550b9e7b63026660f58d387571d6ed20b9ca9b6ef46d129af870a10a390b44
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainFailure
+
+/-!
+# Section X: parameter-independent independent-block failure sequence
+
+The high-probability independent-block event is determined only by `n`.  This
+module records the real probability of its complement as one deterministic
+error sequence and proves that it tends to zero.  Consequently this error
+cannot depend on the later seed, exponent, radius, or deficit parameters.
+
+No deficit-indexed leftover threshold or Lemma 10.2 assembly is included.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The real failure probability of the one-event uniform independent-block
+property. -/
+def quarterChainIndependentBlockFailure (n : ℕ) : ℝ :=
+  (randomGraphMeasure n).real (quarterChainIndependentBlockEvent n)ᶜ
+
+theorem measurableSet_quarterChainIndependentBlockEvent (n : ℕ) :
+    MeasurableSet (quarterChainIndependentBlockEvent n) :=
+  Set.toFinite (quarterChainIndependentBlockEvent n) |>.measurableSet
+
+theorem quarterChainIndependentBlockFailure_nonneg (n : ℕ) :
+    0 ≤ quarterChainIndependentBlockFailure n :=
+  measureReal_nonneg
+
+/-- The deterministic failure sequence tends to zero along the full natural
+sequence. -/
+theorem quarterChainIndependentBlockFailure_tendsto_zero :
+    Tendsto quarterChainIndependentBlockFailure atTop (nhds 0) := by
+  have hSuccessReal :
+      Tendsto
+        (fun n : ℕ ↦
+          (randomGraphMeasure n).real (quarterChainIndependentBlockEvent n))
+        atTop (nhds (1 : ℝ)) := by
+    simpa only [Measure.real, ENNReal.toReal_one] using
+      (ENNReal.tendsto_toReal_iff
+        (fun n ↦ measure_ne_top (randomGraphMeasure n)
+          (quarterChainIndependentBlockEvent n))
+        ENNReal.one_ne_top).mpr
+        quarterChainIndependentBlockEvent_probability_tendsto_one
+  have hFailureIdentity : ∀ n : ℕ,
+      quarterChainIndependentBlockFailure n =
+        1 - (randomGraphMeasure n).real
+          (quarterChainIndependentBlockEvent n) := by
+    intro n
+    have hCompl := measureReal_compl
+      (μ := randomGraphMeasure n)
+      (measurableSet_quarterChainIndependentBlockEvent n)
+    rw [probReal_univ] at hCompl
+    unfold quarterChainIndependentBlockFailure
+    linarith
+  have hSub :
+      Tendsto
+        (fun n : ℕ ↦
+          1 - (randomGraphMeasure n).real
+            (quarterChainIndependentBlockEvent n))
+        atTop (nhds (0 : ℝ)) := by
+    convert (tendsto_const_nhds.sub hSuccessReal) using 1
+    all_goals norm_num
+  exact hSub.congr'
+    (Filter.Eventually.of_forall fun n ↦ (hFailureIdentity n).symm)
+
+#print axioms measurableSet_quarterChainIndependentBlockEvent
+#print axioms quarterChainIndependentBlockFailure_nonneg
+#print axioms quarterChainIndependentBlockFailure_tendsto_zero
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainFailure
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainFailure
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainGreedyNumeric
+Source: Erdos625/Section10QuarterChainGreedyNumeric.lean
+Normalized SHA-256: db14adcef07de5466d4c8880dd9512122d64389ac0ee9748f214b99e94706079
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainGreedyNumeric
+
+/-!
+# Section X: numerical bound for the quarter-chain greedy colouring
+
+This module isolates the floor/ceiling arithmetic in the deterministic
+colouring bound.  It does not assert a graph event or a probability estimate.
+The final additive `+ 1` is the honest loss from ceiling division.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The defining coverage property of ceiling division. -/
+theorem le_ceilDivNat_mul (a b : ℕ) (hb : 1 ≤ b) :
+    a ≤ ceilDivNat a b * b := by
+  have hpos : 0 < b := Nat.zero_lt_of_lt hb
+  change a ≤ (a ⌈/⌉ b) * b
+  have hcover : a ≤ b * (a ⌈/⌉ b) :=
+    (ceilDiv_le_iff_le_mul hpos).1 le_rfl
+  simpa [Nat.mul_comm] using hcover
+
+/-- Ceiling division is at most ordinary natural-number division plus one. -/
+theorem ceilDivNat_le_div_add_one (a b : ℕ) (hb : 1 ≤ b) :
+    ceilDivNat a b ≤ a / b + 1 := by
+  unfold ceilDivNat
+  calc
+    (a + b - 1) / b ≤ (a + b) / b :=
+      Nat.div_le_div_right (Nat.sub_le (a + b) 1)
+    _ = a / b + 1 := by
+      rw [Nat.add_div_right]
+      omega
+
+/-- Real-valued form of the elementary ceiling-division estimate. -/
+theorem ceilDivNat_cast_le_div_add_one (a b : ℕ) (hb : 1 ≤ b) :
+    (ceilDivNat a b : ℝ) ≤ (a : ℝ) / (b : ℝ) + 1 := by
+  calc
+    (ceilDivNat a b : ℝ) ≤ (a / b + 1 : ℕ) := by
+      exact_mod_cast ceilDivNat_le_div_add_one a b hb
+    _ = (a / b : ℕ) + 1 := by norm_num
+    _ ≤ (a : ℝ) / (b : ℝ) + 1 := by
+      gcongr
+      exact Nat.cast_div_le
+
+/-- Eventually the concrete greedy-colouring count has the manuscript-scale
+upper bound.  The starting cutoff is retained exactly and the only extra loss
+is the explicit `+ 1` from ceiling division. -/
+theorem quarterChain_greedy_count_real_upper_bound_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ m : ℕ,
+      (ceilDivNat m (quarterChainSteps n) + quarterChainStart n : ℝ) ≤
+        14 * Real.log 4 * (m : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by
+  filter_upwards
+      [one_le_quarterChainSteps_eventually,
+        quarterChainSteps_real_lower_bound_eventually,
+        Filter.eventually_gt_atTop 1] with n hsteps hstepsLower hn m
+  have hlogPos : 0 < Real.log (n : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast hn)
+  have hlogFourPos : 0 < Real.log (4 : ℝ) := Real.log_pos (by norm_num)
+  have hdenPos : 0 < (14 * Real.log 4 : ℝ) := by positivity
+  have hstepPos : 0 < (quarterChainSteps n : ℝ) := by
+    exact_mod_cast hsteps
+  have hquotient :
+      (m : ℝ) / (quarterChainSteps n : ℝ) ≤
+        14 * Real.log 4 * (m : ℝ) / Real.log n := by
+    have hbasePos :
+        0 < Real.log (n : ℝ) / (14 * Real.log 4) := by positivity
+    have hinv :
+        ((quarterChainSteps n : ℝ))⁻¹ ≤
+          (14 * Real.log 4) / Real.log n := by
+      calc
+        ((quarterChainSteps n : ℝ))⁻¹ =
+            1 / (quarterChainSteps n : ℝ) := by rw [one_div]
+        _ ≤ 1 / (Real.log (n : ℝ) / (14 * Real.log 4)) :=
+          one_div_le_one_div_of_le hbasePos hstepsLower
+        _ = (14 * Real.log 4) / Real.log n := by
+          field_simp
+    calc
+      (m : ℝ) / (quarterChainSteps n : ℝ) =
+          (m : ℝ) * ((quarterChainSteps n : ℝ))⁻¹ := by
+            rw [div_eq_mul_inv]
+      _ ≤ (m : ℝ) * ((14 * Real.log 4) / Real.log n) :=
+        mul_le_mul_of_nonneg_left hinv (Nat.cast_nonneg m)
+      _ = 14 * Real.log 4 * (m : ℝ) / Real.log n := by ring
+  calc
+    (ceilDivNat m (quarterChainSteps n) + quarterChainStart n : ℝ) =
+        (ceilDivNat m (quarterChainSteps n) : ℝ) +
+          (quarterChainStart n : ℝ) := by norm_num
+    _ ≤ ((m : ℝ) / (quarterChainSteps n : ℝ) + 1) +
+          (quarterChainStart n : ℝ) := by
+      gcongr
+      exact ceilDivNat_cast_le_div_add_one m (quarterChainSteps n) hsteps
+    _ ≤ (14 * Real.log 4 * (m : ℝ) / Real.log n + 1) +
+          (quarterChainStart n : ℝ) := by gcongr
+    _ = 14 * Real.log 4 * (m : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by ring
+
+/-- The exact piecewise natural-number cost produced by greedy deletion:
+small sets are coloured singly, while large sets use logarithmic independent
+blocks and then colour the final cutoff vertices singly. -/
+def quarterChainGreedyColorCost (n u : ℕ) : ℕ :=
+  if u < quarterChainStart n then u
+  else ceilDivNat u (quarterChainSteps n) + quarterChainStart n
+
+/-- Eventually the logarithm is bounded by the real cube root. -/
+theorem log_le_realCubeRoot_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      Real.log (n : ℝ) ≤ (n : ℝ) ^ (1 / 3 : ℝ) := by
+  have hreal :
+      Tendsto (fun x : ℝ => Real.log x / x ^ (1 / 3 : ℝ))
+        atTop (nhds 0) :=
+    (isLittleO_log_rpow_atTop
+      (r := (1 / 3 : ℝ)) (by norm_num)).tendsto_div_nhds_zero
+  have hnat :
+      Tendsto
+        (fun n : ℕ => Real.log (n : ℝ) / (n : ℝ) ^ (1 / 3 : ℝ))
+        atTop (nhds 0) :=
+    hreal.comp tendsto_natCast_atTop_atTop
+  filter_upwards
+      [hnat.eventually_lt_const zero_lt_one,
+        Filter.eventually_gt_atTop 0] with n hn hnPos
+  have hrootPos : 0 < (n : ℝ) ^ (1 / 3 : ℝ) := by positivity
+  exact ((div_lt_one hrootPos).mp hn).le
+
+/-- Uniform manuscript-scale numerical bound for the exact piecewise greedy
+cost.  The small branch introduces no ceiling loss.  In the large branch the
+one-unit ceiling-division loss and the one-unit cube-root ceiling loss are
+absorbed explicitly into `2 * u / log n`. -/
+theorem quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ᶠ n : ℕ in atTop, ∀ u : ℕ, u ≤ n →
+        (quarterChainGreedyColorCost n u : ℝ) ≤
+          C * (u : ℝ) / Real.log (n : ℝ) +
+            (n : ℝ) ^ (1 / 3 : ℝ) := by
+  refine ⟨14 * Real.log 4 + 2, by positivity, ?_⟩
+  filter_upwards
+      [quarterChain_greedy_count_real_upper_bound_eventually,
+        log_le_realCubeRoot_eventually,
+        Filter.eventually_gt_atTop 1] with n hcount hlogCube hn u _hu
+  have hlogPos : 0 < Real.log (n : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast hn)
+  by_cases hsmall : u < quarterChainStart n
+  · rw [quarterChainGreedyColorCost, if_pos hsmall]
+    have huCube : (u : ℝ) ≤ (n : ℝ) ^ (1 / 3 : ℝ) := by
+      contrapose! hsmall
+      exact Nat.ceil_le.mpr hsmall.le
+    have hlinear :
+        0 ≤ (14 * Real.log 4 + 2) * (u : ℝ) / Real.log (n : ℝ) := by
+      positivity
+    linarith
+  · rw [quarterChainGreedyColorCost, if_neg hsmall]
+    have hstart :
+        (quarterChainStart n : ℝ) <
+          (n : ℝ) ^ (1 / 3 : ℝ) + 1 := by
+      exact Nat.ceil_lt_add_one (by positivity)
+    have hrootLeStart :
+        (n : ℝ) ^ (1 / 3 : ℝ) ≤ (quarterChainStart n : ℝ) :=
+      Nat.le_ceil _
+    have hstartLeU : quarterChainStart n ≤ u := le_of_not_gt hsmall
+    have hrootLeU : (n : ℝ) ^ (1 / 3 : ℝ) ≤ (u : ℝ) := by
+      exact hrootLeStart.trans (by exact_mod_cast hstartLeU)
+    have hlogLeU : Real.log (n : ℝ) ≤ (u : ℝ) :=
+      hlogCube.trans hrootLeU
+    have habsorb :
+        (2 : ℝ) ≤ 2 * (u : ℝ) / Real.log (n : ℝ) := by
+      rw [le_div_iff₀ hlogPos]
+      linarith
+    calc
+      ((ceilDivNat u (quarterChainSteps n) + quarterChainStart n : ℕ) : ℝ) ≤
+          14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (quarterChainStart n : ℝ) + 1 :=
+        by simpa only [Nat.cast_add] using hcount u
+      _ ≤ 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            ((n : ℝ) ^ (1 / 3 : ℝ) + 1) + 1 := by
+        linarith
+      _ = 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) + 2 := by ring
+      _ ≤ 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) +
+              (2 * (u : ℝ) / Real.log n) := by
+        gcongr
+      _ = (14 * Real.log 4 + 2) * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) := by ring
+
+#print axioms le_ceilDivNat_mul
+#print axioms ceilDivNat_le_div_add_one
+#print axioms ceilDivNat_cast_le_div_add_one
+#print axioms quarterChain_greedy_count_real_upper_bound_eventually
+#print axioms log_le_realCubeRoot_eventually
+#print axioms quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainGreedyNumeric
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainGreedyNumeric
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainLinearEvent
+Source: Erdos625/Section10QuarterChainLinearEvent.lean
+Normalized SHA-256: d1dacdfffd92618028a16b2879a56d8a56e7107e1c8f69617eb397f1ac5abfab
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLinearEvent
+
+/-!
+# Section X: the uniform linear-cost colouring event
+
+This module packages the deterministic quarter-chain recursion as the single
+event used in the manuscript form of Lemma 10.1.  The universal quantifier over
+all induced vertex sets remains inside the event:
+
+`χ(G[U]) ≤ C |U| / log n + n^(1/3)`.
+
+The proof deliberately keeps the greedy cost piecewise.  A set below the
+quarter-chain cutoff is coloured one vertex at a time and therefore costs
+exactly `|U|`; only the large-set branch invokes ceiling division.  Thus no
+spurious additive `+ 1` is introduced in the small-set branch.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The manuscript-form event from Lemma 10.1: one graph satisfies the same
+linear-logarithmic chromatic bound for every induced vertex set. -/
+def quarterChainLinearColoringEvent (C : ℝ) (n : ℕ) :
+    Set (LabeledGraph n) :=
+  {G | ∀ U : Finset (Fin n),
+    (chromaticNumberNat (G.induce (U : Set (Fin n))) : ℝ) ≤
+      C * (U.card : ℝ) / Real.log (n : ℝ) +
+        (n : ℝ) ^ (1 / 3 : ℝ)}
+
+/-- The chromatic number of a graph induced by a finite vertex set is at most
+the cardinality of that set. -/
+theorem chromaticNumberNat_induce_finset_le_card
+    {n : ℕ} (G : LabeledGraph n) (U : Finset (Fin n)) :
+    chromaticNumberNat (G.induce (U : Set (Fin n))) ≤ U.card := by
+  classical
+  have hColorable :
+      (G.induce (U : Set (Fin n))).Colorable U.card := by
+    simpa using (G.induce (U : Set (Fin n))).colorable_of_fintype
+  exact Nat.cast_le.mp
+    (le_trans
+      (ENat.toNat_le_toNat
+        (SimpleGraph.chromaticNumber_le_iff_colorable.mpr hColorable)
+        (by simp +decide))
+      (by simp +decide))
+
+/-- On the uniform independent-block event, every induced subgraph is bounded
+by the exact piecewise quarter-chain greedy cost. -/
+theorem chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ quarterChainIndependentBlockEvent n)
+    (hblock : 1 ≤ quarterChainSteps n) :
+    ∀ U : Finset (Fin n),
+      chromaticNumberNat (G.induce (U : Set (Fin n))) ≤
+        quarterChainGreedyColorCost n U.card := by
+  intro U
+  by_cases hsmall : U.card < quarterChainStart n
+  · rw [quarterChainGreedyColorCost, if_pos hsmall]
+    exact chromaticNumberNat_induce_finset_le_card G U
+  · rw [quarterChainGreedyColorCost, if_neg hsmall]
+    exact
+      chromaticNumberNat_induce_le_of_independentBlockEvent
+        n G hG hblock U
+
+/-- A fixed numerical bound on the piecewise greedy cost turns the
+independent-block event into the manuscript linear-cost event. -/
+theorem quarterChainIndependentBlockEvent_subset_linearColoringEvent
+    (n : ℕ) (C : ℝ) (hblock : 1 ≤ quarterChainSteps n)
+    (hCost : ∀ u : ℕ, u ≤ n →
+      (quarterChainGreedyColorCost n u : ℝ) ≤
+        C * (u : ℝ) / Real.log (n : ℝ) +
+          (n : ℝ) ^ (1 / 3 : ℝ)) :
+    quarterChainIndependentBlockEvent n ⊆
+      quarterChainLinearColoringEvent C n := by
+  intro G hG U
+  have hUle : U.card ≤ n := by
+    simpa using Finset.card_le_univ U
+  have hNat :=
+    chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+      n G hG hblock U
+  have hReal :
+      (chromaticNumberNat (G.induce (U : Set (Fin n))) : ℝ) ≤
+        (quarterChainGreedyColorCost n U.card : ℝ) := by
+    exact_mod_cast hNat
+  exact hReal.trans (hCost U.card hUle)
+
+/-- There is one positive absolute constant for which the event inclusion
+holds eventually along the full natural-number sequence. -/
+theorem
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ᶠ n : ℕ in atTop,
+        quarterChainIndependentBlockEvent n ⊆
+          quarterChainLinearColoringEvent C n := by
+  obtain ⟨C, hC, hCost⟩ :=
+    quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [one_le_quarterChainSteps_eventually, hCost]
+    with n hblock hCostN
+  exact
+    quarterChainIndependentBlockEvent_subset_linearColoringEvent
+      n C hblock hCostN
+
+/-- Eventual enlargement of the accepted independent-block event transfers
+its probability-one limit to the uniform linear-cost event. -/
+theorem quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+    (C : ℝ)
+    (hSubset : ∀ᶠ n : ℕ in atTop,
+      quarterChainIndependentBlockEvent n ⊆
+        quarterChainLinearColoringEvent C n) :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+      atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    quarterChainIndependentBlockEvent_probability_tendsto_one
+    tendsto_const_nhds
+    (hSubset.mono fun n hn ↦ measure_mono hn)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (quarterChainLinearColoringEvent C n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
+
+/-- The manuscript-form uniform induced-colouring event holds with high
+probability for one positive absolute constant. -/
+theorem exists_quarterChainLinearColoringEvent_probability_tendsto_one :
+    ∃ C : ℝ, 0 < C ∧
+      Tendsto
+        (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+        atTop (nhds 1) := by
+  obtain ⟨C, hC, hSubset⟩ :=
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+  exact
+    ⟨C, hC,
+      quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+        C hSubset⟩
+
+/-- Quantitative complement form: whenever the deterministic event inclusion
+holds, failure of the linear-cost event is bounded by the same
+parameter-independent failure sequence as the independent-block event. -/
+theorem quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+    (C : ℝ)
+    (hSubset : ∀ᶠ n : ℕ in atTop,
+      quarterChainIndependentBlockEvent n ⊆
+        quarterChainLinearColoringEvent C n) :
+    ∀ᶠ n : ℕ in atTop,
+      (randomGraphMeasure n).real
+          (quarterChainLinearColoringEvent C n)ᶜ ≤
+        quarterChainIndependentBlockFailure n := by
+  filter_upwards [hSubset] with n hn
+  unfold quarterChainIndependentBlockFailure
+  apply measureReal_mono (h₂ := by finiteness)
+  exact Set.compl_subset_compl.mpr hn
+
+/-- One positive constant simultaneously supplies the eventual event
+inclusion, probability-one limit, and the quantitative complement bound. -/
+theorem exists_quarterChainLinearColoringEvent_full_control :
+    ∃ C : ℝ, 0 < C ∧
+      (∀ᶠ n : ℕ in atTop,
+        quarterChainIndependentBlockEvent n ⊆
+          quarterChainLinearColoringEvent C n) ∧
+      Tendsto
+        (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+        atTop (nhds 1) ∧
+      (∀ᶠ n : ℕ in atTop,
+        (randomGraphMeasure n).real
+            (quarterChainLinearColoringEvent C n)ᶜ ≤
+          quarterChainIndependentBlockFailure n) := by
+  obtain ⟨C, hC, hSubset⟩ :=
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+  refine ⟨C, hC, hSubset, ?_, ?_⟩
+  · exact
+      quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+        C hSubset
+  · exact
+      quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+        C hSubset
+
+#print axioms chromaticNumberNat_induce_finset_le_card
+#print axioms chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+#print axioms quarterChainIndependentBlockEvent_subset_linearColoringEvent
+#print axioms exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+#print axioms quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+#print axioms exists_quarterChainLinearColoringEvent_probability_tendsto_one
+#print axioms quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+#print axioms exists_quarterChainLinearColoringEvent_full_control
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLinearEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainLinearEvent
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10AmplificationScales
 Source: Erdos625/Section10AmplificationScales.lean
 Normalized SHA-256: b40f92be543749258e31209ef1bbe411ff2112dc5cff11ad8b96e1de1a05df19
@@ -8433,6 +8936,211 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
+Source: Erdos625/Section10QuarterChainLeftoverEvent.lean
+Normalized SHA-256: 8a781f3091fb9454e9632deadacec9d9fca3b83d6b9972412f584ddb9cc13d91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLeftoverEvent
+
+/-!
+# Section X: independent-block event to simultaneous leftover colouring
+
+This module gives the finite deterministic adapter from the uniform
+independent-block event to the simultaneous leftover-colouring event.  It
+keeps the universal quantifier over leftover cores inside the event.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The exact natural leftover threshold produced by the quarter-chain greedy
+bound for a deficit of at most `d` vertices. -/
+def quarterChainLeftoverBound (n d : ℕ) : ℕ :=
+  ceilDivNat d (quarterChainSteps n) + quarterChainStart n
+
+/-- The literal natural leftover threshold inherits the explicit real
+ceiling-division bound. -/
+theorem quarterChainLeftoverBound_real_upper_bound_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ d : ℕ,
+      (quarterChainLeftoverBound n d : ℝ) ≤
+        14 * Real.log 4 * (d : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by
+  filter_upwards
+      [quarterChain_greedy_count_real_upper_bound_eventually] with n hn
+  intro d
+  simpa only [quarterChainLeftoverBound, Nat.cast_add] using hn d
+
+/-- Ceiling division is monotone in its numerator. -/
+theorem ceilDivNat_mono_left {a b c : ℕ} (h : a ≤ b) :
+    ceilDivNat a c ≤ ceilDivNat b c := by
+  unfold ceilDivNat
+  apply Nat.div_le_div_right
+  omega
+
+/-- The finite complement of a supplied vertex set represents the subtype
+complement occurring in `simultaneousLeftoverColoringEvent`, with exactly the
+same cardinality. -/
+theorem univ_sdiff_card_eq_compl_fintype_card
+    {n : ℕ} (W : Finset (Fin n)) :
+    (Finset.univ \ W).card =
+      Fintype.card (↥((↑W : Set (Fin n)))ᶜ : Type) := by
+  rw [← Fintype.card_coe (Finset.univ \ W)]
+  apply Fintype.card_congr
+  exact Equiv.setCongr (by
+    ext x
+    simp)
+
+/-- Inducing on extensionally equal vertex sets does not change the
+natural-valued chromatic number.  This separate transport lemma avoids asking
+`rw` to synthesize a dependent `Fintype` motive. -/
+theorem chromaticNumberNat_induce_eq_of_set_eq
+    {V : Type*} [Fintype V] (G : SimpleGraph V) (S T : Set V)
+    [Fintype S] [Fintype T]
+    (hST : S = T) :
+    chromaticNumberNat (G.induce S) =
+      chromaticNumberNat (G.induce T) := by
+  subst T
+  unfold chromaticNumberNat
+  rfl
+
+/-- At one fixed `n`, the uniform independent-block event implies the
+simultaneous leftover-colouring event whenever the displayed deterministic
+ceiling bound fits below `q`.  The event keeps the quantifier over every
+`W`; no pointwise-in-`W` probability statement is used. -/
+theorem quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+    (n d q : ℕ)
+    (hblock : 1 ≤ quarterChainSteps n)
+    (hq :
+      ceilDivNat d (quarterChainSteps n) + quarterChainStart n ≤ q) :
+    quarterChainIndependentBlockEvent n ⊆
+      simultaneousLeftoverColoringEvent n d q := by
+  intro G hG W hW
+  let U : Finset (Fin n) := Finset.univ \ W
+  have hUset :
+      (↑U : Set (Fin n)) = ((↑W : Set (Fin n)))ᶜ := by
+    ext x
+    simp [U]
+  have hUcard :
+      U.card = Fintype.card (↥((↑W : Set (Fin n)))ᶜ : Type) := by
+    simpa only [U] using univ_sdiff_card_eq_compl_fintype_card W
+  have hUle : U.card ≤ d := by
+    rw [hUcard]
+    exact hW
+  have hChromatic :=
+    chromaticNumberNat_induce_le_of_independentBlockEvent
+      n G hG hblock U
+  have hChromatic' :
+      chromaticNumberNat (G.induce ((↑W : Set (Fin n)))ᶜ) ≤
+        ceilDivNat U.card (quarterChainSteps n) + quarterChainStart n := by
+    rw [← chromaticNumberNat_induce_eq_of_set_eq
+      G (↑U : Set (Fin n)) ((↑W : Set (Fin n)))ᶜ hUset]
+    exact hChromatic
+  exact hChromatic'.trans
+    ((Nat.add_le_add_right (ceilDivNat_mono_left hUle)
+      (quarterChainStart n)).trans hq)
+
+/-- Sequence-level deterministic adapter: any eventual numerical bound on the
+ceiling expression turns the accepted independent-block probability limit
+into the required simultaneous leftover-colouring probability limit. -/
+theorem simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+    (d q : ℕ → ℕ)
+    (hq : ∀ᶠ n : ℕ in atTop,
+      ceilDivNat (d n) (quarterChainSteps n) + quarterChainStart n ≤ q n) :
+    Tendsto
+      (fun n ↦
+        randomGraphMeasure n
+          (simultaneousLeftoverColoringEvent n (d n) (q n)))
+      atTop (nhds 1) := by
+  apply tendsto_measure_one_of_eventually_subset
+    (fun n ↦ randomGraphMeasure n)
+    quarterChainIndependentBlockEvent
+    (fun n ↦ simultaneousLeftoverColoringEvent n (d n) (q n))
+    quarterChainIndependentBlockEvent_probability_tendsto_one
+  filter_upwards [one_le_quarterChainSteps_eventually, hq]
+    with n hblock hqN
+  exact
+    quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+      n (d n) (q n) hblock hqN
+
+/-- With the literal greedy threshold, the simultaneous leftover event has
+probability tending to one for every deterministic deficit sequence.  The
+failure event remains the same independent-block failure event and therefore
+does not depend on the chosen sequence. -/
+theorem quarterChainLeftoverBound_probability_tendsto_one
+    (d : ℕ → ℕ) :
+    Tendsto
+      (fun n ↦
+        randomGraphMeasure n
+          (simultaneousLeftoverColoringEvent n (d n)
+            (quarterChainLeftoverBound n (d n))))
+      atTop (nhds 1) := by
+  apply simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+  exact Filter.Eventually.of_forall fun n ↦ le_rfl
+
+/-- Fixed-index quantitative form: the literal simultaneous-leftover failure
+probability is bounded by the same parameter-independent independent-block
+failure sequence. -/
+theorem quarterChainLeftoverBound_compl_probability_le
+    (n d : ℕ) (hblock : 1 ≤ quarterChainSteps n) :
+    (randomGraphMeasure n).real
+        (simultaneousLeftoverColoringEvent n d
+          (quarterChainLeftoverBound n d))ᶜ ≤
+      quarterChainIndependentBlockFailure n := by
+  unfold quarterChainIndependentBlockFailure
+  apply measureReal_mono (h₂ := by finiteness)
+  exact Set.compl_subset_compl.mpr
+    (quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+      n d (quarterChainLeftoverBound n d) hblock le_rfl)
+
+/-- The concrete quarter-chain leftover theorem discharges the leftover-tail
+input of the existing Sections X--XI conditional seam. -/
+theorem erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+    (kChi kSeed deficit kCo : ℕ → ℕ) (a : ℕ → ℝ)
+    (hCapacityTail : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (capacityDeficitEvent n (kSeed n) (deficit n)))
+      atTop (nhds 1))
+    (hChromaticTail : Tendsto
+      (fun n ↦ randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1))
+    (hCochromaticThreshold : ∀ᶠ n in atTop,
+      (((kSeed n) + quarterChainLeftoverBound n (deficit n) : ℕ) : ℝ) ≤
+        (kCo n : ℝ) + a n)
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)) :
+    Erdos625Statement := by
+  exact erdos625Statement_of_capacity_leftover_thresholds
+    kChi kSeed deficit
+    (fun n ↦ quarterChainLeftoverBound n (deficit n))
+    kCo a hCapacityTail
+    (quarterChainLeftoverBound_probability_tendsto_one deficit)
+    hChromaticTail hCochromaticThreshold hGapThreshold
+
+#print axioms ceilDivNat_mono_left
+#print axioms quarterChainLeftoverBound_real_upper_bound_eventually
+#print axioms univ_sdiff_card_eq_compl_fintype_card
+#print axioms chromaticNumberNat_induce_eq_of_set_eq
+#print axioms quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+#print axioms simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+#print axioms quarterChainLeftoverBound_probability_tendsto_one
+#print axioms quarterChainLeftoverBound_compl_probability_le
+#print axioms erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLeftoverEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
 ========================================================================== -/
 
 /- ==========================================================================
@@ -33797,7 +34505,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 9cb5ed6b866b5891da2cc7003919ad4b5b3e618a884a7320adc85631389e3a5a
+Normalized SHA-256: 8807ecfe4e376f637ba1d20fcea237a13a92b145d2d28eb4ceeee62769916daa
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -33881,6 +34589,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually
 #print axioms Erdos625.quarterChainIndependentBlockEvent_probability_tendsto_one
 #print axioms Erdos625.chromaticNumberNat_induce_le_of_independentBlockEvent
+#print axioms Erdos625.quarterChainIndependentBlockFailure_tendsto_zero
+#print axioms Erdos625.quarterChain_greedy_count_real_upper_bound_eventually
+#print axioms Erdos625.log_le_realCubeRoot_eventually
+#print axioms Erdos625.quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+#print axioms Erdos625.chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+#print axioms Erdos625.exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+#print axioms Erdos625.exists_quarterChainLinearColoringEvent_probability_tendsto_one
+#print axioms Erdos625.exists_quarterChainLinearColoringEvent_full_control
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
 #print axioms Erdos625.sqrt_seedTerm_isLittleO
 #print axioms Erdos625.sqrt_radiusTerm_isLittleO
@@ -33891,6 +34607,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
 #print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
 #print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
+#print axioms Erdos625.quarterChainLeftoverBound_real_upper_bound_eventually
+#print axioms Erdos625.quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+#print axioms Erdos625.quarterChainLeftoverBound_probability_tendsto_one
+#print axioms Erdos625.quarterChainLeftoverBound_compl_probability_le
+#print axioms Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds
 #print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
@@ -34398,7 +35119,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 8259a5bca456f3be73a4d83952406f2ff28d9ba00ce9d8c69cf69f8c7748b560
+Normalized SHA-256: 564240b8dd8115d2d12544b5c81ae010d37ffca834a6b4cf2034174caf6847c2
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

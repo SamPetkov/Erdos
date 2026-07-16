@@ -528,7 +528,7 @@ and additive-constant little-o statements, each relative to
 `n/(log n)^3`.  It now also defines `gapBase` and `amplificationError` and proves
 `amplificationError_isLittleO_gapBase` by assembling those four accepted
 components.  These deterministic limits do not supply the probabilistic seed,
-the simultaneous leftover-colouring event, or Lemma 10.2.
+the uniform capacity amplification, or Lemma 10.2.
 [`Section11AsymptoticAssembly.lean`](Erdos625/Section11AsymptoticAssembly.lean)
 proves the generic full-sequence intersection theorem without independence,
 the eventual explicit threshold from abstract root/little-o hypotheses, and
@@ -574,8 +574,26 @@ provides the exact complement-clique-to-independent-set bridge, and
 assembles all of these inputs into one probability-one event supplying a
 uniform independent block in every sufficiently large vertex set.  It also
 instantiates the accepted greedy theorem with the exact ceiling-division
-bound.  The remaining X03 work is the manuscript-constant numerical
-conversion and deficit-indexed leftover-event packaging.
+bound.
+[`Section10QuarterChainGreedyNumeric.lean`](Erdos625/Section10QuarterChainGreedyNumeric.lean)
+performs the remaining piecewise numerical conversion and gives the explicit
+positive constant `C = 14 * log 4 + 2`.
+[`Section10QuarterChainFailure.lean`](Erdos625/Section10QuarterChainFailure.lean)
+defines the complement probability of the one independent-block event as a
+deterministic, parameter-independent error sequence and proves that it tends
+to zero.
+[`Section10QuarterChainLinearEvent.lean`](Erdos625/Section10QuarterChainLinearEvent.lean)
+then packages the exact manuscript-form event: for one positive absolute
+constant, every induced set satisfies
+`χ(G[U]) ≤ C |U| / log n + n^(1/3)` on one event whose probability tends to
+one.  This closes the exact statement of Lemma 10.1; it does not prove
+Lemma 10.2.
+[`Section10QuarterChainLeftoverEvent.lean`](Erdos625/Section10QuarterChainLeftoverEvent.lean)
+specializes the same event to every deterministic deficit sequence, with
+leftover bound
+`ceilDivNat d (quarterChainSteps n) + quarterChainStart n`, proves the
+simultaneous leftover-event probability tends to one, and bounds each fixed
+failure probability by the same parameter-independent error.
 
 [`Section10ComplementInvariance.lean`](Erdos625/Section10ComplementInvariance.lean)
 proves that complementation exactly preserves the ambient labelled
@@ -602,10 +620,8 @@ That acceptance is declaration-scoped: it verifies their displayed algebraic,
 deterministic, or conditional implications and does not promote any enclosing
 manuscript lemma or section to complete.
 
-The missing Section 10 probability statement must supply, on one
-high-probability event, the uniform hypothesis used by the accepted greedy
-theorem; pointwise events chosen separately for each leftover set still have
-the wrong quantifiers.  In Lemma 10.2, the absolute `C` and deterministic
+The one-event simultaneous colouring statement is now supplied, so the exact
+Lemma 10.1 quantifiers are closed.  In Lemma 10.2, the absolute `C` and deterministic
 `epsilon_n -> 0` must be chosen before the deterministic sequences `k_n`,
 `Lambda_n`, and `r_n`, and the result must hold along the full sequence.  The
 Section 11 set inclusion must still be instantiated with the actual parameter
@@ -623,7 +639,12 @@ interface with an internal `∀ W`, and proves the conditional implication
 `hCapacityTail`, `hLeftoverTail`, `hChromaticTail`,
 `hCochromaticThreshold`, and `hGapThreshold` as hypotheses.  It does **not**
 prove `Erdos625Statement`; those probabilistic and asymptotic inputs remain to
-be supplied for the manuscript's concrete sequences.
+be supplied for the manuscript's concrete sequences.  The quarter-chain
+specialization
+`erdos625Statement_of_capacity_quarterChainLeftover_thresholds` discharges
+`hLeftoverTail`, reducing this route to four remaining inputs: capacity tail,
+chromatic tail, cochromatic threshold, and gap threshold.  Uniform Lemma 10.2
+and its concrete capacity seed remain open.
 
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
@@ -633,10 +654,10 @@ assembly, concrete cycle-to-walk enumeration and weight
 transfer,
 finite residual attachment bounds, conditioned
 probability control, and full Section 9 assembly,
-Section 10's simultaneous leftover tail and concrete seed-amplification
+Section 10's uniform capacity seed-amplification and Lemma 10.2
 instantiation, and Section 11's actual chromatic tail and threshold/limit
-instantiation remain open.  The new seam theorems do not discharge these
-inputs or prove any manuscript section theorem.  The project
+instantiation remain open.  The new seam theorems do not prove those inputs
+or the final theorem.  The project
 therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative
