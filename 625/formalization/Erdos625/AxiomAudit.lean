@@ -163,6 +163,7 @@ import Erdos625.Section8CanonicalConditionalLaw
 import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
+import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section8CanonicalEventProbabilityNormalization
@@ -730,6 +731,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.typedPartialMatchingPairing
 #print axioms Erdos625.typedPartialMatchingEquivPrescribedDemandWitness
 #print axioms Erdos625.card_typedPartialMatching_mul_factorials
+#print axioms Erdos625.UnlabelledTypedSkeleton.ext
+#print axioms Erdos625.typedPartialMatchingUnlabelledSkeleton
+#print axioms Erdos625.typedPartialMatchingUnlabelledSkeleton_typeTable
+#print axioms Erdos625.unlabelledSkeletonFibreToTypedPartialMatching
+#print axioms Erdos625.typedPartialMatchingEquivUnlabelledSkeletonFibre
+#print axioms Erdos625.card_unlabelledTypedSkeleton_typeTable_mul_factorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

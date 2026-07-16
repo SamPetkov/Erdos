@@ -327,8 +327,13 @@ proves the separate finite side condition that existence of such a labelled
 witness forces its total demand to be at most the ambient row-stub mass.
 [`Section8NearSkeletonExpansion.lean`](Erdos625/Section8NearSkeletonExpansion.lean)
 proves `sum_nearSkeletonChoiceWeight_eq_product` for distinguishable optional
-deficit choices.  The unlabelled typed-skeleton quotient, multiplicity bridge,
-ratio estimates, and (8.25a) remain open.
+deficit choices.  The companion
+[`Section8UnlabelledTypedSkeleton.lean`](Erdos625/Section8UnlabelledTypedSkeleton.lean)
+defines the physical unlabelled typed skeleton, proves that forgetting the
+cellwise presentation is an exact equivalence onto the prescribed type-table
+fibre, and derives the exact cardinality identity with one cell-factorial
+product and no extra quotient.  The weighted quotient sum, ratio estimates,
+(8.25a), and Lemmas 8.1--8.3 remain open.
 
 The six earlier Section 8 source units are
 [`UniformConditionalLaw.lean`](Erdos625/UniformConditionalLaw.lean),

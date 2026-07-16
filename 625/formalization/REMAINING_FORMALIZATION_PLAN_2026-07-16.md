@@ -139,11 +139,13 @@ weighted Cauchy inequality are already accepted.  Do not reimplement them.
 
 Remaining order:
 
-1. define the manuscript's **unlabelled typed skeleton**, demand map, and
-   exact weight;
+1. **Partly completed:** define the physical **unlabelled typed skeleton** and
+   its type-table map.  The exact fibre equivalence and one-factorial
+   cardinality identity are proved; the manuscript weight remains open;
 2. re-express the native incidence/event package (8.3) for that skeleton;
-3. quotient labelled typed partial matchings and prove the exact fibre
-   multiplicity and `W(L)` ratio factors;
+3. **Partly completed:** quotient the cellwise typed partial-matchings by
+   their physical skeleton.  The exact fibre multiplicity is proved; the
+   weighted quotient sum and `W(L)` ratio factors remain open;
 4. specialize endpoint transport and weighted Cauchy to the actual weights;
 5. prove the `A₀` base case, near and middle ranges, ratio bounds, and uniform
    `Xi₄` decay;
@@ -323,9 +325,9 @@ strict inequalities, rounding, and the final `#print axioms` report.
    and the deficit-indexed leftover tail are formalized.
 4. **Completed:** the quantifier-correct uniform Lemma 10.2 is assembled with
    `C ≥ 1`, nonnegative `epsilon_n → 0`, and the required quantifier order.
-5. **Next/in parallel:** Section VIII skeleton type and Section IX mixed-cycle
-   code foundations, with priority on the concrete Section IX seed and
-   `Lambda` asymptotics consumed by Lemma 10.2.
+5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
+   and the Section IX physical mixed-cycle construction, with priority on the
+   concrete Section IX seed and `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
 7. **Final:** integrate the concrete chromatic and cochromatic tails through
