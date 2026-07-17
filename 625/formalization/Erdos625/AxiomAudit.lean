@@ -154,6 +154,8 @@ import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
+import Erdos625.Section9ResidualLambdaCubic
+import Erdos625.Section9ResidualLambdaTotalBound
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -697,6 +699,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaCubicBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaTotalBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
 #print axioms Erdos625.residualReward_eq_localSignRewardNat
 #print axioms Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub

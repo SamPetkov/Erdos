@@ -192,8 +192,9 @@ actual residual even set
   -> event-restricted actual-attachment numerator identity and polymer bound [proved]
   -> exact mixed/residual-only simple-cycle partition [proved]
   -> residual-only row-rooted even-walk bound under tau < 1 [proved]
+  -> pointwise cubic residualLambda bound [proved]
+  -> cubic total-residualLambda bound (9.13) [proved]
   -> actual even-family cardinality = 2^cycleRank and full/residual reward-support split
-  -> cubic total-residualLambda bound
   -> exact per-demand/global tagged incidence integration of (9.1)
   -> uniform strict-regime integration
   -> faithful large- and small-residual expectation estimates
@@ -241,15 +242,18 @@ Implementation order:
     `2 ^ cycleRank (M ∪ H_res)` and prove the canonical full/residual
     reward-product and support-graph splits.  The generic bridge must assume
     `2 ≤ U` (or directly that every positive high demand is at least two);
-11. prove the cubic total-`residualLambda` bound and the exact per-demand/global
-    tagged incidence identity for the event-restricted numerator.  Manuscript
-    (9.1) already contains the cap/no-return indicator, so dividing by its
-    event mass is not part of the proof;
-12. instantiate the strict regime uniformly across the tagged dependent
+11. **Completed analytic transport:** prove the pointwise cubic
+    `residualLambda` bound and, by the deterministic theta cap and global cubic
+    theta moment, the total estimate at the scale in (9.13);
+12. prove the exact per-demand/global tagged incidence identity for the
+    event-restricted numerator.  Manuscript (9.1) already contains the
+    cap/no-return indicator, so dividing by its event mass is not part of the
+    proof;
+13. instantiate the strict regime uniformly across the tagged dependent
     residual family;
-13. prove one deterministic threshold and one error sequence uniform over all
+14. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
-14. assemble Lemma 9.1 and Proposition 9.2.
+15. assemble Lemma 9.1 and Proposition 9.2.
 
 The accepted enumeration modules close exact path multiplicity, relaxed
 block-chain summation, minimal cycle coverage, and the source-free decoder,
@@ -267,11 +271,12 @@ proved, and the exact finite Fubini bridge identifies their sum with the
 event-restricted actual-attachment numerator and transfers the polymer bound to it.
 Reward compatibility, canonical-support matchingness, and the exact mixed/
 residual-only cycle partition are also proved.  The exact residual-only
-row-rooted even-walk bound is now proved as well.  The cubic total-
-`residualLambda` bound, actual-even-family/cycle-rank and full/residual
-reward-support identifications, exact tagged fibre/global incidence
-integration, the later Section IX attachment/
-probability estimates, and `Erdos625Statement` remain open.
+row-rooted even-walk bound is now proved as well.  The pointwise cubic
+`residualLambda` bound and its total estimate at the scale in (9.13) are also
+proved.  The actual-even-family/cycle-rank and full/residual reward-support
+identifications, exact tagged fibre/global incidence integration, the later
+Section IX attachment/probability estimates, and `Erdos625Statement` remain
+open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may
@@ -401,8 +406,8 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX cubic total-`residualLambda` bound, exact tagged
-   fibre/global incidence integration, and uniform
+   and the Section IX actual-family/cycle-rank and full/residual reward-support
+   identifications, exact tagged fibre/global incidence integration, and uniform
    strict-regime bridge, with priority on the concrete Section IX seed and
    `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,

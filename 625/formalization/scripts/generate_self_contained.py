@@ -117,10 +117,9 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX cubic total-`residualLambda` bound, exact tagged fibre/global
-incidence integration of the event-restricted attachment numerator, the
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-uniform large- and small-residual
+Section IX exact tagged fibre/global incidence integration of the
+event-restricted attachment numerator, the actual-even-family/cycle-rank and
+full/residual reward-support identifications, uniform large- and small-residual
 attachment, second-moment assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
@@ -139,9 +138,10 @@ to it; and the cycle sum is partitioned exactly into mixed and residual-only
 terms.  The residual-only term is bounded by an exact row-rooted even-walk
 enumeration under finite row/column kernel bounds.  Manuscript (9.1) already
 retains the cap/no-return indicator, so no division by its event mass is
-required.  No actual-even-family/cycle-rank or full/residual reward-support
-identification, cubic total-`residualLambda` bound, or exact tagged
-fibre/global incidence integration is claimed.
+required.  The pointwise cubic `residualLambda` bound and its deterministic
+total estimate at the scale in (9.13) are included and proved.  No
+actual-even-family/cycle-rank or full/residual reward-support identification
+and no exact tagged fibre/global incidence integration is claimed.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.

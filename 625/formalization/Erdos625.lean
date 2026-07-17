@@ -160,6 +160,8 @@ import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
+import Erdos625.Section9ResidualLambdaCubic
+import Erdos625.Section9ResidualLambdaTotalBound
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -397,10 +399,11 @@ parts.  The residual-only part is bounded by an exact row-rooted even-walk
 enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
 retains the cap/no-return indicator inside the residual expectation, this
 event-restricted numerator must not be divided by the event mass.  The
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-the cubic total-`residualLambda` bound, exact tagged fibre/global incidence
-integration, uniform large- and small-residual estimates, and complete Lemma
-9.1/Proposition 9.2 assembly remain open.
+pointwise cubic `residualLambda` bound and its deterministic total estimate at
+the scale in (9.13) are proved.  The actual-even-family/cycle-rank and
+full/residual reward-support identifications, exact tagged fibre/global
+incidence integration, uniform large- and small-residual estimates, and
+complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

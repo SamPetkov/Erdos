@@ -98,10 +98,9 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX cubic total-`residualLambda` bound, exact tagged fibre/global
-incidence integration of the event-restricted attachment numerator, the
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-uniform large- and small-residual
+Section IX exact tagged fibre/global incidence integration of the
+event-restricted attachment numerator, the actual-even-family/cycle-rank and
+full/residual reward-support identifications, uniform large- and small-residual
 attachment, second-moment assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
@@ -120,9 +119,10 @@ to it; and the cycle sum is partitioned exactly into mixed and residual-only
 terms.  The residual-only term is bounded by an exact row-rooted even-walk
 enumeration under finite row/column kernel bounds.  Manuscript (9.1) already
 retains the cap/no-return indicator, so no division by its event mass is
-required.  No actual-even-family/cycle-rank or full/residual reward-support
-identification, cubic total-`residualLambda` bound, or exact tagged
-fibre/global incidence integration is claimed.
+required.  The pointwise cubic `residualLambda` bound and its deterministic
+total estimate at the scale in (9.13) are included and proved.  No
+actual-even-family/cycle-rank or full/residual reward-support identification
+and no exact tagged fibre/global incidence integration is claimed.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -33733,6 +33733,628 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualLambdaCubic
+Source: Erdos625/Section9ResidualLambdaCubic.lean
+Normalized SHA-256: 0b3b378f9aa012e584451fbd2d9c1c17a91e4a82830a05b17ab246bcd169f307
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaCubic
+
+/-!
+# Section IX: universal residual-lambda cubic bound
+
+This module transports the lambda half of the finite real endpoint estimate
+to the literal `ENNReal` residual kernel.  It is only a pointwise analytic
+bridge.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One finite positive `ENNReal` constant bounds the literal Section IX
+`residualLambda` cubically in the literal configuration-cell parameter. -/
+theorem existsAbsoluteResidualLambdaCubicBound :
+    ∃ κ : ENNReal, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        R = U / 2 →
+        (∀ a b, (a, b) ∉ M →
+          (configurationCellTheta row col m a b).toReal ≤
+            Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ)) →
+        2 ^ U ≤ m ^ 3 →
+        ∀ a b,
+          residualLambda M R row col a b ≤
+            κ * configurationCellTheta row col m a b ^ 3 := by
+  obtain ⟨C, hC₀, hC⟩ := existsAbsoluteFiniteEndpointConstant
+  use ENNReal.ofReal C
+  refine ⟨ENNReal.ofReal_pos.mpr hC₀, ENNReal.ofReal_ne_top, ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hsum hR hbound hpow a b
+  by_cases hab : (a, b) ∈ M
+  · simp [residualLambda, hab]
+  have h_residLambda : residualLambda M R row col a b = ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) := by
+    unfold residualLambda; simp +decide [ *, endpointLambda ] ;
+    rw [ ENNReal.ofReal_sum_of_nonneg ];
+    · refine' Finset.sum_congr rfl fun x hx => _;
+      rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by
+        unfold endpointIncrement; simp +decide [ endpointRewardNat ] ;
+        split_ifs <;> norm_num at *;
+        · exact pow_le_pow_right₀ ( by norm_num ) ( Nat.sub_le_sub_right ( Nat.choose_le_choose _ ( Nat.pred_le _ ) ) _ );
+        · omega;
+        · exact one_le_pow₀ ( by norm_num ) ), ENNReal.ofReal_pow ( by
+        exact ENNReal.toReal_nonneg ) ];
+      rw [ show endpointIncrement x = ( residualRewardIncrement x : ℝ ) from ?_ ];
+      · rw [ ENNReal.ofReal_natCast, ENNReal.ofReal_natCast, ENNReal.ofReal_toReal ];
+        unfold configurationCellTheta; simp +decide [ eulerENNReal ] ;
+        simp +decide [ ENNReal.div_eq_top, hm.ne' ];
+        exact ENNReal.mul_ne_top ( ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( by norm_num ) ) ( by norm_num );
+      · unfold endpointIncrement residualRewardIncrement; simp +decide [ residualReward ] ;
+        rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
+        · norm_num;
+        · rw [ Nat.cast_sub ] <;> norm_num;
+          apply pow_le_pow_right₀ (by norm_num)
+          have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
+            exact Nat.choose_le_succ (x + 3) 2
+          omega
+    · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
+        rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat, Nat.choose ] at hi ⊢;
+        split_ifs;
+        · apply pow_le_pow_right₀ (by norm_num)
+          omega
+        · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
+  rw [h_residLambda]
+  by_cases htop : configurationCellTheta row col m a b = ⊤
+  · simp [htop, endpointLambda, (ENNReal.ofReal_pos.mpr hC₀).ne']
+  calc
+    _ ≤ ENNReal.ofReal
+        (C * (configurationCellTheta row col m a b).toReal ^ 3) :=
+      ENNReal.ofReal_le_ofReal
+        (hC U m R (configurationCellTheta row col m a b).toReal hm hR
+          ENNReal.toReal_nonneg (hbound a b hab) hpow).1
+    _ = ENNReal.ofReal C * configurationCellTheta row col m a b ^ 3 := by
+      rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow (by positivity),
+        ENNReal.ofReal_toReal htop]
+
+#print axioms existsAbsoluteResidualLambdaCubicBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaCubic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualLambdaCubic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ConfigurationThetaMoments
+Source: Erdos625/ConfigurationThetaMoments.lean
+Normalized SHA-256: 7f9f10e73af19d8def911767d4a4972477c01ccb32313fe616dfa03012257438
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
+
+/-!
+# Degree moments and configuration-cell parameters
+
+This module isolates the finite arithmetic used in manuscript (9.13)--(9.14).
+For a nonnegative integer degree family of total mass m, bounded pointwise
+by U, its second and third moments are at most U m and U squared times m.
+
+The second half applies those inequalities to the configuration-cell
+parameter. Exact finite factorization identities are stated for every m.
+Bounds that cancel a denominator explicitly assume positive m; the zero-total
+case is recorded separately. No asymptotic estimate is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-! ## Capped moments of a finite degree family -/
+
+/-- A capped natural-valued family of total m has second moment at most U m. -/
+theorem degreeSquareSum_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, d i ^ 2 ≤ U * m := by
+  calc
+    ∑ i, d i ^ 2 ≤ ∑ i, U * d i := by
+      apply Finset.sum_le_sum
+      intro i hi
+      simpa [pow_two, mul_comm] using
+        Nat.mul_le_mul_right (d i) (hcap i)
+    _ = U * m := by rw [← Finset.mul_sum, htotal]
+
+/-- A capped natural-valued family of total m has third moment at most
+U squared times m. -/
+theorem degreeCubeSum_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, d i ^ 3 ≤ U ^ 2 * m := by
+  calc
+    ∑ i, d i ^ 3 ≤ ∑ i, U ^ 2 * d i := by
+      apply Finset.sum_le_sum
+      intro i hi
+      calc
+        d i ^ 3 = d i ^ 2 * d i := by ring
+        _ ≤ U ^ 2 * d i :=
+          Nat.mul_le_mul_right (d i) (Nat.pow_le_pow_left (hcap i) 2)
+    _ = U ^ 2 * m := by rw [← Finset.mul_sum, htotal]
+
+/-- Real-cast form of the capped second-moment inequality. -/
+theorem degreeSquareSum_real_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ) ^ 2 ≤ (U : ℝ) * (m : ℝ) := by
+  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
+
+/-- Real-cast form of the capped third-moment inequality. -/
+theorem degreeCubeSum_real_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ) ^ 3 ≤ (U : ℝ) ^ 2 * (m : ℝ) := by
+  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
+
+/-- Extended-nonnegative-real form of the capped second-moment inequality. -/
+theorem degreeSquareSum_ennreal_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) * (m : ℝ≥0∞) := by
+  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
+
+/-- Extended-nonnegative-real form of the capped third-moment inequality. -/
+theorem degreeCubeSum_ennreal_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ≥0∞) ^ 3 ≤
+      (U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞) := by
+  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
+
+/-! ## Exact finite theta factorizations -/
+
+/-- Exact row factorization of the squared cell parameters, valid for all m. -/
+theorem sum_configurationCellTheta_sq_row
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (a : A) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (row a : ℝ≥0∞) ^ 2 *
+        ∑ b, (col b : ℝ≥0∞) ^ 2 := by
+  have hpoint : ∀ b : B,
+      configurationCellTheta row col m a b ^ 2 =
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (row a : ℝ≥0∞) ^ 2) *
+          (col b : ℝ≥0∞) ^ 2 := by
+    intro b
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  rw [Finset.mul_sum]
+
+/-- Exact column factorization of the squared cell parameters, valid for all m. -/
+theorem sum_configurationCellTheta_sq_column
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (b : B) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (col b : ℝ≥0∞) ^ 2 *
+        ∑ a, (row a : ℝ≥0∞) ^ 2 := by
+  have hpoint : ∀ a : A,
+      configurationCellTheta row col m a b ^ 2 =
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (col b : ℝ≥0∞) ^ 2) *
+          (row a : ℝ≥0∞) ^ 2 := by
+    intro a
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  rw [Finset.mul_sum]
+
+/-- Exact factorization of the global cubic theta sum, valid for all m. -/
+theorem sum_configurationCellTheta_cube
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        (∑ a, (row a : ℝ≥0∞) ^ 3) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+  have hpoint : ∀ a : A, ∀ b : B,
+      configurationCellTheta row col m a b ^ 3 =
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3 := by
+    intro a b
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  calc
+    (∑ a, ∑ b,
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3) =
+        ∑ a,
+          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+            (row a : ℝ≥0∞) ^ 3) *
+            (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      apply Finset.sum_congr rfl
+      intro a ha
+      rw [Finset.mul_sum]
+    _ = (∑ a,
+          (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+            (row a : ℝ≥0∞) ^ 3) *
+          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      rw [Finset.sum_mul]
+    _ = (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (∑ a, (row a : ℝ≥0∞) ^ 3) *
+          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      congr 1
+      rw [Finset.mul_sum]
+
+/-! ## Bounds before and after positive-mass cancellation -/
+
+/-- Row-square theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_sq_row_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (row a : ℝ≥0∞) ^ 2 *
+        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_sq_row]
+  exact mul_le_mul_right
+    (degreeSquareSum_ennreal_le_cap_mul_total col U m hcolCap hcolTotal)
+    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (row a : ℝ≥0∞) ^ 2)
+
+/-- Column-square theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_sq_column_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (col b : ℝ≥0∞) ^ 2 *
+        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_sq_column]
+  exact mul_le_mul_right
+    (degreeSquareSum_ennreal_le_cap_mul_total row U m hrowCap hrowTotal)
+    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (col b : ℝ≥0∞) ^ 2)
+
+/-- Cancellation identity used in the positive-total square bounds. -/
+private theorem normalizeThetaSquareBound
+    (e r U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
+    (e / (m : ℝ≥0∞)) ^ 2 * r ^ 2 *
+        (U * (m : ℝ≥0∞)) =
+      e ^ 2 * r ^ 2 * U / (m : ℝ≥0∞) := by
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hm)
+  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
+  apply (ENNReal.eq_div_iff hm0 hmt).2
+  rw [div_eq_mul_inv]
+  calc
+    (m : ℝ≥0∞) *
+        ((e * (m : ℝ≥0∞)⁻¹) ^ 2 * r ^ 2 *
+          (U * (m : ℝ≥0∞))) =
+        e ^ 2 * r ^ 2 * U *
+          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 2 := by ring
+    _ = e ^ 2 * r ^ 2 * U := by
+      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
+
+/-- Positive-total row-square bound in cancelled form. -/
+theorem sum_configurationCellTheta_sq_row_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hm : 0 < m)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
+  calc
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (row a : ℝ≥0∞) ^ 2 *
+          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_sq_row_le_raw
+        row col m U a hcolCap hcolTotal
+    _ = eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      normalizeThetaSquareBound eulerENNReal (row a : ℝ≥0∞)
+        (U : ℝ≥0∞) m hm
+
+/-- Positive-total column-square bound in cancelled form. -/
+theorem sum_configurationCellTheta_sq_column_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hm : 0 < m)
+    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
+  calc
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (col b : ℝ≥0∞) ^ 2 *
+          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_sq_column_le_raw
+        row col m U b hrowCap hrowTotal
+    _ = eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      normalizeThetaSquareBound eulerENNReal (col b : ℝ≥0∞)
+        (U : ℝ≥0∞) m hm
+
+/-- Uniform row-square bound after also using the row cap. -/
+theorem sum_configurationCellTheta_sq_row_le_uniform
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
+  calc
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+        eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      sum_configurationCellTheta_sq_row_le
+        row col m U a hm hcolCap hcolTotal
+    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
+        (m : ℝ≥0∞) := by
+      apply ENNReal.div_le_div
+      · have hr : (row a : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
+          exact pow_le_pow_left' (by exact_mod_cast hrowCap a) 2
+        calc
+          eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
+              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
+            mul_le_mul_left (mul_le_mul_right hr (eulerENNReal ^ 2))
+              (U : ℝ≥0∞)
+          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
+      · rfl
+
+/-- Uniform column-square bound after also using the column cap. -/
+theorem sum_configurationCellTheta_sq_column_le_uniform
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
+  calc
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+        eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      sum_configurationCellTheta_sq_column_le
+        row col m U b hm hrowCap hrowTotal
+    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
+        (m : ℝ≥0∞) := by
+      apply ENNReal.div_le_div
+      · have hc : (col b : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
+          exact pow_le_pow_left' (by exact_mod_cast hcolCap b) 2
+        calc
+          eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
+              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
+            mul_le_mul_left (mul_le_mul_right hc (eulerENNReal ^ 2))
+              (U : ℝ≥0∞)
+          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
+      · rfl
+
+/-! ## The global cubic bound -/
+
+/-- Global cubic theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_cube_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_cube]
+  have hrow :=
+    degreeCubeSum_ennreal_le_cap_sq_mul_total row U m hrowCap hrowTotal
+  have hcol :=
+    degreeCubeSum_ennreal_le_cap_sq_mul_total col U m hcolCap hcolTotal
+  calc
+    (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        (∑ a, (row a : ℝ≥0∞) ^ 3) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) :=
+      mul_le_mul_left
+        (mul_le_mul_right hrow
+          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3))
+        (∑ b, (col b : ℝ≥0∞) ^ 3)
+    _ ≤ (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
+      mul_le_mul_right hcol
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)))
+
+/-- Cancellation identity used in the positive-total cubic bound. -/
+private theorem normalizeThetaCubeBound
+    (e U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
+    (e / (m : ℝ≥0∞)) ^ 3 *
+        (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞)) =
+      e ^ 3 * U ^ 4 / (m : ℝ≥0∞) := by
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hm)
+  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
+  apply (ENNReal.eq_div_iff hm0 hmt).2
+  rw [div_eq_mul_inv]
+  calc
+    (m : ℝ≥0∞) *
+        ((e * (m : ℝ≥0∞)⁻¹) ^ 3 *
+          (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞))) =
+        e ^ 3 * U ^ 4 *
+          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 3 := by ring
+    _ = e ^ 3 * U ^ 4 := by
+      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
+
+/-- Positive-total global cubic theta bound in cancelled form. -/
+theorem sum_configurationCellTheta_cube_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (hm : 0 < m)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+      eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 / (m : ℝ≥0∞) := by
+  calc
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_cube_le_raw
+        row col m U hrowCap hcolCap hrowTotal hcolTotal
+    _ = eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 /
+        (m : ℝ≥0∞) :=
+      normalizeThetaCubeBound eulerENNReal (U : ℝ≥0∞) m hm
+
+/-! ## The zero-total branch -/
+
+/-- Zero row total forces every cell parameter with denominator zero to zero. -/
+theorem configurationCellTheta_eq_zero_of_rowTotal_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0)
+    (a : A) (b : B) :
+    configurationCellTheta row col 0 a b = 0 := by
+  have hrowa : row a = 0 :=
+    (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
+  simp [configurationCellTheta, hrowa]
+
+/-- Zero column total gives the symmetric vanishing statement. -/
+theorem configurationCellTheta_eq_zero_of_colTotal_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hcolTotal : ∑ b, col b = 0)
+    (a : A) (b : B) :
+    configurationCellTheta row col 0 a b = 0 := by
+  have hcolb : col b = 0 :=
+    (Finset.sum_eq_zero_iff.mp hcolTotal) b (Finset.mem_univ b)
+  simp [configurationCellTheta, hcolb]
+
+/-- The global cubic theta sum vanishes in the zero-total branch. -/
+theorem sum_configurationCellTheta_cube_eq_zero_of_total_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0) :
+    (∑ a, ∑ b, configurationCellTheta row col 0 a b ^ 3) = 0 := by
+  simp_rw [configurationCellTheta_eq_zero_of_rowTotal_zero
+    row col hrowTotal]
+  simp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ConfigurationThetaMoments
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
+Source: Erdos625/Section9ResidualLambdaTotalBound.lean
+Normalized SHA-256: ae854a7a7e0244f9c4e1aa1a933ef13257b927d818f1e4641001f2eba99b23b9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
+
+/-!
+# Section IX: deterministic total residual-lambda estimate
+
+This module sums the pointwise cubic residual-lambda bound using the global
+configuration-theta cubic moment estimate.  It proves the deterministic
+fourth-power degree-cap scale in manuscript (9.13).  No residual-law,
+attachment, cycle, conditioning, or asymptotic assertion is made here.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One absolute positive finite constant bounds the total literal residual
+lambda by the deterministic fourth-power degree-cap scale. -/
+theorem existsAbsoluteResidualLambdaTotalBound :
+    ∃ κ : ENNReal, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        (∑ a, ∑ b, residualLambda M R row col a b) ≤
+          κ * (U : ENNReal) ^ 4 / (m : ENNReal) := by
+  obtain ⟨κ, hκPos, hκTop, hκ⟩ :=
+    existsAbsoluteResidualLambdaCubicBound
+  have heulerPos : 0 < eulerENNReal := by
+    rw [eulerENNReal, ENNReal.ofReal_pos]
+    exact Real.exp_pos 1
+  have heulerTop : eulerENNReal ≠ ∞ := by
+    unfold eulerENNReal
+    exact ENNReal.ofReal_ne_top
+  refine ⟨κ * eulerENNReal ^ 3, ?_, ?_, ?_⟩
+  · exact ENNReal.mul_pos hκPos.ne'
+      (pow_ne_zero 3 heulerPos.ne')
+  · exact ENNReal.mul_ne_top hκTop
+      (ENNReal.pow_ne_top heulerTop)
+  · intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal
+      hrowCap hcolCap hR hpow
+    have htheta : ∀ a b, (a, b) ∉ M →
+        (configurationCellTheta row col m a b).toReal ≤
+          Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) := by
+      intro a b _hab
+      exact configurationCellTheta_toReal_le_of_caps
+        row col m U a b hm (hrowCap a) (hcolCap b)
+    have hpoint : ∀ a b,
+        residualLambda M R row col a b ≤
+          κ * configurationCellTheta row col m a b ^ 3 :=
+      hκ M U R m row col hm hrowTotal hR htheta hpow
+    calc
+      (∑ a, ∑ b, residualLambda M R row col a b) ≤
+          ∑ a, ∑ b,
+            κ * configurationCellTheta row col m a b ^ 3 := by
+        exact Finset.sum_le_sum fun a _ =>
+          Finset.sum_le_sum fun b _ => hpoint a b
+      _ = κ *
+          (∑ a, ∑ b,
+            configurationCellTheta row col m a b ^ 3) := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro a _
+        rw [Finset.mul_sum]
+      _ ≤ κ *
+          (eulerENNReal ^ 3 * (U : ENNReal) ^ 4 /
+            (m : ENNReal)) := by
+        simpa only [mul_comm] using
+          (mul_le_mul_right
+            (sum_configurationCellTheta_cube_le row col m U hm
+              hrowCap hcolCap hrowTotal hcolTotal) κ)
+      _ = (κ * eulerENNReal ^ 3) *
+          (U : ENNReal) ^ 4 / (m : ENNReal) := by
+        simp only [div_eq_mul_inv, mul_assoc]
+
+#print axioms existsAbsoluteResidualLambdaTotalBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 Source: Erdos625/Section9SmallResidualDeterministic.lean
 Normalized SHA-256: 00df3c8b05783178642675c392d8424f303cd74e7a177a7833b52ee04507865a
@@ -38603,426 +39225,6 @@ END SOURCE MODULE: Erdos625.EndpointTransportBounds
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ConfigurationThetaMoments
-Source: Erdos625/ConfigurationThetaMoments.lean
-Normalized SHA-256: 7f9f10e73af19d8def911767d4a4972477c01ccb32313fe616dfa03012257438
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
-
-/-!
-# Degree moments and configuration-cell parameters
-
-This module isolates the finite arithmetic used in manuscript (9.13)--(9.14).
-For a nonnegative integer degree family of total mass m, bounded pointwise
-by U, its second and third moments are at most U m and U squared times m.
-
-The second half applies those inequalities to the configuration-cell
-parameter. Exact finite factorization identities are stated for every m.
-Bounds that cancel a denominator explicitly assume positive m; the zero-total
-case is recorded separately. No asymptotic estimate is asserted here.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-/-! ## Capped moments of a finite degree family -/
-
-/-- A capped natural-valued family of total m has second moment at most U m. -/
-theorem degreeSquareSum_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, d i ^ 2 ≤ U * m := by
-  calc
-    ∑ i, d i ^ 2 ≤ ∑ i, U * d i := by
-      apply Finset.sum_le_sum
-      intro i hi
-      simpa [pow_two, mul_comm] using
-        Nat.mul_le_mul_right (d i) (hcap i)
-    _ = U * m := by rw [← Finset.mul_sum, htotal]
-
-/-- A capped natural-valued family of total m has third moment at most
-U squared times m. -/
-theorem degreeCubeSum_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, d i ^ 3 ≤ U ^ 2 * m := by
-  calc
-    ∑ i, d i ^ 3 ≤ ∑ i, U ^ 2 * d i := by
-      apply Finset.sum_le_sum
-      intro i hi
-      calc
-        d i ^ 3 = d i ^ 2 * d i := by ring
-        _ ≤ U ^ 2 * d i :=
-          Nat.mul_le_mul_right (d i) (Nat.pow_le_pow_left (hcap i) 2)
-    _ = U ^ 2 * m := by rw [← Finset.mul_sum, htotal]
-
-/-- Real-cast form of the capped second-moment inequality. -/
-theorem degreeSquareSum_real_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ) ^ 2 ≤ (U : ℝ) * (m : ℝ) := by
-  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
-
-/-- Real-cast form of the capped third-moment inequality. -/
-theorem degreeCubeSum_real_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ) ^ 3 ≤ (U : ℝ) ^ 2 * (m : ℝ) := by
-  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
-
-/-- Extended-nonnegative-real form of the capped second-moment inequality. -/
-theorem degreeSquareSum_ennreal_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) * (m : ℝ≥0∞) := by
-  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
-
-/-- Extended-nonnegative-real form of the capped third-moment inequality. -/
-theorem degreeCubeSum_ennreal_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ≥0∞) ^ 3 ≤
-      (U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞) := by
-  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
-
-/-! ## Exact finite theta factorizations -/
-
-/-- Exact row factorization of the squared cell parameters, valid for all m. -/
-theorem sum_configurationCellTheta_sq_row
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (a : A) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (row a : ℝ≥0∞) ^ 2 *
-        ∑ b, (col b : ℝ≥0∞) ^ 2 := by
-  have hpoint : ∀ b : B,
-      configurationCellTheta row col m a b ^ 2 =
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (row a : ℝ≥0∞) ^ 2) *
-          (col b : ℝ≥0∞) ^ 2 := by
-    intro b
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  rw [Finset.mul_sum]
-
-/-- Exact column factorization of the squared cell parameters, valid for all m. -/
-theorem sum_configurationCellTheta_sq_column
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (b : B) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (col b : ℝ≥0∞) ^ 2 *
-        ∑ a, (row a : ℝ≥0∞) ^ 2 := by
-  have hpoint : ∀ a : A,
-      configurationCellTheta row col m a b ^ 2 =
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (col b : ℝ≥0∞) ^ 2) *
-          (row a : ℝ≥0∞) ^ 2 := by
-    intro a
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  rw [Finset.mul_sum]
-
-/-- Exact factorization of the global cubic theta sum, valid for all m. -/
-theorem sum_configurationCellTheta_cube
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        (∑ a, (row a : ℝ≥0∞) ^ 3) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-  have hpoint : ∀ a : A, ∀ b : B,
-      configurationCellTheta row col m a b ^ 3 =
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3 := by
-    intro a b
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  calc
-    (∑ a, ∑ b,
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3) =
-        ∑ a,
-          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-            (row a : ℝ≥0∞) ^ 3) *
-            (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      apply Finset.sum_congr rfl
-      intro a ha
-      rw [Finset.mul_sum]
-    _ = (∑ a,
-          (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-            (row a : ℝ≥0∞) ^ 3) *
-          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      rw [Finset.sum_mul]
-    _ = (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (∑ a, (row a : ℝ≥0∞) ^ 3) *
-          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      congr 1
-      rw [Finset.mul_sum]
-
-/-! ## Bounds before and after positive-mass cancellation -/
-
-/-- Row-square theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_sq_row_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (row a : ℝ≥0∞) ^ 2 *
-        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_sq_row]
-  exact mul_le_mul_right
-    (degreeSquareSum_ennreal_le_cap_mul_total col U m hcolCap hcolTotal)
-    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (row a : ℝ≥0∞) ^ 2)
-
-/-- Column-square theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_sq_column_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (col b : ℝ≥0∞) ^ 2 *
-        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_sq_column]
-  exact mul_le_mul_right
-    (degreeSquareSum_ennreal_le_cap_mul_total row U m hrowCap hrowTotal)
-    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (col b : ℝ≥0∞) ^ 2)
-
-/-- Cancellation identity used in the positive-total square bounds. -/
-private theorem normalizeThetaSquareBound
-    (e r U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
-    (e / (m : ℝ≥0∞)) ^ 2 * r ^ 2 *
-        (U * (m : ℝ≥0∞)) =
-      e ^ 2 * r ^ 2 * U / (m : ℝ≥0∞) := by
-  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
-    exact_mod_cast (Nat.ne_of_gt hm)
-  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
-  apply (ENNReal.eq_div_iff hm0 hmt).2
-  rw [div_eq_mul_inv]
-  calc
-    (m : ℝ≥0∞) *
-        ((e * (m : ℝ≥0∞)⁻¹) ^ 2 * r ^ 2 *
-          (U * (m : ℝ≥0∞))) =
-        e ^ 2 * r ^ 2 * U *
-          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 2 := by ring
-    _ = e ^ 2 * r ^ 2 * U := by
-      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
-
-/-- Positive-total row-square bound in cancelled form. -/
-theorem sum_configurationCellTheta_sq_row_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hm : 0 < m)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
-  calc
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (row a : ℝ≥0∞) ^ 2 *
-          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_sq_row_le_raw
-        row col m U a hcolCap hcolTotal
-    _ = eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      normalizeThetaSquareBound eulerENNReal (row a : ℝ≥0∞)
-        (U : ℝ≥0∞) m hm
-
-/-- Positive-total column-square bound in cancelled form. -/
-theorem sum_configurationCellTheta_sq_column_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hm : 0 < m)
-    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
-  calc
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (col b : ℝ≥0∞) ^ 2 *
-          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_sq_column_le_raw
-        row col m U b hrowCap hrowTotal
-    _ = eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      normalizeThetaSquareBound eulerENNReal (col b : ℝ≥0∞)
-        (U : ℝ≥0∞) m hm
-
-/-- Uniform row-square bound after also using the row cap. -/
-theorem sum_configurationCellTheta_sq_row_le_uniform
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
-  calc
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-        eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      sum_configurationCellTheta_sq_row_le
-        row col m U a hm hcolCap hcolTotal
-    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
-        (m : ℝ≥0∞) := by
-      apply ENNReal.div_le_div
-      · have hr : (row a : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
-          exact pow_le_pow_left' (by exact_mod_cast hrowCap a) 2
-        calc
-          eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
-              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
-            mul_le_mul_left (mul_le_mul_right hr (eulerENNReal ^ 2))
-              (U : ℝ≥0∞)
-          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
-      · rfl
-
-/-- Uniform column-square bound after also using the column cap. -/
-theorem sum_configurationCellTheta_sq_column_le_uniform
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
-    (hcolCap : ∀ b, col b ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
-  calc
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-        eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      sum_configurationCellTheta_sq_column_le
-        row col m U b hm hrowCap hrowTotal
-    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
-        (m : ℝ≥0∞) := by
-      apply ENNReal.div_le_div
-      · have hc : (col b : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
-          exact pow_le_pow_left' (by exact_mod_cast hcolCap b) 2
-        calc
-          eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
-              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
-            mul_le_mul_left (mul_le_mul_right hc (eulerENNReal ^ 2))
-              (U : ℝ≥0∞)
-          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
-      · rfl
-
-/-! ## The global cubic bound -/
-
-/-- Global cubic theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_cube_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_cube]
-  have hrow :=
-    degreeCubeSum_ennreal_le_cap_sq_mul_total row U m hrowCap hrowTotal
-  have hcol :=
-    degreeCubeSum_ennreal_le_cap_sq_mul_total col U m hcolCap hcolTotal
-  calc
-    (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        (∑ a, (row a : ℝ≥0∞) ^ 3) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) :=
-      mul_le_mul_left
-        (mul_le_mul_right hrow
-          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3))
-        (∑ b, (col b : ℝ≥0∞) ^ 3)
-    _ ≤ (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
-      mul_le_mul_right hcol
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)))
-
-/-- Cancellation identity used in the positive-total cubic bound. -/
-private theorem normalizeThetaCubeBound
-    (e U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
-    (e / (m : ℝ≥0∞)) ^ 3 *
-        (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞)) =
-      e ^ 3 * U ^ 4 / (m : ℝ≥0∞) := by
-  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
-    exact_mod_cast (Nat.ne_of_gt hm)
-  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
-  apply (ENNReal.eq_div_iff hm0 hmt).2
-  rw [div_eq_mul_inv]
-  calc
-    (m : ℝ≥0∞) *
-        ((e * (m : ℝ≥0∞)⁻¹) ^ 3 *
-          (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞))) =
-        e ^ 3 * U ^ 4 *
-          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 3 := by ring
-    _ = e ^ 3 * U ^ 4 := by
-      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
-
-/-- Positive-total global cubic theta bound in cancelled form. -/
-theorem sum_configurationCellTheta_cube_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (hm : 0 < m)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-      eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 / (m : ℝ≥0∞) := by
-  calc
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_cube_le_raw
-        row col m U hrowCap hcolCap hrowTotal hcolTotal
-    _ = eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 /
-        (m : ℝ≥0∞) :=
-      normalizeThetaCubeBound eulerENNReal (U : ℝ≥0∞) m hm
-
-/-! ## The zero-total branch -/
-
-/-- Zero row total forces every cell parameter with denominator zero to zero. -/
-theorem configurationCellTheta_eq_zero_of_rowTotal_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0)
-    (a : A) (b : B) :
-    configurationCellTheta row col 0 a b = 0 := by
-  have hrowa : row a = 0 :=
-    (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
-  simp [configurationCellTheta, hrowa]
-
-/-- Zero column total gives the symmetric vanishing statement. -/
-theorem configurationCellTheta_eq_zero_of_colTotal_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hcolTotal : ∑ b, col b = 0)
-    (a : A) (b : B) :
-    configurationCellTheta row col 0 a b = 0 := by
-  have hcolb : col b = 0 :=
-    (Finset.sum_eq_zero_iff.mp hcolTotal) b (Finset.mem_univ b)
-  simp [configurationCellTheta, hcolb]
-
-/-- The global cubic theta sum vanishes in the zero-total branch. -/
-theorem sum_configurationCellTheta_cube_eq_zero_of_total_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0) :
-    (∑ a, ∑ b, configurationCellTheta row col 0 a b ^ 3) = 0 := by
-  simp_rw [configurationCellTheta_eq_zero_of_rowTotal_zero
-    row col hrowTotal]
-  simp
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ConfigurationThetaMoments
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalWeights
 Source: Erdos625/PartialDiagonalWeights.lean
 Normalized SHA-256: e19963d6c102e921280769122399697ac1ad7c2a4b5487f3f734e956a15ce0a8
@@ -40675,7 +40877,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 7d9507419d19a7c42ed2c560a070d2a45ae8d48f27fb34fca2e1d0936f81ff88
+Normalized SHA-256: 8e4c74557602e1cb42de6f303238ac605cdd1b353a0c79dbd4a4eb0c010da227
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -41177,6 +41379,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaCubicBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaTotalBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
 #print axioms Erdos625.residualReward_eq_localSignRewardNat
 #print axioms Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub
@@ -41361,7 +41565,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 76d6d60fd5d448ce34670c72b55ce2bb92d98e9b046215767d9009b75581d957
+Normalized SHA-256: c6b81bf68cfdf21632655c820a07720b957b98059d3b67103f6889ed99008337
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -41557,10 +41761,11 @@ parts.  The residual-only part is bounded by an exact row-rooted even-walk
 enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
 retains the cap/no-return indicator inside the residual expectation, this
 event-restricted numerator must not be divided by the event mass.  The
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-the cubic total-`residualLambda` bound, exact tagged fibre/global incidence
-integration, uniform large- and small-residual estimates, and complete Lemma
-9.1/Proposition 9.2 assembly remain open.
+pointwise cubic `residualLambda` bound and its deterministic total estimate at
+the scale in (9.13) are proved.  The actual-even-family/cycle-rank and
+full/residual reward-support identifications, exact tagged fibre/global
+incidence integration, uniform large- and small-residual estimates, and
+complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

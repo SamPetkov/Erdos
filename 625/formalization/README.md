@@ -393,8 +393,9 @@ transfer and its deterministic literal-`residualQ` geometric specialization
 are now proved separately.  Manuscript (9.1) keeps the cap/no-return indicator
 inside the residual expectation, so this event-restricted numerator is the
 fixed-skeleton attachment factor and must not be divided by the event mass.
-The actual-even-family/cycle-rank and full/residual reward-support
-identifications, the cubic total-`residualLambda` bound, the exact tagged
+The pointwise cubic `residualLambda` estimate and its exact total bound at
+scale `C * U^4 / m` from (9.13) are now proved.  The actual-even-family/
+cycle-rank and full/residual reward-support identifications, the exact tagged
 fibre/global incidence identity, and the large- and small-residual attachment
 estimates remain open.
 The residual-only cycle
@@ -471,9 +472,9 @@ and its `EReal` exponential endpoint.  The canonical source-free cycle encoder,
 its exact weight, dependent finite packaging, and aggregate weighted traversal
 domination are proved, as are the abstract and deterministic literal-`residualQ`
 geometric bounds for cycles meeting the matching.  The cycles disjoint from
-the matching now have their own exact deterministic even-walk enumeration;
-the cubic total-`residualLambda` estimate and law-level probability transport
-remain open.
+the matching now have their own exact deterministic even-walk enumeration.
+The cubic total-`residualLambda` estimate is proved separately; law-level
+probability transport remains open.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -529,6 +530,16 @@ endpoint estimate to the literal `ENNReal` `residualQ`, including its
 exposed-skeleton zero branch and the finite/top cell-parameter split. It does
 not identify a conditioned residual table, prove an attachment estimate, or
 establish Lemma 9.1.
+[`Section9ResidualLambdaCubic.lean`](Erdos625/Section9ResidualLambdaCubic.lean)
+proves `existsAbsoluteResidualLambdaCubicBound`: one positive finite absolute
+`ENNReal` constant bounds every literal `residualLambda` pointwise by
+`kappa * theta^3` under the exact finite endpoint hypotheses.
+[`Section9ResidualLambdaTotalBound.lean`](Erdos625/Section9ResidualLambdaTotalBound.lean)
+then combines that theorem with the existing deterministic theta cap and
+global cubic theta moment to prove `existsAbsoluteResidualLambdaTotalBound`,
+the total estimate `sum lambda <= kappa * U^4 / m` in (9.13).  These are
+deterministic finite estimates; they do not supply tagged-law integration,
+uniform residual-regime control, or Lemma 9.1.
 [`Section9ResidualQDegreeAssembly.lean`](Erdos625/Section9ResidualQDegreeAssembly.lean)
 then composes that pointwise estimate with Euler rescaling and the proved
 degree-square summation bound. Its degree-cap corollary supplies one finite
@@ -638,8 +649,8 @@ path of even length at least four, preserves its exact physical weight, and
 bounds the residual-only sum by
 `|A| * tau^4 * (1 - tau^2)⁻¹` whenever every row and column sum of the finite
 kernel is at most `tau < 1`.  This is a deterministic finite-kernel theorem;
-it does not prove the cubic total-`residualLambda` estimate or the exact tagged
-fibre/global incidence identity.  The finite fixed-`F`
+the cubic total-`residualLambda` estimate is now proved separately, while the
+exact tagged fibre/global incidence identity remains open.  The finite fixed-`F`
 aggregation is proved separately,
 and its exact Fubini bridge identifies it with the event-restricted actual-
 attachment numerator.  No division by the cap/no-return event mass belongs in
@@ -814,8 +825,8 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, the cubic total-`residualLambda` bound, exact tagged fibre/global
-incidence integration of the event-restricted attachment numerator, the
+assembly, exact tagged fibre/global incidence integration of the
+event-restricted attachment numerator, the
 actual-even-family/cycle-rank and full/residual reward-support identifications,
 finite residual attachment
 bounds, conditioned probability control, and full Section 9 assembly,
