@@ -141,6 +141,7 @@ import Erdos625.Section9MarkedCycleEnumeration
 import Erdos625.Section9MixedCycleWeightedEnumeration
 import Erdos625.Section9ResidualQMixedCycleEnumeration
 import Erdos625.Section9CycleWeightSplit
+import Erdos625.Section9ResidualOnlyCycleEnumeration
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -681,6 +682,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mixedSimpleCycle_weighted_walk_enumeration
 #print axioms Erdos625.existsAbsoluteResidualQMixedCycleWeightedEnumeration
 #print axioms Erdos625.sum_simpleBipartiteCycles_edgeWeight_split
+#print axioms Erdos625.exists_faithfulResidualCycleTraversal
+#print axioms Erdos625.chosenResidualOnlyCycleTraversal_injective
+#print axioms Erdos625.chosenResidualOnlyCycleTraversal_weight_eq
+#print axioms Erdos625.sum_residualOnlySimpleCycle_weight_le_traversalCode
+#print axioms Erdos625.sum_residualCycleTraversalCode_weight_eq_endpointMass
+#print axioms Erdos625.sum_residualCycleTraversalCode_weight_le_walkMass
+#print axioms Erdos625.sum_rowRooted_evenWalkMass_le_geometric
+#print axioms Erdos625.residualOnlySimpleCycle_weighted_walk_enumeration
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound

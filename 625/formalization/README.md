@@ -376,7 +376,7 @@ For one fixed `F`, the local threshold factors are separated from the physical
 `residualQ` weight; summing this bound over all even `F` gives an honestly named
 finite fixed-`F` sum bounded by the common local product times the simple-cycle
 polymer product.  An exact finite Fubini identity identifies this sum with the
-unnormalised actual-attachment numerator while retaining the cap/no-return
+event-restricted actual-attachment numerator while retaining the cap/no-return
 event mass, and the even-weight and polymer bounds transfer to that numerator
 by exact rewriting.  The simple-cycle weight sum is also partitioned exactly into
 cycles disjoint from the exposed matching and mixed cycles meeting it.  The finite graph-theoretic
@@ -390,10 +390,16 @@ and abstract traversal bounds are proved separately below.  The exact
 one-sided weighted inclusion alone does not perform the dependent
 marked-start/block-count reindexing and traversal domination; that aggregate
 transfer and its deterministic literal-`residualQ` geometric specialization
-are now proved separately.  Dividing the unnormalised numerator by the event
-mass and identifying the resulting conditional expectation, bounding the
-residual-only cycle summand, tagged residual-PMF integration, and the large-
-and small-residual attachment estimates remain open.  The earlier high-cell mass
+are now proved separately.  Manuscript (9.1) keeps the cap/no-return indicator
+inside the residual expectation, so this event-restricted numerator is the
+fixed-skeleton attachment factor and must not be divided by the event mass.
+The actual-even-family/cycle-rank and full/residual reward-support
+identifications, the cubic total-`residualLambda` bound, the exact tagged
+fibre/global incidence identity, and the large- and small-residual attachment
+estimates remain open.
+The residual-only cycle
+summand now has an exact deterministic row-rooted even-walk bound under finite
+row/column kernel hypotheses.  The earlier high-cell mass
 bound, weighted finite
 Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
 kernel remain available as independent leaves.  Accepted Lean 4.31 source is
@@ -464,8 +470,10 @@ constructs a recoverable disjoint minimal-even decomposition. The new finite
 and its `EReal` exponential endpoint.  The canonical source-free cycle encoder,
 its exact weight, dependent finite packaging, and aggregate weighted traversal
 domination are proved, as are the abstract and deterministic literal-`residualQ`
-geometric bounds for cycles meeting the matching.  Residual-only cycles and
-the law-level probability transport remain open.
+geometric bounds for cycles meeting the matching.  The cycles disjoint from
+the matching now have their own exact deterministic even-walk enumeration;
+the cubic total-`residualLambda` estimate and law-level probability transport
+remain open.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -496,15 +504,16 @@ resulting explicitly named `residualCappedEvenFixedFSum` by the common local
 product times the finite simple-cycle polymer product.
 [`Section9FixedFFubiniBridge.lean`](Erdos625/Section9FixedFFubiniBridge.lean)
 defines the literal `actualResidualEvenEdgeSets`, proves its exact membership
-predicate and zero-one cardinality sum, and identifies the unnormalised actual-
+predicate and zero-one cardinality sum, and identifies the event-restricted actual-
 attachment numerator exactly with `residualCappedEvenFixedFSum`.  The numerator
-retains the cap/no-return event mass: this module performs no division and
-asserts no conditional expectation or tagged residual law.
+retains the cap/no-return indicator exactly as in manuscript (9.1); no division
+by its event mass is intended.  The exact tagged incidence integration remains
+separate.
 [`Section9ActualAttachmentPolymerBridge.lean`](Erdos625/Section9ActualAttachmentPolymerBridge.lean)
-then rewrites through that identity to bound the unnormalised numerator by the
+then rewrites through that identity to bound the event-restricted numerator by the
 common local-`lambda` product times first the even-family weight sum and then
-the simple-cycle polymer product.  These remain unnormalised numerator bounds,
-not a conditional expectation, tagged-law integration, or Lemma 9.1.
+the simple-cycle polymer product.  These are fixed-fibre event-restricted
+attachment bounds, not yet the tagged-law integration or Lemma 9.1.
 [`Section9CyclePolymerBound.lean`](Erdos625/Section9CyclePolymerBound.lean)
 proves `weighted_evenSubgraph_polymer_bound`, including a recoverable
 pairwise-disjoint decomposition into inclusion-minimal nonempty even sets and
@@ -622,13 +631,22 @@ absolute constant under the exact degree-cap, half-cap, dyadic-size, and
 strict-`tau` hypotheses.  Both theorems concern mixed cycles meeting `M`.
 [`Section9CycleWeightSplit.lean`](Erdos625/Section9CycleWeightSplit.lean)
 partitions the total simple-cycle weight exactly into the residual-only cycles
-disjoint from `M` and the mixed-cycle subtype sum.  It does not bound the
-residual-only summand.  The finite fixed-`F` aggregation is proved separately,
-and its exact Fubini bridge identifies it with the unnormalised actual-
-attachment numerator.  No theorem yet divides by the cap/no-return event mass,
-identifies a conditional expectation, integrates it over the tagged PMF,
-instantiates the strict regime uniformly, or proves the large- and small-
-residual attachment estimates.
+disjoint from `M` and the mixed-cycle subtype sum.
+[`Section9ResidualOnlyCycleEnumeration.lean`](Erdos625/Section9ResidualOnlyCycleEnumeration.lean)
+injects every residual-only simple cycle into a row-rooted closed recursive
+path of even length at least four, preserves its exact physical weight, and
+bounds the residual-only sum by
+`|A| * tau^4 * (1 - tau^2)⁻¹` whenever every row and column sum of the finite
+kernel is at most `tau < 1`.  This is a deterministic finite-kernel theorem;
+it does not prove the cubic total-`residualLambda` estimate or the exact tagged
+fibre/global incidence identity.  The finite fixed-`F`
+aggregation is proved separately,
+and its exact Fubini bridge identifies it with the event-restricted actual-
+attachment numerator.  No division by the cap/no-return event mass belongs in
+the manuscript (9.1)--(9.2) route.  What remains is to prove the exact
+actual-even-family/cycle-rank and full/residual reward-support identifications,
+the per-demand/global tagged incidence identity, the uniform strict-regime
+instantiation, and the large- and small-residual attachment estimates.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -796,9 +814,10 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, normalization of the exact unnormalised attachment numerator to a
-conditional expectation, residual-only cycle control, tagged residual-PMF
-integration, finite residual attachment
+assembly, the cubic total-`residualLambda` bound, exact tagged fibre/global
+incidence integration of the event-restricted attachment numerator, the
+actual-even-family/cycle-rank and full/residual reward-support identifications,
+finite residual attachment
 bounds, conditioned probability control, and full Section 9 assembly,
 Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and
 Section 11's actual chromatic tail and threshold/limit instantiation remain

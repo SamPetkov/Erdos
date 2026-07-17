@@ -147,6 +147,7 @@ import Erdos625.Section9MarkedCycleEnumeration
 import Erdos625.Section9MixedCycleWeightedEnumeration
 import Erdos625.Section9ResidualQMixedCycleEnumeration
 import Erdos625.Section9CycleWeightSplit
+import Erdos625.Section9ResidualOnlyCycleEnumeration
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -389,12 +390,17 @@ marked-start cost, and a deterministic specialization to the literal
 explicit strict `tau < 1/3` premise.  The positive support of every attained
 canonical demand is a matching under the ambient caps; the two local reward
 presentations agree; the fixed-`F` local factors and finite even-family polymer
-aggregation are proved; the sum is identified exactly with the unnormalised
+aggregation are proved; the sum is identified exactly with the event-restricted
 actual-attachment numerator and the polymer bound is transferred to it; and
 the total simple-cycle weight is split exactly into mixed and residual-only
-parts.  Conditional normalization, bounding the residual-only part, tagged
-residual-PMF integration, uniform large- and small-residual
-estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
+parts.  The residual-only part is bounded by an exact row-rooted even-walk
+enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
+retains the cap/no-return indicator inside the residual expectation, this
+event-restricted numerator must not be divided by the event mass.  The
+actual-even-family/cycle-rank and full/residual reward-support identifications,
+the cubic total-`residualLambda` bound, exact tagged fibre/global incidence
+integration, uniform large- and small-residual estimates, and complete Lemma
+9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

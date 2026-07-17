@@ -7,11 +7,12 @@ The exact finite Fubini identity identifies the literal actual-family
 numerator with the capped fixed-`F` sum.  This module composes that identity
 with the previously proved even-family and polymer bounds.
 
-Both conclusions concern an **unnormalised numerator**: the uniform matching
-mass of the cap/no-return event remains present.  No division by the event
-probability is performed.  Consequently these theorems are not conditional
-expectation bounds, tagged-law integrations, or the final attachment estimate
-of Lemma 9.1.
+Both conclusions concern the **event-restricted expectation** in manuscript
+(9.1): the cap/no-return indicator remains inside the uniform residual
+matching expectation.  No division by its event probability belongs in the
+(9.1)--(9.2) route.  The cycle-space cardinality, full-table reward/support
+split, tagged incidence integration, and final Lemma 9.1 estimate remain
+separate.
 -/
 
 namespace Erdos625
@@ -20,10 +21,10 @@ open scoped BigOperators ENNReal
 
 noncomputable section
 
-/-- The actual attachment numerator is bounded by the common local-threshold
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
 product times the unrestricted finite even-family weight sum.
 
-This is an unnormalised numerator bound, not a conditional expectation. -/
+This is the fixed-residual-fibre form, before tagged incidence integration. -/
 theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
@@ -38,11 +39,11 @@ theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
   exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
     M R row col htotal hm
 
-/-- The actual attachment numerator is bounded by the common local-threshold
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
 product times the simple-cycle polymer product.
 
-This is still an unnormalised numerator bound.  It neither conditions on the
-cap/no-return event nor integrates a demand-dependent residual estimate over
+It does not yet identify the even-family cardinality with the manuscript
+cycle-space factor or integrate the demand-dependent residual estimate over
 the global tagged law. -/
 theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
     {A B : Type*}

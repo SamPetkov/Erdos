@@ -5,16 +5,17 @@ import Erdos625.Section9ActualResidualWeightedEmbedding
 # Section IX: exact finite fixed-family Fubini bridge
 
 This module identifies the literal sum of the capped fixed-`F` expectations
-with an unnormalised numerator under the uniform configuration-matching law.
+with an event-restricted numerator under the uniform configuration-matching law.
 For a realised matching, the finite family retained in the numerator consists
 exactly of the even edge sets whose every edge is either already in the
 high-skeleton matching `M` or lies in a cell of residual multiplicity at least
 two.
 
 The result is a finite sum-commutation and zero-one multiplicity identity.  It
-retains the probability mass of the cap/no-return event and performs no
-division by that event probability; in particular, no conditional expectation
-is defined or asserted here.
+retains the cap/no-return indicator inside the residual expectation exactly as
+in manuscript (9.1).  Division by that event probability is not part of the
+(9.1)--(9.2) assembly.  The separate cycle-space cardinality, full-table
+reward/support split, and tagged incidence identities are not asserted here.
 -/
 
 namespace Erdos625
@@ -90,8 +91,8 @@ theorem sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
       rw [Finset.sum_boole]
       rfl
 
-/-- The unnormalised actual attachment numerator.  The cap/no-return event
-indicator and hence its probability mass remain present. -/
+/-- The event-restricted actual attachment numerator.  The cap/no-return
+indicator and hence its probability mass remain inside the expectation. -/
 def residualActualAttachmentNumerator
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
@@ -106,8 +107,8 @@ def residualActualAttachmentNumerator
           (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
         ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞)
 
-/-- Exact finite Fubini/multiplicity identity.  This is an event-probability
-numerator, not a conditional expectation. -/
+/-- Exact finite Fubini/multiplicity identity for the event-restricted
+expectation in manuscript (9.1). -/
 theorem residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]

@@ -173,9 +173,10 @@ its finite dependent marked packaging and aggregate traversal domination, the
 abstract geometric enumeration, and its deterministic literal-`residualQ`
 specialization are accepted.  The canonical positive-support matching seam,
 fixed-`F` local-factor separation, finite even-family aggregation, exact local-
-reward compatibility, the exact unnormalised fixed-family Fubini identity and
+reward compatibility, the exact event-restricted fixed-family Fubini identity and
 polymer bound, and the exact mixed/residual-only cycle partition are also
-accepted.  The remaining bridge is:
+accepted.  The exact residual-only row-rooted even-walk enumeration is accepted
+as well.  The remaining bridge is:
 
 ```text
 actual residual even set
@@ -188,10 +189,13 @@ actual residual even set
   -> abstract geometric traversal bound with one 2|M| cost [proved]
   -> literal residualQ mixed-cycle bound under tau < 1/3 [proved]
   -> fixed-F local-factor and finite even-family polymer aggregation [proved]
-  -> unnormalised actual-attachment numerator identity and polymer bound [proved]
+  -> event-restricted actual-attachment numerator identity and polymer bound [proved]
   -> exact mixed/residual-only simple-cycle partition [proved]
-  -> conditional normalization and residual-only-cycle bound
-  -> tagged residual PMF and uniform strict-regime integration
+  -> residual-only row-rooted even-walk bound under tau < 1 [proved]
+  -> actual even-family cardinality = 2^cycleRank and full/residual reward-support split
+  -> cubic total-residualLambda bound
+  -> exact per-demand/global tagged incidence integration of (9.1)
+  -> uniform strict-regime integration
   -> faithful large- and small-residual expectation estimates
   -> Lemma 9.1 and Proposition 9.2
 ```
@@ -226,16 +230,26 @@ Implementation order:
 8. **Completed finite algebra:** identify the two local reward presentations,
    separate the common local factors for one fixed `F`, sum that inequality
    over every even `F`, bound the result by the simple-cycle polymer product,
-   identify the sum exactly with the unnormalised actual-attachment numerator,
+   identify the sum exactly with the event-restricted actual-attachment numerator,
    transfer both even-weight and polymer bounds to that numerator, and split
    the cycle sum exactly into mixed and residual-only terms;
-9. normalize the retained cap/no-return event mass to the required conditional
-   expectation and bound the residual-only cycle term;
-10. transport the result through the tagged dependent residual law and
-   instantiate the strict regime uniformly;
-11. prove one deterministic threshold and one error sequence uniform over all
+9. **Completed residual-only enumeration:** inject every residual-only simple
+   cycle into a row-rooted closed even path, preserve exact weight, and bound
+   the total by `|A| * tau^4 * (1 - tau^2)⁻¹` under row/column bounds and
+   `tau < 1`;
+10. identify the actual even-family cardinality with
+    `2 ^ cycleRank (M ∪ H_res)` and prove the canonical full/residual
+    reward-product and support-graph splits.  The generic bridge must assume
+    `2 ≤ U` (or directly that every positive high demand is at least two);
+11. prove the cubic total-`residualLambda` bound and the exact per-demand/global
+    tagged incidence identity for the event-restricted numerator.  Manuscript
+    (9.1) already contains the cap/no-return indicator, so dividing by its
+    event mass is not part of the proof;
+12. instantiate the strict regime uniformly across the tagged dependent
+    residual family;
+13. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
-12. assemble Lemma 9.1 and Proposition 9.2.
+14. assemble Lemma 9.1 and Proposition 9.2.
 
 The accepted enumeration modules close exact path multiplicity, relaxed
 block-chain summation, minimal cycle coverage, and the source-free decoder,
@@ -250,10 +264,13 @@ endpoint enumeration, and aggregate mixed-cycle-to-nested-walk domination.
 geometric estimate and its deterministic literal-`residualQ` specialization.
 The fixed-`F` factorization and finite even-family polymer aggregation are now
 proved, and the exact finite Fubini bridge identifies their sum with the
-unnormalised actual-attachment numerator and transfers the polymer bound to it.
+event-restricted actual-attachment numerator and transfers the polymer bound to it.
 Reward compatibility, canonical-support matchingness, and the exact mixed/
-residual-only cycle partition are also proved.  Conditional normalization,
-bounding the residual-only term, tagged residual-PMF integration, the later Section IX attachment/
+residual-only cycle partition are also proved.  The exact residual-only
+row-rooted even-walk bound is now proved as well.  The cubic total-
+`residualLambda` bound, actual-even-family/cycle-rank and full/residual
+reward-support identifications, exact tagged fibre/global incidence
+integration, the later Section IX attachment/
 probability estimates, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
@@ -266,6 +283,10 @@ Critical rejection rules:
 
 - the old unrestricted `sum_fourpow_le` shortcut is false because it removes
   the cap/no-return event;
+- manuscript (9.1) already retains that event indicator inside the residual
+  expectation; dividing the event-restricted numerator by the event mass
+  would be the wrong assembly unless the missing mass were simultaneously
+  moved into the skeleton weight;
 - the residual law remains tagged by demand and witness; there is no common
   untagged residual PMF;
 - the generic polymer endpoint is not the attachment estimate;
@@ -380,8 +401,8 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX conditional normalization,
-   residual-only cycle control, tagged residual-PMF integration, and uniform
+   and the Section IX cubic total-`residualLambda` bound, exact tagged
+   fibre/global incidence integration, and uniform
    strict-regime bridge, with priority on the concrete Section IX seed and
    `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
