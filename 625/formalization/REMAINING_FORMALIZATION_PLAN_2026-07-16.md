@@ -14,8 +14,10 @@ def Erdos625Statement : Prop :=
   Tendsto gapProbability atTop (nhds 1)
 ```
 
-and the repository contains a generic conditional five-input route plus a
-quarter-chain specialization with four remaining inputs.  The
+and the repository contains the earlier conditional capacity/leftover route
+plus the reviewed D1--D4 closing adapters.  D3 now composes uniform
+amplification, the actual chromatic-tail adapter, and the two-tail event
+assembly, but keeps all hard inputs explicit.  The
 remaining work is substantive mathematics, concentrated in the phase/root
 asymptotics, the signed moment corridor, the Section VIII skeleton estimates,
 the Section IX attachment estimate, and the concrete Section X--XI
@@ -61,7 +63,7 @@ flowchart TD
   P8["VIII: unlabelled skeleton quotient and quantitative estimates"]
   P9["IX: mixed-cycle encoding and two-regime attachment"]
   X["X: simultaneous leftover colouring and seed amplification"]
-  F["XI: five concrete tails/thresholds"]
+  F["XI: concrete chromatic tail, seed, and root separation"]
   T["Erdos625Statement"]
 
   P3 --> P4
@@ -116,10 +118,21 @@ Ultra for Lean implementation.
 Formalize Lemma 5.1 with one uniform entropy certificate over all four sizes.
 Keep endpoint and empty-profile cases explicit.
 
+Accepted finite helper: `FourDeficitScoreConvergence.lean` identifies deficits
+`2,3,4,5`, proves one-threshold convergence of their exact finite scores, and
+transfers it to optimized values uniformly for every target in `(2,5)`.  It
+does not prove the signed first-moment identity or entropy certificate.
+
 ### B2. Signed second-moment law
 
 Complete the unordered-profile ordering quotient, exact sign/component
 factors, sign-summed law, and configuration-model bridge of Lemma 6.1.
+
+Accepted finite helper: `Section6CompatibleSignsComponents.lean` proves that
+Boolean signs constant along a finite graph's edges are exactly one Boolean
+choice per connected component, including isolated vertices, and therefore
+have cardinality `2 ^ c(G)`.  It does not identify the manuscript sign graph,
+construct the unordered quotient, or prove the sign-summed law.
 
 ### B3. Partial-diagonal ranges
 
@@ -365,29 +378,38 @@ radius/error identity, exponential-radius decay, the complement-real
 probability bridge, and the conditional `o(gapBase)`/probability-one
 specialization.  The remaining E-layer obligation is the concrete midpoint
 `kCo`/`Lambda` seed and its Section IX asymptotics.  Those inputs are not hidden
-inside either accepted amplification theorem.
+inside either accepted amplification theorem.  D4,
+`coColorable_real_seed_of_count`, supplies the generic Paley--Zygmund
+count-to-seed implication, but it neither constructs the concrete count nor
+proves its first/second-moment estimate.
 
 **Acceptance audit for E3--E4:** Sol-level quantifier and constant review;
 warning-fatal Lean 4.31 build; trust scan; and public `#print axioms` audit.
 
 ## Work package F — Section XI and final closure
 
-The final plumbing is accepted.  The generic conditional theorem requires:
+The final plumbing is accepted in both the earlier capacity/leftover route and
+the reviewed D1--D4 route:
 
-1. `hCapacityTail`;
-2. `hLeftoverTail`;
-3. `hChromaticTail`;
-4. `hCochromaticThreshold`;
-5. `hGapThreshold`.
+1. D1 converts the concrete actual chromatic at-most tail into the strict
+   chromatic-lower event tail;
+2. D4 converts a measurable nonnegative count whose positivity certifies a
+   cocolouring into the corresponding real Paley--Zygmund ratio lower bound;
+   construction of the concrete count and its moment estimate remain open;
+3. D2 combines the two probability-one threshold events with the exact
+   eventual threshold separation;
+4. D3 composes uniform amplification, D1, and D2 while retaining eventual
+   `Lambda ≥ 0`, `Lambda = o(amplificationBase)`, the seed inequality, the
+   chromatic at-most tail, `rho → 0`, and the exact root corridor as hypotheses.
 
-Once Work Packages A--D and the concrete Section IX seed/`Lambda`
-specialization supply these inputs, instantiate
-`erdos625Statement_of_capacity_leftover_thresholds`.  Then derive every fixed
-threshold statement from the accepted scale-divergence and moving-threshold
-lemmas.  The quarter-chain specialization
-`erdos625Statement_of_capacity_quarterChainLeftover_thresholds` now discharges
-`hLeftoverTail`, leaving four concrete inputs: capacity tail, chromatic tail,
-cochromatic threshold, and gap threshold.
+Accordingly, the remaining mathematics is not final-event plumbing.  It is
+the concrete chromatic tail from Work Package A, the concrete Section IX
+seed/count/moment estimate together with its `Lambda` asymptotics, and the
+concrete root separation.  Supplying those hypotheses to D3 would prove
+`Erdos625Statement`; D1--D4 themselves do not prove any of those inputs and do
+not prove the target unconditionally.  The earlier quarter-chain
+specialization remains available as an independently checked conditional
+route.
 
 **Owner:** Sol Ultra performs the final semantic comparison between the Lean
 statement and Problem 625.  Terra Max performs the short Lean assembly.  A
@@ -407,15 +429,23 @@ strict inequalities, rounding, and the final `#print axioms` report.
    `C ≥ 1`, nonnegative `epsilon_n → 0`, and the required quantifier order;
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
-5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX actual-family/cycle-rank identification, exact tagged
+5. **Completed conditional plumbing:** D1, D2, D3, and D4 are proved and
+   independently semantically audited; their concrete chromatic-tail,
+   seed/count/moment, `Lambda`, and root-separation hypotheses remain open.
+6. **Next/in parallel:** finish B1/B2 beyond their accepted finite helper
+   leaves; Section VIII weighted skeleton quotient/ratio bounds; and the
+   Section IX actual-family/cycle-rank identification, exact tagged
    fibre/global incidence integration, and uniform strict-regime bridge, with
    priority on the concrete Section IX seed and
    `Lambda` asymptotics consumed by Lemma 10.2.
-6. **After those foundations:** delegate their bounded quotient, reindexing,
+7. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
-7. **Final:** integrate the concrete chromatic and cochromatic tails through
-   the four-input quarter-chain specialization of the existing seam.
+8. **Final:** prove the concrete chromatic at-most tail and root separation,
+   prove the concrete Section IX count/moment seed estimate and its `Lambda`
+   asymptotics, and instantiate D3.
 
 No milestone is described as a complete resolution until
 `Erdos625Statement` itself is kernel-checked under the repository trust gates.
+In particular, the two B-package helper leaves do not prove the concrete
+chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
+asymptotics, the root separation, or `Erdos625Statement`.

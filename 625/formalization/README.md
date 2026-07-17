@@ -46,7 +46,7 @@ see [`SELF_CONTAINED_BUILD.md`](SELF_CONTAINED_BUILD.md) for the independent
 compile and source/axiom audit.
 
 This convenience artifact contains the current verified **partial**
-formalization.  It is not a completed formal proof of Sections 8--9 or of
+formalization.  It is not a completed formal proof of the manuscript or of
 Problem 625: in particular, `Erdos625Statement` remains an unproved target.
 
 ## Integrity policy
@@ -92,7 +92,14 @@ corollary on `(2,5)`.  Joint score-and-target continuity now gives moving-target
 convergence of the unique tilt and all four optimizer coordinates.  On every
 compact subset of `(2,5)`, these convergences are uniform, one index controls
 all four coordinates, and the optimizer is eventually bounded uniformly away
-from zero.
+from zero.  The finite helper
+[`FourDeficitScoreConvergence.lean`](Erdos625/FourDeficitScoreConvergence.lean)
+identifies the exact deficit coordinates `2,3,4,5`, proves their finite
+descending-factorial scores converge simultaneously to the four Gaussian
+scores, and transfers that convergence uniformly to optimized values for all
+`T∈(2,5)`.  This helper does not prove the four-size signed first moment,
+the concrete chromatic tail, the Section IX seed/count/moment estimate or its
+`Lambda` asymptotics, the root separation, or `Erdos625Statement`.
 The finite Section 4 profile foundation now models unordered nonempty colour
 classes as `Finpartition`s, proves their exact internal-edge count and fixed-
 partition probability, and derives the exact first moment as the actual number
@@ -195,7 +202,13 @@ task map are recorded in
 [`SECTIONS_6_9_BREAKDOWN_2026-07-14.md`](SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
 
 The latest exact finite checkpoint proves the fixed-row ordered overlap law
-(6.1)--(6.2), the configuration-model prescribed-cell estimates
+(6.1)--(6.2).  The separate finite helper
+[`Section6CompatibleSignsComponents.lean`](Erdos625/Section6CompatibleSignsComponents.lean)
+identifies Boolean vertex signs constant on edges with one Boolean choice per
+connected component, including isolated vertices, and hence proves the exact
+cardinality `2 ^ c(G)`.  It does not yet connect that count to the manuscript's
+unordered overlap quotient or prove the sign-summed second-moment law.  The
+checkpoint also proves the configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,
 and the resulting high-cell matching assertion before (8.2).  Each accepted
@@ -691,6 +704,7 @@ quantifier-correct uniform amplification theorem is supplied separately
 below.
 [`Section11AsymptoticAssembly.lean`](Erdos625/Section11AsymptoticAssembly.lean)
 proves the generic full-sequence intersection theorem without independence,
+the probability-one transport under eventual event inclusion,
 the eventual explicit threshold from abstract root/little-o hypotheses, and
 divergence of the explicit gap scale.  Its
 `fixedThreshold_tail_of_movingThreshold` additionally turns an assumed moving
@@ -797,13 +811,36 @@ probability one for the complementary strict event `k n < X n`, allowing the
 sample space to depend on `n`.  The actual chromatic at-most tail and its
 manuscript threshold remain open.
 
+Four reviewed conditional adapters now make the Sections X--XI closing route
+explicit.  [`Section11ChromaticTailAdapter.lean`](Erdos625/Section11ChromaticTailAdapter.lean)
+(D1) specializes the generic complement lemma to `chromaticNumberNat` and
+`chromaticLowerEvent`, assuming the concrete chromatic at-most probability
+tends to zero.  [`Section11ThresholdFinalAssembly.lean`](Erdos625/Section11ThresholdFinalAssembly.lean)
+(D2) proves that the actual chromatic and cochromatic threshold events, each
+with probability tending to one, imply `Erdos625Statement` once their exact
+eventual threshold separation is supplied.
+[`Section10CoColorablePaleyZygmundSeed.lean`](Erdos625/Section10CoColorablePaleyZygmundSeed.lean)
+(D4) converts any measurable nonnegative count whose positivity certifies a
+`k`-cocolouring into the corresponding real Paley--Zygmund seed lower bound;
+it does not construct the count or prove its moment estimate.
+[`Section10_11UniformSeedRootFinal.lean`](Erdos625/Section10_11UniformSeedRootFinal.lean)
+(D3) composes the accepted uniform amplification, D1, and D2.  Its hypotheses
+retain eventual nonnegativity and the required little-`o` control of `Lambda`,
+the concrete cocolourable seed inequality, the concrete chromatic at-most
+tail, a vanishing root error, and the exact root corridor.  Thus D1--D4 are
+proved implications, while the concrete chromatic tail, Section IX
+seed/count/moment estimate with its `Lambda` asymptotics, and root separation
+remain open.  None of these adapters proves `Erdos625Statement`
+unconditionally.
+
 The named Section 8--11 leaves above have local Lean 4.31 warning-fatal builds.
 That acceptance is declaration-scoped: it verifies their displayed algebraic,
 deterministic, or conditional implications and does not promote any enclosing
 manuscript lemma or section to complete.
 
-The exact one-event Lemma 10.1 and the exact quantifier-correct uniform
-Lemma 10.2 are now formalized.  In the latter, the absolute `C ≥ 1` and
+The exact one-event Lemma 10.1, the exact quantifier-correct uniform
+Lemma 10.2, and the conditional D1--D4 closing adapters are now formalized.  In
+Lemma 10.2, the absolute `C ≥ 1` and
 nonnegative deterministic `epsilon_n → 0` are chosen before the deterministic
 sequences `k_n`, `Lambda_n`, and `r_n`, and the conclusion holds along the full
 sequence under its displayed seed hypothesis.  The concrete Section IX seed
@@ -831,17 +868,18 @@ is now available as a proved upstream interface, but its concrete Section IX
 capacity seed and the remaining Section XI inputs are open.
 
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
-signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
+signed-moment/overlap assembly beyond the finite component-count helper,
+asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
 assembly, exact tagged fibre/global incidence integration of the
 event-restricted attachment numerator, the
 actual-even-family/cycle-rank identification, finite residual attachment
 bounds, conditioned probability control, and full Section 9 assembly,
-Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and
-Section 11's actual chromatic tail and threshold/limit instantiation remain
-open.  The proved uniform Lemma 10.2 interface does not supply those inputs or
-the final theorem.  The project
+Section 10's concrete Section IX seed/count/moment estimate and `Lambda`
+asymptotics, Section 11's actual chromatic tail, and the concrete root
+separation remain open.  The proved uniform Lemma 10.2 and D1--D4 interfaces
+do not supply those inputs or the final theorem.  The project
 therefore does **not** claim Lemma 3.1 or
 `Erdos625Statement`. The
 [`formalization ledger`](FORMALIZATION_LEDGER.md) is the authoritative

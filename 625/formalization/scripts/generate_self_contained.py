@@ -120,9 +120,9 @@ parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX exact tagged fibre/global incidence integration of the
 event-restricted attachment numerator, the actual-even-family/cycle-rank
 identification, uniform large- and small-residual attachment, second-moment
-assembly, and concrete capacity seed/`Lambda`
-asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
-XI chromatic tail and threshold/limit inputs; and the final probabilistic
+assembly, and the concrete seed/count/moment estimate and `Lambda`
+asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
+chromatic at-most tail and root separation; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
 canonical source-free encoder, decoder left inverse, injectivity, exact
 weight, dependent marked packaging, exact endpoint enumeration, and aggregate
@@ -144,6 +144,17 @@ full/residual reward-product and support-graph splits are included and proved,
 with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
 actual-even-family/cycle-rank identification or exact tagged fibre/global
 incidence integration is claimed.
+The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
+D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
+wrapper are included and proved as conditional implications.  They retain the
+concrete chromatic at-most tail, concrete seed/count/moment estimate with
+`Lambda` asymptotics, and concrete root separation as explicit inputs; none of
+those inputs is proved by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves only.  They do not prove the
+four-size signed first moment, the sign-summed second-moment law, the concrete
+chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
+asymptotics, the root separation, or `Erdos625Statement`.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.

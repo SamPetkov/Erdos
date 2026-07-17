@@ -101,9 +101,9 @@ parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX exact tagged fibre/global incidence integration of the
 event-restricted attachment numerator, the actual-even-family/cycle-rank
 identification, uniform large- and small-residual attachment, second-moment
-assembly, and concrete capacity seed/`Lambda`
-asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
-XI chromatic tail and threshold/limit inputs; and the final probabilistic
+assembly, and the concrete seed/count/moment estimate and `Lambda`
+asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
+chromatic at-most tail and root separation; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
 canonical source-free encoder, decoder left inverse, injectivity, exact
 weight, dependent marked packaging, exact endpoint enumeration, and aggregate
@@ -125,6 +125,17 @@ full/residual reward-product and support-graph splits are included and proved,
 with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
 actual-even-family/cycle-rank identification or exact tagged fibre/global
 incidence integration is claimed.
+The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
+D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
+wrapper are included and proved as conditional implications.  They retain the
+concrete chromatic at-most tail, concrete seed/count/moment estimate with
+`Lambda` asymptotics, and concrete root separation as explicit inputs; none of
+those inputs is proved by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves only.  They do not prove the
+four-size signed first moment, the sign-summed second-moment law, the concrete
+chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
+asymptotics, the root separation, or `Erdos625Statement`.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -8369,7 +8380,7 @@ END SOURCE MODULE: Erdos625.Section11EventAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
 Source: Erdos625/Section11AsymptoticAssembly.lean
-Normalized SHA-256: f191b31619e8114260db1a866302d5a4eabf4667314a3593730c0e980ea07818
+Normalized SHA-256: e60e10cd659cbf792c0b85683d6dab2503eb19efd15e841d4a47e6b1d9065592
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
 
@@ -8462,6 +8473,25 @@ theorem tendsto_measure_inter_one
     (ENNReal.tendsto_toReal_iff
       (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
       (by simpa using hInterReal)
+
+/-- A probability-one event remains probability one after eventual pointwise
+enlargement. -/
+theorem tendsto_measure_one_of_eventually_subset
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A B : ∀ n, Set (Omega n))
+    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
+    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
+    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hA tendsto_const_nhds
+    (hSubset.mono fun _ h ↦ measure_mono h)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
 
 /-- If a real statistic exceeds a deterministic threshold tending to infinity
 with probability tending to one, then it exceeds every fixed real threshold
@@ -8638,9 +8668,124 @@ END SOURCE MODULE: Erdos625.Section11ChromaticLowerTailBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11ChromaticTailAdapter
+Source: Erdos625/Section11ChromaticTailAdapter.lean
+Normalized SHA-256: f91c7a644c3a4eb7da9df4d65d80abb5d1ba808ebbcceaf2a5e0cb6ff7c1cd21
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11ChromaticTailAdapter
+
+/-!
+# Section XI D1: graph-specific chromatic-tail adapter
+
+This task specializes the accepted generic strict-lower-tail complement lemma
+to the actual random-graph chromatic number and Section XI event.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+/-- A probability-zero upper bound for the actual chromatic at-most event is
+exactly the probability-one strict chromatic lower event used in Section XI.
+-/
+theorem chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+    (kChi : Nat -> Nat)
+    (hAtMost : Tendsto
+      (fun n => randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0)) :
+    Tendsto
+      (fun n => randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1) := by
+  simpa only [chromaticLowerEvent] using
+    (strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+      (Ω := fun n => LabeledGraph n)
+      (mu := fun n => randomGraphMeasure n)
+      (X := fun _ G => chromaticNumberNat G)
+      (k := kChi)
+      (hMeas := fun _ => Set.toFinite _ |>.measurableSet)
+      hAtMost)
+
+#print axioms chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11ChromaticTailAdapter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11ChromaticTailAdapter
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11ThresholdFinalAssembly
+Source: Erdos625/Section11ThresholdFinalAssembly.lean
+Normalized SHA-256: b0b50e6a0bc20544b4e593fa432b99035e7a5ca6d6728430251487453e6fe382
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11ThresholdFinalAssembly
+
+/-!
+# Section XI D2: two-tail threshold assembly
+
+This task closes only the generic final event seam.  Both probability-one
+tails and the exact eventual threshold separation remain explicit inputs.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+/-- Two probability-one threshold events and the exact Section XI separation
+imply the formal Erdős 625 target. -/
+theorem erdos625Statement_of_chromatic_cochromatic_thresholds
+    (kChi kCo : Nat -> Nat) (a : Nat -> Real)
+    (hChromaticTail : Tendsto
+      (fun n => randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1))
+    (hCochromaticTail : Tendsto
+      (fun n => randomGraphMeasure n
+        (cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1))
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : Nat) : Real) - ((kCo n : Real) + a n)) :
+    Erdos625Statement := by
+  have hThresholdIntersection : Tendsto
+      (fun n => randomGraphMeasure n
+        (chromaticLowerEvent n (kChi n) ∩
+          cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) :=
+    tendsto_measure_inter_one randomGraphMeasure
+      (fun n => chromaticLowerEvent n (kChi n))
+      (fun n => cochromaticUpperEvent n (kCo n) (a n))
+      (fun n => Set.toFinite
+        (chromaticLowerEvent n (kChi n)) |>.measurableSet)
+      (fun n => Set.toFinite
+        (cochromaticUpperEvent n (kCo n) (a n)) |>.measurableSet)
+      hChromaticTail hCochromaticTail
+  unfold Erdos625Statement
+  change Tendsto (fun n => randomGraphMeasure n (gapEvent n))
+    atTop (nhds 1)
+  apply tendsto_measure_one_of_eventually_subset randomGraphMeasure
+    (fun n => chromaticLowerEvent n (kChi n) ∩
+      cochromaticUpperEvent n (kCo n) (a n))
+    gapEvent hThresholdIntersection
+  filter_upwards [hGapThreshold] with n hThreshold
+  exact thresholdIntersection_subset_gapEvent hThreshold
+
+#print axioms erdos625Statement_of_chromatic_cochromatic_thresholds
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11ThresholdFinalAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11ThresholdFinalAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
 Source: Erdos625/Section10_11ConditionalAssembly.lean
-Normalized SHA-256: bc8fabc8e50b62b421f9b911c04c5acb84b2fc55937a2e34af98af1bcd487b73
+Normalized SHA-256: efa433a3cf1adba7c3ed327774162579ddae2930bd8d492babb3f29222b5aaf8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
 
@@ -8859,25 +9004,6 @@ theorem capacityDeficit_inter_leftover_subset_cochromaticUpperEvent
   have hReal : (cochromaticNumber G : ℝ) ≤ ((k + q : ℕ) : ℝ) := by
     exact_mod_cast hNat
   exact hReal.trans hThreshold
-
-/-- A probability-one event remains probability one after eventual pointwise
-enlargement. -/
-theorem tendsto_measure_one_of_eventually_subset
-    {Omega : ℕ → Type*}
-    [∀ n, MeasurableSpace (Omega n)]
-    (mu : ∀ n, Measure (Omega n))
-    [∀ n, IsProbabilityMeasure (mu n)]
-    (A B : ∀ n, Set (Omega n))
-    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
-    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
-    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
-    hA tendsto_const_nhds
-    (hSubset.mono fun _ h ↦ measure_mono h)
-    (Filter.Eventually.of_forall fun n ↦ by
-      calc
-        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
-        _ = 1 := measure_univ)
 
 /-- Conditional closure of Sections X--XI.
 
@@ -9657,6 +9783,147 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10UniformAmplificationSpecialization
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10UniformAmplificationSpecialization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+Source: Erdos625/Section10CoColorablePaleyZygmundSeed.lean
+Normalized SHA-256: f43c30f550dfa6ad49a9c347781a8af5d02a644ac52a5460e173502e3a91c0f3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+
+/-!
+# Sections IX--X D4: count-to-cocolourable real seed
+
+This task is a generic second-moment adapter.  The construction and moment
+estimates for the count remain entirely external inputs.
+-/
+
+namespace Erdos625
+
+open MeasureTheory Set
+open scoped ENNReal NNReal ProbabilityTheory
+
+/-- Any measurable nonnegative count whose positivity certifies a
+`k`-cocolouring supplies the corresponding real-valued Paley--Zygmund seed
+under the random-graph law. -/
+theorem coColorable_real_seed_of_count
+    (n k : Nat) (Z : LabeledGraph n -> ENNReal)
+    (hZ : Measurable Z)
+    (hPositive : ∀ G, 0 < Z G -> CoColorable G k) :
+    (((∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+        (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n))).toReal ≤
+      (randomGraphMeasure n).real {G | CoColorable G k}) := by
+  have hPZ := paleyZygmund_zero (mu := randomGraphMeasure n) hZ
+  have hMono :
+      (randomGraphMeasure n) {G | 0 < Z G} ≤
+        (randomGraphMeasure n) {G | CoColorable G k} := by
+    apply measure_mono
+    intro G hG
+    exact hPositive G hG
+  have hENN :
+      (∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+          (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n)) ≤
+        (randomGraphMeasure n) {G | CoColorable G k} :=
+    hPZ.trans hMono
+  rw [Measure.real]
+  apply (ENNReal.toReal_le_toReal
+    (ne_top_of_le_ne_top
+      (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k}) hENN)
+    (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k})).2
+  exact hENN
+
+end Erdos625
+
+#print axioms Erdos625.coColorable_real_seed_of_count
+
+end Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10_11UniformSeedRootFinal
+Source: Erdos625/Section10_11UniformSeedRootFinal.lean
+Normalized SHA-256: b5cf75684c85c863ecfeb5e2648a130bbfe1d59ceb230fc16d113bc7d476ff83
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10_11UniformSeedRootFinal
+
+/-!
+# Sections X--XI D3: uniform seed/root final wrapper
+
+The substantive seed, chromatic at-most tail, and root separation remain
+explicit hypotheses.  This task only composes accepted amplification and
+event-assembly theorems.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set Asymptotics
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- A concrete nonnegative little-o cocolouring seed, a probability-zero
+chromatic at-most tail, and the explicit root corridor imply the final target
+through uniform amplification at the manuscript scales. -/
+theorem erdos625Statement_of_uniform_seed_and_root
+    (kChi kCo : Nat -> Nat) (Lambda rho : Nat -> Real)
+    (hLambdaNonneg : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hLambdaSmall : Lambda =o[atTop] amplificationBase)
+    (hSeed : ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real {G | CoColorable G (kCo n)})
+    (hChromaticAtMost : Tendsto
+      (fun n => randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0))
+    (hrho : Tendsto rho atTop (nhds 0))
+    (hroot : ∀ᶠ n in atTop,
+      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : Real)) - rho n) *
+          baseScale n ≤
+        (kChi n : Real) - (kCo n : Real)) :
+    Erdos625Statement := by
+  obtain ⟨C, epsilon, hC, hEpsilon, hEpsilonNonneg, hUniform⟩ :=
+    exists_uniform_cochromatic_amplification_at_manuscript_scales
+  have hAmplification :=
+    hUniform kCo Lambda hLambdaNonneg hLambdaSmall hSeed
+  let a : ℕ → ℝ := fun n =>
+    uniformAmplificationError C n (Lambda n) (amplificationRadius n)
+  have haGap : a =o[atTop] gapBase := by
+    simpa only [a] using hAmplification.1
+  have haBase : a =o[atTop] baseScale := by
+    change a =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3)
+    change a =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3) at haGap
+    exact haGap
+  have hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n) := by
+    simpa only [gapScale, gapConstant, baseScale, mul_div_assoc] using
+      eventually_explicit_gap_threshold kChi kCo a rho hrho haBase hroot
+  have hCochromaticTail : Tendsto
+      (fun n => randomGraphMeasure n
+        (cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) := by
+    simpa only [a] using hAmplification.2
+  have hChromaticTail :=
+    chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+      kChi hChromaticAtMost
+  exact erdos625Statement_of_chromatic_cochromatic_thresholds
+    kChi kCo a hChromaticTail hCochromaticTail hGapThreshold
+
+#print axioms erdos625Statement_of_uniform_seed_and_root
+
+end
+
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10_11UniformSeedRootFinal
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10_11UniformSeedRootFinal
 ========================================================================== -/
 
 /- ==========================================================================
@@ -15776,6 +16043,146 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDeficitConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDeficitConvergence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
+Source: Erdos625/FourDeficitScoreConvergence.lean
+Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourDeficitScoreConvergence
+
+/-!
+# E1: exact four-deficit scores and uniform convergence
+
+The four coordinates are the manuscript deficits `2,3,4,5`.  This file
+bridges their exact finite descending-factorial scores to the accepted
+four-point optimized-value stability theorem.
+-/
+
+open Filter
+open scoped Topology
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Manuscript deficits `2,3,4,5`, indexed by `Fin 4`. -/
+def fourDeficit (i : Fin 4) : Nat := i.1 + 2
+
+/-- Exact finite score after removal of the affine profile terms. -/
+def fourDeficitScore (alpha : Nat) (i : Fin 4) : Real :=
+  Real.log (alpha.descFactorial (fourDeficit i) : Real) -
+    (fourDeficit i : Real) * Real.log (alpha : Real) -
+      q / 2 * (fourDeficit i : Real) ^ 2
+
+/-- Limiting Gaussian score on the support `2,3,4,5`. -/
+def fourGaussianScore (i : Fin 4) : Real :=
+  -(q / 2) * ProfileEntropyS4.support i ^ 2
+
+@[simp] theorem fourDeficit_zero : fourDeficit 0 = 2 := by
+  rfl
+
+@[simp] theorem fourDeficit_one : fourDeficit 1 = 3 := by
+  rfl
+
+@[simp] theorem fourDeficit_two : fourDeficit 2 = 4 := by
+  rfl
+
+@[simp] theorem fourDeficit_three : fourDeficit 3 = 5 := by
+  rfl
+
+@[simp] theorem fourDeficit_cast_eq_support (i : Fin 4) :
+    (fourDeficit i : Real) = ProfileEntropyS4.support i := by
+  simp [fourDeficit, ProfileEntropyS4.support]
+
+/-- The closed formula is the literal growing-profile residual score at the
+coordinate whose deficit is `fourDeficit i`. -/
+theorem profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+    (alpha : Nat) (i : Fin 4) (h : fourDeficit i < alpha) :
+    profileDeficitResidualScore alpha
+        (Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)) =
+      fourDeficitScore alpha i := by
+  have hsize :
+      (Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)).1 + 1 ≤ alpha := by
+    rw [Fin.val_rev, Fin.val_succ]
+    omega
+  have hsub :
+      alpha -
+          ((Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)).1 + 1) =
+        fourDeficit i := by
+    rw [Fin.val_rev, Fin.val_succ]
+    change
+      alpha - (alpha + 1 - (fourDeficit i + 1 + 1) + 1) =
+        fourDeficit i
+    omega
+  rw [profileDeficitResidualScore_eq_descFactorial alpha _ hsize, hsub]
+  rfl
+
+/-- Pointwise convergence of each one of the four exact scores. -/
+theorem tendsto_fourDeficitScore (i : Fin 4) :
+    Tendsto
+      (fun alpha : Nat => fourDeficitScore alpha i)
+      atTop
+      (nhds (fourGaussianScore i)) := by
+  have hcorr := tendsto_log_descFactorial_sub_mul_log (fourDeficit i)
+  have hscore := hcorr.sub_const
+    (q / 2 * (fourDeficit i : Real) ^ 2)
+  simpa [fourDeficitScore, fourGaussianScore,
+    fourDeficit_cast_eq_support] using hscore
+
+/-- One threshold works simultaneously for all four deficit coordinates. -/
+theorem eventually_uniform_fourDeficitScore :
+    ∀ epsilon > 0, ∃ N : Nat, ∀ alpha ≥ N, ∀ i : Fin 4,
+      |fourDeficitScore alpha i - fourGaussianScore i| < epsilon := by
+  intro epsilon hepsilon
+  obtain ⟨N0, hN0⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (0 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N1, hN1⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (1 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N2, hN2⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (2 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N3, hN3⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (3 : Fin 4)))
+      epsilon hepsilon
+  refine ⟨max (max N0 N1) (max N2 N3), fun alpha halpha i ↦ ?_⟩
+  fin_cases i
+  · simpa [Real.dist_eq] using hN0 alpha (by omega)
+  · simpa [Real.dist_eq] using hN1 alpha (by omega)
+  · simpa [Real.dist_eq] using hN2 alpha (by omega)
+  · simpa [Real.dist_eq] using hN3 alpha (by omega)
+
+/-- Uniform score convergence transfers directly to optimized values for one
+common threshold and every interior target `T in (2,5)`. -/
+theorem eventually_uniform_fourDeficitOptimizedValue :
+    ∀ epsilon > 0, ∃ N : Nat, ∀ alpha ≥ N,
+      ∀ T ∈ Set.Ioo (2 : Real) 5,
+        |ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) T -
+          ProfileEntropyS4.optimizedValue fourGaussianScore T| < epsilon := by
+  exact
+    ProfileEntropyS4.eventually_uniform_optimizedValue_on_Ioo_of_uniform_scores
+      fourDeficitScore fourGaussianScore eventually_uniform_fourDeficitScore
+
+end
+
+#print axioms fourDeficit_zero
+#print axioms fourDeficit_one
+#print axioms fourDeficit_two
+#print axioms fourDeficit_three
+#print axioms fourDeficit_cast_eq_support
+#print axioms profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+#print axioms tendsto_fourDeficitScore
+#print axioms eventually_uniform_fourDeficitScore
+#print axioms eventually_uniform_fourDeficitOptimizedValue
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourDeficitScoreConvergence
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
@@ -26494,6 +26901,86 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9CycleSpaceCardinality
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
+Source: Erdos625/Section6CompatibleSignsComponents.lean
+Normalized SHA-256: e6a49d310ddaffa34d28b4c35c5f50ecda1f09ee1095e825078ab51f3360a7fa
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6CompatibleSignsComponents
+
+/-!
+# E3: compatible Boolean signs and connected components
+
+This file isolates the exact finite component-sign count used in the signed
+overlap argument.  It contains no probability or asymptotic assertion.
+-/
+
+namespace Erdos625
+
+open SimpleGraph
+
+noncomputable section
+
+/-- Boolean vertex signs that agree across every graph edge. -/
+def CompatibleBoolSignAssignments
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :=
+  {sigma : V -> Bool //
+    forall u v : V, G.Adj u v -> sigma u = sigma v}
+
+/-- A compatible Boolean sign assignment is exactly one Boolean choice per
+connected component, including isolated vertices. -/
+noncomputable def compatibleBoolSignAssignmentsEquivComponents
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    CompatibleBoolSignAssignments G ≃
+      (G.ConnectedComponent -> Bool) := by
+  let toFun : CompatibleBoolSignAssignments G → G.ConnectedComponent → Bool := fun sigma =>
+    SimpleGraph.ConnectedComponent.lift sigma.1 (by
+      intro u v p hp
+      induction p with
+      | nil => rfl
+      | cons hadj p ih =>
+          have hpt : p.IsPath := by simpa using hp.tail
+          exact (sigma.2 _ _ hadj).trans (ih hpt))
+  let invFun : (G.ConnectedComponent → Bool) → CompatibleBoolSignAssignments G := fun f =>
+    ⟨fun v => f (G.connectedComponentMk v), by
+      intro u v huv
+      exact congrArg f
+        (SimpleGraph.ConnectedComponent.connectedComponentMk_eq_of_adj huv)⟩
+  refine ⟨toFun, invFun, ?_, ?_⟩
+  · intro sigma
+    apply Subtype.ext
+    funext v
+    rfl
+  · intro f
+    funext c
+    induction c using SimpleGraph.ConnectedComponent.ind with
+    | _ v => rfl
+
+/-- Hence the number of compatible Boolean sign assignments is
+`2 ^ c(G)`. -/
+theorem natCard_compatibleBoolSignAssignments_eq_two_pow_components
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Nat.card (CompatibleBoolSignAssignments G) =
+      2 ^ Fintype.card G.ConnectedComponent := by
+  rw [Nat.card_congr (compatibleBoolSignAssignmentsEquivComponents G), Nat.card_fun,
+    Nat.card_eq_fintype_card]
+  norm_num [Nat.card_eq_fintype_card]
+
+#print axioms compatibleBoolSignAssignmentsEquivComponents
+#print axioms natCard_compatibleBoolSignAssignments_eq_two_pow_components
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6CompatibleSignsComponents
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
 ========================================================================== -/
 
 /- ==========================================================================
@@ -41063,7 +41550,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 3d08f468cd1603c717ed32590ede7af6c01e3c38402bdef7f09c219f42a58321
+Normalized SHA-256: 4429c1a0859dc0d1f88de409ef943e682bcb877c334f45a0a8b52f582da0a375
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -41091,6 +41578,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.tendsto_measure_one_of_eventually_subset
 #print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
@@ -41180,6 +41668,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_measure_one_of_compl_real_tendsto_zero
 #print axioms Erdos625.exists_uniform_cochromatic_amplification_at_manuscript_scales
 #print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.coColorable_real_seed_of_count
+#print axioms Erdos625.erdos625Statement_of_chromatic_cochromatic_thresholds
+#print axioms Erdos625.erdos625Statement_of_uniform_seed_and_root
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -41329,6 +41821,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.profileDeficitResidualScore_last
 #print axioms Erdos625.profileDeficitResidualScore_le_gaussian
 #print axioms Erdos625.tendsto_log_descFactorial_sub_mul_log
+#print axioms Erdos625.fourDeficit_zero
+#print axioms Erdos625.fourDeficit_one
+#print axioms Erdos625.fourDeficit_two
+#print axioms Erdos625.fourDeficit_three
+#print axioms Erdos625.fourDeficit_cast_eq_support
+#print axioms Erdos625.profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+#print axioms Erdos625.tendsto_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -41503,6 +42004,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.compatibleBoolSignAssignmentsEquivComponents
+#print axioms Erdos625.natCard_compatibleBoolSignAssignments_eq_two_pow_components
 #print axioms Erdos625.weighted_evenSubgraph_polymer_bound
 #print axioms Erdos625.exists_covering_cycleWalk_of_minimal_even
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
@@ -41756,7 +42259,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 26e27457092371014ce241f3174e6ccf5631d5f7c9227940be0416312383ebf4
+Normalized SHA-256: 2f7c09df1bba193c0036952f7ceb09dd3271833ce4144bd0889d9eef0a9cda86
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -41982,6 +42485,18 @@ bound with the sharp shifted independent-set term `mu n (b+1)`.
 At the phase cap, an exact squeeze theorem reduces the unrestricted chromatic
 probability limit to the single explicit obligation that this dual main term
 tends to zero.
+The graph-specific chromatic-tail adapter, the generic count-to-cocolourable
+Paley--Zygmund seed, the two-tail threshold assembly, and the uniform
+seed/root wrapper are now proved as conditional implications.  Their
+hypotheses still require the concrete chromatic at-most tail, the concrete
+Section IX seed/count/moment estimate with its `Lambda` asymptotics, and the
+concrete root separation.  None of those three mathematical inputs is supplied
+by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves.  They do not prove the four-size
+signed first moment or the sign-summed second-moment law, and they do not prove
+the concrete chromatic tail, the Section IX seed/count/moment estimate or its
+`Lambda` asymptotics, the root separation, or `Erdos625Statement`.
 The target proposition itself remains
 explicitly unproved until the full dependency chain is formalized.
 -/

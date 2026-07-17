@@ -44,10 +44,14 @@ import Erdos625.Section10CapacityLeftoverQuantitative
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
 import Erdos625.Section11ChromaticLowerTailBridge
+import Erdos625.Section11ChromaticTailAdapter
+import Erdos625.Section11ThresholdFinalAssembly
 import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.Section10QuarterChainLeftoverEvent
 import Erdos625.Section10UniformAmplification
 import Erdos625.Section10UniformAmplificationSpecialization
+import Erdos625.Section10CoColorablePaleyZygmundSeed
+import Erdos625.Section10_11UniformSeedRootFinal
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
@@ -76,6 +80,7 @@ import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
+import Erdos625.FourDeficitScoreConvergence
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -127,6 +132,7 @@ import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section6CompatibleSignsComponents
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -430,6 +436,18 @@ bound with the sharp shifted independent-set term `mu n (b+1)`.
 At the phase cap, an exact squeeze theorem reduces the unrestricted chromatic
 probability limit to the single explicit obligation that this dual main term
 tends to zero.
+The graph-specific chromatic-tail adapter, the generic count-to-cocolourable
+Paley--Zygmund seed, the two-tail threshold assembly, and the uniform
+seed/root wrapper are now proved as conditional implications.  Their
+hypotheses still require the concrete chromatic at-most tail, the concrete
+Section IX seed/count/moment estimate with its `Lambda` asymptotics, and the
+concrete root separation.  None of those three mathematical inputs is supplied
+by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves.  They do not prove the four-size
+signed first moment or the sign-summed second-moment law, and they do not prove
+the concrete chromatic tail, the Section IX seed/count/moment estimate or its
+`Lambda` asymptotics, the root separation, or `Erdos625Statement`.
 The target proposition itself remains
 explicitly unproved until the full dependency chain is formalized.
 -/

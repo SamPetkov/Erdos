@@ -35,10 +35,14 @@ import Erdos625.Section10CapacityLeftoverQuantitative
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
 import Erdos625.Section11ChromaticLowerTailBridge
+import Erdos625.Section11ChromaticTailAdapter
+import Erdos625.Section11ThresholdFinalAssembly
 import Erdos625.Section10_11ConditionalAssembly
 import Erdos625.Section10QuarterChainLeftoverEvent
 import Erdos625.Section10UniformAmplification
 import Erdos625.Section10UniformAmplificationSpecialization
+import Erdos625.Section10CoColorablePaleyZygmundSeed
+import Erdos625.Section10_11UniformSeedRootFinal
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -71,6 +75,7 @@ import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
+import Erdos625.FourDeficitScoreConvergence
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -122,6 +127,7 @@ import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section6CompatibleSignsComponents
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -226,6 +232,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.tendsto_measure_one_of_eventually_subset
 #print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
@@ -315,6 +322,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_measure_one_of_compl_real_tendsto_zero
 #print axioms Erdos625.exists_uniform_cochromatic_amplification_at_manuscript_scales
 #print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.coColorable_real_seed_of_count
+#print axioms Erdos625.erdos625Statement_of_chromatic_cochromatic_thresholds
+#print axioms Erdos625.erdos625Statement_of_uniform_seed_and_root
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -464,6 +475,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.profileDeficitResidualScore_last
 #print axioms Erdos625.profileDeficitResidualScore_le_gaussian
 #print axioms Erdos625.tendsto_log_descFactorial_sub_mul_log
+#print axioms Erdos625.fourDeficit_zero
+#print axioms Erdos625.fourDeficit_one
+#print axioms Erdos625.fourDeficit_two
+#print axioms Erdos625.fourDeficit_three
+#print axioms Erdos625.fourDeficit_cast_eq_support
+#print axioms Erdos625.profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+#print axioms Erdos625.tendsto_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -638,6 +658,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.compatibleBoolSignAssignmentsEquivComponents
+#print axioms Erdos625.natCard_compatibleBoolSignAssignments_eq_two_pow_components
 #print axioms Erdos625.weighted_evenSubgraph_polymer_bound
 #print axioms Erdos625.exists_covering_cycleWalk_of_minimal_even
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
