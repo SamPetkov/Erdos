@@ -99,9 +99,9 @@ This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX exact tagged fibre/global incidence integration of the
-event-restricted attachment numerator, the actual-even-family/cycle-rank and
-full/residual reward-support identifications, uniform large- and small-residual
-attachment, second-moment assembly, and concrete capacity seed/`Lambda`
+event-restricted attachment numerator, the actual-even-family/cycle-rank
+identification, uniform large- and small-residual attachment, second-moment
+assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -120,9 +120,11 @@ terms.  The residual-only term is bounded by an exact row-rooted even-walk
 enumeration under finite row/column kernel bounds.  Manuscript (9.1) already
 retains the cap/no-return indicator, so no division by its event mass is
 required.  The pointwise cubic `residualLambda` bound and its deterministic
-total estimate at the scale in (9.13) are included and proved.  No
-actual-even-family/cycle-rank or full/residual reward-support identification
-and no exact tagged fibre/global incidence integration is claimed.
+total estimate at the scale in (9.13) are included and proved.  The canonical
+full/residual reward-product and support-graph splits are included and proved,
+with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
+actual-even-family/cycle-rank identification or exact tagged fibre/global
+incidence integration is claimed.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -38688,6 +38690,190 @@ END SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
+Source: Erdos625/Section9CanonicalRewardSupportSplit.lean
+Normalized SHA-256: d56c3e1323a0afc5728ba512239d4b3137b06f6982fff41676cafaa04f64182a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+
+/-!
+# Section IX: canonical reward and support decomposition
+
+For one fixed canonical-demand witness, the full cell count is the sum of its
+exposed demand and transported residual count.  On the canonical residual
+event, no residual pair returns to the positive demand support.  This gives an
+exact product decomposition of the local reward.  If the cutoff parameter is
+at least two, every positive canonical demand is itself at least two, so the
+support of cells of full multiplicity at least two is exactly the union of the
+positive demand support and the residual multiplicity-two support.
+
+The no-return hypothesis is explicit in the reward lemmas.  The graph lemmas
+instead require the separate pointwise lower bound on positive demands; the
+canonical specialization derives it from `2 ≤ U`.  No probability estimate,
+cycle-space cardinality, or attachment bound is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A local reward splits across an exposed demand and a residual count when
+the residual count vanishes at every positive exposed demand. -/
+theorem residualReward_add_eq_mul_of_noReturn
+    (demand residual : ℕ)
+    (hnoReturn : demand ≠ 0 → residual = 0) :
+    residualReward (demand + residual) =
+      localSignRewardNat demand * residualReward residual := by
+  by_cases hdemand : demand = 0
+  · subst demand
+    simp [localSignRewardNat, residualReward]
+  · rw [hnoReturn hdemand]
+    simp [residualReward_eq_localSignRewardNat, localSignRewardNat]
+
+/-- The product of full-cell rewards splits into the exposed reward on the
+positive demand support and the product of all residual rewards. -/
+theorem prod_residualReward_add_eq_positiveSupport_mul
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hnoReturn : ∀ a b, demand a b ≠ 0 → residual a b = 0) :
+    (∏ a : A, ∏ b : B,
+        residualReward (demand a b + residual a b)) =
+      (∏ e ∈ positiveDemandSupport demand,
+        localSignRewardNat (demand e.1 e.2)) *
+        (∏ a : A, ∏ b : B, residualReward (residual a b)) := by
+  classical
+  have hsupport :
+      (∏ e ∈ positiveDemandSupport demand,
+          localSignRewardNat (demand e.1 e.2)) =
+        ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) := by
+    rw [← Fintype.prod_ite_mem]
+    calc
+      (∏ e : A × B,
+          if e ∈ positiveDemandSupport demand then
+            localSignRewardNat (demand e.1 e.2) else 1) =
+          ∏ e : A × B, localSignRewardNat (demand e.1 e.2) := by
+            apply Fintype.prod_congr
+            intro e
+            by_cases he : demand e.1 e.2 = 0
+            · simp [positiveDemandSupport, he, localSignRewardNat]
+            · simp [positiveDemandSupport, he]
+      _ = ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) :=
+        Fintype.prod_prod_type'
+          (fun a : A ↦ fun b : B ↦ localSignRewardNat (demand a b))
+  simp_rw [residualReward_add_eq_mul_of_noReturn _ _ (hnoReturn _ _)]
+  simp_rw [Finset.prod_mul_distrib]
+  rw [hsupport]
+
+/-- Adding a table entry whose positive values are at least two creates a
+multiplicity-two cell exactly when that entry is positive or the added entry
+already has multiplicity at least two. -/
+theorem two_le_add_iff_positive_or_two_le
+    (demand residual : ℕ)
+    (hpositive : demand ≠ 0 → 2 ≤ demand) :
+    2 ≤ demand + residual ↔ demand ≠ 0 ∨ 2 ≤ residual := by
+  by_cases hdemand : demand = 0
+  · simp [hdemand]
+  · have htwo := hpositive hdemand
+    omega
+
+/-- The support graph of cells of total multiplicity at least two is the
+union of the positive demand support and the residual multiplicity-two
+support, provided every positive demand is at least two. -/
+theorem bipartiteGraph_positiveSupport_add_eq_union
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hpositive : ∀ a b, demand a b ≠ 0 → 2 ≤ demand a b) :
+    bipartiteGraph (fun a b ↦ 2 ≤ demand a b + residual a b) =
+      bipartiteGraph
+          (fun a b ↦ (a, b) ∈ positiveDemandSupport demand) ⊔
+        bipartiteGraph (fun a b ↦ 2 ≤ residual a b) := by
+  rw [← bipartiteGraph_or_eq_sup]
+  apply congrArg bipartiteGraph
+  funext a b
+  apply propext
+  simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+    true_and] using
+      two_le_add_iff_positive_or_two_le
+        (demand a b) (residual a b) (hpositive a b)
+
+/-- For a fixed labelled witness of an attained canonical demand, membership
+in the canonical event gives both exact deterministic decompositions needed
+by the Section IX local expansion: the local-reward product split and the
+multiplicity-two support-graph split.
+
+The assumption `2 ≤ U` is used only to turn the strict canonical high-demand
+bound `U / 2 < demand` into `2 ≤ demand`. -/
+theorem fixedWitnessCanonical_reward_support_split
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hU : 2 ≤ U)
+    (demand : canonicalDemandImage row col U)
+    (witness : PrescribedDemandWitness demand.1 row col)
+    (extension : fixedWitnessExtensionEvent witness)
+    (hevent : extension ∈ fixedWitnessCanonicalDemandEvent witness U) :
+    let residual := fixedWitnessExtensionEquivResidual witness extension
+    ((∏ a : A, ∏ b : B,
+          residualReward (configurationCellCount extension.1 a b)) =
+        (∏ e ∈ positiveDemandSupport demand.1,
+          localSignRewardNat (demand.1 e.1 e.2)) *
+          (∏ a : A, ∏ b : B,
+            residualReward (configurationCellCount residual a b))) ∧
+      (bipartiteGraph
+          (fun a b ↦ 2 ≤ configurationCellCount extension.1 a b) =
+        bipartiteGraph
+            (fun a b ↦ (a, b) ∈ positiveDemandSupport demand.1) ⊔
+          bipartiteGraph
+            (fun a b ↦ 2 ≤ configurationCellCount residual a b)) := by
+  dsimp only
+  let residual := fixedWitnessExtensionEquivResidual witness extension
+  have hhigh : ∀ a b, demand.1 a b ≠ 0 → U / 2 < demand.1 a b :=
+    canonicalDemandImage_high row col U demand
+  have hresidual : residual ∈ canonicalResidualCellEvent witness U := by
+    exact (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+      witness U hhigh extension).mp hevent
+  have hnoReturn : ∀ a b, demand.1 a b ≠ 0 →
+      configurationCellCount residual a b = 0 := by
+    intro a b hab
+    exact (hresidual a b).2 hab
+  have hpositive : ∀ a b, demand.1 a b ≠ 0 → 2 ≤ demand.1 a b := by
+    intro a b hab
+    have hcellHigh := hhigh a b hab
+    omega
+  have hcell : ∀ a b,
+      configurationCellCount extension.1 a b =
+        demand.1 a b + configurationCellCount residual a b := by
+    intro a b
+    exact configurationCellCount_eq_demand_add_residual
+      witness extension a b
+  constructor
+  · simp_rw [hcell]
+    exact prod_residualReward_add_eq_positiveSupport_mul
+      demand.1 (configurationCellCount residual) hnoReturn
+  · simp_rw [hcell]
+    exact bipartiteGraph_positiveSupport_add_eq_union
+      demand.1 (configurationCellCount residual) hpositive
+
+#print axioms residualReward_add_eq_mul_of_noReturn
+#print axioms prod_residualReward_add_eq_positiveSupport_mul
+#print axioms two_le_add_iff_positive_or_two_le
+#print axioms bipartiteGraph_positiveSupport_add_eq_union
+#print axioms fixedWitnessCanonical_reward_support_split
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
 Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
@@ -40877,7 +41063,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 8e4c74557602e1cb42de6f303238ac605cdd1b353a0c79dbd4a4eb0c010da227
+Normalized SHA-256: 3d08f468cd1603c717ed32590ede7af6c01e3c38402bdef7f09c219f42a58321
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -41464,6 +41650,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformSigmaCapNoReturn
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
 #print axioms Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+#print axioms Erdos625.residualReward_add_eq_mul_of_noReturn
+#print axioms Erdos625.prod_residualReward_add_eq_positiveSupport_mul
+#print axioms Erdos625.two_le_add_iff_positive_or_two_le
+#print axioms Erdos625.bipartiteGraph_positiveSupport_add_eq_union
+#print axioms Erdos625.fixedWitnessCanonical_reward_support_split
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
@@ -41565,7 +41756,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: c6b81bf68cfdf21632655c820a07720b957b98059d3b67103f6889ed99008337
+Normalized SHA-256: 26e27457092371014ce241f3174e6ccf5631d5f7c9227940be0416312383ebf4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -41762,10 +41953,11 @@ enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
 retains the cap/no-return indicator inside the residual expectation, this
 event-restricted numerator must not be divided by the event mass.  The
 pointwise cubic `residualLambda` bound and its deterministic total estimate at
-the scale in (9.13) are proved.  The actual-even-family/cycle-rank and
-full/residual reward-support identifications, exact tagged fibre/global
-incidence integration, uniform large- and small-residual estimates, and
-complete Lemma 9.1/Proposition 9.2 assembly remain open.
+the scale in (9.13) are proved.  The canonical full/residual reward-product
+and support-graph splits are also proved with explicit no-return and `2 ≤ U`
+hypotheses.  The actual-even-family/cycle-rank identification, exact tagged
+fibre/global incidence integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

@@ -394,10 +394,12 @@ are now proved separately.  Manuscript (9.1) keeps the cap/no-return indicator
 inside the residual expectation, so this event-restricted numerator is the
 fixed-skeleton attachment factor and must not be divided by the event mass.
 The pointwise cubic `residualLambda` estimate and its exact total bound at
-scale `C * U^4 / m` from (9.13) are now proved.  The actual-even-family/
-cycle-rank and full/residual reward-support identifications, the exact tagged
-fibre/global incidence identity, and the large- and small-residual attachment
-estimates remain open.
+scale `C * U^4 / m` from (9.13) are now proved.  The canonical full/residual
+reward-product and support-graph splits are also proved, with no-return
+explicit for the reward identity and `2 ≤ U` explicit for the graph identity.
+The actual-even-family/cycle-rank identification, exact tagged fibre/global
+incidence identity, and large- and small-residual attachment estimates remain
+open.
 The residual-only cycle
 summand now has an exact deterministic row-rooted even-walk bound under finite
 row/column kernel hypotheses.  The earlier high-cell mass
@@ -555,7 +557,7 @@ domination, and perform the deterministic literal-`residualQ` combination
 under the explicit strict geometric premise.  Tagged-law integration and the
 attachment estimate remain open.
 
-Three further accepted Section 9 leaves isolate exact downstream algebra.
+Four further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)
 proves `cappedReward_telescoping`, the capped identities (9.10)--(9.11) under
 the necessary `r <= R` hypothesis.
@@ -563,6 +565,12 @@ the necessary `r <= R` hypothesis.
 proves only the exact equality between `residualReward` and
 `localSignRewardNat`, and the corresponding equality of their discrete
 increments; it adds no expectation or asymptotic estimate.
+[`Section9CanonicalRewardSupportSplit.lean`](Erdos625/Section9CanonicalRewardSupportSplit.lean)
+proves the local no-return reward identity, its exact finite product split over
+the positive canonical-demand support, the multiplicity-two support union,
+and their fixed-witness canonical specialization.  The reward split assumes
+no-return explicitly; the support-graph split assumes `2 ≤ U` and does not
+hide that threshold premise.
 [`Section9FiniteFamilyAlgebra.lean`](Erdos625/Section9FiniteFamilyAlgebra.lean)
 proves `finiteInjectiveFamily_product_exp_bound` from explicit injectivity,
 pointwise product bounds, and nonnegative atom weights.
@@ -655,9 +663,10 @@ aggregation is proved separately,
 and its exact Fubini bridge identifies it with the event-restricted actual-
 attachment numerator.  No division by the cap/no-return event mass belongs in
 the manuscript (9.1)--(9.2) route.  What remains is to prove the exact
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-the per-demand/global tagged incidence identity, the uniform strict-regime
-instantiation, and the large- and small-residual attachment estimates.
+actual-even-family/cycle-rank identification, the per-demand/global tagged
+incidence identity, the uniform strict-regime instantiation, and the large-
+and small-residual attachment estimates.  The full/residual reward-product
+and support-graph splits are proved separately.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -827,8 +836,7 @@ specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
 assembly, exact tagged fibre/global incidence integration of the
 event-restricted attachment numerator, the
-actual-even-family/cycle-rank and full/residual reward-support identifications,
-finite residual attachment
+actual-even-family/cycle-rank identification, finite residual attachment
 bounds, conditioned probability control, and full Section 9 assembly,
 Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and
 Section 11's actual chromatic tail and threshold/limit instantiation remain

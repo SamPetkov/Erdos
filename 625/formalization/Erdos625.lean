@@ -188,6 +188,7 @@ import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
+import Erdos625.Section9CanonicalRewardSupportSplit
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -400,10 +401,11 @@ enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
 retains the cap/no-return indicator inside the residual expectation, this
 event-restricted numerator must not be divided by the event mass.  The
 pointwise cubic `residualLambda` bound and its deterministic total estimate at
-the scale in (9.13) are proved.  The actual-even-family/cycle-rank and
-full/residual reward-support identifications, exact tagged fibre/global
-incidence integration, uniform large- and small-residual estimates, and
-complete Lemma 9.1/Proposition 9.2 assembly remain open.
+the scale in (9.13) are proved.  The canonical full/residual reward-product
+and support-graph splits are also proved with explicit no-return and `2 ≤ U`
+hypotheses.  The actual-even-family/cycle-rank identification, exact tagged
+fibre/global incidence integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

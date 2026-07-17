@@ -194,7 +194,8 @@ actual residual even set
   -> residual-only row-rooted even-walk bound under tau < 1 [proved]
   -> pointwise cubic residualLambda bound [proved]
   -> cubic total-residualLambda bound (9.13) [proved]
-  -> actual even-family cardinality = 2^cycleRank and full/residual reward-support split
+  -> canonical full/residual reward-product and support-graph split [proved]
+  -> actual even-family cardinality = 2^cycleRank
   -> exact per-demand/global tagged incidence integration of (9.1)
   -> uniform strict-regime integration
   -> faithful large- and small-residual expectation estimates
@@ -239,9 +240,10 @@ Implementation order:
    the total by `|A| * tau^4 * (1 - tau^2)⁻¹` under row/column bounds and
    `tau < 1`;
 10. identify the actual even-family cardinality with
-    `2 ^ cycleRank (M ∪ H_res)` and prove the canonical full/residual
-    reward-product and support-graph splits.  The generic bridge must assume
-    `2 ≤ U` (or directly that every positive high demand is at least two);
+    `2 ^ cycleRank (M ∪ H_res)`.  **Completed separately:** the canonical
+    full/residual reward-product and support-graph splits, with no-return
+    explicit for the reward identity and `2 ≤ U` explicit for the canonical
+    graph specialization;
 11. **Completed analytic transport:** prove the pointwise cubic
     `residualLambda` bound and, by the deterministic theta cap and global cubic
     theta moment, the total estimate at the scale in (9.13);
@@ -273,10 +275,10 @@ Reward compatibility, canonical-support matchingness, and the exact mixed/
 residual-only cycle partition are also proved.  The exact residual-only
 row-rooted even-walk bound is now proved as well.  The pointwise cubic
 `residualLambda` bound and its total estimate at the scale in (9.13) are also
-proved.  The actual-even-family/cycle-rank and full/residual reward-support
-identifications, exact tagged fibre/global incidence integration, the later
-Section IX attachment/probability estimates, and `Erdos625Statement` remain
-open.
+proved, as are the canonical full/residual reward-product and support-graph
+splits.  The actual-even-family/cycle-rank identification, exact tagged
+fibre/global incidence integration, later Section IX attachment/probability
+estimates, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may
@@ -406,9 +408,9 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX actual-family/cycle-rank and full/residual reward-support
-   identifications, exact tagged fibre/global incidence integration, and uniform
-   strict-regime bridge, with priority on the concrete Section IX seed and
+   and the Section IX actual-family/cycle-rank identification, exact tagged
+   fibre/global incidence integration, and uniform strict-regime bridge, with
+   priority on the concrete Section IX seed and
    `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.

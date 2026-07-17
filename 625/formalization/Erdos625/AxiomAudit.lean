@@ -182,6 +182,7 @@ import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
+import Erdos625.Section9CanonicalRewardSupportSplit
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -784,6 +785,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformSigmaCapNoReturn
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
 #print axioms Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+#print axioms Erdos625.residualReward_add_eq_mul_of_noReturn
+#print axioms Erdos625.prod_residualReward_add_eq_positiveSupport_mul
+#print axioms Erdos625.two_le_add_iff_positive_or_two_le
+#print axioms Erdos625.bipartiteGraph_positiveSupport_add_eq_union
+#print axioms Erdos625.fixedWitnessCanonical_reward_support_split
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
