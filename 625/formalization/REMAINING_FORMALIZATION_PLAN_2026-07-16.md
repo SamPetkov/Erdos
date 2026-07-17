@@ -167,19 +167,24 @@ Critical rejection rules:
 
 The residual family, degree/cap estimates, cycle-space cardinality, generic
 polymer bounds, traversal kernels, explicit path terms, small-residual
-deterministic integrand bound, and the faithful physical cut of one eligible
-cycle together with its canonical injective source-free encoder and exact
-per-code weight are accepted.  The remaining bridge is:
+deterministic integrand bound, the faithful physical cut of one eligible
+cycle, its canonical injective source-free encoder with exact per-code weight,
+its finite dependent marked packaging and aggregate traversal domination, the
+abstract geometric enumeration, and its deterministic literal-`residualQ`
+specialization are accepted.  The remaining bridge is:
 
 ```text
 actual residual even set
   -> recoverable minimal mixed cycles
   -> marked/oriented/cut walk blocks [proved cycle by cycle]
   -> canonical injective weight-preserving code [proved]
-  -> dependent marked-start/block-count packaging
-  -> finite weighted reindexing and traversal domination
-  -> residualQ traversal bound
-  -> faithful large-/small-residual expectation estimates
+  -> dependent marked-start/block-count packaging [proved]
+  -> finite weighted reindexing and traversal domination [proved]
+  -> abstract geometric traversal bound with one 2|M| cost [proved]
+  -> literal residualQ mixed-cycle bound under tau < 1/3 [proved]
+  -> fixed-F/even-family/local-factor and residual-only-cycle transport
+  -> tagged residual PMF and uniform strict-regime integration
+  -> faithful large- and small-residual expectation estimates
   -> Lemma 9.1 and Proposition 9.2
 ```
 
@@ -201,12 +206,20 @@ Implementation order:
 5. **Completed canonical encoder:** choose one faithful source-free code for
    every mixed simple cycle, prove decoding is a left inverse and hence the
    encoder is injective, and transport the exact physical residual weight;
-6. package the encoder by its dependent marked start and block count, then
-   prove the finite weighted reindexing and domination by the complete relaxed
-   traversal enumeration;
-7. instantiate the accepted traversal kernel with the literal `residualQ`;
-8. retain the single `2 * |M|` marked-start cost;
-9. transport the bound through the tagged dependent residual law;
+6. **Completed dependent enumeration:** package the encoder by its dependent
+   marked start and block count, prove the finite weighted reindexing and
+   domination by the complete relaxed traversal enumeration, and retain the
+   single `2 * |M|` marked-start cost already isolated by the matching bridge;
+7. **Completed deterministic specialization:** compose the endpoint row bound
+   and matching partial-permutation kernel with the aggregate enumeration,
+   retaining exactly one `2 * |M|` cost, and specialize it to literal
+   `residualQ` under the exact finite hypotheses and explicit `tau < 1/3`
+   premise;
+8. connect the fixed-`F` expansion, even-family polymer decomposition, and
+   local factors to that mixed-cycle bound, including cycles disjoint from the
+   distinguished matching;
+9. transport the result through the tagged dependent residual law and
+   instantiate the strict regime uniformly;
 10. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
 11. assemble Lemma 9.1 and Proposition 9.2.
@@ -217,8 +230,13 @@ no-drop, and exact physical-weight target interface.
 `physicalCycleCuttingStatement` now proves the physical marked/oriented
 cycle-cut existence theorem, and `chosenPhysicalCycleCut` supplies a canonical
 source-free encoder with a decoder left inverse, injectivity, and exact weight.
-Dependent marked-start/block-count packaging, finite weighted
-reindexing/traversal domination, the later Section IX attachment/probability
+`MarkedCycleTraversalCode` supplies the data-only dependent packaging, exact
+endpoint enumeration, and aggregate mixed-cycle-to-nested-walk domination.
+`mixedSimpleCycle_weighted_walk_enumeration` and
+`existsAbsoluteResidualQMixedCycleWeightedEnumeration` supply the abstract
+geometric estimate and its deterministic literal-`residualQ` specialization.
+Law-level fixed-`F`/even-family/local-factor transport, residual-only cycles,
+tagged residual-PMF integration, the later Section IX attachment/probability
 estimates, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
@@ -345,10 +363,10 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX dependent marked-start/block-count packaging plus finite
-   weighted reindexing/traversal domination built from the canonical physical
-   cycle encoder, with priority on the concrete Section IX seed and `Lambda`
-   asymptotics consumed by Lemma 10.2.
+   and the Section IX law-level fixed-`F`/even-family/local-factor transport,
+   residual-only cycle control, tagged residual-PMF integration, and uniform
+   strict-regime bridge, with priority on the concrete Section IX seed and
+   `Lambda` asymptotics consumed by Lemma 10.2.
 6. **After those foundations:** delegate their bounded quotient, reindexing,
    kernel, and arithmetic leaves.
 7. **Final:** integrate the concrete chromatic and cochromatic tails through

@@ -143,6 +143,9 @@ import Erdos625.Section9BlockChainEnumeration
 import Erdos625.Section9CycleWalkCutAtMatching
 import Erdos625.Section9PhysicalCycleCutting
 import Erdos625.Section9PhysicalCycleEncoder
+import Erdos625.Section9MarkedCycleEnumeration
+import Erdos625.Section9MixedCycleWeightedEnumeration
+import Erdos625.Section9ResidualQMixedCycleEnumeration
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
@@ -370,9 +373,16 @@ marked matching edge, cuts it into positive bounded residual runs, and produces
 a faithful source-free code.  A canonical classical choice of this code now
 has a decoder left inverse, is injective on mixed simple cycles, and has the
 exact physical residual weight.  Dependent marked-start/block-count packaging,
-finite weighted reindexing and traversal domination, concrete
-residual-table/kernel transfer, attachment estimates, and complete
-Lemma 9.1/Proposition 9.2 assembly remain open.
+finite weighted reindexing and traversal domination are now also proved: the
+marked dependent target is data-only, its total weight is enumerated exactly by
+endpoint masses, and the aggregate mixed-cycle weight is bounded by the nested
+walk mass.  Its abstract geometric summation now has exactly one `2 * |M|`
+marked-start cost, and a deterministic specialization to the literal
+`residualQ` kernel is proved under the exact degree-cap hypotheses and the
+explicit strict `tau < 1/3` premise.  Law-level fixed-`F`/even-family/local-
+factor transport, residual-only cycles, tagged residual-PMF integration,
+uniform large- and small-residual estimates, and complete Lemma 9.1/Proposition
+9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
