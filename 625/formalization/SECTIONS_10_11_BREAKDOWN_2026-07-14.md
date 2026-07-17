@@ -2,7 +2,7 @@
 
 ## Scope and status rule
 
-### Status reconciliation (2026-07-15)
+### Status reconciliation (updated 2026-07-16)
 
 This reconciliation supersedes older submission-time labels below without
 changing module-count, hash, or full-build metrics.  The exact returned
@@ -22,7 +22,30 @@ is quarantined provenance only; the request ledger below records the completed
 isolated builds and standard-axiom reports, but accepted local Lean 4.31 source
 remains authoritative and no service source was imported directly.
 
-Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
+The exact one-event statement of Lemma 10.1 and the exact quantifier-correct
+uniform statement of Lemma 10.2 are now complete.  The concrete Section IX
+seed/`Lambda` asymptotics, Section 11, and `Erdos625Statement` remain open.
+
+The X01--X02 graph-law and probability lane is now closed locally:
+`Section10InducedRestriction.lean`, `Section10QuarterDensityEvent.lean`,
+`Section10QuarterDensityLimit.lean`, `Section10QuarterDensityLift.lean`, and
+`Section10UniformQuarterDensityEvent.lean` prove one full-sequence event whose
+probability tends to one and which controls every subset at least as large as
+the cutoff.  `Section10QuarterDenseChain.lean` proves the exact finite clique
+chain under its displayed survival hypothesis, and
+`Section10QuarterChainSurvival.lean` proves that hypothesis eventually at the
+chosen manuscript scales.  The parameter, survival-transport, complement, and
+chain adapters are now assembled further in
+`Section10QuarterChainIndependentBlock.lean`: one event of probability tending
+to one supplies an independent block of the same deterministic size in every
+sufficiently large vertex set, and the accepted greedy theorem gives its exact
+ceiling-division chromatic bound.  The numerical conversion, exact
+manuscript-form linear event, parameter-independent failure sequence, and
+deficit-indexed leftover-event packaging are now accepted in the four
+quarter-chain continuation modules.  `Section10UniformAmplification.lean`
+then closes X04 under the displayed seed hypothesis.  The current frontier is
+the concrete Section IX capacity seed and `Lambda` asymptotics needed to
+instantiate that theorem, followed by the Section XI inputs.
 
 ## Accepted local atoms
 
@@ -30,12 +53,22 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 |---|---|---:|---|
 | `exists_vertex_quarter_degree`, `quarterDense_all_larger_of_all_exact` | deterministic density lift and averaging steps in Lemma 10.1 | local proved | Quarter density on every set of one fixed size lifts to every larger set, and the denominator-cleared quarter-density premise then yields one vertex with `card - 1 <= 4 * degree`.  These theorems do not prove the random simultaneous-density event or construct the full greedy colouring. |
 | `quarterRecurrence_lowerBound` | recurrence (10.3a) | local proved | From `(s t - 1) / 4 <= s (t+1)` it proves `4^(-t) * s 0 - 1/3 <= s t`.  The required number of iterations and independent-set extraction are not included. |
-| `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The probabilistic seed and Lemma 10.2 remain open. |
+| `cutoffComplementAllLargerQuarterDenseEvent`, `cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one` | one simultaneous random quarter-density event | defined; local proved | Along the full sequence, one event of probability tending to one asserts quarter density in the complement graph for every subset at least as large as the cutoff.  It does not itself initialize the clique chain, convert a complement clique to an independent set, or invoke greedy colouring. |
+| `exists_quarterDense_clique_chain`, `quarterChain_shifted_survival_eventually` | finite quarter-density chain and chosen-scale survival | local proved | Under the uniform density premise, the finite theorem produces a clique of the requested length and a common-neighbour residual; the chosen manuscript start and step scales eventually satisfy its shifted-potential survival premise.  The exact-start subset, cutoff/start comparison, complement-to-independent conversion, and uniform greedy instantiation remain open. |
+| `quarterDensityCutoff_le_quarterChainStart_eventually`, `one_le_quarterDensityCutoff_eventually`, `quarterChainSteps_tendsto_atTop`, `one_le_quarterChainSteps_eventually`, `quarterChainSteps_real_lower_bound_eventually` | X03 parameter package | local proved | The cutoff/start and positivity facts are explicit, the step count tends to infinity, and its floor retains the lower bound `log n/(14 log 4)`. |
+| `quarterChain_shifted_survival_of_start_le_card`, `quarterChain_shifted_survival_all_larger_eventually`, `isIndepSet_of_compl_isClique` | X03 transport and complement adapters | local proved | The exact shifted potential transports to every larger initial set, and a complement clique is converted to an original-graph independent set without changing the vertex set. |
+| `quarterChainIndependentBlockEvent`, `cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually`, `quarterChainIndependentBlockEvent_probability_tendsto_one`, `chromaticNumberNat_induce_le_of_independentBlockEvent` | X03 uniform independent-block/greedy package | defined; local proved | On one event of probability tending to one, every set above the cube-root start contains a logarithmic independent block, and every induced graph satisfies the exact ceiling-division greedy bound. |
+| `quarterChain_greedy_count_real_upper_bound_eventually`, `quarterChainGreedyColorCost`, `quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot` | X03 manuscript-constant numerical conversion | defined; local proved | The exact piecewise greedy cost is eventually bounded uniformly by `C * u / log n + n^(1/3)` with the explicit positive choice `C = 14 * log 4 + 2`. |
+| `quarterChainIndependentBlockFailure`, `quarterChainIndependentBlockFailure_tendsto_zero` | parameter-independent Lemma 10.1 error | defined; local proved | The complement probability of the single independent-block event depends only on `n` and tends to zero, so it is independent of all later seed, radius, and deficit choices. |
+| `quarterChainLinearColoringEvent`, `exists_quarterChainLinearColoringEvent_probability_tendsto_one`, `exists_quarterChainLinearColoringEvent_full_control` | exact manuscript Lemma 10.1 | defined; local proved | One positive absolute constant gives the simultaneous induced-colouring inequality on one event of probability tending to one, together with the quantitative complement bound.  This closes Lemma 10.1 and supplies the colouring input to the downstream Lemma 10.2 theorem. |
+| `quarterChainLeftoverBound`, `quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent`, `quarterChainLeftoverBound_probability_tendsto_one`, `quarterChainLeftoverBound_compl_probability_le`, `erdos625Statement_of_capacity_quarterChainLeftover_thresholds` | deficit-indexed leftover event and reduced final seam | defined; local proved | Every deterministic deficit sequence has the required simultaneous leftover tail, with the same failure sequence.  The conditional target seam is thereby reduced from five inputs to four; capacity, chromatic, and threshold inputs remain open. |
+| `amplificationBase`, `amplificationRadius`, `gapBase`, `amplificationError`, `amplificationRadius_tendsto_atTop`, `sqrt_seedTerm_isLittleO`, `sqrt_radiusTerm_isLittleO`, `realCubeRoot_isLittleO`, `one_isLittleO_gapScale`, `amplificationError_isLittleO_gapBase` | scales (10.10)--(10.12) | defined; local proved | `r_n = sqrt(n/(log n)^4)` tends to infinity.  The seed implication, transformed-radius term, real cube-root term, and additive constant are all little-o of `n/(log n)^3`; their displayed sum is assembled into one little-o statement under the exact hypotheses.  The concrete Section IX seed and its `Lambda` asymptotics remain open. |
 | `quarterDensity_unionBound_tendsto_zero` | analytic union bound in Lemma 10.1 | local proved | For each fixed positive lower-tail constant, the union cost at `u0 = ceil(n^(1/4))` tends to zero along the full sequence.  No graph-law transport or simultaneous random event is proved. |
-| `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The random event supplying that internal universal hypothesis remains open. |
+| `simultaneous_induced_chromatic_bound` | deterministic greedy seam in Lemma 10.1 | local proved | One graph-uniform hypothesis, quantified over every sufficiently large induced subset, yields the advertised chromatic bound for every requested leftover set.  The downstream quarter-chain event now supplies that internal universal hypothesis. |
 | `binomialRandom_map_ncard_edgeSet_singleton` | fixed finite binomial edge-count law before Lemma 10.1 | local proved | The pushforward edge-count measure has the exact binomial singleton mass for Mathlib's finite binomial random graph.  Transport to each fixed induced complement graph, the lower-quarter tail, and the simultaneous event remain open. |
 | `randomGraphMeasure_map_compl` | ambient complement symmetry before Lemma 10.1 | local proved | The finite labelled `G(n,1/2)` law is exactly invariant under graph complementation. This does not provide the native pushforward through a fixed induced restriction, the lower-quarter tail, or the simultaneous event. |
-| `failure_probability_le_add_of_two_success_events` | quantitative capacity/leftover intersection in Lemma 10.2 | local proved | If two supplied success events imply `Good`, its failure probability is at most the sum of their supplied failure bounds, without independence.  Neither probabilistic input is proved here. |
+| `failure_probability_le_add_of_two_success_events` | quantitative capacity/leftover intersection in Lemma 10.2 | local proved | If two supplied success events imply `Good`, its failure probability is at most the sum of their supplied failure bounds, without independence.  The downstream uniform theorem instantiates this seam under the displayed seed inequality. |
+| `uniformAmplificationError`, `quarterChainLinearColoringEvent_mono_constant`, `cochromaticCapacityDeficitRadius_lt_displayed`, `capacityAmplification_inter_linear_subset_cochromaticUpperEvent`, `cochromaticUpperEvent_compl_probability_le_exp_add`, `exists_uniform_cochromatic_amplification` | exact quantifier-correct manuscript Lemma 10.2 | defined; local proved | One absolute `C ≥ 1` and one nonnegative deterministic `epsilon_n → 0` are chosen before all deterministic `k_n`, `Lambda_n`, and `r_n`.  Under eventual `Lambda_n ≥ 0`, `r_n > 0`, and the displayed seed inequality, the cochromatic-upper-event failure is eventually bounded by `exp(-r_n) + epsilon_n`.  No independence is assumed.  The concrete Section IX seed/`Lambda` asymptotics, Section XI inputs, and final target remain open. |
 | `chromaticLowerEvent`, `cochromaticUpperEvent` | threshold events in Section 11 | defined | These are the strict natural chromatic lower event and real cochromatic upper event with deterministic error. |
 | `thresholdIntersection_subset_gapEvent` | deterministic Section 11 event inclusion | local proved | Given the exact threshold separation, the intersection is contained in `gapEvent`; the strict chromatic event contributes the necessary `+1`. |
 | `explicitThresholdIntersection_subset_gapEvent` | expanded form of (11.2) | local proved | The same inclusion displays the constant explicitly.  It supplies no sequence choice, probability limit, or eventual separation theorem. |
@@ -44,14 +77,15 @@ Neither Lemma 10.1, Lemma 10.2, Section 11, nor `Erdos625Statement` is complete.
 | `tendsto_explicit_gap_scale_atTop` | divergence used for (11.3) | local proved | The explicit positive scale tends to infinity along the full sequence.  The actual fixed-`M` probability-tail implication is not yet assembled. |
 | `fixedThreshold_tail_of_movingThreshold` | moving-to-fixed threshold implication in (11.3) | local proved | An assumed probability-one tail above a deterministic threshold tending to infinity implies every fixed-threshold tail, even for `n`-dependent finite sample spaces.  The concrete moving-threshold tail remains open. |
 | `strictLower_probability_tendsto_one_of_atMost_tendsto_zero` | strict chromatic lower-event bridge | local proved | A full-sequence probability-zero tail for `X n <= k n` gives probability one for `k n < X n`, with `n`-dependent sample spaces.  The actual chromatic at-most tail and threshold are not supplied. |
-| `capacityDeficitEvent`, `simultaneousLeftoverColoringEvent`, `capacityDeficitEvent_probability_tendsto_one`, `cochromaticNumber_le_of_capacityDeficit_and_leftover`, `tendsto_measure_one_of_eventually_subset`, `erdos625Statement_of_capacity_leftover_thresholds` | conditional Sections 10--11 closure | defined; local proved under explicit hypotheses | The capacity and simultaneous-leftover events have the correct internal quantifiers; a rounded capacity tail is derived from the displayed seed/radius assumptions; and five named full-sequence inputs imply `Erdos625Statement`.  The theorem does not prove any of those concrete manuscript inputs and is not an unconditional target proof. |
+| `capacityDeficitEvent`, `simultaneousLeftoverColoringEvent`, `capacityDeficitEvent_probability_tendsto_one`, `cochromaticNumber_le_of_capacityDeficit_and_leftover`, `tendsto_measure_one_of_eventually_subset`, `erdos625Statement_of_capacity_leftover_thresholds` | conditional Sections 10--11 closure | defined; local proved under explicit hypotheses | The capacity and simultaneous-leftover events have the correct internal quantifiers; a rounded capacity tail is derived from the displayed seed/radius assumptions; and five named full-sequence inputs imply `Erdos625Statement`.  The quarter-chain specialization above discharges the leftover-tail input, but the result remains conditional rather than an unconditional target proof. |
 
 The previously accepted amplification infrastructure also includes the induced
 `k`-cocolourable capacity, its full-capacity event, one-vertex block
 oscillation, graph-law tails, rare-seed expectation inversion (10.7), the
 one-sided lower-tail estimate (10.8), a maximizing core with exact complement
-size, and deterministic concatenation (10.9).  Those interfaces do not by
-themselves prove Lemma 10.2.
+size, and deterministic concatenation (10.9).  The new uniform-amplification
+module assembles those interfaces with Lemma 10.1 under the displayed seed
+hypothesis; it does not prove that concrete seed.
 
 ## Section X dependency DAG
 
@@ -75,11 +109,11 @@ rare cochromatic seed
 
 ## Next execution wave -- 2026-07-16
 
-The next checkpoint is deliberately narrower than Lemma 10.1: close the
-fixed-set graph-law transport, turn it into one simultaneous quarter-density
-event, and only then instantiate the already accepted deterministic density
-lift and greedy interfaces.  A fixed-set probability statement is not an
-acceptable substitute for the internal universal quantifier.
+The X01--X04 wave, including exact Lemmas 10.1 and 10.2, is now accepted.
+The active checkpoint is the concrete Section IX seed/`Lambda` asymptotics
+needed to instantiate the uniform theorem and then supply the Section XI
+inputs.  The historical X01--X04 request breakdown below is retained as
+provenance, not as current open work.
 
 ### Execution ownership: Terra Max with Aristotle
 
@@ -107,11 +141,11 @@ fixed-set result into a simultaneous event.  If a service return proves a
 nearby statement, Terra Max records that nearby statement honestly or rejects
 the return.
 
-At handoff, Terra Max should begin with X01 below.  X02--X04 are downstream
-work packages, not licenses to assume X01.  The parallel Section IX lane is
-safe background work while X01 requests run.  arXiv packaging remains
-secondary until the exact final target is fully represented in Lean or is
-still described explicitly as a candidate partial formalization.
+At the historical handoff, Terra Max was to begin with X01 below; X02--X04
+were downstream work packages, not licenses to assume X01.  All four are now
+accepted locally.  arXiv packaging remains secondary until the exact final
+target is fully represented in Lean or is still described explicitly as a
+candidate partial formalization.
 
 ### X01 -- fixed induced-restriction law and fixed-set tail
 
@@ -195,20 +229,29 @@ Planned Aristotle calls:
 
 ### X04 -- Lemma 10.2 and Sections X--XI seam
 
-After X03 is accepted, assemble the already proved capacity seed inversion,
-one-sided lower tail, maximizing core, deterministic concatenation, and
-two-event failure bound.  The declaration must choose one absolute `C` and one
+Accepted in `Section10UniformAmplification.lean`.  The theorem assembles the
+already proved capacity seed inversion, one-sided lower tail, maximizing core,
+deterministic concatenation, simultaneous colouring event, and two-event
+failure bound.  It chooses one absolute `C ≥ 1` and one nonnegative
 deterministic `epsilon_n -> 0` before quantifying over `k_n`, `Lambda_n`, and
-`r_n`.  Then instantiate the accepted scale lemmas and pass the resulting
-cochromatic upper tail to the existing conditional Sections X--XI theorem.
+`r_n`, and gives the eventual failure bound `exp(-r_n) + epsilon_n` under the
+displayed seed hypothesis.
 
-Planned Aristotle calls:
+The earlier planned Aristotle calls are retained as request-design provenance:
 
 - `AX-X04-QUANTIFIERS`: a statement-only audit of the required quantifier
   order and uniformity;
 - `AX-X04-ASSEMBLY`: the finite probability inequality under the already
   accepted input tails;
 - `AX-X04-LIMIT`: the full-sequence `exp (-r_n) + epsilon_n -> 0` closure.
+
+`Section10UniformAmplificationSpecialization.lean` now inserts the manuscript
+radius exactly, proves decay of its exponential failure term, supplies the
+complement-real-probability-to-one bridge, and conditionally derives both an
+`o(gapBase)` loss and probability one for the cochromatic upper event.  The
+remaining work is not another abstract Lemma 10.2 assembly or analytic radius
+limit: it is the concrete midpoint `kCo`/`Lambda` seed from Section IX and the
+Section XI chromatic/separation inputs.
 
 ### Parallel Section IX lane
 
@@ -245,57 +288,41 @@ committed directly.  A candidate becomes repository source only after:
    warning-fatal self-contained build before any promotion to `main`;
 6. green `main` CI after promotion.
 
-X01 is the next decision checkpoint: X02--X04 do not start from an assumed
-restriction law.  The plan uses five X01, three X02, four X03, three X04, and
-four parallel Section IX service calls, normally in small concurrent waves.
-Service queue time is unpredictable; focused local checks are typically
-minutes, while each clean full CI rebuild has recently taken about eight to
-ten minutes.  Failure of X01 therefore redirects effort to its fibre-count
-leaf rather than consuming full-build cycles on downstream assumptions.
+X01--X04, including the exact manuscript-form Lemmas 10.1 and 10.2, are now
+accepted.  The active decision checkpoint is their concrete Section IX
+seed/`Lambda` instantiation.
 
 The remaining Section X obligations, in dependency order, are:
 
-1. Define the complement-graph quarter-density event at
-   `u0 = ceil(n^(1/4))`.  The exact singleton edge-count law for Mathlib's
-   finite binomial random graph is proved.  Transport it to the fixed induced
-   complement graph and then to the
-   lower-quarter binomial tail, count all `u0`-subsets, and prove that its
-   failure probability tends to zero along the full sequence.
-   The currently isolated fixed-subset task has a strict boundary: its hard
-   missing step is the native pushforward law for restriction of
-   `randomGraphMeasure n` to one fixed induced set.  Complement invariance is
-   now a checked finite-uniform bijection leaf, and the binomial lower-quarter
-   tail follows after the restriction law.  A fixed-set tail alone must not
-   be recorded as the simultaneous quarter-density event: the latter still
-   needs the subset union bound and the internal universal quantifier.
-2. **Completed locally as a deterministic implication:**
-   `quarterDense_all_larger_of_all_exact` proves that quarter density on every
-   set of the fixed cutoff size gives quarter density in every larger set.
-   Its X02 use must still occur inside one random event with an internal
-   `∀ U`, not a separately chosen event or exceptional set for each `U`.
-3. Combine that event with `exists_vertex_quarter_degree` and
-   `quarterRecurrence_lowerBound`.  Prove that a chain starting above
-   `n^(1/3)` survives for the required order-`log n` number of steps and yields
-   an independent set of size at least `c * log n`, for one absolute `c > 0`.
-4. Formalize the greedy deletion/colouring recursion for an arbitrary `U` and
-   prove the displayed bound (10.3) simultaneously for every `U` on the one
-   event.  Extract one absolute constant `C` and one deterministic failure
-   sequence tending to zero.
-5. Assemble Lemma 10.2 from the already proved capacity expectation and lower-
-   tail bounds, the maximizing core, deterministic concatenation, and the
-   simultaneous event.  The quantifiers must choose `C` and a deterministic
-   `epsilon_n -> 0` before quantifying over deterministic `k_n`, `Lambda_n`,
-   and `r_n`; the error sequence may not depend on any of those three choices.
-   The conclusion must be uniform for every deterministic `r_n > 0`.  The
-   local two-success-event failure bound supplies only the final union seam;
-   both quantitative input tails still have to be constructed.
+1. **Completed locally:** the fixed induced complement law, lower-quarter
+   tail, finite subset union bound, and full-sequence probability-one event are
+   assembled in `cutoffComplementAllLargerQuarterDenseEvent`.
+2. **Completed locally:** the exact-size-to-all-larger deterministic lift is
+   used inside that one event with an internal `∀ U`.
+3. **Completed locally:** the cutoff/start arithmetic,
+   survival transport, finite-chain instantiation, complement conversion, and
+   one-event uniform independent-block theorem are proved.  The explicit
+   logarithmic lower bound on the block length is also proved.
+4. **Completed locally:** the exact ceiling-division conclusion is converted
+   to the displayed bound (10.3), simultaneously for every `U` on one event,
+   with `C = 14 * log 4 + 2`.  The deficit-indexed leftover event and one
+   deterministic failure sequence tending to zero are formalized.
+5. **Completed locally:** Lemma 10.2 is assembled from the proved capacity
+   expectation and lower-tail bounds, the maximizing core, deterministic
+   concatenation, and the simultaneous event.  The theorem chooses `C ≥ 1`
+   and a nonnegative deterministic `epsilon_n -> 0` before quantifying over
+   deterministic `k_n`, `Lambda_n`, and `r_n`; the error sequence does not
+   depend on any of those choices.  Its conclusion is uniform for every
+   deterministic eventually positive `r_n`, under the displayed seed
+   inequality.
 6. **Completed locally as deterministic scale facts:**
    `r_n = sqrt(n/(log n)^4)` tends to infinity; the seed hypothesis
    `Lambda_n = o(n/(log n)^4)` gives the required seed square-root term; and
    `sqrt(n*r_n)/log n`, the real cube-root term, and the additive constant are
-   each `o(n/(log n)^3)`.  These limits do not supply the probabilistic seed,
-   the simultaneous leftover theorem, or Lemma 10.2.
-7. Define the actual deterministic error `a_n` and instantiate Lemma 10.2 to
+   each `o(n/(log n)^3)`.  These limits do not supply the probabilistic seed
+   or its concrete `Lambda_n`.
+7. Prove the concrete Section IX seed and `Lambda_n` asymptotics, define the
+   actual deterministic error `a_n`, and instantiate the proved Lemma 10.2 to
    obtain (10.13), including `exp(-r_n) + epsilon_n -> 0` on the full sequence.
 
 No pointwise-in-`U` probability statement can replace steps 2--4: the
@@ -326,7 +353,9 @@ threshold theorem, and explicit scale divergence.
 `Section10_11ConditionalAssembly.lean` packages the rounded capacity tail,
 quantifier-correct simultaneous-leftover interface, deterministic
 cochromatic bound, measure monotonicity, and the conditional five-input target
-closure.  The remaining actual sequence/tail instantiation is:
+closure.  `Section10QuarterChainLeftoverEvent.lean` supplies the leftover tail
+and a four-input specialization.  The remaining actual sequence/tail
+instantiation is:
 
 1. Define the manuscript sequences `kChi n`, `kCo n`, and `a n`, and connect
    their Lean definitions to the Section 4, Section 5, Section 9, and Section
@@ -339,7 +368,8 @@ closure.  The remaining actual sequence/tail instantiation is:
    chromatic side, the accepted strict-lower bridge reduces this to proving
    the corresponding at-most probability tends to zero at the actual
    threshold.
-4. Prove the actual capacity and simultaneous-leftover tails and the eventual
+4. Use the proved uniform Lemma 10.2 with the concrete Section IX seed to
+   obtain the actual cochromatic upper tail and prove the eventual
    cochromatic threshold comparison.  Then supply those, the chromatic tail,
    and the gap threshold to the proved conditional theorem
    `erdos625Statement_of_capacity_leftover_thresholds`.  Its internal
@@ -399,9 +429,11 @@ workspaces, are authoritative.  The scope column remains a strict limitation.
 The quantitative two-event failure seam and strict-lower complement bridge
 were proved locally in `Section10CapacityLeftoverQuantitative.lean` and
 `Section11ChromaticLowerTailBridge.lean`; they are not attributed to an
-Aristotle completion.  Current source-only proposal packages split the open
-Section X chain into fixed-subset quarter tail, density lift, recurrence-chain,
+Aristotle completion.  The former is now consumed by the locally accepted
+`Section10UniformAmplification.lean`; its concrete Section IX seed input is
+still open.  Historical source-only proposal packages split the Section X
+chain into fixed-subset quarter tail, density lift, recurrence-chain,
 survival-asymptotic, uniform leftover-event, and final amplification atoms.
-They are scheduling/proof-search payloads only: queued, running, failed, or
-completed service status does not make any target accepted until the local
+They remain scheduling/proof-search provenance only: queued, running, failed,
+or completed service status does not make any target accepted until the local
 Lean 4.31 warning-fatal, trust-scan, axiom, and scope gates pass.

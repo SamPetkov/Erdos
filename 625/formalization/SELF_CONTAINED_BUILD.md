@@ -50,28 +50,35 @@ uniform law on that tagged sigma family. This does not create an untagged
 residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound. The actual residual even-edge family has an exact one-sided
-weighted `ENNReal` inclusion into the all-even finite sum, but not an `ENNReal`
-polymer bound. The file also contains abstract and matching-aware finite geometric traversal
+weighted `ENNReal` inclusion into the all-even finite sum and a finite
+simple-cycle polymer product bound and an `EReal` exponential endpoint, including infinite weights. The file also contains abstract and matching-aware finite geometric traversal
 bounds. It now also contains the endpoint-resolved positive kernel, pointwise
 explicit-path/chain summand bounds, and the generic row/column norm consequence
 of a supplied degree-square `q` estimate. The literal residual `q` has a
 degree-cap row/column bound and its symmetric bipartite kernel inherits that
 row norm. The canonical-skeleton
-instantiation, `ENNReal` polymer specialization for the actual residual family,
-concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
+instantiation, concrete pointwise `q` estimate, injective weight-preserving cycle-to-walk
 encoding, conditioned attachment estimate, and second-moment assembly remain
 open.
 
 Section X's fixed-size-to-larger quarter-density lift, high-degree step,
-exact neighbourhood recurrence,
-quarter-union decay, deterministic simultaneous greedy-colouring implication,
-growing amplification radius, and all four deterministic little-`o`
-contributions in (10.11)--(10.12) are proved. The exact finite binomial
-edge-count law, equality of the half-binomial graph law with the uniform law,
-ambient complement invariance, and the no-independence quantitative two-event
-failure seam are also checked. The fixed induced-restriction graph-probability
-transport giving the required one
-simultaneous event and the concrete seed-amplification assembly remain open.
+exact neighbourhood recurrence, quarter-union decay, deterministic simultaneous
+greedy-colouring implication, growing amplification radius, and all four
+deterministic little-`o` contributions in (10.11)--(10.12) are proved. The
+exact finite binomial edge-count law, equality of the half-binomial graph law
+with the uniform law, ambient complement invariance, native fixed induced
+pushforward laws, their fixed-set lower-quarter tails, and the quantitative
+two-event seam are also checked. The literal finite cutoff-subset event has
+its exact union bound and a full-sequence probability-one limit. One
+deterministic complement-neighbourhood step and a finite chain under explicit
+density and shifted-potential survival hypotheses are checked as well. The
+chosen-scale eventual shifted-potential survival inequality is now checked
+separately. The literal cutoff event's deterministic event-to-density and
+larger-subset consequences are now packaged into one all-larger density event
+with a full-sequence probability-one limit. The remaining
+chain-initialization/rounding transport, complement clique-to-independent-set
+conversion, greedy-colouring instantiation, and concrete seed-amplification
+assembly remain open.
 Section XI's deterministic event inclusion, generic probability-one
 intersection, strict-lower complement bridge, eventual threshold reduction,
 exact scale divergence, and final conditional seam are proved, but the seam's
@@ -98,16 +105,16 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean `
   -o .lake/build/lib/lean/Erdos625SelfContained.olean
 ```
 
-The source checkpoint generated on 2026-07-15 has the following reproducible
+The source checkpoint generated on 2026-07-16 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 151;
-- external Mathlib imports: 75;
-- central `#print axioms` commands included: 531;
-- newline count: 30,257;
+- local source modules included: 180;
+- external Mathlib imports: 78;
+- central `#print axioms` commands included: 689;
+- newline count: 34,252;
 - generated source SHA-256:
-  `46BE3575A917F3F2AFCED5DB21AD91B185106DD97166AE5CBEC1CA4B3436C0E7`.
+  `0A2171FCDA3EEA922010E3BFD0B29D52B86E2663D0449611206B9EDD64E516A7`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
@@ -122,7 +129,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 151
+The ordered module manifest is embedded in the generated file as 176
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

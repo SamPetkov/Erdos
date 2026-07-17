@@ -117,11 +117,53 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX concrete residual-weight/cycle encoding,
-attachment, and second-moment assembly; the Section X simultaneous-leftover
-and seed-amplification inputs; and the final probabilistic theorem are open.
-The target proposition remains deliberately unproved.  The included #print
-axioms commands audit the central declarations that have actually been proved.
+Section IX exact tagged fibre/global incidence integration of the
+event-restricted attachment numerator, uniform large- and small-residual
+attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
+asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
+chromatic at-most tail and root separation; and the final probabilistic
+theorem are open.  The physical faithful cut of one eligible cycle, its
+canonical source-free encoder, decoder left inverse, injectivity, exact
+weight, dependent marked packaging, exact endpoint enumeration, and aggregate
+mixed-cycle-to-nested-walk domination are included and proved.  The abstract
+geometric sum with exactly one `2 * |M|` cost and its deterministic literal-
+`residualQ` specialization under an explicit strict-regime premise are also
+included and proved.  The canonical positive support is proved matching under
+the ambient caps; the two local reward presentations agree exactly; one fixed
+family's local factors are separated; their finite even-family sum is bounded
+by the simple-cycle polymer product; this sum is identified exactly with the
+event-restricted actual-attachment numerator and the polymer bound is transferred
+to it; and the cycle sum is partitioned exactly into mixed and residual-only
+terms.  The residual-only term is bounded by an exact row-rooted even-walk
+enumeration under finite row/column kernel bounds.  Manuscript (9.1) already
+retains the cap/no-return indicator, so no division by its event mass is
+required.  The pointwise cubic `residualLambda` bound and its deterministic
+total estimate at the scale in (9.13) are included and proved.  The canonical
+full/residual reward-product and support-graph splits are included and proved,
+with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
+literal actual even family is exactly transported to the bipartite binary
+cycle space, and the event-restricted attachment numerator is exactly rewritten
+by its finite cycle-rank factor; exact tagged fibre/global incidence
+integration is not claimed.
+The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
+D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
+wrapper are included and proved as conditional implications.  They retain the
+concrete chromatic at-most tail, concrete seed/count/moment estimate with
+`Lambda` asymptotics, and concrete root separation as explicit inputs; none of
+those inputs is proved by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves only.  They do not prove the
+four-size signed first moment, the sign-summed second-moment law, the concrete
+chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
+asymptotics, the root separation, or `Erdos625Statement`.
+The physical unlabelled-skeleton fibre grouping is also included: it groups
+finite type-table weights over attained fibres and performs the one-factorial
+fibre rewrite to row and column descending-factorial products.  It does not
+prove a skeleton probability estimate, the Section IX seed or `Lambda`
+asymptotic, or `Erdos625Statement`.
+The final target proposition `Erdos625Statement` remains deliberately
+unproved.  The included #print axioms commands audit the central declarations
+that have actually been proved.
 
 Generated deterministically from Erdos625.lean and its transitive local import
 closure.  Each source boundary records the normalized source SHA-256.

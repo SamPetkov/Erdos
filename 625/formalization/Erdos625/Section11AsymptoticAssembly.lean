@@ -91,6 +91,25 @@ theorem tendsto_measure_inter_one
       (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
       (by simpa using hInterReal)
 
+/-- A probability-one event remains probability one after eventual pointwise
+enlargement. -/
+theorem tendsto_measure_one_of_eventually_subset
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A B : ∀ n, Set (Omega n))
+    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
+    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
+    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hA tendsto_const_nhds
+    (hSubset.mono fun _ h ↦ measure_mono h)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
+
 /-- If a real statistic exceeds a deterministic threshold tending to infinity
 with probability tending to one, then it exceeds every fixed real threshold
 with probability tending to one.  The sample space may depend on `n`. -/

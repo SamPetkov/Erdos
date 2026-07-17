@@ -22,14 +22,36 @@ import Erdos625.QuarterDensityDegree
 import Erdos625.QuarterRecurrence
 import Erdos625.Section10BinomialEdgeCount
 import Erdos625.Section10ComplementInvariance
+import Erdos625.Section10InducedRestriction
+import Erdos625.Section10QuarterDensityEvent
+import Erdos625.Section10QuarterDensityLift
+import Erdos625.Section10QuarterDensityLimit
+import Erdos625.Section10UniformQuarterDensityEvent
+import Erdos625.Section10QuarterChainSurvival
+import Erdos625.Section10QuarterChainParameters
+import Erdos625.Section10QuarterChainSurvivalTransport
+import Erdos625.Section10NeighborhoodDeletionStep
+import Erdos625.Section10QuarterDenseChain
+import Erdos625.Section10QuarterChainAdapters
 import Erdos625.Section10QuarterUnionDecay
 import Erdos625.Section10SimultaneousGreedyColoring
+import Erdos625.Section10QuarterChainIndependentBlock
+import Erdos625.Section10QuarterChainFailure
+import Erdos625.Section10QuarterChainGreedyNumeric
+import Erdos625.Section10QuarterChainLinearEvent
 import Erdos625.Section10AmplificationScales
 import Erdos625.Section10CapacityLeftoverQuantitative
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
 import Erdos625.Section11ChromaticLowerTailBridge
+import Erdos625.Section11ChromaticTailAdapter
+import Erdos625.Section11ThresholdFinalAssembly
 import Erdos625.Section10_11ConditionalAssembly
+import Erdos625.Section10QuarterChainLeftoverEvent
+import Erdos625.Section10UniformAmplification
+import Erdos625.Section10UniformAmplificationSpecialization
+import Erdos625.Section10CoColorablePaleyZygmundSeed
+import Erdos625.Section10_11UniformSeedRootFinal
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
@@ -58,6 +80,7 @@ import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
+import Erdos625.FourDeficitScoreConvergence
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -102,27 +125,51 @@ import Erdos625.ConfigurationResidualSupport
 import Erdos625.Section9EncodingAssembly
 import Erdos625.Section9ActualResidualFamily
 import Erdos625.Section9ActualResidualWeightedEmbedding
+import Erdos625.Section9ActualResidualENNRealPolymerBridge
+import Erdos625.Section9ActualResidualENNRealExpBridge
+import Erdos625.Section9ActualResidualRealPolymerBridge
 import Erdos625.Section9ChooseTwoMass
 import Erdos625.Section9CycleRankResidual
 import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
+import Erdos625.Section9ActualResidualCycleSpaceEquiv
+import Erdos625.Section6CompatibleSignsComponents
 import Erdos625.Section9CyclePolymerBound
+import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
 import Erdos625.Section9EndpointKernel
 import Erdos625.Section9ExplicitPathTerms
+import Erdos625.Section9KernelPathEnumeration
 import Erdos625.Section9QDegreeBound
 import Erdos625.Section9ThetaCap
 import Erdos625.Section9ThetaSquareEulerRescale
 import Erdos625.Section9ResidualQDegreeAssembly
 import Erdos625.Section9ResidualQTraversalBridge
 import Erdos625.Section9MatchingTraversalBridge
+import Erdos625.Section9BlockChainEnumeration
+import Erdos625.Section9CycleWalkCutAtMatching
+import Erdos625.Section9PhysicalCycleCutting
+import Erdos625.Section9PhysicalCycleEncoder
+import Erdos625.Section9MarkedCycleEnumeration
+import Erdos625.Section9MixedCycleWeightedEnumeration
+import Erdos625.Section9ResidualQMixedCycleEnumeration
+import Erdos625.Section9CycleWeightSplit
+import Erdos625.Section9ResidualOnlyCycleEnumeration
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9RewardCompatibility
+import Erdos625.Section9FixedFFactorization
+import Erdos625.Section9FixedFEvenAggregation
+import Erdos625.Section9FixedFFubiniBridge
+import Erdos625.Section9ActualResidualCycleRankAssembly
+import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
+import Erdos625.Section9ResidualLambdaCubic
+import Erdos625.Section9ResidualLambdaTotalBound
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
@@ -145,8 +192,12 @@ import Erdos625.Section8CanonicalConditionalLaw
 import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
+import Erdos625.Section8UnlabelledTypedSkeleton
+import Erdos625.Section8PhysicalSkeletonFibreGrouping
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
+import Erdos625.Section9CanonicalSupportMatching
+import Erdos625.Section9CanonicalRewardSupportSplit
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -196,9 +247,14 @@ failure bound `exp (-r)`, including the non-strict boundary event and with no
 two-sided factor.  The exact finite binomial law for graph edge-count
 singletons and ambient complement invariance of `G(n,1/2)`, the quantitative
 two-success-event failure seam, and the generic strict-lower-event complement
-limit are also checked.  The fixed induced-complement restriction transport,
-one simultaneous leftover-colouring event, and the
-concrete Section 10--11 tails remain open.
+limit are also checked.  The fixed induced-subgraph and induced-complement
+pushforward laws, together with their fixed-set lower-quarter edge-count
+tails, the literal finite cutoff-family event and its finite union bound, and
+one deterministic complement-neighbourhood deletion step are now checked as
+well. The full-sequence cutoff-event limit and an abstract chain under
+explicit density and survival hypotheses are now checked. The
+event-to-density/larger-set bridge, concrete survival/rounding estimates,
+and concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon
@@ -297,7 +353,11 @@ cardinality rather than declared uniform.  This does not identify one common
 residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
-bounds, and skeleton estimates remain open.
+bounds, and skeleton estimates remain open.  The physical unlabelled-skeleton
+space is also grouped exactly by its attained type tables, with its single
+cell-factorial fibre term rewritten as the corresponding row and column
+descending-factorial products.  This finite rewrite supplies neither a
+skeleton probability estimate nor any Section IX seed or `Lambda` asymptotic.
 Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
 degrees; the ambient uniform PMF transports exactly to the uniform law on
@@ -328,9 +388,37 @@ same geometric row bound, each explicit path or chain is bounded by its kernel
 summand, and a supplied pointwise degree-square estimate yields the required
 abstract `q` row and column norms.  The literal residual `q` has this
 degree-cap norm, and its symmetric bipartite cell kernel inherits the same
-row bound.  The recoverable cycle-to-walk encodings,
-concrete residual-table/kernel transfer, attachment estimates, and complete
-Lemma 9.1/Proposition 9.2 assembly remain open.
+row bound.  A source-free closed block-chain code, its decoder, exact
+residual/transition projections, no-drop conditions, and exact nonnegative
+physical product-weight recovery from a faithful cut are now proved as the
+target interface for cutting a physical cycle.  The physical construction is
+also proved: `physicalCycleCuttingStatement` rotates a covering cycle at a
+marked matching edge, cuts it into positive bounded residual runs, and produces
+a faithful source-free code.  A canonical classical choice of this code now
+has a decoder left inverse, is injective on mixed simple cycles, and has the
+exact physical residual weight.  Dependent marked-start/block-count packaging,
+finite weighted reindexing and traversal domination are now also proved: the
+marked dependent target is data-only, its total weight is enumerated exactly by
+endpoint masses, and the aggregate mixed-cycle weight is bounded by the nested
+walk mass.  Its abstract geometric summation now has exactly one `2 * |M|`
+marked-start cost, and a deterministic specialization to the literal
+`residualQ` kernel is proved under the exact degree-cap hypotheses and the
+explicit strict `tau < 1/3` premise.  The positive support of every attained
+canonical demand is a matching under the ambient caps; the two local reward
+presentations agree; the fixed-`F` local factors and finite even-family polymer
+aggregation are proved; the sum is identified exactly with the event-restricted
+actual-attachment numerator and the polymer bound is transferred to it; and
+the total simple-cycle weight is split exactly into mixed and residual-only
+parts.  The residual-only part is bounded by an exact row-rooted even-walk
+enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
+retains the cap/no-return indicator inside the residual expectation, this
+event-restricted numerator must not be divided by the event mass.  The
+pointwise cubic `residualLambda` bound and its deterministic total estimate at
+the scale in (9.13) are proved.  The canonical full/residual reward-product
+and support-graph splits are also proved with explicit no-return and `2 ≤ U`
+hypotheses.  The actual-even-family/cycle-rank identification, exact tagged
+fibre/global incidence integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
@@ -355,6 +443,18 @@ bound with the sharp shifted independent-set term `mu n (b+1)`.
 At the phase cap, an exact squeeze theorem reduces the unrestricted chromatic
 probability limit to the single explicit obligation that this dual main term
 tends to zero.
+The graph-specific chromatic-tail adapter, the generic count-to-cocolourable
+Paley--Zygmund seed, the two-tail threshold assembly, and the uniform
+seed/root wrapper are now proved as conditional implications.  Their
+hypotheses still require the concrete chromatic at-most tail, the concrete
+Section IX seed/count/moment estimate with its `Lambda` asymptotics, and the
+concrete root separation.  None of those three mathematical inputs is supplied
+by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves.  They do not prove the four-size
+signed first moment or the sign-summed second-moment law, and they do not prove
+the concrete chromatic tail, the Section IX seed/count/moment estimate or its
+`Lambda` asymptotics, the root separation, or `Erdos625Statement`.
 The target proposition itself remains
 explicitly unproved until the full dependency chain is formalized.
 -/

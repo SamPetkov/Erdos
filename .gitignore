@@ -7,12 +7,23 @@
 *.png
 *.jpg
 *.jpeg
+*.aux
+*.blg
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
 
 # Publication artifacts intentionally tracked for Problem 625.
 !625/assets/erdos625-preview.png
 !625/COMPLETE_PROOF_SELF_CONTAINED.pdf
 !625/arxiv/main.pdf
 !625/output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+!arxiv_preprints/arxiv_625.pdf
+!arxiv_preprints/arxiv_593.pdf
+!arxiv_preprints/arxiv_625/main.pdf
+!arxiv_preprints/arxiv_593/main.pdf
 
 # Generated caches and editor/OS files.
 /625/formalization/.lake/

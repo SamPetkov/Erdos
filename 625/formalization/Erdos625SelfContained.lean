@@ -1,6 +1,7 @@
 import Mathlib
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Algebra.Order.Field.GeomSum
+import Mathlib.Algebra.Order.Floor.Div
 import Mathlib.Algebra.Order.Floor.Ring
 import Mathlib.Algebra.Order.Ring.Abs
 import Mathlib.Analysis.Asymptotics.SpecificAsymptotics
@@ -17,6 +18,7 @@ import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Stirling
@@ -27,11 +29,14 @@ import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.Combinatorics.Enumerative.Bell
 import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.Clique
+import Mathlib.Combinatorics.SimpleGraph.Coloring.Constructions
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.Subgraph
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Combinatorics.SimpleGraph.IncMatrix
+import Mathlib.Combinatorics.SimpleGraph.Paths
 import Mathlib.Data.ENNReal.BigOperators
 import Mathlib.Data.ENNReal.Inv
 import Mathlib.Data.Fin.Tuple.Basic
@@ -66,6 +71,7 @@ import Mathlib.MeasureTheory.Measure.WithDensityFinite
 import Mathlib.Probability.Combinatorics.BinomialRandomGraph.Defs
 import Mathlib.Probability.Distributions.Binomial
 import Mathlib.Probability.Distributions.Uniform
+import Mathlib.Probability.Independence.InfinitePi
 import Mathlib.Probability.Moments.SubGaussian
 import Mathlib.Probability.ProbabilityMassFunction.Constructions
 import Mathlib.Probability.ProbabilityMassFunction.Integrals
@@ -92,11 +98,52 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX concrete residual-weight/cycle encoding,
-attachment, and second-moment assembly; the Section X simultaneous-leftover
-and seed-amplification inputs; and the final probabilistic theorem are open.
-The target proposition remains deliberately unproved.  The included #print
-axioms commands audit the central declarations that have actually been proved.
+Section IX exact tagged fibre/global incidence integration of the
+event-restricted attachment numerator, the actual-even-family/cycle-rank
+identification, uniform large- and small-residual attachment, second-moment
+assembly, and the concrete seed/count/moment estimate and `Lambda`
+asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
+chromatic at-most tail and root separation; and the final probabilistic
+theorem are open.  The physical faithful cut of one eligible cycle, its
+canonical source-free encoder, decoder left inverse, injectivity, exact
+weight, dependent marked packaging, exact endpoint enumeration, and aggregate
+mixed-cycle-to-nested-walk domination are included and proved.  The abstract
+geometric sum with exactly one `2 * |M|` cost and its deterministic literal-
+`residualQ` specialization under an explicit strict-regime premise are also
+included and proved.  The canonical positive support is proved matching under
+the ambient caps; the two local reward presentations agree exactly; one fixed
+family's local factors are separated; their finite even-family sum is bounded
+by the simple-cycle polymer product; this sum is identified exactly with the
+event-restricted actual-attachment numerator and the polymer bound is transferred
+to it; and the cycle sum is partitioned exactly into mixed and residual-only
+terms.  The residual-only term is bounded by an exact row-rooted even-walk
+enumeration under finite row/column kernel bounds.  Manuscript (9.1) already
+retains the cap/no-return indicator, so no division by its event mass is
+required.  The pointwise cubic `residualLambda` bound and its deterministic
+total estimate at the scale in (9.13) are included and proved.  The canonical
+full/residual reward-product and support-graph splits are included and proved,
+with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
+actual-even-family/cycle-rank identification or exact tagged fibre/global
+incidence integration is claimed.
+The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
+D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
+wrapper are included and proved as conditional implications.  They retain the
+concrete chromatic at-most tail, concrete seed/count/moment estimate with
+`Lambda` asymptotics, and concrete root separation as explicit inputs; none of
+those inputs is proved by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves only.  They do not prove the
+four-size signed first moment, the sign-summed second-moment law, the concrete
+chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
+asymptotics, the root separation, or `Erdos625Statement`.
+The physical unlabelled-skeleton fibre grouping is also included: it groups
+finite type-table weights over attained fibres and performs the one-factorial
+fibre rewrite to row and column descending-factorial products.  It does not
+prove a skeleton probability estimate, the Section IX seed or `Lambda`
+asymptotic, or `Erdos625Statement`.
+The final target proposition `Erdos625Statement` remains deliberately
+unproved.  The included #print axioms commands audit the central declarations
+that have actually been proved.
 
 Generated deterministically from Erdos625.lean and its transitive local import
 closure.  Each source boundary records the normalized source SHA-256.
@@ -5366,7 +5413,7 @@ END SOURCE MODULE: Erdos625.CochromaticCapacityLowerTail
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.QuarterDensityDegree
 Source: Erdos625/QuarterDensityDegree.lean
-Normalized SHA-256: b4b8baa5a392ea37a9f0efe60c8c3977d0f3875dc3c38409ea0e12aa2cfb5c1c
+Normalized SHA-256: 507f514b7733e4bc2d3960b4a332b29aa74df8fb8d9567b5bc3d56b52811e3dc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_QuarterDensityDegree
 
@@ -5427,16 +5474,16 @@ noncomputable def QuarterDenseOn
   exact S.card * (S.card - 1) ≤
     8 * (H.induce (↑S : Set V)).edgeFinset.card
 
-private noncomputable def inducedEdgeCount
+private noncomputable def quarterDenseInducedEdgeCount
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) : ℕ := by
   classical
   exact (H.induce (↑S : Set V)).edgeFinset.card
 
-private lemma inducedEdgeCount_eq
+private lemma quarterDenseInducedEdgeCount_eq
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) :
-    inducedEdgeCount H S = (by
+    quarterDenseInducedEdgeCount H S = (by
       classical
       exact (H.induce (↑S : Set V)).edgeFinset.card) := by
   rfl
@@ -5468,10 +5515,10 @@ private noncomputable def ambientEdgeCount
   classical
   exact (H.edgeFinset.filter (fun e => e.toFinset ⊆ S)).card
 
-private lemma inducedEdgeCount_eq_filter_card
+private lemma quarterDenseInducedEdgeCount_eq_filter_card
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) :
-    inducedEdgeCount H S = ambientEdgeCount H S := by
+    quarterDenseInducedEdgeCount H S = ambientEdgeCount H S := by
   classical
   refine' Finset.card_bij _ _ _ _
   use fun a ha => Sym2.map (fun x => x.val) a
@@ -5492,10 +5539,10 @@ private lemma inducedEdgeCount_eq_filter_card
 private lemma sum_induced_edges_over_fixed_card
     {V : Type*} [Fintype V] [DecidableEq V]
     (H : SimpleGraph V) (S : Finset V) (u : ℕ) (hu : 2 ≤ u) :
-    (∑ T ∈ S.powersetCard u, inducedEdgeCount H T) =
-      (S.card - 2).choose (u - 2) * inducedEdgeCount H S := by
+    (∑ T ∈ S.powersetCard u, quarterDenseInducedEdgeCount H T) =
+      (S.card - 2).choose (u - 2) * quarterDenseInducedEdgeCount H S := by
   classical
-  rw [Finset.sum_congr rfl (fun T _ => inducedEdgeCount_eq_filter_card H T)]
+  rw [Finset.sum_congr rfl (fun T _ => quarterDenseInducedEdgeCount_eq_filter_card H T)]
   unfold ambientEdgeCount
   simp_rw [Finset.card_filter]
   rw [Finset.sum_comm]
@@ -5508,7 +5555,7 @@ private lemma sum_induced_edges_over_fixed_card
       convert card_powersetCard_containing_pair S u x y hy.ne
         (by tauto) (by tauto) hu using 1
     · grind
-  · simp +decide [Finset.sum_ite, inducedEdgeCount_eq_filter_card]
+  · simp +decide [Finset.sum_ite, quarterDenseInducedEdgeCount_eq_filter_card]
     exact mul_comm _ _
 
 private lemma choose_two_incidence_identity
@@ -5531,7 +5578,7 @@ theorem quarterDense_all_larger_of_all_exact
   set c := Nat.choose (S.card - 2) (u - 2) with hc_def
   have h_sum :
       ∑ T ∈ S.powersetCard u, (T.card * (T.card - 1)) ≤
-        ∑ T ∈ S.powersetCard u, 8 * inducedEdgeCount H T := by
+        ∑ T ∈ S.powersetCard u, 8 * quarterDenseInducedEdgeCount H T := by
     exact Finset.sum_le_sum fun T hT =>
       hExact T (Finset.mem_powersetCard.mp hT |>.2)
   have h_sum_identity :
@@ -5542,8 +5589,8 @@ theorem quarterDense_all_larger_of_all_exact
       rw [Finset.mem_powersetCard.mp hx |>.2]]
     simp +decide [mul_left_comm]
   have h_sum_identity :
-      ∑ T ∈ S.powersetCard u, 8 * inducedEdgeCount H T =
-        8 * c * inducedEdgeCount H S := by
+      ∑ T ∈ S.powersetCard u, 8 * quarterDenseInducedEdgeCount H T =
+        8 * c * quarterDenseInducedEdgeCount H S := by
     rw [← Finset.mul_sum _ _ _, sum_induced_edges_over_fixed_card H S u hu]
     ring
   unfold QuarterDenseOn
@@ -5768,6 +5815,319 @@ END SOURCE MODULE: Erdos625.Section10ComplementInvariance
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10InducedRestriction
+Source: Erdos625/Section10InducedRestriction.lean
+Normalized SHA-256: 1e4f927ec7286745dcc49fa0245b92fd0c56a8b77a587eca112b63ea5a036099
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10InducedRestriction
+
+/-!
+# Fixed induced-subgraph restriction for `G(n, 1/2)`
+
+This module proves only the fixed-set restriction law needed at the beginning
+of the Section X argument.  For a fixed vertex subset `S`, inducing a graph
+sampled from `G(n,1/2)` has exactly the `G(S,1/2)` law.  The consequent
+lower-quarter edge-count tail is likewise fixed-set only.  No union bound over
+subsets and no simultaneous high-probability event are asserted here.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory unitInterval
+open scoped ENNReal Finset ProbabilityTheory
+
+noncomputable section
+
+/-- Restricting independent Bernoulli coordinates along an injection again
+gives the Bernoulli set measure on the restricted coordinate set. -/
+theorem setBernoulli_map_preimage_of_injective
+    {α β : Type*} {u : Set β} {p : I} {e : α → β}
+    (he : Function.Injective e) :
+    (setBernoulli u p).map (fun A : Set β => e ⁻¹' A) =
+      setBernoulli (e ⁻¹' u) p := by
+  have hpre : Measurable (fun A : Set β => e ⁻¹' A) := by
+    apply measurable_set_iff.mpr
+    intro a
+    simpa using (measurable_set_mem (e a))
+  rw [setBernoulli_eq_map u p, setBernoulli_eq_map (e ⁻¹' u) p]
+  rw [Measure.map_map hpre (by fun_prop)]
+  change
+    Measure.map ((fun A : Set β => e ⁻¹' A) ∘ fun q : β → Prop => {j | q j})
+      (MeasureTheory.Measure.infinitePi fun j : β =>
+        toNNReal p • Measure.dirac (j ∈ u) + toNNReal (σ p) • Measure.dirac False) =
+      Measure.map (fun q : α → Prop => {i | q i})
+        (MeasureTheory.Measure.infinitePi fun i : α =>
+          toNNReal p • Measure.dirac (i ∈ e ⁻¹' u) +
+            toNNReal (σ p) • Measure.dirac False)
+  have hpi :
+      Measure.map (fun ω i => ω (e i))
+        (MeasureTheory.Measure.infinitePi (fun j : β =>
+          toNNReal p • Measure.dirac (j ∈ u) + toNNReal (σ p) • Measure.dirac False)) =
+        MeasureTheory.Measure.infinitePi (fun i : α =>
+          toNNReal p • Measure.dirac (i ∈ e ⁻¹' u) +
+            toNNReal (σ p) • Measure.dirac False) := by
+    rw [Measure.map_infinitePi_infinitePi_of_inj he]
+    congr 1
+  have hcomp :
+      ((fun A : Set β => e ⁻¹' A) ∘ fun q : β → Prop => {j | q j}) =
+        (fun q : α → Prop => {i | q i}) ∘ (fun ω : β → Prop => fun i => ω (e i)) := by
+    funext ω
+    ext i
+    rfl
+  rw [hcomp, ← Measure.map_map (by fun_prop) (by fun_prop), hpi]
+
+/-- Encoding a graph by its edge set commutes with restriction to a fixed
+vertex set. -/
+theorem fromEdgeSet_induce_eq_preimage
+    {n : ℕ} (S : Set (Fin n)) (A : Set (Sym2 (Fin n))) :
+    (SimpleGraph.fromEdgeSet A).induce S =
+      SimpleGraph.fromEdgeSet
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A) := by
+  have heq (u v : S) : u = v ↔ (u : Fin n) = (v : Fin n) := by
+    constructor
+    · exact fun h => congrArg Subtype.val h
+    · exact Subtype.ext
+  ext u v
+  rw [SimpleGraph.induce_adj, SimpleGraph.fromEdgeSet_adj,
+    SimpleGraph.fromEdgeSet_adj]
+  change
+    (s((u : Fin n), (v : Fin n)) ∈ A ∧ (u : Fin n) ≠ (v : Fin n)) ↔
+      (s((u : Fin n), (v : Fin n)) ∈ A ∧ u ≠ v)
+  constructor
+  · rintro ⟨hA, huv⟩
+    exact ⟨hA, fun h => huv (congrArg Subtype.val h)⟩
+  · rintro ⟨hA, huv⟩
+    exact ⟨hA, fun h => huv (Subtype.ext h)⟩
+
+/-- The induced-edge embedding preserves the distinction between diagonal and
+non-diagonal symmetric pairs. -/
+theorem diagSet_compl_preimage_subtype_sym2Map
+    {n : ℕ} (S : Set (Fin n)) :
+    (((Function.Embedding.subtype S).sym2Map :
+      Sym2 S → Sym2 (Fin n)) ⁻¹'
+        Set.compl (Sym2.diagSet : Set (Sym2 (Fin n)))) =
+      Set.compl (Sym2.diagSet : Set (Sym2 S)) := by
+  ext e
+  change
+    (¬ (Sym2.map (fun x : S => (x : Fin n)) e).IsDiag) ↔ ¬ e.IsDiag
+  exact not_congr (Sym2.isDiag_map (z := e) (Function.Embedding.subtype S).injective)
+
+/-- For every fixed vertex set `S`, inducing a `G(n,1/2)` graph on `S` has
+exactly the binomial-random-graph law on `S`. -/
+theorem randomGraphMeasure_map_induce
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => G.induce S) =
+      SimpleGraph.binomialRandom S halfProbability := by
+  classical
+  have he : Function.Injective
+      (((Function.Embedding.subtype S).sym2Map : Sym2 S → Sym2 (Fin n))) :=
+    ((Function.Embedding.subtype S).sym2Map).injective
+  rw [randomGraphMeasure, SimpleGraph.binomialRandom_eq_map,
+    SimpleGraph.binomialRandom_eq_map]
+  rw [Measure.map_map (measurable_of_finite _) SimpleGraph.measurable_fromEdgeSet]
+  change
+    Measure.map
+        ((fun G : SimpleGraph (Fin n) => G.induce S) ∘
+          SimpleGraph.fromEdgeSet)
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability) =
+      Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 S)) halfProbability)
+  have hdet :
+      ((fun G : SimpleGraph (Fin n) => G.induce S) ∘
+          SimpleGraph.fromEdgeSet) =
+        SimpleGraph.fromEdgeSet ∘
+          (fun A : Set (Sym2 (Fin n)) =>
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)) ⁻¹' A)) := by
+    funext A
+    exact fromEdgeSet_induce_eq_preimage S A
+  have hpre : Measurable
+      (fun A : Set (Sym2 (Fin n)) =>
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A)) := by
+    apply measurable_set_iff.mpr
+    intro z
+    simpa using
+      (measurable_set_mem (((Function.Embedding.subtype S).sym2Map :
+        Sym2 S → Sym2 (Fin n)) z))
+  rw [hdet]
+  calc
+    Measure.map (SimpleGraph.fromEdgeSet ∘
+      (fun A : Set (Sym2 (Fin n)) =>
+        (((Function.Embedding.subtype S).sym2Map :
+          Sym2 S → Sym2 (Fin n)) ⁻¹' A)))
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability) =
+      Measure.map SimpleGraph.fromEdgeSet
+        (Measure.map
+          (fun A : Set (Sym2 (Fin n)) =>
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)) ⁻¹' A))
+          (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 (Fin n))) halfProbability)) := by
+            rw [Measure.map_map SimpleGraph.measurable_fromEdgeSet hpre]
+    _ = Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli
+          (Set.preimage
+            (((Function.Embedding.subtype S).sym2Map :
+              Sym2 S → Sym2 (Fin n)))
+            (Sym2.diagSetᶜ : Set (Sym2 (Fin n))))
+          halfProbability) := by
+            rw [setBernoulli_map_preimage_of_injective
+              (e := ((Function.Embedding.subtype S).sym2Map :
+                Sym2 S → Sym2 (Fin n))) he]
+    _ = Measure.map SimpleGraph.fromEdgeSet
+        (setBernoulli (Sym2.diagSetᶜ : Set (Sym2 S)) halfProbability) := by
+            congr 3
+            ext z
+            change
+              (¬ (Sym2.map (fun x : S => (x : Fin n)) z).IsDiag) ↔ ¬ z.IsDiag
+            exact not_congr
+              (Sym2.isDiag_map (z := z) (Function.Embedding.subtype S).injective)
+
+/-- The exact natural-valued edge-count distribution of a binomial random
+graph on a finite vertex type. -/
+theorem binomialRandom_map_edgeCount
+    {V : Type*} {p : I} [Finite V] :
+    (SimpleGraph.binomialRandom V p).map (fun G => G.edgeSet.ncard) =
+      Bin((Nat.card V).choose 2, p) := by
+  classical
+  apply Measure.ext_of_singleton
+  intro n
+  rw [binomialRandom_map_ncard_edgeSet_singleton,
+    ProbabilityTheory.binomial_singleton]
+  rw [← ENNReal.toReal_eq_toReal_iff' (by finiteness) (by finiteness)]
+  simp
+
+/-- The real threshold law obtained by casting the exact natural edge count. -/
+theorem binomialRandom_real_edgeCount_lowerTail
+    {V : Type*} {p : I} [Finite V] (t : ℝ) :
+    (SimpleGraph.binomialRandom V p).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ t} =
+      Bin(ℝ, (Nat.card V).choose 2, p).real {x | x ≤ t} := by
+  classical
+  cases nonempty_fintype V
+  letI : MeasurableSingletonClass (SimpleGraph V) := by
+    constructor
+    intro G
+    rw [← SimpleGraph.measurableEmbedding_edgeSet.measurableSet_image]
+    simp
+  have hmap :
+      (SimpleGraph.binomialRandom V p).map (fun G => (G.edgeSet.ncard : ℝ)) =
+        ((SimpleGraph.binomialRandom V p).map (fun G => G.edgeSet.ncard)).map
+          (fun k : ℕ => (k : ℝ)) := by
+    symm
+    rw [Measure.map_map (by fun_prop) (measurable_of_finite _)]
+    rfl
+  calc
+    (SimpleGraph.binomialRandom V p).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ t} =
+      ((SimpleGraph.binomialRandom V p).map (fun G => (G.edgeSet.ncard : ℝ))).real
+        {x | x ≤ t} := by
+          rw [map_measureReal_apply (measurable_of_finite _) (by measurability)]
+          rfl
+    _ = Bin(ℝ, (Nat.card V).choose 2, p).real {x | x ≤ t} := by
+      rw [hmap, binomialRandom_map_edgeCount]
+
+/-- The fixed-binomial lower-quarter edge-count tail at edge probability
+`1/2`. -/
+theorem binomialRandom_half_edgeCount_lowerQuarter
+    {V : Type*} [Finite V] :
+    (SimpleGraph.binomialRandom V halfProbability).real
+        {G | (G.edgeSet.ncard : ℝ) ≤ ((Nat.card V).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card V).choose 2 : ℝ) / 16) := by
+  rw [binomialRandom_real_edgeCount_lowerTail]
+  exact binomialHalf_lowerQuarter_le_exp _
+
+/-- The number of edges in the subgraph induced by a fixed vertex set. -/
+noncomputable def inducedEdgeCount
+    {n : ℕ} (S : Set (Fin n)) (G : LabeledGraph n) : ℕ :=
+  (G.induce S).edgeSet.ncard
+
+/-- The lower-quarter edge-count tail for one fixed induced subgraph. -/
+theorem randomGraphMeasure_inducedEdgeCount_lowerQuarter
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).real
+        {G | (inducedEdgeCount S G : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) := by
+  let f : LabeledGraph n → SimpleGraph S := fun G => G.induce S
+  have hf : Measurable f := measurable_of_finite _
+  calc
+    (randomGraphMeasure n).real
+        {G | (inducedEdgeCount S G : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} =
+      ((randomGraphMeasure n).map f).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [map_measureReal_apply hf (by measurability)]
+          rfl
+    _ = (SimpleGraph.binomialRandom S halfProbability).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [randomGraphMeasure_map_induce]
+    _ ≤ Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) :=
+      binomialRandom_half_edgeCount_lowerQuarter
+
+/-- The number of edges of the complement after restriction to a fixed vertex
+set. -/
+noncomputable def inducedComplementEdgeCount
+    {n : ℕ} (S : Set (Fin n)) (G : LabeledGraph n) : ℕ :=
+  (Gᶜ.induce S).edgeSet.ncard
+
+/-- Ambient complement invariance and the fixed induced-restriction law give
+the same `G(S,1/2)` distribution for induced complement edges. -/
+theorem randomGraphMeasure_map_induce_complement
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => Gᶜ.induce S) =
+      SimpleGraph.binomialRandom S halfProbability := by
+  calc
+    (randomGraphMeasure n).map
+        (fun G : LabeledGraph n => Gᶜ.induce S) =
+      (randomGraphMeasure n).map
+        ((fun H : LabeledGraph n => H.induce S) ∘
+          (fun G : LabeledGraph n => Gᶜ)) := by
+            rfl
+    _ = ((randomGraphMeasure n).map (fun G : LabeledGraph n => Gᶜ)).map
+        (fun H : LabeledGraph n => H.induce S) := by
+            rw [Measure.map_map (measurable_of_finite _) (measurable_of_finite _)]
+    _ = (randomGraphMeasure n).map
+        (fun H : LabeledGraph n => H.induce S) := by
+            rw [randomGraphMeasure_map_compl]
+    _ = SimpleGraph.binomialRandom S halfProbability :=
+      randomGraphMeasure_map_induce n S
+
+/-- The lower-quarter tail for complement edges in one fixed induced
+subgraph.  This is not a simultaneous statement over vertex subsets. -/
+theorem randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter
+    (n : ℕ) (S : Set (Fin n)) :
+    (randomGraphMeasure n).real
+        {G | (inducedComplementEdgeCount S G : ℝ) ≤
+          ((Nat.card S).choose 2 : ℝ) / 4} ≤
+      Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) := by
+  let f : LabeledGraph n → SimpleGraph S := fun G => Gᶜ.induce S
+  have hf : Measurable f := measurable_of_finite _
+  calc
+    (randomGraphMeasure n).real
+        {G | (inducedComplementEdgeCount S G : ℝ) ≤
+          ((Nat.card S).choose 2 : ℝ) / 4} =
+      ((randomGraphMeasure n).map f).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [map_measureReal_apply hf (by measurability)]
+          rfl
+    _ = (SimpleGraph.binomialRandom S halfProbability).real
+        {H | (H.edgeSet.ncard : ℝ) ≤ ((Nat.card S).choose 2 : ℝ) / 4} := by
+          rw [randomGraphMeasure_map_induce_complement]
+    _ ≤ Real.exp (-((Nat.card S).choose 2 : ℝ) / 16) :=
+      binomialRandom_half_edgeCount_lowerQuarter
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10InducedRestriction
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10InducedRestriction
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
 Source: Erdos625/Section10QuarterUnionDecay.lean
 Normalized SHA-256: 871796e915311d681b801f308442d76e8dedc7228de0c34bd18f404b6e50ee90
@@ -5899,6 +6259,953 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10QuarterUnionDecay
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10QuarterUnionDecay
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDensityEvent
+Source: Erdos625/Section10QuarterDensityEvent.lean
+Normalized SHA-256: 7f18d7e36fd99504bd51095524dda307963571252523d158cce405579257b208
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityEvent
+
+/-!
+# One finite simultaneous cutoff event for Section X
+
+For each `n`, this module forms the literal finite family of
+`quarterDensityCutoff n` vertex subsets and defines the event on which no
+member of that family has a lower-quarter complement-edge count.  The event is
+measurable, and its failure probability is bounded by the finite union bound
+obtained from the fixed-subset tail.
+
+This file stops at that finite bound.  It asserts neither its full-sequence
+limit nor quarter density for any larger subset.
+-/
+
+namespace Erdos625
+
+open MeasureTheory ProbabilityTheory Finset
+open scoped ENNReal BigOperators
+
+noncomputable section
+
+/-- The literal finite family of vertex subsets at the Section X cutoff. -/
+noncomputable def quarterDensityCutoffSubsets (n : ℕ) : Finset (Finset (Fin n)) :=
+  Finset.univ.powersetCard (quarterDensityCutoff n)
+
+/-- The lower-quarter bad event for one deterministic vertex subset. -/
+noncomputable def inducedComplementLowerQuarterEvent
+    (n : ℕ) (S : Finset (Fin n)) : Set (LabeledGraph n) :=
+  {G | (inducedComplementEdgeCount (↑S : Set (Fin n)) G : ℝ) ≤
+    ((Nat.card (↑S : Set (Fin n))).choose 2 : ℝ) / 4}
+
+/-- The finite simultaneous event that no cutoff-size subset has a
+lower-quarter complement-edge count. -/
+noncomputable def cutoffComplementQuarterDensityEvent (n : ℕ) : Set (LabeledGraph n) :=
+  (⋃ S ∈ quarterDensityCutoffSubsets n,
+    inducedComplementLowerQuarterEvent n S)ᶜ
+
+theorem measurableSet_cutoffComplementQuarterDensityEvent (n : ℕ) :
+    MeasurableSet (cutoffComplementQuarterDensityEvent n) :=
+  Set.toFinite _ |>.measurableSet
+
+/-- The fixed-subset complement lower-tail estimate in the event notation
+used by the finite union bound. -/
+theorem inducedComplementLowerQuarterEvent_tail
+    (n : ℕ) (S : Finset (Fin n)) :
+    (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) ≤
+      Real.exp (-((S.card.choose 2 : ℕ) : ℝ) / 16) := by
+  simpa [inducedComplementLowerQuarterEvent] using
+    (randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter n
+      (↑S : Set (Fin n)))
+
+theorem cutoffComplementQuarterDensityEvent_compl (n : ℕ) :
+    (cutoffComplementQuarterDensityEvent n)ᶜ =
+      ⋃ S ∈ quarterDensityCutoffSubsets n,
+        inducedComplementLowerQuarterEvent n S := by
+  simp [cutoffComplementQuarterDensityEvent]
+
+/-- The exact finite union bound, retaining one summand for each literal
+cutoff subset. -/
+theorem cutoffComplementQuarterDensityEvent_failure_le_sum
+    (n : ℕ) :
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+      ∑ S ∈ quarterDensityCutoffSubsets n,
+        (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) := by
+  rw [cutoffComplementQuarterDensityEvent_compl]
+  exact measureReal_biUnion_finset_le _ _
+
+theorem quarterDensityCutoffSubsets_card (n : ℕ) :
+    (quarterDensityCutoffSubsets n).card = n.choose (quarterDensityCutoff n) := by
+  simp [quarterDensityCutoffSubsets]
+
+/-- The finite failure probability bound after inserting the fixed-set tail
+and counting the literal cutoff-subset family. -/
+theorem cutoffComplementQuarterDensityEvent_failure_le
+    (n : ℕ) :
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+      (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+  calc
+    (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+        ∑ S ∈ quarterDensityCutoffSubsets n,
+          (randomGraphMeasure n).real (inducedComplementLowerQuarterEvent n S) :=
+      cutoffComplementQuarterDensityEvent_failure_le_sum n
+    _ ≤ ∑ S ∈ quarterDensityCutoffSubsets n,
+        Real.exp (-((S.card.choose 2 : ℕ) : ℝ) / 16) := by
+      exact Finset.sum_le_sum fun S hS =>
+        inducedComplementLowerQuarterEvent_tail n S
+    _ = ∑ _S ∈ quarterDensityCutoffSubsets n,
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+      apply Finset.sum_congr rfl
+      intro S hS
+      rw [(Finset.mem_powersetCard.mp hS).2]
+    _ = (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+        Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) := by
+      rw [Finset.sum_const, quarterDensityCutoffSubsets_card, nsmul_eq_mul]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDensityEvent
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDensityLift
+Source: Erdos625/Section10QuarterDensityLift.lean
+Normalized SHA-256: a15829439974167312cbb6cd0319e15920f836770e63a1acf0e744bbcdd362ee
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLift
+
+/-!
+# Section X: deterministic density lift from the cutoff event
+
+This module converts the exact finite cutoff event into
+denominator-free quarter density for the complement graph.  It normalizes the
+final edge-count conversion directly, rather than carrying a separately
+elaborated `edgeFinset` equality.
+-/
+
+namespace Erdos625
+
+open Finset
+
+noncomputable section
+
+/-- On the finite cutoff event, every subset of exactly the cutoff cardinality
+is quarter-dense in the complement graph. -/
+theorem cutoffComplementQuarterDensityEvent_quarterDense_exact
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ cutoffComplementQuarterDensityEvent n) :
+    ∀ S : Finset (Fin n), S.card = quarterDensityCutoff n →
+      QuarterDenseOn Gᶜ S := by
+  classical
+  intro S hS
+  have hScutoff : S ∈ quarterDensityCutoffSubsets n := by
+    simp [quarterDensityCutoffSubsets, hS]
+  have hGnotUnion : G ∉ ⋃ T ∈ quarterDensityCutoffSubsets n,
+      inducedComplementLowerQuarterEvent n T := by
+    simpa [cutoffComplementQuarterDensityEvent] using hG
+  have hNotBad : ¬ (inducedComplementEdgeCount (↑S : Set (Fin n)) G : ℝ) ≤
+      ((Nat.card (↑S : Set (Fin n))).choose 2 : ℝ) / 4 := by
+    intro hBad
+    apply hGnotUnion
+    exact Set.mem_iUnion_of_mem S (Set.mem_iUnion_of_mem hScutoff hBad)
+  have hStrict : ((S.card.choose 2 : ℕ) : ℝ) / 4 <
+      (inducedComplementEdgeCount (↑S : Set (Fin n)) G : ℝ) := by
+    exact lt_of_not_ge (by simpa using hNotBad)
+  have hChooseStrict : S.card.choose 2 <
+      4 * inducedComplementEdgeCount (↑S : Set (Fin n)) G := by
+    have hReal : ((S.card.choose 2 : ℕ) : ℝ) <
+        4 * (inducedComplementEdgeCount (↑S : Set (Fin n)) G : ℝ) := by
+      nlinarith
+    exact_mod_cast hReal
+  have hDensityNat : S.card * (S.card - 1) ≤
+      8 * inducedComplementEdgeCount (↑S : Set (Fin n)) G := by
+    calc
+      S.card * (S.card - 1) = 2 * (S.card.choose 2) := by
+        rw [Nat.choose_two_right]
+        calc
+          S.card * (S.card - 1) = (S.card * (S.card - 1) / 2) * 2 :=
+            (Nat.div_two_mul_two_of_even (Nat.even_mul_pred_self S.card)).symm
+          _ = 2 * (S.card * (S.card - 1) / 2) := Nat.mul_comm _ _
+      _ ≤ 2 * (4 * inducedComplementEdgeCount (↑S : Set (Fin n)) G) :=
+        Nat.mul_le_mul_left 2 (Nat.le_of_lt hChooseStrict)
+      _ = 8 * inducedComplementEdgeCount (↑S : Set (Fin n)) G := by ring
+  unfold QuarterDenseOn
+  simpa [inducedComplementEdgeCount, SimpleGraph.edgeFinset,
+    Set.ncard_eq_toFinset_card'] using hDensityNat
+
+/-- If the cutoff is at least two, the cutoff event gives quarter density in
+the complement graph simultaneously for every larger vertex subset. -/
+theorem cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ cutoffComplementQuarterDensityEvent n)
+    (hcutoff : 2 ≤ quarterDensityCutoff n) :
+    ∀ S : Finset (Fin n), quarterDensityCutoff n ≤ S.card →
+      QuarterDenseOn Gᶜ S := by
+  exact quarterDense_all_larger_of_all_exact Gᶜ (quarterDensityCutoff n)
+    hcutoff (cutoffComplementQuarterDensityEvent_quarterDense_exact n G hG)
+
+#print axioms cutoffComplementQuarterDensityEvent_quarterDense_exact
+#print axioms cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLift
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDensityLift
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
+Source: Erdos625/Section10QuarterDensityLimit.lean
+Normalized SHA-256: 04f3ccb02307b4c9fc00b6dbdd779bc8f4c58e757508c4feb4960dc44e841383
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLimit
+
+/-!
+# Section X: full-sequence cutoff-event limit
+
+This module connects the literal finite cutoff-family failure bound to the
+already proved deterministic union-bound decay.  It proves only that the
+fixed cutoff-size simultaneous event has probability tending to one.  It does
+not lift quarter density to larger subsets and does not supply the subsequent
+greedy deletion chain.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The elementary quadratic comparison needed to absorb the `choose u 2`
+exponent into the established union-bound decay. -/
+theorem quarterDensity_choose_two_div_sixteen_lower_bound
+    (u : ℕ) (hu : 2 ≤ u) :
+    ((1 : ℝ) / 64) * (u : ℝ) ^ 2 ≤ ((u.choose 2 : ℕ) : ℝ) / 16 := by
+  rw [Nat.cast_choose_two]
+  have huReal : (2 : ℝ) ≤ (u : ℝ) := by
+    exact_mod_cast hu
+  norm_num
+  nlinarith
+
+/-- The quarter-density cutoff diverges along the full sequence. -/
+theorem quarterDensityCutoff_tendsto_atTop :
+    Tendsto quarterDensityCutoff atTop atTop := by
+  change Tendsto
+    ((fun x : ℝ => ⌈x⌉₊) ∘ (fun x : ℝ => x ^ (1 / 4 : ℝ)) ∘ Nat.cast)
+    atTop atTop
+  exact tendsto_nat_ceil_atTop.comp
+    ((tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 1 / 4)).comp
+      tendsto_natCast_atTop_atTop)
+
+/-- Eventually, the literal binomial lower-tail exponent is at least the
+quadratic exponent with constant `1/64`. -/
+theorem quarterDensity_eventually_exponent_bound :
+    ∀ᶠ n : ℕ in atTop,
+      Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) ≤
+        Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) := by
+  filter_upwards [quarterDensityCutoff_tendsto_atTop.eventually_ge_atTop 2] with n hn
+  apply Real.exp_le_exp.mpr
+  calc
+    -((quarterDensityCutoff n).choose 2 : ℕ) / 16 =
+        -(((quarterDensityCutoff n).choose 2 : ℕ) : ℝ) / 16 := by ring
+    _ = -((((quarterDensityCutoff n).choose 2 : ℕ) : ℝ) / 16) := by ring
+    _ ≤ -((1 : ℝ) / 64 * (quarterDensityCutoff n : ℝ) ^ 2) :=
+      neg_le_neg (quarterDensity_choose_two_div_sixteen_lower_bound
+        (quarterDensityCutoff n) hn)
+    _ = -((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2 := by ring
+
+/-- The failure probability of the literal finite cutoff-family event tends
+to zero along the full sequence. -/
+theorem cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero :
+    Tendsto
+      (fun n : ℕ ↦
+        (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ)
+      atTop (nhds 0) := by
+  have hDecay := quarterDensity_unionBound_tendsto_zero ((1 : ℝ) / 64)
+    (by norm_num : (0 : ℝ) < 1 / 64)
+  have hUpper : ∀ᶠ n : ℕ in atTop,
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+        (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+          Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) := by
+    filter_upwards [quarterDensity_eventually_exponent_bound] with n hn
+    calc
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n)ᶜ ≤
+          (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+            Real.exp (-((quarterDensityCutoff n).choose 2 : ℕ) / 16 : ℝ) :=
+        cutoffComplementQuarterDensityEvent_failure_le n
+      _ ≤ (Nat.choose n (quarterDensityCutoff n) : ℝ) *
+          Real.exp (-((1 : ℝ) / 64) * (quarterDensityCutoff n : ℝ) ^ 2) :=
+        mul_le_mul_of_nonneg_left hn (Nat.cast_nonneg _)
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    tendsto_const_nhds hDecay
+    (Filter.Eventually.of_forall fun _ ↦ measureReal_nonneg)
+    hUpper
+
+/-- The literal finite simultaneous cutoff event has probability tending to
+one.  This is still only the cutoff-size event, not a statement for all
+larger vertex subsets. -/
+theorem cutoffComplementQuarterDensityEvent_probability_tendsto_one :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n (cutoffComplementQuarterDensityEvent n))
+      atTop (nhds 1) := by
+  have hSuccessIdentity : ∀ n : ℕ,
+      (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n) =
+        1 - (randomGraphMeasure n).real
+          (cutoffComplementQuarterDensityEvent n)ᶜ := by
+    intro n
+    have hCompl := measureReal_compl
+      (μ := randomGraphMeasure n)
+      (measurableSet_cutoffComplementQuarterDensityEvent n)
+    rw [probReal_univ] at hCompl
+    linarith
+  have hSuccessReal : Tendsto
+      (fun n : ℕ ↦
+        (randomGraphMeasure n).real (cutoffComplementQuarterDensityEvent n))
+      atTop (nhds (1 : ℝ)) := by
+    have hOne : Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (nhds 1) :=
+      tendsto_const_nhds
+    have hSub := hOne.sub cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+    convert hSub using 1
+    · funext n
+      exact hSuccessIdentity n
+    · norm_num
+  exact
+    (ENNReal.tendsto_toReal_iff
+      (fun n ↦ measure_ne_top (randomGraphMeasure n)
+        (cutoffComplementQuarterDensityEvent n))
+      ENNReal.one_ne_top).mp (by
+        simpa only [Measure.real, ENNReal.toReal_one] using hSuccessReal)
+
+#print axioms quarterDensity_choose_two_div_sixteen_lower_bound
+#print axioms quarterDensityCutoff_tendsto_atTop
+#print axioms quarterDensity_eventually_exponent_bound
+#print axioms cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+#print axioms cutoffComplementQuarterDensityEvent_probability_tendsto_one
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDensityLimit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDensityLimit
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10UniformQuarterDensityEvent
+Source: Erdos625/Section10UniformQuarterDensityEvent.lean
+Normalized SHA-256: acfa0e559b55e80c20a85080b03c80ebbe399458140235ff265da30985c71452
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10UniformQuarterDensityEvent
+
+/-!
+# Section X: high-probability all-larger quarter-density event
+
+This module packages the accepted literal cutoff event, its probability-one
+limit, and its deterministic larger-subset lift into one event whose
+probability tends to one.  It does not construct a clique chain, transfer a
+complement clique to an independent set, or invoke greedy colouring.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The event on which every vertex subset at least as large as the cutoff is
+quarter-dense in the complement graph. -/
+def cutoffComplementAllLargerQuarterDenseEvent (n : ℕ) : Set (LabeledGraph n) :=
+  {G | ∀ S : Finset (Fin n), quarterDensityCutoff n ≤ S.card →
+    QuarterDenseOn Gᶜ S}
+
+/-- Once the cutoff is at least two, the literal cutoff event is contained in
+the all-larger quarter-density event. -/
+theorem cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+    (n : ℕ) (hcutoff : 2 ≤ quarterDensityCutoff n) :
+    cutoffComplementQuarterDensityEvent n ⊆
+      cutoffComplementAllLargerQuarterDenseEvent n := by
+  intro G hG S hS
+  exact cutoffComplementQuarterDensityEvent_quarterDense_all_larger n G hG
+    hcutoff S hS
+
+/-- The all-larger complement quarter-density event has probability tending to
+one along the full natural sequence. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (cutoffComplementAllLargerQuarterDenseEvent n))
+      atTop (nhds 1) := by
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    cutoffComplementQuarterDensityEvent_probability_tendsto_one
+    tendsto_const_nhds ?_ ?_
+  · filter_upwards [quarterDensityCutoff_tendsto_atTop.eventually_ge_atTop 2]
+      with n hn
+    exact measure_mono
+      (cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent n hn)
+  · exact Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (cutoffComplementAllLargerQuarterDenseEvent n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ
+
+#print axioms cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10UniformQuarterDensityEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10UniformQuarterDensityEvent
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
+Source: Erdos625/Section10QuarterChainSurvival.lean
+Normalized SHA-256: 6ea26963df35290a9e3f2b639ea450f652eaf05a87fc80b3d0cdff4138fcd80a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvival
+
+/-!
+# Section X: shifted-potential survival leaf
+
+This module records the deterministic asymptotic inequality needed by the
+finite quarter-dense clique-chain theorem when its initial set has the chosen
+cube-root scale.  It is deliberately only an arithmetic survival leaf: it
+contains no random-graph, density-event, clique-to-independent-set, greedy,
+or probability conclusion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The deterministic starting size used for the complement-neighbour chain. -/
+def quarterChainStart (n : ℕ) : ℕ :=
+  ⌈(n : ℝ) ^ (1 / 3 : ℝ)⌉₊
+
+/-- The requested integer number of quarter-neighbourhood steps. -/
+def quarterChainSteps (n : ℕ) : ℕ :=
+  ⌊Real.log (n : ℝ) / (13 * Real.log 4)⌋₊
+
+/-- The eventual rounding-safe shifted-potential survival inequality for the
+chosen cutoff, chain start, and number of steps. -/
+theorem quarterChain_shifted_survival_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3 := by
+  suffices h_bound : ∀ᶠ (n : ℕ) in atTop, ∀ j < quarterChainSteps n,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (1 / 4 : ℝ) ^ j * ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    refine' h_bound.mono fun n hn j hj => le_trans _ (le_trans (hn j hj) _) <;>
+      norm_num [quarterDensityCutoff, quarterChainStart]
+    · exact le_of_lt <| Nat.ceil_lt_add_one <| by positivity
+    · exact Nat.le_ceil _
+  suffices h_bound : ∀ᶠ (n : ℕ) in atTop, ∀ j < quarterChainSteps n,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (1 / 4 : ℝ) ^ (Real.log n / (13 * Real.log 4)) *
+          ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    refine h_bound.mono fun n hn j hj => le_trans (hn j hj) ?_
+    gcongr
+    exact le_trans
+      (Real.rpow_le_rpow_of_exponent_ge (by norm_num) (by norm_num)
+        (show Real.log n / (13 * Real.log 4) ≥ ↑j from
+          (Nat.cast_le.mpr hj.le).trans (Nat.floor_le (by positivity))))
+      (by norm_num)
+  suffices h_exp : ∀ᶠ (n : ℕ) in atTop,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (n : ℝ) ^ (-1 / 13 : ℝ) * ((n : ℝ) ^ (1 / 3 : ℝ) + 1 / 3) - 1 / 3 by
+    filter_upwards [h_exp, Filter.eventually_gt_atTop 0] with n hn hn' j hj
+    refine le_trans hn ?_
+    norm_num [Real.rpow_def_of_pos]
+    ring_nf
+    norm_num [hn'.ne']
+    norm_num [Real.rpow_def_of_pos, hn']
+    ring_nf
+    norm_num [Real.log_div]
+    ring_nf
+    norm_num
+  suffices h_simp : ∀ᶠ (n : ℕ) in atTop,
+      (n : ℝ) ^ (1 / 4 : ℝ) + 1 ≤
+        (n : ℝ) ^ (10 / 39 : ℝ) + (1 / 3) * (n : ℝ) ^ (-1 / 13 : ℝ) - 1 / 3 by
+    filter_upwards [h_simp, Filter.eventually_gt_atTop 0] with n hn hn' using
+      hn.trans_eq (by
+        rw [mul_add, ← Real.rpow_add (by positivity)]
+        norm_num
+        ring)
+  have h_exp : Filter.Tendsto
+      (fun n : ℕ => (n : ℝ) ^ (10 / 39 : ℝ) - (n : ℝ) ^ (1 / 4 : ℝ))
+      Filter.atTop Filter.atTop := by
+    suffices h_factor : Filter.Tendsto
+        (fun n : ℕ => (n : ℝ) ^ (1 / 4 : ℝ) *
+          ((n : ℝ) ^ (10 / 39 - 1 / 4 : ℝ) - 1))
+        Filter.atTop Filter.atTop by
+      refine h_factor.congr' (by
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        rw [mul_sub, ← Real.rpow_add (by positivity)]
+        ring)
+    exact Filter.Tendsto.atTop_mul_atTop₀
+      ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop)
+      (Filter.tendsto_atTop_add_const_right _ _
+        ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop))
+  filter_upwards [h_exp.eventually_gt_atTop 2, Filter.eventually_gt_atTop 0]
+    with n hn hn' using by
+      linarith [(show (n : ℝ) ^ (-1 / 13 : ℝ) ≥ 0 by positivity)]
+
+#print axioms quarterChain_shifted_survival_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvival
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainSurvival
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainParameters
+Source: Erdos625/Section10QuarterChainParameters.lean
+Normalized SHA-256: a8eedbe1a55c037eff572976cc195583edb358d12cee046a42e3af0fcd087c93
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainParameters
+
+/-!
+# Section X: quarter-chain parameter facts
+
+This module records the elementary eventual comparisons among the concrete
+cutoff, starting size, and step count used by the quarter-neighbourhood chain.
+It contains no graph-theoretic or probabilistic assertion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- Eventually, the quarter-density cutoff is no larger than the chosen
+cube-root starting size. -/
+theorem quarterDensityCutoff_le_quarterChainStart_eventually :
+    ∀ᶠ n : ℕ in atTop, quarterDensityCutoff n ≤ quarterChainStart n := by
+  filter_upwards [Filter.eventually_ge_atTop 1] with n hn
+  simp only [quarterDensityCutoff, quarterChainStart]
+  exact Nat.ceil_mono
+    (Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hn) (by norm_num))
+
+/-- Eventually, the quarter-density cutoff is positive. -/
+theorem one_le_quarterDensityCutoff_eventually :
+    ∀ᶠ n : ℕ in atTop, 1 ≤ quarterDensityCutoff n := by
+  filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+  simp only [quarterDensityCutoff, Nat.one_le_ceil_iff]
+  exact Real.rpow_pos_of_pos (Nat.cast_pos.mpr hn) _
+
+/-- The concrete number of quarter-neighbourhood steps diverges. -/
+theorem quarterChainSteps_tendsto_atTop :
+    Tendsto quarterChainSteps atTop atTop := by
+  unfold quarterChainSteps
+  exact tendsto_nat_floor_atTop.comp
+    (Tendsto.atTop_div_const (by positivity)
+      (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop))
+
+/-- Eventually, at least one quarter-neighbourhood step is requested. -/
+theorem one_le_quarterChainSteps_eventually :
+    ∀ᶠ n : ℕ in atTop, 1 ≤ quarterChainSteps n :=
+  quarterChainSteps_tendsto_atTop.eventually_ge_atTop 1
+
+/-- The floor in the concrete step count still leaves an eventual
+`1 / (14 * log 4)` logarithmic lower bound. -/
+theorem quarterChainSteps_real_lower_bound_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      Real.log (n : ℝ) / (14 * Real.log 4) ≤ (quarterChainSteps n : ℝ) := by
+  have hlog :
+      Tendsto (fun n : ℕ => Real.log (n : ℝ)) atTop atTop :=
+    Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop
+  have hc : 0 < (1 / (182 * Real.log 4) : ℝ) := by
+    positivity
+  have hmargin :
+      Tendsto
+        (fun n : ℕ => Real.log (n : ℝ) * (1 / (182 * Real.log 4)) - 1)
+        atTop atTop := by
+    simpa only [sub_eq_add_neg] using
+      Filter.tendsto_atTop_add_const_right atTop (-1 : ℝ)
+        (hlog.atTop_mul_const hc)
+  filter_upwards [hmargin.eventually_ge_atTop 0] with n hn
+  have hlogFour : Real.log (4 : ℝ) ≠ 0 := ne_of_gt (Real.log_pos (by norm_num))
+  have hidentity :
+      Real.log (n : ℝ) / (13 * Real.log 4) - 1 -
+          Real.log (n : ℝ) / (14 * Real.log 4) =
+        Real.log (n : ℝ) * (1 / (182 * Real.log 4)) - 1 := by
+    field_simp [hlogFour]
+    ring
+  have hgap :
+      Real.log (n : ℝ) / (14 * Real.log 4) ≤
+        Real.log (n : ℝ) / (13 * Real.log 4) - 1 := by
+    have hnonneg :
+        0 ≤ Real.log (n : ℝ) / (13 * Real.log 4) - 1 -
+          Real.log (n : ℝ) / (14 * Real.log 4) := by
+      rw [hidentity]
+      exact hn
+    linarith
+  calc
+    Real.log (n : ℝ) / (14 * Real.log 4) ≤
+        Real.log (n : ℝ) / (13 * Real.log 4) - 1 := hgap
+    _ ≤ (⌊Real.log (n : ℝ) / (13 * Real.log 4)⌋₊ : ℝ) :=
+      (Nat.sub_one_lt_floor _).le
+    _ = (quarterChainSteps n : ℝ) := by
+      rfl
+
+#print axioms quarterDensityCutoff_le_quarterChainStart_eventually
+#print axioms one_le_quarterDensityCutoff_eventually
+#print axioms quarterChainSteps_tendsto_atTop
+#print axioms one_le_quarterChainSteps_eventually
+#print axioms quarterChainSteps_real_lower_bound_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainParameters
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainParameters
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainSurvivalTransport
+Source: Erdos625/Section10QuarterChainSurvivalTransport.lean
+Normalized SHA-256: 22b7095846c5ba7fb577ed970c2bf808815576070745ea80cd1d3868a888876d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvivalTransport
+
+/-!
+# Section X: shifted-potential survival transport
+
+The chosen-start survival estimate is monotone in the initial residual
+cardinality.  This file records that deterministic transport separately so a
+later chain construction can be initialized on any vertex set whose size is
+at least `quarterChainStart n`.  It contains no density event, graph-chain,
+independent-set, colouring, or probability assertion.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The shifted-potential survival estimate at `quarterChainStart n` transports
+to every finite vertex set whose cardinality is at least that starting scale. -/
+theorem quarterChain_shifted_survival_of_start_le_card
+    (n : ℕ) (U : Finset (Fin n))
+    (hU : quarterChainStart n ≤ U.card)
+    (hStart : ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3) :
+    ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+  intro j hj
+  have hUreal : (quarterChainStart n : ℝ) ≤ (U.card : ℝ) := by
+    exact_mod_cast hU
+  have hShift :
+      (quarterChainStart n : ℝ) + 1 / 3 ≤ (U.card : ℝ) + 1 / 3 := by
+    linarith
+  have hMultiplier : 0 ≤ (4 : ℝ)⁻¹ ^ j := by
+    positivity
+  have hPotential :
+      (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3 ≤
+        (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+    simpa using sub_le_sub_right
+      (mul_le_mul_of_nonneg_left hShift hMultiplier) (1 / 3 : ℝ)
+  exact (hStart j hj).trans hPotential
+
+/-- Along the full natural sequence, the chosen-start survival estimate holds
+uniformly for every finite residual set at least as large as the starting
+scale. -/
+theorem quarterChain_shifted_survival_all_larger_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ U : Finset (Fin n),
+      quarterChainStart n ≤ U.card →
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 := by
+  filter_upwards [quarterChain_shifted_survival_eventually] with n hStart
+  intro U hU
+  exact quarterChain_shifted_survival_of_start_le_card n U hU hStart
+
+#print axioms quarterChain_shifted_survival_of_start_le_card
+#print axioms quarterChain_shifted_survival_all_larger_eventually
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainSurvivalTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainSurvivalTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
+Source: Erdos625/Section10NeighborhoodDeletionStep.lean
+Normalized SHA-256: 31925d8d468533036a09cc8107c6d92bcfa6521cd137b9c7ec0d9f7df2831f42
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10NeighborhoodDeletionStep
+
+/-!
+# Section 10: one deterministic neighbourhood-deletion step
+
+This module contains exactly the local deterministic step used in the
+complement-neighbourhood construction for Lemma 10.1.  From quarter density
+on one finite set it produces a vertex and its neighbourhood inside that set,
+with the denominator-cleared recurrence inequality.
+
+It does not construct a clique chain, prove a survival estimate, establish a
+simultaneous random event, or invoke the greedy-colouring theorem.
+-/
+
+open Finset
+
+namespace Erdos625
+
+noncomputable section
+
+/-- From a nonempty quarter-dense finite vertex set, choose a vertex and keep
+its neighbours inside the current set.  The retained neighbourhood has size
+at least one quarter of the current cardinality, up to the exact additive-one
+loss used in the recurrence. -/
+theorem quarterDense_neighbor_step
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (H : SimpleGraph V)
+    (S : Finset V) (hSpos : 0 < S.card)
+    (hDense : QuarterDenseOn H S) :
+    ∃ v ∈ S, ∃ T : Finset V,
+      T ⊆ S ∧ (∀ w ∈ T, H.Adj v w) ∧ S.card - 1 ≤ 4 * T.card := by
+  classical
+  obtain ⟨x, hx⟩ := Finset.card_pos.mp hSpos
+  letI : Nonempty (↥(↑S : Set V)) := ⟨⟨x, by simpa using hx⟩⟩
+  have hDense' : Fintype.card (↥(↑S : Set V)) *
+      (Fintype.card (↥(↑S : Set V)) - 1) ≤
+      8 * (H.induce (↑S : Set V)).edgeFinset.card := by
+    simpa [QuarterDenseOn, Fintype.card_coe] using hDense
+  obtain ⟨v, hv⟩ := exists_vertex_quarter_degree (H.induce (↑S : Set V)) hDense'
+  let T : Finset V := S.filter (fun w => H.Adj v.1 w)
+  have hTcard : T.card = (H.induce (↑S : Set V)).degree v := by
+    rw [← SimpleGraph.card_neighborFinset_eq_degree]
+    refine Finset.card_bij
+      (fun w hw => (⟨w, (Finset.mem_filter.mp hw).1⟩ : ↥(↑S : Set V))) ?_ ?_ ?_
+    · intro w hw
+      rw [SimpleGraph.mem_neighborFinset]
+      exact (Finset.mem_filter.mp hw).2
+    · intro w₁ hw₁ w₂ hw₂ h
+      exact congrArg Subtype.val h
+    · intro w hw
+      refine ⟨w.1, ?_, ?_⟩
+      · rw [Finset.mem_filter]
+        refine ⟨w.2, ?_⟩
+        rw [SimpleGraph.mem_neighborFinset] at hw
+        change H.Adj v.1 w.1 at hw
+        exact hw
+      · exact Subtype.ext rfl
+  refine ⟨v.1, v.2, T, ?_, ?_, ?_⟩
+  · exact Finset.filter_subset _ _
+  · intro w hw
+    exact (Finset.mem_filter.mp hw).2
+  · calc
+      S.card - 1 = Fintype.card (↥(↑S : Set V)) - 1 := by simp
+      _ ≤ 4 * (H.induce (↑S : Set V)).degree v := hv
+      _ = 4 * T.card := by rw [hTcard]
+
+#print axioms quarterDense_neighbor_step
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10NeighborhoodDeletionStep
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10NeighborhoodDeletionStep
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterDenseChain
+Source: Erdos625/Section10QuarterDenseChain.lean
+Normalized SHA-256: b03cc3b2ffc63c9c0c9a11bd5d31a4f10ad1c98bb0aa00489c833f29aa069b68
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterDenseChain
+
+/-!
+# Section 10: abstract quarter-dense neighbourhood chain
+
+This module turns the checked one-step neighbourhood lemma into a finite
+deterministic clique-and-residual chain.  Its hypotheses deliberately include
+the numerical survival condition needed to make every intermediate residual
+large enough for the quarter-density assumption.  It does not prove that
+survival condition, derive quarter density from the random graph, perform any
+rounding estimate, or invoke the later greedy-colouring argument.
+-/
+
+open Finset
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Repeating the deterministic quarter-dense neighbourhood step produces a
+clique of the requested finite length and a common-neighbour residual set.
+
+The shifted potential `4⁻¹^i * (|S| + 1/3) - 1/3` is used because it is
+preserved exactly by the recurrence `|T| ≥ (|S| - 1) / 4`.  The hypothesis
+`hSurvive` is therefore an explicit finite assumption: it is not an
+asymptotic estimate hidden inside this theorem. -/
+theorem exists_quarterDense_clique_chain
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (H : SimpleGraph V) (S : Finset V) (cutoff t : ℕ)
+    (hcutoff : 1 ≤ cutoff)
+    (hDense : ∀ U : Finset V, U ⊆ S → cutoff ≤ U.card → QuarterDenseOn H U)
+    (hSurvive : ∀ i : ℕ, i < t →
+      (cutoff : ℝ) ≤ (4 : ℝ)⁻¹ ^ i * ((S.card : ℝ) + 1 / 3) - 1 / 3) :
+    ∃ C R : Finset V,
+      C.card = t ∧ C ⊆ S ∧ H.IsClique (C : Set V) ∧ R ⊆ S ∧
+        (∀ v ∈ C, ∀ w ∈ R, H.Adj v w) ∧
+        (4 : ℝ)⁻¹ ^ t * ((S.card : ℝ) + 1 / 3) - 1 / 3 ≤ (R.card : ℝ) := by
+  induction t generalizing S with
+  | zero =>
+      refine ⟨∅, S, by simp, Finset.empty_subset _, ?_, (by intro x hx; exact hx), ?_, ?_⟩
+      · simp
+      · simp
+      · norm_num
+  | succ t ih =>
+      have hcutoffSreal : (cutoff : ℝ) ≤ (S.card : ℝ) := by
+        have h := hSurvive 0 (Nat.zero_lt_succ t)
+        norm_num at h ⊢
+        linarith
+      have hcutoffS : cutoff ≤ S.card := by
+        exact_mod_cast hcutoffSreal
+      have hSpos : 0 < S.card :=
+        lt_of_lt_of_le (Nat.zero_lt_succ 0) (hcutoff.trans hcutoffS)
+      obtain ⟨v, hv, T, hTsub, hTadj, hstep⟩ :=
+        quarterDense_neighbor_step H S hSpos (hDense S (by intro x hx; exact hx) hcutoffS)
+      have hSone : 1 ≤ S.card := Nat.succ_le_iff.mpr hSpos
+      have hstepReal : ((S.card : ℝ) - 1) / 4 ≤ (T.card : ℝ) := by
+        have hstepCast : ((S.card - 1 : ℕ) : ℝ) ≤ ((4 * T.card : ℕ) : ℝ) := by
+          exact_mod_cast hstep
+        rw [Nat.cast_sub hSone] at hstepCast
+        norm_num at hstepCast ⊢
+        linarith
+      have hpotentialStep : ∀ i : ℕ,
+          (4 : ℝ)⁻¹ ^ (i + 1) * ((S.card : ℝ) + 1 / 3) - 1 / 3 ≤
+            (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+        intro i
+        have hshift : ((S.card : ℝ) + 1 / 3) / 4 ≤ (T.card : ℝ) + 1 / 3 := by
+          linarith
+        have hpow : 0 ≤ (4 : ℝ)⁻¹ ^ i := by positivity
+        have hmul := mul_le_mul_of_nonneg_left hshift hpow
+        calc
+          (4 : ℝ)⁻¹ ^ (i + 1) * ((S.card : ℝ) + 1 / 3) - 1 / 3 =
+              (4 : ℝ)⁻¹ ^ i * (((S.card : ℝ) + 1 / 3) / 4) - 1 / 3 := by
+                rw [pow_succ]
+                norm_num
+                ring
+          _ ≤ (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+                linarith
+      have hDenseT : ∀ U : Finset V, U ⊆ T → cutoff ≤ U.card → QuarterDenseOn H U := by
+        intro U hUT hUcard
+        exact hDense U (hUT.trans hTsub) hUcard
+      have hSurviveT : ∀ i : ℕ, i < t →
+          (cutoff : ℝ) ≤ (4 : ℝ)⁻¹ ^ i * ((T.card : ℝ) + 1 / 3) - 1 / 3 := by
+        intro i hi
+        exact (hSurvive (i + 1) (Nat.succ_lt_succ hi)).trans (hpotentialStep i)
+      obtain ⟨C, R, hCcard, hCsub, hClique, hRsub, hCRadj, hRcard⟩ :=
+        ih (S := T) hDenseT hSurviveT
+      have hvnotC : v ∉ C := by
+        intro hvC
+        have hvT : v ∈ T := hCsub hvC
+        exact H.irrefl (hTadj v hvT)
+      refine ⟨insert v C, R, ?_, ?_, ?_, hRsub.trans hTsub, ?_, ?_⟩
+      · rw [card_insert_of_notMem hvnotC, hCcard]
+      · intro w hw
+        rw [mem_insert] at hw
+        rcases hw with rfl | hw
+        · exact hv
+        · exact hTsub (hCsub hw)
+      · push_cast
+        apply hClique.insert
+        intro w hw hne
+        exact hTadj w (hCsub hw)
+      · intro w hw z hz
+        rw [mem_insert] at hw
+        rcases hw with rfl | hw
+        · exact hTadj z (hRsub hz)
+        · exact hCRadj w hw z hz
+      · exact (hpotentialStep t).trans hRcard
+
+#print axioms exists_quarterDense_clique_chain
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterDenseChain
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterDenseChain
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainAdapters
+Source: Erdos625/Section10QuarterChainAdapters.lean
+Normalized SHA-256: c19df3b9208434c628eaca0046c714a2a80a306401c95118008e0c0ec4f13065
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainAdapters
+
+/-!
+# Section X: quarter-chain graph adapters
+
+Small deterministic adapters used to connect the accepted complement
+quarter-density chain to the accepted greedy-colouring interface.
+
+For exact-start subset selection, Mathlib already provides the exact statement
+needed downstream:
+`Finset.exists_subset_card_eq : s ≤ U.card -> ∃ S ⊆ U, S.card = s`.
+This module deliberately does not duplicate that declaration.
+-/
+
+namespace Erdos625
+
+/-- A clique in the complement graph is an independent set in the original
+graph, with the same vertex-set and pairwise quantifiers. -/
+theorem isIndepSet_of_compl_isClique
+    {V : Type*} [DecidableEq V]
+    (G : SimpleGraph V) (C : Finset V)
+    (hClique : Gᶜ.IsClique (C : Set V)) :
+    G.IsIndepSet (C : Set V) :=
+  by simpa using hClique
+
+#print axioms isIndepSet_of_compl_isClique
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainAdapters
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainAdapters
 ========================================================================== -/
 
 /- ==========================================================================
@@ -6047,6 +7354,628 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10SimultaneousGreedyColoring
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10SimultaneousGreedyColoring
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainIndependentBlock
+Source: Erdos625/Section10QuarterChainIndependentBlock.lean
+Normalized SHA-256: af13881ce88603402ce86d31a9bf689ed05ef30e32bd056f3b6d237c208d9dcb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainIndependentBlock
+
+/-!
+# Section X: uniform independent blocks from the quarter-density event
+
+This module composes the accepted all-larger complement-density event, finite
+quarter-dense clique chain, and shifted-potential survival estimate.  On one
+event, every sufficiently large vertex set contains an independent block of
+the same deterministic cardinality.  The final theorem then exposes the exact
+uniform hypothesis consumed by the accepted greedy-colouring recursion.
+
+This is still a deterministic/probability-event bridge.  It does not prove the
+numerical `O(|U| / log n) + n^(1/3)` estimate, the simultaneous leftover event
+at a prescribed natural threshold, Lemma 10.2, or the final theorem.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- One event with the necessary internal universal quantifier: every vertex
+set at least as large as the chain start contains an independent block at
+least as large as the deterministic chain length. -/
+def quarterChainIndependentBlockEvent (n : ℕ) : Set (LabeledGraph n) :=
+  {G | ∀ U : Finset (Fin n), quarterChainStart n ≤ U.card →
+    ∃ I : Finset (Fin n),
+      I ⊆ U ∧ quarterChainSteps n ≤ I.card ∧
+        G.IsIndepSet (I : Set (Fin n))}
+
+/-- At one fixed `n`, the all-larger complement-density event implies the
+uniform independent-block event once the explicit cutoff positivity and
+shifted-potential survival hypotheses are supplied. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+    (n : ℕ) (hcutoff : 1 ≤ quarterDensityCutoff n)
+    (hStart : ∀ j : ℕ, j < quarterChainSteps n →
+      (quarterDensityCutoff n : ℝ) ≤
+        (4 : ℝ)⁻¹ ^ j * ((quarterChainStart n : ℝ) + 1 / 3) - 1 / 3) :
+    cutoffComplementAllLargerQuarterDenseEvent n ⊆
+      quarterChainIndependentBlockEvent n := by
+  intro G hG U hU
+  have hSurvive :
+      ∀ j : ℕ, j < quarterChainSteps n →
+        (quarterDensityCutoff n : ℝ) ≤
+          (4 : ℝ)⁻¹ ^ j * ((U.card : ℝ) + 1 / 3) - 1 / 3 :=
+    quarterChain_shifted_survival_of_start_le_card n U hU hStart
+  obtain ⟨C, _R, hCcard, hCsub, hClique, _hRsub, _hCRadj, _hRcard⟩ :=
+    exists_quarterDense_clique_chain
+      Gᶜ U (quarterDensityCutoff n) (quarterChainSteps n) hcutoff
+      (fun T _hTU hTcard => hG T hTcard) hSurvive
+  refine ⟨C, hCsub, ?_, isIndepSet_of_compl_isClique G C hClique⟩
+  simp [hCcard]
+
+/-- The fixed-`n` event inclusion above holds eventually along the full natural
+sequence. -/
+theorem cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      cutoffComplementAllLargerQuarterDenseEvent n ⊆
+        quarterChainIndependentBlockEvent n := by
+  filter_upwards
+    [one_le_quarterDensityCutoff_eventually,
+      quarterChain_shifted_survival_eventually]
+    with n hcutoff hStart
+  exact
+    cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+      n hcutoff hStart
+
+/-- The one-event uniform independent-block property has probability tending
+to one along the full natural sequence. -/
+theorem quarterChainIndependentBlockEvent_probability_tendsto_one :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n (quarterChainIndependentBlockEvent n))
+      atTop (nhds 1) := by
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
+    tendsto_const_nhds ?_ ?_
+  · exact
+      cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually.mono
+        fun n hn ↦ measure_mono hn
+  · exact Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (quarterChainIndependentBlockEvent n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ
+
+/-- On the independent-block event, the accepted greedy recursion gives one
+chromatic bound simultaneously for every induced vertex set. -/
+theorem chromaticNumberNat_induce_le_of_independentBlockEvent
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ quarterChainIndependentBlockEvent n)
+    (hblock : 1 ≤ quarterChainSteps n) :
+    ∀ U : Finset (Fin n),
+      chromaticNumberNat (G.induce (U : Set (Fin n))) ≤
+        ceilDivNat U.card (quarterChainSteps n) + quarterChainStart n := by
+  classical
+  exact simultaneous_induced_chromatic_bound
+    G (quarterChainStart n) (quarterChainSteps n) hblock hG
+
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+#print axioms cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually
+#print axioms quarterChainIndependentBlockEvent_probability_tendsto_one
+#print axioms chromaticNumberNat_induce_le_of_independentBlockEvent
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainIndependentBlock
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainIndependentBlock
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainFailure
+Source: Erdos625/Section10QuarterChainFailure.lean
+Normalized SHA-256: 47550b9e7b63026660f58d387571d6ed20b9ca9b6ef46d129af870a10a390b44
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainFailure
+
+/-!
+# Section X: parameter-independent independent-block failure sequence
+
+The high-probability independent-block event is determined only by `n`.  This
+module records the real probability of its complement as one deterministic
+error sequence and proves that it tends to zero.  Consequently this error
+cannot depend on the later seed, exponent, radius, or deficit parameters.
+
+No deficit-indexed leftover threshold or Lemma 10.2 assembly is included.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory ProbabilityTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The real failure probability of the one-event uniform independent-block
+property. -/
+def quarterChainIndependentBlockFailure (n : ℕ) : ℝ :=
+  (randomGraphMeasure n).real (quarterChainIndependentBlockEvent n)ᶜ
+
+theorem measurableSet_quarterChainIndependentBlockEvent (n : ℕ) :
+    MeasurableSet (quarterChainIndependentBlockEvent n) :=
+  Set.toFinite (quarterChainIndependentBlockEvent n) |>.measurableSet
+
+theorem quarterChainIndependentBlockFailure_nonneg (n : ℕ) :
+    0 ≤ quarterChainIndependentBlockFailure n :=
+  measureReal_nonneg
+
+/-- The deterministic failure sequence tends to zero along the full natural
+sequence. -/
+theorem quarterChainIndependentBlockFailure_tendsto_zero :
+    Tendsto quarterChainIndependentBlockFailure atTop (nhds 0) := by
+  have hSuccessReal :
+      Tendsto
+        (fun n : ℕ ↦
+          (randomGraphMeasure n).real (quarterChainIndependentBlockEvent n))
+        atTop (nhds (1 : ℝ)) := by
+    simpa only [Measure.real, ENNReal.toReal_one] using
+      (ENNReal.tendsto_toReal_iff
+        (fun n ↦ measure_ne_top (randomGraphMeasure n)
+          (quarterChainIndependentBlockEvent n))
+        ENNReal.one_ne_top).mpr
+        quarterChainIndependentBlockEvent_probability_tendsto_one
+  have hFailureIdentity : ∀ n : ℕ,
+      quarterChainIndependentBlockFailure n =
+        1 - (randomGraphMeasure n).real
+          (quarterChainIndependentBlockEvent n) := by
+    intro n
+    have hCompl := measureReal_compl
+      (μ := randomGraphMeasure n)
+      (measurableSet_quarterChainIndependentBlockEvent n)
+    rw [probReal_univ] at hCompl
+    unfold quarterChainIndependentBlockFailure
+    linarith
+  have hSub :
+      Tendsto
+        (fun n : ℕ ↦
+          1 - (randomGraphMeasure n).real
+            (quarterChainIndependentBlockEvent n))
+        atTop (nhds (0 : ℝ)) := by
+    convert (tendsto_const_nhds.sub hSuccessReal) using 1
+    all_goals norm_num
+  exact hSub.congr'
+    (Filter.Eventually.of_forall fun n ↦ (hFailureIdentity n).symm)
+
+#print axioms measurableSet_quarterChainIndependentBlockEvent
+#print axioms quarterChainIndependentBlockFailure_nonneg
+#print axioms quarterChainIndependentBlockFailure_tendsto_zero
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainFailure
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainFailure
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainGreedyNumeric
+Source: Erdos625/Section10QuarterChainGreedyNumeric.lean
+Normalized SHA-256: db14adcef07de5466d4c8880dd9512122d64389ac0ee9748f214b99e94706079
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainGreedyNumeric
+
+/-!
+# Section X: numerical bound for the quarter-chain greedy colouring
+
+This module isolates the floor/ceiling arithmetic in the deterministic
+colouring bound.  It does not assert a graph event or a probability estimate.
+The final additive `+ 1` is the honest loss from ceiling division.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The defining coverage property of ceiling division. -/
+theorem le_ceilDivNat_mul (a b : ℕ) (hb : 1 ≤ b) :
+    a ≤ ceilDivNat a b * b := by
+  have hpos : 0 < b := Nat.zero_lt_of_lt hb
+  change a ≤ (a ⌈/⌉ b) * b
+  have hcover : a ≤ b * (a ⌈/⌉ b) :=
+    (ceilDiv_le_iff_le_mul hpos).1 le_rfl
+  simpa [Nat.mul_comm] using hcover
+
+/-- Ceiling division is at most ordinary natural-number division plus one. -/
+theorem ceilDivNat_le_div_add_one (a b : ℕ) (hb : 1 ≤ b) :
+    ceilDivNat a b ≤ a / b + 1 := by
+  unfold ceilDivNat
+  calc
+    (a + b - 1) / b ≤ (a + b) / b :=
+      Nat.div_le_div_right (Nat.sub_le (a + b) 1)
+    _ = a / b + 1 := by
+      rw [Nat.add_div_right]
+      omega
+
+/-- Real-valued form of the elementary ceiling-division estimate. -/
+theorem ceilDivNat_cast_le_div_add_one (a b : ℕ) (hb : 1 ≤ b) :
+    (ceilDivNat a b : ℝ) ≤ (a : ℝ) / (b : ℝ) + 1 := by
+  calc
+    (ceilDivNat a b : ℝ) ≤ (a / b + 1 : ℕ) := by
+      exact_mod_cast ceilDivNat_le_div_add_one a b hb
+    _ = (a / b : ℕ) + 1 := by norm_num
+    _ ≤ (a : ℝ) / (b : ℝ) + 1 := by
+      gcongr
+      exact Nat.cast_div_le
+
+/-- Eventually the concrete greedy-colouring count has the manuscript-scale
+upper bound.  The starting cutoff is retained exactly and the only extra loss
+is the explicit `+ 1` from ceiling division. -/
+theorem quarterChain_greedy_count_real_upper_bound_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ m : ℕ,
+      (ceilDivNat m (quarterChainSteps n) + quarterChainStart n : ℝ) ≤
+        14 * Real.log 4 * (m : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by
+  filter_upwards
+      [one_le_quarterChainSteps_eventually,
+        quarterChainSteps_real_lower_bound_eventually,
+        Filter.eventually_gt_atTop 1] with n hsteps hstepsLower hn m
+  have hlogPos : 0 < Real.log (n : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast hn)
+  have hlogFourPos : 0 < Real.log (4 : ℝ) := Real.log_pos (by norm_num)
+  have hdenPos : 0 < (14 * Real.log 4 : ℝ) := by positivity
+  have hstepPos : 0 < (quarterChainSteps n : ℝ) := by
+    exact_mod_cast hsteps
+  have hquotient :
+      (m : ℝ) / (quarterChainSteps n : ℝ) ≤
+        14 * Real.log 4 * (m : ℝ) / Real.log n := by
+    have hbasePos :
+        0 < Real.log (n : ℝ) / (14 * Real.log 4) := by positivity
+    have hinv :
+        ((quarterChainSteps n : ℝ))⁻¹ ≤
+          (14 * Real.log 4) / Real.log n := by
+      calc
+        ((quarterChainSteps n : ℝ))⁻¹ =
+            1 / (quarterChainSteps n : ℝ) := by rw [one_div]
+        _ ≤ 1 / (Real.log (n : ℝ) / (14 * Real.log 4)) :=
+          one_div_le_one_div_of_le hbasePos hstepsLower
+        _ = (14 * Real.log 4) / Real.log n := by
+          field_simp
+    calc
+      (m : ℝ) / (quarterChainSteps n : ℝ) =
+          (m : ℝ) * ((quarterChainSteps n : ℝ))⁻¹ := by
+            rw [div_eq_mul_inv]
+      _ ≤ (m : ℝ) * ((14 * Real.log 4) / Real.log n) :=
+        mul_le_mul_of_nonneg_left hinv (Nat.cast_nonneg m)
+      _ = 14 * Real.log 4 * (m : ℝ) / Real.log n := by ring
+  calc
+    (ceilDivNat m (quarterChainSteps n) + quarterChainStart n : ℝ) =
+        (ceilDivNat m (quarterChainSteps n) : ℝ) +
+          (quarterChainStart n : ℝ) := by norm_num
+    _ ≤ ((m : ℝ) / (quarterChainSteps n : ℝ) + 1) +
+          (quarterChainStart n : ℝ) := by
+      gcongr
+      exact ceilDivNat_cast_le_div_add_one m (quarterChainSteps n) hsteps
+    _ ≤ (14 * Real.log 4 * (m : ℝ) / Real.log n + 1) +
+          (quarterChainStart n : ℝ) := by gcongr
+    _ = 14 * Real.log 4 * (m : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by ring
+
+/-- The exact piecewise natural-number cost produced by greedy deletion:
+small sets are coloured singly, while large sets use logarithmic independent
+blocks and then colour the final cutoff vertices singly. -/
+def quarterChainGreedyColorCost (n u : ℕ) : ℕ :=
+  if u < quarterChainStart n then u
+  else ceilDivNat u (quarterChainSteps n) + quarterChainStart n
+
+/-- Eventually the logarithm is bounded by the real cube root. -/
+theorem log_le_realCubeRoot_eventually :
+    ∀ᶠ n : ℕ in atTop,
+      Real.log (n : ℝ) ≤ (n : ℝ) ^ (1 / 3 : ℝ) := by
+  have hreal :
+      Tendsto (fun x : ℝ => Real.log x / x ^ (1 / 3 : ℝ))
+        atTop (nhds 0) :=
+    (isLittleO_log_rpow_atTop
+      (r := (1 / 3 : ℝ)) (by norm_num)).tendsto_div_nhds_zero
+  have hnat :
+      Tendsto
+        (fun n : ℕ => Real.log (n : ℝ) / (n : ℝ) ^ (1 / 3 : ℝ))
+        atTop (nhds 0) :=
+    hreal.comp tendsto_natCast_atTop_atTop
+  filter_upwards
+      [hnat.eventually_lt_const zero_lt_one,
+        Filter.eventually_gt_atTop 0] with n hn hnPos
+  have hrootPos : 0 < (n : ℝ) ^ (1 / 3 : ℝ) := by positivity
+  exact ((div_lt_one hrootPos).mp hn).le
+
+/-- Uniform manuscript-scale numerical bound for the exact piecewise greedy
+cost.  The small branch introduces no ceiling loss.  In the large branch the
+one-unit ceiling-division loss and the one-unit cube-root ceiling loss are
+absorbed explicitly into `2 * u / log n`. -/
+theorem quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ᶠ n : ℕ in atTop, ∀ u : ℕ, u ≤ n →
+        (quarterChainGreedyColorCost n u : ℝ) ≤
+          C * (u : ℝ) / Real.log (n : ℝ) +
+            (n : ℝ) ^ (1 / 3 : ℝ) := by
+  refine ⟨14 * Real.log 4 + 2, by positivity, ?_⟩
+  filter_upwards
+      [quarterChain_greedy_count_real_upper_bound_eventually,
+        log_le_realCubeRoot_eventually,
+        Filter.eventually_gt_atTop 1] with n hcount hlogCube hn u _hu
+  have hlogPos : 0 < Real.log (n : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast hn)
+  by_cases hsmall : u < quarterChainStart n
+  · rw [quarterChainGreedyColorCost, if_pos hsmall]
+    have huCube : (u : ℝ) ≤ (n : ℝ) ^ (1 / 3 : ℝ) := by
+      contrapose! hsmall
+      exact Nat.ceil_le.mpr hsmall.le
+    have hlinear :
+        0 ≤ (14 * Real.log 4 + 2) * (u : ℝ) / Real.log (n : ℝ) := by
+      positivity
+    linarith
+  · rw [quarterChainGreedyColorCost, if_neg hsmall]
+    have hstart :
+        (quarterChainStart n : ℝ) <
+          (n : ℝ) ^ (1 / 3 : ℝ) + 1 := by
+      exact Nat.ceil_lt_add_one (by positivity)
+    have hrootLeStart :
+        (n : ℝ) ^ (1 / 3 : ℝ) ≤ (quarterChainStart n : ℝ) :=
+      Nat.le_ceil _
+    have hstartLeU : quarterChainStart n ≤ u := le_of_not_gt hsmall
+    have hrootLeU : (n : ℝ) ^ (1 / 3 : ℝ) ≤ (u : ℝ) := by
+      exact hrootLeStart.trans (by exact_mod_cast hstartLeU)
+    have hlogLeU : Real.log (n : ℝ) ≤ (u : ℝ) :=
+      hlogCube.trans hrootLeU
+    have habsorb :
+        (2 : ℝ) ≤ 2 * (u : ℝ) / Real.log (n : ℝ) := by
+      rw [le_div_iff₀ hlogPos]
+      linarith
+    calc
+      ((ceilDivNat u (quarterChainSteps n) + quarterChainStart n : ℕ) : ℝ) ≤
+          14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (quarterChainStart n : ℝ) + 1 :=
+        by simpa only [Nat.cast_add] using hcount u
+      _ ≤ 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            ((n : ℝ) ^ (1 / 3 : ℝ) + 1) + 1 := by
+        linarith
+      _ = 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) + 2 := by ring
+      _ ≤ 14 * Real.log 4 * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) +
+              (2 * (u : ℝ) / Real.log n) := by
+        gcongr
+      _ = (14 * Real.log 4 + 2) * (u : ℝ) / Real.log n +
+            (n : ℝ) ^ (1 / 3 : ℝ) := by ring
+
+#print axioms le_ceilDivNat_mul
+#print axioms ceilDivNat_le_div_add_one
+#print axioms ceilDivNat_cast_le_div_add_one
+#print axioms quarterChain_greedy_count_real_upper_bound_eventually
+#print axioms log_le_realCubeRoot_eventually
+#print axioms quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainGreedyNumeric
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainGreedyNumeric
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainLinearEvent
+Source: Erdos625/Section10QuarterChainLinearEvent.lean
+Normalized SHA-256: d1dacdfffd92618028a16b2879a56d8a56e7107e1c8f69617eb397f1ac5abfab
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLinearEvent
+
+/-!
+# Section X: the uniform linear-cost colouring event
+
+This module packages the deterministic quarter-chain recursion as the single
+event used in the manuscript form of Lemma 10.1.  The universal quantifier over
+all induced vertex sets remains inside the event:
+
+`χ(G[U]) ≤ C |U| / log n + n^(1/3)`.
+
+The proof deliberately keeps the greedy cost piecewise.  A set below the
+quarter-chain cutoff is coloured one vertex at a time and therefore costs
+exactly `|U|`; only the large-set branch invokes ceiling division.  Thus no
+spurious additive `+ 1` is introduced in the small-set branch.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The manuscript-form event from Lemma 10.1: one graph satisfies the same
+linear-logarithmic chromatic bound for every induced vertex set. -/
+def quarterChainLinearColoringEvent (C : ℝ) (n : ℕ) :
+    Set (LabeledGraph n) :=
+  {G | ∀ U : Finset (Fin n),
+    (chromaticNumberNat (G.induce (U : Set (Fin n))) : ℝ) ≤
+      C * (U.card : ℝ) / Real.log (n : ℝ) +
+        (n : ℝ) ^ (1 / 3 : ℝ)}
+
+/-- The chromatic number of a graph induced by a finite vertex set is at most
+the cardinality of that set. -/
+theorem chromaticNumberNat_induce_finset_le_card
+    {n : ℕ} (G : LabeledGraph n) (U : Finset (Fin n)) :
+    chromaticNumberNat (G.induce (U : Set (Fin n))) ≤ U.card := by
+  classical
+  have hColorable :
+      (G.induce (U : Set (Fin n))).Colorable U.card := by
+    simpa using (G.induce (U : Set (Fin n))).colorable_of_fintype
+  exact Nat.cast_le.mp
+    (le_trans
+      (ENat.toNat_le_toNat
+        (SimpleGraph.chromaticNumber_le_iff_colorable.mpr hColorable)
+        (by simp +decide))
+      (by simp +decide))
+
+/-- On the uniform independent-block event, every induced subgraph is bounded
+by the exact piecewise quarter-chain greedy cost. -/
+theorem chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+    (n : ℕ) (G : LabeledGraph n)
+    (hG : G ∈ quarterChainIndependentBlockEvent n)
+    (hblock : 1 ≤ quarterChainSteps n) :
+    ∀ U : Finset (Fin n),
+      chromaticNumberNat (G.induce (U : Set (Fin n))) ≤
+        quarterChainGreedyColorCost n U.card := by
+  intro U
+  by_cases hsmall : U.card < quarterChainStart n
+  · rw [quarterChainGreedyColorCost, if_pos hsmall]
+    exact chromaticNumberNat_induce_finset_le_card G U
+  · rw [quarterChainGreedyColorCost, if_neg hsmall]
+    exact
+      chromaticNumberNat_induce_le_of_independentBlockEvent
+        n G hG hblock U
+
+/-- A fixed numerical bound on the piecewise greedy cost turns the
+independent-block event into the manuscript linear-cost event. -/
+theorem quarterChainIndependentBlockEvent_subset_linearColoringEvent
+    (n : ℕ) (C : ℝ) (hblock : 1 ≤ quarterChainSteps n)
+    (hCost : ∀ u : ℕ, u ≤ n →
+      (quarterChainGreedyColorCost n u : ℝ) ≤
+        C * (u : ℝ) / Real.log (n : ℝ) +
+          (n : ℝ) ^ (1 / 3 : ℝ)) :
+    quarterChainIndependentBlockEvent n ⊆
+      quarterChainLinearColoringEvent C n := by
+  intro G hG U
+  have hUle : U.card ≤ n := by
+    simpa using Finset.card_le_univ U
+  have hNat :=
+    chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+      n G hG hblock U
+  have hReal :
+      (chromaticNumberNat (G.induce (U : Set (Fin n))) : ℝ) ≤
+        (quarterChainGreedyColorCost n U.card : ℝ) := by
+    exact_mod_cast hNat
+  exact hReal.trans (hCost U.card hUle)
+
+/-- There is one positive absolute constant for which the event inclusion
+holds eventually along the full natural-number sequence. -/
+theorem
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ᶠ n : ℕ in atTop,
+        quarterChainIndependentBlockEvent n ⊆
+          quarterChainLinearColoringEvent C n := by
+  obtain ⟨C, hC, hCost⟩ :=
+    quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [one_le_quarterChainSteps_eventually, hCost]
+    with n hblock hCostN
+  exact
+    quarterChainIndependentBlockEvent_subset_linearColoringEvent
+      n C hblock hCostN
+
+/-- Eventual enlargement of the accepted independent-block event transfers
+its probability-one limit to the uniform linear-cost event. -/
+theorem quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+    (C : ℝ)
+    (hSubset : ∀ᶠ n : ℕ in atTop,
+      quarterChainIndependentBlockEvent n ⊆
+        quarterChainLinearColoringEvent C n) :
+    Tendsto
+      (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+      atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    quarterChainIndependentBlockEvent_probability_tendsto_one
+    tendsto_const_nhds
+    (hSubset.mono fun n hn ↦ measure_mono hn)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        randomGraphMeasure n (quarterChainLinearColoringEvent C n) ≤
+            randomGraphMeasure n Set.univ :=
+          measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
+
+/-- The manuscript-form uniform induced-colouring event holds with high
+probability for one positive absolute constant. -/
+theorem exists_quarterChainLinearColoringEvent_probability_tendsto_one :
+    ∃ C : ℝ, 0 < C ∧
+      Tendsto
+        (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+        atTop (nhds 1) := by
+  obtain ⟨C, hC, hSubset⟩ :=
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+  exact
+    ⟨C, hC,
+      quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+        C hSubset⟩
+
+/-- Quantitative complement form: whenever the deterministic event inclusion
+holds, failure of the linear-cost event is bounded by the same
+parameter-independent failure sequence as the independent-block event. -/
+theorem quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+    (C : ℝ)
+    (hSubset : ∀ᶠ n : ℕ in atTop,
+      quarterChainIndependentBlockEvent n ⊆
+        quarterChainLinearColoringEvent C n) :
+    ∀ᶠ n : ℕ in atTop,
+      (randomGraphMeasure n).real
+          (quarterChainLinearColoringEvent C n)ᶜ ≤
+        quarterChainIndependentBlockFailure n := by
+  filter_upwards [hSubset] with n hn
+  unfold quarterChainIndependentBlockFailure
+  apply measureReal_mono (h₂ := by finiteness)
+  exact Set.compl_subset_compl.mpr hn
+
+/-- One positive constant simultaneously supplies the eventual event
+inclusion, probability-one limit, and the quantitative complement bound. -/
+theorem exists_quarterChainLinearColoringEvent_full_control :
+    ∃ C : ℝ, 0 < C ∧
+      (∀ᶠ n : ℕ in atTop,
+        quarterChainIndependentBlockEvent n ⊆
+          quarterChainLinearColoringEvent C n) ∧
+      Tendsto
+        (fun n ↦ randomGraphMeasure n (quarterChainLinearColoringEvent C n))
+        atTop (nhds 1) ∧
+      (∀ᶠ n : ℕ in atTop,
+        (randomGraphMeasure n).real
+            (quarterChainLinearColoringEvent C n)ᶜ ≤
+          quarterChainIndependentBlockFailure n) := by
+  obtain ⟨C, hC, hSubset⟩ :=
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+  refine ⟨C, hC, hSubset, ?_, ?_⟩
+  · exact
+      quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+        C hSubset
+  · exact
+      quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+        C hSubset
+
+#print axioms chromaticNumberNat_induce_finset_le_card
+#print axioms chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+#print axioms quarterChainIndependentBlockEvent_subset_linearColoringEvent
+#print axioms exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+#print axioms quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
+#print axioms exists_quarterChainLinearColoringEvent_probability_tendsto_one
+#print axioms quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+#print axioms exists_quarterChainLinearColoringEvent_full_control
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLinearEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainLinearEvent
 ========================================================================== -/
 
 /- ==========================================================================
@@ -6456,7 +8385,7 @@ END SOURCE MODULE: Erdos625.Section11EventAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section11AsymptoticAssembly
 Source: Erdos625/Section11AsymptoticAssembly.lean
-Normalized SHA-256: f191b31619e8114260db1a866302d5a4eabf4667314a3593730c0e980ea07818
+Normalized SHA-256: e60e10cd659cbf792c0b85683d6dab2503eb19efd15e841d4a47e6b1d9065592
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section11AsymptoticAssembly
 
@@ -6549,6 +8478,25 @@ theorem tendsto_measure_inter_one
     (ENNReal.tendsto_toReal_iff
       (fun n ↦ measure_ne_top (mu n) (A n ∩ B n)) ENNReal.one_ne_top).mp
       (by simpa using hInterReal)
+
+/-- A probability-one event remains probability one after eventual pointwise
+enlargement. -/
+theorem tendsto_measure_one_of_eventually_subset
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A B : ∀ n, Set (Omega n))
+    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
+    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
+    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    hA tendsto_const_nhds
+    (hSubset.mono fun _ h ↦ measure_mono h)
+    (Filter.Eventually.of_forall fun n ↦ by
+      calc
+        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
+        _ = 1 := measure_univ)
 
 /-- If a real statistic exceeds a deterministic threshold tending to infinity
 with probability tending to one, then it exceeds every fixed real threshold
@@ -6725,9 +8673,124 @@ END SOURCE MODULE: Erdos625.Section11ChromaticLowerTailBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11ChromaticTailAdapter
+Source: Erdos625/Section11ChromaticTailAdapter.lean
+Normalized SHA-256: f91c7a644c3a4eb7da9df4d65d80abb5d1ba808ebbcceaf2a5e0cb6ff7c1cd21
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11ChromaticTailAdapter
+
+/-!
+# Section XI D1: graph-specific chromatic-tail adapter
+
+This task specializes the accepted generic strict-lower-tail complement lemma
+to the actual random-graph chromatic number and Section XI event.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+/-- A probability-zero upper bound for the actual chromatic at-most event is
+exactly the probability-one strict chromatic lower event used in Section XI.
+-/
+theorem chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+    (kChi : Nat -> Nat)
+    (hAtMost : Tendsto
+      (fun n => randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0)) :
+    Tendsto
+      (fun n => randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1) := by
+  simpa only [chromaticLowerEvent] using
+    (strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+      (Ω := fun n => LabeledGraph n)
+      (mu := fun n => randomGraphMeasure n)
+      (X := fun _ G => chromaticNumberNat G)
+      (k := kChi)
+      (hMeas := fun _ => Set.toFinite _ |>.measurableSet)
+      hAtMost)
+
+#print axioms chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11ChromaticTailAdapter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11ChromaticTailAdapter
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section11ThresholdFinalAssembly
+Source: Erdos625/Section11ThresholdFinalAssembly.lean
+Normalized SHA-256: b0b50e6a0bc20544b4e593fa432b99035e7a5ca6d6728430251487453e6fe382
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section11ThresholdFinalAssembly
+
+/-!
+# Section XI D2: two-tail threshold assembly
+
+This task closes only the generic final event seam.  Both probability-one
+tails and the exact eventual threshold separation remain explicit inputs.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal Topology
+
+/-- Two probability-one threshold events and the exact Section XI separation
+imply the formal Erdős 625 target. -/
+theorem erdos625Statement_of_chromatic_cochromatic_thresholds
+    (kChi kCo : Nat -> Nat) (a : Nat -> Real)
+    (hChromaticTail : Tendsto
+      (fun n => randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1))
+    (hCochromaticTail : Tendsto
+      (fun n => randomGraphMeasure n
+        (cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1))
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : Nat) : Real) - ((kCo n : Real) + a n)) :
+    Erdos625Statement := by
+  have hThresholdIntersection : Tendsto
+      (fun n => randomGraphMeasure n
+        (chromaticLowerEvent n (kChi n) ∩
+          cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) :=
+    tendsto_measure_inter_one randomGraphMeasure
+      (fun n => chromaticLowerEvent n (kChi n))
+      (fun n => cochromaticUpperEvent n (kCo n) (a n))
+      (fun n => Set.toFinite
+        (chromaticLowerEvent n (kChi n)) |>.measurableSet)
+      (fun n => Set.toFinite
+        (cochromaticUpperEvent n (kCo n) (a n)) |>.measurableSet)
+      hChromaticTail hCochromaticTail
+  unfold Erdos625Statement
+  change Tendsto (fun n => randomGraphMeasure n (gapEvent n))
+    atTop (nhds 1)
+  apply tendsto_measure_one_of_eventually_subset randomGraphMeasure
+    (fun n => chromaticLowerEvent n (kChi n) ∩
+      cochromaticUpperEvent n (kCo n) (a n))
+    gapEvent hThresholdIntersection
+  filter_upwards [hGapThreshold] with n hThreshold
+  exact thresholdIntersection_subset_gapEvent hThreshold
+
+#print axioms erdos625Statement_of_chromatic_cochromatic_thresholds
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section11ThresholdFinalAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section11ThresholdFinalAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
 Source: Erdos625/Section10_11ConditionalAssembly.lean
-Normalized SHA-256: bc8fabc8e50b62b421f9b911c04c5acb84b2fc55937a2e34af98af1bcd487b73
+Normalized SHA-256: efa433a3cf1adba7c3ed327774162579ddae2930bd8d492babb3f29222b5aaf8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
 
@@ -6947,25 +9010,6 @@ theorem capacityDeficit_inter_leftover_subset_cochromaticUpperEvent
     exact_mod_cast hNat
   exact hReal.trans hThreshold
 
-/-- A probability-one event remains probability one after eventual pointwise
-enlargement. -/
-theorem tendsto_measure_one_of_eventually_subset
-    {Omega : ℕ → Type*}
-    [∀ n, MeasurableSpace (Omega n)]
-    (mu : ∀ n, Measure (Omega n))
-    [∀ n, IsProbabilityMeasure (mu n)]
-    (A B : ∀ n, Set (Omega n))
-    (hA : Tendsto (fun n ↦ mu n (A n)) atTop (nhds 1))
-    (hSubset : ∀ᶠ n in atTop, A n ⊆ B n) :
-    Tendsto (fun n ↦ mu n (B n)) atTop (nhds 1) := by
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
-    hA tendsto_const_nhds
-    (hSubset.mono fun _ h ↦ measure_mono h)
-    (Filter.Eventually.of_forall fun n ↦ by
-      calc
-        mu n (B n) ≤ mu n Set.univ := measure_mono (Set.subset_univ _)
-        _ = 1 := measure_univ)
-
 /-- Conditional closure of Sections X--XI.
 
 The open inputs are exposed separately:
@@ -7051,6 +9095,840 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10_11ConditionalAssembly
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
+Source: Erdos625/Section10QuarterChainLeftoverEvent.lean
+Normalized SHA-256: 8a781f3091fb9454e9632deadacec9d9fca3b83d6b9972412f584ddb9cc13d91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLeftoverEvent
+
+/-!
+# Section X: independent-block event to simultaneous leftover colouring
+
+This module gives the finite deterministic adapter from the uniform
+independent-block event to the simultaneous leftover-colouring event.  It
+keeps the universal quantifier over leftover cores inside the event.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped Topology
+
+noncomputable section
+
+/-- The exact natural leftover threshold produced by the quarter-chain greedy
+bound for a deficit of at most `d` vertices. -/
+def quarterChainLeftoverBound (n d : ℕ) : ℕ :=
+  ceilDivNat d (quarterChainSteps n) + quarterChainStart n
+
+/-- The literal natural leftover threshold inherits the explicit real
+ceiling-division bound. -/
+theorem quarterChainLeftoverBound_real_upper_bound_eventually :
+    ∀ᶠ n : ℕ in atTop, ∀ d : ℕ,
+      (quarterChainLeftoverBound n d : ℝ) ≤
+        14 * Real.log 4 * (d : ℝ) / Real.log n +
+          (quarterChainStart n : ℝ) + 1 := by
+  filter_upwards
+      [quarterChain_greedy_count_real_upper_bound_eventually] with n hn
+  intro d
+  simpa only [quarterChainLeftoverBound, Nat.cast_add] using hn d
+
+/-- Ceiling division is monotone in its numerator. -/
+theorem ceilDivNat_mono_left {a b c : ℕ} (h : a ≤ b) :
+    ceilDivNat a c ≤ ceilDivNat b c := by
+  unfold ceilDivNat
+  apply Nat.div_le_div_right
+  omega
+
+/-- The finite complement of a supplied vertex set represents the subtype
+complement occurring in `simultaneousLeftoverColoringEvent`, with exactly the
+same cardinality. -/
+theorem univ_sdiff_card_eq_compl_fintype_card
+    {n : ℕ} (W : Finset (Fin n)) :
+    (Finset.univ \ W).card =
+      Fintype.card (↥((↑W : Set (Fin n)))ᶜ : Type) := by
+  rw [← Fintype.card_coe (Finset.univ \ W)]
+  apply Fintype.card_congr
+  exact Equiv.setCongr (by
+    ext x
+    simp)
+
+/-- Inducing on extensionally equal vertex sets does not change the
+natural-valued chromatic number.  This separate transport lemma avoids asking
+`rw` to synthesize a dependent `Fintype` motive. -/
+theorem chromaticNumberNat_induce_eq_of_set_eq
+    {V : Type*} [Fintype V] (G : SimpleGraph V) (S T : Set V)
+    [Fintype S] [Fintype T]
+    (hST : S = T) :
+    chromaticNumberNat (G.induce S) =
+      chromaticNumberNat (G.induce T) := by
+  subst T
+  unfold chromaticNumberNat
+  rfl
+
+/-- At one fixed `n`, the uniform independent-block event implies the
+simultaneous leftover-colouring event whenever the displayed deterministic
+ceiling bound fits below `q`.  The event keeps the quantifier over every
+`W`; no pointwise-in-`W` probability statement is used. -/
+theorem quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+    (n d q : ℕ)
+    (hblock : 1 ≤ quarterChainSteps n)
+    (hq :
+      ceilDivNat d (quarterChainSteps n) + quarterChainStart n ≤ q) :
+    quarterChainIndependentBlockEvent n ⊆
+      simultaneousLeftoverColoringEvent n d q := by
+  intro G hG W hW
+  let U : Finset (Fin n) := Finset.univ \ W
+  have hUset :
+      (↑U : Set (Fin n)) = ((↑W : Set (Fin n)))ᶜ := by
+    ext x
+    simp [U]
+  have hUcard :
+      U.card = Fintype.card (↥((↑W : Set (Fin n)))ᶜ : Type) := by
+    simpa only [U] using univ_sdiff_card_eq_compl_fintype_card W
+  have hUle : U.card ≤ d := by
+    rw [hUcard]
+    exact hW
+  have hChromatic :=
+    chromaticNumberNat_induce_le_of_independentBlockEvent
+      n G hG hblock U
+  have hChromatic' :
+      chromaticNumberNat (G.induce ((↑W : Set (Fin n)))ᶜ) ≤
+        ceilDivNat U.card (quarterChainSteps n) + quarterChainStart n := by
+    rw [← chromaticNumberNat_induce_eq_of_set_eq
+      G (↑U : Set (Fin n)) ((↑W : Set (Fin n)))ᶜ hUset]
+    exact hChromatic
+  exact hChromatic'.trans
+    ((Nat.add_le_add_right (ceilDivNat_mono_left hUle)
+      (quarterChainStart n)).trans hq)
+
+/-- Sequence-level deterministic adapter: any eventual numerical bound on the
+ceiling expression turns the accepted independent-block probability limit
+into the required simultaneous leftover-colouring probability limit. -/
+theorem simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+    (d q : ℕ → ℕ)
+    (hq : ∀ᶠ n : ℕ in atTop,
+      ceilDivNat (d n) (quarterChainSteps n) + quarterChainStart n ≤ q n) :
+    Tendsto
+      (fun n ↦
+        randomGraphMeasure n
+          (simultaneousLeftoverColoringEvent n (d n) (q n)))
+      atTop (nhds 1) := by
+  apply tendsto_measure_one_of_eventually_subset
+    (fun n ↦ randomGraphMeasure n)
+    quarterChainIndependentBlockEvent
+    (fun n ↦ simultaneousLeftoverColoringEvent n (d n) (q n))
+    quarterChainIndependentBlockEvent_probability_tendsto_one
+  filter_upwards [one_le_quarterChainSteps_eventually, hq]
+    with n hblock hqN
+  exact
+    quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+      n (d n) (q n) hblock hqN
+
+/-- With the literal greedy threshold, the simultaneous leftover event has
+probability tending to one for every deterministic deficit sequence.  The
+failure event remains the same independent-block failure event and therefore
+does not depend on the chosen sequence. -/
+theorem quarterChainLeftoverBound_probability_tendsto_one
+    (d : ℕ → ℕ) :
+    Tendsto
+      (fun n ↦
+        randomGraphMeasure n
+          (simultaneousLeftoverColoringEvent n (d n)
+            (quarterChainLeftoverBound n (d n))))
+      atTop (nhds 1) := by
+  apply simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+  exact Filter.Eventually.of_forall fun n ↦ le_rfl
+
+/-- Fixed-index quantitative form: the literal simultaneous-leftover failure
+probability is bounded by the same parameter-independent independent-block
+failure sequence. -/
+theorem quarterChainLeftoverBound_compl_probability_le
+    (n d : ℕ) (hblock : 1 ≤ quarterChainSteps n) :
+    (randomGraphMeasure n).real
+        (simultaneousLeftoverColoringEvent n d
+          (quarterChainLeftoverBound n d))ᶜ ≤
+      quarterChainIndependentBlockFailure n := by
+  unfold quarterChainIndependentBlockFailure
+  apply measureReal_mono (h₂ := by finiteness)
+  exact Set.compl_subset_compl.mpr
+    (quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+      n d (quarterChainLeftoverBound n d) hblock le_rfl)
+
+/-- The concrete quarter-chain leftover theorem discharges the leftover-tail
+input of the existing Sections X--XI conditional seam. -/
+theorem erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+    (kChi kSeed deficit kCo : ℕ → ℕ) (a : ℕ → ℝ)
+    (hCapacityTail : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        (capacityDeficitEvent n (kSeed n) (deficit n)))
+      atTop (nhds 1))
+    (hChromaticTail : Tendsto
+      (fun n ↦ randomGraphMeasure n (chromaticLowerEvent n (kChi n)))
+      atTop (nhds 1))
+    (hCochromaticThreshold : ∀ᶠ n in atTop,
+      (((kSeed n) + quarterChainLeftoverBound n (deficit n) : ℕ) : ℝ) ≤
+        (kCo n : ℝ) + a n)
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)) :
+    Erdos625Statement := by
+  exact erdos625Statement_of_capacity_leftover_thresholds
+    kChi kSeed deficit
+    (fun n ↦ quarterChainLeftoverBound n (deficit n))
+    kCo a hCapacityTail
+    (quarterChainLeftoverBound_probability_tendsto_one deficit)
+    hChromaticTail hCochromaticThreshold hGapThreshold
+
+#print axioms ceilDivNat_mono_left
+#print axioms quarterChainLeftoverBound_real_upper_bound_eventually
+#print axioms univ_sdiff_card_eq_compl_fintype_card
+#print axioms chromaticNumberNat_induce_eq_of_set_eq
+#print axioms quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+#print axioms simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
+#print axioms quarterChainLeftoverBound_probability_tendsto_one
+#print axioms quarterChainLeftoverBound_compl_probability_le
+#print axioms erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLeftoverEvent
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10UniformAmplification
+Source: Erdos625/Section10UniformAmplification.lean
+Normalized SHA-256: 22d8f0ede19538952ab6cc37d9b68355f7b41cccd29ed4cbb0d32b325f190a98
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10UniformAmplification
+
+/-!
+# Section X: uniform cochromatic amplification
+
+This module combines the accepted induced-capacity lower tail with the
+parameter-independent uniform induced-colouring event.  It is the
+quantifier-correct event/probability form of manuscript Lemma 10.2:
+
+* the same absolute constant `C` is chosen before the seed, exponent, and
+  deviation-radius sequences;
+* the error sequence is the fixed quarter-chain failure probability and is
+  therefore independent of those later parameters;
+* the two success events are combined only by a union bound, with no
+  independence assumption.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped Topology
+
+noncomputable section
+
+/-- The displayed error term in the uniform amplification lemma. -/
+def uniformAmplificationError
+    (C : ℝ) (n : ℕ) (Lambda r : ℝ) : ℝ :=
+  C * ((Real.sqrt ((n : ℝ) * Lambda) +
+          Real.sqrt ((n : ℝ) * r)) / Real.log (n : ℝ) +
+        (n : ℝ) ^ (1 / 3 : ℝ) + 1)
+
+/-- Increasing the absolute constant enlarges the uniform induced-colouring
+event once `log n` is positive. -/
+theorem quarterChainLinearColoringEvent_mono_constant
+    {C D : ℝ} {n : ℕ} (hCD : C ≤ D) (hn : 1 < n) :
+    quarterChainLinearColoringEvent C n ⊆
+      quarterChainLinearColoringEvent D n := by
+  intro G hG U
+  have hlog : 0 < Real.log (n : ℝ) :=
+    Real.log_pos (by exact_mod_cast hn)
+  have hfactor : 0 ≤ (U.card : ℝ) / Real.log (n : ℝ) := by
+    positivity
+  exact (hG U).trans (by
+    gcongr)
+
+/-- The manuscript deficit radius is bounded by the simpler displayed
+square-root expression. -/
+theorem cochromaticCapacityDeficitRadius_lt_displayed
+    {n : ℕ} {Lambda r d : ℝ}
+    (_hn : 2 ≤ n) (hLambda : 0 ≤ Lambda) (hr : 0 ≤ r)
+    (hd :
+      d < cochromaticCapacityDeficitRadius n Lambda r) :
+    d <
+      Real.sqrt ((n : ℝ) * Lambda) +
+        Real.sqrt ((n : ℝ) * r) := by
+  have hnSub : n - 1 ≤ n := Nat.sub_le n 1
+  have hLambdaRadicand :
+      ((((n - 1 : ℕ) : ℝ) * Lambda) / 2) ≤
+        (n : ℝ) * Lambda := by
+    have hcast : ((n - 1 : ℕ) : ℝ) ≤ (n : ℝ) := by
+      exact_mod_cast hnSub
+    have hmul :
+        ((n - 1 : ℕ) : ℝ) * Lambda ≤ (n : ℝ) * Lambda :=
+      mul_le_mul_of_nonneg_right hcast hLambda
+    nlinarith [mul_nonneg (Nat.cast_nonneg (n - 1)) hLambda]
+  have hrRadicand :
+      ((((n - 1 : ℕ) : ℝ) * r) / 2) ≤
+        (n : ℝ) * r := by
+    have hcast : ((n - 1 : ℕ) : ℝ) ≤ (n : ℝ) := by
+      exact_mod_cast hnSub
+    have hmul :
+        ((n - 1 : ℕ) : ℝ) * r ≤ (n : ℝ) * r :=
+      mul_le_mul_of_nonneg_right hcast hr
+    nlinarith [mul_nonneg (Nat.cast_nonneg (n - 1)) hr]
+  exact hd.trans_le (add_le_add
+    (Real.sqrt_le_sqrt hLambdaRadicand)
+    (Real.sqrt_le_sqrt hrRadicand))
+
+/-- Transport of the natural chromatic number across extensionally equal
+inducing vertex sets. -/
+private theorem chromaticNumberNat_induce_eq_of_set_eq_uniform
+    {V : Type*} [Fintype V] (G : SimpleGraph V) (S T : Set V)
+    [Fintype S] [Fintype T]
+    (hST : S = T) :
+    chromaticNumberNat (G.induce S) =
+      chromaticNumberNat (G.induce T) := by
+  subst T
+  rfl
+
+/-- Fixed-`n` deterministic amplification.  A capacity-attaining core and the
+uniform induced-colouring event give the displayed cochromatic upper bound.
+The exact complementary cardinality is retained throughout. -/
+theorem capacityAmplification_inter_linear_subset_cochromaticUpperEvent
+    (n k : ℕ) (C Lambda r : ℝ)
+    (hn : 2 ≤ n) (hLambda : 0 ≤ Lambda) (hr : 0 ≤ r)
+    (hC : 1 ≤ C) :
+    capacityAmplificationSuccessEvent n k Lambda r ∩
+        quarterChainLinearColoringEvent C n ⊆
+      cochromaticUpperEvent n k
+        (uniformAmplificationError C n Lambda r) := by
+  intro G hG
+  obtain ⟨W, _hCore, hWcard, hComplCard, hWhole⟩ :=
+    exists_capacity_witness_with_compl_bound G k
+  let U : Finset (Fin n) := Finset.univ \ W
+  have hUset :
+      (↑U : Set (Fin n)) = ((↑W : Set (Fin n)))ᶜ := by
+    ext x
+    simp [U]
+  have hUcard :
+      U.card = n - cochromaticInducedCapacity G k := by
+    calc
+      U.card =
+          Fintype.card (↥((↑W : Set (Fin n)))ᶜ : Type) := by
+        rw [← Fintype.card_coe U]
+        apply Fintype.card_congr
+        exact Equiv.setCongr hUset
+      _ = n - cochromaticInducedCapacity G k := hComplCard
+  have hCapacityLe : cochromaticInducedCapacity G k ≤ n :=
+    cochromaticInducedCapacity_le_card G k
+  have hDeficit :
+      ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) <
+        Real.sqrt ((n : ℝ) * Lambda) +
+          Real.sqrt ((n : ℝ) * r) := by
+    rw [Nat.cast_sub hCapacityLe]
+    exact cochromaticCapacityDeficitRadius_lt_displayed
+      hn hLambda hr hG.1
+  have hLinear :
+      (chromaticNumberNat
+          (G.induce ((↑W : Set (Fin n)))ᶜ) : ℝ) ≤
+        C * ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+            Real.log (n : ℝ) +
+          (n : ℝ) ^ (1 / 3 : ℝ) := by
+    have hAtU := hG.2 U
+    rw [hUcard] at hAtU
+    rw [← chromaticNumberNat_induce_eq_of_set_eq_uniform
+      G (↑U : Set (Fin n)) ((↑W : Set (Fin n)))ᶜ hUset]
+    exact hAtU
+  have hlog : 0 < Real.log (n : ℝ) :=
+    Real.log_pos (by exact_mod_cast (lt_of_lt_of_le (by norm_num) hn))
+  have hSqrtNonneg :
+      0 ≤ Real.sqrt ((n : ℝ) * Lambda) +
+        Real.sqrt ((n : ℝ) * r) := by positivity
+  have hDeficitQuotient :
+      ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+          Real.log (n : ℝ) ≤
+        (Real.sqrt ((n : ℝ) * Lambda) +
+            Real.sqrt ((n : ℝ) * r)) /
+          Real.log (n : ℝ) :=
+    (div_lt_div_iff_of_pos_right hlog).2 hDeficit |>.le
+  have hScaledDeficitQuotient :
+      C * ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+          Real.log (n : ℝ) ≤
+        C *
+          ((Real.sqrt ((n : ℝ) * Lambda) +
+              Real.sqrt ((n : ℝ) * r)) /
+            Real.log (n : ℝ)) := by
+    calc
+      C * ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+            Real.log (n : ℝ) =
+          C * (((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+            Real.log (n : ℝ)) := by ring
+      _ ≤ C *
+          ((Real.sqrt ((n : ℝ) * Lambda) +
+              Real.sqrt ((n : ℝ) * r)) /
+            Real.log (n : ℝ)) :=
+        mul_le_mul_of_nonneg_left hDeficitQuotient (le_trans (by norm_num) hC)
+  have hWholeReal :
+      (cochromaticNumber G : ℝ) ≤
+        (k : ℝ) +
+          (chromaticNumberNat
+            (G.induce ((↑W : Set (Fin n)))ᶜ) : ℝ) := by
+    exact_mod_cast hWhole
+  change (cochromaticNumber G : ℝ) ≤
+    (k : ℝ) + uniformAmplificationError C n Lambda r
+  refine hWholeReal.trans ?_
+  rw [uniformAmplificationError]
+  have hCnonneg : 0 ≤ C := le_trans (by norm_num) hC
+  have hCubeNonneg : 0 ≤ (n : ℝ) ^ (1 / 3 : ℝ) := by positivity
+  calc
+    (k : ℝ) +
+          (chromaticNumberNat
+            (G.induce ((↑W : Set (Fin n)))ᶜ) : ℝ) ≤
+        (k : ℝ) +
+          (C * ((n - cochromaticInducedCapacity G k : ℕ) : ℝ) /
+              Real.log (n : ℝ) +
+            (n : ℝ) ^ (1 / 3 : ℝ)) := by
+      gcongr
+    _ ≤ (k : ℝ) +
+          (C *
+              ((Real.sqrt ((n : ℝ) * Lambda) +
+                  Real.sqrt ((n : ℝ) * r)) /
+                Real.log (n : ℝ)) +
+            (n : ℝ) ^ (1 / 3 : ℝ)) := by
+      gcongr
+    _ ≤ (k : ℝ) +
+          C *
+            ((Real.sqrt ((n : ℝ) * Lambda) +
+                Real.sqrt ((n : ℝ) * r)) /
+              Real.log (n : ℝ) +
+              (n : ℝ) ^ (1 / 3 : ℝ) + 1) := by
+      have hCubeScale :
+          (n : ℝ) ^ (1 / 3 : ℝ) ≤
+            C * (n : ℝ) ^ (1 / 3 : ℝ) :=
+        le_mul_of_one_le_left hCubeNonneg hC
+      nlinarith
+
+/-- Fixed-index quantitative form of uniform amplification.  The capacity
+failure and uniform-colouring failure are combined by a union bound; no
+independence is assumed. -/
+theorem cochromaticUpperEvent_compl_probability_le_exp_add
+    (n k : ℕ) (C Lambda r epsilon : ℝ)
+    (hn : 2 ≤ n) (hLambda : 0 ≤ Lambda) (hr : 0 ≤ r)
+    (hC : 1 ≤ C)
+    (hSeed : Real.exp (-Lambda) ≤
+      (randomGraphMeasure n).real {G | CoColorable G k})
+    (hLinearFailure :
+      (randomGraphMeasure n).real
+          (quarterChainLinearColoringEvent C n)ᶜ ≤ epsilon) :
+    (randomGraphMeasure n).real
+        (cochromaticUpperEvent n k
+          (uniformAmplificationError C n Lambda r))ᶜ ≤
+      Real.exp (-r) + epsilon := by
+  apply failure_probability_le_add_of_two_success_events
+    (randomGraphMeasure n)
+    (capacityAmplificationSuccessEvent n k Lambda r)
+    (quarterChainLinearColoringEvent C n)
+    (cochromaticUpperEvent n k
+      (uniformAmplificationError C n Lambda r))
+    (Set.toFinite _ |>.measurableSet)
+    (Set.toFinite _ |>.measurableSet)
+    (capacityAmplification_inter_linear_subset_cochromaticUpperEvent
+      n k C Lambda r hn hLambda hr hC)
+    (Real.exp (-r)) epsilon
+    (capacityAmplificationSuccessEvent_compl_probability_le
+      n k hn hLambda hr hSeed)
+    hLinearFailure
+
+/-- Quantifier-correct full-sequence form of manuscript Lemma 10.2.  One
+fixed constant and one vanishing error sequence are chosen before all deterministic
+seed, exponent, and radius sequences. -/
+theorem exists_uniform_cochromatic_amplification :
+    ∃ C : ℝ, ∃ epsilon : ℕ → ℝ,
+      1 ≤ C ∧
+      Tendsto epsilon atTop (nhds 0) ∧
+      (∀ n : ℕ, 0 ≤ epsilon n) ∧
+      ∀ (k : ℕ → ℕ) (Lambda r : ℕ → ℝ),
+        (∀ᶠ n in atTop, 0 ≤ Lambda n) →
+        (∀ᶠ n in atTop, 0 < r n) →
+        (∀ᶠ n in atTop,
+          Real.exp (-Lambda n) ≤
+            (randomGraphMeasure n).real
+              {G | CoColorable G (k n)}) →
+        ∀ᶠ n in atTop,
+          (randomGraphMeasure n).real
+              (cochromaticUpperEvent n (k n)
+                (uniformAmplificationError C n (Lambda n) (r n)))ᶜ ≤
+            Real.exp (-r n) + epsilon n := by
+  obtain ⟨C₀, hC₀, hSubset₀⟩ :=
+    exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+  let C : ℝ := C₀ + 1
+  let epsilon : ℕ → ℝ := quarterChainIndependentBlockFailure
+  have hC : 1 ≤ C := by
+    dsimp [C]
+    linarith
+  have hC₀C : C₀ ≤ C := by
+    dsimp [C]
+    linarith
+  have hSubset :
+      ∀ᶠ n : ℕ in atTop,
+        quarterChainIndependentBlockEvent n ⊆
+          quarterChainLinearColoringEvent C n := by
+    filter_upwards [hSubset₀, Filter.eventually_gt_atTop 1]
+      with n hSubsetN hn
+    exact hSubsetN.trans
+      (quarterChainLinearColoringEvent_mono_constant hC₀C hn)
+  have hLinearFailure :
+      ∀ᶠ n : ℕ in atTop,
+        (randomGraphMeasure n).real
+            (quarterChainLinearColoringEvent C n)ᶜ ≤ epsilon n := by
+    exact
+      quarterChainLinearColoringEvent_compl_probability_le_failure_eventually
+        C hSubset
+  refine ⟨C, epsilon, hC, ?_, ?_, ?_⟩
+  · exact quarterChainIndependentBlockFailure_tendsto_zero
+  · exact quarterChainIndependentBlockFailure_nonneg
+  · intro k Lambda r hLambda hr hSeed
+    filter_upwards
+        [eventually_ge_atTop (2 : ℕ), hLambda, hr, hSeed, hLinearFailure]
+      with n hn hLambdaN hrN hSeedN hLinearFailureN
+    exact cochromaticUpperEvent_compl_probability_le_exp_add
+      n (k n) C (Lambda n) (r n) (epsilon n)
+      hn hLambdaN hrN.le hC hSeedN hLinearFailureN
+
+#print axioms quarterChainLinearColoringEvent_mono_constant
+#print axioms cochromaticCapacityDeficitRadius_lt_displayed
+#print axioms capacityAmplification_inter_linear_subset_cochromaticUpperEvent
+#print axioms cochromaticUpperEvent_compl_probability_le_exp_add
+#print axioms exists_uniform_cochromatic_amplification
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10UniformAmplification
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10UniformAmplification
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10UniformAmplificationSpecialization
+Source: Erdos625/Section10UniformAmplificationSpecialization.lean
+Normalized SHA-256: a6497daa579e25739df458e8582b563bd0c86b73d22aedfc879d61c85352626f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10UniformAmplificationSpecialization
+
+/-!
+# Section X: specialization of uniform amplification to the manuscript scales
+
+This module specializes the quantifier-correct uniform amplification theorem
+to the deterministic radius
+
+`r_n = sqrt (n / (log n)^4)`.
+
+The seed exponent remains an arbitrary nonnegative sequence satisfying the
+explicit little-`o` hypothesis from the manuscript.  No concrete Section IX
+estimate is proved or imported here.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set Asymptotics
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- The error displayed by the uniform event theorem is exactly the
+deterministic amplification error after inserting the manuscript radius. -/
+theorem uniformAmplificationError_amplificationRadius_eq
+    (C : ℝ) (Lambda : ℕ → ℝ) (n : ℕ) :
+    uniformAmplificationError C n (Lambda n) (amplificationRadius n) =
+      amplificationError C Lambda n := by
+  rw [uniformAmplificationError, amplificationError]
+  ring
+
+/-- The exponential failure term attached to the manuscript radius vanishes
+along the full natural-number sequence. -/
+theorem exp_neg_amplificationRadius_tendsto_zero :
+    Tendsto (fun n : ℕ => Real.exp (-amplificationRadius n))
+      atTop (nhds 0) :=
+  Real.tendsto_exp_atBot.comp
+    (tendsto_neg_atTop_atBot.comp amplificationRadius_tendsto_atTop)
+
+/-- A vanishing real complement probability implies that the corresponding
+events have probability tending to one.  The probability spaces may vary
+with the index. -/
+theorem tendsto_measure_one_of_compl_real_tendsto_zero
+    {Omega : ℕ → Type*}
+    [∀ n, MeasurableSpace (Omega n)]
+    (mu : ∀ n, Measure (Omega n))
+    [∀ n, IsProbabilityMeasure (mu n)]
+    (A : ∀ n, Set (Omega n))
+    (hMeas : ∀ n, MeasurableSet (A n))
+    (hFailure :
+      Tendsto (fun n => (mu n).real (A n)ᶜ) atTop (nhds 0)) :
+    Tendsto (fun n => mu n (A n)) atTop (nhds 1) := by
+  have hSuccessIdentity : ∀ n,
+      (mu n).real (A n) = 1 - (mu n).real (A n)ᶜ := by
+    intro n
+    have hCompl := measureReal_compl (μ := mu n) (hMeas n)
+    rw [probReal_univ] at hCompl
+    linarith
+  have hSuccessReal :
+      Tendsto (fun n => (mu n).real (A n)) atTop (nhds (1 : ℝ)) := by
+    have hSub :
+        Tendsto (fun n => (1 : ℝ) - (mu n).real (A n)ᶜ)
+          atTop (nhds (1 - 0)) :=
+      tendsto_const_nhds.sub hFailure
+    convert hSub using 1
+    · funext n
+      exact hSuccessIdentity n
+    · norm_num
+  exact
+    (ENNReal.tendsto_toReal_iff
+      (fun n => measure_ne_top (mu n) (A n))
+      ENNReal.one_ne_top).mp (by
+        simpa only [Measure.real, ENNReal.toReal_one] using hSuccessReal)
+
+/-- Quantifier-faithful specialization of uniform amplification to the
+manuscript radius.  One absolute constant and one parameter-independent
+vanishing error sequence are chosen before the seed threshold and exponent
+sequences.  Under only the displayed seed and little-`o` hypotheses, the
+resulting deterministic loss is negligible on the target scale and the
+cochromatic upper event has probability tending to one. -/
+theorem exists_uniform_cochromatic_amplification_at_manuscript_scales :
+    ∃ C : ℝ, ∃ epsilon : ℕ → ℝ,
+      1 ≤ C ∧
+      Tendsto epsilon atTop (nhds 0) ∧
+      (∀ n : ℕ, 0 ≤ epsilon n) ∧
+      ∀ (k : ℕ → ℕ) (Lambda : ℕ → ℝ),
+        (∀ᶠ n in atTop, 0 ≤ Lambda n) →
+        Lambda =o[atTop] amplificationBase →
+        (∀ᶠ n in atTop,
+          Real.exp (-Lambda n) ≤
+            (randomGraphMeasure n).real
+              {G | CoColorable G (k n)}) →
+        (fun n =>
+          uniformAmplificationError C n
+            (Lambda n) (amplificationRadius n)) =o[atTop] gapBase ∧
+        Tendsto
+          (fun n =>
+            randomGraphMeasure n
+              (cochromaticUpperEvent n (k n)
+                (uniformAmplificationError C n
+                  (Lambda n) (amplificationRadius n))))
+          atTop (nhds 1) := by
+  obtain ⟨C, epsilon, hC, hEpsilon, hEpsilonNonneg, hUniform⟩ :=
+    exists_uniform_cochromatic_amplification
+  refine ⟨C, epsilon, hC, hEpsilon, hEpsilonNonneg, ?_⟩
+  intro k Lambda hLambdaNonneg hLambdaSmall hSeed
+  have hError :
+      (fun n =>
+        uniformAmplificationError C n
+          (Lambda n) (amplificationRadius n)) =o[atTop] gapBase := by
+    simpa only [uniformAmplificationError_amplificationRadius_eq] using
+      amplificationError_isLittleO_gapBase
+        C Lambda hLambdaNonneg hLambdaSmall
+  have hRadiusPos :
+      ∀ᶠ n : ℕ in atTop, 0 < amplificationRadius n :=
+    amplificationRadius_tendsto_atTop.eventually_gt_atTop 0
+  have hFailureUpper :
+      ∀ᶠ n : ℕ in atTop,
+        (randomGraphMeasure n).real
+            (cochromaticUpperEvent n (k n)
+              (uniformAmplificationError C n
+                (Lambda n) (amplificationRadius n)))ᶜ ≤
+          Real.exp (-amplificationRadius n) + epsilon n :=
+    hUniform k Lambda amplificationRadius
+      hLambdaNonneg hRadiusPos hSeed
+  have hUpperZero :
+      Tendsto
+        (fun n => Real.exp (-amplificationRadius n) + epsilon n)
+        atTop (nhds 0) := by
+    convert exp_neg_amplificationRadius_tendsto_zero.add hEpsilon using 1
+    norm_num
+  have hFailure :
+      Tendsto
+        (fun n =>
+          (randomGraphMeasure n).real
+            (cochromaticUpperEvent n (k n)
+              (uniformAmplificationError C n
+                (Lambda n) (amplificationRadius n)))ᶜ)
+        atTop (nhds 0) := by
+    exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+      tendsto_const_nhds hUpperZero
+      (Filter.Eventually.of_forall fun _ => measureReal_nonneg)
+      hFailureUpper
+  refine ⟨hError, ?_⟩
+  exact tendsto_measure_one_of_compl_real_tendsto_zero
+    randomGraphMeasure
+    (fun n =>
+      cochromaticUpperEvent n (k n)
+        (uniformAmplificationError C n
+          (Lambda n) (amplificationRadius n)))
+    (fun n => Set.toFinite
+      (cochromaticUpperEvent n (k n)
+        (uniformAmplificationError C n
+          (Lambda n) (amplificationRadius n))) |>.measurableSet)
+    hFailure
+
+#print axioms uniformAmplificationError_amplificationRadius_eq
+#print axioms exp_neg_amplificationRadius_tendsto_zero
+#print axioms tendsto_measure_one_of_compl_real_tendsto_zero
+#print axioms exists_uniform_cochromatic_amplification_at_manuscript_scales
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10UniformAmplificationSpecialization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10UniformAmplificationSpecialization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+Source: Erdos625/Section10CoColorablePaleyZygmundSeed.lean
+Normalized SHA-256: f43c30f550dfa6ad49a9c347781a8af5d02a644ac52a5460e173502e3a91c0f3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+
+/-!
+# Sections IX--X D4: count-to-cocolourable real seed
+
+This task is a generic second-moment adapter.  The construction and moment
+estimates for the count remain entirely external inputs.
+-/
+
+namespace Erdos625
+
+open MeasureTheory Set
+open scoped ENNReal NNReal ProbabilityTheory
+
+/-- Any measurable nonnegative count whose positivity certifies a
+`k`-cocolouring supplies the corresponding real-valued Paley--Zygmund seed
+under the random-graph law. -/
+theorem coColorable_real_seed_of_count
+    (n k : Nat) (Z : LabeledGraph n -> ENNReal)
+    (hZ : Measurable Z)
+    (hPositive : ∀ G, 0 < Z G -> CoColorable G k) :
+    (((∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+        (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n))).toReal ≤
+      (randomGraphMeasure n).real {G | CoColorable G k}) := by
+  have hPZ := paleyZygmund_zero (mu := randomGraphMeasure n) hZ
+  have hMono :
+      (randomGraphMeasure n) {G | 0 < Z G} ≤
+        (randomGraphMeasure n) {G | CoColorable G k} := by
+    apply measure_mono
+    intro G hG
+    exact hPositive G hG
+  have hENN :
+      (∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+          (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n)) ≤
+        (randomGraphMeasure n) {G | CoColorable G k} :=
+    hPZ.trans hMono
+  rw [Measure.real]
+  apply (ENNReal.toReal_le_toReal
+    (ne_top_of_le_ne_top
+      (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k}) hENN)
+    (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k})).2
+  exact hENN
+
+end Erdos625
+
+#print axioms Erdos625.coColorable_real_seed_of_count
+
+end Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10_11UniformSeedRootFinal
+Source: Erdos625/Section10_11UniformSeedRootFinal.lean
+Normalized SHA-256: b5cf75684c85c863ecfeb5e2648a130bbfe1d59ceb230fc16d113bc7d476ff83
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10_11UniformSeedRootFinal
+
+/-!
+# Sections X--XI D3: uniform seed/root final wrapper
+
+The substantive seed, chromatic at-most tail, and root separation remain
+explicit hypotheses.  This task only composes accepted amplification and
+event-assembly theorems.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory Set Asymptotics
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- A concrete nonnegative little-o cocolouring seed, a probability-zero
+chromatic at-most tail, and the explicit root corridor imply the final target
+through uniform amplification at the manuscript scales. -/
+theorem erdos625Statement_of_uniform_seed_and_root
+    (kChi kCo : Nat -> Nat) (Lambda rho : Nat -> Real)
+    (hLambdaNonneg : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hLambdaSmall : Lambda =o[atTop] amplificationBase)
+    (hSeed : ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real {G | CoColorable G (kCo n)})
+    (hChromaticAtMost : Tendsto
+      (fun n => randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0))
+    (hrho : Tendsto rho atTop (nhds 0))
+    (hroot : ∀ᶠ n in atTop,
+      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : Real)) - rho n) *
+          baseScale n ≤
+        (kChi n : Real) - (kCo n : Real)) :
+    Erdos625Statement := by
+  obtain ⟨C, epsilon, hC, hEpsilon, hEpsilonNonneg, hUniform⟩ :=
+    exists_uniform_cochromatic_amplification_at_manuscript_scales
+  have hAmplification :=
+    hUniform kCo Lambda hLambdaNonneg hLambdaSmall hSeed
+  let a : ℕ → ℝ := fun n =>
+    uniformAmplificationError C n (Lambda n) (amplificationRadius n)
+  have haGap : a =o[atTop] gapBase := by
+    simpa only [a] using hAmplification.1
+  have haBase : a =o[atTop] baseScale := by
+    change a =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3)
+    change a =o[atTop]
+      (fun n : ℕ => (n : ℝ) / (Real.log (n : ℝ)) ^ 3) at haGap
+    exact haGap
+  have hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n) := by
+    simpa only [gapScale, gapConstant, baseScale, mul_div_assoc] using
+      eventually_explicit_gap_threshold kChi kCo a rho hrho haBase hroot
+  have hCochromaticTail : Tendsto
+      (fun n => randomGraphMeasure n
+        (cochromaticUpperEvent n (kCo n) (a n)))
+      atTop (nhds 1) := by
+    simpa only [a] using hAmplification.2
+  have hChromaticTail :=
+    chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+      kChi hChromaticAtMost
+  exact erdos625Statement_of_chromatic_cochromatic_thresholds
+    kChi kCo a hChromaticTail hCochromaticTail hGapThreshold
+
+#print axioms erdos625Statement_of_uniform_seed_and_root
+
+end
+
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10_11UniformSeedRootFinal
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10_11UniformSeedRootFinal
 ========================================================================== -/
 
 /- ==========================================================================
@@ -13170,6 +16048,146 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDeficitConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDeficitConvergence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
+Source: Erdos625/FourDeficitScoreConvergence.lean
+Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourDeficitScoreConvergence
+
+/-!
+# E1: exact four-deficit scores and uniform convergence
+
+The four coordinates are the manuscript deficits `2,3,4,5`.  This file
+bridges their exact finite descending-factorial scores to the accepted
+four-point optimized-value stability theorem.
+-/
+
+open Filter
+open scoped Topology
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Manuscript deficits `2,3,4,5`, indexed by `Fin 4`. -/
+def fourDeficit (i : Fin 4) : Nat := i.1 + 2
+
+/-- Exact finite score after removal of the affine profile terms. -/
+def fourDeficitScore (alpha : Nat) (i : Fin 4) : Real :=
+  Real.log (alpha.descFactorial (fourDeficit i) : Real) -
+    (fourDeficit i : Real) * Real.log (alpha : Real) -
+      q / 2 * (fourDeficit i : Real) ^ 2
+
+/-- Limiting Gaussian score on the support `2,3,4,5`. -/
+def fourGaussianScore (i : Fin 4) : Real :=
+  -(q / 2) * ProfileEntropyS4.support i ^ 2
+
+@[simp] theorem fourDeficit_zero : fourDeficit 0 = 2 := by
+  rfl
+
+@[simp] theorem fourDeficit_one : fourDeficit 1 = 3 := by
+  rfl
+
+@[simp] theorem fourDeficit_two : fourDeficit 2 = 4 := by
+  rfl
+
+@[simp] theorem fourDeficit_three : fourDeficit 3 = 5 := by
+  rfl
+
+@[simp] theorem fourDeficit_cast_eq_support (i : Fin 4) :
+    (fourDeficit i : Real) = ProfileEntropyS4.support i := by
+  simp [fourDeficit, ProfileEntropyS4.support]
+
+/-- The closed formula is the literal growing-profile residual score at the
+coordinate whose deficit is `fourDeficit i`. -/
+theorem profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+    (alpha : Nat) (i : Fin 4) (h : fourDeficit i < alpha) :
+    profileDeficitResidualScore alpha
+        (Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)) =
+      fourDeficitScore alpha i := by
+  have hsize :
+      (Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)).1 + 1 ≤ alpha := by
+    rw [Fin.val_rev, Fin.val_succ]
+    omega
+  have hsub :
+      alpha -
+          ((Fin.rev ((⟨fourDeficit i, h⟩ : Fin alpha).succ)).1 + 1) =
+        fourDeficit i := by
+    rw [Fin.val_rev, Fin.val_succ]
+    change
+      alpha - (alpha + 1 - (fourDeficit i + 1 + 1) + 1) =
+        fourDeficit i
+    omega
+  rw [profileDeficitResidualScore_eq_descFactorial alpha _ hsize, hsub]
+  rfl
+
+/-- Pointwise convergence of each one of the four exact scores. -/
+theorem tendsto_fourDeficitScore (i : Fin 4) :
+    Tendsto
+      (fun alpha : Nat => fourDeficitScore alpha i)
+      atTop
+      (nhds (fourGaussianScore i)) := by
+  have hcorr := tendsto_log_descFactorial_sub_mul_log (fourDeficit i)
+  have hscore := hcorr.sub_const
+    (q / 2 * (fourDeficit i : Real) ^ 2)
+  simpa [fourDeficitScore, fourGaussianScore,
+    fourDeficit_cast_eq_support] using hscore
+
+/-- One threshold works simultaneously for all four deficit coordinates. -/
+theorem eventually_uniform_fourDeficitScore :
+    ∀ epsilon > 0, ∃ N : Nat, ∀ alpha ≥ N, ∀ i : Fin 4,
+      |fourDeficitScore alpha i - fourGaussianScore i| < epsilon := by
+  intro epsilon hepsilon
+  obtain ⟨N0, hN0⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (0 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N1, hN1⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (1 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N2, hN2⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (2 : Fin 4)))
+      epsilon hepsilon
+  obtain ⟨N3, hN3⟩ :=
+    (Metric.tendsto_atTop.mp (tendsto_fourDeficitScore (3 : Fin 4)))
+      epsilon hepsilon
+  refine ⟨max (max N0 N1) (max N2 N3), fun alpha halpha i ↦ ?_⟩
+  fin_cases i
+  · simpa [Real.dist_eq] using hN0 alpha (by omega)
+  · simpa [Real.dist_eq] using hN1 alpha (by omega)
+  · simpa [Real.dist_eq] using hN2 alpha (by omega)
+  · simpa [Real.dist_eq] using hN3 alpha (by omega)
+
+/-- Uniform score convergence transfers directly to optimized values for one
+common threshold and every interior target `T in (2,5)`. -/
+theorem eventually_uniform_fourDeficitOptimizedValue :
+    ∀ epsilon > 0, ∃ N : Nat, ∀ alpha ≥ N,
+      ∀ T ∈ Set.Ioo (2 : Real) 5,
+        |ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) T -
+          ProfileEntropyS4.optimizedValue fourGaussianScore T| < epsilon := by
+  exact
+    ProfileEntropyS4.eventually_uniform_optimizedValue_on_Ioo_of_uniform_scores
+      fourDeficitScore fourGaussianScore eventually_uniform_fourDeficitScore
+
+end
+
+#print axioms fourDeficit_zero
+#print axioms fourDeficit_one
+#print axioms fourDeficit_two
+#print axioms fourDeficit_three
+#print axioms fourDeficit_cast_eq_support
+#print axioms profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+#print axioms tendsto_fourDeficitScore
+#print axioms eventually_uniform_fourDeficitScore
+#print axioms eventually_uniform_fourDeficitOptimizedValue
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourDeficitScoreConvergence
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
@@ -22484,6 +25502,479 @@ END SOURCE MODULE: Erdos625.Section9ActualResidualWeightedEmbedding
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualENNRealPolymerBridge
+Source: Erdos625/Section9ActualResidualENNRealPolymerBridge.lean
+Normalized SHA-256: aaa4495d6782dc121d13fb857c88c642fdddd557ede8fe2c8fb74d829ae6c825
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealPolymerBridge
+
+/-!
+# Section IX: actual-residual `ENNReal` polymer bridge
+
+This module gives a finite, nonnegative-extended-real version of the
+actual-residual polymer-product estimate.  It reconstructs the finite
+even-subgraph decomposition locally: an even edge set is written as a
+recoverable, pairwise edge-disjoint family of inclusion-minimal even edge
+sets.  The actual residual family is then embedded into the unrestricted
+even-edge family using the already checked literal-family inclusion.
+
+The result is only a finite algebraic estimate.  It does not identify the
+conditioned residual law, connect the weights to `residualQ`, bound the
+polymer product by a traversal series, or prove any Section IX probability
+estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Product of the `ENNReal` cell weights on the edges of `F` outside `M`. -/
+def edgeWeightOutsideENN
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A -> B -> ENNReal) (M F : Finset (A × B)) : ENNReal :=
+  ∏ e ∈ F \ M, q e.1 e.2
+
+private lemma ennreal_bipartiteEven_sdiff
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {D F : Finset (A × B)} (hDF : D ⊆ F)
+    (hF : IsBipartiteEven F) (hD : IsBipartiteEven D) :
+    IsBipartiteEven (F \ D) := by
+  constructor
+  · intro a
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.1 = a) F) =
+          Finset.card (Finset.filter (fun e => e.1 = a) D) +
+            Finset.card (Finset.filter (fun e => e.1 = a) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.1 a)).mp (hD.1 a)
+  · intro b
+    have h_card_diff :
+        Finset.card (Finset.filter (fun e => e.2 = b) F) =
+          Finset.card (Finset.filter (fun e => e.2 = b) D) +
+            Finset.card (Finset.filter (fun e => e.2 = b) (F \ D)) := by
+      rw [← Finset.card_union_of_disjoint]
+      · congr with e
+        by_cases he : e ∈ D <;> aesop
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          Finset.mem_sdiff.mp (Finset.mem_filter.mp hx₂).1 |>.2
+            (Finset.mem_filter.mp hx₁).1
+    replace h_card_diff := congr_arg Even h_card_diff
+    simp_all +decide [parity_simps]
+    exact (h_card_diff.mp (hF.2 b)).mp (hD.2 b)
+
+private lemma ennreal_exists_minimal_even_subset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {F : Finset (A × B)} (hF : IsBipartiteEven F) (hne : F.Nonempty) :
+    ∃ C, C ⊆ F ∧ IsSimpleBipartiteCycle C := by
+  obtain ⟨C, hC⟩ :
+      ∃ C ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+        ∀ D ∈ {S : Finset (A × B) | S ⊆ F ∧ IsBipartiteEven S ∧ S.Nonempty},
+          C.card ≤ D.card := by
+    apply_rules [Set.exists_min_image]
+    · exact Set.toFinite _
+    · exact ⟨F, ⟨Finset.Subset.refl _, hF, hne⟩⟩
+  refine ⟨C, hC.1.1, hC.1.2.1, hC.1.2.2, ?_⟩
+  intro D hDC hD hDne
+  exact Finset.eq_of_subset_of_card_le hDC
+    (hC.2 D ⟨Finset.Subset.trans hDC hC.1.1, hD, hDne⟩ |>
+      le_trans <| by simp +decide)
+
+private lemma ennreal_exists_disjoint_cycle_decomposition
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (F : Finset (A × B)) (hF : IsBipartiteEven F) :
+    ∃ s : Finset (Finset (A × B)),
+      s ⊆ simpleBipartiteCycles A B ∧
+      F = s.biUnion id ∧
+      (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+  induction' F using Finset.strongInduction with F ih
+  by_cases hF_empty : F = ∅
+  · exact ⟨∅, by simp +decide [hF_empty]⟩
+  · obtain ⟨C, hC⟩ : ∃ C ⊆ F, IsSimpleBipartiteCycle C := by
+      exact ennreal_exists_minimal_even_subset hF
+        (Finset.nonempty_of_ne_empty hF_empty) |>
+          fun ⟨C, hC₁, hC₂⟩ => ⟨C, hC₁, hC₂⟩
+    obtain ⟨s, hs⟩ :
+        ∃ s ⊆ simpleBipartiteCycles A B,
+          F \ C = s.biUnion id ∧
+            ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂ := by
+      apply ih (F \ C)
+      · simp_all +decide [Finset.ssubset_def, Finset.subset_iff]
+        exact Exists.elim hC.2.2.1 fun x hx => ⟨_, _, hC.1 _ _ hx, hx⟩
+      · exact ennreal_bipartiteEven_sdiff hC.1 hF hC.2.1
+    refine ⟨Insert.insert C s, ?_, ?_, ?_⟩ <;>
+      simp_all +decide [Finset.subset_iff]
+    · unfold simpleBipartiteCycles
+      aesop
+    · grind
+    · simp_all +decide [Finset.ext_iff, Finset.disjoint_left]
+      grind +ring
+
+private lemma ennreal_biUnion_recovery_injective
+    {α : Type*} [DecidableEq α]
+    (U : Finset (Finset α)) (s : Finset α → Finset (Finset α))
+    (hrecover : ∀ F ∈ U, F = (s F).biUnion id) :
+    ∀ F ∈ U, ∀ G ∈ U, s F = s G → F = G := by
+  intro F hF G hG hFG
+  rw [hrecover F hF, hrecover G hG, hFG]
+
+private lemma edgeWeightOutsideENN_biUnion
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (s : Finset (Finset (A × B)))
+    (hdisj : ∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) :
+    edgeWeightOutsideENN q M (s.biUnion id) =
+      ∏ C ∈ s, edgeWeightOutsideENN q M C := by
+  unfold edgeWeightOutsideENN
+  rw [← Finset.prod_biUnion]
+  · rcongr e
+    aesop
+  · exact fun x hx y hy hxy =>
+      Disjoint.mono Finset.sdiff_subset Finset.sdiff_subset
+        (hdisj x hx y hy hxy)
+
+/-- The finite `ENNReal` polymer-product bound for all even bipartite edge
+sets.  It uses no finiteness or positivity hypothesis on the weights beyond
+their `ENNReal` type. -/
+theorem weighted_evenSubgraph_ennreal_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B)) :
+    (∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) := by
+  have h_decomp :
+      ∀ F ∈ bipartiteEvenEdgeSets A B,
+        ∃ s : Finset (Finset (A × B)),
+          s ⊆ simpleBipartiteCycles A B ∧
+          F = s.biUnion id ∧
+          (∀ C₁ ∈ s, ∀ C₂ ∈ s, C₁ ≠ C₂ → Disjoint C₁ C₂) := by
+    intro F hF
+    exact ennreal_exists_disjoint_cycle_decomposition F (by
+      unfold bipartiteEvenEdgeSets at hF
+      aesop)
+  choose! s hs using h_decomp
+  have h_inj := ennreal_biUnion_recovery_injective
+    (bipartiteEvenEdgeSets A B) s (fun F hF ↦ (hs F hF).2.1)
+  have h_sum_prod :
+      ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F ≤
+        ∑ s' ∈ Finset.powerset (simpleBipartiteCycles A B),
+          ∏ C ∈ s', edgeWeightOutsideENN q M C := by
+    have h_sum_prod :
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F ≤
+          ∑ s' ∈ Finset.image s (bipartiteEvenEdgeSets A B),
+            ∏ C ∈ s', edgeWeightOutsideENN q M C := by
+      rw [Finset.sum_image]
+      · refine Finset.sum_le_sum fun F hF => ?_
+        rw [(hs F hF).2.1, edgeWeightOutsideENN_biUnion]
+        · rw [← (hs F hF).2.1]
+        · exact (hs F hF).2.2
+      · exact h_inj
+    apply le_trans h_sum_prod
+    apply Finset.sum_le_sum_of_subset
+    exact Finset.image_subset_iff.mpr fun F hF =>
+      Finset.mem_powerset.mpr (hs F hF).1
+  convert h_sum_prod using 1
+  simp +decide [add_comm, Finset.prod_add]
+
+local instance fintypeActualResidualEvenEdgeFamilyENNReal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+
+/-- The literal actual residual even-edge family is bounded by the finite
+`ENNReal` polymer product.  The matching hypothesis is retained for the
+Section IX interface; this finite algebraic estimate only uses `M` to omit
+the corresponding edge weights. -/
+theorem sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B))
+    (q : A → B → ENNReal)
+    (_hM : IsBipartiteMatching M) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutsideENN q M F := by
+      simpa only [edgeWeightOutsideENN] using
+        (sum_actualResidualEvenEdgeFamily_weight_le_all_even cellCount M q)
+    _ ≤ ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutsideENN q M C) :=
+      weighted_evenSubgraph_ennreal_polymer_product q M
+
+#print axioms weighted_evenSubgraph_ennreal_polymer_product
+#print axioms sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualENNRealPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualENNRealExpBridge
+Source: Erdos625/Section9ActualResidualENNRealExpBridge.lean
+Normalized SHA-256: db0d11937fcec6b443070cdd9f4b5690a0376eed3f75b54a89e9685f3fe8c8b5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealExpBridge
+
+/-!
+# Section IX: actual-residual `ENNReal` exponential endpoint
+
+This isolated module turns the finite `ENNReal` polymer product into an
+extended-real exponential bound.  Writing the exponent in `EReal` is
+intentional: it remains meaningful when a finite polymer weight is `∞`.
+
+It is a finite algebraic endpoint only.  It does not identify the conditioned
+residual law, connect the weights to `residualQ`, encode cycles as walks, or
+prove a Section IX probability estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance fintypeActualResidualEvenEdgeFamilyENNRealExp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+/-- The elementary finite-or-infinite `ENNReal` exponential estimate. -/
+theorem ennreal_one_add_le_ereal_exp (x : ENNReal) :
+    1 + x ≤ EReal.exp (x : EReal) := by
+  by_cases hx : x = ∞
+  · simp [hx]
+  calc
+    1 + x = ENNReal.ofReal (1 + x.toReal) := by
+      rw [ENNReal.ofReal_add zero_le_one ENNReal.toReal_nonneg,
+        ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
+    _ ≤ ENNReal.ofReal (Real.exp x.toReal) :=
+      ENNReal.ofReal_le_ofReal
+        (by simpa [add_comm] using Real.add_one_le_exp x.toReal)
+    _ = EReal.exp (x : EReal) := by
+      rw [← EReal.coe_ennreal_toReal hx, EReal.exp_coe]
+
+/-- A finite `ENNReal` polymer product is bounded by the corresponding
+extended-real exponential, including the case of an infinite weight. -/
+theorem ennreal_polymer_product_le_ereal_exp_sum
+    {ι : Type*} [DecidableEq ι] (s : Finset ι) (w : ι → ENNReal) :
+    (∏ i ∈ s, (1 + w i)) ≤
+      EReal.exp ((↑(∑ i ∈ s, w i) : ENNReal) : EReal) := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert a s ha ih =>
+      rw [Finset.prod_insert ha, Finset.sum_insert ha,
+        EReal.coe_ennreal_add, EReal.exp_add]
+      exact mul_le_mul' (ennreal_one_add_le_ereal_exp (w a)) ih
+
+/-- The actual residual even-edge family is bounded by the extended-real
+exponential of the total finite polymer weight. -/
+theorem sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A → B → ℕ) (M : Finset (A × B))
+    (q : A → B → ENNReal)
+    (_hM : IsBipartiteMatching M) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+      EReal.exp ((↑(∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) : ENNReal) : EReal) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutsideENN q M F.1) ≤
+        ∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN q M C) :=
+      sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+        cellCount M q _hM
+    _ ≤ EReal.exp ((↑(∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) : ENNReal) : EReal) :=
+      ennreal_polymer_product_le_ereal_exp_sum
+        (simpleBipartiteCycles A B)
+        (fun C => edgeWeightOutsideENN q M C)
+
+#print axioms ennreal_one_add_le_ereal_exp
+#print axioms ennreal_polymer_product_le_ereal_exp_sum
+#print axioms sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualENNRealExpBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualENNRealExpBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualRealPolymerBridge
+Source: Erdos625/Section9ActualResidualRealPolymerBridge.lean
+Normalized SHA-256: 6e26ffed984ff97f57cbbf861025bb3f1f5cc3263a40df2e68da4a6293c621cd
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualRealPolymerBridge
+
+/-!
+# Section IX: actual-residual real polymer bridge
+
+For nonnegative real cell weights, the literal actual residual even-edge
+family is a weighted subfamily of all finite bipartite even edge sets.  This
+module composes that finite inclusion with the established real-valued polymer
+bound.  It is deliberately separate from the `ENNReal` inclusion: it does not
+identify a residual probability law, specialize `residualQ`, supply an
+`ENNReal` polymer theorem, or provide a cycle-to-walk or attachment estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+local instance fintypeActualResidualEvenEdgeFamilyReal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B)) :
+    Fintype (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) := by
+  letI : Finite (ActualResidualEvenEdgeFamily cellCount
+      (fun a b => (a, b) ∈ M)) :=
+    Finite.of_injective Subtype.val Subtype.val_injective
+  exact Fintype.ofFinite _
+
+/-- For nonnegative real cell weights, the actual residual even-edge family
+is a weighted subfamily of all finite bipartite even edge sets. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F := by
+  classical
+  have hvalInj : Function.Injective
+      (fun F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M) => F.1) :=
+    Subtype.val_injective
+  have hsubset :
+      Finset.image
+          (fun F : ActualResidualEvenEdgeFamily cellCount
+            (fun a b => (a, b) ∈ M) => F.1)
+          Finset.univ ⊆
+        bipartiteEvenEdgeSets A B := by
+    intro F hF
+    rcases Finset.mem_image.mp hF with ⟨G, _, rfl⟩
+    simp only [bipartiteEvenEdgeSets, Finset.mem_filter,
+      Finset.mem_univ, true_and]
+    exact (bipartiteEvenEdgeSet_iff_isBipartiteEven G.1).mp G.2.1
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M), edgeWeightOutside q M F.1) =
+        ∑ F ∈ Finset.image
+            (fun G : ActualResidualEvenEdgeFamily cellCount
+              (fun a b => (a, b) ∈ M) => G.1)
+            Finset.univ, edgeWeightOutside q M F := by
+      symm
+      rw [Finset.sum_image]
+      exact fun _ _ _ _ hxy => hvalInj hxy
+    _ ≤ ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F := by
+      apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
+      intro F hF hnotmem
+      exact Finset.prod_nonneg fun e he => hq e.1 e.2
+
+/-- The finite real actual-residual weighted sum is bounded by the established
+polymer product whenever the distinguished high-cell set is a matching. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hM : IsBipartiteMatching M)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C) := by
+  calc
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M), edgeWeightOutside q M F.1) ≤
+        ∑ F ∈ bipartiteEvenEdgeSets A B, edgeWeightOutside q M F :=
+      sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+        cellCount M q hq
+    _ ≤ ∏ C ∈ simpleBipartiteCycles A B,
+        (1 + edgeWeightOutside q M C) :=
+      (weighted_evenSubgraph_polymer_bound q M hM hq).1
+
+/-- The same finite real bridge continues to the exponential endpoint of the
+established polymer theorem.  This remains a finite algebraic statement. -/
+theorem sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : Finset (A × B))
+    (q : A -> B -> Real)
+    (hM : IsBipartiteMatching M)
+    (hq : ∀ a b, 0 ≤ q a b) :
+    (∑ F : ActualResidualEvenEdgeFamily cellCount
+        (fun a b => (a, b) ∈ M),
+      edgeWeightOutside q M F.1) ≤
+      Real.exp (∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutside q M C) := by
+  exact le_trans
+    (sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+      cellCount M q hM hq)
+    (weighted_evenSubgraph_polymer_bound q M hM hq).2
+
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+#print axioms sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualRealPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualRealPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ChooseTwoMass
 Source: Erdos625/Section9ChooseTwoMass.lean
 Normalized SHA-256: 7eee57ca52d6da9b2cd2950e599485a3e6016656d1145ebeb31ad7fc1607fb62
@@ -23418,6 +26909,311 @@ END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
+Source: Erdos625/Section6CompatibleSignsComponents.lean
+Normalized SHA-256: e6a49d310ddaffa34d28b4c35c5f50ecda1f09ee1095e825078ab51f3360a7fa
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6CompatibleSignsComponents
+
+/-!
+# E3: compatible Boolean signs and connected components
+
+This file isolates the exact finite component-sign count used in the signed
+overlap argument.  It contains no probability or asymptotic assertion.
+-/
+
+namespace Erdos625
+
+open SimpleGraph
+
+noncomputable section
+
+/-- Boolean vertex signs that agree across every graph edge. -/
+def CompatibleBoolSignAssignments
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :=
+  {sigma : V -> Bool //
+    forall u v : V, G.Adj u v -> sigma u = sigma v}
+
+/-- A compatible Boolean sign assignment is exactly one Boolean choice per
+connected component, including isolated vertices. -/
+noncomputable def compatibleBoolSignAssignmentsEquivComponents
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    CompatibleBoolSignAssignments G ≃
+      (G.ConnectedComponent -> Bool) := by
+  let toFun : CompatibleBoolSignAssignments G → G.ConnectedComponent → Bool := fun sigma =>
+    SimpleGraph.ConnectedComponent.lift sigma.1 (by
+      intro u v p hp
+      induction p with
+      | nil => rfl
+      | cons hadj p ih =>
+          have hpt : p.IsPath := by simpa using hp.tail
+          exact (sigma.2 _ _ hadj).trans (ih hpt))
+  let invFun : (G.ConnectedComponent → Bool) → CompatibleBoolSignAssignments G := fun f =>
+    ⟨fun v => f (G.connectedComponentMk v), by
+      intro u v huv
+      exact congrArg f
+        (SimpleGraph.ConnectedComponent.connectedComponentMk_eq_of_adj huv)⟩
+  refine ⟨toFun, invFun, ?_, ?_⟩
+  · intro sigma
+    apply Subtype.ext
+    funext v
+    rfl
+  · intro f
+    funext c
+    induction c using SimpleGraph.ConnectedComponent.ind with
+    | _ v => rfl
+
+/-- Hence the number of compatible Boolean sign assignments is
+`2 ^ c(G)`. -/
+theorem natCard_compatibleBoolSignAssignments_eq_two_pow_components
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Nat.card (CompatibleBoolSignAssignments G) =
+      2 ^ Fintype.card G.ConnectedComponent := by
+  rw [Nat.card_congr (compatibleBoolSignAssignmentsEquivComponents G), Nat.card_fun,
+    Nat.card_eq_fintype_card]
+  norm_num [Nat.card_eq_fintype_card]
+
+#print axioms compatibleBoolSignAssignmentsEquivComponents
+#print axioms natCard_compatibleBoolSignAssignments_eq_two_pow_components
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6CompatibleSignsComponents
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MinimalEvenCycleTour
+Source: Erdos625/Section9MinimalEvenCycleTour.lean
+Normalized SHA-256: 3c2cde2b1f12d9777a72b30928a72108aefa4a8d55cb96dadf593f3c0c728fc5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MinimalEvenCycleTour
+
+/-!
+# A minimal nonempty even bipartite edge set is one simple cycle
+
+This is the traversal leaf that the mixed-cycle code requires.  The conclusion
+produces an actual `SimpleGraph.Walk.IsCycle`, covers every edge of `C` exactly
+once, and records the finite length bound.  No cyclic ordering is assumed.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-- The simple graph represented by a bipartite cell set. -/
+def cellGraph {A B : Type*} (C : Finset (A × B)) :
+    SimpleGraph (A ⊕ B) :=
+  SimpleGraph.fromRel fun u v ↦
+    match u, v with
+    | Sum.inl a, Sum.inr b => (a, b) ∈ C
+    | _, _ => False
+
+def cellSym2 {A B : Type*} (e : A × B) : Sym2 (A ⊕ B) :=
+  s(Sum.inl e.1, Sum.inr e.2)
+
+open Classical in
+lemma degree_toSimpleGraph_connectedComponent
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (c : G.ConnectedComponent) (x : c) :
+    c.toSimpleGraph.degree x = G.degree x.1 := by
+  refine' Finset.card_bij ( fun y hy => y ) _ _ _ <;> simp +decide;
+  · aesop;
+  · exact fun v hv => ⟨ c.mem_supp_of_adj_mem_supp x.property hv, hv ⟩
+
+lemma finite_nonempty_acyclic_graph_has_degree_one
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (hacyc : G.IsAcyclic) (hne : G ≠ ⊥) :
+    ∃ v, G.degree v = 1 := by
+  -- Let $c$ be a connected component of $G$ that contains at least one edge.
+  obtain ⟨c, hc⟩ : ∃ c : G.ConnectedComponent, Nontrivial c := by
+    obtain ⟨ u, v, h ⟩ := show ∃ u v : V, G.Adj u v from by contrapose! hne; ext u v; aesop;
+    refine' ⟨ G.connectedComponentMk u, _ ⟩;
+    refine' ⟨ ⟨ u, _ ⟩, ⟨ v, _ ⟩, _ ⟩ <;> simp_all +decide;
+    · exact SimpleGraph.ConnectedComponent.connectedComponentMk_mem;
+    · exact Quot.sound ( SimpleGraph.Reachable.symm ( SimpleGraph.Adj.reachable h ) );
+    · exact h.ne;
+  have := @SimpleGraph.IsTree.exists_vert_degree_one_of_nontrivial ( c );
+  contrapose! this;
+  refine' ⟨ c.toSimpleGraph, _, hc, _, _, _ ⟩;
+  exact Fintype.ofFinite ↥c;
+  exact Classical.decRel c.toSimpleGraph.Adj;
+  · exact SimpleGraph.IsAcyclic.isTree_connectedComponent hacyc c;
+  · intro v;
+    convert this v using 1;
+    convert degree_toSimpleGraph_connectedComponent G c v
+
+lemma finite_even_degree_graph_has_cycle
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (heven : ∀ v, Even (G.degree v))
+    (hne : G ≠ ⊥) :
+    ∃ (v : V) (p : G.Walk v v), p.IsCycle := by
+  by_contra h;
+  -- Apply the theorem that states a finite nonempty acyclic graph has a vertex of degree 1.
+  obtain ⟨v, hv⟩ : ∃ v : V, G.degree v = 1 := by
+    apply finite_nonempty_acyclic_graph_has_degree_one G (by
+    intro v p hp; specialize heven v; simp_all +decide ;) hne;
+  exact absurd ( heven v ) ( by simp +decide [ hv ] )
+
+lemma exists_cycleWalk_of_nonempty_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (heven : IsBipartiteEven C) (hne : C.Nonempty) :
+    ∃ (v : A ⊕ B) (p : (cellGraph C).Walk v v), p.IsCycle := by
+  obtain ⟨ v, hv ⟩ := hne;
+  -- Show that the graph is not bottom.
+  have h_nonbottom : cellGraph C ≠ ⊥ := by
+    intro h; have := congr_arg ( fun G => G.Adj ( Sum.inl v.1 ) ( Sum.inr v.2 ) ) h; simp +decide [ cellGraph ] at this;
+    contradiction;
+  convert finite_even_degree_graph_has_cycle ( cellGraph C ) _ h_nonbottom;
+  exact Classical.decRel (cellGraph C).Adj;
+  intro x; cases x <;> simp_all +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ] ;
+  · convert heven.1 ‹_› using 1;
+    refine' Finset.card_bij ( fun x hx => ( ‹_›, x.elim ( fun x => by aesop ) fun x => x ) ) _ _ _ <;> simp +decide [ cellGraph ];
+    aesop;
+  · convert heven.2 _ using 1;
+    convert Finset.card_image_of_injective _ ( show Function.Injective ( fun a : A => Sum.inl a ) from fun a b h => by simpa using h ) using 2;
+    any_goals exact Finset.image Prod.fst ( Finset.filter ( fun e => e.2 = ‹_› ) C );
+    any_goals exact ‹B›;
+    all_goals try infer_instance;
+    · ext; simp [cellGraph];
+      rename_i x; rcases x with ( _ | _ ) <;> simp +decide ;
+    · rw [ Finset.card_image_of_injOn ] ; intro a ha b hb ; aesop
+
+/-
+Every intrinsic simple bipartite cycle admits a genuine cyclic traversal
+whose edge set is exactly the supplied cell set.
+-/
+theorem exists_covering_cycleWalk_of_minimal_even
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (hC : IsSimpleBipartiteCycle C) :
+    ∃ (v : A ⊕ B) (p : (cellGraph C).Walk v v),
+      p.IsCycle ∧
+      p.edges.toFinset = C.image cellSym2 ∧
+      p.length = C.card ∧
+      p.length ≤ Fintype.card (A ⊕ B) := by
+  obtain ⟨ v, p, hp ⟩ := exists_cycleWalk_of_nonempty_even C hC.1 hC.2.1;
+  -- Let $D$ be the set of cells corresponding to the edges of $p$.
+  set D := C.filter (fun e => cellSym2 e ∈ p.edges);
+  -- Show that $D$ is bipartite even.
+  have hD_even : IsBipartiteEven D := by
+    constructor;
+    · intro a
+      have h_card : (Finset.filter (fun e => e.1 = a) D).card = (p.toSubgraph.neighborSet (Sum.inl a)).ncard := by
+        rw [ ← Set.ncard_coe_finset ];
+        fapply Set.ncard_congr;
+        use fun e he => Sum.inr e.2;
+        · simp +zetaDelta at *;
+          rintro a' b' ha' hb' rfl; exact (by
+          exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mpr hb');
+        · grind;
+        · intro b hb
+          obtain ⟨e, he⟩ : ∃ e ∈ p.edges, e = s(Sum.inl a, b) := by
+            simp_all +decide;
+            exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mp hb;
+          rcases b with ( _ | b ) <;> simp_all +decide [ cellGraph ];
+          · have := p.edges_subset_edgeSet he.1; simp_all +decide [cellGraph];
+          · exact Finset.mem_filter.mpr ⟨ by
+              have := p.edges_subset_edgeSet he.1; simp_all +decide [ cellGraph ] ;, by
+              aesop ⟩;
+      by_cases ha : Sum.inl a ∈ p.support <;> simp_all +decide [ SimpleGraph.Walk.IsCycle.ncard_neighborSet_toSubgraph_eq_two ];
+      rw [ show p.toSubgraph.neighborSet ( Sum.inl a ) = ∅ from _ ] ; simp +decide;
+      grind +suggestions;
+    · intro b
+      by_cases hb : Sum.inr b ∈ p.support;
+      · have hD_even_b : (Finset.filter (fun e => e.2 = b) D).card = (p.toSubgraph.neighborSet (Sum.inr b)).ncard := by
+          rw [ ← Set.ncard_coe_finset ];
+          fapply Set.ncard_congr;
+          use fun e he => Sum.inl e.1;
+          · simp +zetaDelta at *;
+            rintro a b ha hb rfl;
+            have h_adj : p.toSubgraph.Adj (Sum.inl a) (Sum.inr b) := by
+              (expose_names; exact SimpleGraph.Walk.adj_toSubgraph_iff_mem_edges.mpr hb_1);
+            exact h_adj.symm;
+          · aesop;
+          · simp +decide;
+            constructor;
+            · intro a ha;
+              have h_edge : cellSym2 (a, b) ∈ p.edges := by
+                exact
+                (SimpleGraph.Walk.mem_edges_toSubgraph p).mp
+                  (id (SimpleGraph.Subgraph.adj_symm p.toSubgraph ha));
+              exact Finset.mem_filter.mpr ⟨ hC.1 |> fun h => by
+                have := p.edges_subset_edgeSet h_edge; simp_all +decide [ cellGraph ] ;
+                cases this ; tauto, h_edge ⟩;
+            · intro b' hb'
+              have h_adj : (cellGraph C).Adj (Sum.inr b) (Sum.inr b') := by
+                exact SimpleGraph.Subgraph.Adj.adj_sub hb';
+              cases h_adj ; aesop;
+        have := hp.ncard_neighborSet_toSubgraph_eq_two hb; aesop;
+      · rw [ Finset.card_eq_zero.mpr ] <;> simp_all +decide [ Finset.ext_iff ];
+        intro a b' hab' hb'; simp_all +decide [ D ] ;
+        have := p.snd_mem_support_of_mem_edges hab'.2; simp_all +decide [ cellGraph ] ;
+  -- Since $D$ is nonempty and bipartite even, by minimality, $D = C$.
+  have hD_eq_C : D = C := by
+    apply hC.2.2 D (Finset.filter_subset _ _) hD_even;
+    obtain ⟨e, he⟩ : ∃ e ∈ p.edges, ∃ a b, e = s(Sum.inl a, Sum.inr b) := by
+      rcases p with ( _ | ⟨ _, _, p ⟩ ) <;> simp_all +decide [ SimpleGraph.Walk.cons_isCycle_iff ];
+      · cases ‹ ( cellGraph C ).Adj v v › ; tauto;
+      · cases v <;> cases ‹A ⊕ B› <;> simp_all +decide;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inl _ ) ( Sum.inl _ ) › ; tauto;
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+        · cases ‹A ⊕ B› <;> aesop;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inr _ ) ( Sum.inr _ ) › ; tauto;
+        · cases ‹A ⊕ B› <;> simp_all +decide [ cellGraph ];
+          · exact ⟨ _, _, Or.inl ⟨ rfl, rfl ⟩ ⟩;
+          · cases ‹ ( cellGraph C ).Adj ( Sum.inr _ ) ( Sum.inr _ ) › ; tauto;
+    obtain ⟨ a, b, rfl ⟩ := he.2;
+    use (a, b);
+    simp +zetaDelta at *;
+    exact ⟨ by have := p.edges_subset_edgeSet he; unfold cellGraph at this; aesop, he ⟩;
+  -- Since $D = C$, the edges of $p$ are exactly the images of the cells in $C$ under $cellSym2$.
+  have h_edges_eq : p.edges.toFinset = Finset.image cellSym2 C := by
+    ext e; simp;
+    constructor;
+    · intro he;
+      have := p.edges_subset_edgeSet he;
+      rcases e with ⟨ u, v ⟩ ; simp_all +decide [ cellGraph ] ;
+      rcases u with ( u | u ) <;> rcases v with ( v | v ) <;> simp_all +decide [ cellSym2 ];
+    · rintro ⟨ a, b, h, rfl ⟩ ; replace hD_eq_C := Finset.ext_iff.mp hD_eq_C ( a, b ) ; aesop;
+  refine' ⟨ v, p, hp, h_edges_eq, _, _ ⟩;
+  · have h_card_edges : p.edges.toFinset.card = C.card := by
+      rw [ h_edges_eq, Finset.card_image_of_injective ];
+      intro x y; simp +decide [ cellSym2 ] ;
+      exact fun h1 h2 => Prod.ext h1 h2;
+    rw [ ← h_card_edges, List.toFinset_card_of_nodup ];
+    · exact Eq.symm (SimpleGraph.Walk.length_edges p);
+    · exact hp.edges_nodup;
+  · have := hp.isPath_tail.length_lt;
+    cases p <;> aesop
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MinimalEvenCycleTour
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MinimalEvenCycleTour
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TraversalKernel
 Source: Erdos625/Section9TraversalKernel.lean
 Normalized SHA-256: 1e1103de129ee471d0d6c02db8fbf837e61324bd08817fd40dffb0e154dcd4a0
@@ -23883,6 +27679,236 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ExplicitPathTerms
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ExplicitPathTerms
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9KernelPathEnumeration
+Source: Erdos625/Section9KernelPathEnumeration.lean
+Normalized SHA-256: bf9b99122e64ac274f71951f874a07972b61f6d6f1eb68ac858efa2ff7780a91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9KernelPathEnumeration
+
+/-!
+# Section 9: exact finite enumeration of kernel paths
+
+The endpoint kernel is a recursive sum over all intermediate vertices.  This
+module exposes the corresponding finite code type.  A code records each
+successive vertex, including the terminal equality witness at length zero, so
+different internal vertex sequences remain different summands even when they
+have the same weight.
+
+The main identities below are exact finite sums.  They do not use row bounds,
+geometric estimates, or an aggregate path certificate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## Fixed-length paths -/
+
+/-- Recursive codes for length-`ell` paths from `v` to `w`.
+
+At positive length, the first successor `u` is stored and the remainder is a
+code from `u` to `w`.  At length zero, the code stores a vertex proved equal
+to both endpoints, so its fiber is empty or a singleton according as the
+endpoints differ or agree.  Thus the nested sigma type preserves every
+internal vertex choice and its multiplicity. -/
+def KernelPathCode (V : Type*) : ℕ → V → V → Type _
+  | 0, v, w => {x : V // x = v ∧ x = w}
+  | ell + 1, _, w => Σ u : V, KernelPathCode V ell u w
+
+noncomputable instance instFintypeKernelPathCode
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (ell : ℕ) (v w : V) : Fintype (KernelPathCode V ell v w) := by
+  induction ell generalizing v with
+  | zero =>
+      change Fintype {x : V // x = v ∧ x = w}
+      infer_instance
+  | succ ell ih =>
+      change Fintype (Σ u : V, KernelPathCode V ell u w)
+      letI (u : V) : Fintype (KernelPathCode V ell u w) := ih u
+      infer_instance
+
+namespace KernelPathCode
+
+/-- The vertex function represented by a recursive path code. -/
+def vertex {V : Type*} :
+    {ell : ℕ} → {v w : V} →
+      KernelPathCode V ell v w → Fin (ell + 1) → V
+  | 0, v, _, _ => fun _ => v
+  | _ + 1, v, _, code =>
+      Fin.cases v (vertex code.2)
+
+@[simp]
+theorem vertex_zero {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    code.vertex 0 = v := by
+  cases ell with
+  | zero => rfl
+  | succ ell => rfl
+
+@[simp]
+theorem vertex_last {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    code.vertex (Fin.last ell) = w := by
+  induction ell generalizing v with
+  | zero =>
+      exact code.2.1.symm.trans code.2.2
+  | succ ell ih =>
+      exact ih code.2
+
+/-- Recursive product weight of one path code. -/
+def weight {V : Type*} (K : V → V → ℝ≥0∞) :
+    {ell : ℕ} → {v w : V} → KernelPathCode V ell v w → ℝ≥0∞
+  | 0, _, _, _ => 1
+  | _ + 1, v, _, code => K v code.1 * weight K code.2
+
+@[simp]
+theorem weight_zero {V : Type*} (K : V → V → ℝ≥0∞)
+    {v w : V} (code : KernelPathCode V 0 v w) :
+    code.weight K = 1 := rfl
+
+@[simp]
+theorem weight_succ {V : Type*} (K : V → V → ℝ≥0∞)
+    {ell : ℕ} {v w : V} (code : KernelPathCode V (ell + 1) v w) :
+    code.weight K = K v code.1 * code.2.weight K := rfl
+
+/-- The recursive weight is exactly the product attached to the represented
+vertex function by `explicitPathWeight`. -/
+theorem weight_eq_explicitPathWeight
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞)
+    {ell : ℕ} {v w : V} (code : KernelPathCode V ell v w) :
+    code.weight K = explicitPathWeight K code.vertex := by
+  induction ell generalizing v with
+  | zero =>
+      simp [explicitPathWeight]
+  | succ ell ih =>
+      rcases code with ⟨u, tail⟩
+      rw [weight_succ, ih]
+      simp only [explicitPathWeight]
+      rw [Fin.prod_univ_succ]
+      simp only [vertex, Fin.castSucc_zero, Fin.castSucc_succ,
+        Fin.cases_zero, Fin.cases_succ, vertex_zero]
+
+end KernelPathCode
+
+/-- Summing the weights of all recursive codes gives exactly the
+endpoint-refined kernel mass. -/
+theorem sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (ell : ℕ) (v w : V) :
+    (∑ code : KernelPathCode V ell v w, code.weight K) =
+      finiteKernelEndpointMass K ell v w := by
+  induction ell generalizing v with
+  | zero =>
+      by_cases h : v = w
+      · subst w
+        letI : Unique {x : V // x = v ∧ x = v} := {
+          default := ⟨v, rfl, rfl⟩
+          uniq x := Subtype.ext x.2.1
+        }
+        simp [KernelPathCode, KernelPathCode.weight,
+          finiteKernelEndpointMass]
+      · letI : IsEmpty {x : V // x = v ∧ x = w} :=
+          ⟨fun x => h (x.2.1.symm.trans x.2.2)⟩
+        simp [KernelPathCode, KernelPathCode.weight,
+          finiteKernelEndpointMass, h]
+  | succ ell ih =>
+      change
+        (∑ code : Σ u : V, KernelPathCode V ell u w,
+            K v code.1 * code.2.weight K) =
+          ∑ u, K v u * finiteKernelEndpointMass K ell u w
+      rw [Fintype.sum_sigma]
+      apply Finset.sum_congr rfl
+      intro u hu
+      change
+        (∑ tail : KernelPathCode V ell u w, K v u * tail.weight K) =
+          K v u * finiteKernelEndpointMass K ell u w
+      rw [← Finset.mul_sum, ih u]
+
+/-! ## All positive lengths up to a cutoff -/
+
+/-- Codes for positive paths of lengths `1, ..., L` from `v` to `w`.
+
+The `Fin L` coordinate is the length minus one. -/
+abbrev PositiveKernelPathCode (V : Type*) (L : ℕ) (v w : V) : Type _ :=
+  Σ ell : Fin L, KernelPathCode V (ell.1 + 1) v w
+
+namespace PositiveKernelPathCode
+
+/-- Length of a positive path code. -/
+def length {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) : ℕ :=
+  code.1.1 + 1
+
+/-- Vertex function of a positive path code. -/
+def vertex {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    Fin (code.length + 1) → V :=
+  code.2.vertex
+
+/-- Product weight of a positive path code. -/
+def weight {V : Type*} (K : V → V → ℝ≥0∞)
+    {L : ℕ} {v w : V} (code : PositiveKernelPathCode V L v w) : ℝ≥0∞ :=
+  code.2.weight K
+
+@[simp]
+theorem weight_eq_explicitPathWeight
+    {V : Type*} [Fintype V] (K : V → V → ℝ≥0∞)
+    {L : ℕ} {v w : V} (code : PositiveKernelPathCode V L v w) :
+    code.weight K = explicitPathWeight K code.vertex :=
+  KernelPathCode.weight_eq_explicitPathWeight K code.2
+
+end PositiveKernelPathCode
+
+/-- The total weight of all positive path codes up to length `L` is exactly
+the endpoint-resolved positive walk kernel. -/
+theorem sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (L : ℕ) (v w : V) :
+    (∑ code : PositiveKernelPathCode V L v w, code.weight K) =
+      finitePositiveWalkKernel K L v w := by
+  rw [Fintype.sum_sigma]
+  simp only [PositiveKernelPathCode.weight]
+  simp_rw [sum_kernelPathCode_weight_eq_finiteKernelEndpointMass]
+  rw [Fin.sum_univ_eq_sum_range
+    (fun ell => finiteKernelEndpointMass K (ell + 1) v w)]
+  unfold finitePositiveWalkKernel
+  rfl
+
+/-! ## Endpoint summation -/
+
+/-- Summing the endpoint-refined mass over all terminal vertices recovers the
+scalar finite walk mass. -/
+theorem sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K : V → V → ℝ≥0∞) (ell : ℕ) (v : V) :
+    (∑ w, finiteKernelEndpointMass K ell v w) =
+      finiteKernelWalkMass K ell v := by
+  induction ell generalizing v with
+  | zero =>
+      simp [finiteKernelEndpointMass, finiteKernelWalkMass]
+  | succ ell ih =>
+      simp only [finiteKernelEndpointMass, finiteKernelWalkMass]
+      rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro u hu
+      rw [← Finset.mul_sum, ih u]
+
+#print axioms sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+#print axioms sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+#print axioms sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9KernelPathEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9KernelPathEnumeration
 ========================================================================== -/
 
 /- ==========================================================================
@@ -25428,6 +29454,3902 @@ END SOURCE MODULE: Erdos625.Section9MatchingTraversalBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9BlockChainEnumeration
+Source: Erdos625/Section9BlockChainEnumeration.lean
+Normalized SHA-256: 9049003a6b78feac22afc44e6dcaf71bf70593336addb1283c199043e1843b98
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9BlockChainEnumeration
+
+/-!
+# Section 9: exact finite enumeration of relaxed block chains
+
+A relaxed block consists of a positive `K`-path of length at most `L`,
+followed by one transition of a second kernel `P`.  This module records every
+internal positive-path code, its endpoint before the `P` transition, and the
+state after that transition.  Iterating the construction therefore preserves
+all path multiplicities and all intermediate transition states.
+
+The main theorem identifies the sum of the resulting code weights exactly
+with the endpoint mass of the composed kernel
+`finiteKernelComp (finitePositiveWalkKernel K L) P`.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## One relaxed block -/
+
+/-- A positive `K`-path from `v` to some state `u`, ready to be followed by
+a `P` transition.
+
+The sigma coordinate stores `u`, while the second coordinate stores the full
+positive path code, including all of its internal vertices. -/
+abbrev PositiveKernelThenTransitionCode
+    (V : Type*) (L : ℕ) (v : V) : Type _ :=
+  Σ u : V, PositiveKernelPathCode V L v u
+
+namespace PositiveKernelThenTransitionCode
+
+/-- Exact weight of one relaxed block. -/
+def weight {V : Type*}
+    (K P : V → V → ℝ≥0∞) (x : V) {L : ℕ} {v : V}
+    (code : PositiveKernelThenTransitionCode V L v) : ℝ≥0∞ :=
+  code.2.weight K * P code.1 x
+
+@[simp]
+theorem weight_mk {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L : ℕ} {v u x : V}
+    (path : PositiveKernelPathCode V L v u) :
+    weight K P x (Sigma.mk u path :
+      PositiveKernelThenTransitionCode V L v) =
+      path.weight K * P u x := rfl
+
+end PositiveKernelThenTransitionCode
+
+/-- Summing all one-block codes gives exactly one entry of the composed
+positive-walk-then-transition kernel. -/
+theorem sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K P : V → V → ℝ≥0∞) (L : ℕ) (v x : V) :
+    (∑ code : PositiveKernelThenTransitionCode V L v,
+        code.weight K P x) =
+      finiteKernelComp (finitePositiveWalkKernel K L) P v x := by
+  rw [Fintype.sum_sigma]
+  unfold finiteKernelComp
+  apply Finset.sum_congr rfl
+  intro u hu
+  change
+    (∑ path : PositiveKernelPathCode V L v u,
+        path.weight K * P u x) =
+      finitePositiveWalkKernel K L v u * P u x
+  rw [← Finset.sum_mul]
+  rw [sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel]
+
+/-! ## Finite chains of relaxed blocks -/
+
+/-- Codes for exactly `r` relaxed blocks from `v` to `w`.
+
+At positive length, `x` is the state after the first `P` transition, the
+first component records the entire positive path and its pre-transition
+endpoint, and the last component records the remaining chain from `x` to
+`w`.  At length zero the code type is inhabited exactly when `v = w`, in
+agreement with the zero-step endpoint kernel. -/
+def RelaxedBlockChainCode (V : Type*) (L : ℕ) : ℕ → V → V → Type _
+  | 0, v, w => KernelPathCode V 0 v w
+  | r + 1, v, w =>
+      Σ x : V,
+        PositiveKernelThenTransitionCode V L v ×
+          RelaxedBlockChainCode V L r x w
+
+noncomputable instance instFintypeRelaxedBlockChainCode
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (L r : ℕ) (v w : V) : Fintype (RelaxedBlockChainCode V L r v w) := by
+  induction r generalizing v with
+  | zero =>
+      change Fintype (KernelPathCode V 0 v w)
+      infer_instance
+  | succ r ih =>
+      change Fintype
+        (Σ x : V,
+          PositiveKernelThenTransitionCode V L v ×
+            RelaxedBlockChainCode V L r x w)
+      letI (x : V) : Fintype (RelaxedBlockChainCode V L r x w) := ih x
+      infer_instance
+
+namespace RelaxedBlockChainCode
+
+/-- Product of all positive-path and `P`-transition weights in a chain. -/
+def weight {V : Type*} (K P : V → V → ℝ≥0∞) {L : ℕ} :
+    {r : ℕ} → {v w : V} → RelaxedBlockChainCode V L r v w → ℝ≥0∞
+  | 0, _, _, code => KernelPathCode.weight K code
+  | _ + 1, _, _, code =>
+      code.2.1.weight K P code.1 * weight K P code.2.2
+
+@[simp]
+theorem weight_zero {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L 0 v w) :
+    code.weight K P = 1 := rfl
+
+@[simp]
+theorem weight_succ {V : Type*}
+    (K P : V → V → ℝ≥0∞) {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L (r + 1) v w) :
+    code.weight K P =
+      code.2.1.weight K P code.1 * code.2.2.weight K P := rfl
+
+end RelaxedBlockChainCode
+
+/-- Exact relaxed-block-chain enumeration.
+
+No row bound or endpoint-only certificate is used: the left-hand side sums
+over every positive path code, every pre-transition endpoint, every
+post-transition state, and every remaining chain. -/
+theorem sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (K P : V → V → ℝ≥0∞) (L r : ℕ) (v w : V) :
+    (∑ code : RelaxedBlockChainCode V L r v w,
+        code.weight K P) =
+      finiteKernelEndpointMass
+        (finiteKernelComp (finitePositiveWalkKernel K L) P) r v w := by
+  induction r generalizing v with
+  | zero =>
+      change
+        (∑ code : KernelPathCode V 0 v w, code.weight K) =
+          finiteKernelEndpointMass
+            (finiteKernelComp (finitePositiveWalkKernel K L) P) 0 v w
+      exact
+        sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+          (finiteKernelComp (finitePositiveWalkKernel K L) P) 0 v w
+  | succ r ih =>
+      change
+        (∑ code :
+            Σ x : V,
+              PositiveKernelThenTransitionCode V L v ×
+                RelaxedBlockChainCode V L r x w,
+            code.2.1.weight K P code.1 * code.2.2.weight K P) =
+          ∑ x,
+            finiteKernelComp (finitePositiveWalkKernel K L) P v x *
+              finiteKernelEndpointMass
+                (finiteKernelComp (finitePositiveWalkKernel K L) P) r x w
+      rw [Fintype.sum_sigma]
+      apply Finset.sum_congr rfl
+      intro x hx
+      rw [Fintype.sum_prod_type]
+      calc
+        (∑ block : PositiveKernelThenTransitionCode V L v,
+            ∑ tail : RelaxedBlockChainCode V L r x w,
+              block.weight K P x * tail.weight K P) =
+            ∑ block : PositiveKernelThenTransitionCode V L v,
+              block.weight K P x *
+                ∑ tail : RelaxedBlockChainCode V L r x w,
+                  tail.weight K P := by
+            apply Finset.sum_congr rfl
+            intro block hblock
+            rw [Finset.mul_sum]
+        _ =
+            (∑ block : PositiveKernelThenTransitionCode V L v,
+                block.weight K P x) *
+              ∑ tail : RelaxedBlockChainCode V L r x w,
+                tail.weight K P := by
+            rw [Finset.sum_mul]
+        _ =
+            finiteKernelComp (finitePositiveWalkKernel K L) P v x *
+              finiteKernelEndpointMass
+                (finiteKernelComp (finitePositiveWalkKernel K L) P) r x w := by
+            rw [
+              sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp,
+              ih x]
+
+#print axioms
+  sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+#print axioms
+  sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9BlockChainEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9BlockChainEnumeration
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleWalkCutAtMatching
+Source: Erdos625/Section9CycleWalkCutAtMatching.lean
+Normalized SHA-256: aae8c8b1eb8578d62f3aa8f8381dcec1b6172fc9ccd71d5989a2bb34884109e7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleWalkCutAtMatching
+
+/-!
+# Section 9: source-free decoding of a cycle cut at matching edges
+
+This module isolates the data that a genuine cut of a simple cycle must
+produce.  A `RelaxedBlockChainCode` contains only its successive positive
+residual paths and matching transitions; in particular, it does not contain
+the source cycle, an injectivity certificate, or a reconstruction proof.
+
+The physical existence theorem which cuts the covering cycle walk at the
+edges of `C ∩ M` is deliberately not postulated here.  The definitions and
+lemmas below give its target interface: exact residual and transition lists,
+separate path- and block-count cutoffs, endpoint closure, a source-free
+decoder, and exact nonnegative kernel-weight preservation.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## Oriented edges of the recursive path codes -/
+
+/-- The successive oriented edges represented by a fixed-length kernel path
+code.  No edge set or source object is stored in this list. -/
+def kernelPathOrientedEdges {V : Type*} :
+    {ell : ℕ} → {v w : V} →
+      KernelPathCode V ell v w → List (V × V)
+  | 0, _, _, _ => []
+  | _ + 1, v, _, code =>
+      (v, code.1) :: kernelPathOrientedEdges code.2
+
+@[simp]
+theorem kernelPathOrientedEdges_length
+    {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    (kernelPathOrientedEdges code).length = ell := by
+  induction ell generalizing v with
+  | zero => rfl
+  | succ ell ih =>
+      simp [kernelPathOrientedEdges, ih code.2]
+
+/-- A list of oriented edges joins its declared initial and terminal
+vertices.  This small recursive predicate is independent of graph adjacency;
+adjacency is supplied later by the kernels or by a covering walk. -/
+def OrientedEdgeList.Joins {V : Type*} :
+    V → List (V × V) → V → Prop
+  | v, [], w => v = w
+  | v, (x, y) :: edges, w => x = v ∧ Joins y edges w
+
+namespace OrientedEdgeList
+
+@[simp]
+theorem joins_nil {V : Type*} {v w : V} :
+    Joins v [] w ↔ v = w := Iff.rfl
+
+@[simp]
+theorem joins_cons {V : Type*} {v x y w : V}
+    {edges : List (V × V)} :
+    Joins v ((x, y) :: edges) w ↔ x = v ∧ Joins y edges w := Iff.rfl
+
+theorem joins_append {V : Type*} {u v w : V}
+    {left right : List (V × V)}
+    (hleft : Joins u left v) (hright : Joins v right w) :
+    Joins u (left ++ right) w := by
+  induction left generalizing u with
+  | nil =>
+      simpa [Joins] using hleft ▸ hright
+  | cons edge tail ih =>
+      rcases edge with ⟨x, y⟩
+      simp only [Joins] at hleft ⊢
+      exact ⟨hleft.1, ih hleft.2⟩
+
+end OrientedEdgeList
+
+theorem kernelPathOrientedEdges_joins
+    {V : Type*} {ell : ℕ} {v w : V}
+    (code : KernelPathCode V ell v w) :
+    OrientedEdgeList.Joins v (kernelPathOrientedEdges code) w := by
+  induction ell generalizing v with
+  | zero =>
+      exact code.2.1.symm.trans code.2.2
+  | succ ell ih =>
+      exact ⟨rfl, ih code.2⟩
+
+/-! ## Exact residual and transition projections -/
+
+/-- The positive residual path in the first block of a chain. -/
+def positivePathOrientedEdges {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) : List (V × V) :=
+  kernelPathOrientedEdges code.2
+
+@[simp]
+theorem positivePathOrientedEdges_length
+    {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    (positivePathOrientedEdges code).length = code.length := by
+  exact kernelPathOrientedEdges_length code.2
+
+theorem positivePathOrientedEdges_length_pos
+    {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    0 < (positivePathOrientedEdges code).length := by
+  simp [positivePathOrientedEdges]
+
+theorem positivePathOrientedEdges_length_le
+    {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    (positivePathOrientedEdges code).length ≤ L := by
+  rw [positivePathOrientedEdges_length]
+  exact code.1.2
+
+theorem positivePathOrientedEdges_joins
+    {V : Type*} {L : ℕ} {v w : V}
+    (code : PositiveKernelPathCode V L v w) :
+    OrientedEdgeList.Joins v (positivePathOrientedEdges code) w :=
+  kernelPathOrientedEdges_joins code.2
+
+/-- All residual-path edges in a relaxed block chain, with block boundaries
+forgotten but multiplicity and orientation retained. -/
+def relaxedBlockResidualEdges {V : Type*} {L : ℕ} :
+    {r : ℕ} → {v w : V} →
+      RelaxedBlockChainCode V L r v w → List (V × V)
+  | 0, _, _, _ => []
+  | _ + 1, _, _, code =>
+      positivePathOrientedEdges code.2.1.2 ++
+        relaxedBlockResidualEdges code.2.2
+
+/-- The transition edges in a relaxed block chain.  There is exactly one
+such edge per block. -/
+def relaxedBlockTransitionEdges {V : Type*} {L : ℕ} :
+    {r : ℕ} → {v w : V} →
+      RelaxedBlockChainCode V L r v w → List (V × V)
+  | 0, _, _, _ => []
+  | _ + 1, _, _, code =>
+      (code.2.1.1, code.1) :: relaxedBlockTransitionEdges code.2.2
+
+/-- The oriented edge list decoded from a relaxed block chain, retaining the
+physical cyclic order: positive residual path, one transition, then the
+remaining blocks. -/
+def relaxedBlockOrientedEdges {V : Type*} {L : ℕ} :
+    {r : ℕ} → {v w : V} →
+      RelaxedBlockChainCode V L r v w → List (V × V)
+  | 0, _, _, _ => []
+  | _ + 1, _, _, code =>
+      positivePathOrientedEdges code.2.1.2 ++
+        (code.2.1.1, code.1) :: relaxedBlockOrientedEdges code.2.2
+
+/-- The list of positive residual-path lengths.  Its length is the block
+count, whereas its entries are the separate path lengths. -/
+def relaxedBlockPathLengths {V : Type*} {L : ℕ} :
+    {r : ℕ} → {v w : V} →
+      RelaxedBlockChainCode V L r v w → List ℕ
+  | 0, _, _, _ => []
+  | _ + 1, _, _, code =>
+      code.2.1.2.length :: relaxedBlockPathLengths code.2.2
+
+@[simp]
+theorem relaxedBlockTransitionEdges_length
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    (relaxedBlockTransitionEdges code).length = r := by
+  induction r generalizing v with
+  | zero => rfl
+  | succ r ih =>
+      simp [relaxedBlockTransitionEdges, ih code.2.2]
+
+@[simp]
+theorem relaxedBlockPathLengths_length
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    (relaxedBlockPathLengths code).length = r := by
+  induction r generalizing v with
+  | zero => rfl
+  | succ r ih =>
+      simp [relaxedBlockPathLengths, ih code.2.2]
+
+/-- Each path cutoff is independent of the number of blocks. -/
+theorem relaxedBlockPathLengths_mem_bounds
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    ∀ ell ∈ relaxedBlockPathLengths code, 0 < ell ∧ ell ≤ L := by
+  induction r generalizing v with
+  | zero => simp [relaxedBlockPathLengths]
+  | succ r ih =>
+      intro ell hell
+      simp only [relaxedBlockPathLengths, List.mem_cons] at hell
+      rcases hell with rfl | hell
+      · exact ⟨by simp [PositiveKernelPathCode.length], code.2.1.2.1.2⟩
+      · exact ih code.2.2 ell hell
+
+@[simp]
+theorem relaxedBlockResidualEdges_length
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    (relaxedBlockResidualEdges code).length =
+      (relaxedBlockPathLengths code).sum := by
+  induction r generalizing v with
+  | zero => rfl
+  | succ r ih =>
+      simp [relaxedBlockResidualEdges, relaxedBlockPathLengths,
+        ih code.2.2]
+
+theorem relaxedBlockResidualEdges_length_ge_blocks
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    r ≤ (relaxedBlockResidualEdges code).length := by
+  induction r generalizing v with
+  | zero => exact Nat.zero_le _
+  | succ r ih =>
+      simp only [relaxedBlockResidualEdges, List.length_append,
+        positivePathOrientedEdges_length]
+      calc
+        r + 1 = 1 + r := Nat.add_comm _ _
+        _ ≤ code.2.1.2.length +
+              (relaxedBlockResidualEdges code.2.2).length :=
+          Nat.add_le_add
+            (by simp [PositiveKernelPathCode.length])
+            (ih code.2.2)
+
+@[simp]
+theorem relaxedBlockOrientedEdges_length
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    (relaxedBlockOrientedEdges code).length =
+      (relaxedBlockResidualEdges code).length + r := by
+  induction r generalizing v with
+  | zero => rfl
+  | succ r ih =>
+      simp [relaxedBlockOrientedEdges, relaxedBlockResidualEdges,
+        ih code.2.2, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
+
+theorem relaxedBlockOrientedEdges_joins
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    OrientedEdgeList.Joins v (relaxedBlockOrientedEdges code) w := by
+  induction r generalizing v with
+  | zero =>
+      exact kernelPathOrientedEdges_joins code
+  | succ r ih =>
+      apply OrientedEdgeList.joins_append
+        (positivePathOrientedEdges_joins code.2.1.2)
+      exact ⟨rfl, ih code.2.2⟩
+
+/-- Closing the endpoint fiber gives literal closure at the marked oriented
+start; no `r - 1` endpoint convention is used.  A chain with `r` blocks has
+`r` transitions, while the recursive tail after its first block has exactly
+`r - 1` transitions. -/
+theorem relaxedBlockOrientedEdges_closed
+    {V : Type*} {L r : ℕ} {v : V}
+    (code : RelaxedBlockChainCode V L r v v) :
+    OrientedEdgeList.Joins v (relaxedBlockOrientedEdges code) v :=
+  relaxedBlockOrientedEdges_joins code
+
+theorem relaxedBlockTailTransitionEdges_length
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L (r + 1) v w) :
+    (relaxedBlockTransitionEdges code.2.2).length = r :=
+  relaxedBlockTransitionEdges_length code.2.2
+
+/-! ## Source-free decoding to bipartite cells -/
+
+/-- Forget the orientation of an alternating edge and recover its bipartite
+cell.  Same-side pairs decode to no cell. -/
+def orientedPairToCell {A B : Type*} :
+    (A ⊕ B) × (A ⊕ B) → Option (A × B)
+  | (Sum.inl a, Sum.inr b) => some (a, b)
+  | (Sum.inr b, Sum.inl a) => some (a, b)
+  | _ => none
+
+/-- A `filterMap` which succeeds on every input preserves length.  This is
+the generic no-drop lemma used by a faithful physical cut. -/
+theorem filterMap_length_eq_length_of_forall_eq_some
+    {α β : Type*} (f : α → Option β) (items : List α)
+    (hdecode : ∀ item ∈ items, ∃ value, f item = some value) :
+    (items.filterMap f).length = items.length := by
+  induction items with
+  | nil => rfl
+  | cons item tail ih =>
+      obtain ⟨value, hvalue⟩ := hdecode item (by simp)
+      have htail : ∀ x ∈ tail, ∃ y, f x = some y := by
+        intro x hx
+        exact hdecode x (by simp [hx])
+      simp [hvalue, ih htail]
+
+/-- Decode an oriented edge list to its bipartite edge set. -/
+def decodeOrientedCells {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (edges : List ((A ⊕ B) × (A ⊕ B))) : Finset (A × B) :=
+  (edges.filterMap orientedPairToCell).toFinset
+
+theorem decodeOrientedCells_append
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (left right : List ((A ⊕ B) × (A ⊕ B))) :
+    decodeOrientedCells (left ++ right) =
+      decodeOrientedCells left ∪ decodeOrientedCells right := by
+  ext edge
+  simp [decodeOrientedCells]
+
+/-- Decode one oriented pair to either a singleton cell set or the empty
+set. -/
+def decodeOrientedCell {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (edge : (A ⊕ B) × (A ⊕ B)) : Finset (A × B) :=
+  match orientedPairToCell edge with
+  | some cell => {cell}
+  | none => ∅
+
+theorem decodeOrientedCells_cons_eq
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (edge : (A ⊕ B) × (A ⊕ B))
+    (tail : List ((A ⊕ B) × (A ⊕ B))) :
+    decodeOrientedCells (edge :: tail) =
+      decodeOrientedCell edge ∪ decodeOrientedCells tail := by
+  ext cell
+  rcases edge with ⟨u, v⟩
+  rcases u with a | b <;> rcases v with a' | b' <;>
+    simp [decodeOrientedCells, decodeOrientedCell, orientedPairToCell]
+
+/-- Residual-edge projection of a relaxed block code. -/
+def decodeRelaxedResidualCells
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {L r : ℕ} {v w : A ⊕ B}
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    Finset (A × B) :=
+  decodeOrientedCells (relaxedBlockResidualEdges code)
+
+/-- Transition-edge projection of a relaxed block code. -/
+def decodeRelaxedTransitionCells
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {L r : ℕ} {v w : A ⊕ B}
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    Finset (A × B) :=
+  decodeOrientedCells (relaxedBlockTransitionEdges code)
+
+/-- Full source-free decoder. -/
+def decodeRelaxedBlockCells
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {L r : ℕ} {v w : A ⊕ B}
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    Finset (A × B) :=
+  decodeOrientedCells (relaxedBlockOrientedEdges code)
+
+/-- The full decoder is exactly the union of its residual and transition
+projections.  This identity is at the level of decoded cell sets, not merely
+at the level of weights. -/
+theorem decodeRelaxedBlockCells_eq_union
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {L r : ℕ} {v w : A ⊕ B}
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    decodeRelaxedBlockCells code =
+      decodeRelaxedResidualCells code ∪
+        decodeRelaxedTransitionCells code := by
+  induction r generalizing v with
+  | zero =>
+      simp [decodeRelaxedBlockCells, decodeRelaxedResidualCells,
+        decodeRelaxedTransitionCells, relaxedBlockOrientedEdges,
+        relaxedBlockResidualEdges, relaxedBlockTransitionEdges,
+        decodeOrientedCells]
+  | succ r ih =>
+      have htail :
+          decodeOrientedCells
+              (relaxedBlockOrientedEdges code.2.2) =
+            decodeOrientedCells
+                (relaxedBlockResidualEdges code.2.2) ∪
+              decodeOrientedCells
+                (relaxedBlockTransitionEdges code.2.2) := by
+        simpa only [decodeRelaxedBlockCells,
+          decodeRelaxedResidualCells, decodeRelaxedTransitionCells] using
+          ih code.2.2
+      simp only [decodeRelaxedBlockCells, decodeRelaxedResidualCells,
+        decodeRelaxedTransitionCells, relaxedBlockOrientedEdges,
+        relaxedBlockResidualEdges, relaxedBlockTransitionEdges,
+        decodeOrientedCells_append, decodeOrientedCells_cons_eq]
+      rw [htail]
+      ext cell
+      simp only [Finset.mem_union]
+      tauto
+
+theorem relaxedBlockResidualEdges_sublist
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    List.Sublist (relaxedBlockResidualEdges code)
+      (relaxedBlockOrientedEdges code) := by
+  induction r generalizing v with
+  | zero => exact List.Sublist.refl []
+  | succ r ih =>
+      simp only [relaxedBlockResidualEdges, relaxedBlockOrientedEdges]
+      exact (List.Sublist.refl _).append
+        (List.Sublist.cons _ (ih code.2.2))
+
+theorem relaxedBlockTransitionEdges_sublist
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    List.Sublist (relaxedBlockTransitionEdges code)
+      (relaxedBlockOrientedEdges code) := by
+  induction r generalizing v with
+  | zero => exact List.Sublist.refl []
+  | succ r ih =>
+      simp only [relaxedBlockTransitionEdges, relaxedBlockOrientedEdges]
+      exact (List.Sublist.cons_cons _ (ih code.2.2)).trans
+        (List.sublist_append_right _ _)
+
+/-- Nodup of the full physical edge traversal implies nodup separately for
+the residual and transition projections. -/
+theorem relaxedBlock_projection_nodup
+    {V : Type*} {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w)
+    (hnodup : (relaxedBlockOrientedEdges code).Nodup) :
+    (relaxedBlockResidualEdges code).Nodup ∧
+      (relaxedBlockTransitionEdges code).Nodup :=
+  ⟨hnodup.sublist (relaxedBlockResidualEdges_sublist code),
+    hnodup.sublist (relaxedBlockTransitionEdges_sublist code)⟩
+
+/-! ## Exact list-level nonnegative weight identity -/
+
+/-- Product of a kernel along an oriented edge list. -/
+def orientedEdgeListWeight {V : Type*}
+    (K : V → V → ℝ≥0∞) (edges : List (V × V)) : ℝ≥0∞ :=
+  (edges.map fun edge => K edge.1 edge.2).prod
+
+theorem bipartiteCellKernel_eq_of_orientedPairToCell_eq_some
+    {A B : Type*} (q : A → B → ℝ≥0∞)
+    {edge : (A ⊕ B) × (A ⊕ B)} {cell : A × B}
+    (hdecode : orientedPairToCell edge = some cell) :
+    bipartiteCellKernel q edge.1 edge.2 = q cell.1 cell.2 := by
+  rcases edge with ⟨u, v⟩
+  rcases u with a | b <;> rcases v with a' | b' <;>
+    simp [orientedPairToCell, bipartiteCellKernel] at hdecode ⊢
+  all_goals subst cell
+  all_goals rfl
+
+theorem matchingTraversalKernel_eq_one_of_orientedPairToCell_eq_some
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    {edge : (A ⊕ B) × (A ⊕ B)} {cell : A × B}
+    (hdecode : orientedPairToCell edge = some cell) (hcell : cell ∈ M) :
+    matchingTraversalKernel M edge.1 edge.2 = 1 := by
+  rcases edge with ⟨u, v⟩
+  rcases u with a | b <;> rcases v with a' | b' <;>
+    simp [orientedPairToCell, matchingTraversalKernel] at hdecode ⊢
+  all_goals subst cell
+  all_goals simp [hcell]
+
+/-- When every pair is genuinely bipartite, the kernel product is exactly
+the list product of the decoded physical cell weights. -/
+theorem orientedEdgeListWeight_bipartiteCellKernel_eq_cellListProd
+    {A B : Type*} (q : A → B → ℝ≥0∞)
+    (edges : List ((A ⊕ B) × (A ⊕ B)))
+    (hdecode : ∀ edge ∈ edges,
+      ∃ cell, orientedPairToCell edge = some cell) :
+    orientedEdgeListWeight (bipartiteCellKernel q) edges =
+      ((edges.filterMap orientedPairToCell).map
+        fun cell => q cell.1 cell.2).prod := by
+  induction edges with
+  | nil => rfl
+  | cons edge tail ih =>
+      obtain ⟨cell, hcell⟩ := hdecode edge (by simp)
+      have htail : ∀ e ∈ tail,
+          ∃ c, orientedPairToCell e = some c := by
+        intro e he
+        exact hdecode e (by simp [he])
+      simp only [orientedEdgeListWeight, List.map_cons, List.prod_cons]
+      rw [bipartiteCellKernel_eq_of_orientedPairToCell_eq_some q hcell]
+      have htailWeight := ih htail
+      unfold orientedEdgeListWeight at htailWeight
+      rw [htailWeight]
+      simp [hcell]
+
+/-- If every decoded transition cell belongs to `M`, its matching-kernel
+weight is exactly one. -/
+theorem orientedEdgeListWeight_matchingTraversalKernel_eq_one
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edges : List ((A ⊕ B) × (A ⊕ B)))
+    (hdecode : ∀ edge ∈ edges,
+      ∃ cell, orientedPairToCell edge = some cell ∧ cell ∈ M) :
+    orientedEdgeListWeight (matchingTraversalKernel M) edges = 1 := by
+  induction edges with
+  | nil => rfl
+  | cons edge tail ih =>
+      obtain ⟨cell, hcell, hmem⟩ := hdecode edge (by simp)
+      have htail : ∀ e ∈ tail,
+          ∃ c, orientedPairToCell e = some c ∧ c ∈ M := by
+        intro e he
+        exact hdecode e (by simp [he])
+      simp only [orientedEdgeListWeight, List.map_cons, List.prod_cons]
+      rw [matchingTraversalKernel_eq_one_of_orientedPairToCell_eq_some
+        M hcell hmem]
+      simpa [orientedEdgeListWeight] using ih htail
+
+theorem kernelPathCode_weight_eq_orientedEdgeListWeight
+    {V : Type*} (K : V → V → ℝ≥0∞)
+    {ell : ℕ} {v w : V} (code : KernelPathCode V ell v w) :
+    code.weight K = orientedEdgeListWeight K (kernelPathOrientedEdges code) := by
+  induction ell generalizing v with
+  | zero => rfl
+  | succ ell ih =>
+      simp [KernelPathCode.weight, kernelPathOrientedEdges,
+        orientedEdgeListWeight, ih code.2]
+
+theorem positiveKernelPathCode_weight_eq_orientedEdgeListWeight
+    {V : Type*} (K : V → V → ℝ≥0∞)
+    {L : ℕ} {v w : V} (code : PositiveKernelPathCode V L v w) :
+    code.weight K = orientedEdgeListWeight K (positivePathOrientedEdges code) :=
+  kernelPathCode_weight_eq_orientedEdgeListWeight K code.2
+
+/-- Exact factorization of a relaxed block-chain weight into its residual and
+transition oriented-edge lists.  This is valid for arbitrary nonnegative
+kernels `K` and `P`; no probabilistic estimate or injectivity hypothesis is
+used. -/
+theorem relaxedBlockChainCode_weight_eq_projection_weights
+    {V : Type*} (K P : V → V → ℝ≥0∞)
+    {L r : ℕ} {v w : V}
+    (code : RelaxedBlockChainCode V L r v w) :
+    code.weight K P =
+      orientedEdgeListWeight K (relaxedBlockResidualEdges code) *
+        orientedEdgeListWeight P (relaxedBlockTransitionEdges code) := by
+  induction r generalizing v with
+  | zero =>
+      simp [relaxedBlockResidualEdges, relaxedBlockTransitionEdges,
+        orientedEdgeListWeight]
+  | succ r ih =>
+      rw [RelaxedBlockChainCode.weight_succ]
+      rw [PositiveKernelThenTransitionCode.weight_mk]
+      rw [positiveKernelPathCode_weight_eq_orientedEdgeListWeight]
+      rw [ih code.2.2]
+      simp only [relaxedBlockResidualEdges, relaxedBlockTransitionEdges,
+        orientedEdgeListWeight, List.map_append, List.prod_append,
+        List.map_cons, List.prod_cons]
+      ac_rfl
+
+/-- Specialization of the preceding identity to arbitrary nonnegative
+bipartite cell weights and the matching traversal kernel. -/
+theorem relaxedBlockChainCode_bipartite_weight_eq_projection_weights
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B))
+    {L r : ℕ} {v w : A ⊕ B}
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    code.weight (bipartiteCellKernel q) (matchingTraversalKernel M) =
+      orientedEdgeListWeight (bipartiteCellKernel q)
+          (relaxedBlockResidualEdges code) *
+        orientedEdgeListWeight (matchingTraversalKernel M)
+          (relaxedBlockTransitionEdges code) :=
+  relaxedBlockChainCode_weight_eq_projection_weights _ _ code
+
+/-! ## A block-count cutoff available before the physical cut -/
+
+/-- A bipartite matching has at most as many edges as left vertices. -/
+theorem bipartiteMatching_card_le_left
+    {A B : Type*} [Fintype A] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    M.card ≤ Fintype.card A := by
+  calc
+    M.card = (M.image Prod.fst).card := by
+      symm
+      rw [Finset.card_image_iff.mpr]
+      intro x hx y hy hxy
+      exact Prod.ext hxy (hM.1 x.1 x.2 y.2 hx (by simpa [hxy] using hy))
+    _ ≤ (Finset.univ : Finset A).card :=
+      Finset.card_le_card (Finset.subset_univ _)
+    _ = Fintype.card A := Finset.card_univ
+
+/-- Hence the number of matching edges met by any cycle is bounded by the
+ambient vertex count.  This is the block-count cutoff; it is separate from
+the per-residual-path cutoff carried by `PositiveKernelPathCode`. -/
+theorem cycle_inter_matching_card_le_vertex_count
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    (C ∩ M).card ≤ Fintype.card (A ⊕ B) := by
+  calc
+    (C ∩ M).card ≤ M.card :=
+      Finset.card_le_card (Finset.inter_subset_right)
+    _ ≤ Fintype.card A := bipartiteMatching_card_le_left M hM
+    _ ≤ Fintype.card (A ⊕ B) := by
+      simp only [Fintype.card_sum]
+      exact Nat.le_add_right _ _
+
+/-! ## The exact source-free target of the physical cutting lemma -/
+
+/-- A closed relaxed block-chain code with a positive block count and the
+manuscript path cutoff.  This type is source-free: it has no cycle field and
+no reconstruction or injectivity certificate. -/
+abbrev SourceFreeCycleCutCode
+    (A B : Type*) [Fintype A] [Fintype B] :=
+  Σ r : {r : ℕ // 0 < r},
+    Σ v : A ⊕ B,
+      RelaxedBlockChainCode (A ⊕ B)
+        (Fintype.card (A ⊕ B)) r.1 v v
+
+namespace SourceFreeCycleCutCode
+
+/-- Number of positive residual blocks, hence also number of matching
+transitions. -/
+def blockCount
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) : ℕ :=
+  code.1.1
+
+/-- Marked oriented start vertex. -/
+def start
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) : A ⊕ B :=
+  code.2.1
+
+/-- Underlying closed relaxed chain. -/
+def chain
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) :
+    RelaxedBlockChainCode (A ⊕ B)
+      (Fintype.card (A ⊕ B)) code.blockCount code.start code.start :=
+  code.2.2
+
+theorem blockCount_pos
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) :
+    0 < code.blockCount :=
+  code.1.2
+
+@[simp]
+theorem transitionEdges_length
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) :
+    (relaxedBlockTransitionEdges code.chain).length = code.blockCount :=
+  relaxedBlockTransitionEdges_length code.chain
+
+theorem pathLength_mem_bounds
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) :
+    ∀ ell ∈ relaxedBlockPathLengths code.chain,
+      0 < ell ∧ ell ≤ Fintype.card (A ⊕ B) :=
+  relaxedBlockPathLengths_mem_bounds code.chain
+
+theorem closed
+    {A B : Type*} [Fintype A] [Fintype B]
+    (code : SourceFreeCycleCutCode A B) :
+    OrientedEdgeList.Joins code.start
+      (relaxedBlockOrientedEdges code.chain) code.start :=
+  relaxedBlockOrientedEdges_closed code.chain
+
+end SourceFreeCycleCutCode
+
+/-- The oriented marked matching edge that closes a cut traversal.  Its
+second endpoint is exactly `orientedMatchingStartState z`: after the closing
+transition the cyclic code is back at its marked start. -/
+def orientedMatchingClosingEdge
+    {A B : Type*} : ((A × B) × Bool) → (A ⊕ B) × (A ⊕ B)
+  | ((a, b), true) => (Sum.inr b, Sum.inl a)
+  | ((a, b), false) => (Sum.inl a, Sum.inr b)
+
+@[simp]
+theorem orientedMatchingClosingEdge_snd
+    {A B : Type*} (z : (A × B) × Bool) :
+    (orientedMatchingClosingEdge z).2 = orientedMatchingStartState z := by
+  rcases z with ⟨⟨a, b⟩, orientation⟩
+  cases orientation <;> rfl
+
+/-- The faithful-cut relation is external to the source-free code type.
+It states exactly what the still-missing construction from the covering cycle
+walk must establish.  In particular, none of these equalities or nodup proofs
+is stored in `SourceFreeCycleCutCode`. -/
+structure IsFaithfulCycleCut
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C M : Finset (A × B)) (code : SourceFreeCycleCutCode A B) : Prop where
+  blockCount_eq : code.blockCount = (C ∩ M).card
+  markedStart :
+    ∃ z ∈ orientedMatchingStarts (C ∩ M),
+      code.start = orientedMatchingStartState z ∧
+        (relaxedBlockTransitionEdges code.chain).getLast? =
+          some (orientedMatchingClosingEdge z)
+  residualCells_eq : decodeRelaxedResidualCells code.chain = C \ M
+  transitionCells_eq : decodeRelaxedTransitionCells code.chain = C ∩ M
+  orientedEdges_nodup : (relaxedBlockOrientedEdges code.chain).Nodup
+  residualEdges_decode :
+    ∀ edge ∈ relaxedBlockResidualEdges code.chain,
+      ∃ cell, orientedPairToCell edge = some cell
+  transitionEdges_decode :
+    ∀ edge ∈ relaxedBlockTransitionEdges code.chain,
+      ∃ cell, orientedPairToCell edge = some cell
+  residualCellList_nodup :
+    ((relaxedBlockResidualEdges code.chain).filterMap
+      orientedPairToCell).Nodup
+  transitionCellList_nodup :
+    ((relaxedBlockTransitionEdges code.chain).filterMap
+      orientedPairToCell).Nodup
+
+namespace IsFaithfulCycleCut
+
+/-- Reconstruction is derived from the two projections; it is not a field of
+the source-free target code. -/
+theorem decode_eq
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    decodeRelaxedBlockCells code.chain = C := by
+  rw [decodeRelaxedBlockCells_eq_union,
+    hcut.residualCells_eq, hcut.transitionCells_eq]
+  ext edge
+  simp
+  tauto
+
+/-- Exactly `|(C ∩ M)|` transitions are retained. -/
+theorem transitionEdges_length_eq_inter_card
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    (relaxedBlockTransitionEdges code.chain).length = (C ∩ M).card := by
+  rw [SourceFreeCycleCutCode.transitionEdges_length, hcut.blockCount_eq]
+
+/-- The decoded transition list also has exactly `|(C ∩ M)|` entries, so a
+faithful cut neither drops a same-side transition nor merges two physical
+matching edges. -/
+theorem transitionCellList_length_eq_inter_card
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    ((relaxedBlockTransitionEdges code.chain).filterMap
+      orientedPairToCell).length = (C ∩ M).card := by
+  calc
+    ((relaxedBlockTransitionEdges code.chain).filterMap
+        orientedPairToCell).length =
+        (((relaxedBlockTransitionEdges code.chain).filterMap
+          orientedPairToCell).toFinset).card :=
+      (List.toFinset_card_of_nodup hcut.transitionCellList_nodup).symm
+    _ = (decodeRelaxedTransitionCells code.chain).card := rfl
+    _ = (C ∩ M).card := congrArg Finset.card hcut.transitionCells_eq
+
+/-- No residual oriented edge is silently discarded by the cell decoder. -/
+theorem residualCellList_length_eq_raw_length
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    ((relaxedBlockResidualEdges code.chain).filterMap
+      orientedPairToCell).length =
+        (relaxedBlockResidualEdges code.chain).length :=
+  filterMap_length_eq_length_of_forall_eq_some _ _
+    hcut.residualEdges_decode
+
+/-- The uniform transition decoder condition similarly rules out dropped
+matching transitions. -/
+theorem transitionCellList_length_eq_raw_length
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    ((relaxedBlockTransitionEdges code.chain).filterMap
+      orientedPairToCell).length =
+        (relaxedBlockTransitionEdges code.chain).length :=
+  filterMap_length_eq_length_of_forall_eq_some _ _
+    hcut.transitionEdges_decode
+
+/-- Consequently the raw residual list has exactly one oriented edge for
+each physical cell of `C \ M`; no weight factor can disappear through
+`filterMap`. -/
+theorem residualEdges_length_eq_sdiff_card
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    (relaxedBlockResidualEdges code.chain).length = (C \ M).card := by
+  calc
+    (relaxedBlockResidualEdges code.chain).length =
+        ((relaxedBlockResidualEdges code.chain).filterMap
+          orientedPairToCell).length :=
+      hcut.residualCellList_length_eq_raw_length.symm
+    _ = (((relaxedBlockResidualEdges code.chain).filterMap
+          orientedPairToCell).toFinset).card :=
+      (List.toFinset_card_of_nodup hcut.residualCellList_nodup).symm
+    _ = (decodeRelaxedResidualCells code.chain).card := rfl
+    _ = (C \ M).card := congrArg Finset.card hcut.residualCells_eq
+
+/-- The residual kernel weight is exactly the product over the physical
+decoded cells `C \ M`.  The no-drop and nodup fields are both essential:
+the former prevents missing factors, while the latter prevents repeated
+factors from being collapsed by `toFinset`. -/
+theorem residualWeight_eq_sdiff_prod
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) (q : A → B → ℝ≥0∞) :
+    orientedEdgeListWeight (bipartiteCellKernel q)
+        (relaxedBlockResidualEdges code.chain) =
+      (C \ M).prod (fun cell => q cell.1 cell.2) := by
+  calc
+    orientedEdgeListWeight (bipartiteCellKernel q)
+        (relaxedBlockResidualEdges code.chain) =
+        (((relaxedBlockResidualEdges code.chain).filterMap
+          orientedPairToCell).map
+            fun cell => q cell.1 cell.2).prod :=
+      orientedEdgeListWeight_bipartiteCellKernel_eq_cellListProd
+        q _ hcut.residualEdges_decode
+    _ = (((relaxedBlockResidualEdges code.chain).filterMap
+          orientedPairToCell).toFinset).prod
+            (fun cell => q cell.1 cell.2) :=
+      (List.prod_toFinset _ hcut.residualCellList_nodup).symm
+    _ = (decodeRelaxedResidualCells code.chain).prod
+          (fun cell => q cell.1 cell.2) := rfl
+    _ = (C \ M).prod (fun cell => q cell.1 cell.2) := by
+      rw [hcut.residualCells_eq]
+
+/-- Every faithful transition is a decoded cell of `C ∩ M`, hence belongs
+to `M` and has matching-traversal weight one. -/
+theorem transitionWeight_eq_one
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    orientedEdgeListWeight (matchingTraversalKernel M)
+      (relaxedBlockTransitionEdges code.chain) = 1 := by
+  apply orientedEdgeListWeight_matchingTraversalKernel_eq_one M
+  intro edge hedge
+  obtain ⟨cell, hdecode⟩ := hcut.transitionEdges_decode edge hedge
+  refine ⟨cell, hdecode, ?_⟩
+  have hcell : cell ∈ decodeRelaxedTransitionCells code.chain := by
+    simp only [decodeRelaxedTransitionCells, decodeOrientedCells,
+      List.mem_toFinset]
+    exact List.mem_filterMap.mpr ⟨edge, hedge, hdecode⟩
+  rw [hcut.transitionCells_eq] at hcell
+  exact (Finset.mem_inter.mp hcell).2
+
+/-- Exact physical-weight specialization for a faithful cut.  Since
+`ℝ≥0∞` is nonnegative, this covers every generic nonnegative cell weight `q`.
+The block-chain weight contains precisely the factors from `C \ M`; all
+matching transitions contribute one. -/
+theorem codeWeight_eq_sdiff_prod
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) (q : A → B → ℝ≥0∞) :
+    code.chain.weight (bipartiteCellKernel q) (matchingTraversalKernel M) =
+      (C \ M).prod (fun cell => q cell.1 cell.2) := by
+  rw [relaxedBlockChainCode_weight_eq_projection_weights,
+    hcut.residualWeight_eq_sdiff_prod q,
+    hcut.transitionWeight_eq_one, mul_one]
+
+/-- Raw residual and transition oriented-edge lists inherit nodup from the
+full physical traversal. -/
+theorem projection_orientedEdges_nodup
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hcut : IsFaithfulCycleCut C M code) :
+    (relaxedBlockResidualEdges code.chain).Nodup ∧
+      (relaxedBlockTransitionEdges code.chain).Nodup :=
+  relaxedBlock_projection_nodup code.chain hcut.orientedEdges_nodup
+
+/-- The block-count cutoff is a consequence of faithfulness and the matching
+property, whereas the path cutoff comes from the code type itself. -/
+theorem blockCount_le_vertex_count
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C M : Finset (A × B)} {code : SourceFreeCycleCutCode A B}
+    (hM : IsBipartiteMatching M)
+    (hcut : IsFaithfulCycleCut C M code) :
+    code.blockCount ≤ Fintype.card (A ⊕ B) := by
+  rw [hcut.blockCount_eq]
+  exact cycle_inter_matching_card_le_vertex_count C M hM
+
+end IsFaithfulCycleCut
+
+/-- Existence of a faithful source-free code for one physical cycle. -/
+def HasFaithfulCycleCut
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C M : Finset (A × B)) : Prop :=
+  ∃ code : SourceFreeCycleCutCode A B, IsFaithfulCycleCut C M code
+
+/-- Exact remaining physical combinatorial obligation.  Proving this
+proposition requires rotating the covering simple cycle walk to a marked edge
+of `C ∩ M` and splitting its edge list at every matching edge.  It is a
+definition, not an axiom or a theorem claimed by this module. -/
+def PhysicalCycleCuttingStatement
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : Prop :=
+  IsBipartiteMatching M →
+    ∀ C : Finset (A × B),
+      IsSimpleBipartiteCycle C → (C ∩ M).Nonempty →
+        HasFaithfulCycleCut C M
+
+#print axioms relaxedBlockOrientedEdges_closed
+#print axioms relaxedBlock_projection_nodup
+#print axioms relaxedBlockChainCode_weight_eq_projection_weights
+#print axioms cycle_inter_matching_card_le_vertex_count
+#print axioms IsFaithfulCycleCut.decode_eq
+#print axioms IsFaithfulCycleCut.blockCount_le_vertex_count
+#print axioms IsFaithfulCycleCut.residualEdges_length_eq_sdiff_card
+#print axioms IsFaithfulCycleCut.codeWeight_eq_sdiff_prod
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleWalkCutAtMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleWalkCutAtMatching
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhysicalCycleCutting
+Source: Erdos625/Section9PhysicalCycleCutting.lean
+Normalized SHA-256: 21d49614f75715975703bec426a93a36d566b3fa3aaed02d81fa6373c8df217d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhysicalCycleCutting
+
+/-!
+# Section 9: constructing the physical cycle cut
+
+This module begins the remaining physical construction behind
+`PhysicalCycleCuttingStatement`.  Its first layer is fully constructive: an
+oriented residual run is converted to the existing recursive kernel-path
+code, and a joined list of positive residual runs separated by oriented
+matching edges is assembled into the existing source-free relaxed block-chain
+code.  No source cycle or reconstruction certificate is added to that code.
+
+The subsequent obligation is to rotate the covering simple-cycle walk at a
+chosen edge of `C ∩ M` and produce the joined block list consumed below.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-! ## The oriented edge traversal carried by a graph walk -/
+
+/-- Forget adjacency proofs in the dart list while retaining the orientation
+and order of every traversed edge. -/
+def walkOrientedEdges
+    {V : Type*} {G : SimpleGraph V} {v w : V}
+    (p : G.Walk v w) : List (V × V) :=
+  p.darts.map fun dart => (dart.fst, dart.snd)
+
+@[simp]
+theorem walkOrientedEdges_length
+    {V : Type*} {G : SimpleGraph V} {v w : V}
+    (p : G.Walk v w) :
+    (walkOrientedEdges p).length = p.length := by
+  simp [walkOrientedEdges, p.length_darts]
+
+theorem walkOrientedEdges_joins
+    {V : Type*} {G : SimpleGraph V} {v w : V}
+    (p : G.Walk v w) :
+    OrientedEdgeList.Joins v (walkOrientedEdges p) w := by
+  induction p with
+  | nil => rfl
+  | cons h p ih =>
+      simp only [walkOrientedEdges, SimpleGraph.Walk.darts_cons,
+        List.map_cons]
+      exact ⟨rfl, ih⟩
+
+/-- Forgetting orientation recovers Mathlib's edge list exactly. -/
+theorem walkOrientedEdges_map_sym2
+    {V : Type*} {G : SimpleGraph V} {v w : V}
+    (p : G.Walk v w) :
+    (walkOrientedEdges p).map (fun edge => s(edge.1, edge.2)) =
+      p.edges := by
+  simp [walkOrientedEdges, SimpleGraph.Walk.edges, List.map_map,
+    SimpleGraph.Dart.edge]
+
+/-- A cycle's oriented traversal has no repeated oriented edge. -/
+theorem walkOrientedEdges_nodup_of_isCycle
+    {V : Type*} {G : SimpleGraph V} {v : V}
+    {p : G.Walk v v} (hp : p.IsCycle) :
+    (walkOrientedEdges p).Nodup := by
+  apply List.Nodup.of_map (fun edge => s(edge.1, edge.2))
+  rw [walkOrientedEdges_map_sym2]
+  exact hp.edges_nodup
+
+/-- Every oriented edge of a `cellGraph C` walk decodes to a genuine cell of
+`C`; same-side pairs cannot occur. -/
+theorem walkOrientedEdge_decodes_mem
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v w : A ⊕ B}
+    (p : (cellGraph C).Walk v w)
+    {edge : (A ⊕ B) × (A ⊕ B)}
+    (hedge : edge ∈ walkOrientedEdges p) :
+    ∃ cell ∈ C, orientedPairToCell edge = some cell := by
+  unfold walkOrientedEdges at hedge
+  obtain ⟨dart, hdart, rfl⟩ := List.mem_map.mp hedge
+  rcases dart with ⟨⟨u, x⟩, hadj⟩
+  rcases u with a | b <;> rcases x with a' | b' <;>
+    simp [cellGraph, orientedPairToCell] at hadj ⊢
+  all_goals exact hadj
+
+theorem cellSym2_injective {A B : Type*} :
+    Function.Injective (@cellSym2 A B) := by
+  intro left right
+  rcases left with ⟨a, b⟩
+  rcases right with ⟨a', b'⟩
+  simp [cellSym2]
+
+theorem cellSym2_eq_sym2_of_orientedPairToCell_eq_some
+    {A B : Type*} {edge : (A ⊕ B) × (A ⊕ B)} {cell : A × B}
+    (hdecode : orientedPairToCell edge = some cell) :
+    cellSym2 cell = s(edge.1, edge.2) := by
+  rcases edge with ⟨u, x⟩
+  rcases u with a | b <;> rcases x with a' | b' <;>
+    simp [orientedPairToCell, cellSym2] at hdecode ⊢
+  all_goals subst cell
+  all_goals exact ⟨rfl, rfl⟩
+
+/-- The decoded list of any `cellGraph C` walk is contained in `C`. -/
+theorem decodeOrientedCells_walkOrientedEdges_subset
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v w : A ⊕ B}
+    (p : (cellGraph C).Walk v w) :
+    decodeOrientedCells (walkOrientedEdges p) ⊆ C := by
+  intro cell hcell
+  simp only [decodeOrientedCells, List.mem_toFinset] at hcell
+  obtain ⟨edge, hedge, hdecode⟩ := List.mem_filterMap.mp hcell
+  obtain ⟨sourceCell, hsourceCell, hsourceDecode⟩ :=
+    walkOrientedEdge_decodes_mem p hedge
+  have : sourceCell = cell := by
+    exact Option.some.inj (hsourceDecode.symm.trans hdecode)
+  simpa [this] using hsourceCell
+
+/-- When the walk covers exactly `C`, its source-free decoder recovers `C`.
+-/
+theorem decodeOrientedCells_walkOrientedEdges_eq_of_cover
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v w : A ⊕ B}
+    (p : (cellGraph C).Walk v w)
+    (hcover : p.edges.toFinset = C.image cellSym2) :
+    decodeOrientedCells (walkOrientedEdges p) = C := by
+  apply Finset.Subset.antisymm
+  · exact decodeOrientedCells_walkOrientedEdges_subset p
+  · intro cell hcell
+    have hedgeSym : cellSym2 cell ∈ p.edges := by
+      rw [← List.mem_toFinset, hcover]
+      exact Finset.mem_image.mpr ⟨cell, hcell, rfl⟩
+    rw [← walkOrientedEdges_map_sym2] at hedgeSym
+    obtain ⟨edge, hedge, hsym⟩ := List.mem_map.mp hedgeSym
+    obtain ⟨sourceCell, hsourceCell, hdecode⟩ :=
+      walkOrientedEdge_decodes_mem p hedge
+    have hsourceSym : cellSym2 sourceCell = cellSym2 cell := by
+      rw [cellSym2_eq_sym2_of_orientedPairToCell_eq_some hdecode, hsym]
+    have hsource : sourceCell = cell := cellSym2_injective hsourceSym
+    subst sourceCell
+    simp only [decodeOrientedCells, List.mem_toFinset]
+    exact List.mem_filterMap.mpr ⟨edge, hedge, hdecode⟩
+
+/-- Every covered physical cell has an oriented representative in the walk.
+-/
+theorem exists_walkOrientedEdge_of_mem_of_cover
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v w : A ⊕ B}
+    (p : (cellGraph C).Walk v w)
+    (hcover : p.edges.toFinset = C.image cellSym2)
+    {cell : A × B} (hcell : cell ∈ C) :
+    ∃ edge ∈ walkOrientedEdges p,
+      orientedPairToCell edge = some cell := by
+  have hedgeSym : cellSym2 cell ∈ p.edges := by
+    rw [← List.mem_toFinset, hcover]
+    exact Finset.mem_image.mpr ⟨cell, hcell, rfl⟩
+  rw [← walkOrientedEdges_map_sym2] at hedgeSym
+  obtain ⟨edge, hedge, hsym⟩ := List.mem_map.mp hedgeSym
+  obtain ⟨sourceCell, _, hdecode⟩ :=
+    walkOrientedEdge_decodes_mem p hedge
+  have hsourceSym : cellSym2 sourceCell = cellSym2 cell := by
+    rw [cellSym2_eq_sym2_of_orientedPairToCell_eq_some hdecode, hsym]
+  have hsource : sourceCell = cell := cellSym2_injective hsourceSym
+  subst sourceCell
+  exact ⟨edge, hedge, hdecode⟩
+
+/-- If every oriented pair decodes, mapping the decoded cells back to
+undirected edges recovers the orientation-forgetting map exactly. -/
+theorem map_cellSym2_filterMap_orientedPairToCell
+    {A B : Type*} (edges : List ((A ⊕ B) × (A ⊕ B)))
+    (hdecode : ∀ edge ∈ edges,
+      ∃ cell, orientedPairToCell edge = some cell) :
+    (edges.filterMap orientedPairToCell).map cellSym2 =
+      edges.map (fun edge => s(edge.1, edge.2)) := by
+  induction edges with
+  | nil => rfl
+  | cons edge tail ih =>
+      obtain ⟨cell, hcell⟩ := hdecode edge (by simp)
+      have htail : ∀ e ∈ tail,
+          ∃ c, orientedPairToCell e = some c := by
+        intro e he
+        exact hdecode e (by simp [he])
+      simp [hcell, ih htail,
+        cellSym2_eq_sym2_of_orientedPairToCell_eq_some hcell]
+
+/-- A covering simple-cycle walk decodes to a noduplicated physical cell
+list. -/
+theorem filterMap_orientedPairToCell_walkOrientedEdges_nodup
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v : A ⊕ B}
+    {p : (cellGraph C).Walk v v} (hp : p.IsCycle) :
+    ((walkOrientedEdges p).filterMap orientedPairToCell).Nodup := by
+  apply List.Nodup.of_map cellSym2
+  rw [map_cellSym2_filterMap_orientedPairToCell]
+  · rw [walkOrientedEdges_map_sym2]
+    exact hp.edges_nodup
+  · intro edge hedge
+    obtain ⟨cell, _, hdecode⟩ := walkOrientedEdge_decodes_mem p hedge
+    exact ⟨cell, hdecode⟩
+
+theorem decodeOrientedCells_eq_of_perm
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {left right : List ((A ⊕ B) × (A ⊕ B))}
+    (hperm : left.Perm right) :
+    decodeOrientedCells left = decodeOrientedCells right := by
+  unfold decodeOrientedCells
+  apply List.toFinset_eq_of_perm
+  rw [List.filterMap_eq_flatMap_toList, List.filterMap_eq_flatMap_toList]
+  exact hperm.flatMap (fun _ _ => .refl _)
+
+/-- Decoded-cell nodup is preserved by any permutation of a covering cycle's
+oriented traversal. -/
+theorem filterMap_orientedPairToCell_nodup_of_perm_walkOrientedEdges
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v : A ⊕ B}
+    {p : (cellGraph C).Walk v v} (hp : p.IsCycle)
+    {edges : List ((A ⊕ B) × (A ⊕ B))}
+    (hperm : (walkOrientedEdges p).Perm edges) :
+    (edges.filterMap orientedPairToCell).Nodup := by
+  apply List.Nodup.of_map cellSym2
+  rw [map_cellSym2_filterMap_orientedPairToCell]
+  · have hmapPerm := hperm.map (fun edge => s(edge.1, edge.2))
+    apply hmapPerm.nodup_iff.mp
+    rw [walkOrientedEdges_map_sym2]
+    exact hp.edges_nodup
+  · intro edge hedge
+    have hedgeWalk : edge ∈ walkOrientedEdges p :=
+      hperm.mem_iff.mpr hedge
+    obtain ⟨cell, _, hdecode⟩ :=
+      walkOrientedEdge_decodes_mem p hedgeWalk
+    exact ⟨cell, hdecode⟩
+
+/-- An oriented pair is a separator when it decodes to a cell of `M`. -/
+def isMatchingTransition
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edge : (A ⊕ B) × (A ⊕ B)) : Bool :=
+  match orientedPairToCell edge with
+  | some cell => decide (cell ∈ M)
+  | none => false
+
+theorem isMatchingTransition_eq_true_iff
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edge : (A ⊕ B) × (A ⊕ B)) :
+    isMatchingTransition M edge = true ↔
+      ∃ cell ∈ M, orientedPairToCell edge = some cell := by
+  rcases edge with ⟨u, x⟩
+  rcases u with a | b <;> rcases x with a' | b' <;>
+    simp [isMatchingTransition, orientedPairToCell]
+
+/-- Filtering by matching transitions decodes exactly the intersection with
+`M`. -/
+theorem decodeOrientedCells_filter_isMatchingTransition
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edges : List ((A ⊕ B) × (A ⊕ B))) :
+    decodeOrientedCells
+        (edges.filter (isMatchingTransition M)) =
+      decodeOrientedCells edges ∩ M := by
+  classical
+  ext cell
+  constructor
+  · intro hcell
+    simp only [decodeOrientedCells, List.mem_toFinset] at hcell
+    obtain ⟨edge, hedgeFiltered, hdecode⟩ :=
+      List.mem_filterMap.mp hcell
+    have hedge : edge ∈ edges := List.mem_of_mem_filter hedgeFiltered
+    obtain ⟨sourceCell, hsourceMem, hsourceDecode⟩ :=
+      (isMatchingTransition_eq_true_iff M edge).mp
+        (List.of_mem_filter hedgeFiltered)
+    have hsource : sourceCell = cell :=
+      Option.some.inj (hsourceDecode.symm.trans hdecode)
+    subst sourceCell
+    exact Finset.mem_inter.mpr
+      ⟨by
+        simp only [decodeOrientedCells, List.mem_toFinset]
+        exact List.mem_filterMap.mpr ⟨edge, hedge, hdecode⟩,
+       hsourceMem⟩
+  · intro hcell
+    obtain ⟨hdecoded, hmem⟩ := Finset.mem_inter.mp hcell
+    simp only [decodeOrientedCells, List.mem_toFinset] at hdecoded ⊢
+    obtain ⟨edge, hedge, hdecode⟩ := List.mem_filterMap.mp hdecoded
+    refine List.mem_filterMap.mpr ⟨edge, ?_, hdecode⟩
+    exact List.mem_filter_of_mem hedge
+      ((isMatchingTransition_eq_true_iff M edge).mpr
+        ⟨cell, hmem, hdecode⟩)
+
+/-- Filtering by nontransitions decodes exactly the difference from `M`. -/
+theorem decodeOrientedCells_filter_not_isMatchingTransition
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edges : List ((A ⊕ B) × (A ⊕ B))) :
+    decodeOrientedCells
+        (edges.filter (fun edge => !(isMatchingTransition M edge))) =
+      decodeOrientedCells edges \ M := by
+  classical
+  ext cell
+  constructor
+  · intro hcell
+    simp only [decodeOrientedCells, List.mem_toFinset] at hcell
+    obtain ⟨edge, hedgeFiltered, hdecode⟩ :=
+      List.mem_filterMap.mp hcell
+    have hedge : edge ∈ edges := List.mem_of_mem_filter hedgeFiltered
+    have hnotSeparator : isMatchingTransition M edge = false := by
+      simpa using List.of_mem_filter hedgeFiltered
+    refine Finset.mem_sdiff.mpr ⟨?_, ?_⟩
+    · simp only [decodeOrientedCells, List.mem_toFinset]
+      exact List.mem_filterMap.mpr ⟨edge, hedge, hdecode⟩
+    · intro hmem
+      have htrue := (isMatchingTransition_eq_true_iff M edge).mpr
+        ⟨cell, hmem, hdecode⟩
+      exact Bool.false_ne_true (hnotSeparator.symm.trans htrue)
+  · intro hcell
+    obtain ⟨hdecoded, hnotMem⟩ := Finset.mem_sdiff.mp hcell
+    simp only [decodeOrientedCells, List.mem_toFinset] at hdecoded ⊢
+    obtain ⟨edge, hedge, hdecode⟩ := List.mem_filterMap.mp hdecoded
+    refine List.mem_filterMap.mpr ⟨edge, ?_, hdecode⟩
+    apply List.mem_filter_of_mem hedge
+    have hfalse : isMatchingTransition M edge = false := by
+      apply Bool.eq_false_of_not_eq_true
+      intro htrue
+      obtain ⟨sourceCell, hsourceMem, hsourceDecode⟩ :=
+        (isMatchingTransition_eq_true_iff M edge).mp htrue
+      have hsource : sourceCell = cell :=
+        Option.some.inj (hsourceDecode.symm.trans hdecode)
+      exact hnotMem (hsource ▸ hsourceMem)
+    simp [hfalse]
+
+/-! ## Cutting and rotating a closed oriented edge list -/
+
+namespace OrientedEdgeList
+
+theorem joins_append_iff
+    {V : Type*} {v w : V} {left right : List (V × V)} :
+    Joins v (left ++ right) w ↔
+      ∃ middle, Joins v left middle ∧ Joins middle right w := by
+  constructor
+  · intro hjoins
+    induction left generalizing v with
+    | nil =>
+        exact ⟨v, rfl, hjoins⟩
+    | cons edge tail ih =>
+        rcases edge with ⟨x, y⟩
+        simp only [List.cons_append, Joins] at hjoins
+        obtain ⟨middle, htail, hright⟩ := ih hjoins.2
+        exact ⟨middle, ⟨hjoins.1, htail⟩, hright⟩
+  · rintro ⟨middle, hleft, hright⟩
+    exact joins_append hleft hright
+
+end OrientedEdgeList
+
+/-- Rotate a closed oriented traversal immediately after any selected edge.
+The selected oriented edge becomes the final closing edge, and the new start
+is its second endpoint. -/
+theorem exists_closed_rotation_ending_at
+    {V : Type*} {start : V} {edges : List (V × V)}
+    (hclosed : OrientedEdgeList.Joins start edges start)
+    {closing : V × V} (hclosing : closing ∈ edges) :
+    ∃ initial : List (V × V),
+      edges.Perm (initial ++ [closing]) ∧
+        OrientedEdgeList.Joins closing.2
+          (initial ++ [closing]) closing.2 ∧
+        (initial ++ [closing]).getLast? = some closing := by
+  obtain ⟨before, after, hedges⟩ := List.mem_iff_append.mp hclosing
+  rcases closing with ⟨u, x⟩
+  rw [hedges] at hclosed
+  obtain ⟨middle, hbefore, hrest⟩ :=
+    OrientedEdgeList.joins_append_iff.mp hclosed
+  simp only [OrientedEdgeList.Joins] at hrest
+  rcases hrest with ⟨rfl, hafter⟩
+  refine ⟨after ++ before, ?_, ?_, ?_⟩
+  · rw [hedges]
+    simpa [List.append_assoc] using
+      (List.perm_append_comm :
+        List.Perm ((before ++ [(u, x)]) ++ after)
+          (after ++ (before ++ [(u, x)])))
+  · rw [List.append_assoc]
+    apply OrientedEdgeList.joins_append hafter
+    apply OrientedEdgeList.joins_append hbefore
+    exact ⟨rfl, rfl⟩
+  · simp
+
+/-! ## Reifying joined oriented edge lists as kernel path codes -/
+
+/-- Every finite joined oriented edge list is represented by an actual
+recursive `KernelPathCode`, with exactly the same oriented edges. -/
+theorem exists_kernelPathCode_orientedEdges_eq
+    {V : Type*} {v w : V} (edges : List (V × V))
+    (hjoins : OrientedEdgeList.Joins v edges w) :
+    ∃ code : KernelPathCode V edges.length v w,
+      kernelPathOrientedEdges code = edges := by
+  induction edges generalizing v with
+  | nil =>
+      simp only [OrientedEdgeList.Joins] at hjoins
+      subst w
+      exact ⟨⟨v, rfl, rfl⟩, rfl⟩
+  | cons edge tail ih =>
+      rcases edge with ⟨x, y⟩
+      simp only [OrientedEdgeList.Joins] at hjoins
+      rcases hjoins with ⟨rfl, hjoins⟩
+      obtain ⟨tailCode, htailCode⟩ := ih hjoins
+      refine ⟨⟨y, tailCode⟩, ?_⟩
+      simp [kernelPathOrientedEdges, htailCode]
+
+/-- Transport a path code across an equality of lengths. -/
+def castKernelPathCode
+    {V : Type*} {m n : ℕ} {v w : V} (h : m = n)
+    (code : KernelPathCode V m v w) : KernelPathCode V n v w :=
+  h ▸ code
+
+@[simp]
+theorem kernelPathOrientedEdges_castKernelPathCode
+    {V : Type*} {m n : ℕ} {v w : V} (h : m = n)
+    (code : KernelPathCode V m v w) :
+    kernelPathOrientedEdges (castKernelPathCode h code) =
+      kernelPathOrientedEdges code := by
+  subst n
+  rfl
+
+/-- A nonempty joined run satisfying the independent path cutoff is
+represented by an actual `PositiveKernelPathCode`. -/
+theorem exists_positiveKernelPathCode_orientedEdges_eq
+    {V : Type*} {L : ℕ} {v w : V} (edges : List (V × V))
+    (hjoins : OrientedEdgeList.Joins v edges w)
+    (hpositive : 0 < edges.length) (hcutoff : edges.length ≤ L) :
+    ∃ code : PositiveKernelPathCode V L v w,
+      positivePathOrientedEdges code = edges := by
+  obtain ⟨fixedCode, hfixedCode⟩ :=
+    exists_kernelPathCode_orientedEdges_eq edges hjoins
+  obtain ⟨ell, hell⟩ := Nat.exists_eq_succ_of_ne_zero hpositive.ne'
+  have hellL : ell < L := by omega
+  let castCode : KernelPathCode V (ell + 1) v w :=
+    castKernelPathCode hell fixedCode
+  refine ⟨⟨⟨ell, hellL⟩, castCode⟩, ?_⟩
+  change kernelPathOrientedEdges castCode = edges
+  dsimp only [castCode]
+  rw [kernelPathOrientedEdges_castKernelPathCode, hfixedCode]
+
+/-! ## Joined lists of residual runs and transition edges -/
+
+/-- One physical cut block consists of a residual run followed by its
+oriented matching transition. -/
+abbrev PhysicalCutBlock (V : Type*) := List (V × V) × (V × V)
+
+namespace PhysicalCutBlockList
+
+/-- The blocks join from `v` to `w`: each residual run reaches the first
+endpoint of its transition, and the next block starts at the second endpoint.
+-/
+def Joins {V : Type*} :
+    V → List (PhysicalCutBlock V) → V → Prop
+  | v, [], w => v = w
+  | v, (run, (u, x)) :: blocks, w =>
+      OrientedEdgeList.Joins v run u ∧ Joins x blocks w
+
+/-- Concatenation of all residual runs, retaining multiplicity and
+orientation. -/
+def residualEdges {V : Type*}
+    (blocks : List (PhysicalCutBlock V)) : List (V × V) :=
+  blocks.flatMap Prod.fst
+
+/-- One transition edge per block. -/
+def transitionEdges {V : Type*}
+    (blocks : List (PhysicalCutBlock V)) : List (V × V) :=
+  blocks.map Prod.snd
+
+/-- Physical traversal order: each residual run followed by its transition.
+-/
+def orientedEdges {V : Type*}
+    (blocks : List (PhysicalCutBlock V)) : List (V × V) :=
+  blocks.flatMap fun block => block.1 ++ [block.2]
+
+@[simp]
+theorem transitionEdges_length {V : Type*}
+    (blocks : List (PhysicalCutBlock V)) :
+    (transitionEdges blocks).length = blocks.length := by
+  simp [transitionEdges]
+
+theorem joins_orientedEdges
+    {V : Type*} {v w : V} {blocks : List (PhysicalCutBlock V)}
+    (hjoins : Joins v blocks w) :
+    OrientedEdgeList.Joins v (orientedEdges blocks) w := by
+  induction blocks generalizing v with
+  | nil =>
+      simpa [Joins, orientedEdges] using hjoins
+  | cons block blocks ih =>
+      rcases block with ⟨run, ⟨u, x⟩⟩
+      simp only [Joins] at hjoins
+      simp only [orientedEdges, List.flatMap_cons]
+      rw [List.append_assoc]
+      apply OrientedEdgeList.joins_append hjoins.1
+      exact ⟨rfl, ih hjoins.2⟩
+
+theorem joins_of_orientedEdges
+    {V : Type*} {v w : V} {blocks : List (PhysicalCutBlock V)}
+    (hjoins : OrientedEdgeList.Joins v (orientedEdges blocks) w) :
+    Joins v blocks w := by
+  induction blocks generalizing v with
+  | nil =>
+      simpa [Joins, orientedEdges] using hjoins
+  | cons block blocks ih =>
+      rcases block with ⟨run, ⟨u, x⟩⟩
+      simp only [orientedEdges, List.flatMap_cons] at hjoins
+      obtain ⟨middle, hfirst, htail⟩ :=
+        OrientedEdgeList.joins_append_iff.mp hjoins
+      obtain ⟨preTransition, hrun, htransition⟩ :=
+        OrientedEdgeList.joins_append_iff.mp hfirst
+      simp only [OrientedEdgeList.Joins] at htransition
+      rcases htransition with ⟨rfl, rfl⟩
+      exact ⟨hrun, ih htail⟩
+
+theorem decode_orientedEdges_eq_union
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (blocks : List (PhysicalCutBlock (A ⊕ B))) :
+    decodeOrientedCells (orientedEdges blocks) =
+      decodeOrientedCells (residualEdges blocks) ∪
+        decodeOrientedCells (transitionEdges blocks) := by
+  induction blocks with
+  | nil =>
+      simp [orientedEdges, residualEdges, transitionEdges,
+        decodeOrientedCells]
+  | cons block blocks ih =>
+      rcases block with ⟨run, separator⟩
+      have htail :
+          decodeOrientedCells
+              (List.flatMap (fun block => block.1 ++ [block.2]) blocks) =
+            decodeOrientedCells (List.flatMap Prod.fst blocks) ∪
+              decodeOrientedCells (List.map Prod.snd blocks) := by
+        simpa only [orientedEdges, residualEdges, transitionEdges] using ih
+      simp only [orientedEdges, residualEdges, transitionEdges,
+        List.flatMap_cons, List.map_cons, decodeOrientedCells_append,
+        decodeOrientedCells_cons_eq]
+      rw [htail]
+      ext cell
+      simp only [Finset.mem_union]
+      tauto
+
+end PhysicalCutBlockList
+
+/-! ## Deterministic linear splitting at separator edges -/
+
+/-- Scan backward and attach every nonseparator edge to the next separator.
+Any suffix after the final separator is intentionally omitted; the physical
+application first rotates the cyclic traversal so that its marked separator
+is the final edge, and the theorem below then proves that nothing is omitted.
+-/
+def cutAtSeparators {V : Type*} (isSeparator : V × V → Bool) :
+    List (V × V) → List (PhysicalCutBlock V)
+  | [] => []
+  | edge :: tail =>
+      if isSeparator edge = true then
+        ([], edge) :: cutAtSeparators isSeparator tail
+      else
+        match cutAtSeparators isSeparator tail with
+        | [] => []
+        | (run, separator) :: blocks =>
+            (edge :: run, separator) :: blocks
+
+/-- The transition projection of the deterministic split is exactly the
+separator subsequence, including multiplicity and order. -/
+theorem transitionEdges_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V)) :
+    PhysicalCutBlockList.transitionEdges
+        (cutAtSeparators isSeparator edges) =
+      edges.filter isSeparator := by
+  induction edges with
+  | nil => rfl
+  | cons edge tail ih =>
+      rw [cutAtSeparators, List.filter_cons]
+      by_cases hedge : isSeparator edge = true
+      · simp only [hedge, ↓reduceIte,
+          PhysicalCutBlockList.transitionEdges, List.map_cons]
+        exact congrArg (List.cons edge) ih
+      · simp only [hedge]
+        generalize hblocks : cutAtSeparators isSeparator tail = blocks
+        cases blocks with
+        | nil =>
+            have htail := ih
+            rw [hblocks] at htail
+            simpa [PhysicalCutBlockList.transitionEdges] using htail
+        | cons block blocks =>
+            rcases block with ⟨run, separator⟩
+            have htail := ih
+            rw [hblocks] at htail
+            simpa [PhysicalCutBlockList.transitionEdges] using htail
+
+@[simp]
+theorem cutAtSeparators_length
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V)) :
+    (cutAtSeparators isSeparator edges).length =
+      (edges.filter isSeparator).length := by
+  calc
+    (cutAtSeparators isSeparator edges).length =
+        (PhysicalCutBlockList.transitionEdges
+          (cutAtSeparators isSeparator edges)).length :=
+      (PhysicalCutBlockList.transitionEdges_length _).symm
+    _ = (edges.filter isSeparator).length :=
+      congrArg List.length
+        (transitionEdges_cutAtSeparators isSeparator edges)
+
+theorem separator_of_mem_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    {edges : List (V × V)}
+    {block : PhysicalCutBlock V}
+    (hblock : block ∈ cutAtSeparators isSeparator edges) :
+    isSeparator block.2 = true := by
+  have htransition :
+      block.2 ∈ PhysicalCutBlockList.transitionEdges
+        (cutAtSeparators isSeparator edges) := by
+    simp only [PhysicalCutBlockList.transitionEdges, List.mem_map]
+    exact ⟨block, hblock, rfl⟩
+  rw [transitionEdges_cutAtSeparators] at htransition
+  exact List.of_mem_filter htransition
+
+/-- Every run edge lies outside the separator predicate. -/
+theorem run_edge_not_separator_of_mem_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V)) :
+    ∀ block ∈ cutAtSeparators isSeparator edges,
+      ∀ edge ∈ block.1, isSeparator edge ≠ true := by
+  induction edges with
+  | nil => simp [cutAtSeparators]
+  | cons edge tail ih =>
+      rw [cutAtSeparators]
+      by_cases hedge : isSeparator edge = true
+      · simpa [hedge] using ih
+      · simp only [hedge]
+        generalize hblocks : cutAtSeparators isSeparator tail = blocks
+        have htail := ih
+        rw [hblocks] at htail
+        cases blocks with
+        | nil => simp
+        | cons first blocks =>
+            rcases first with ⟨run, separator⟩
+            intro block hblock runEdge hrunEdge
+            rcases List.mem_cons.mp hblock with hblock | hblock
+            · subst block
+              simp only [List.mem_cons] at hrunEdge
+              rcases hrunEdge with rfl | hrunEdge
+              · exact hedge
+              · exact htail (run, separator) (by simp) runEdge hrunEdge
+            · exact htail block (by simp [hblock]) runEdge hrunEdge
+
+theorem residual_edge_not_separator_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    {edges : List (V × V)}
+    {edge : V × V}
+    (hedge : edge ∈ PhysicalCutBlockList.residualEdges
+      (cutAtSeparators isSeparator edges)) :
+    isSeparator edge ≠ true := by
+  unfold PhysicalCutBlockList.residualEdges at hedge
+  obtain ⟨block, hblock, hedge⟩ := List.mem_flatMap.mp hedge
+  exact run_edge_not_separator_of_mem_cutAtSeparators
+    isSeparator edges block hblock edge hedge
+
+/-- If a linearization ends at a separator, splitting loses no edge and
+produces at least one block. -/
+theorem cutAtSeparators_append_singleton
+    {V : Type*} (isSeparator : V × V → Bool)
+    (initial : List (V × V)) (closing : V × V)
+    (hclosing : isSeparator closing = true) :
+    cutAtSeparators isSeparator (initial ++ [closing]) ≠ [] ∧
+      PhysicalCutBlockList.orientedEdges
+          (cutAtSeparators isSeparator (initial ++ [closing])) =
+        initial ++ [closing] := by
+  induction initial with
+  | nil =>
+      simp [cutAtSeparators, hclosing,
+        PhysicalCutBlockList.orientedEdges]
+  | cons edge initial ih =>
+      rw [List.cons_append, cutAtSeparators]
+      by_cases hedge : isSeparator edge = true
+      · simp only [hedge, ↓reduceIte,
+          PhysicalCutBlockList.orientedEdges, List.flatMap_cons]
+        exact ⟨by simp,
+          congrArg (List.cons edge) ih.2⟩
+      · simp only [hedge]
+        generalize hblocks :
+          cutAtSeparators isSeparator (initial ++ [closing]) = blocks at ih ⊢
+        cases blocks with
+        | nil => exact False.elim (ih.1 rfl)
+        | cons block blocks =>
+            rcases block with ⟨run, separator⟩
+            constructor
+            · simp
+            · simp only [PhysicalCutBlockList.orientedEdges,
+                List.flatMap_cons] at ih ⊢
+              simpa [List.append_assoc] using congrArg (List.cons edge) ih.2
+
+/-- When the closing edge is a separator, the residual projection is exactly
+the nonseparator subsequence.  This list-level identity is stronger than the
+decoded-set identity used below and will supply the no-drop and nodup fields of
+the faithful cut. -/
+theorem residualEdges_cutAtSeparators_append_singleton
+    {V : Type*} (isSeparator : V × V → Bool)
+    (initial : List (V × V)) (closing : V × V)
+    (hclosing : isSeparator closing = true) :
+    PhysicalCutBlockList.residualEdges
+        (cutAtSeparators isSeparator (initial ++ [closing])) =
+      (initial ++ [closing]).filter (fun edge => !(isSeparator edge)) := by
+  induction initial with
+  | nil =>
+      simp [cutAtSeparators, hclosing,
+        PhysicalCutBlockList.residualEdges]
+  | cons edge initial ih =>
+      rw [List.cons_append, cutAtSeparators, List.filter_cons]
+      by_cases hedge : isSeparator edge = true
+      · simp only [hedge, Bool.not_true, Bool.false_eq_true, ↓reduceIte,
+          PhysicalCutBlockList.residualEdges, List.flatMap_cons,
+          List.nil_append]
+        simpa only [PhysicalCutBlockList.residualEdges,
+          List.filter_append] using ih
+      · simp only [hedge]
+        generalize hblocks :
+          cutAtSeparators isSeparator (initial ++ [closing]) = blocks at ih ⊢
+        cases blocks with
+        | nil =>
+            have hnonempty :=
+              (cutAtSeparators_append_singleton
+                isSeparator initial closing hclosing).1
+            exact False.elim (hnonempty hblocks)
+        | cons block blocks =>
+            rcases block with ⟨run, separator⟩
+            simp only [PhysicalCutBlockList.residualEdges,
+              List.flatMap_cons] at ih ⊢
+            simpa [List.append_assoc] using congrArg (List.cons edge) ih
+
+/-- The marked closing separator is the final transition of the split. -/
+theorem transitionEdges_cutAtSeparators_append_singleton_getLast?
+    {V : Type*} (isSeparator : V × V → Bool)
+    (initial : List (V × V)) (closing : V × V)
+    (hclosing : isSeparator closing = true) :
+    (PhysicalCutBlockList.transitionEdges
+      (cutAtSeparators isSeparator (initial ++ [closing]))).getLast? =
+        some closing := by
+  rw [transitionEdges_cutAtSeparators]
+  simp [List.filter_append, hclosing]
+
+/-- Every residual run produced by the splitter is a sublist of the input
+traversal.  In particular its length is bounded by the traversal length. -/
+theorem run_sublist_of_mem_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V)) :
+    ∀ block ∈ cutAtSeparators isSeparator edges,
+      block.1.Sublist edges := by
+  induction edges with
+  | nil => simp [cutAtSeparators]
+  | cons edge tail ih =>
+      rw [cutAtSeparators]
+      by_cases hedge : isSeparator edge = true
+      · simp only [hedge, ↓reduceIte]
+        intro block hblock
+        rcases List.mem_cons.mp hblock with hblock | hblock
+        · subst block
+          exact List.nil_sublist (edge :: tail)
+        · exact (ih block hblock).cons edge
+      · simp only [hedge]
+        generalize hblocks : cutAtSeparators isSeparator tail = blocks
+        have htail := ih
+        rw [hblocks] at htail
+        cases blocks with
+        | nil => simp
+        | cons first blocks =>
+            rcases first with ⟨run, separator⟩
+            intro block hblock
+            rcases List.mem_cons.mp hblock with hblock | hblock
+            · subst block
+              exact (htail (run, separator) (by simp)).cons_cons edge
+            · exact (htail block (by simp [hblock])).cons edge
+
+theorem run_length_le_of_mem_cutAtSeparators
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V))
+    {block : PhysicalCutBlock V}
+    (hblock : block ∈ cutAtSeparators isSeparator edges) :
+    block.1.length ≤ edges.length :=
+  (run_sublist_of_mem_cutAtSeparators isSeparator edges block hblock).length_le
+
+/-- No two consecutive edges are separators.  This is deliberately an
+adjacency condition, rather than `List.Pairwise`, because nonconsecutive
+matching edges are allowed. -/
+def SeparatorsSpaced {V : Type*} (isSeparator : V × V → Bool) :
+    List (V × V) → Prop
+  | [] => True
+  | [_] => True
+  | edge :: next :: tail =>
+      ¬ (isSeparator edge = true ∧ isSeparator next = true) ∧
+        SeparatorsSpaced isSeparator (next :: tail)
+
+/-- Structural splitter invariant.  Every block except possibly the first has
+a positive run; if the input begins with a nonseparator, the first run is
+positive as well. -/
+theorem cutAtSeparators_positive_invariants
+    {V : Type*} (isSeparator : V × V → Bool)
+    (edges : List (V × V)) (hspaced : SeparatorsSpaced isSeparator edges) :
+    (∀ block ∈ (cutAtSeparators isSeparator edges).tail,
+        0 < block.1.length) ∧
+      (match edges with
+       | [] => True
+       | first :: _ => isSeparator first ≠ true →
+           ∀ block ∈ cutAtSeparators isSeparator edges,
+             0 < block.1.length) := by
+  induction edges with
+  | nil => simp [cutAtSeparators]
+  | cons edge tail ih =>
+      cases tail with
+      | nil =>
+          by_cases hedge : isSeparator edge = true <;>
+            simp [cutAtSeparators, hedge]
+      | cons next tail =>
+          have hpair :
+              ¬ (isSeparator edge = true ∧
+                isSeparator next = true) := hspaced.1
+          have htailSpaced :
+              SeparatorsSpaced isSeparator (next :: tail) := hspaced.2
+          have htailInv := ih htailSpaced
+          rw [cutAtSeparators]
+          by_cases hedge : isSeparator edge = true
+          · simp only [hedge, ↓reduceIte, List.tail_cons]
+            have hnext : isSeparator next ≠ true := by
+              intro hnext
+              exact hpair ⟨hedge, hnext⟩
+            exact ⟨htailInv.2 hnext, fun h => False.elim (h rfl)⟩
+          · simp only [hedge]
+            generalize hblocks :
+              cutAtSeparators isSeparator (next :: tail) = blocks
+            have htailPositive := htailInv.1
+            rw [hblocks] at htailPositive
+            cases blocks with
+            | nil => simp
+            | cons first blocks =>
+                rcases first with ⟨run, separator⟩
+                constructor
+                · exact htailPositive
+                · intro _ block hblock
+                  rcases List.mem_cons.mp hblock with hblock | hblock
+                  · subst block
+                    simp
+                  · exact htailPositive block hblock
+
+theorem cutAtSeparators_runs_positive_of_head_not_separator
+    {V : Type*} (isSeparator : V × V → Bool)
+    (first : V × V) (tail : List (V × V))
+    (hspaced : SeparatorsSpaced isSeparator (first :: tail))
+    (hfirst : isSeparator first ≠ true) :
+    ∀ block ∈ cutAtSeparators isSeparator (first :: tail),
+      0 < block.1.length :=
+  (cutAtSeparators_positive_invariants isSeparator
+    (first :: tail) hspaced).2 hfirst
+
+/-- Two decoded matching cells carried by consecutive oriented edges must be
+the same cell: their common intermediate vertex is either a common row or a
+common column. -/
+theorem decoded_matching_cells_eq_of_join
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)} (hM : IsBipartiteMatching M)
+    {left right : (A ⊕ B) × (A ⊕ B)}
+    {leftCell rightCell : A × B}
+    (hjoin : left.2 = right.1)
+    (hleftMem : leftCell ∈ M) (hrightMem : rightCell ∈ M)
+    (hleftDecode : orientedPairToCell left = some leftCell)
+    (hrightDecode : orientedPairToCell right = some rightCell) :
+    leftCell = rightCell := by
+  rcases left with ⟨leftStart, leftFinish⟩
+  rcases right with ⟨rightStart, rightFinish⟩
+  rcases leftStart with a | b <;> rcases leftFinish with a' | b' <;>
+    rcases rightStart with c | d <;> rcases rightFinish with c' | d' <;>
+    simp [orientedPairToCell] at hleftDecode hrightDecode
+  all_goals subst leftCell
+  all_goals subst rightCell
+  all_goals simp at hjoin
+  all_goals subst_vars
+  · apply Prod.ext
+    · exact hM.2 _ _ _ hleftMem hrightMem
+    · rfl
+  · apply Prod.ext
+    · rfl
+    · exact hM.1 _ _ _ hleftMem hrightMem
+
+theorem matchingTransitions_not_both_of_join_sym2_ne
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (left right : (A ⊕ B) × (A ⊕ B))
+    (hjoin : left.2 = right.1)
+    (hsymNe : s(left.1, left.2) ≠ s(right.1, right.2)) :
+    ¬ (isMatchingTransition M left = true ∧
+      isMatchingTransition M right = true) := by
+  rintro ⟨hleft, hright⟩
+  obtain ⟨leftCell, hleftMem, hleftDecode⟩ :=
+    (isMatchingTransition_eq_true_iff M left).mp hleft
+  obtain ⟨rightCell, hrightMem, hrightDecode⟩ :=
+    (isMatchingTransition_eq_true_iff M right).mp hright
+  have hcells : leftCell = rightCell :=
+    decoded_matching_cells_eq_of_join hM hjoin
+      hleftMem hrightMem hleftDecode hrightDecode
+  apply hsymNe
+  rw [← cellSym2_eq_sym2_of_orientedPairToCell_eq_some hleftDecode,
+    ← cellSym2_eq_sym2_of_orientedPairToCell_eq_some hrightDecode,
+    hcells]
+
+/-- Along a joined edge-simple oriented traversal, matching transitions are
+spaced: two consecutive transitions would share a matching vertex and hence
+be the same undirected edge, contradicting edge simplicity. -/
+theorem separatorsSpaced_isMatchingTransition_of_joins_nodup
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    {start finish : A ⊕ B}
+    (edges : List ((A ⊕ B) × (A ⊕ B)))
+    (hjoins : OrientedEdgeList.Joins start edges finish)
+    (hnodup :
+      (edges.map (fun edge => s(edge.1, edge.2))).Nodup) :
+    SeparatorsSpaced (isMatchingTransition M) edges := by
+  induction edges generalizing start with
+  | nil => trivial
+  | cons edge tail ih =>
+      cases tail with
+      | nil => trivial
+      | cons next tail =>
+          have hjoin : edge.2 = next.1 := by
+            rcases edge with ⟨u, x⟩
+            rcases next with ⟨y, z⟩
+            exact hjoins.2.1.symm
+          have hsymNe :
+              s(edge.1, edge.2) ≠ s(next.1, next.2) := by
+            intro hsym
+            exact (List.nodup_cons.mp hnodup).1 (by simp [hsym])
+          constructor
+          · exact matchingTransitions_not_both_of_join_sym2_ne
+              M hM edge next hjoin hsymNe
+          · exact ih hjoins.2 (List.nodup_cons.mp hnodup).2
+
+/-- A closed traversal ending in a genuine bipartite edge cannot consist only
+of that edge: a one-edge closed traversal would be a loop. -/
+theorem initial_nonempty_of_closed_ending_decoded
+    {A B : Type*}
+    (initial : List ((A ⊕ B) × (A ⊕ B)))
+    (closing : (A ⊕ B) × (A ⊕ B))
+    (hclosed : OrientedEdgeList.Joins closing.2
+      (initial ++ [closing]) closing.2)
+    {cell : A × B}
+    (hdecode : orientedPairToCell closing = some cell) :
+    initial ≠ [] := by
+  intro hinitial
+  subst initial
+  rcases closing with ⟨u, x⟩
+  rcases u with a | b <;> rcases x with a' | b' <;>
+    simp [OrientedEdgeList.Joins, orientedPairToCell] at hclosed hdecode
+
+/-- In a closed edge-simple traversal whose last edge is a matching
+transition, the first edge is not a matching transition. -/
+theorem head_not_matching_of_closed_ending_matching
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (first : (A ⊕ B) × (A ⊕ B))
+    (tail : List ((A ⊕ B) × (A ⊕ B)))
+    (closing : (A ⊕ B) × (A ⊕ B))
+    (hclosed : OrientedEdgeList.Joins closing.2
+      ((first :: tail) ++ [closing]) closing.2)
+    (hnodup :
+      (((first :: tail) ++ [closing]).map
+        (fun edge => s(edge.1, edge.2))).Nodup)
+    (hclosing : isMatchingTransition M closing = true) :
+    isMatchingTransition M first ≠ true := by
+  have hjoin : closing.2 = first.1 := hclosed.1.symm
+  have hsymNe : s(closing.1, closing.2) ≠ s(first.1, first.2) := by
+    intro hsym
+    have hnotMem := (List.nodup_cons.mp hnodup).1
+    apply hnotMem
+    simp [hsym]
+  intro hfirst
+  exact matchingTransitions_not_both_of_join_sym2_ne
+    M hM closing first hjoin hsymNe ⟨hclosing, hfirst⟩
+
+/-- A decoded oriented cell canonically determines the Boolean orientation
+used by `orientedMatchingStarts`. -/
+theorem exists_orientedMatchingStart_of_decode_mem
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (S : Finset (A × B))
+    (edge : (A ⊕ B) × (A ⊕ B))
+    {cell : A × B} (hcell : cell ∈ S)
+    (hdecode : orientedPairToCell edge = some cell) :
+    ∃ z ∈ orientedMatchingStarts S,
+      edge.2 = orientedMatchingStartState z ∧
+        edge = orientedMatchingClosingEdge z := by
+  rcases edge with ⟨u, x⟩
+  rcases u with a | b <;> rcases x with a' | b' <;>
+    simp [orientedPairToCell] at hdecode
+  · subst cell
+    exact ⟨((a, b'), false), by
+      simp [orientedMatchingStarts, hcell], rfl, rfl⟩
+  · subst cell
+    exact ⟨((a', b), true), by
+      simp [orientedMatchingStarts, hcell], rfl, rfl⟩
+
+/-- Filtering before `filterMap` only removes decoded entries. -/
+theorem filterMap_filter_sublist
+    {X Y : Type*} (f : X → Option Y) (keep : X → Bool)
+    (xs : List X) :
+    (xs.filter keep).filterMap f |>.Sublist (xs.filterMap f) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+      cases hkeep : keep x <;> cases hdecode : f x <;>
+        simp [hkeep, hdecode, ih]
+
+/-- On any permutation of a covering simple-cycle traversal, the number of
+matching-transition edges is exactly the physical intersection cardinality.
+-/
+theorem matching_filter_length_eq_inter_card_of_perm_walk
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {C : Finset (A × B)} {v : A ⊕ B}
+    {p : (cellGraph C).Walk v v} (hp : p.IsCycle)
+    (hcover : p.edges.toFinset = C.image cellSym2)
+    (M : Finset (A × B))
+    (edges : List ((A ⊕ B) × (A ⊕ B)))
+    (hperm : (walkOrientedEdges p).Perm edges) :
+    (edges.filter (isMatchingTransition M)).length = (C ∩ M).card := by
+  have hfullDecode : ∀ edge ∈ edges,
+      ∃ cell, orientedPairToCell edge = some cell := by
+    intro edge hedge
+    have hedgeWalk : edge ∈ walkOrientedEdges p :=
+      hperm.mem_iff.mpr hedge
+    obtain ⟨cell, _, hdecode⟩ :=
+      walkOrientedEdge_decodes_mem p hedgeWalk
+    exact ⟨cell, hdecode⟩
+  have hfilteredDecode : ∀ edge ∈ edges.filter (isMatchingTransition M),
+      ∃ cell, orientedPairToCell edge = some cell := by
+    intro edge hedge
+    exact hfullDecode edge (List.mem_of_mem_filter hedge)
+  have hfullNodup :
+      (edges.filterMap orientedPairToCell).Nodup :=
+    filterMap_orientedPairToCell_nodup_of_perm_walkOrientedEdges hp hperm
+  have hfilteredNodup :
+      ((edges.filter (isMatchingTransition M)).filterMap
+        orientedPairToCell).Nodup :=
+    hfullNodup.sublist
+      (filterMap_filter_sublist orientedPairToCell
+        (isMatchingTransition M) edges)
+  have hdecodeFull : decodeOrientedCells edges = C := by
+    rw [← decodeOrientedCells_eq_of_perm hperm]
+    exact decodeOrientedCells_walkOrientedEdges_eq_of_cover p hcover
+  have hdecodeFiltered :
+      decodeOrientedCells (edges.filter (isMatchingTransition M)) =
+        C ∩ M := by
+    rw [decodeOrientedCells_filter_isMatchingTransition, hdecodeFull]
+  calc
+    (edges.filter (isMatchingTransition M)).length =
+        ((edges.filter (isMatchingTransition M)).filterMap
+          orientedPairToCell).length :=
+      (filterMap_length_eq_length_of_forall_eq_some _ _
+        hfilteredDecode).symm
+    _ = (decodeOrientedCells
+          (edges.filter (isMatchingTransition M))).card :=
+      (List.toFinset_card_of_nodup hfilteredNodup).symm
+    _ = (C ∩ M).card := congrArg Finset.card hdecodeFiltered
+
+theorem decode_transitionEdges_cutAtSeparators_eq_inter
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (edges : List ((A ⊕ B) × (A ⊕ B))) :
+    decodeOrientedCells
+        (PhysicalCutBlockList.transitionEdges
+          (cutAtSeparators (isMatchingTransition M) edges)) =
+      decodeOrientedCells edges ∩ M := by
+  classical
+  rw [transitionEdges_cutAtSeparators,
+    decodeOrientedCells_filter_isMatchingTransition]
+
+/-- For the matching-transition predicate, the residual projection of a
+no-loss split decodes exactly to the physical cells outside `M`. -/
+theorem decode_residualEdges_cutAtSeparators_eq_sdiff
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B))
+    (initial : List ((A ⊕ B) × (A ⊕ B)))
+    (closing : (A ⊕ B) × (A ⊕ B))
+    (hclosing : isMatchingTransition M closing = true) :
+    decodeOrientedCells
+        (PhysicalCutBlockList.residualEdges
+          (cutAtSeparators (isMatchingTransition M)
+            (initial ++ [closing]))) =
+      decodeOrientedCells (initial ++ [closing]) \ M := by
+  classical
+  let blocks := cutAtSeparators (isMatchingTransition M)
+    (initial ++ [closing])
+  have hflatten : PhysicalCutBlockList.orientedEdges blocks =
+      initial ++ [closing] :=
+    (cutAtSeparators_append_singleton
+      (isMatchingTransition M) initial closing hclosing).2
+  apply Finset.Subset.antisymm
+  · intro cell hresidual
+    refine Finset.mem_sdiff.mpr ⟨?_, ?_⟩
+    · have hunion :
+          cell ∈ decodeOrientedCells
+              (PhysicalCutBlockList.residualEdges blocks) ∪
+            decodeOrientedCells
+              (PhysicalCutBlockList.transitionEdges blocks) :=
+        Finset.mem_union_left _ hresidual
+      rw [← PhysicalCutBlockList.decode_orientedEdges_eq_union,
+        hflatten] at hunion
+      exact hunion
+    · simp only [decodeOrientedCells, List.mem_toFinset] at hresidual
+      obtain ⟨edge, hedge, hdecode⟩ :=
+        List.mem_filterMap.mp hresidual
+      have hnotSeparator : isMatchingTransition M edge ≠ true := by
+        exact residual_edge_not_separator_cutAtSeparators
+          (isMatchingTransition M) hedge
+      intro hcellM
+      exact hnotSeparator
+        ((isMatchingTransition_eq_true_iff M edge).mpr
+          ⟨cell, hcellM, hdecode⟩)
+  · intro cell houtside
+    obtain ⟨hfull, hnotM⟩ := Finset.mem_sdiff.mp houtside
+    have hunion :
+        cell ∈ decodeOrientedCells
+            (PhysicalCutBlockList.residualEdges blocks) ∪
+          decodeOrientedCells
+            (PhysicalCutBlockList.transitionEdges blocks) := by
+      rw [← PhysicalCutBlockList.decode_orientedEdges_eq_union,
+        hflatten]
+      exact hfull
+    rcases Finset.mem_union.mp hunion with hresidual | htransition
+    · exact hresidual
+    · exfalso
+      have htransitionEq :
+          decodeOrientedCells
+              (PhysicalCutBlockList.transitionEdges blocks) =
+            decodeOrientedCells (initial ++ [closing]) ∩ M := by
+        dsimp only [blocks]
+        exact decode_transitionEdges_cutAtSeparators_eq_inter M _
+      rw [htransitionEq] at htransition
+      exact hnotM (Finset.mem_inter.mp htransition).2
+
+/-! ## Assembly into the existing source-free dependent code -/
+
+/-- A joined block list with positive, cutoff-bounded residual runs assembles
+into an actual `RelaxedBlockChainCode`.  All three list projections are
+definitionally reconstructed, so this theorem does not assume decoding or
+injectivity. -/
+theorem exists_relaxedBlockChainCode_of_physicalCutBlocks
+    {V : Type*} {L : ℕ} {v w : V}
+    (blocks : List (PhysicalCutBlock V))
+    (hjoins : PhysicalCutBlockList.Joins v blocks w)
+    (hpositive : ∀ block ∈ blocks, 0 < block.1.length)
+    (hcutoff : ∀ block ∈ blocks, block.1.length ≤ L) :
+    ∃ code : RelaxedBlockChainCode V L blocks.length v w,
+      relaxedBlockResidualEdges code =
+          PhysicalCutBlockList.residualEdges blocks ∧
+        relaxedBlockTransitionEdges code =
+          PhysicalCutBlockList.transitionEdges blocks ∧
+        relaxedBlockOrientedEdges code =
+          PhysicalCutBlockList.orientedEdges blocks := by
+  induction blocks generalizing v with
+  | nil =>
+      simp only [PhysicalCutBlockList.Joins] at hjoins
+      subst w
+      let zeroCode : KernelPathCode V 0 v v := ⟨v, rfl, rfl⟩
+      refine ⟨zeroCode, ?_⟩
+      simp [relaxedBlockResidualEdges, relaxedBlockTransitionEdges,
+        relaxedBlockOrientedEdges, PhysicalCutBlockList.residualEdges,
+        PhysicalCutBlockList.transitionEdges,
+        PhysicalCutBlockList.orientedEdges]
+  | cons block blocks ih =>
+      rcases block with ⟨run, ⟨u, x⟩⟩
+      simp only [PhysicalCutBlockList.Joins] at hjoins
+      have hrunPositive : 0 < run.length :=
+        hpositive (run, (u, x)) (by simp)
+      have hrunCutoff : run.length ≤ L :=
+        hcutoff (run, (u, x)) (by simp)
+      obtain ⟨runCode, hrunCode⟩ :=
+        exists_positiveKernelPathCode_orientedEdges_eq run hjoins.1
+          hrunPositive hrunCutoff
+      have htailPositive : ∀ tailBlock ∈ blocks,
+          0 < tailBlock.1.length := by
+        intro tailBlock htailBlock
+        exact hpositive tailBlock (by simp [htailBlock])
+      have htailCutoff : ∀ tailBlock ∈ blocks,
+          tailBlock.1.length ≤ L := by
+        intro tailBlock htailBlock
+        exact hcutoff tailBlock (by simp [htailBlock])
+      obtain ⟨tailCode, hresidual, htransition, horiented⟩ :=
+        ih hjoins.2 htailPositive htailCutoff
+      let code : RelaxedBlockChainCode V L (blocks.length + 1) v w :=
+        ⟨x, ⟨⟨u, runCode⟩, tailCode⟩⟩
+      refine ⟨code, ?_, ?_, ?_⟩
+      · simp [code, relaxedBlockResidualEdges,
+          PhysicalCutBlockList.residualEdges, hrunCode, hresidual]
+      · simp [code, relaxedBlockTransitionEdges,
+          PhysicalCutBlockList.transitionEdges, htransition]
+      · simp [code, relaxedBlockOrientedEdges,
+          PhysicalCutBlockList.orientedEdges, hrunCode, horiented]
+
+/-- Closed joined blocks therefore produce a closed relaxed code with one
+transition per block and exactly the supplied physical traversal. -/
+theorem exists_closed_relaxedBlockChainCode_of_physicalCutBlocks
+    {V : Type*} {L : ℕ} {v : V}
+    (blocks : List (PhysicalCutBlock V))
+    (hjoins : PhysicalCutBlockList.Joins v blocks v)
+    (hpositive : ∀ block ∈ blocks, 0 < block.1.length)
+    (hcutoff : ∀ block ∈ blocks, block.1.length ≤ L) :
+    ∃ code : RelaxedBlockChainCode V L blocks.length v v,
+      relaxedBlockResidualEdges code =
+          PhysicalCutBlockList.residualEdges blocks ∧
+        relaxedBlockTransitionEdges code =
+          PhysicalCutBlockList.transitionEdges blocks ∧
+        relaxedBlockOrientedEdges code =
+          PhysicalCutBlockList.orientedEdges blocks ∧
+        OrientedEdgeList.Joins v (relaxedBlockOrientedEdges code) v := by
+  obtain ⟨code, hresidual, htransition, horiented⟩ :=
+    exists_relaxedBlockChainCode_of_physicalCutBlocks blocks hjoins
+      hpositive hcutoff
+  exact ⟨code, hresidual, htransition, horiented,
+    relaxedBlockOrientedEdges_closed code⟩
+
+/-! ## The physical cycle-cutting theorem -/
+
+/-- The remaining physical construction is realizable: rotate a covering
+simple-cycle walk after a marked matching edge, split at all matching edges,
+and assemble the resulting positive residual runs into the existing
+source-free code. -/
+theorem physicalCycleCuttingStatement
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : PhysicalCycleCuttingStatement M := by
+  intro hM C hC hCM
+  obtain ⟨v, p, hp, hcover, _, hlengthBound⟩ :=
+    exists_covering_cycleWalk_of_minimal_even C hC
+  obtain ⟨markedCell, hmarked⟩ := hCM
+  have hmarkedC : markedCell ∈ C := (Finset.mem_inter.mp hmarked).1
+  have hmarkedM : markedCell ∈ M := (Finset.mem_inter.mp hmarked).2
+  obtain ⟨closing, hclosingWalk, hclosingDecode⟩ :=
+    exists_walkOrientedEdge_of_mem_of_cover p hcover hmarkedC
+  have hclosingMatching : isMatchingTransition M closing = true :=
+    (isMatchingTransition_eq_true_iff M closing).mpr
+      ⟨markedCell, hmarkedM, hclosingDecode⟩
+  obtain ⟨initial, hrotationPerm, hrotationClosed, _⟩ :=
+    exists_closed_rotation_ending_at (walkOrientedEdges_joins p)
+      hclosingWalk
+  have hinitial : initial ≠ [] :=
+    initial_nonempty_of_closed_ending_decoded initial closing
+      hrotationClosed hclosingDecode
+  obtain ⟨first, tail, rfl⟩ := List.exists_cons_of_ne_nil hinitial
+  let rotated : List ((A ⊕ B) × (A ⊕ B)) :=
+    (first :: tail) ++ [closing]
+  let blocks : List (PhysicalCutBlock (A ⊕ B)) :=
+    cutAtSeparators (isMatchingTransition M) rotated
+  have hperm : (walkOrientedEdges p).Perm rotated := by
+    simpa only [rotated] using hrotationPerm
+  have hclosed : OrientedEdgeList.Joins closing.2 rotated closing.2 := by
+    simpa only [rotated] using hrotationClosed
+  have hsymNodupWalk :
+      ((walkOrientedEdges p).map
+        (fun edge => s(edge.1, edge.2))).Nodup := by
+    rw [walkOrientedEdges_map_sym2]
+    exact hp.edges_nodup
+  have hsymNodup :
+      (rotated.map (fun edge => s(edge.1, edge.2))).Nodup :=
+    (hperm.map (fun edge => s(edge.1, edge.2))).nodup_iff.mp
+      hsymNodupWalk
+  have horientedNodup : rotated.Nodup :=
+    hperm.nodup_iff.mp (walkOrientedEdges_nodup_of_isCycle hp)
+  have hcellListNodup :
+      (rotated.filterMap orientedPairToCell).Nodup :=
+    filterMap_orientedPairToCell_nodup_of_perm_walkOrientedEdges hp hperm
+  have hdecodeAll : ∀ edge ∈ rotated,
+      ∃ cell, orientedPairToCell edge = some cell := by
+    intro edge hedge
+    have hedgeWalk : edge ∈ walkOrientedEdges p := hperm.mem_iff.mpr hedge
+    obtain ⟨cell, _, hdecode⟩ :=
+      walkOrientedEdge_decodes_mem p hedgeWalk
+    exact ⟨cell, hdecode⟩
+  have hdecodeFull : decodeOrientedCells rotated = C := by
+    rw [← decodeOrientedCells_eq_of_perm hperm]
+    exact decodeOrientedCells_walkOrientedEdges_eq_of_cover p hcover
+  have hspaced : SeparatorsSpaced (isMatchingTransition M) rotated :=
+    separatorsSpaced_isMatchingTransition_of_joins_nodup
+      M hM rotated hclosed hsymNodup
+  have hfirst : isMatchingTransition M first ≠ true := by
+    apply head_not_matching_of_closed_ending_matching
+      M hM first tail closing
+    · simpa only [rotated] using hclosed
+    · simpa only [rotated] using hsymNodup
+    · exact hclosingMatching
+  have hpositive : ∀ block ∈ blocks, 0 < block.1.length := by
+    have hspaced' : SeparatorsSpaced (isMatchingTransition M)
+        (first :: (tail ++ [closing])) := by
+      simpa only [rotated, List.cons_append] using hspaced
+    have hpositive' :=
+      cutAtSeparators_runs_positive_of_head_not_separator
+        (isMatchingTransition M) first (tail ++ [closing])
+        hspaced' hfirst
+    simpa only [blocks, rotated, List.cons_append] using hpositive'
+  have hsplit := cutAtSeparators_append_singleton
+    (isMatchingTransition M) (first :: tail) closing hclosingMatching
+  have hblocksNonempty : blocks ≠ [] := by
+    simpa only [blocks, rotated] using hsplit.1
+  have hflatten : PhysicalCutBlockList.orientedEdges blocks = rotated := by
+    simpa only [blocks, rotated] using hsplit.2
+  have hblockJoins :
+      PhysicalCutBlockList.Joins closing.2 blocks closing.2 := by
+    apply PhysicalCutBlockList.joins_of_orientedEdges
+    rw [hflatten]
+    exact hclosed
+  have hrotatedLength : rotated.length = p.length := by
+    calc
+      rotated.length = (walkOrientedEdges p).length := hperm.length_eq.symm
+      _ = p.length := walkOrientedEdges_length p
+  have hcutoff : ∀ block ∈ blocks,
+      block.1.length ≤ Fintype.card (A ⊕ B) := by
+    intro block hblock
+    have hblock' : block ∈
+        cutAtSeparators (isMatchingTransition M) rotated := by
+      simpa only [blocks] using hblock
+    calc
+      block.1.length ≤ rotated.length :=
+        run_length_le_of_mem_cutAtSeparators
+          (isMatchingTransition M) rotated hblock'
+      _ = p.length := hrotatedLength
+      _ ≤ Fintype.card (A ⊕ B) := hlengthBound
+  obtain ⟨chain, hchainResidual, hchainTransition,
+      hchainOriented, _⟩ :=
+    exists_closed_relaxedBlockChainCode_of_physicalCutBlocks
+      blocks hblockJoins hpositive hcutoff
+  have hblocksLength : blocks.length = (C ∩ M).card := by
+    calc
+      blocks.length =
+          (rotated.filter (isMatchingTransition M)).length := by
+        simpa only [blocks] using
+          cutAtSeparators_length (isMatchingTransition M) rotated
+      _ = (C ∩ M).card :=
+        matching_filter_length_eq_inter_card_of_perm_walk
+          hp hcover M rotated hperm
+  have hblocksPos : 0 < blocks.length :=
+    List.length_pos_iff.mpr hblocksNonempty
+  let code : SourceFreeCycleCutCode A B :=
+    ⟨⟨blocks.length, hblocksPos⟩, ⟨closing.2, chain⟩⟩
+  have hcodeBlockCount : code.blockCount = blocks.length := rfl
+  have hcodeStart : code.start = closing.2 := rfl
+  have hcodeResidual :
+      relaxedBlockResidualEdges code.chain =
+        PhysicalCutBlockList.residualEdges blocks := hchainResidual
+  have hcodeTransition :
+      relaxedBlockTransitionEdges code.chain =
+        PhysicalCutBlockList.transitionEdges blocks := hchainTransition
+  have hcodeOriented :
+      relaxedBlockOrientedEdges code.chain =
+        PhysicalCutBlockList.orientedEdges blocks := hchainOriented
+  obtain ⟨z, hz, hzStart, hzClosing⟩ :=
+    exists_orientedMatchingStart_of_decode_mem
+      (C ∩ M) closing hmarked hclosingDecode
+  have hblocksLast :
+      (PhysicalCutBlockList.transitionEdges blocks).getLast? =
+        some closing := by
+    simpa only [blocks, rotated] using
+      transitionEdges_cutAtSeparators_append_singleton_getLast?
+        (isMatchingTransition M) (first :: tail) closing
+        hclosingMatching
+  have hresidualList :
+      PhysicalCutBlockList.residualEdges blocks =
+        rotated.filter (fun edge => !(isMatchingTransition M edge)) := by
+    simpa only [blocks, rotated] using
+      residualEdges_cutAtSeparators_append_singleton
+        (isMatchingTransition M) (first :: tail) closing
+        hclosingMatching
+  have htransitionList :
+      PhysicalCutBlockList.transitionEdges blocks =
+        rotated.filter (isMatchingTransition M) := by
+    simpa only [blocks] using
+      transitionEdges_cutAtSeparators (isMatchingTransition M) rotated
+  refine ⟨code, {
+    blockCount_eq := ?_
+    markedStart := ?_
+    residualCells_eq := ?_
+    transitionCells_eq := ?_
+    orientedEdges_nodup := ?_
+    residualEdges_decode := ?_
+    transitionEdges_decode := ?_
+    residualCellList_nodup := ?_
+    transitionCellList_nodup := ?_
+  }⟩
+  · exact hcodeBlockCount.trans hblocksLength
+  · refine ⟨z, hz, hcodeStart.trans hzStart, ?_⟩
+    calc
+      (relaxedBlockTransitionEdges code.chain).getLast? =
+          (PhysicalCutBlockList.transitionEdges blocks).getLast? :=
+        congrArg List.getLast? hcodeTransition
+      _ = some closing := hblocksLast
+      _ = some (orientedMatchingClosingEdge z) := congrArg some hzClosing
+  · unfold decodeRelaxedResidualCells
+    calc
+      decodeOrientedCells (relaxedBlockResidualEdges code.chain) =
+          decodeOrientedCells
+             (PhysicalCutBlockList.residualEdges blocks) := by
+        rw [hcodeResidual]
+      _ = decodeOrientedCells rotated \ M := by
+        simpa only [blocks, rotated] using
+          decode_residualEdges_cutAtSeparators_eq_sdiff
+            M (first :: tail) closing hclosingMatching
+      _ = C \ M := by rw [hdecodeFull]
+  · unfold decodeRelaxedTransitionCells
+    calc
+      decodeOrientedCells (relaxedBlockTransitionEdges code.chain) =
+          decodeOrientedCells
+             (PhysicalCutBlockList.transitionEdges blocks) := by
+        rw [hcodeTransition]
+      _ = decodeOrientedCells rotated ∩ M := by
+        simpa only [blocks] using
+          decode_transitionEdges_cutAtSeparators_eq_inter M rotated
+      _ = C ∩ M := by rw [hdecodeFull]
+  · rw [hcodeOriented, hflatten]
+    exact horientedNodup
+  · intro edge hedge
+    have hedgeFiltered :
+        edge ∈ rotated.filter
+          (fun e => !(isMatchingTransition M e)) := by
+      rw [hcodeResidual, hresidualList] at hedge
+      exact hedge
+    exact hdecodeAll edge (List.mem_of_mem_filter hedgeFiltered)
+  · intro edge hedge
+    have hedgeFiltered :
+        edge ∈ rotated.filter (isMatchingTransition M) := by
+      rw [hcodeTransition, htransitionList] at hedge
+      exact hedge
+    exact hdecodeAll edge (List.mem_of_mem_filter hedgeFiltered)
+  · rw [hcodeResidual, hresidualList]
+    exact hcellListNodup.sublist
+      (filterMap_filter_sublist orientedPairToCell
+        (fun edge => !(isMatchingTransition M edge)) rotated)
+  · rw [hcodeTransition, htransitionList]
+    exact hcellListNodup.sublist
+      (filterMap_filter_sublist orientedPairToCell
+        (isMatchingTransition M) rotated)
+
+#print axioms exists_kernelPathCode_orientedEdges_eq
+#print axioms exists_positiveKernelPathCode_orientedEdges_eq
+#print axioms exists_relaxedBlockChainCode_of_physicalCutBlocks
+#print axioms exists_closed_relaxedBlockChainCode_of_physicalCutBlocks
+#print axioms physicalCycleCuttingStatement
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhysicalCycleCutting
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhysicalCycleCutting
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhysicalCycleEncoder
+Source: Erdos625/Section9PhysicalCycleEncoder.lean
+Normalized SHA-256: 8649d1ab07785021803563086f7b72f856e4e64a0996df2d94002e2075edbe45
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhysicalCycleEncoder
+
+/-!
+# Section IX: canonical faithful encoding of mixed physical cycles
+
+The physical cutting theorem supplies at least one faithful source-free code
+for every simple bipartite cycle meeting a fixed matching.  This module makes
+one classical choice, proves that its source-free decoder recovers the
+original cycle, and derives injectivity solely from that reconstruction.
+
+The chosen target code still contains no source cycle or reconstruction
+certificate.  This module also transports the exact physical residual weight
+to the chosen code.  It does not yet package the dependent marked-start and
+block-count indices or compare the resulting family sum with the complete
+relaxed traversal enumeration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Simple bipartite cycles that meet the distinguished matching.  The source
+object carries only the physical edge set and its two honest properties; it
+does not carry a tour, cut, code, or reconstruction certificate. -/
+abbrev MixedSimpleCycle
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) :=
+  {C : Finset (A × B) //
+    IsSimpleBipartiteCycle C ∧ (C ∩ M).Nonempty}
+
+/-- Choose one faithful source-free cut code using the constructive physical
+cycle-cutting theorem. -/
+noncomputable def chosenPhysicalCycleCut
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    SourceFreeCycleCutCode A B :=
+  Classical.choose
+    (physicalCycleCuttingStatement M hM C.1 C.2.1 C.2.2)
+
+/-- The chosen code satisfies the full external faithfulness relation. -/
+theorem chosenPhysicalCycleCut_faithful
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    IsFaithfulCycleCut C.1 M (chosenPhysicalCycleCut M hM C) :=
+  Classical.choose_spec
+    (physicalCycleCuttingStatement M hM C.1 C.2.1 C.2.2)
+
+/-- Decoding the chosen source-free code recovers the original physical
+cycle exactly. -/
+theorem decode_chosenPhysicalCycleCut
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    decodeRelaxedBlockCells (chosenPhysicalCycleCut M hM C).chain = C.1 :=
+  (chosenPhysicalCycleCut_faithful M hM C).decode_eq
+
+/-- The canonical encoder is injective because its source-free decoder is a
+left inverse.  No ordering of cycles and no code certificate in the source
+type is used. -/
+theorem chosenPhysicalCycleCut_injective
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    Function.Injective (chosenPhysicalCycleCut M hM) := by
+  intro C D hcode
+  apply Subtype.ext
+  have hdecoded :=
+    congrArg
+      (fun code : SourceFreeCycleCutCode A B =>
+        decodeRelaxedBlockCells code.chain)
+      hcode
+  exact (decode_chosenPhysicalCycleCut M hM C).symm.trans
+    (hdecoded.trans (decode_chosenPhysicalCycleCut M hM D))
+
+/-- Exact physical weight of the chosen code.  Every cell of `C \ M`
+contributes once and every matching transition contributes one. -/
+theorem chosenPhysicalCycleCut_weight_eq
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞)
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    (chosenPhysicalCycleCut M hM C).chain.weight
+        (bipartiteCellKernel q) (matchingTraversalKernel M) =
+      edgeWeightOutsideENN q M C.1 := by
+  simpa only [edgeWeightOutsideENN] using
+    (chosenPhysicalCycleCut_faithful M hM C).codeWeight_eq_sdiff_prod q
+
+#print axioms chosenPhysicalCycleCut_faithful
+#print axioms decode_chosenPhysicalCycleCut
+#print axioms chosenPhysicalCycleCut_injective
+#print axioms chosenPhysicalCycleCut_weight_eq
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhysicalCycleEncoder
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhysicalCycleEncoder
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MarkedCycleEnumeration
+Source: Erdos625/Section9MarkedCycleEnumeration.lean
+Normalized SHA-256: 3fc319765b7bc87f9fea1d00ceba41b59709d2d87de3e6cc343feb11929817e0
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MarkedCycleEnumeration
+
+/-!
+# Section IX: marking the chosen physical cycle encodings
+
+The physical encoder lands in a dependent source-free code whose positive
+block count and marked start vary with the cycle.  This module exposes exactly
+those two finite indices: a marked orientation in `orientedMatchingStarts M`,
+a predecessor in the finite block-count range, and the transported closed
+relaxed block chain.  The target contains no physical cycle and no decoding,
+faithfulness, reconstruction, or injectivity certificate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## The finite data-only target -/
+
+/-- A marked, positive, bounded closed relaxed traversal.  The `Fin` index
+`r` represents `r + 1` blocks, so every chain in the target has positive block
+count at most the ambient vertex count. -/
+abbrev MarkedCycleTraversalCode
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) :=
+  Σ z : {z : (A × B) × Bool // z ∈ orientedMatchingStarts M},
+    Σ r : Fin (Fintype.card (A ⊕ B)),
+      RelaxedBlockChainCode (A ⊕ B) (Fintype.card (A ⊕ B))
+        (r.1 + 1) (orientedMatchingStartState z.1)
+          (orientedMatchingStartState z.1)
+
+/-- The honest mixed-cycle source is finite because it is a subtype of the
+finite type of bipartite edge sets. -/
+noncomputable instance instFintypeMixedSimpleCycle
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) : Fintype (MixedSimpleCycle A B M) :=
+  Fintype.ofFinite _
+
+namespace MarkedCycleTraversalCode
+
+/-- Marked orientation carried by a traversal code. -/
+def mark
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)}
+    (code : MarkedCycleTraversalCode A B M) : (A × B) × Bool :=
+  code.1.1
+
+/-- The positive block count is one more than this finite predecessor. -/
+def blockPredecessor
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)}
+    (code : MarkedCycleTraversalCode A B M) :
+    Fin (Fintype.card (A ⊕ B)) :=
+  code.2.1
+
+/-- Underlying closed relaxed block chain. -/
+def chain
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)}
+    (code : MarkedCycleTraversalCode A B M) :
+    RelaxedBlockChainCode (A ⊕ B) (Fintype.card (A ⊕ B))
+      (code.blockPredecessor.1 + 1)
+      (orientedMatchingStartState code.mark)
+      (orientedMatchingStartState code.mark) :=
+  code.2.2
+
+/-- Exact chain weight of a marked traversal code. -/
+def weight
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)}
+    (q : A → B → ℝ≥0∞)
+    (code : MarkedCycleTraversalCode A B M) : ℝ≥0∞ :=
+  code.chain.weight (bipartiteCellKernel q) (matchingTraversalKernel M)
+
+end MarkedCycleTraversalCode
+
+/-! ## Honest dependent transport -/
+
+/-- Transport a relaxed block chain across equal block counts and endpoints.
+This helper contains no source object or certificate; it is only equality
+elimination for the genuinely dependent target type. -/
+def castRelaxedBlockChainCode
+    {V : Type*} {L r r' : ℕ} {v v' w w' : V}
+    (hr : r = r') (hv : v = v') (hw : w = w')
+    (code : RelaxedBlockChainCode V L r v w) :
+    RelaxedBlockChainCode V L r' v' w' := by
+  subst r'
+  subst v'
+  subst w'
+  exact code
+
+@[simp]
+theorem decodeRelaxedBlockCells_castRelaxedBlockChainCode
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {L r r' : ℕ} {v v' w w' : A ⊕ B}
+    (hr : r = r') (hv : v = v') (hw : w = w')
+    (code : RelaxedBlockChainCode (A ⊕ B) L r v w) :
+    decodeRelaxedBlockCells
+        (castRelaxedBlockChainCode hr hv hw code) =
+      decodeRelaxedBlockCells code := by
+  subst r'
+  subst v'
+  subst w'
+  rfl
+
+@[simp]
+theorem relaxedBlockChainWeight_castRelaxedBlockChainCode
+    {V : Type*} {L r r' : ℕ} {v v' w w' : V}
+    (K P : V → V → ℝ≥0∞)
+    (hr : r = r') (hv : v = v') (hw : w = w')
+    (code : RelaxedBlockChainCode V L r v w) :
+    (castRelaxedBlockChainCode hr hv hw code).weight K P =
+      code.weight K P := by
+  subst r'
+  subst v'
+  subst w'
+  rfl
+
+/-! ## Choosing and packaging the finite indices -/
+
+/-- The marked oriented matching edge supplied by faithfulness of the chosen
+physical cut. -/
+noncomputable def chosenPhysicalCycleMark
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) : (A × B) × Bool :=
+  Classical.choose (chosenPhysicalCycleCut_faithful M hM C).markedStart
+
+theorem chosenPhysicalCycleMark_spec
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    chosenPhysicalCycleMark M hM C ∈ orientedMatchingStarts (C.1 ∩ M) ∧
+      (chosenPhysicalCycleCut M hM C).start =
+        orientedMatchingStartState (chosenPhysicalCycleMark M hM C) ∧
+      (relaxedBlockTransitionEdges
+        (chosenPhysicalCycleCut M hM C).chain).getLast? =
+          some (orientedMatchingClosingEdge
+            (chosenPhysicalCycleMark M hM C)) :=
+  Classical.choose_spec
+    (chosenPhysicalCycleCut_faithful M hM C).markedStart
+
+theorem orientedMatchingStarts_mono
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    {S T : Finset (A × B)} (hST : S ⊆ T) :
+    orientedMatchingStarts S ⊆ orientedMatchingStarts T := by
+  intro z hz
+  obtain ⟨hzS, hzOrientation⟩ := Finset.mem_product.mp hz
+  exact Finset.mem_product.mpr ⟨hST hzS, hzOrientation⟩
+
+theorem chosenPhysicalCycleMark_mem
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    chosenPhysicalCycleMark M hM C ∈ orientedMatchingStarts M := by
+  exact orientedMatchingStarts_mono Finset.inter_subset_right
+    (chosenPhysicalCycleMark_spec M hM C).1
+
+/-- The predecessor of the positive block count, with its strict ambient
+vertex bound proved from faithfulness and the matching property. -/
+noncomputable def chosenPhysicalCycleBlockPredecessor
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    Fin (Fintype.card (A ⊕ B)) :=
+  ⟨(chosenPhysicalCycleCut M hM C).blockCount - 1, by
+    have hpos := (chosenPhysicalCycleCut M hM C).blockCount_pos
+    have hle :=
+      (chosenPhysicalCycleCut_faithful M hM C).blockCount_le_vertex_count hM
+    omega⟩
+
+theorem chosenPhysicalCycleBlockPredecessor_succ
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    (chosenPhysicalCycleBlockPredecessor M hM C).1 + 1 =
+      (chosenPhysicalCycleCut M hM C).blockCount := by
+  change (chosenPhysicalCycleCut M hM C).blockCount - 1 + 1 =
+    (chosenPhysicalCycleCut M hM C).blockCount
+  have hpos := (chosenPhysicalCycleCut M hM C).blockCount_pos
+  omega
+
+/-- Transport the chosen source-free chain into the explicit finite marked
+index. -/
+noncomputable def chosenMarkedCycleChain
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    RelaxedBlockChainCode (A ⊕ B) (Fintype.card (A ⊕ B))
+      ((chosenPhysicalCycleBlockPredecessor M hM C).1 + 1)
+      (orientedMatchingStartState (chosenPhysicalCycleMark M hM C))
+      (orientedMatchingStartState (chosenPhysicalCycleMark M hM C)) :=
+  castRelaxedBlockChainCode
+    (chosenPhysicalCycleBlockPredecessor_succ M hM C).symm
+    (chosenPhysicalCycleMark_spec M hM C).2.1
+    (chosenPhysicalCycleMark_spec M hM C).2.1
+    (chosenPhysicalCycleCut M hM C).chain
+
+/-- Package the chosen physical encoder into the exact finite dependent
+traversal family. -/
+noncomputable def chosenMarkedCycleTraversal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    MarkedCycleTraversalCode A B M :=
+  ⟨⟨chosenPhysicalCycleMark M hM C,
+      chosenPhysicalCycleMark_mem M hM C⟩,
+    ⟨chosenPhysicalCycleBlockPredecessor M hM C,
+      chosenMarkedCycleChain M hM C⟩⟩
+
+/-! ## Reconstruction, injectivity, and exact physical weight -/
+
+theorem decode_chosenMarkedCycleTraversal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    decodeRelaxedBlockCells (chosenMarkedCycleTraversal M hM C).chain = C.1 := by
+  change decodeRelaxedBlockCells (chosenMarkedCycleChain M hM C) = C.1
+  unfold chosenMarkedCycleChain
+  rw [decodeRelaxedBlockCells_castRelaxedBlockChainCode]
+  exact decode_chosenPhysicalCycleCut M hM C
+
+theorem chosenMarkedCycleTraversal_injective
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    Function.Injective (chosenMarkedCycleTraversal M hM) := by
+  intro C D hcode
+  apply Subtype.ext
+  have hdecoded := congrArg
+    (fun code : MarkedCycleTraversalCode A B M =>
+      decodeRelaxedBlockCells code.chain) hcode
+  exact (decode_chosenMarkedCycleTraversal M hM C).symm.trans
+    (hdecoded.trans (decode_chosenMarkedCycleTraversal M hM D))
+
+theorem chosenMarkedCycleTraversal_weight_eq
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞)
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M)
+    (C : MixedSimpleCycle A B M) :
+    (chosenMarkedCycleTraversal M hM C).weight q =
+      edgeWeightOutsideENN q M C.1 := by
+  change
+    (chosenMarkedCycleChain M hM C).weight
+      (bipartiteCellKernel q) (matchingTraversalKernel M) =
+        edgeWeightOutsideENN q M C.1
+  unfold chosenMarkedCycleChain
+  rw [relaxedBlockChainWeight_castRelaxedBlockChainCode]
+  exact chosenPhysicalCycleCut_weight_eq q M hM C
+
+/-! ## Exact enumeration of the finite marked target -/
+
+/-- Summing the data-only target first over its marked orientation and block
+predecessor gives the endpoint-resolved mass of the composed block kernel.
+-/
+theorem sum_markedCycleTraversalCode_weight_eq_endpointMass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B)) :
+    (∑ code : MarkedCycleTraversalCode A B M, code.weight q) =
+      ∑ z : {z : (A × B) × Bool // z ∈ orientedMatchingStarts M},
+        ∑ r : Fin (Fintype.card (A ⊕ B)),
+          finiteKernelEndpointMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r.1 + 1) (orientedMatchingStartState z.1)
+              (orientedMatchingStartState z.1) := by
+  unfold MarkedCycleTraversalCode.weight MarkedCycleTraversalCode.chain
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro z hz
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro r hr
+  exact sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+    (bipartiteCellKernel q) (matchingTraversalKernel M)
+    (Fintype.card (A ⊕ B)) (r.1 + 1)
+    (orientedMatchingStartState z.1) (orientedMatchingStartState z.1)
+
+/-- Forgetting the terminal endpoint can only increase the marked traversal
+mass.  The right-hand side is the same finite marked-start/block-count walk
+mass used by the geometric traversal estimate, expressed on its intrinsic
+subtype and `Fin` indices. -/
+theorem sum_markedCycleTraversalCode_weight_le_walkMass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B)) :
+    (∑ code : MarkedCycleTraversalCode A B M, code.weight q) ≤
+      ∑ z : {z : (A × B) × Bool // z ∈ orientedMatchingStarts M},
+        ∑ r : Fin (Fintype.card (A ⊕ B)),
+          finiteKernelWalkMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r.1 + 1) (orientedMatchingStartState z.1) := by
+  rw [sum_markedCycleTraversalCode_weight_eq_endpointMass]
+  apply Finset.sum_le_sum
+  intro z hz
+  apply Finset.sum_le_sum
+  intro r hr
+  let K := finiteKernelComp
+    (finitePositiveWalkKernel (bipartiteCellKernel q)
+      (Fintype.card (A ⊕ B)))
+    (matchingTraversalKernel M)
+  let start := orientedMatchingStartState z.1
+  calc
+    finiteKernelEndpointMass K (r.1 + 1) start start ≤
+        ∑ w, finiteKernelEndpointMass K (r.1 + 1) start w := by
+      exact Finset.single_le_sum
+        (s := Finset.univ)
+        (f := fun w => finiteKernelEndpointMass K (r.1 + 1) start w)
+        (fun w _ => bot_le) (Finset.mem_univ start)
+    _ = finiteKernelWalkMass K (r.1 + 1) start :=
+      sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+        K (r.1 + 1) start
+
+/-- Convert the intrinsic subtype/`Fin` indexing into the literal nested
+`Finset` sums used by the existing traversal bounds. -/
+theorem sum_subtype_fin_eq_sum_finset_range
+    {X : Type*} [DecidableEq X]
+    (S : Finset X) (L : ℕ) (f : X → ℕ → ℝ≥0∞) :
+    (∑ z : {z : X // z ∈ S}, ∑ r : Fin L, f z.1 r.1) =
+      ∑ z ∈ S, ∑ r ∈ Finset.range L, f z r := by
+  rw [show (Finset.univ : Finset {z : X // z ∈ S}) = S.attach by
+    ext z
+    simp]
+  rw [Finset.sum_attach S (fun z => ∑ r : Fin L, f z r.1)]
+  apply Finset.sum_congr rfl
+  intro z hz
+  exact Fin.sum_univ_eq_sum_range (f z) L
+
+/-- Exact endpoint enumeration in the literal nested `Finset` syntax. -/
+theorem sum_markedCycleTraversalCode_weight_eq_endpointMass_finset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B)) :
+    (∑ code : MarkedCycleTraversalCode A B M, code.weight q) =
+      ∑ z ∈ orientedMatchingStarts M,
+        ∑ r ∈ Finset.range (Fintype.card (A ⊕ B)),
+          finiteKernelEndpointMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r + 1) (orientedMatchingStartState z)
+              (orientedMatchingStartState z) := by
+  rw [sum_markedCycleTraversalCode_weight_eq_endpointMass]
+  exact sum_subtype_fin_eq_sum_finset_range
+    (orientedMatchingStarts M) (Fintype.card (A ⊕ B))
+    (fun z r =>
+      finiteKernelEndpointMass
+        (finiteKernelComp
+          (finitePositiveWalkKernel (bipartiteCellKernel q)
+            (Fintype.card (A ⊕ B)))
+          (matchingTraversalKernel M))
+        (r + 1) (orientedMatchingStartState z)
+          (orientedMatchingStartState z))
+
+/-- Literal nested walk-mass bound matching the summation shape of the
+existing marked traversal estimates. -/
+theorem sum_markedCycleTraversalCode_weight_le_walkMass_finset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B)) :
+    (∑ code : MarkedCycleTraversalCode A B M, code.weight q) ≤
+      ∑ z ∈ orientedMatchingStarts M,
+        ∑ r ∈ Finset.range (Fintype.card (A ⊕ B)),
+          finiteKernelWalkMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r + 1) (orientedMatchingStartState z) := by
+  calc
+    (∑ code : MarkedCycleTraversalCode A B M, code.weight q) ≤
+        ∑ z : {z : (A × B) × Bool // z ∈ orientedMatchingStarts M},
+          ∑ r : Fin (Fintype.card (A ⊕ B)),
+            finiteKernelWalkMass
+              (finiteKernelComp
+                (finitePositiveWalkKernel (bipartiteCellKernel q)
+                  (Fintype.card (A ⊕ B)))
+                (matchingTraversalKernel M))
+              (r.1 + 1) (orientedMatchingStartState z.1) :=
+      sum_markedCycleTraversalCode_weight_le_walkMass q M
+    _ = ∑ z ∈ orientedMatchingStarts M,
+          ∑ r ∈ Finset.range (Fintype.card (A ⊕ B)),
+            finiteKernelWalkMass
+              (finiteKernelComp
+                (finitePositiveWalkKernel (bipartiteCellKernel q)
+                  (Fintype.card (A ⊕ B)))
+                (matchingTraversalKernel M))
+              (r + 1) (orientedMatchingStartState z) :=
+      sum_subtype_fin_eq_sum_finset_range
+        (orientedMatchingStarts M) (Fintype.card (A ⊕ B))
+        (fun z r =>
+          finiteKernelWalkMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r + 1) (orientedMatchingStartState z))
+
+/-- The injective physical encoder bounds the total mixed-cycle weight by the
+total weight of the data-only marked traversal family. -/
+theorem sum_mixedSimpleCycle_weight_le_markedTraversalCode
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞)
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    (∑ C : MixedSimpleCycle A B M, edgeWeightOutsideENN q M C.1) ≤
+      ∑ code : MarkedCycleTraversalCode A B M, code.weight q := by
+  calc
+    (∑ C : MixedSimpleCycle A B M, edgeWeightOutsideENN q M C.1) =
+        ∑ C : MixedSimpleCycle A B M,
+          (chosenMarkedCycleTraversal M hM C).weight q := by
+      apply Finset.sum_congr rfl
+      intro C hC
+      exact (chosenMarkedCycleTraversal_weight_eq q M hM C).symm
+    _ ≤ ∑ code : MarkedCycleTraversalCode A B M, code.weight q := by
+      simpa only [tsum_fintype] using
+        ENNReal.tsum_comp_le_tsum_of_injective
+          (chosenMarkedCycleTraversal_injective M hM)
+          (fun code : MarkedCycleTraversalCode A B M => code.weight q)
+
+/-- Combined physical-to-traversal inequality in the exact nested summation
+shape consumed by the existing analytic bound. -/
+theorem sum_mixedSimpleCycle_weight_le_nested_walkMass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞)
+    (M : Finset (A × B)) (hM : IsBipartiteMatching M) :
+    (∑ C : MixedSimpleCycle A B M, edgeWeightOutsideENN q M C.1) ≤
+      ∑ z ∈ orientedMatchingStarts M,
+        ∑ r ∈ Finset.range (Fintype.card (A ⊕ B)),
+          finiteKernelWalkMass
+            (finiteKernelComp
+              (finitePositiveWalkKernel (bipartiteCellKernel q)
+                (Fintype.card (A ⊕ B)))
+              (matchingTraversalKernel M))
+            (r + 1) (orientedMatchingStartState z) :=
+  (sum_mixedSimpleCycle_weight_le_markedTraversalCode q M hM).trans
+    (sum_markedCycleTraversalCode_weight_le_walkMass_finset q M)
+
+#print axioms decode_chosenMarkedCycleTraversal
+#print axioms chosenMarkedCycleTraversal_injective
+#print axioms chosenMarkedCycleTraversal_weight_eq
+#print axioms sum_markedCycleTraversalCode_weight_eq_endpointMass
+#print axioms sum_markedCycleTraversalCode_weight_le_walkMass
+#print axioms sum_markedCycleTraversalCode_weight_eq_endpointMass_finset
+#print axioms sum_markedCycleTraversalCode_weight_le_walkMass_finset
+#print axioms sum_mixedSimpleCycle_weight_le_markedTraversalCode
+#print axioms sum_mixedSimpleCycle_weight_le_nested_walkMass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MarkedCycleEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MarkedCycleEnumeration
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MixedCycleWeightedEnumeration
+Source: Erdos625/Section9MixedCycleWeightedEnumeration.lean
+Normalized SHA-256: e2cc3d365473c5b1d2131f65c4c7c473f90df69bb15792f2a55e7bc76094c7e2
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MixedCycleWeightedEnumeration
+
+/-!
+# Section IX: abstract weighted enumeration of mixed cycles
+
+This module closes the finite, assumption-faithful cycle-to-walk bridge.  The
+physical encoder and its aggregate marked enumeration are composed with the
+endpoint positive-walk row bound and the matching partial-permutation
+geometric estimate.  The marked matching edge costs exactly `2 * |M|` once.
+
+The result is still an abstract finite kernel theorem: its hypotheses are
+literal row and column bounds for a supplied cell kernel `q`.  It does not
+identify `q` with the conditioned residual table, establish those bounds from
+the manuscript profile, or prove an attachment probability estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Weighted enumeration of all simple bipartite cycles meeting a matching.
+
+The positive residual-path kernel has row mass at most
+`b = tau * (1 - tau)⁻¹`.  Cutting each physical cycle at its matching edges,
+injecting the resulting marked code into the full relaxed enumeration, and
+using the matching partial permutation gives one factor `2 * |M|` and no
+additional matching-cardinality loss. -/
+theorem mixedSimpleCycle_weighted_walk_enumeration
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ℝ≥0∞) (M : Finset (A × B))
+    (hM : IsBipartiteMatching M)
+    (tau : ℝ≥0∞) (htau : tau < (1 / 3 : ℝ≥0∞))
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau) :
+    let b : ℝ≥0∞ := tau * (1 - tau)⁻¹
+    b < 1 ∧
+      (∑ C : MixedSimpleCycle A B M,
+          edgeWeightOutsideENN q M C.1) ≤
+        (((2 * M.card : ℕ) : ℝ≥0∞) * (b * (1 - b)⁻¹)) := by
+  dsimp only
+  let L := Fintype.card (A ⊕ B)
+  let K := bipartiteCellKernel q
+  let S := finitePositiveWalkKernel K L
+  have hKRow : ∀ v, ∑ w, K v w ≤ tau := by
+    dsimp only [K]
+    exact bipartiteCellKernel_rowSum_le q tau hRow hColumn
+  have hSRow :
+      ∀ v, ∑ w, S v w ≤ tau * (1 - tau)⁻¹ := by
+    exact
+      (finitePositiveWalkKernel_rowSum_le_geometric
+        K tau hKRow L).2
+  have hGeometric :=
+    finite_relaxed_matchingTraversal_enumeration
+      M hM tau htau S hSRow L
+  dsimp only at hGeometric
+  refine ⟨hGeometric.1, ?_⟩
+  calc
+    (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) ≤
+        ∑ z ∈ orientedMatchingStarts M,
+          ∑ r ∈ Finset.range L,
+            finiteKernelWalkMass
+              (finiteKernelComp S (matchingTraversalKernel M))
+              (r + 1) (orientedMatchingStartState z) := by
+      simpa only [L, K, S] using
+        sum_mixedSimpleCycle_weight_le_nested_walkMass q M hM
+    _ ≤ (((2 * M.card : ℕ) : ℝ≥0∞) *
+          ((tau * (1 - tau)⁻¹) *
+            (1 - tau * (1 - tau)⁻¹)⁻¹)) :=
+      hGeometric.2
+
+#print axioms mixedSimpleCycle_weighted_walk_enumeration
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MixedCycleWeightedEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MixedCycleWeightedEnumeration
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualQMixedCycleEnumeration
+Source: Erdos625/Section9ResidualQMixedCycleEnumeration.lean
+Normalized SHA-256: dc0652e2044c2907cf47b00595b363716419efc0c6869a4ab24b910d025b98ed
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualQMixedCycleEnumeration
+
+/-!
+# Section IX: literal residual-q mixed-cycle enumeration
+
+The abstract weighted mixed-cycle theorem is specialized here to the literal
+`residualQ` kernel.  The already established absolute degree-cap estimate
+supplies both row and column norms at
+`tau = κ * U^3 / m`; whenever this parameter is below `1/3`, the physical
+mixed-cycle weight is bounded by the explicit marked-walk geometric series.
+
+This remains a deterministic finite theorem.  It does not identify a random
+conditioned residual table with these parameters, prove that `tau < 1/3`
+holds with high probability, or establish the Section IX attachment
+expectation.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One absolute finite positive constant gives the literal residual-q
+weighted mixed-cycle estimate under the exact degree-cap hypotheses. -/
+theorem existsAbsoluteResidualQMixedCycleWeightedEnumeration :
+    ∃ κ : ℝ≥0∞, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        let tau : ℝ≥0∞ :=
+          κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞)
+        tau < (1 / 3 : ℝ≥0∞) →
+        let b : ℝ≥0∞ := tau * (1 - tau)⁻¹
+        b < 1 ∧
+          (∑ C : MixedSimpleCycle A B M,
+              edgeWeightOutsideENN (residualQ M R row col) M C.1) ≤
+            (((2 * M.card : ℕ) : ℝ≥0∞) *
+              (b * (1 - b)⁻¹)) := by
+  obtain ⟨κ, hκpos, hκtop, hκ⟩ :=
+    existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+  refine ⟨κ, hκpos, hκtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hM hm hrowTotal hcolTotal
+    hrowCap hcolCap hR hpow
+  dsimp only
+  intro htau
+  have hNorm :=
+    hκ M U R m row col hm hrowTotal hcolTotal hrowCap hcolCap hR hpow
+  exact
+    mixedSimpleCycle_weighted_walk_enumeration
+      (residualQ M R row col) M hM
+      (κ * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞))
+      htau hNorm.1 hNorm.2
+
+#print axioms existsAbsoluteResidualQMixedCycleWeightedEnumeration
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualQMixedCycleEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualQMixedCycleEnumeration
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleWeightSplit
+Source: Erdos625/Section9CycleWeightSplit.lean
+Normalized SHA-256: 9e3a626808247de144ab862b9306631f0ae3a2cead816d5086682e9d0fca44d8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleWeightSplit
+
+/-!
+# Section IX: exact simple-cycle weight partition
+
+This module partitions the finite simple-cycle polymer exponent into the
+cycles disjoint from the exposed matching and the mixed cycles meeting it.
+The second part is reindexed exactly through `MixedSimpleCycle`.
+
+This is a finite identity only.  It supplies neither a bound for the
+residual-only part nor a residual law, polymer estimate, or attachment bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Exact partition of all finite simple-cycle weights into residual-only and
+mixed contributions. -/
+theorem sum_simpleBipartiteCycles_edgeWeight_split
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B)) :
+    (∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) =
+      (∑ C ∈ (simpleBipartiteCycles A B).filter
+          (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) +
+      (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) := by
+  classical
+  have hmeet (C : Finset (A × B)) :
+      ¬ Disjoint C M ↔ (C ∩ M).Nonempty := by
+    constructor
+    · intro h
+      rw [Finset.disjoint_left] at h
+      push Not at h
+      obtain ⟨e, heC, heM⟩ := h
+      exact ⟨e, Finset.mem_inter.mpr ⟨heC, heM⟩⟩
+    · rintro ⟨e, he⟩ h
+      exact (Finset.disjoint_left.mp h) (Finset.mem_inter.mp he).1
+        (Finset.mem_inter.mp he).2
+  rw [← Finset.sum_filter_add_sum_filter_not
+    (simpleBipartiteCycles A B) (fun C => Disjoint C M)
+    (fun C => edgeWeightOutsideENN q M C)]
+  congr 1
+  unfold simpleBipartiteCycles
+  rw [Finset.filter_filter]
+  simp_rw [hmeet]
+  symm
+  simpa using
+    (Finset.sum_subtype_eq_sum_filter
+      (s := (Finset.univ : Finset (Finset (A × B))))
+      (f := fun C => edgeWeightOutsideENN q M C)
+      (p := fun C => IsSimpleBipartiteCycle C ∧ (C ∩ M).Nonempty))
+
+#print axioms sum_simpleBipartiteCycles_edgeWeight_split
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleWeightSplit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleWeightSplit
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualOnlyCycleEnumeration
+Source: Erdos625/Section9ResidualOnlyCycleEnumeration.lean
+Normalized SHA-256: 1e122855968055baf20d2e0c52d92b5dc640ef6a8ff4709fb9dd629fc42c0177
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualOnlyCycleEnumeration
+
+/-!
+# Section IX: residual-only simple-cycle enumeration
+
+This module gives the physical cycle-to-walk injection for simple bipartite
+cycles disjoint from the distinguished cell set.  A covering cycle walk is
+rotated to begin at a row vertex, reified as an actual recursive kernel-path
+code, and recovered from its decoded physical cells.  The resulting injection
+has one row mark and an even walk length at least four.
+
+The final theorem drops endpoint closure and simplicity only after this
+injection, then applies the finite kernel row bound and the even geometric
+tail.  It is a deterministic finite-kernel result; no residual probability
+law or asymptotic assertion is made here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-! ## Rooting a physical cycle at a row vertex -/
+
+/-- The cell graph has its tautological two-coloring by the two bipartition
+classes. -/
+def cellGraphBicoloring
+    {A B : Type*} (C : Finset (A × B)) :
+    (cellGraph C).Coloring Bool := by
+  refine ⟨fun v => Sum.elim (fun _ => false) (fun _ => true) v, ?_⟩
+  intro u v huv
+  rcases u with a | b <;> rcases v with a' | b' <;>
+    simp [cellGraph] at huv ⊢
+
+/-- Rotate a closed joined edge list so that a selected edge is first.  The
+new start is the first endpoint of that edge. -/
+theorem exists_closed_rotation_starting_at
+    {V : Type*} {start : V} {edges : List (V × V)}
+    (hclosed : OrientedEdgeList.Joins start edges start)
+    {opening : V × V} (hopening : opening ∈ edges) :
+    ∃ rotated : List (V × V),
+      edges.Perm rotated ∧
+        OrientedEdgeList.Joins opening.1 rotated opening.1 := by
+  obtain ⟨before, after, hedges⟩ := List.mem_iff_append.mp hopening
+  rcases opening with ⟨u, x⟩
+  rw [hedges] at hclosed
+  obtain ⟨middle, hbefore, hrest⟩ :=
+    OrientedEdgeList.joins_append_iff.mp hclosed
+  simp only [OrientedEdgeList.Joins] at hrest
+  rcases hrest with ⟨rfl, hafter⟩
+  refine ⟨(u, x) :: (after ++ before), ?_, ?_⟩
+  · rw [hedges]
+    simpa [List.append_assoc] using
+      (List.perm_append_comm :
+        List.Perm (before ++ ((u, x) :: after))
+          (((u, x) :: after) ++ before))
+  · exact ⟨rfl, OrientedEdgeList.joins_append hafter hbefore⟩
+
+/-- Every selected physical edge of a closed bipartite traversal yields a
+cyclic rotation rooted in the row class. -/
+theorem exists_rowRooted_closed_rotation
+    {A B : Type*} {start : A ⊕ B}
+    {edges : List ((A ⊕ B) × (A ⊕ B))}
+    (hclosed : OrientedEdgeList.Joins start edges start)
+    {selected : (A ⊕ B) × (A ⊕ B)}
+    (hselected : selected ∈ edges)
+    {cell : A × B}
+    (hdecode : orientedPairToCell selected = some cell) :
+    ∃ (a : A) (rotated : List ((A ⊕ B) × (A ⊕ B))),
+      edges.Perm rotated ∧
+        OrientedEdgeList.Joins (Sum.inl a) rotated (Sum.inl a) := by
+  rcases selected with ⟨u, v⟩
+  rcases u with a | b <;> rcases v with a' | b' <;>
+    simp [orientedPairToCell] at hdecode
+  · obtain ⟨rotated, hperm, hjoins⟩ :=
+      exists_closed_rotation_starting_at hclosed hselected
+    exact ⟨a, rotated, hperm, hjoins⟩
+  · obtain ⟨initial, hperm, hjoins, _⟩ :=
+      exists_closed_rotation_ending_at hclosed hselected
+    exact ⟨a', initial ++ [(Sum.inr b, Sum.inl a')], hperm, hjoins⟩
+
+/-! ## The finite data-only target and its decoder -/
+
+/-- A row-rooted closed recursive path of even length `4, 6, 8, ...` below
+the ambient finite cutoff.  The predecessor `k` records length `2*k+4`. -/
+abbrev ResidualCycleTraversalCode
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B] :=
+  Σ a : A, Σ k : Fin (Fintype.card (A ⊕ B)),
+    KernelPathCode (A ⊕ B) (2 * k.1 + 4) (Sum.inl a) (Sum.inl a)
+
+namespace ResidualCycleTraversalCode
+
+def startRow
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (code : ResidualCycleTraversalCode A B) : A :=
+  code.1
+
+def lengthPredecessor
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (code : ResidualCycleTraversalCode A B) :
+    Fin (Fintype.card (A ⊕ B)) :=
+  code.2.1
+
+def path
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (code : ResidualCycleTraversalCode A B) :
+    KernelPathCode (A ⊕ B) (2 * code.lengthPredecessor.1 + 4)
+      (Sum.inl code.startRow) (Sum.inl code.startRow) :=
+  code.2.2
+
+def orientedEdges
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (code : ResidualCycleTraversalCode A B) :
+    List ((A ⊕ B) × (A ⊕ B)) :=
+  kernelPathOrientedEdges code.path
+
+def decodedCells
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (code : ResidualCycleTraversalCode A B) : Finset (A × B) :=
+  decodeOrientedCells code.orientedEdges
+
+def weight
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal)
+    (code : ResidualCycleTraversalCode A B) : ENNReal :=
+  code.path.weight (bipartiteCellKernel q)
+
+end ResidualCycleTraversalCode
+
+/-- Faithfulness records exactly the data needed for reconstruction and for
+turning a list product into the physical edge-set product. -/
+structure IsFaithfulResidualCycleTraversal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (code : ResidualCycleTraversalCode A B) : Prop where
+  decodedCells_eq : code.decodedCells = C
+  decodedCellList_nodup :
+    (code.orientedEdges.filterMap orientedPairToCell).Nodup
+  orientedEdges_decode : ∀ edge ∈ code.orientedEdges,
+    ∃ cell, orientedPairToCell edge = some cell
+
+/-! ## Physical existence, choice, and reconstruction -/
+
+/-- Every intrinsic simple bipartite cycle has a faithful row-rooted closed
+path code of even length at least four. -/
+theorem exists_faithfulResidualCycleTraversal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (C : Finset (A × B)) (hC : IsSimpleBipartiteCycle C) :
+    ∃ code : ResidualCycleTraversalCode A B,
+      IsFaithfulResidualCycleTraversal C code := by
+  obtain ⟨v, p, hp, hcover, _, hlengthBound⟩ :=
+    exists_covering_cycleWalk_of_minimal_even C hC
+  obtain ⟨cell, hcell⟩ := hC.2.1
+  obtain ⟨selected, hselected, hselectedDecode⟩ :=
+    exists_walkOrientedEdge_of_mem_of_cover p hcover hcell
+  obtain ⟨a, rotated, hperm, hrotatedClosed⟩ :=
+    exists_rowRooted_closed_rotation (walkOrientedEdges_joins p)
+      hselected hselectedDecode
+  have hpEven : Even p.length :=
+    ((cellGraphBicoloring C).even_length_iff_congr p).mpr Iff.rfl
+  obtain ⟨halfLength, hhalfLength⟩ := hpEven
+  have hlengthFour : 4 ≤ p.length := by
+    have hlengthThree := hp.three_le_length
+    omega
+  let kNat := halfLength - 2
+  have hlengthFormula : p.length = 2 * kNat + 4 := by
+    dsimp only [kNat]
+    omega
+  have hkBound : kNat < Fintype.card (A ⊕ B) := by
+    omega
+  let k : Fin (Fintype.card (A ⊕ B)) := ⟨kNat, hkBound⟩
+  have hrotatedLength : rotated.length = 2 * k.1 + 4 := by
+    calc
+      rotated.length = (walkOrientedEdges p).length := hperm.length_eq.symm
+      _ = p.length := walkOrientedEdges_length p
+      _ = 2 * k.1 + 4 := hlengthFormula
+  obtain ⟨rawCode, hrawCode⟩ :=
+    exists_kernelPathCode_orientedEdges_eq rotated hrotatedClosed
+  let pathCode : KernelPathCode (A ⊕ B) (2 * k.1 + 4)
+      (Sum.inl a) (Sum.inl a) :=
+    castKernelPathCode hrotatedLength rawCode
+  let code : ResidualCycleTraversalCode A B := ⟨a, k, pathCode⟩
+  have hcodeEdges : code.orientedEdges = rotated := by
+    change kernelPathOrientedEdges pathCode = rotated
+    dsimp only [pathCode]
+    rw [kernelPathOrientedEdges_castKernelPathCode, hrawCode]
+  refine ⟨code, {
+    decodedCells_eq := ?_
+    decodedCellList_nodup := ?_
+    orientedEdges_decode := ?_
+  }⟩
+  · rw [ResidualCycleTraversalCode.decodedCells, hcodeEdges]
+    calc
+      decodeOrientedCells rotated =
+          decodeOrientedCells (walkOrientedEdges p) :=
+        (decodeOrientedCells_eq_of_perm hperm).symm
+      _ = C :=
+        decodeOrientedCells_walkOrientedEdges_eq_of_cover p hcover
+  · rw [hcodeEdges]
+    exact
+      filterMap_orientedPairToCell_nodup_of_perm_walkOrientedEdges hp hperm
+  · intro edge hedge
+    rw [hcodeEdges] at hedge
+    have hedgeWalk : edge ∈ walkOrientedEdges p := hperm.mem_iff.mpr hedge
+    obtain ⟨sourceCell, _, hdecode⟩ :=
+      walkOrientedEdge_decodes_mem p hedgeWalk
+    exact ⟨sourceCell, hdecode⟩
+
+/-- Residual-only simple cycles as an honest finite source type. -/
+abbrev ResidualOnlySimpleCycle
+    (A B : Type*) [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) :=
+  {C : Finset (A × B) //
+    C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M)}
+
+theorem residualOnlySimpleCycle_isSimple
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)} (C : ResidualOnlySimpleCycle A B M) :
+    IsSimpleBipartiteCycle C.1 := by
+  have hmem := (Finset.mem_filter.mp C.2).1
+  unfold simpleBipartiteCycles at hmem
+  simpa using hmem
+
+theorem residualOnlySimpleCycle_disjoint
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {M : Finset (A × B)} (C : ResidualOnlySimpleCycle A B M) :
+    Disjoint C.1 M :=
+  (Finset.mem_filter.mp C.2).2
+
+/-- Canonically choose the data-only faithful traversal supplied above. -/
+noncomputable def chosenResidualOnlyCycleTraversal
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (C : ResidualOnlySimpleCycle A B M) :
+    ResidualCycleTraversalCode A B :=
+  Classical.choose
+    (exists_faithfulResidualCycleTraversal C.1
+      (residualOnlySimpleCycle_isSimple C))
+
+theorem chosenResidualOnlyCycleTraversal_faithful
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (C : ResidualOnlySimpleCycle A B M) :
+    IsFaithfulResidualCycleTraversal C.1
+      (chosenResidualOnlyCycleTraversal M C) :=
+  Classical.choose_spec
+    (exists_faithfulResidualCycleTraversal C.1
+      (residualOnlySimpleCycle_isSimple C))
+
+theorem chosenResidualOnlyCycleTraversal_injective
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) :
+    Function.Injective (chosenResidualOnlyCycleTraversal M) := by
+  intro C D hcode
+  apply Subtype.ext
+  have hdecoded := congrArg ResidualCycleTraversalCode.decodedCells hcode
+  exact
+    (chosenResidualOnlyCycleTraversal_faithful M C).decodedCells_eq.symm.trans
+      (hdecoded.trans
+        (chosenResidualOnlyCycleTraversal_faithful M D).decodedCells_eq)
+
+/-! ## Exact weight and finite enumeration -/
+
+theorem chosenResidualOnlyCycleTraversal_weight_eq
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (C : ResidualOnlySimpleCycle A B M) :
+    (chosenResidualOnlyCycleTraversal M C).weight q =
+      edgeWeightOutsideENN q M C.1 := by
+  let code := chosenResidualOnlyCycleTraversal M C
+  have hfaithful := chosenResidualOnlyCycleTraversal_faithful M C
+  have hsdiff : C.1 \ M = C.1 := by
+    apply Finset.Subset.antisymm Finset.sdiff_subset
+    intro edge hedge
+    exact Finset.mem_sdiff.mpr
+      ⟨hedge, fun hedgeM =>
+        Finset.disjoint_left.mp (residualOnlySimpleCycle_disjoint C)
+          hedge hedgeM⟩
+  calc
+    code.weight q =
+        orientedEdgeListWeight (bipartiteCellKernel q)
+          code.orientedEdges :=
+      kernelPathCode_weight_eq_orientedEdgeListWeight _ code.path
+    _ = ((code.orientedEdges.filterMap orientedPairToCell).map
+          fun cell => q cell.1 cell.2).prod :=
+      orientedEdgeListWeight_bipartiteCellKernel_eq_cellListProd
+        q code.orientedEdges hfaithful.orientedEdges_decode
+    _ = (code.orientedEdges.filterMap orientedPairToCell).toFinset.prod
+          (fun cell => q cell.1 cell.2) :=
+      (List.prod_toFinset _ hfaithful.decodedCellList_nodup).symm
+    _ = C.1.prod (fun cell => q cell.1 cell.2) := by
+      change code.decodedCells.prod (fun cell => q cell.1 cell.2) = _
+      rw [hfaithful.decodedCells_eq]
+    _ = edgeWeightOutsideENN q M C.1 := by
+      unfold edgeWeightOutsideENN
+      rw [hsdiff]
+
+theorem sum_residualOnlySimpleCycle_weight_le_traversalCode
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B)) :
+    (∑ C : ResidualOnlySimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) ≤
+      ∑ code : ResidualCycleTraversalCode A B, code.weight q := by
+  calc
+    (∑ C : ResidualOnlySimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) =
+        ∑ C : ResidualOnlySimpleCycle A B M,
+          (chosenResidualOnlyCycleTraversal M C).weight q := by
+      apply Finset.sum_congr rfl
+      intro C hC
+      exact (chosenResidualOnlyCycleTraversal_weight_eq q M C).symm
+    _ ≤ ∑ code : ResidualCycleTraversalCode A B, code.weight q := by
+      simpa only [tsum_fintype] using
+        ENNReal.tsum_comp_le_tsum_of_injective
+          (chosenResidualOnlyCycleTraversal_injective M)
+          (fun code : ResidualCycleTraversalCode A B => code.weight q)
+
+theorem sum_residualCycleTraversalCode_weight_eq_endpointMass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) :
+    (∑ code : ResidualCycleTraversalCode A B, code.weight q) =
+      ∑ a : A, ∑ k : Fin (Fintype.card (A ⊕ B)),
+        finiteKernelEndpointMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a) (Sum.inl a) := by
+  unfold ResidualCycleTraversalCode.weight ResidualCycleTraversalCode.path
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro a ha
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro k hk
+  exact sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+    (bipartiteCellKernel q) (2 * k.1 + 4) (Sum.inl a) (Sum.inl a)
+
+theorem sum_residualCycleTraversalCode_weight_le_walkMass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) :
+    (∑ code : ResidualCycleTraversalCode A B, code.weight q) ≤
+      ∑ a : A, ∑ k : Fin (Fintype.card (A ⊕ B)),
+        finiteKernelWalkMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a) := by
+  rw [sum_residualCycleTraversalCode_weight_eq_endpointMass]
+  apply Finset.sum_le_sum
+  intro a ha
+  apply Finset.sum_le_sum
+  intro k hk
+  calc
+    finiteKernelEndpointMass (bipartiteCellKernel q)
+        (2 * k.1 + 4) (Sum.inl a) (Sum.inl a) ≤
+        ∑ w, finiteKernelEndpointMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a) w := by
+      exact Finset.single_le_sum
+        (s := Finset.univ)
+        (f := fun w => finiteKernelEndpointMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a) w)
+        (fun w _ => bot_le) (Finset.mem_univ (Sum.inl a))
+    _ = finiteKernelWalkMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a) :=
+      sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
+        (bipartiteCellKernel q) (2 * k.1 + 4) (Sum.inl a)
+
+theorem sum_rowRooted_evenWalkMass_le_geometric
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (tau : ENNReal)
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau) :
+    (∑ a : A, ∑ k : Fin (Fintype.card (A ⊕ B)),
+        finiteKernelWalkMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a)) ≤
+      (Fintype.card A : ENNReal) *
+        (tau ^ 4 * (1 - tau ^ 2)⁻¹) := by
+  let L := Fintype.card (A ⊕ B)
+  have hKernelRow : ∀ v, ∑ w, bipartiteCellKernel q v w ≤ tau :=
+    bipartiteCellKernel_rowSum_le q tau hRow hColumn
+  calc
+    (∑ a : A, ∑ k : Fin L,
+        finiteKernelWalkMass (bipartiteCellKernel q)
+          (2 * k.1 + 4) (Sum.inl a)) ≤
+        ∑ a : A, ∑ k : Fin L, tau ^ (2 * k.1 + 4) := by
+      apply Finset.sum_le_sum
+      intro a ha
+      apply Finset.sum_le_sum
+      intro k hk
+      exact finiteKernelWalkMass_le_pow (bipartiteCellKernel q) tau
+        hKernelRow (2 * k.1 + 4) (Sum.inl a)
+    _ = (Fintype.card A : ENNReal) *
+        (∑ k ∈ Finset.range L, tau ^ (2 * k + 4)) := by
+      rw [Fin.sum_univ_eq_sum_range
+        (fun k => tau ^ (2 * k + 4)) L]
+      simp
+    _ ≤ (Fintype.card A : ENNReal) *
+        (tau ^ 4 * (1 - tau ^ 2)⁻¹) :=
+      mul_le_mul_right (sum_range_pow_even_add_four_le_geometric tau L)
+        (Fintype.card A : ENNReal)
+
+private theorem sum_filter_eq_sum_subtype
+    {X : Type*} [DecidableEq X] (S : Finset X) (f : X → ENNReal) :
+    (∑ x ∈ S, f x) = ∑ x : {x : X // x ∈ S}, f x.1 := by
+  symm
+  rw [show (Finset.univ : Finset {x : X // x ∈ S}) = S.attach by
+    ext x
+    simp]
+  exact Finset.sum_attach S f
+
+/-! ## Residual-only cycle bound -/
+
+/-- Weighted enumeration of every simple bipartite cycle disjoint from `M`.
+Each physical cycle is injected into a row-rooted alternating closed walk of
+even length at least four before closure and simplicity are discarded. -/
+theorem residualOnlySimpleCycle_weighted_walk_enumeration
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (tau : ENNReal) (htau : tau < 1)
+    (hRow : ∀ a, ∑ b, q a b ≤ tau)
+    (hColumn : ∀ b, ∑ a, q a b ≤ tau) :
+    (∑ C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) ≤
+      (Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) := by
+  by_cases h : tau < 1
+  · calc
+      (∑ C ∈ (simpleBipartiteCycles A B).filter
+          (fun C => Disjoint C M), edgeWeightOutsideENN q M C) =
+          ∑ C : ResidualOnlySimpleCycle A B M,
+            edgeWeightOutsideENN q M C.1 :=
+        sum_filter_eq_sum_subtype
+          ((simpleBipartiteCycles A B).filter (fun C => Disjoint C M))
+          (fun C => edgeWeightOutsideENN q M C)
+      _ ≤ ∑ code : ResidualCycleTraversalCode A B, code.weight q :=
+        sum_residualOnlySimpleCycle_weight_le_traversalCode q M
+      _ ≤ ∑ a : A, ∑ k : Fin (Fintype.card (A ⊕ B)),
+          finiteKernelWalkMass (bipartiteCellKernel q)
+            (2 * k.1 + 4) (Sum.inl a) :=
+        sum_residualCycleTraversalCode_weight_le_walkMass q
+      _ ≤ (Fintype.card A : ENNReal) *
+          (tau ^ 4 * (1 - tau ^ 2)⁻¹) :=
+        sum_rowRooted_evenWalkMass_le_geometric q tau hRow hColumn
+  · exact (h htau).elim
+
+#print axioms exists_faithfulResidualCycleTraversal
+#print axioms chosenResidualOnlyCycleTraversal_injective
+#print axioms chosenResidualOnlyCycleTraversal_weight_eq
+#print axioms sum_residualOnlySimpleCycle_weight_le_traversalCode
+#print axioms sum_residualCycleTraversalCode_weight_eq_endpointMass
+#print axioms sum_residualCycleTraversalCode_weight_le_walkMass
+#print axioms sum_rowRooted_evenWalkMass_le_geometric
+#print axioms residualOnlySimpleCycle_weighted_walk_enumeration
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualOnlyCycleEnumeration
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualOnlyCycleEnumeration
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.LocalSignReward
 Source: Erdos625/LocalSignReward.lean
 Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
@@ -25837,6 +33759,1093 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9AttachmentAsymptotics
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
+Source: Erdos625/Section9RewardCompatibility.lean
+Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+
+/-!
+# Section IX: compatibility of the two local reward presentations
+
+The fixed-`F` threshold expansion and the small-residual deterministic bound
+were developed from two syntactically different presentations of the same
+local reward.  This module records their exact equality.
+-/
+
+namespace Erdos625
+
+/-- The fixed-`F` residual reward is exactly the local sign reward. -/
+theorem residualReward_eq_localSignRewardNat (x : ℕ) :
+    residualReward x = localSignRewardNat x := by
+  by_cases h : x ≤ 2
+  · have hnot : ¬ 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hnot]
+  · have hthree : 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hthree]
+
+/-- Consequently, the threshold increment is the discrete increment of the
+local sign reward. -/
+theorem residualRewardIncrement_eq_localSignRewardNat_sub (x : ℕ) :
+    residualRewardIncrement x =
+      localSignRewardNat x - localSignRewardNat (x - 1) := by
+  simp only [residualRewardIncrement, residualReward_eq_localSignRewardNat]
+
+#print axioms residualReward_eq_localSignRewardNat
+#print axioms residualRewardIncrement_eq_localSignRewardNat_sub
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RewardCompatibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFFactorization
+Source: Erdos625/Section9FixedFFactorization.lean
+Normalized SHA-256: 48f83507cc24ce3f2df248ed5a97c59ed85e02e46b23286493fa4e9c50ac3938
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFFactorization
+
+/-!
+# Section IX: fixed-family local-factor separation
+
+This module performs the finite algebraic step immediately after the capped
+fixed-`F` prescribed-demand expansion.  It separates the common product of
+local threshold increments from the physical `residualQ` weight of `F \ M`.
+
+This theorem is still before the even-family sum and polymer decomposition.
+It asserts no residual law, conditional expectation estimate, tagged-law
+identity, residual-only cycle estimate, or attachment bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The capped fixed-`F` expectation factors into a common local-`lambda`
+product and the physical `residualQ` weight outside the exposed matching. -/
+theorem residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualFixedFExpectation M F R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        edgeWeightOutsideENN (residualQ M R row col) M F := by
+  refine (capped_fixedF_prescribedDemand_expansion M F R row col htotal hm).trans ?_
+  have hedge :
+      edgeWeightOutsideENN (residualQ M R row col) M F =
+        ∏ a : A, ∏ b : B,
+          if (a, b) ∈ F then
+            if (a, b) ∈ M then 1 else residualQ M R row col a b
+          else 1 := by
+    unfold edgeWeightOutsideENN
+    rw [← Fintype.prod_ite_mem]
+    calc
+      (∏ e : A × B,
+          if e ∈ F \ M then residualQ M R row col e.1 e.2 else 1) =
+          ∏ e : A × B,
+            if e ∈ F then
+              if e ∈ M then 1 else residualQ M R row col e.1 e.2
+            else 1 := by
+              apply Fintype.prod_congr
+              intro e
+              simp only [Finset.mem_sdiff]
+              by_cases heF : e ∈ F <;> by_cases heM : e ∈ M <;>
+                simp [heF, heM]
+      _ = ∏ a : A, ∏ b : B,
+            if (a, b) ∈ F then
+              if (a, b) ∈ M then 1 else residualQ M R row col a b
+            else 1 :=
+        Fintype.prod_prod_type'
+          (fun a : A => fun b : B =>
+            if (a, b) ∈ F then
+              if (a, b) ∈ M then (1 : ENNReal)
+              else residualQ M R row col a b
+            else 1)
+  rw [hedge]
+  rw [← Finset.prod_mul_distrib]
+  apply Finset.prod_le_prod'
+  intro a ha
+  rw [← Finset.prod_mul_distrib]
+  apply Finset.prod_le_prod'
+  intro b hb
+  by_cases habM : (a, b) ∈ M
+  · simp [habM, residualLambda]
+  · by_cases habF : (a, b) ∈ F
+    · simp only [habM, habF, if_false, if_true]
+      exact le_mul_of_one_le_left' (by simp)
+    · simp [habM, habF]
+
+#print axioms residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFFactorization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFFactorization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFEvenAggregation
+Source: Erdos625/Section9FixedFEvenAggregation.lean
+Normalized SHA-256: 8086e2df0a5ffd237a23043ddf268382648c5f27c851950bf32426cfb7a17a4e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFEvenAggregation
+
+/-!
+# Section IX: finite even-family aggregation of the fixed-`F` bound
+
+This module sums the capped fixed-`F` expectations over the finite family of
+all even bipartite edge sets.  The fixed-family factorization separates a
+common product of local threshold increments; the finite even-subgraph
+polymer theorem then bounds the remaining edge-weight sum by the product over
+simple bipartite cycles.
+
+The quantity defined here is deliberately named a fixed-`F` sum.  This module
+does **not** identify it with the manuscript's actual attachment expectation,
+the tagged residual law, or any conditional expectation.  Such an
+identification requires a separate multiplicity/law bridge and is not used
+below.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The finite sum of capped fixed-`F` expectations over every even
+bipartite edge set.  No claim that this is an attachment expectation is part
+of the definition. -/
+def residualCappedEvenFixedFSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ :=
+  ∑ F ∈ bipartiteEvenEdgeSets A B,
+    residualFixedFExpectation M F R row col htotal
+
+/-- Summing the fixed-`F` factorization extracts its common local-`lambda`
+product from the finite even-family sum. -/
+theorem residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualCappedEvenFixedFSum M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∑ F ∈ bipartiteEvenEdgeSets A B,
+          edgeWeightOutsideENN (residualQ M R row col) M F) := by
+  unfold residualCappedEvenFixedFSum
+  rw [Finset.mul_sum]
+  apply Finset.sum_le_sum
+  intro F hF
+  exact residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+    M F R row col htotal hm
+
+/-- The finite even-family fixed-`F` sum is bounded by the common local
+threshold product times the simple-cycle polymer product.
+
+This is a finite deterministic aggregation theorem.  In particular, it does
+not assert that `residualCappedEvenFixedFSum` equals the actual attachment
+expectation. -/
+theorem residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualCappedEvenFixedFSum M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
+  calc
+    residualCappedEvenFixedFSum M R row col htotal ≤
+        (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∑ F ∈ bipartiteEvenEdgeSets A B,
+            edgeWeightOutsideENN (residualQ M R row col) M F) :=
+      residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+        M R row col htotal hm
+    _ ≤
+        (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) :=
+      mul_le_mul_right
+        (weighted_evenSubgraph_ennreal_polymer_product
+          (residualQ M R row col) M)
+        _
+
+#print axioms residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+#print axioms residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFEvenAggregation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFEvenAggregation
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
+Source: Erdos625/Section9FixedFFubiniBridge.lean
+Normalized SHA-256: 176c3bb23398ba658005d0025165856d145f1e6fe23725eace305b35c784aaed
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFFubiniBridge
+
+/-!
+# Section IX: exact finite fixed-family Fubini bridge
+
+This module identifies the literal sum of the capped fixed-`F` expectations
+with an event-restricted numerator under the uniform configuration-matching law.
+For a realised matching, the finite family retained in the numerator consists
+exactly of the even edge sets whose every edge is either already in the
+high-skeleton matching `M` or lies in a cell of residual multiplicity at least
+two.
+
+The result is a finite sum-commutation and zero-one multiplicity identity.  It
+retains the cap/no-return indicator inside the residual expectation exactly as
+in manuscript (9.1).  Division by that event probability is not part of the
+(9.1)--(9.2) assembly.  The separate cycle-space cardinality, full-table
+reward/support split, and tagged incidence identities are not asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The literal finite family of actual residual even edge sets for one
+configuration matching. -/
+def actualResidualEvenEdgeSets
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    Finset (Finset (A × B)) :=
+  (bipartiteEvenEdgeSets A B).filter fun F ↦
+    ∀ e ∈ F, e ∈ M ∨ 2 ≤ configurationCellCount matching e.1 e.2
+
+/-- Membership in the literal finite family is exactly the predicate defining
+`ActualResidualEvenEdgeFamily` for the realised cell-count table. -/
+theorem mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col)
+    (F : Finset (A × B)) :
+    F ∈ actualResidualEvenEdgeSets M matching ↔
+      BipartiteEvenEdgeSet F ∧
+        ∀ e ∈ F, (e.1, e.2) ∈ M ∨
+          2 ≤ configurationCellCount matching e.1 e.2 := by
+  classical
+  simp only [actualResidualEvenEdgeSets, Finset.mem_filter,
+    bipartiteEvenEdgeSets, Finset.mem_univ, true_and]
+  rw [bipartiteEvenEdgeSet_iff_isBipartiteEven]
+
+/-- For one realised matching, summing the fixed-`F` threshold indicators over
+all even edge sets gives exactly the cardinality of the actual finite family.
+-/
+theorem sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    (∑ F ∈ bipartiteEvenEdgeSets A B,
+      ∏ e ∈ F,
+        if e ∈ M then (1 : ℝ≥0∞)
+        else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+      ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞) := by
+  classical
+  calc
+    (∑ F ∈ bipartiteEvenEdgeSets A B,
+      ∏ e ∈ F,
+        if e ∈ M then (1 : ℝ≥0∞)
+        else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+        ∑ F ∈ bipartiteEvenEdgeSets A B,
+          if (∀ e ∈ F, e ∈ M ∨
+              2 ≤ configurationCellCount matching e.1 e.2)
+          then (1 : ℝ≥0∞) else 0 := by
+      apply Finset.sum_congr rfl
+      intro F hF
+      clear hF
+      induction F using Finset.induction_on with
+      | empty => simp
+      | @insert e F he ih =>
+          by_cases heM : e ∈ M
+          · simp [he, heM, ih]
+          · by_cases heCount :
+                2 ≤ configurationCellCount matching e.1 e.2
+            · simp [he, heM, heCount, ih]
+            · simp [he, heM, heCount]
+    _ = ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞) := by
+      rw [Finset.sum_boole]
+      rfl
+
+/-- The event-restricted actual attachment numerator.  The cap/no-return
+indicator and hence its probability mass remain inside the expectation. -/
+def residualActualAttachmentNumerator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ := by
+  classical
+  exact
+    ∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (if matching ∈ ResidualCapNoReturnEvent M R row col then 1 else 0) *
+        (∏ a : A, ∏ b : B,
+          (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
+        ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞)
+
+/-- Exact finite Fubini/multiplicity identity for the event-restricted
+expectation in manuscript (9.1). -/
+theorem residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    residualActualAttachmentNumerator M R row col htotal =
+      residualCappedEvenFixedFSum M R row col htotal := by
+  classical
+  unfold residualActualAttachmentNumerator residualCappedEvenFixedFSum
+  simp only [residualFixedFExpectation]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro matching hmatching
+  by_cases hevent : matching ∈ ResidualCapNoReturnEvent M R row col
+  · simp only [residualFixedFWeight, hevent, if_pos]
+    rw [← Finset.mul_sum]
+    rw [← Finset.mul_sum]
+    rw [sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets]
+    ring
+  · simp [residualFixedFWeight, hevent]
+
+#print axioms mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+#print axioms sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+#print axioms residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFFubiniBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
+Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+
+/-!
+# Section IX: polymer bound for the actual attachment numerator
+
+The exact finite Fubini identity identifies the literal actual-family
+numerator with the capped fixed-`F` sum.  This module composes that identity
+with the previously proved even-family and polymer bounds.
+
+Both conclusions concern the **event-restricted expectation** in manuscript
+(9.1): the cap/no-return indicator remains inside the uniform residual
+matching expectation.  No division by its event probability belongs in the
+(9.1)--(9.2) route.  The cycle-space cardinality, full-table reward/support
+split, tagged incidence integration, and final Lemma 9.1 estimate remain
+separate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
+product times the unrestricted finite even-family weight sum.
+
+This is the fixed-residual-fibre form, before tagged incidence integration. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∑ F ∈ bipartiteEvenEdgeSets A B,
+          edgeWeightOutsideENN (residualQ M R row col) M F) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+    M R row col htotal hm
+
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
+product times the simple-cycle polymer product.
+
+It does not yet identify the even-family cardinality with the manuscript
+cycle-space factor or integrate the demand-dependent residual estimate over
+the global tagged law. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+    M R row col htotal hm
+
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualLambdaCubic
+Source: Erdos625/Section9ResidualLambdaCubic.lean
+Normalized SHA-256: 0b3b378f9aa012e584451fbd2d9c1c17a91e4a82830a05b17ab246bcd169f307
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaCubic
+
+/-!
+# Section IX: universal residual-lambda cubic bound
+
+This module transports the lambda half of the finite real endpoint estimate
+to the literal `ENNReal` residual kernel.  It is only a pointwise analytic
+bridge.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One finite positive `ENNReal` constant bounds the literal Section IX
+`residualLambda` cubically in the literal configuration-cell parameter. -/
+theorem existsAbsoluteResidualLambdaCubicBound :
+    ∃ κ : ENNReal, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        R = U / 2 →
+        (∀ a b, (a, b) ∉ M →
+          (configurationCellTheta row col m a b).toReal ≤
+            Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ)) →
+        2 ^ U ≤ m ^ 3 →
+        ∀ a b,
+          residualLambda M R row col a b ≤
+            κ * configurationCellTheta row col m a b ^ 3 := by
+  obtain ⟨C, hC₀, hC⟩ := existsAbsoluteFiniteEndpointConstant
+  use ENNReal.ofReal C
+  refine ⟨ENNReal.ofReal_pos.mpr hC₀, ENNReal.ofReal_ne_top, ?_⟩
+  intro A B _ _ _ _ M U R m row col hm hsum hR hbound hpow a b
+  by_cases hab : (a, b) ∈ M
+  · simp [residualLambda, hab]
+  have h_residLambda : residualLambda M R row col a b = ENNReal.ofReal (endpointLambda R (configurationCellTheta row col m a b).toReal) := by
+    unfold residualLambda; simp +decide [ *, endpointLambda ] ;
+    rw [ ENNReal.ofReal_sum_of_nonneg ];
+    · refine' Finset.sum_congr rfl fun x hx => _;
+      rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by
+        unfold endpointIncrement; simp +decide [ endpointRewardNat ] ;
+        split_ifs <;> norm_num at *;
+        · exact pow_le_pow_right₀ ( by norm_num ) ( Nat.sub_le_sub_right ( Nat.choose_le_choose _ ( Nat.pred_le _ ) ) _ );
+        · omega;
+        · exact one_le_pow₀ ( by norm_num ) ), ENNReal.ofReal_pow ( by
+        exact ENNReal.toReal_nonneg ) ];
+      rw [ show endpointIncrement x = ( residualRewardIncrement x : ℝ ) from ?_ ];
+      · rw [ ENNReal.ofReal_natCast, ENNReal.ofReal_natCast, ENNReal.ofReal_toReal ];
+        unfold configurationCellTheta; simp +decide [ eulerENNReal ] ;
+        simp +decide [ ENNReal.div_eq_top, hm.ne' ];
+        exact ENNReal.mul_ne_top ( ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( by norm_num ) ) ( by norm_num );
+      · unfold endpointIncrement residualRewardIncrement; simp +decide [ residualReward ] ;
+        rcases x with ( _ | _ | _ | _ | x ) <;> simp +arith +decide [ endpointRewardNat ] at hx ⊢;
+        · norm_num;
+        · rw [ Nat.cast_sub ] <;> norm_num;
+          apply pow_le_pow_right₀ (by norm_num)
+          have hchoose : Nat.choose (x + 3) 2 ≤ Nat.choose (x + 4) 2 := by
+            exact Nat.choose_le_succ (x + 3) 2
+          omega
+    · intro i hi; exact div_nonneg ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by
+        rcases i with ( _ | _ | _ | i ) <;> simp +arith +decide [ endpointRewardNat, Nat.choose ] at hi ⊢;
+        split_ifs;
+        · apply pow_le_pow_right₀ (by norm_num)
+          omega
+        · exact Nat.one_le_pow _ _ ( by decide ) ) <| pow_nonneg ( ENNReal.toReal_nonneg ) _ ) <| Nat.cast_nonneg _;
+  rw [h_residLambda]
+  by_cases htop : configurationCellTheta row col m a b = ⊤
+  · simp [htop, endpointLambda, (ENNReal.ofReal_pos.mpr hC₀).ne']
+  calc
+    _ ≤ ENNReal.ofReal
+        (C * (configurationCellTheta row col m a b).toReal ^ 3) :=
+      ENNReal.ofReal_le_ofReal
+        (hC U m R (configurationCellTheta row col m a b).toReal hm hR
+          ENNReal.toReal_nonneg (hbound a b hab) hpow).1
+    _ = ENNReal.ofReal C * configurationCellTheta row col m a b ^ 3 := by
+      rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow (by positivity),
+        ENNReal.ofReal_toReal htop]
+
+#print axioms existsAbsoluteResidualLambdaCubicBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaCubic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualLambdaCubic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ConfigurationThetaMoments
+Source: Erdos625/ConfigurationThetaMoments.lean
+Normalized SHA-256: 7f9f10e73af19d8def911767d4a4972477c01ccb32313fe616dfa03012257438
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
+
+/-!
+# Degree moments and configuration-cell parameters
+
+This module isolates the finite arithmetic used in manuscript (9.13)--(9.14).
+For a nonnegative integer degree family of total mass m, bounded pointwise
+by U, its second and third moments are at most U m and U squared times m.
+
+The second half applies those inequalities to the configuration-cell
+parameter. Exact finite factorization identities are stated for every m.
+Bounds that cancel a denominator explicitly assume positive m; the zero-total
+case is recorded separately. No asymptotic estimate is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-! ## Capped moments of a finite degree family -/
+
+/-- A capped natural-valued family of total m has second moment at most U m. -/
+theorem degreeSquareSum_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, d i ^ 2 ≤ U * m := by
+  calc
+    ∑ i, d i ^ 2 ≤ ∑ i, U * d i := by
+      apply Finset.sum_le_sum
+      intro i hi
+      simpa [pow_two, mul_comm] using
+        Nat.mul_le_mul_right (d i) (hcap i)
+    _ = U * m := by rw [← Finset.mul_sum, htotal]
+
+/-- A capped natural-valued family of total m has third moment at most
+U squared times m. -/
+theorem degreeCubeSum_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, d i ^ 3 ≤ U ^ 2 * m := by
+  calc
+    ∑ i, d i ^ 3 ≤ ∑ i, U ^ 2 * d i := by
+      apply Finset.sum_le_sum
+      intro i hi
+      calc
+        d i ^ 3 = d i ^ 2 * d i := by ring
+        _ ≤ U ^ 2 * d i :=
+          Nat.mul_le_mul_right (d i) (Nat.pow_le_pow_left (hcap i) 2)
+    _ = U ^ 2 * m := by rw [← Finset.mul_sum, htotal]
+
+/-- Real-cast form of the capped second-moment inequality. -/
+theorem degreeSquareSum_real_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ) ^ 2 ≤ (U : ℝ) * (m : ℝ) := by
+  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
+
+/-- Real-cast form of the capped third-moment inequality. -/
+theorem degreeCubeSum_real_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ) ^ 3 ≤ (U : ℝ) ^ 2 * (m : ℝ) := by
+  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
+
+/-- Extended-nonnegative-real form of the capped second-moment inequality. -/
+theorem degreeSquareSum_ennreal_le_cap_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) * (m : ℝ≥0∞) := by
+  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
+
+/-- Extended-nonnegative-real form of the capped third-moment inequality. -/
+theorem degreeCubeSum_ennreal_le_cap_sq_mul_total
+    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
+    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
+    ∑ i, (d i : ℝ≥0∞) ^ 3 ≤
+      (U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞) := by
+  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
+
+/-! ## Exact finite theta factorizations -/
+
+/-- Exact row factorization of the squared cell parameters, valid for all m. -/
+theorem sum_configurationCellTheta_sq_row
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (a : A) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (row a : ℝ≥0∞) ^ 2 *
+        ∑ b, (col b : ℝ≥0∞) ^ 2 := by
+  have hpoint : ∀ b : B,
+      configurationCellTheta row col m a b ^ 2 =
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (row a : ℝ≥0∞) ^ 2) *
+          (col b : ℝ≥0∞) ^ 2 := by
+    intro b
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  rw [Finset.mul_sum]
+
+/-- Exact column factorization of the squared cell parameters, valid for all m. -/
+theorem sum_configurationCellTheta_sq_column
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (b : B) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (col b : ℝ≥0∞) ^ 2 *
+        ∑ a, (row a : ℝ≥0∞) ^ 2 := by
+  have hpoint : ∀ a : A,
+      configurationCellTheta row col m a b ^ 2 =
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (col b : ℝ≥0∞) ^ 2) *
+          (row a : ℝ≥0∞) ^ 2 := by
+    intro a
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  rw [Finset.mul_sum]
+
+/-- Exact factorization of the global cubic theta sum, valid for all m. -/
+theorem sum_configurationCellTheta_cube
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m : ℕ) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) =
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        (∑ a, (row a : ℝ≥0∞) ^ 3) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+  have hpoint : ∀ a : A, ∀ b : B,
+      configurationCellTheta row col m a b ^ 3 =
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3 := by
+    intro a b
+    simp only [configurationCellTheta, div_eq_mul_inv]
+    ring
+  simp_rw [hpoint]
+  calc
+    (∑ a, ∑ b,
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3) =
+        ∑ a,
+          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+            (row a : ℝ≥0∞) ^ 3) *
+            (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      apply Finset.sum_congr rfl
+      intro a ha
+      rw [Finset.mul_sum]
+    _ = (∑ a,
+          (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+            (row a : ℝ≥0∞) ^ 3) *
+          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      rw [Finset.sum_mul]
+    _ = (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          (∑ a, (row a : ℝ≥0∞) ^ 3) *
+          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
+      congr 1
+      rw [Finset.mul_sum]
+
+/-! ## Bounds before and after positive-mass cancellation -/
+
+/-- Row-square theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_sq_row_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (row a : ℝ≥0∞) ^ 2 *
+        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_sq_row]
+  exact mul_le_mul_right
+    (degreeSquareSum_ennreal_le_cap_mul_total col U m hcolCap hcolTotal)
+    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (row a : ℝ≥0∞) ^ 2)
+
+/-- Column-square theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_sq_column_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+        (col b : ℝ≥0∞) ^ 2 *
+        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_sq_column]
+  exact mul_le_mul_right
+    (degreeSquareSum_ennreal_le_cap_mul_total row U m hrowCap hrowTotal)
+    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (col b : ℝ≥0∞) ^ 2)
+
+/-- Cancellation identity used in the positive-total square bounds. -/
+private theorem normalizeThetaSquareBound
+    (e r U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
+    (e / (m : ℝ≥0∞)) ^ 2 * r ^ 2 *
+        (U * (m : ℝ≥0∞)) =
+      e ^ 2 * r ^ 2 * U / (m : ℝ≥0∞) := by
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hm)
+  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
+  apply (ENNReal.eq_div_iff hm0 hmt).2
+  rw [div_eq_mul_inv]
+  calc
+    (m : ℝ≥0∞) *
+        ((e * (m : ℝ≥0∞)⁻¹) ^ 2 * r ^ 2 *
+          (U * (m : ℝ≥0∞))) =
+        e ^ 2 * r ^ 2 * U *
+          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 2 := by ring
+    _ = e ^ 2 * r ^ 2 * U := by
+      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
+
+/-- Positive-total row-square bound in cancelled form. -/
+theorem sum_configurationCellTheta_sq_row_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hm : 0 < m)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
+  calc
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (row a : ℝ≥0∞) ^ 2 *
+          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_sq_row_le_raw
+        row col m U a hcolCap hcolTotal
+    _ = eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      normalizeThetaSquareBound eulerENNReal (row a : ℝ≥0∞)
+        (U : ℝ≥0∞) m hm
+
+/-- Positive-total column-square bound in cancelled form. -/
+theorem sum_configurationCellTheta_sq_column_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hm : 0 < m)
+    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
+  calc
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
+          (col b : ℝ≥0∞) ^ 2 *
+          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_sq_column_le_raw
+        row col m U b hrowCap hrowTotal
+    _ = eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      normalizeThetaSquareBound eulerENNReal (col b : ℝ≥0∞)
+        (U : ℝ≥0∞) m hm
+
+/-- Uniform row-square bound after also using the row cap. -/
+theorem sum_configurationCellTheta_sq_row_le_uniform
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
+    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
+  calc
+    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
+        eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
+          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      sum_configurationCellTheta_sq_row_le
+        row col m U a hm hcolCap hcolTotal
+    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
+        (m : ℝ≥0∞) := by
+      apply ENNReal.div_le_div
+      · have hr : (row a : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
+          exact pow_le_pow_left' (by exact_mod_cast hrowCap a) 2
+        calc
+          eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
+              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
+            mul_le_mul_left (mul_le_mul_right hr (eulerENNReal ^ 2))
+              (U : ℝ≥0∞)
+          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
+      · rfl
+
+/-- Uniform column-square bound after also using the column cap. -/
+theorem sum_configurationCellTheta_sq_column_le_uniform
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
+    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
+    (hcolCap : ∀ b, col b ≤ U) (hrowTotal : ∑ a, row a = m) :
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
+  calc
+    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
+        eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
+          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
+      sum_configurationCellTheta_sq_column_le
+        row col m U b hm hrowCap hrowTotal
+    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
+        (m : ℝ≥0∞) := by
+      apply ENNReal.div_le_div
+      · have hc : (col b : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
+          exact pow_le_pow_left' (by exact_mod_cast hcolCap b) 2
+        calc
+          eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
+              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
+            mul_le_mul_left (mul_le_mul_right hc (eulerENNReal ^ 2))
+              (U : ℝ≥0∞)
+          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
+      · rfl
+
+/-! ## The global cubic bound -/
+
+/-- Global cubic theta bound before cancelling m. -/
+theorem sum_configurationCellTheta_cube_le_raw
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) := by
+  rw [sum_configurationCellTheta_cube]
+  have hrow :=
+    degreeCubeSum_ennreal_le_cap_sq_mul_total row U m hrowCap hrowTotal
+  have hcol :=
+    degreeCubeSum_ennreal_le_cap_sq_mul_total col U m hcolCap hcolTotal
+  calc
+    (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        (∑ a, (row a : ℝ≥0∞) ^ 3) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) ≤
+      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        (∑ b, (col b : ℝ≥0∞) ^ 3) :=
+      mul_le_mul_left
+        (mul_le_mul_right hrow
+          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3))
+        (∑ b, (col b : ℝ≥0∞) ^ 3)
+    _ ≤ (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
+      mul_le_mul_right hcol
+        ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)))
+
+/-- Cancellation identity used in the positive-total cubic bound. -/
+private theorem normalizeThetaCubeBound
+    (e U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
+    (e / (m : ℝ≥0∞)) ^ 3 *
+        (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞)) =
+      e ^ 3 * U ^ 4 / (m : ℝ≥0∞) := by
+  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hm)
+  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
+  apply (ENNReal.eq_div_iff hm0 hmt).2
+  rw [div_eq_mul_inv]
+  calc
+    (m : ℝ≥0∞) *
+        ((e * (m : ℝ≥0∞)⁻¹) ^ 3 *
+          (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞))) =
+        e ^ 3 * U ^ 4 *
+          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 3 := by ring
+    _ = e ^ 3 * U ^ 4 := by
+      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
+
+/-- Positive-total global cubic theta bound in cancelled form. -/
+theorem sum_configurationCellTheta_cube_le
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (hm : 0 < m)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+      eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 / (m : ℝ≥0∞) := by
+  calc
+    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
+        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
+          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
+      sum_configurationCellTheta_cube_le_raw
+        row col m U hrowCap hcolCap hrowTotal hcolTotal
+    _ = eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 /
+        (m : ℝ≥0∞) :=
+      normalizeThetaCubeBound eulerENNReal (U : ℝ≥0∞) m hm
+
+/-! ## The zero-total branch -/
+
+/-- Zero row total forces every cell parameter with denominator zero to zero. -/
+theorem configurationCellTheta_eq_zero_of_rowTotal_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0)
+    (a : A) (b : B) :
+    configurationCellTheta row col 0 a b = 0 := by
+  have hrowa : row a = 0 :=
+    (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
+  simp [configurationCellTheta, hrowa]
+
+/-- Zero column total gives the symmetric vanishing statement. -/
+theorem configurationCellTheta_eq_zero_of_colTotal_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hcolTotal : ∑ b, col b = 0)
+    (a : A) (b : B) :
+    configurationCellTheta row col 0 a b = 0 := by
+  have hcolb : col b = 0 :=
+    (Finset.sum_eq_zero_iff.mp hcolTotal) b (Finset.mem_univ b)
+  simp [configurationCellTheta, hcolb]
+
+/-- The global cubic theta sum vanishes in the zero-total branch. -/
+theorem sum_configurationCellTheta_cube_eq_zero_of_total_zero
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0) :
+    (∑ a, ∑ b, configurationCellTheta row col 0 a b ^ 3) = 0 := by
+  simp_rw [configurationCellTheta_eq_zero_of_rowTotal_zero
+    row col hrowTotal]
+  simp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ConfigurationThetaMoments
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
+Source: Erdos625/Section9ResidualLambdaTotalBound.lean
+Normalized SHA-256: ae854a7a7e0244f9c4e1aa1a933ef13257b927d818f1e4641001f2eba99b23b9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
+
+/-!
+# Section IX: deterministic total residual-lambda estimate
+
+This module sums the pointwise cubic residual-lambda bound using the global
+configuration-theta cubic moment estimate.  It proves the deterministic
+fourth-power degree-cap scale in manuscript (9.13).  No residual-law,
+attachment, cycle, conditioning, or asymptotic assertion is made here.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One absolute positive finite constant bounds the total literal residual
+lambda by the deterministic fourth-power degree-cap scale. -/
+theorem existsAbsoluteResidualLambdaTotalBound :
+    ∃ κ : ENNReal, 0 < κ ∧ κ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        (∑ a, ∑ b, residualLambda M R row col a b) ≤
+          κ * (U : ENNReal) ^ 4 / (m : ENNReal) := by
+  obtain ⟨κ, hκPos, hκTop, hκ⟩ :=
+    existsAbsoluteResidualLambdaCubicBound
+  have heulerPos : 0 < eulerENNReal := by
+    rw [eulerENNReal, ENNReal.ofReal_pos]
+    exact Real.exp_pos 1
+  have heulerTop : eulerENNReal ≠ ∞ := by
+    unfold eulerENNReal
+    exact ENNReal.ofReal_ne_top
+  refine ⟨κ * eulerENNReal ^ 3, ?_, ?_, ?_⟩
+  · exact ENNReal.mul_pos hκPos.ne'
+      (pow_ne_zero 3 heulerPos.ne')
+  · exact ENNReal.mul_ne_top hκTop
+      (ENNReal.pow_ne_top heulerTop)
+  · intro A B _ _ _ _ M U R m row col hm hrowTotal hcolTotal
+      hrowCap hcolCap hR hpow
+    have htheta : ∀ a b, (a, b) ∉ M →
+        (configurationCellTheta row col m a b).toReal ≤
+          Real.exp 1 * (U : ℝ) ^ 2 / (m : ℝ) := by
+      intro a b _hab
+      exact configurationCellTheta_toReal_le_of_caps
+        row col m U a b hm (hrowCap a) (hcolCap b)
+    have hpoint : ∀ a b,
+        residualLambda M R row col a b ≤
+          κ * configurationCellTheta row col m a b ^ 3 :=
+      hκ M U R m row col hm hrowTotal hR htheta hpow
+    calc
+      (∑ a, ∑ b, residualLambda M R row col a b) ≤
+          ∑ a, ∑ b,
+            κ * configurationCellTheta row col m a b ^ 3 := by
+        exact Finset.sum_le_sum fun a _ =>
+          Finset.sum_le_sum fun b _ => hpoint a b
+      _ = κ *
+          (∑ a, ∑ b,
+            configurationCellTheta row col m a b ^ 3) := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro a _
+        rw [Finset.mul_sum]
+      _ ≤ κ *
+          (eulerENNReal ^ 3 * (U : ENNReal) ^ 4 /
+            (m : ENNReal)) := by
+        simpa only [mul_comm] using
+          (mul_le_mul_right
+            (sum_configurationCellTheta_cube_le row col m U hm
+              hrowCap hcolCap hrowTotal hcolTotal) κ)
+      _ = (κ * eulerENNReal ^ 3) *
+          (U : ENNReal) ^ 4 / (m : ENNReal) := by
+        simp only [div_eq_mul_inv, mul_assoc]
+
+#print axioms existsAbsoluteResidualLambdaTotalBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -28820,6 +37829,904 @@ END SOURCE MODULE: Erdos625.Section8TypedPartialMatching
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
+Source: Erdos625/Section8UnlabelledTypedSkeleton.lean
+Normalized SHA-256: ed98d24ebd5e31693d997c84242999d41f5ba3ef24117dd8969053ec47837f7d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
+
+/-!
+# Section VIII: unlabelled typed skeletons
+
+This module forgets the cellwise presentation of a `TypedPartialMatching` and
+retains only its physical row--column stub edges.  An unlabelled skeleton is a
+finite bipartite edge set in which no row stub and no column stub occurs twice.
+Its `typeTable` counts physical edges by their row and column types.
+
+The construction below is finite and deterministic.  It contains no
+probability or asymptotic assertion.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A physical finite partial matching between typed row and column stubs. -/
+structure UnlabelledTypedSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) where
+  edges : Finset (RowStub k × ColumnStub ell)
+  leftUnique :
+    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.1 = e₂.1 -> e₁ = e₂
+  rightUnique :
+    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.2 = e₂.2 -> e₁ = e₂
+
+@[ext]
+theorem UnlabelledTypedSkeleton.ext
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    {S T : UnlabelledTypedSkeleton k ell}
+    (hEdges : S.edges = T.edges) :
+    S = T := by
+  cases S
+  cases T
+  simp_all
+
+noncomputable instance instFintypeUnlabelledTypedSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) :
+    Fintype (UnlabelledTypedSkeleton k ell) := by
+  letI : Finite (UnlabelledTypedSkeleton k ell) :=
+    Finite.of_injective
+      (fun S : UnlabelledTypedSkeleton k ell => S.edges)
+      (fun _ _ h => UnlabelledTypedSkeleton.ext h)
+  exact Fintype.ofFinite _
+
+/-- The number of physical skeleton edges in each row-type/column-type cell. -/
+def UnlabelledTypedSkeleton.typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) : Nat :=
+  (S.edges.filter (fun e => e.1.1 = i ∧ e.2.1 = j)).card
+
+/-- The physical edges in one fixed type cell, with the type indices removed
+from their endpoints. -/
+def UnlabelledTypedSkeleton.cellEdges
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (k i) × Fin (ell j)) :=
+  Finset.univ.filter
+    (fun p => ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+      RowStub k × ColumnStub ell) ∈ S.edges)
+
+/-- Row stubs used by one type cell. -/
+def UnlabelledTypedSkeleton.rowCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (k i)) :=
+  (S.cellEdges i j).image Prod.fst
+
+/-- Column stubs used by one type cell. -/
+def UnlabelledTypedSkeleton.columnCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (ell j)) :=
+  (S.cellEdges i j).image Prod.snd
+
+private theorem cellEdges_card_eq_typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.cellEdges i j).card = S.typeTable i j := by
+  unfold UnlabelledTypedSkeleton.cellEdges
+    UnlabelledTypedSkeleton.typeTable
+  refine Finset.card_bij
+    (fun p _ =>
+      ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+        RowStub k × ColumnStub ell)) ?_ ?_ ?_
+  · intro p hp
+    rw [Finset.mem_filter] at hp ⊢
+    exact ⟨hp.2, rfl, rfl⟩
+  · intro p₁ hp₁ p₂ hp₂ hEq
+    exact Prod.ext
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hEq)).2)
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEq)).2)
+  · intro e he
+    rw [Finset.mem_filter] at he
+    obtain ⟨hEdge, hI, hJ⟩ := he
+    obtain ⟨⟨i', r⟩, ⟨j', c⟩⟩ := e
+    simp only at hI hJ
+    subst i'
+    subst j'
+    exact ⟨(r, c), by simp [hEdge], rfl⟩
+
+private theorem rowCell_card
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.rowCell i j).card = S.typeTable i j := by
+  rw [UnlabelledTypedSkeleton.rowCell,
+    Finset.card_image_of_injOn]
+  · exact cellEdges_card_eq_typeTable S i j
+  · intro p₁ hp₁ p₂ hp₂ hFirst
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.leftUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    exact Prod.ext hFirst
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2)
+
+private theorem columnCell_card
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.columnCell i j).card = S.typeTable i j := by
+  rw [UnlabelledTypedSkeleton.columnCell,
+    Finset.card_image_of_injOn]
+  · exact cellEdges_card_eq_typeTable S i j
+  · intro p₁ hp₁ p₂ hp₂ hSecond
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hSecond))
+    exact Prod.ext
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2)
+      hSecond
+
+private theorem rowCell_disjoint
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I)
+    (j₁ j₂ : J) (hNe : j₁ ≠ j₂) :
+    Disjoint (S.rowCell i j₁) (S.rowCell i j₂) := by
+  rw [Finset.disjoint_left]
+  intro r hr₁ hr₂
+  rw [UnlabelledTypedSkeleton.rowCell, Finset.mem_image] at hr₁ hr₂
+  obtain ⟨p₁, hp₁, hFirst₁⟩ := hr₁
+  obtain ⟨p₂, hp₂, hFirst₂⟩ := hr₂
+  have hEdge₁ :
+      ((⟨i, p₁.1⟩, ⟨j₁, p₁.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+  have hEdge₂ :
+      ((⟨i, p₂.1⟩, ⟨j₂, p₂.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+  have hLeft : (⟨i, p₁.1⟩ : RowStub k) = ⟨i, p₂.1⟩ := by
+    exact Sigma.ext rfl (heq_of_eq (hFirst₁.trans hFirst₂.symm))
+  have hEdges := S.leftUnique _ hEdge₁ _ hEdge₂ hLeft
+  exact hNe (congrArg (fun e => e.2.1) hEdges)
+
+private theorem columnCell_disjoint
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (j : J)
+    (i₁ i₂ : I) (hNe : i₁ ≠ i₂) :
+    Disjoint (S.columnCell i₁ j) (S.columnCell i₂ j) := by
+  rw [Finset.disjoint_left]
+  intro c hc₁ hc₂
+  rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc₁ hc₂
+  obtain ⟨p₁, hp₁, hSecond₁⟩ := hc₁
+  obtain ⟨p₂, hp₂, hSecond₂⟩ := hc₂
+  have hEdge₁ :
+      ((⟨i₁, p₁.1⟩, ⟨j, p₁.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+  have hEdge₂ :
+      ((⟨i₂, p₂.1⟩, ⟨j, p₂.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+  have hRight : (⟨j, p₁.2⟩ : ColumnStub ell) = ⟨j, p₂.2⟩ := by
+    exact Sigma.ext rfl (heq_of_eq (hSecond₁.trans hSecond₂.symm))
+  have hEdges := S.rightUnique _ hEdge₁ _ hEdge₂ hRight
+  exact hNe (congrArg (fun e => e.1.1) hEdges)
+
+private def skeletonRowAllocation
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
+    (i : I) :
+    StubAllocation (k i) (L i) :=
+  ⟨S.rowCell i, by
+    constructor
+    · intro j
+      rw [rowCell_card]
+      exact congrFun (congrFun hTable i) j
+    · intro j₁ j₂ hNe
+      exact rowCell_disjoint S i j₁ j₂ hNe⟩
+
+private def skeletonColumnAllocation
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
+    (j : J) :
+    StubAllocation (ell j) (fun i => L i j) :=
+  ⟨fun i => S.columnCell i j, by
+    constructor
+    · intro i
+      rw [columnCell_card]
+      exact congrFun (congrFun hTable i) j
+    · intro i₁ i₂ hNe
+      exact columnCell_disjoint S j i₁ i₂ hNe⟩
+
+private noncomputable def skeletonCellEdgeOfRow
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    Fin (k i) × Fin (ell j) :=
+  Classical.choose (Finset.mem_image.mp r.2)
+
+private theorem skeletonCellEdgeOfRow_mem
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    skeletonCellEdgeOfRow S i j r ∈ S.cellEdges i j :=
+  (Classical.choose_spec (Finset.mem_image.mp r.2)).1
+
+private theorem skeletonCellEdgeOfRow_fst
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    (skeletonCellEdgeOfRow S i j r).1 = r.1 :=
+  (Classical.choose_spec (Finset.mem_image.mp r.2)).2
+
+private noncomputable def skeletonCellPairing
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    ↑(S.rowCell i j) ≃ ↑(S.columnCell i j) := by
+  let toColumn :
+      ↑(S.rowCell i j) -> ↑(S.columnCell i j) :=
+    fun r =>
+      ⟨(skeletonCellEdgeOfRow S i j r).2,
+        Finset.mem_image.mpr
+          ⟨skeletonCellEdgeOfRow S i j r,
+            skeletonCellEdgeOfRow_mem S i j r, rfl⟩⟩
+  refine Equiv.ofBijective toColumn ⟨?_, ?_⟩
+  · intro r₁ r₂ hColumn
+    have hEdge₁ :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r₁).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r₁).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r₁
+    have hEdge₂ :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r₂).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r₂).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r₂
+    have hSecond :
+        (skeletonCellEdgeOfRow S i j r₁).2 =
+          (skeletonCellEdgeOfRow S i j r₂).2 :=
+      congrArg Subtype.val hColumn
+    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hSecond))
+    apply Subtype.ext
+    rw [← skeletonCellEdgeOfRow_fst S i j r₁,
+      ← skeletonCellEdgeOfRow_fst S i j r₂]
+    exact eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2
+  · intro c
+    have hc := c.2
+    change c.1 ∈ (S.cellEdges i j).image Prod.snd at hc
+    rw [Finset.mem_image] at hc
+    obtain ⟨p, hp, hSecond⟩ := hc
+    let r : ↑(S.rowCell i j) :=
+      ⟨p.1, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
+    refine ⟨r, ?_⟩
+    apply Subtype.ext
+    have hChosen :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r
+    have hGiven :
+        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp
+    have hFirst :
+        (skeletonCellEdgeOfRow S i j r).1 = p.1 := by
+      simpa [r] using skeletonCellEdgeOfRow_fst S i j r
+    have hGlobal := S.leftUnique _ hChosen _ hGiven (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    exact (eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2).trans hSecond
+
+@[simp]
+private theorem skeletonCellPairing_apply
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    ((skeletonCellPairing S i j r : ↑(S.columnCell i j)) :
+      Fin (ell j)) =
+      (skeletonCellEdgeOfRow S i j r).2 := by
+  rfl
+
+/-- The graph edge associated with every selected row atom of a typed partial
+matching.  Injectivity follows already from injectivity on row stubs. -/
+def typedPartialMatchingEdgeEmbedding
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    TypedPartialMatchingSource matching ↪
+      (RowStub k × ColumnStub ell) where
+  toFun atom :=
+    (typedPartialMatchingSourceEmbedding matching atom,
+      typedPartialMatchingTargetEmbedding matching
+        (typedPartialMatchingPairing matching atom))
+  inj' := by
+    intro atom₁ atom₂ h
+    apply (typedPartialMatchingSourceEmbedding matching).injective
+    exact congrArg Prod.fst h
+
+/-- Forget the cellwise presentation of a typed partial matching and retain
+only its physical edge set. -/
+def typedPartialMatchingUnlabelledSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    UnlabelledTypedSkeleton k ell where
+  edges := Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)
+  leftUnique := by
+    intro e₁ he₁ e₂ he₂ hLeft
+    rw [Finset.mem_map] at he₁ he₂
+    obtain ⟨atom₁, _, rfl⟩ := he₁
+    obtain ⟨atom₂, _, rfl⟩ := he₂
+    have hAtom :
+        atom₁ = atom₂ :=
+      (typedPartialMatchingSourceEmbedding matching).injective hLeft
+    subst atom₂
+    rfl
+  rightUnique := by
+    intro e₁ he₁ e₂ he₂ hRight
+    rw [Finset.mem_map] at he₁ he₂
+    obtain ⟨atom₁, _, rfl⟩ := he₁
+    obtain ⟨atom₂, _, rfl⟩ := he₂
+    have hPaired :
+        typedPartialMatchingPairing matching atom₁ =
+          typedPartialMatchingPairing matching atom₂ :=
+      (typedPartialMatchingTargetEmbedding matching).injective hRight
+    have hAtom :
+        atom₁ = atom₂ :=
+      (typedPartialMatchingPairing matching).injective hPaired
+    subst atom₂
+    rfl
+
+private theorem card_source_cell_filter
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (Finset.univ.filter
+        (fun atom : TypedPartialMatchingSource matching =>
+          atom.1 = i ∧ atom.2.1 = j)).card =
+      ((matching.rowAllocation i).1 j).card := by
+  symm
+  refine Finset.card_bij
+    (fun stub hStub =>
+      (⟨i, j, ⟨stub, hStub⟩⟩ :
+        TypedPartialMatchingSource matching)) ?_ ?_ ?_
+  · intro stub hStub
+    simp
+  · intro stub₁ hStub₁ stub₂ hStub₂ hEq
+    have hUnderlying :
+        (⟨stub₁, hStub₁⟩ :
+          ((matching.rowAllocation i).1 j : Finset (Fin (k i)))) =
+        ⟨stub₂, hStub₂⟩ := by
+      exact eq_of_heq (Sigma.mk.inj_iff.mp
+        (eq_of_heq (Sigma.mk.inj_iff.mp hEq).2)).2
+    exact congrArg Subtype.val hUnderlying
+  · intro atom hAtom
+    rw [Finset.mem_filter] at hAtom
+    obtain ⟨_, hI, hJ⟩ := hAtom
+    obtain ⟨i', j', stub⟩ := atom
+    simp only at hI hJ
+    subst i'
+    subst j'
+    exact ⟨stub.1, stub.2, rfl⟩
+
+/-- Forgetting cell labels does not change the prescribed type table. -/
+theorem typedPartialMatchingUnlabelledSkeleton_typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    (typedPartialMatchingUnlabelledSkeleton matching).typeTable = L := by
+  funext i j
+  unfold UnlabelledTypedSkeleton.typeTable
+  change
+    ((Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)).filter
+      (fun e => e.1.1 = i ∧ e.2.1 = j)).card = L i j
+  rw [Finset.filter_map, Finset.card_map]
+  change
+    (Finset.univ.filter
+      (fun atom : TypedPartialMatchingSource matching =>
+        atom.1 = i ∧ atom.2.1 = j)).card = L i j
+  rw [card_source_cell_filter matching i j]
+  simpa using (matching.rowAllocation i).2.1 j
+
+/-- The forward map from cellwise typed partial matchings to physical
+unlabelled skeletons with the prescribed type table. -/
+def typedPartialMatchingToUnlabelledSkeletonFibre
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    TypedPartialMatching L k ell ->
+      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
+  fun matching =>
+    ⟨typedPartialMatchingUnlabelledSkeleton matching,
+      typedPartialMatchingUnlabelledSkeleton_typeTable matching⟩
+
+/-- Reconstruct the cellwise presentation from a physical skeleton.  The
+within-cell equivalence is the unique pairing encoded by the physical edges;
+the use of classical choice only selects that already unique endpoint. -/
+noncomputable def unlabelledSkeletonFibreToTypedPartialMatching
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} ->
+      TypedPartialMatching L k ell :=
+  fun S =>
+    { rowAllocation := skeletonRowAllocation S.1 S.2
+      columnAllocation := skeletonColumnAllocation S.1 S.2
+      pairing := fun i j => skeletonCellPairing S.1 i j }
+
+private theorem reconstructed_edgeEmbedding_apply
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L})
+    (i : I) (j : J) (r : ↑(S.1.rowCell i j)) :
+    typedPartialMatchingEdgeEmbedding
+        (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
+        ⟨i, j, r⟩ =
+      ((⟨i, r.1⟩,
+          ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
+        RowStub k × ColumnStub ell) := by
+  apply Prod.ext
+  · rfl
+  · apply Sigma.ext rfl
+    exact heq_of_eq (skeletonCellPairing_apply S.1 i j r)
+
+private theorem unlabelledSkeleton_roundTrip_edges
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}) :
+    (typedPartialMatchingUnlabelledSkeleton
+      (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)).edges =
+      S.1.edges := by
+  ext e
+  constructor
+  · intro he
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at he
+    obtain ⟨atom, _, rfl⟩ := he
+    obtain ⟨i, j, r⟩ := atom
+    change ↑(S.1.rowCell i j) at r
+    have hCell :=
+      skeletonCellEdgeOfRow_mem S.1 i j r
+    have hEdge :
+        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hCell
+    have hFirst :
+        (skeletonCellEdgeOfRow S.1 i j r).1 = r.1 :=
+      skeletonCellEdgeOfRow_fst S.1 i j r
+    rw [reconstructed_edgeEmbedding_apply L k ell S i j r]
+    simpa [hFirst] using hEdge
+  · intro he
+    obtain ⟨⟨i, r⟩, ⟨j, c⟩⟩ := e
+    let p : Fin (k i) × Fin (ell j) := (r, c)
+    have hp : p ∈ S.1.cellEdges i j := by
+      simp [p, UnlabelledTypedSkeleton.cellEdges, he]
+    let r' : ↑(S.1.rowCell i j) :=
+      ⟨r, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
+    let atom :
+        TypedPartialMatchingSource
+          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S) :=
+      ⟨i, j, r'⟩
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
+    refine ⟨atom, Finset.mem_univ _, ?_⟩
+    have hChosen :
+        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r').1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S.1 i j r').2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S.1 i j r'
+    have hGiven :
+        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [p] using he
+    have hFirst :
+        (skeletonCellEdgeOfRow S.1 i j r').1 = p.1 := by
+      simpa [r', p] using skeletonCellEdgeOfRow_fst S.1 i j r'
+    have hEdges := S.1.leftUnique _ hChosen _ hGiven (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    have hSecond :
+        (skeletonCellEdgeOfRow S.1 i j r').2 = p.2 :=
+      eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
+    change
+      typedPartialMatchingEdgeEmbedding
+          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
+          ⟨i, j, r'⟩ =
+        ((⟨i, r⟩, ⟨j, c⟩) :
+          RowStub k × ColumnStub ell)
+    rw [reconstructed_edgeEmbedding_apply L k ell S i j r']
+    apply Prod.ext
+    · exact Sigma.ext rfl (heq_of_eq rfl)
+    · exact Sigma.ext rfl (heq_of_eq (by simpa [p] using hSecond))
+
+private theorem typedPartialMatching_roundTrip_rowCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (typedPartialMatchingUnlabelledSkeleton matching).rowCell i j =
+      (matching.rowAllocation i).1 j := by
+  ext r
+  simp [UnlabelledTypedSkeleton.rowCell,
+    UnlabelledTypedSkeleton.cellEdges,
+    typedPartialMatchingUnlabelledSkeleton,
+    typedPartialMatchingEdgeEmbedding,
+    typedPartialMatchingSourceEmbedding,
+    typedPartialMatchingTargetEmbedding,
+    typedPartialMatchingPairing]
+
+private theorem typedPartialMatching_roundTrip_columnCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (typedPartialMatchingUnlabelledSkeleton matching).columnCell i j =
+      (matching.columnAllocation j).1 i := by
+  ext c
+  constructor
+  · intro hc
+    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc
+    obtain ⟨p, hp, rfl⟩ := hc
+    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter] at hp
+    obtain ⟨_, hp⟩ := hp
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at hp
+    obtain ⟨atom, _, hAtom⟩ := hp
+    have hRow := congrArg Prod.fst hAtom
+    have hColumn := congrArg Prod.snd hAtom
+    obtain ⟨i', j', r⟩ := atom
+    simp [typedPartialMatchingEdgeEmbedding,
+      typedPartialMatchingSourceEmbedding,
+      typedPartialMatchingTargetEmbedding,
+      typedPartialMatchingPairing] at hRow hColumn
+    obtain ⟨hI, _⟩ := hRow
+    obtain ⟨hJ, hC⟩ := hColumn
+    subst i'
+    subst j'
+    rw [← eq_of_heq hC]
+    exact (matching.pairing i j r).2
+  · intro hc
+    let c' :
+        ((matching.columnAllocation j).1 i :
+          Finset (Fin (ell j))) := ⟨c, hc⟩
+    let r' := (matching.pairing i j).symm c'
+    let p : Fin (k i) × Fin (ell j) := (r'.1, c)
+    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image]
+    refine ⟨p, ?_, rfl⟩
+    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter]
+    refine ⟨Finset.mem_univ _, ?_⟩
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
+    refine ⟨(⟨i, j, r'⟩ :
+      TypedPartialMatchingSource matching), Finset.mem_univ _, ?_⟩
+    apply Prod.ext
+    · exact Sigma.ext rfl (heq_of_eq rfl)
+    · change
+        (typedPartialMatchingEdgeEmbedding matching
+          (⟨i, j, r'⟩ : TypedPartialMatchingSource matching)).2 =
+          (⟨j, c⟩ : ColumnStub ell)
+      change
+        (⟨j, ((matching.pairing i j) r' : Fin (ell j))⟩ :
+          ColumnStub ell) =
+          ⟨j, c⟩
+      exact Sigma.ext rfl (heq_of_eq (by
+        change ((matching.pairing i j) r' : Fin (ell j)) = c
+        simp [r', c']))
+
+private theorem typedPartialMatchingUnlabelledSkeleton_injective
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat} :
+    Function.Injective
+      (typedPartialMatchingUnlabelledSkeleton :
+        TypedPartialMatching L k ell ->
+          UnlabelledTypedSkeleton k ell) := by
+  intro matching₁ matching₂ hSkeleton
+  have hRows :
+      matching₁.rowAllocation = matching₂.rowAllocation := by
+    funext i
+    apply Subtype.ext
+    funext j
+    rw [← typedPartialMatching_roundTrip_rowCell matching₁ i j,
+      hSkeleton,
+      typedPartialMatching_roundTrip_rowCell matching₂ i j]
+  have hColumns :
+      matching₁.columnAllocation = matching₂.columnAllocation := by
+    funext j
+    apply Subtype.ext
+    funext i
+    rw [← typedPartialMatching_roundTrip_columnCell matching₁ i j,
+      hSkeleton,
+      typedPartialMatching_roundTrip_columnCell matching₂ i j]
+  obtain ⟨rowAllocation₁, columnAllocation₁, pairing₁⟩ := matching₁
+  obtain ⟨rowAllocation₂, columnAllocation₂, pairing₂⟩ := matching₂
+  simp only at hRows hColumns
+  subst rowAllocation₂
+  subst columnAllocation₂
+  have hPairing : pairing₁ = pairing₂ := by
+    funext i j
+    apply Equiv.ext
+    intro r
+    let matching₁ : TypedPartialMatching L k ell :=
+      { rowAllocation := rowAllocation₁
+        columnAllocation := columnAllocation₁
+        pairing := pairing₁ }
+    let matching₂ : TypedPartialMatching L k ell :=
+      { rowAllocation := rowAllocation₁
+        columnAllocation := columnAllocation₁
+        pairing := pairing₂ }
+    let atom₁ : TypedPartialMatchingSource matching₁ := ⟨i, j, r⟩
+    let atom₂ : TypedPartialMatchingSource matching₂ := ⟨i, j, r⟩
+    let edge₁ := typedPartialMatchingEdgeEmbedding matching₁ atom₁
+    let edge₂ := typedPartialMatchingEdgeEmbedding matching₂ atom₂
+    have hEdge₁ :
+        edge₁ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₁).edges := by
+      simp [edge₁, atom₁, typedPartialMatchingUnlabelledSkeleton]
+    have hEdge₂ :
+        edge₂ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
+      simp [edge₂, atom₂, typedPartialMatchingUnlabelledSkeleton]
+    have hSkeleton' :
+        typedPartialMatchingUnlabelledSkeleton matching₁ =
+          typedPartialMatchingUnlabelledSkeleton matching₂ := by
+      simpa [matching₁, matching₂] using hSkeleton
+    have hEdge₁' :
+        edge₁ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
+      rw [← hSkeleton']
+      exact hEdge₁
+    have hLeft : edge₁.1 = edge₂.1 := by
+      rfl
+    have hEdges :=
+      (typedPartialMatchingUnlabelledSkeleton matching₂).leftUnique
+        edge₁ hEdge₁' edge₂ hEdge₂ hLeft
+    apply Subtype.ext
+    exact eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
+  subst pairing₂
+  rfl
+
+/-- Cellwise typed partial matchings are exactly physical unlabelled skeletons
+whose type table is the prescribed matrix.  No ordering is introduced inside
+a cell on either side of this equivalence. -/
+noncomputable def typedPartialMatchingEquivUnlabelledSkeletonFibre
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    TypedPartialMatching L k ell ≃
+      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
+  Equiv.ofBijective
+    (typedPartialMatchingToUnlabelledSkeletonFibre L k ell)
+    ⟨by
+      intro matching₁ matching₂ h
+      apply typedPartialMatchingUnlabelledSkeleton_injective
+      exact congrArg Subtype.val h,
+    by
+      intro S
+      refine ⟨unlabelledSkeletonFibreToTypedPartialMatching L k ell S, ?_⟩
+      apply Subtype.ext
+      apply UnlabelledTypedSkeleton.ext
+      exact unlabelledSkeleton_roundTrip_edges L k ell S⟩
+
+/-- Exact finite cardinality of the physical unlabelled-skeleton fibre.  The
+single cell-factorial product is inherited directly from the literal
+typed-partial-matching count; there is no additional quotient or factorial
+division. -/
+theorem card_unlabelledTypedSkeleton_typeTable_mul_factorials
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} *
+        Finset.univ.prod
+          (fun i => Finset.univ.prod (fun j => (L i j).factorial)) =
+      (Finset.univ.prod
+          (fun i => (k i).descFactorial (Finset.univ.sum (L i)))) *
+      (Finset.univ.prod
+          (fun j =>
+            (ell j).descFactorial
+              (Finset.univ.sum (fun i => L i j)))) := by
+  rw [← Fintype.card_congr
+    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell)]
+  exact card_typedPartialMatching_mul_factorials L k ell
+
+#print axioms UnlabelledTypedSkeleton.ext
+#print axioms typedPartialMatchingUnlabelledSkeleton
+#print axioms typedPartialMatchingUnlabelledSkeleton_typeTable
+#print axioms unlabelledSkeletonFibreToTypedPartialMatching
+#print axioms typedPartialMatchingEquivUnlabelledSkeletonFibre
+#print axioms card_unlabelledTypedSkeleton_typeTable_mul_factorials
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
+Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
+Normalized SHA-256: 5cd55642f4abad470b2ab4644f3e6e54a45b18f2172492a34d2f573d4d49f263
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
+
+/-!
+# E5: physical-skeleton fibre grouping by type table
+
+This file groups the finite physical unlabelled skeleton space by the literal
+`typeTable` map and applies the accepted one-factorial fibre identity.  No
+additional ordering or factorial quotient is introduced.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The finite set of type tables actually attained by physical skeletons. -/
+def attainedUnlabelledTypeTables
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) :
+    Finset (I -> J -> Nat) := by
+  classical
+  exact (Finset.univ : Finset (UnlabelledTypedSkeleton k ell)).image
+    (fun S => S.typeTable)
+
+def typeTableCellFactorialProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (L : I -> J -> Nat) : Nat :=
+  ∏ i : I, ∏ j : J, (L i j).factorial
+
+def typeTableRowDescendingProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (k : I -> Nat) (L : I -> J -> Nat) : Nat :=
+  ∏ i : I, (k i).descFactorial (∑ j : J, L i j)
+
+def typeTableColumnDescendingProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (ell : J -> Nat) (L : I -> J -> Nat) : Nat :=
+  ∏ j : J, (ell j).descFactorial (∑ i : I, L i j)
+
+/-- Exact finite grouping of any type-table weight by the fibres of the
+physical skeleton's `typeTable` map. -/
+theorem sum_unlabelledSkeleton_weight_eq_sum_typeTables
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [AddCommMonoid R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} • w L := by
+  simp +decide only [attainedUnlabelledTypeTables, Fintype.card_subtype];
+  rw [ Finset.sum_image' ];
+  simp +contextual [ Finset.sum_filter ];
+  simp +decide [ Finset.sum_ite ]
+
+/-- Casted form of the accepted cross-multiplied fibre cardinality.  It has
+exactly one cell-factorial product. -/
+theorem cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [CommSemiring R]
+    (k : I -> Nat) (ell : J -> Nat) (L : I -> J -> Nat) :
+    (Fintype.card
+        {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : R) *
+      (typeTableCellFactorialProduct L : R) =
+        ((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) := by
+  unfold typeTableCellFactorialProduct typeTableRowDescendingProduct
+    typeTableColumnDescendingProduct
+  simpa only [Nat.cast_mul] using congrArg ((↑) : Nat → R)
+    (card_unlabelledTypedSkeleton_typeTable_mul_factorials L k ell)
+
+/-- Combined weighted grouping after the exact fibre-cardinality rewrite.
+The source contains the same single cell-factorial product as the accepted
+cross-multiplied theorem and no additional multiplicity. -/
+theorem sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [CommSemiring R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell,
+      (typeTableCellFactorialProduct S.typeTable : R) * w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        ((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) * w L := by
+  change (∑ S : UnlabelledTypedSkeleton k ell,
+      (↑(∏ i : I, ∏ j : J, (S.typeTable i j).factorial) : R) * w S.typeTable) = _
+  rw [sum_unlabelledSkeleton_weight_eq_sum_typeTables k ell
+    (fun L => (↑(∏ i : I, ∏ j : J, (L i j).factorial) : R) * w L)]
+  refine Finset.sum_congr rfl fun L _hL => ?_
+  rw [nsmul_eq_mul, ← mul_assoc]
+  exact congrArg (fun x : R => x * w L)
+    (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L)
+
+#print axioms sum_unlabelledSkeleton_weight_eq_sum_typeTables
+#print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+#print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
 Source: Erdos625/UniformSigmaTransport.lean
 Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
@@ -29330,6 +39237,251 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+Source: Erdos625/Section9CanonicalSupportMatching.lean
+Normalized SHA-256: 4f52e0c8291e1ab062d0605c5d0c6f4f24e7bbd74825377548fb0e3ead36b932
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+
+/-!
+# Section VIII--IX: matchingness of canonical positive support
+
+An attained canonical demand records precisely the cells whose original
+configuration counts exceed the half-cap threshold.  Under the ambient row
+and column degree caps, those high cells form a bipartite matching.  Therefore
+the positive support of every attained canonical demand is a matching as
+required by the deterministic Section IX traversal theorems.
+
+This statement is pointwise in an attained demand.  It asserts no law on
+demands, residual matching, conditional distribution, or attachment bound.
+-/
+
+namespace Erdos625
+
+/-- The positive support of every attained canonical demand is a bipartite
+matching under the ambient degree caps. -/
+theorem positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    IsBipartiteMatching (positiveDemandSupport demand.1) := by
+  classical
+  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
+  have hhigh := configurationCellCount_highCells_form_matching
+    matching U hrowCap hcolCap
+  have high_of_mem : ∀ a b,
+      (a, b) ∈ positiveDemandSupport demand.1 →
+        U / 2 < configurationCellCount matching a b := by
+    intro a b hab
+    have hn : canonicalDemandOfMatching matching U a b ≠ 0 := by
+      rw [hmatching]
+      simpa only [positiveDemandSupport, Finset.mem_filter,
+        Finset.mem_univ, true_and] using hab
+    by_contra hnot
+    exact hn (by simp [canonicalDemandOfMatching,
+      canonicalHighDemand, hnot])
+  constructor
+  · intro a b₁ b₂ hb₁ hb₂
+    exact hhigh.1 a b₁ b₂ (high_of_mem a b₁ hb₁) (high_of_mem a b₂ hb₂)
+  · intro b a₁ a₂ ha₁ ha₂
+    exact hhigh.2 b a₁ a₂ (high_of_mem a₁ b ha₁) (high_of_mem a₂ b ha₂)
+
+#print axioms positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
+Source: Erdos625/Section9CanonicalRewardSupportSplit.lean
+Normalized SHA-256: d56c3e1323a0afc5728ba512239d4b3137b06f6982fff41676cafaa04f64182a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+
+/-!
+# Section IX: canonical reward and support decomposition
+
+For one fixed canonical-demand witness, the full cell count is the sum of its
+exposed demand and transported residual count.  On the canonical residual
+event, no residual pair returns to the positive demand support.  This gives an
+exact product decomposition of the local reward.  If the cutoff parameter is
+at least two, every positive canonical demand is itself at least two, so the
+support of cells of full multiplicity at least two is exactly the union of the
+positive demand support and the residual multiplicity-two support.
+
+The no-return hypothesis is explicit in the reward lemmas.  The graph lemmas
+instead require the separate pointwise lower bound on positive demands; the
+canonical specialization derives it from `2 ≤ U`.  No probability estimate,
+cycle-space cardinality, or attachment bound is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A local reward splits across an exposed demand and a residual count when
+the residual count vanishes at every positive exposed demand. -/
+theorem residualReward_add_eq_mul_of_noReturn
+    (demand residual : ℕ)
+    (hnoReturn : demand ≠ 0 → residual = 0) :
+    residualReward (demand + residual) =
+      localSignRewardNat demand * residualReward residual := by
+  by_cases hdemand : demand = 0
+  · subst demand
+    simp [localSignRewardNat, residualReward]
+  · rw [hnoReturn hdemand]
+    simp [residualReward_eq_localSignRewardNat, localSignRewardNat]
+
+/-- The product of full-cell rewards splits into the exposed reward on the
+positive demand support and the product of all residual rewards. -/
+theorem prod_residualReward_add_eq_positiveSupport_mul
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hnoReturn : ∀ a b, demand a b ≠ 0 → residual a b = 0) :
+    (∏ a : A, ∏ b : B,
+        residualReward (demand a b + residual a b)) =
+      (∏ e ∈ positiveDemandSupport demand,
+        localSignRewardNat (demand e.1 e.2)) *
+        (∏ a : A, ∏ b : B, residualReward (residual a b)) := by
+  classical
+  have hsupport :
+      (∏ e ∈ positiveDemandSupport demand,
+          localSignRewardNat (demand e.1 e.2)) =
+        ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) := by
+    rw [← Fintype.prod_ite_mem]
+    calc
+      (∏ e : A × B,
+          if e ∈ positiveDemandSupport demand then
+            localSignRewardNat (demand e.1 e.2) else 1) =
+          ∏ e : A × B, localSignRewardNat (demand e.1 e.2) := by
+            apply Fintype.prod_congr
+            intro e
+            by_cases he : demand e.1 e.2 = 0
+            · simp [positiveDemandSupport, he, localSignRewardNat]
+            · simp [positiveDemandSupport, he]
+      _ = ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) :=
+        Fintype.prod_prod_type'
+          (fun a : A ↦ fun b : B ↦ localSignRewardNat (demand a b))
+  simp_rw [residualReward_add_eq_mul_of_noReturn _ _ (hnoReturn _ _)]
+  simp_rw [Finset.prod_mul_distrib]
+  rw [hsupport]
+
+/-- Adding a table entry whose positive values are at least two creates a
+multiplicity-two cell exactly when that entry is positive or the added entry
+already has multiplicity at least two. -/
+theorem two_le_add_iff_positive_or_two_le
+    (demand residual : ℕ)
+    (hpositive : demand ≠ 0 → 2 ≤ demand) :
+    2 ≤ demand + residual ↔ demand ≠ 0 ∨ 2 ≤ residual := by
+  by_cases hdemand : demand = 0
+  · simp [hdemand]
+  · have htwo := hpositive hdemand
+    omega
+
+/-- The support graph of cells of total multiplicity at least two is the
+union of the positive demand support and the residual multiplicity-two
+support, provided every positive demand is at least two. -/
+theorem bipartiteGraph_positiveSupport_add_eq_union
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hpositive : ∀ a b, demand a b ≠ 0 → 2 ≤ demand a b) :
+    bipartiteGraph (fun a b ↦ 2 ≤ demand a b + residual a b) =
+      bipartiteGraph
+          (fun a b ↦ (a, b) ∈ positiveDemandSupport demand) ⊔
+        bipartiteGraph (fun a b ↦ 2 ≤ residual a b) := by
+  rw [← bipartiteGraph_or_eq_sup]
+  apply congrArg bipartiteGraph
+  funext a b
+  apply propext
+  simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+    true_and] using
+      two_le_add_iff_positive_or_two_le
+        (demand a b) (residual a b) (hpositive a b)
+
+/-- For a fixed labelled witness of an attained canonical demand, membership
+in the canonical event gives both exact deterministic decompositions needed
+by the Section IX local expansion: the local-reward product split and the
+multiplicity-two support-graph split.
+
+The assumption `2 ≤ U` is used only to turn the strict canonical high-demand
+bound `U / 2 < demand` into `2 ≤ demand`. -/
+theorem fixedWitnessCanonical_reward_support_split
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hU : 2 ≤ U)
+    (demand : canonicalDemandImage row col U)
+    (witness : PrescribedDemandWitness demand.1 row col)
+    (extension : fixedWitnessExtensionEvent witness)
+    (hevent : extension ∈ fixedWitnessCanonicalDemandEvent witness U) :
+    let residual := fixedWitnessExtensionEquivResidual witness extension
+    ((∏ a : A, ∏ b : B,
+          residualReward (configurationCellCount extension.1 a b)) =
+        (∏ e ∈ positiveDemandSupport demand.1,
+          localSignRewardNat (demand.1 e.1 e.2)) *
+          (∏ a : A, ∏ b : B,
+            residualReward (configurationCellCount residual a b))) ∧
+      (bipartiteGraph
+          (fun a b ↦ 2 ≤ configurationCellCount extension.1 a b) =
+        bipartiteGraph
+            (fun a b ↦ (a, b) ∈ positiveDemandSupport demand.1) ⊔
+          bipartiteGraph
+            (fun a b ↦ 2 ≤ configurationCellCount residual a b)) := by
+  dsimp only
+  let residual := fixedWitnessExtensionEquivResidual witness extension
+  have hhigh : ∀ a b, demand.1 a b ≠ 0 → U / 2 < demand.1 a b :=
+    canonicalDemandImage_high row col U demand
+  have hresidual : residual ∈ canonicalResidualCellEvent witness U := by
+    exact (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+      witness U hhigh extension).mp hevent
+  have hnoReturn : ∀ a b, demand.1 a b ≠ 0 →
+      configurationCellCount residual a b = 0 := by
+    intro a b hab
+    exact (hresidual a b).2 hab
+  have hpositive : ∀ a b, demand.1 a b ≠ 0 → 2 ≤ demand.1 a b := by
+    intro a b hab
+    have hcellHigh := hhigh a b hab
+    omega
+  have hcell : ∀ a b,
+      configurationCellCount extension.1 a b =
+        demand.1 a b + configurationCellCount residual a b := by
+    intro a b
+    exact configurationCellCount_eq_demand_add_residual
+      witness extension a b
+  constructor
+  · simp_rw [hcell]
+    exact prod_residualReward_add_eq_positiveSupport_mul
+      demand.1 (configurationCellCount residual) hnoReturn
+  · simp_rw [hcell]
+    exact bipartiteGraph_positiveSupport_add_eq_union
+      demand.1 (configurationCellCount residual) hpositive
+
+#print axioms residualReward_add_eq_mul_of_noReturn
+#print axioms prod_residualReward_add_eq_positiveSupport_mul
+#print axioms two_le_add_iff_positive_or_two_le
+#print axioms bipartiteGraph_positiveSupport_add_eq_union
+#print axioms fixedWitnessCanonical_reward_support_split
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
 ========================================================================== -/
 
 /- ==========================================================================
@@ -29867,426 +40019,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_EndpointTransportBounds
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.EndpointTransportBounds
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ConfigurationThetaMoments
-Source: Erdos625/ConfigurationThetaMoments.lean
-Normalized SHA-256: 7f9f10e73af19d8def911767d4a4972477c01ccb32313fe616dfa03012257438
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
-
-/-!
-# Degree moments and configuration-cell parameters
-
-This module isolates the finite arithmetic used in manuscript (9.13)--(9.14).
-For a nonnegative integer degree family of total mass m, bounded pointwise
-by U, its second and third moments are at most U m and U squared times m.
-
-The second half applies those inequalities to the configuration-cell
-parameter. Exact finite factorization identities are stated for every m.
-Bounds that cancel a denominator explicitly assume positive m; the zero-total
-case is recorded separately. No asymptotic estimate is asserted here.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-/-! ## Capped moments of a finite degree family -/
-
-/-- A capped natural-valued family of total m has second moment at most U m. -/
-theorem degreeSquareSum_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, d i ^ 2 ≤ U * m := by
-  calc
-    ∑ i, d i ^ 2 ≤ ∑ i, U * d i := by
-      apply Finset.sum_le_sum
-      intro i hi
-      simpa [pow_two, mul_comm] using
-        Nat.mul_le_mul_right (d i) (hcap i)
-    _ = U * m := by rw [← Finset.mul_sum, htotal]
-
-/-- A capped natural-valued family of total m has third moment at most
-U squared times m. -/
-theorem degreeCubeSum_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, d i ^ 3 ≤ U ^ 2 * m := by
-  calc
-    ∑ i, d i ^ 3 ≤ ∑ i, U ^ 2 * d i := by
-      apply Finset.sum_le_sum
-      intro i hi
-      calc
-        d i ^ 3 = d i ^ 2 * d i := by ring
-        _ ≤ U ^ 2 * d i :=
-          Nat.mul_le_mul_right (d i) (Nat.pow_le_pow_left (hcap i) 2)
-    _ = U ^ 2 * m := by rw [← Finset.mul_sum, htotal]
-
-/-- Real-cast form of the capped second-moment inequality. -/
-theorem degreeSquareSum_real_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ) ^ 2 ≤ (U : ℝ) * (m : ℝ) := by
-  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
-
-/-- Real-cast form of the capped third-moment inequality. -/
-theorem degreeCubeSum_real_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ) ^ 3 ≤ (U : ℝ) ^ 2 * (m : ℝ) := by
-  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
-
-/-- Extended-nonnegative-real form of the capped second-moment inequality. -/
-theorem degreeSquareSum_ennreal_le_cap_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) * (m : ℝ≥0∞) := by
-  exact_mod_cast degreeSquareSum_le_cap_mul_total d U m hcap htotal
-
-/-- Extended-nonnegative-real form of the capped third-moment inequality. -/
-theorem degreeCubeSum_ennreal_le_cap_sq_mul_total
-    {I : Type*} [Fintype I] (d : I → ℕ) (U m : ℕ)
-    (hcap : ∀ i, d i ≤ U) (htotal : ∑ i, d i = m) :
-    ∑ i, (d i : ℝ≥0∞) ^ 3 ≤
-      (U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞) := by
-  exact_mod_cast degreeCubeSum_le_cap_sq_mul_total d U m hcap htotal
-
-/-! ## Exact finite theta factorizations -/
-
-/-- Exact row factorization of the squared cell parameters, valid for all m. -/
-theorem sum_configurationCellTheta_sq_row
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (a : A) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (row a : ℝ≥0∞) ^ 2 *
-        ∑ b, (col b : ℝ≥0∞) ^ 2 := by
-  have hpoint : ∀ b : B,
-      configurationCellTheta row col m a b ^ 2 =
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (row a : ℝ≥0∞) ^ 2) *
-          (col b : ℝ≥0∞) ^ 2 := by
-    intro b
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  rw [Finset.mul_sum]
-
-/-- Exact column factorization of the squared cell parameters, valid for all m. -/
-theorem sum_configurationCellTheta_sq_column
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) (b : B) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (col b : ℝ≥0∞) ^ 2 *
-        ∑ a, (row a : ℝ≥0∞) ^ 2 := by
-  have hpoint : ∀ a : A,
-      configurationCellTheta row col m a b ^ 2 =
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (col b : ℝ≥0∞) ^ 2) *
-          (row a : ℝ≥0∞) ^ 2 := by
-    intro a
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  rw [Finset.mul_sum]
-
-/-- Exact factorization of the global cubic theta sum, valid for all m. -/
-theorem sum_configurationCellTheta_cube
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m : ℕ) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) =
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        (∑ a, (row a : ℝ≥0∞) ^ 3) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-  have hpoint : ∀ a : A, ∀ b : B,
-      configurationCellTheta row col m a b ^ 3 =
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3 := by
-    intro a b
-    simp only [configurationCellTheta, div_eq_mul_inv]
-    ring
-  simp_rw [hpoint]
-  calc
-    (∑ a, ∑ b,
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (row a : ℝ≥0∞) ^ 3 * (col b : ℝ≥0∞) ^ 3) =
-        ∑ a,
-          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-            (row a : ℝ≥0∞) ^ 3) *
-            (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      apply Finset.sum_congr rfl
-      intro a ha
-      rw [Finset.mul_sum]
-    _ = (∑ a,
-          (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-            (row a : ℝ≥0∞) ^ 3) *
-          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      rw [Finset.sum_mul]
-    _ = (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          (∑ a, (row a : ℝ≥0∞) ^ 3) *
-          (∑ b, (col b : ℝ≥0∞) ^ 3) := by
-      congr 1
-      rw [Finset.mul_sum]
-
-/-! ## Bounds before and after positive-mass cancellation -/
-
-/-- Row-square theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_sq_row_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (row a : ℝ≥0∞) ^ 2 *
-        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_sq_row]
-  exact mul_le_mul_right
-    (degreeSquareSum_ennreal_le_cap_mul_total col U m hcolCap hcolTotal)
-    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (row a : ℝ≥0∞) ^ 2)
-
-/-- Column-square theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_sq_column_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-        (col b : ℝ≥0∞) ^ 2 *
-        ((U : ℝ≥0∞) * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_sq_column]
-  exact mul_le_mul_right
-    (degreeSquareSum_ennreal_le_cap_mul_total row U m hrowCap hrowTotal)
-    ((eulerENNReal / (m : ℝ≥0∞)) ^ 2 * (col b : ℝ≥0∞) ^ 2)
-
-/-- Cancellation identity used in the positive-total square bounds. -/
-private theorem normalizeThetaSquareBound
-    (e r U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
-    (e / (m : ℝ≥0∞)) ^ 2 * r ^ 2 *
-        (U * (m : ℝ≥0∞)) =
-      e ^ 2 * r ^ 2 * U / (m : ℝ≥0∞) := by
-  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
-    exact_mod_cast (Nat.ne_of_gt hm)
-  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
-  apply (ENNReal.eq_div_iff hm0 hmt).2
-  rw [div_eq_mul_inv]
-  calc
-    (m : ℝ≥0∞) *
-        ((e * (m : ℝ≥0∞)⁻¹) ^ 2 * r ^ 2 *
-          (U * (m : ℝ≥0∞))) =
-        e ^ 2 * r ^ 2 * U *
-          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 2 := by ring
-    _ = e ^ 2 * r ^ 2 * U := by
-      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
-
-/-- Positive-total row-square bound in cancelled form. -/
-theorem sum_configurationCellTheta_sq_row_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hm : 0 < m)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
-  calc
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (row a : ℝ≥0∞) ^ 2 *
-          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_sq_row_le_raw
-        row col m U a hcolCap hcolTotal
-    _ = eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      normalizeThetaSquareBound eulerENNReal (row a : ℝ≥0∞)
-        (U : ℝ≥0∞) m hm
-
-/-- Positive-total column-square bound in cancelled form. -/
-theorem sum_configurationCellTheta_sq_column_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hm : 0 < m)
-    (hrowCap : ∀ a, row a ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) := by
-  calc
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 2 *
-          (col b : ℝ≥0∞) ^ 2 *
-          ((U : ℝ≥0∞) * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_sq_column_le_raw
-        row col m U b hrowCap hrowTotal
-    _ = eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-        (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      normalizeThetaSquareBound eulerENNReal (col b : ℝ≥0∞)
-        (U : ℝ≥0∞) m hm
-
-/-- Uniform row-square bound after also using the row cap. -/
-theorem sum_configurationCellTheta_sq_row_le_uniform
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (a : A)
-    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
-    (hcolCap : ∀ b, col b ≤ U) (hcolTotal : ∑ b, col b = m) :
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
-  calc
-    ∑ b, configurationCellTheta row col m a b ^ 2 ≤
-        eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 *
-          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      sum_configurationCellTheta_sq_row_le
-        row col m U a hm hcolCap hcolTotal
-    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
-        (m : ℝ≥0∞) := by
-      apply ENNReal.div_le_div
-      · have hr : (row a : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
-          exact pow_le_pow_left' (by exact_mod_cast hrowCap a) 2
-        calc
-          eulerENNReal ^ 2 * (row a : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
-              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
-            mul_le_mul_left (mul_le_mul_right hr (eulerENNReal ^ 2))
-              (U : ℝ≥0∞)
-          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
-      · rfl
-
-/-- Uniform column-square bound after also using the column cap. -/
-theorem sum_configurationCellTheta_sq_column_le_uniform
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (b : B)
-    (hm : 0 < m) (hrowCap : ∀ a, row a ≤ U)
-    (hcolCap : ∀ b, col b ≤ U) (hrowTotal : ∑ a, row a = m) :
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-      eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 / (m : ℝ≥0∞) := by
-  calc
-    ∑ a, configurationCellTheta row col m a b ^ 2 ≤
-        eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 *
-          (U : ℝ≥0∞) / (m : ℝ≥0∞) :=
-      sum_configurationCellTheta_sq_column_le
-        row col m U b hm hrowCap hrowTotal
-    _ ≤ eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 /
-        (m : ℝ≥0∞) := by
-      apply ENNReal.div_le_div
-      · have hc : (col b : ℝ≥0∞) ^ 2 ≤ (U : ℝ≥0∞) ^ 2 := by
-          exact pow_le_pow_left' (by exact_mod_cast hcolCap b) 2
-        calc
-          eulerENNReal ^ 2 * (col b : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) ≤
-              eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 2 * (U : ℝ≥0∞) :=
-            mul_le_mul_left (mul_le_mul_right hc (eulerENNReal ^ 2))
-              (U : ℝ≥0∞)
-          _ = eulerENNReal ^ 2 * (U : ℝ≥0∞) ^ 3 := by ring
-      · rfl
-
-/-! ## The global cubic bound -/
-
-/-- Global cubic theta bound before cancelling m. -/
-theorem sum_configurationCellTheta_cube_le_raw
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) := by
-  rw [sum_configurationCellTheta_cube]
-  have hrow :=
-    degreeCubeSum_ennreal_le_cap_sq_mul_total row U m hrowCap hrowTotal
-  have hcol :=
-    degreeCubeSum_ennreal_le_cap_sq_mul_total col U m hcolCap hcolTotal
-  calc
-    (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        (∑ a, (row a : ℝ≥0∞) ^ 3) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) ≤
-      (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        (∑ b, (col b : ℝ≥0∞) ^ 3) :=
-      mul_le_mul_left
-        (mul_le_mul_right hrow
-          ((eulerENNReal / (m : ℝ≥0∞)) ^ 3))
-        (∑ b, (col b : ℝ≥0∞) ^ 3)
-    _ ≤ (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-        ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
-      mul_le_mul_right hcol
-        ((eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)))
-
-/-- Cancellation identity used in the positive-total cubic bound. -/
-private theorem normalizeThetaCubeBound
-    (e U : ℝ≥0∞) (m : ℕ) (hm : 0 < m) :
-    (e / (m : ℝ≥0∞)) ^ 3 *
-        (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞)) =
-      e ^ 3 * U ^ 4 / (m : ℝ≥0∞) := by
-  have hm0 : (m : ℝ≥0∞) ≠ 0 := by
-    exact_mod_cast (Nat.ne_of_gt hm)
-  have hmt : (m : ℝ≥0∞) ≠ ∞ := ENNReal.natCast_ne_top m
-  apply (ENNReal.eq_div_iff hm0 hmt).2
-  rw [div_eq_mul_inv]
-  calc
-    (m : ℝ≥0∞) *
-        ((e * (m : ℝ≥0∞)⁻¹) ^ 3 *
-          (U ^ 2 * (m : ℝ≥0∞)) * (U ^ 2 * (m : ℝ≥0∞))) =
-        e ^ 3 * U ^ 4 *
-          ((m : ℝ≥0∞) * (m : ℝ≥0∞)⁻¹) ^ 3 := by ring
-    _ = e ^ 3 * U ^ 4 := by
-      rw [ENNReal.mul_inv_cancel hm0 hmt, one_pow, mul_one]
-
-/-- Positive-total global cubic theta bound in cancelled form. -/
-theorem sum_configurationCellTheta_cube_le
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (m U : ℕ) (hm : 0 < m)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (hrowTotal : ∑ a, row a = m) (hcolTotal : ∑ b, col b = m) :
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-      eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 / (m : ℝ≥0∞) := by
-  calc
-    (∑ a, ∑ b, configurationCellTheta row col m a b ^ 3) ≤
-        (eulerENNReal / (m : ℝ≥0∞)) ^ 3 *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) *
-          ((U : ℝ≥0∞) ^ 2 * (m : ℝ≥0∞)) :=
-      sum_configurationCellTheta_cube_le_raw
-        row col m U hrowCap hcolCap hrowTotal hcolTotal
-    _ = eulerENNReal ^ 3 * (U : ℝ≥0∞) ^ 4 /
-        (m : ℝ≥0∞) :=
-      normalizeThetaCubeBound eulerENNReal (U : ℝ≥0∞) m hm
-
-/-! ## The zero-total branch -/
-
-/-- Zero row total forces every cell parameter with denominator zero to zero. -/
-theorem configurationCellTheta_eq_zero_of_rowTotal_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0)
-    (a : A) (b : B) :
-    configurationCellTheta row col 0 a b = 0 := by
-  have hrowa : row a = 0 :=
-    (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
-  simp [configurationCellTheta, hrowa]
-
-/-- Zero column total gives the symmetric vanishing statement. -/
-theorem configurationCellTheta_eq_zero_of_colTotal_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hcolTotal : ∑ b, col b = 0)
-    (a : A) (b : B) :
-    configurationCellTheta row col 0 a b = 0 := by
-  have hcolb : col b = 0 :=
-    (Finset.sum_eq_zero_iff.mp hcolTotal) b (Finset.mem_univ b)
-  simp [configurationCellTheta, hcolb]
-
-/-- The global cubic theta sum vanishes in the zero-total branch. -/
-theorem sum_configurationCellTheta_cube_eq_zero_of_total_zero
-    {A B : Type*} [Fintype A] [Fintype B]
-    (row : A → ℕ) (col : B → ℕ) (hrowTotal : ∑ a, row a = 0) :
-    (∑ a, ∑ b, configurationCellTheta row col 0 a b ^ 3) = 0 := by
-  simp_rw [configurationCellTheta_eq_zero_of_rowTotal_zero
-    row col hrowTotal]
-  simp
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ConfigurationThetaMoments
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ConfigurationThetaMoments
 ========================================================================== -/
 
 /- ==========================================================================
@@ -31942,7 +41674,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b235097d45e06acf6944d688f9293e496d9006e93100c13e11dd5279709ee29c
+Normalized SHA-256: bf2af0928f869ba60919a71cc23ba795ee95b4cb756f5bcc0a59a3e1b9c31da3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -31970,6 +41702,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.thresholdIntersection_subset_gapEvent
 #print axioms Erdos625.explicitThresholdIntersection_subset_gapEvent
 #print axioms Erdos625.tendsto_measure_inter_one
+#print axioms Erdos625.tendsto_measure_one_of_eventually_subset
 #print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
@@ -31985,8 +41718,55 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterRecurrence_lowerBound
 #print axioms Erdos625.binomialRandom_map_ncard_edgeSet_singleton
 #print axioms Erdos625.randomGraphMeasure_map_compl
+#print axioms Erdos625.setBernoulli_map_preimage_of_injective
+#print axioms Erdos625.fromEdgeSet_induce_eq_preimage
+#print axioms Erdos625.diagSet_compl_preimage_subtype_sym2Map
+#print axioms Erdos625.randomGraphMeasure_map_induce
+#print axioms Erdos625.binomialRandom_map_edgeCount
+#print axioms Erdos625.binomialRandom_real_edgeCount_lowerTail
+#print axioms Erdos625.binomialRandom_half_edgeCount_lowerQuarter
+#print axioms Erdos625.randomGraphMeasure_inducedEdgeCount_lowerQuarter
+#print axioms Erdos625.randomGraphMeasure_map_induce_complement
+#print axioms Erdos625.randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter
+#print axioms Erdos625.measurableSet_cutoffComplementQuarterDensityEvent
+#print axioms Erdos625.inducedComplementLowerQuarterEvent_tail
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_le_sum
+#print axioms Erdos625.quarterDensityCutoffSubsets_card
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_le
+#print axioms Erdos625.quarterDensity_choose_two_div_sixteen_lower_bound
+#print axioms Erdos625.quarterDensityCutoff_tendsto_atTop
+#print axioms Erdos625.quarterDensity_eventually_exponent_bound
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_exact
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_all_larger
+#print axioms Erdos625.cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one
+#print axioms Erdos625.quarterChain_shifted_survival_eventually
+#print axioms Erdos625.quarterDensityCutoff_le_quarterChainStart_eventually
+#print axioms Erdos625.one_le_quarterDensityCutoff_eventually
+#print axioms Erdos625.quarterChainSteps_tendsto_atTop
+#print axioms Erdos625.one_le_quarterChainSteps_eventually
+#print axioms Erdos625.quarterChainSteps_real_lower_bound_eventually
+#print axioms Erdos625.quarterChain_shifted_survival_of_start_le_card
+#print axioms Erdos625.quarterChain_shifted_survival_all_larger_eventually
+#print axioms Erdos625.quarterDense_neighbor_step
+#print axioms Erdos625.exists_quarterDense_clique_chain
+#print axioms Erdos625.isIndepSet_of_compl_isClique
 #print axioms Erdos625.quarterDensity_unionBound_tendsto_zero
 #print axioms Erdos625.simultaneous_induced_chromatic_bound
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent
+#print axioms Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually
+#print axioms Erdos625.quarterChainIndependentBlockEvent_probability_tendsto_one
+#print axioms Erdos625.chromaticNumberNat_induce_le_of_independentBlockEvent
+#print axioms Erdos625.quarterChainIndependentBlockFailure_tendsto_zero
+#print axioms Erdos625.quarterChain_greedy_count_real_upper_bound_eventually
+#print axioms Erdos625.log_le_realCubeRoot_eventually
+#print axioms Erdos625.quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot
+#print axioms Erdos625.chromaticNumberNat_induce_le_quarterChainGreedyColorCost
+#print axioms Erdos625.exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually
+#print axioms Erdos625.exists_quarterChainLinearColoringEvent_probability_tendsto_one
+#print axioms Erdos625.exists_quarterChainLinearColoringEvent_full_control
 #print axioms Erdos625.amplificationRadius_tendsto_atTop
 #print axioms Erdos625.sqrt_seedTerm_isLittleO
 #print axioms Erdos625.sqrt_radiusTerm_isLittleO
@@ -31997,7 +41777,25 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.capacityDeficitEvent_probability_tendsto_one
 #print axioms Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover
 #print axioms Erdos625.erdos625Statement_of_capacity_leftover_thresholds
+#print axioms Erdos625.quarterChainLeftoverBound_real_upper_bound_eventually
+#print axioms Erdos625.quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent
+#print axioms Erdos625.quarterChainLeftoverBound_probability_tendsto_one
+#print axioms Erdos625.quarterChainLeftoverBound_compl_probability_le
+#print axioms Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+#print axioms Erdos625.quarterChainLinearColoringEvent_mono_constant
+#print axioms Erdos625.cochromaticCapacityDeficitRadius_lt_displayed
+#print axioms Erdos625.capacityAmplification_inter_linear_subset_cochromaticUpperEvent
+#print axioms Erdos625.cochromaticUpperEvent_compl_probability_le_exp_add
+#print axioms Erdos625.exists_uniform_cochromatic_amplification
+#print axioms Erdos625.uniformAmplificationError_amplificationRadius_eq
+#print axioms Erdos625.exp_neg_amplificationRadius_tendsto_zero
+#print axioms Erdos625.tendsto_measure_one_of_compl_real_tendsto_zero
+#print axioms Erdos625.exists_uniform_cochromatic_amplification_at_manuscript_scales
 #print axioms Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+#print axioms Erdos625.coColorable_real_seed_of_count
+#print axioms Erdos625.erdos625Statement_of_chromatic_cochromatic_thresholds
+#print axioms Erdos625.erdos625Statement_of_uniform_seed_and_root
 #print axioms Erdos625.randomGraphMeasure_independentEvent
 #print axioms Erdos625.independentSetExpectation_eq_ofReal_mu
 #print axioms Erdos625.independenceNumberExceedsEvent_eq_countPositive
@@ -32147,6 +41945,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.profileDeficitResidualScore_last
 #print axioms Erdos625.profileDeficitResidualScore_le_gaussian
 #print axioms Erdos625.tendsto_log_descFactorial_sub_mul_log
+#print axioms Erdos625.fourDeficit_zero
+#print axioms Erdos625.fourDeficit_one
+#print axioms Erdos625.fourDeficit_two
+#print axioms Erdos625.fourDeficit_three
+#print axioms Erdos625.fourDeficit_cast_eq_support
+#print axioms Erdos625.profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+#print axioms Erdos625.tendsto_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitScore
+#print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -32292,6 +42099,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support
 #print axioms Erdos625.bipartiteEvenEdgeSet_iff_isBipartiteEven
 #print axioms Erdos625.sum_actualResidualEvenEdgeFamily_weight_le_all_even
+#print axioms Erdos625.weighted_evenSubgraph_ennreal_polymer_product
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product
+#print axioms Erdos625.ennreal_one_add_le_ereal_exp
+#print axioms Erdos625.ennreal_polymer_product_le_ereal_exp_sum
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_all_even
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product
+#print axioms Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp
 #print axioms Erdos625.twice_sum_choose_two_le_cap_mass
 #print axioms Erdos625.smallResidualDeterministicBound
 #print axioms Erdos625.cycleRank_matching_union_le_card_residual
@@ -32313,8 +42128,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.compatibleBoolSignAssignmentsEquivComponents
+#print axioms Erdos625.natCard_compatibleBoolSignAssignments_eq_two_pow_components
 #print axioms Erdos625.weighted_evenSubgraph_polymer_bound
+#print axioms Erdos625.exists_covering_cycleWalk_of_minimal_even
 #print axioms Erdos625.finiteKernelWalkMass_le_pow
+#print axioms Erdos625.sum_kernelPathCode_weight_eq_finiteKernelEndpointMass
+#print axioms Erdos625.sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel
+#print axioms Erdos625.sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass
 #print axioms Erdos625.sum_marked_finiteKernelWalkMass_le
 #print axioms Erdos625.bipartiteCellKernel_rowSum_le
 #print axioms Erdos625.bipartiteCellKernel_walkMass_le_pow
@@ -32322,6 +42143,48 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric
 #print axioms Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric
 #print axioms Erdos625.finite_relaxed_matchingTraversal_enumeration
+#print axioms Erdos625.sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp
+#print axioms Erdos625.sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass
+#print axioms Erdos625.decodeRelaxedBlockCells_eq_union
+#print axioms Erdos625.relaxedBlock_projection_nodup
+#print axioms Erdos625.relaxedBlockChainCode_weight_eq_projection_weights
+#print axioms Erdos625.relaxedBlockChainCode_bipartite_weight_eq_projection_weights
+#print axioms Erdos625.cycle_inter_matching_card_le_vertex_count
+#print axioms Erdos625.IsFaithfulCycleCut.decode_eq
+#print axioms Erdos625.IsFaithfulCycleCut.transitionEdges_length_eq_inter_card
+#print axioms Erdos625.IsFaithfulCycleCut.residualCellList_length_eq_raw_length
+#print axioms Erdos625.IsFaithfulCycleCut.transitionCellList_length_eq_raw_length
+#print axioms Erdos625.IsFaithfulCycleCut.residualEdges_length_eq_sdiff_card
+#print axioms Erdos625.IsFaithfulCycleCut.residualWeight_eq_sdiff_prod
+#print axioms Erdos625.IsFaithfulCycleCut.transitionWeight_eq_one
+#print axioms Erdos625.IsFaithfulCycleCut.codeWeight_eq_sdiff_prod
+#print axioms Erdos625.IsFaithfulCycleCut.projection_orientedEdges_nodup
+#print axioms Erdos625.IsFaithfulCycleCut.blockCount_le_vertex_count
+#print axioms Erdos625.physicalCycleCuttingStatement
+#print axioms Erdos625.chosenPhysicalCycleCut_faithful
+#print axioms Erdos625.decode_chosenPhysicalCycleCut
+#print axioms Erdos625.chosenPhysicalCycleCut_injective
+#print axioms Erdos625.chosenPhysicalCycleCut_weight_eq
+#print axioms Erdos625.decode_chosenMarkedCycleTraversal
+#print axioms Erdos625.chosenMarkedCycleTraversal_injective
+#print axioms Erdos625.chosenMarkedCycleTraversal_weight_eq
+#print axioms Erdos625.sum_markedCycleTraversalCode_weight_eq_endpointMass
+#print axioms Erdos625.sum_markedCycleTraversalCode_weight_le_walkMass
+#print axioms Erdos625.sum_markedCycleTraversalCode_weight_eq_endpointMass_finset
+#print axioms Erdos625.sum_markedCycleTraversalCode_weight_le_walkMass_finset
+#print axioms Erdos625.sum_mixedSimpleCycle_weight_le_markedTraversalCode
+#print axioms Erdos625.sum_mixedSimpleCycle_weight_le_nested_walkMass
+#print axioms Erdos625.mixedSimpleCycle_weighted_walk_enumeration
+#print axioms Erdos625.existsAbsoluteResidualQMixedCycleWeightedEnumeration
+#print axioms Erdos625.sum_simpleBipartiteCycles_edgeWeight_split
+#print axioms Erdos625.exists_faithfulResidualCycleTraversal
+#print axioms Erdos625.chosenResidualOnlyCycleTraversal_injective
+#print axioms Erdos625.chosenResidualOnlyCycleTraversal_weight_eq
+#print axioms Erdos625.sum_residualOnlySimpleCycle_weight_le_traversalCode
+#print axioms Erdos625.sum_residualCycleTraversalCode_weight_eq_endpointMass
+#print axioms Erdos625.sum_residualCycleTraversalCode_weight_le_walkMass
+#print axioms Erdos625.sum_rowRooted_evenWalkMass_le_geometric
+#print axioms Erdos625.residualOnlySimpleCycle_weighted_walk_enumeration
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
@@ -32329,7 +42192,19 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaCubicBound
+#print axioms Erdos625.existsAbsoluteResidualLambdaTotalBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
+#print axioms Erdos625.residualReward_eq_localSignRewardNat
+#print axioms Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub
+#print axioms Erdos625.residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+#print axioms Erdos625.mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+#print axioms Erdos625.sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+#print axioms Erdos625.residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
@@ -32401,11 +42276,26 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.configurationMatchingEquivSigmaCapNoReturn
 #print axioms Erdos625.uniformSigmaCapNoReturn
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
+#print axioms Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+#print axioms Erdos625.residualReward_add_eq_mul_of_noReturn
+#print axioms Erdos625.prod_residualReward_add_eq_positiveSupport_mul
+#print axioms Erdos625.two_le_add_iff_positive_or_two_le
+#print axioms Erdos625.bipartiteGraph_positiveSupport_add_eq_union
+#print axioms Erdos625.fixedWitnessCanonical_reward_support_split
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
 #print axioms Erdos625.typedPartialMatchingEquivPrescribedDemandWitness
 #print axioms Erdos625.card_typedPartialMatching_mul_factorials
+#print axioms Erdos625.UnlabelledTypedSkeleton.ext
+#print axioms Erdos625.typedPartialMatchingUnlabelledSkeleton
+#print axioms Erdos625.typedPartialMatchingUnlabelledSkeleton_typeTable
+#print axioms Erdos625.unlabelledSkeletonFibreToTypedPartialMatching
+#print axioms Erdos625.typedPartialMatchingEquivUnlabelledSkeletonFibre
+#print axioms Erdos625.card_unlabelledTypedSkeleton_typeTable_mul_factorials
+#print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables
+#print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+#print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -32496,7 +42386,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: e3f56ba5fe2449c7b04866601ff2d17ed649a469958969e64ce27cdbc04a1d94
+Normalized SHA-256: 96a273af9901191031b535e09786fc519c1f651b8045a662b76526e9c009682a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -32530,9 +42420,14 @@ failure bound `exp (-r)`, including the non-strict boundary event and with no
 two-sided factor.  The exact finite binomial law for graph edge-count
 singletons and ambient complement invariance of `G(n,1/2)`, the quantitative
 two-success-event failure seam, and the generic strict-lower-event complement
-limit are also checked.  The fixed induced-complement restriction transport,
-one simultaneous leftover-colouring event, and the
-concrete Section 10--11 tails remain open.
+limit are also checked.  The fixed induced-subgraph and induced-complement
+pushforward laws, together with their fixed-set lower-quarter edge-count
+tails, the literal finite cutoff-family event and its finite union bound, and
+one deterministic complement-neighbourhood deletion step are now checked as
+well. The full-sequence cutoff-event limit and an abstract chain under
+explicit density and survival hypotheses are now checked. The
+event-to-density/larger-set bridge, concrete survival/rounding estimates,
+and concrete Section 10--11 tails remain open.
 On the four-point profile support, the optimized entropy-plus-score value is
 also proved 1-Lipschitz in the coordinatewise score norm, with a fixed-target
 sequential convergence corollary and a genuinely uniform-in-target epsilon
@@ -32631,7 +42526,11 @@ cardinality rather than declared uniform.  This does not identify one common
 residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
-bounds, and skeleton estimates remain open.
+bounds, and skeleton estimates remain open.  The physical unlabelled-skeleton
+space is also grouped exactly by its attained type tables, with its single
+cell-factorial fibre term rewritten as the corresponding row and column
+descending-factorial products.  This finite rewrite supplies neither a
+skeleton probability estimate nor any Section IX seed or `Lambda` asymptotic.
 Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
 degrees; the ambient uniform PMF transports exactly to the uniform law on
@@ -32662,9 +42561,37 @@ same geometric row bound, each explicit path or chain is bounded by its kernel
 summand, and a supplied pointwise degree-square estimate yields the required
 abstract `q` row and column norms.  The literal residual `q` has this
 degree-cap norm, and its symmetric bipartite cell kernel inherits the same
-row bound.  The recoverable cycle-to-walk encodings,
-concrete residual-table/kernel transfer, attachment estimates, and complete
-Lemma 9.1/Proposition 9.2 assembly remain open.
+row bound.  A source-free closed block-chain code, its decoder, exact
+residual/transition projections, no-drop conditions, and exact nonnegative
+physical product-weight recovery from a faithful cut are now proved as the
+target interface for cutting a physical cycle.  The physical construction is
+also proved: `physicalCycleCuttingStatement` rotates a covering cycle at a
+marked matching edge, cuts it into positive bounded residual runs, and produces
+a faithful source-free code.  A canonical classical choice of this code now
+has a decoder left inverse, is injective on mixed simple cycles, and has the
+exact physical residual weight.  Dependent marked-start/block-count packaging,
+finite weighted reindexing and traversal domination are now also proved: the
+marked dependent target is data-only, its total weight is enumerated exactly by
+endpoint masses, and the aggregate mixed-cycle weight is bounded by the nested
+walk mass.  Its abstract geometric summation now has exactly one `2 * |M|`
+marked-start cost, and a deterministic specialization to the literal
+`residualQ` kernel is proved under the exact degree-cap hypotheses and the
+explicit strict `tau < 1/3` premise.  The positive support of every attained
+canonical demand is a matching under the ambient caps; the two local reward
+presentations agree; the fixed-`F` local factors and finite even-family polymer
+aggregation are proved; the sum is identified exactly with the event-restricted
+actual-attachment numerator and the polymer bound is transferred to it; and
+the total simple-cycle weight is split exactly into mixed and residual-only
+parts.  The residual-only part is bounded by an exact row-rooted even-walk
+enumeration under finite row/column kernel bounds.  Because manuscript (9.1)
+retains the cap/no-return indicator inside the residual expectation, this
+event-restricted numerator must not be divided by the event mass.  The
+pointwise cubic `residualLambda` bound and its deterministic total estimate at
+the scale in (9.13) are proved.  The canonical full/residual reward-product
+and support-graph splits are also proved with explicit no-return and `2 ≤ U`
+hypotheses.  The actual-even-family/cycle-rank identification, exact tagged
+fibre/global incidence integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`
@@ -32689,6 +42616,18 @@ bound with the sharp shifted independent-set term `mu n (b+1)`.
 At the phase cap, an exact squeeze theorem reduces the unrestricted chromatic
 probability limit to the single explicit obligation that this dual main term
 tends to zero.
+The graph-specific chromatic-tail adapter, the generic count-to-cocolourable
+Paley--Zygmund seed, the two-tail threshold assembly, and the uniform
+seed/root wrapper are now proved as conditional implications.  Their
+hypotheses still require the concrete chromatic at-most tail, the concrete
+Section IX seed/count/moment estimate with its `Lambda` asymptotics, and the
+concrete root separation.  None of those three mathematical inputs is supplied
+by the adapters.
+The exact four-deficit score convergence and compatible-Boolean-sign component
+count are included as finite helper leaves.  They do not prove the four-size
+signed first moment or the sign-summed second-moment law, and they do not prove
+the concrete chromatic tail, the Section IX seed/count/moment estimate or its
+`Lambda` asymptotics, the root separation, or `Erdos625Statement`.
 The target proposition itself remains
 explicitly unproved until the full dependency chain is formalized.
 -/
