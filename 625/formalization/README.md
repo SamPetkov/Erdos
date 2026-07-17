@@ -304,6 +304,11 @@ residual degrees, and the ambient uniform matching PMF transports exactly to
 the uniform PMF on this still-tagged Section 9 sigma family. It does not turn
 the dependent family into one residual PMF or establish an expectation or an
 asymptotic bound.
+[`Section9CanonicalSupportMatching.lean`](Erdos625/Section9CanonicalSupportMatching.lean)
+also proves that, under the ambient row and column degree caps, the positive
+support of every attained canonical demand is a bipartite matching.  This is a
+pointwise structural fact about an attained demand; it does not remove the
+demand/witness tags or supply a residual law or expectation estimate.
 
 [`Section8CanonicalEventProbabilityNormalization.lean`](Erdos625/Section8CanonicalEventProbabilityNormalization.lean)
 adds the independent ambient-law normalization: under equal total row and
@@ -366,7 +371,15 @@ exponential bounds.  That real bridge does not identify the weights with
 The separate marked-cycle enumeration now packages the canonical encoder and
 proves its finite weighted reindexing/traversal domination.  The abstract
 geometric summation and its deterministic literal-`residualQ` specialization
-are also proved, conditional on the displayed strict `tau < 1/3` premise.  The finite graph-theoretic
+are also proved, conditional on the displayed strict `tau < 1/3` premise.
+For one fixed `F`, the local threshold factors are separated from the physical
+`residualQ` weight; summing this bound over all even `F` gives an honestly named
+finite fixed-`F` sum bounded by the common local product times the simple-cycle
+polymer product.  An exact finite Fubini identity identifies this sum with the
+unnormalised actual-attachment numerator while retaining the cap/no-return
+event mass, and the even-weight and polymer bounds transfer to that numerator
+by exact rewriting.  The simple-cycle weight sum is also partitioned exactly into
+cycles disjoint from the exposed matching and mixed cycles meeting it.  The finite graph-theoretic
 inequality in (9.20) is checked as
 well: adding an arbitrary residual relation to a genuine bipartite matching
 raises cycle rank by at most the number of residual cells.  Its literal
@@ -377,9 +390,10 @@ and abstract traversal bounds are proved separately below.  The exact
 one-sided weighted inclusion alone does not perform the dependent
 marked-start/block-count reindexing and traversal domination; that aggregate
 transfer and its deterministic literal-`residualQ` geometric specialization
-are now proved separately.  Law-level fixed-`F`/even-family/local-factor
-transport, residual-only cycles, tagged residual-PMF integration, and the
-large- and small-residual attachment estimates remain open.  The earlier high-cell mass
+are now proved separately.  Dividing the unnormalised numerator by the event
+mass and identifying the resulting conditional expectation, bounding the
+residual-only cycle summand, tagged residual-PMF integration, and the large-
+and small-residual attachment estimates remain open.  The earlier high-cell mass
 bound, weighted finite
 Cauchy inequality, local sign-exponent arithmetic, and matching-support parity
 kernel remain available as independent leaves.  Accepted Lean 4.31 source is
@@ -470,11 +484,27 @@ that canonical encoder and its dependent aggregate enumeration are now proved
 separately, and the abstract geometric theorem now composes them with exactly
 one `2 * |M|` start cost.
 
-Three accepted Section 9 modules now discharge further faithful finite leaves.
+Further accepted Section 9 modules now discharge faithful finite leaves.
 [`Section9CappedFixedFExpansion.lean`](Erdos625/Section9CappedFixedFExpansion.lean)
 proves `capped_fixedF_prescribedDemand_expansion`, retaining the literal
-cap/no-return event and uniform configuration law for one fixed `F`; summing
-over the even family remains separate.
+cap/no-return event and uniform configuration law for one fixed `F`.
+[`Section9FixedFFactorization.lean`](Erdos625/Section9FixedFFactorization.lean)
+separates the common local-`lambda` product from that fixed family's physical
+`residualQ` weight.  [`Section9FixedFEvenAggregation.lean`](Erdos625/Section9FixedFEvenAggregation.lean)
+then sums this inequality over all even bipartite edge sets and bounds the
+resulting explicitly named `residualCappedEvenFixedFSum` by the common local
+product times the finite simple-cycle polymer product.
+[`Section9FixedFFubiniBridge.lean`](Erdos625/Section9FixedFFubiniBridge.lean)
+defines the literal `actualResidualEvenEdgeSets`, proves its exact membership
+predicate and zero-one cardinality sum, and identifies the unnormalised actual-
+attachment numerator exactly with `residualCappedEvenFixedFSum`.  The numerator
+retains the cap/no-return event mass: this module performs no division and
+asserts no conditional expectation or tagged residual law.
+[`Section9ActualAttachmentPolymerBridge.lean`](Erdos625/Section9ActualAttachmentPolymerBridge.lean)
+then rewrites through that identity to bound the unnormalised numerator by the
+common local-`lambda` product times first the even-family weight sum and then
+the simple-cycle polymer product.  These remain unnormalised numerator bounds,
+not a conditional expectation, tagged-law integration, or Lemma 9.1.
 [`Section9CyclePolymerBound.lean`](Erdos625/Section9CyclePolymerBound.lean)
 proves `weighted_evenSubgraph_polymer_bound`, including a recoverable
 pairwise-disjoint decomposition into inclusion-minimal nonempty even sets and
@@ -509,6 +539,10 @@ Three further accepted Section 9 leaves isolate exact downstream algebra.
 [`Section9RewardTelescoping.lean`](Erdos625/Section9RewardTelescoping.lean)
 proves `cappedReward_telescoping`, the capped identities (9.10)--(9.11) under
 the necessary `r <= R` hypothesis.
+[`Section9RewardCompatibility.lean`](Erdos625/Section9RewardCompatibility.lean)
+proves only the exact equality between `residualReward` and
+`localSignRewardNat`, and the corresponding equality of their discrete
+increments; it adds no expectation or asymptotic estimate.
 [`Section9FiniteFamilyAlgebra.lean`](Erdos625/Section9FiniteFamilyAlgebra.lean)
 proves `finiteInjectiveFamily_product_exp_bound` from explicit injectivity,
 pointwise product bounds, and nonnegative atom weights.
@@ -586,10 +620,15 @@ factor.  [`Section9ResidualQMixedCycleEnumeration.lean`](Erdos625/Section9Residu
 specializes it to the literal `residualQ` kernel using one finite positive
 absolute constant under the exact degree-cap, half-cap, dyadic-size, and
 strict-`tau` hypotheses.  Both theorems concern mixed cycles meeting `M`.
-They do not connect the fixed-`F` expansion, even-family polymer sum, and local
-factors to the tagged residual PMF; cover residual-only cycles; instantiate
-the strict regime uniformly; or prove the large- and small-residual attachment
-estimates.
+[`Section9CycleWeightSplit.lean`](Erdos625/Section9CycleWeightSplit.lean)
+partitions the total simple-cycle weight exactly into the residual-only cycles
+disjoint from `M` and the mixed-cycle subtype sum.  It does not bound the
+residual-only summand.  The finite fixed-`F` aggregation is proved separately,
+and its exact Fubini bridge identifies it with the unnormalised actual-
+attachment numerator.  No theorem yet divides by the cap/no-return event mass,
+identifies a conditional expectation, integrates it over the tagged PMF,
+instantiates the strict regime uniformly, or proves the large- and small-
+residual attachment estimates.
 
 Three accepted deterministic modules now begin the Sections 10--11 layer.
 [`QuarterDensityDegree.lean`](Erdos625/QuarterDensityDegree.lean) proves the
@@ -757,8 +796,9 @@ The remaining phase-objective root/rounding, unrestricted chromatic lower-locati
 signed-moment/overlap assembly, asymptotic diagonal ranges, manuscript-specific
 specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
-assembly, law-level fixed-`F`/even-family/local-factor transport, residual-only
-cycle control, tagged residual-PMF integration, finite residual attachment
+assembly, normalization of the exact unnormalised attachment numerator to a
+conditional expectation, residual-only cycle control, tagged residual-PMF
+integration, finite residual attachment
 bounds, conditioned probability control, and full Section 9 assembly,
 Section 10's concrete Section IX capacity seed and `Lambda` asymptotics, and
 Section 11's actual chromatic tail and threshold/limit instantiation remain

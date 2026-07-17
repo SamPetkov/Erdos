@@ -146,12 +146,18 @@ import Erdos625.Section9PhysicalCycleEncoder
 import Erdos625.Section9MarkedCycleEnumeration
 import Erdos625.Section9MixedCycleWeightedEnumeration
 import Erdos625.Section9ResidualQMixedCycleEnumeration
+import Erdos625.Section9CycleWeightSplit
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9RewardCompatibility
+import Erdos625.Section9FixedFFactorization
+import Erdos625.Section9FixedFEvenAggregation
+import Erdos625.Section9FixedFFubiniBridge
+import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
@@ -178,6 +184,7 @@ import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
+import Erdos625.Section9CanonicalSupportMatching
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -379,10 +386,15 @@ endpoint masses, and the aggregate mixed-cycle weight is bounded by the nested
 walk mass.  Its abstract geometric summation now has exactly one `2 * |M|`
 marked-start cost, and a deterministic specialization to the literal
 `residualQ` kernel is proved under the exact degree-cap hypotheses and the
-explicit strict `tau < 1/3` premise.  Law-level fixed-`F`/even-family/local-
-factor transport, residual-only cycles, tagged residual-PMF integration,
-uniform large- and small-residual estimates, and complete Lemma 9.1/Proposition
-9.2 assembly remain open.
+explicit strict `tau < 1/3` premise.  The positive support of every attained
+canonical demand is a matching under the ambient caps; the two local reward
+presentations agree; the fixed-`F` local factors and finite even-family polymer
+aggregation are proved; the sum is identified exactly with the unnormalised
+actual-attachment numerator and the polymer bound is transferred to it; and
+the total simple-cycle weight is split exactly into mixed and residual-only
+parts.  Conditional normalization, bounding the residual-only part, tagged
+residual-PMF integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

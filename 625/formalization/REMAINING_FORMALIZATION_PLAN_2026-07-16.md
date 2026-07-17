@@ -171,10 +171,15 @@ deterministic integrand bound, the faithful physical cut of one eligible
 cycle, its canonical injective source-free encoder with exact per-code weight,
 its finite dependent marked packaging and aggregate traversal domination, the
 abstract geometric enumeration, and its deterministic literal-`residualQ`
-specialization are accepted.  The remaining bridge is:
+specialization are accepted.  The canonical positive-support matching seam,
+fixed-`F` local-factor separation, finite even-family aggregation, exact local-
+reward compatibility, the exact unnormalised fixed-family Fubini identity and
+polymer bound, and the exact mixed/residual-only cycle partition are also
+accepted.  The remaining bridge is:
 
 ```text
 actual residual even set
+  -> attained canonical positive support is a matching under caps [proved]
   -> recoverable minimal mixed cycles
   -> marked/oriented/cut walk blocks [proved cycle by cycle]
   -> canonical injective weight-preserving code [proved]
@@ -182,7 +187,10 @@ actual residual even set
   -> finite weighted reindexing and traversal domination [proved]
   -> abstract geometric traversal bound with one 2|M| cost [proved]
   -> literal residualQ mixed-cycle bound under tau < 1/3 [proved]
-  -> fixed-F/even-family/local-factor and residual-only-cycle transport
+  -> fixed-F local-factor and finite even-family polymer aggregation [proved]
+  -> unnormalised actual-attachment numerator identity and polymer bound [proved]
+  -> exact mixed/residual-only simple-cycle partition [proved]
+  -> conditional normalization and residual-only-cycle bound
   -> tagged residual PMF and uniform strict-regime integration
   -> faithful large- and small-residual expectation estimates
   -> Lemma 9.1 and Proposition 9.2
@@ -215,14 +223,19 @@ Implementation order:
    retaining exactly one `2 * |M|` cost, and specialize it to literal
    `residualQ` under the exact finite hypotheses and explicit `tau < 1/3`
    premise;
-8. connect the fixed-`F` expansion, even-family polymer decomposition, and
-   local factors to that mixed-cycle bound, including cycles disjoint from the
-   distinguished matching;
-9. transport the result through the tagged dependent residual law and
+8. **Completed finite algebra:** identify the two local reward presentations,
+   separate the common local factors for one fixed `F`, sum that inequality
+   over every even `F`, bound the result by the simple-cycle polymer product,
+   identify the sum exactly with the unnormalised actual-attachment numerator,
+   transfer both even-weight and polymer bounds to that numerator, and split
+   the cycle sum exactly into mixed and residual-only terms;
+9. normalize the retained cap/no-return event mass to the required conditional
+   expectation and bound the residual-only cycle term;
+10. transport the result through the tagged dependent residual law and
    instantiate the strict regime uniformly;
-10. prove one deterministic threshold and one error sequence uniform over all
+11. prove one deterministic threshold and one error sequence uniform over all
    feasible skeletons in the two residual-mass regimes;
-11. assemble Lemma 9.1 and Proposition 9.2.
+12. assemble Lemma 9.1 and Proposition 9.2.
 
 The accepted enumeration modules close exact path multiplicity, relaxed
 block-chain summation, minimal cycle coverage, and the source-free decoder,
@@ -235,9 +248,13 @@ endpoint enumeration, and aggregate mixed-cycle-to-nested-walk domination.
 `mixedSimpleCycle_weighted_walk_enumeration` and
 `existsAbsoluteResidualQMixedCycleWeightedEnumeration` supply the abstract
 geometric estimate and its deterministic literal-`residualQ` specialization.
-Law-level fixed-`F`/even-family/local-factor transport, residual-only cycles,
-tagged residual-PMF integration, the later Section IX attachment/probability
-estimates, and `Erdos625Statement` remain open.
+The fixed-`F` factorization and finite even-family polymer aggregation are now
+proved, and the exact finite Fubini bridge identifies their sum with the
+unnormalised actual-attachment numerator and transfers the polymer bound to it.
+Reward compatibility, canonical-support matchingness, and the exact mixed/
+residual-only cycle partition are also proved.  Conditional normalization,
+bounding the residual-only term, tagged residual-PMF integration, the later Section IX attachment/
+probability estimates, and `Erdos625Statement` remain open.
 
 **Owner:** Sol Ultra designs the code and the uniform two-regime theorem.
 Terra Ultra implements the code and major finite enumeration.  Terra Max may
@@ -363,7 +380,7 @@ strict inequalities, rounding, and the final `#print axioms` report.
    its manuscript-radius specialization proves the exact error identity,
    negligible loss, and conditional probability-one conclusion.
 5. **Next/in parallel:** Section VIII weighted skeleton quotient/ratio bounds
-   and the Section IX law-level fixed-`F`/even-family/local-factor transport,
+   and the Section IX conditional normalization,
    residual-only cycle control, tagged residual-PMF integration, and uniform
    strict-regime bridge, with priority on the concrete Section IX seed and
    `Lambda` asymptotics consumed by Lemma 10.2.

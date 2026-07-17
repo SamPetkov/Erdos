@@ -117,10 +117,10 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX law-level fixed-`F`/even-family/local-factor transport,
-residual-only cycle control, tagged residual-PMF integration, uniform
-large- and small-residual attachment, second-moment assembly, and concrete
-capacity seed/`Lambda`
+Section IX normalization of the exactly identified unnormalised attachment
+numerator to a conditional expectation, residual-only cycle control, tagged
+residual-PMF integration, uniform large- and small-residual
+attachment, second-moment assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -129,7 +129,14 @@ weight, dependent marked packaging, exact endpoint enumeration, and aggregate
 mixed-cycle-to-nested-walk domination are included and proved.  The abstract
 geometric sum with exactly one `2 * |M|` cost and its deterministic literal-
 `residualQ` specialization under an explicit strict-regime premise are also
-included and proved.
+included and proved.  The canonical positive support is proved matching under
+the ambient caps; the two local reward presentations agree exactly; one fixed
+family's local factors are separated; their finite even-family sum is bounded
+by the simple-cycle polymer product; this sum is identified exactly with the
+unnormalised actual-attachment numerator and the polymer bound is transferred
+to it; and the cycle sum is partitioned exactly into mixed and residual-only
+terms.  No bound for the residual-only term or conditional normalization is
+claimed.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.

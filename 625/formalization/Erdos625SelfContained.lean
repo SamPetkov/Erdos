@@ -97,10 +97,10 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX law-level fixed-`F`/even-family/local-factor transport,
-residual-only cycle control, tagged residual-PMF integration, uniform
-large- and small-residual attachment, second-moment assembly, and concrete
-capacity seed/`Lambda`
+Section IX normalization of the exactly identified unnormalised attachment
+numerator to a conditional expectation, residual-only cycle control, tagged
+residual-PMF integration, uniform large- and small-residual
+attachment, second-moment assembly, and concrete capacity seed/`Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the Section
 XI chromatic tail and threshold/limit inputs; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -109,7 +109,14 @@ weight, dependent marked packaging, exact endpoint enumeration, and aggregate
 mixed-cycle-to-nested-walk domination are included and proved.  The abstract
 geometric sum with exactly one `2 * |M|` cost and its deterministic literal-
 `residualQ` specialization under an explicit strict-regime premise are also
-included and proved.
+included and proved.  The canonical positive support is proved matching under
+the ambient caps; the two local reward presentations agree exactly; one fixed
+family's local factors are separated; their finite even-family sum is bounded
+by the simple-cycle polymer product; this sum is identified exactly with the
+unnormalised actual-attachment numerator and the polymer bound is transferred
+to it; and the cycle sum is partitioned exactly into mixed and residual-only
+terms.  No bound for the residual-only term or conditional normalization is
+claimed.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -32287,6 +32294,80 @@ END SOURCE MODULE: Erdos625.Section9ResidualQMixedCycleEnumeration
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CycleWeightSplit
+Source: Erdos625/Section9CycleWeightSplit.lean
+Normalized SHA-256: 9e3a626808247de144ab862b9306631f0ae3a2cead816d5086682e9d0fca44d8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CycleWeightSplit
+
+/-!
+# Section IX: exact simple-cycle weight partition
+
+This module partitions the finite simple-cycle polymer exponent into the
+cycles disjoint from the exposed matching and the mixed cycles meeting it.
+The second part is reindexed exactly through `MixedSimpleCycle`.
+
+This is a finite identity only.  It supplies neither a bound for the
+residual-only part nor a residual law, polymer estimate, or attachment bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Exact partition of all finite simple-cycle weights into residual-only and
+mixed contributions. -/
+theorem sum_simpleBipartiteCycles_edgeWeight_split
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B)) :
+    (∑ C ∈ simpleBipartiteCycles A B,
+        edgeWeightOutsideENN q M C) =
+      (∑ C ∈ (simpleBipartiteCycles A B).filter
+          (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) +
+      (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) := by
+  classical
+  have hmeet (C : Finset (A × B)) :
+      ¬ Disjoint C M ↔ (C ∩ M).Nonempty := by
+    constructor
+    · intro h
+      rw [Finset.disjoint_left] at h
+      push Not at h
+      obtain ⟨e, heC, heM⟩ := h
+      exact ⟨e, Finset.mem_inter.mpr ⟨heC, heM⟩⟩
+    · rintro ⟨e, he⟩ h
+      exact (Finset.disjoint_left.mp h) (Finset.mem_inter.mp he).1
+        (Finset.mem_inter.mp he).2
+  rw [← Finset.sum_filter_add_sum_filter_not
+    (simpleBipartiteCycles A B) (fun C => Disjoint C M)
+    (fun C => edgeWeightOutsideENN q M C)]
+  congr 1
+  unfold simpleBipartiteCycles
+  rw [Finset.filter_filter]
+  simp_rw [hmeet]
+  symm
+  simpa using
+    (Finset.sum_subtype_eq_sum_filter
+      (s := (Finset.univ : Finset (Finset (A × B))))
+      (f := fun C => edgeWeightOutsideENN q M C)
+      (p := fun C => IsSimpleBipartiteCycle C ∧ (C ∩ M).Nonempty))
+
+#print axioms sum_simpleBipartiteCycles_edgeWeight_split
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CycleWeightSplit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CycleWeightSplit
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.LocalSignReward
 Source: Erdos625/LocalSignReward.lean
 Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
@@ -32696,6 +32777,469 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9AttachmentAsymptotics
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
+Source: Erdos625/Section9RewardCompatibility.lean
+Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+
+/-!
+# Section IX: compatibility of the two local reward presentations
+
+The fixed-`F` threshold expansion and the small-residual deterministic bound
+were developed from two syntactically different presentations of the same
+local reward.  This module records their exact equality.
+-/
+
+namespace Erdos625
+
+/-- The fixed-`F` residual reward is exactly the local sign reward. -/
+theorem residualReward_eq_localSignRewardNat (x : ℕ) :
+    residualReward x = localSignRewardNat x := by
+  by_cases h : x ≤ 2
+  · have hnot : ¬ 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hnot]
+  · have hthree : 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hthree]
+
+/-- Consequently, the threshold increment is the discrete increment of the
+local sign reward. -/
+theorem residualRewardIncrement_eq_localSignRewardNat_sub (x : ℕ) :
+    residualRewardIncrement x =
+      localSignRewardNat x - localSignRewardNat (x - 1) := by
+  simp only [residualRewardIncrement, residualReward_eq_localSignRewardNat]
+
+#print axioms residualReward_eq_localSignRewardNat
+#print axioms residualRewardIncrement_eq_localSignRewardNat_sub
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RewardCompatibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFFactorization
+Source: Erdos625/Section9FixedFFactorization.lean
+Normalized SHA-256: 48f83507cc24ce3f2df248ed5a97c59ed85e02e46b23286493fa4e9c50ac3938
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFFactorization
+
+/-!
+# Section IX: fixed-family local-factor separation
+
+This module performs the finite algebraic step immediately after the capped
+fixed-`F` prescribed-demand expansion.  It separates the common product of
+local threshold increments from the physical `residualQ` weight of `F \ M`.
+
+This theorem is still before the even-family sum and polymer decomposition.
+It asserts no residual law, conditional expectation estimate, tagged-law
+identity, residual-only cycle estimate, or attachment bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The capped fixed-`F` expectation factors into a common local-`lambda`
+product and the physical `residualQ` weight outside the exposed matching. -/
+theorem residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M F : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualFixedFExpectation M F R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        edgeWeightOutsideENN (residualQ M R row col) M F := by
+  refine (capped_fixedF_prescribedDemand_expansion M F R row col htotal hm).trans ?_
+  have hedge :
+      edgeWeightOutsideENN (residualQ M R row col) M F =
+        ∏ a : A, ∏ b : B,
+          if (a, b) ∈ F then
+            if (a, b) ∈ M then 1 else residualQ M R row col a b
+          else 1 := by
+    unfold edgeWeightOutsideENN
+    rw [← Fintype.prod_ite_mem]
+    calc
+      (∏ e : A × B,
+          if e ∈ F \ M then residualQ M R row col e.1 e.2 else 1) =
+          ∏ e : A × B,
+            if e ∈ F then
+              if e ∈ M then 1 else residualQ M R row col e.1 e.2
+            else 1 := by
+              apply Fintype.prod_congr
+              intro e
+              simp only [Finset.mem_sdiff]
+              by_cases heF : e ∈ F <;> by_cases heM : e ∈ M <;>
+                simp [heF, heM]
+      _ = ∏ a : A, ∏ b : B,
+            if (a, b) ∈ F then
+              if (a, b) ∈ M then 1 else residualQ M R row col a b
+            else 1 :=
+        Fintype.prod_prod_type'
+          (fun a : A => fun b : B =>
+            if (a, b) ∈ F then
+              if (a, b) ∈ M then (1 : ENNReal)
+              else residualQ M R row col a b
+            else 1)
+  rw [hedge]
+  rw [← Finset.prod_mul_distrib]
+  apply Finset.prod_le_prod'
+  intro a ha
+  rw [← Finset.prod_mul_distrib]
+  apply Finset.prod_le_prod'
+  intro b hb
+  by_cases habM : (a, b) ∈ M
+  · simp [habM, residualLambda]
+  · by_cases habF : (a, b) ∈ F
+    · simp only [habM, habF, if_false, if_true]
+      exact le_mul_of_one_le_left' (by simp)
+    · simp [habM, habF]
+
+#print axioms residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFFactorization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFFactorization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFEvenAggregation
+Source: Erdos625/Section9FixedFEvenAggregation.lean
+Normalized SHA-256: 8086e2df0a5ffd237a23043ddf268382648c5f27c851950bf32426cfb7a17a4e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFEvenAggregation
+
+/-!
+# Section IX: finite even-family aggregation of the fixed-`F` bound
+
+This module sums the capped fixed-`F` expectations over the finite family of
+all even bipartite edge sets.  The fixed-family factorization separates a
+common product of local threshold increments; the finite even-subgraph
+polymer theorem then bounds the remaining edge-weight sum by the product over
+simple bipartite cycles.
+
+The quantity defined here is deliberately named a fixed-`F` sum.  This module
+does **not** identify it with the manuscript's actual attachment expectation,
+the tagged residual law, or any conditional expectation.  Such an
+identification requires a separate multiplicity/law bridge and is not used
+below.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The finite sum of capped fixed-`F` expectations over every even
+bipartite edge set.  No claim that this is an attachment expectation is part
+of the definition. -/
+def residualCappedEvenFixedFSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ :=
+  ∑ F ∈ bipartiteEvenEdgeSets A B,
+    residualFixedFExpectation M F R row col htotal
+
+/-- Summing the fixed-`F` factorization extracts its common local-`lambda`
+product from the finite even-family sum. -/
+theorem residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualCappedEvenFixedFSum M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∑ F ∈ bipartiteEvenEdgeSets A B,
+          edgeWeightOutsideENN (residualQ M R row col) M F) := by
+  unfold residualCappedEvenFixedFSum
+  rw [Finset.mul_sum]
+  apply Finset.sum_le_sum
+  intro F hF
+  exact residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+    M F R row col htotal hm
+
+/-- The finite even-family fixed-`F` sum is bounded by the common local
+threshold product times the simple-cycle polymer product.
+
+This is a finite deterministic aggregation theorem.  In particular, it does
+not assert that `residualCappedEvenFixedFSum` equals the actual attachment
+expectation. -/
+theorem residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualCappedEvenFixedFSum M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
+  calc
+    residualCappedEvenFixedFSum M R row col htotal ≤
+        (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∑ F ∈ bipartiteEvenEdgeSets A B,
+            edgeWeightOutsideENN (residualQ M R row col) M F) :=
+      residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+        M R row col htotal hm
+    _ ≤
+        (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) :=
+      mul_le_mul_right
+        (weighted_evenSubgraph_ennreal_polymer_product
+          (residualQ M R row col) M)
+        _
+
+#print axioms residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+#print axioms residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFEvenAggregation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFEvenAggregation
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
+Source: Erdos625/Section9FixedFFubiniBridge.lean
+Normalized SHA-256: ac6bb1aa746832a14ce18b7a8ecba0822b121c85e193b3e9cb02a33b4eef8877
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9FixedFFubiniBridge
+
+/-!
+# Section IX: exact finite fixed-family Fubini bridge
+
+This module identifies the literal sum of the capped fixed-`F` expectations
+with an unnormalised numerator under the uniform configuration-matching law.
+For a realised matching, the finite family retained in the numerator consists
+exactly of the even edge sets whose every edge is either already in the
+high-skeleton matching `M` or lies in a cell of residual multiplicity at least
+two.
+
+The result is a finite sum-commutation and zero-one multiplicity identity.  It
+retains the probability mass of the cap/no-return event and performs no
+division by that event probability; in particular, no conditional expectation
+is defined or asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The literal finite family of actual residual even edge sets for one
+configuration matching. -/
+def actualResidualEvenEdgeSets
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    Finset (Finset (A × B)) :=
+  (bipartiteEvenEdgeSets A B).filter fun F ↦
+    ∀ e ∈ F, e ∈ M ∨ 2 ≤ configurationCellCount matching e.1 e.2
+
+/-- Membership in the literal finite family is exactly the predicate defining
+`ActualResidualEvenEdgeFamily` for the realised cell-count table. -/
+theorem mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col)
+    (F : Finset (A × B)) :
+    F ∈ actualResidualEvenEdgeSets M matching ↔
+      BipartiteEvenEdgeSet F ∧
+        ∀ e ∈ F, (e.1, e.2) ∈ M ∨
+          2 ≤ configurationCellCount matching e.1 e.2 := by
+  classical
+  simp only [actualResidualEvenEdgeSets, Finset.mem_filter,
+    bipartiteEvenEdgeSets, Finset.mem_univ, true_and]
+  rw [bipartiteEvenEdgeSet_iff_isBipartiteEven]
+
+/-- For one realised matching, summing the fixed-`F` threshold indicators over
+all even edge sets gives exactly the cardinality of the actual finite family.
+-/
+theorem sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    (∑ F ∈ bipartiteEvenEdgeSets A B,
+      ∏ e ∈ F,
+        if e ∈ M then (1 : ℝ≥0∞)
+        else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+      ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞) := by
+  classical
+  calc
+    (∑ F ∈ bipartiteEvenEdgeSets A B,
+      ∏ e ∈ F,
+        if e ∈ M then (1 : ℝ≥0∞)
+        else if 2 ≤ configurationCellCount matching e.1 e.2 then 1 else 0) =
+        ∑ F ∈ bipartiteEvenEdgeSets A B,
+          if (∀ e ∈ F, e ∈ M ∨
+              2 ≤ configurationCellCount matching e.1 e.2)
+          then (1 : ℝ≥0∞) else 0 := by
+      apply Finset.sum_congr rfl
+      intro F hF
+      clear hF
+      induction F using Finset.induction_on with
+      | empty => simp
+      | @insert e F he ih =>
+          by_cases heM : e ∈ M
+          · simp [he, heM, ih]
+          · by_cases heCount :
+                2 ≤ configurationCellCount matching e.1 e.2
+            · simp [he, heM, heCount, ih]
+            · simp [he, heM, heCount]
+    _ = ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞) := by
+      rw [Finset.sum_boole]
+      rfl
+
+/-- The unnormalised actual attachment numerator.  The cap/no-return event
+indicator and hence its probability mass remain present. -/
+def residualActualAttachmentNumerator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ := by
+  classical
+  exact
+    ∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (if matching ∈ ResidualCapNoReturnEvent M R row col then 1 else 0) *
+        (∏ a : A, ∏ b : B,
+          (residualReward (configurationCellCount matching a b) : ℝ≥0∞)) *
+        ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞)
+
+/-- Exact finite Fubini/multiplicity identity.  This is an event-probability
+numerator, not a conditional expectation. -/
+theorem residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    residualActualAttachmentNumerator M R row col htotal =
+      residualCappedEvenFixedFSum M R row col htotal := by
+  classical
+  unfold residualActualAttachmentNumerator residualCappedEvenFixedFSum
+  simp only [residualFixedFExpectation]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro matching hmatching
+  by_cases hevent : matching ∈ ResidualCapNoReturnEvent M R row col
+  · simp only [residualFixedFWeight, hevent, if_pos]
+    rw [← Finset.mul_sum]
+    rw [← Finset.mul_sum]
+    rw [sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets]
+    ring
+  · simp [residualFixedFWeight, hevent]
+
+#print axioms mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+#print axioms sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+#print axioms residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9FixedFFubiniBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
+Normalized SHA-256: ef8c4a2631b5cce2edf746851da0967fcfc537081120f03a71ab94ced697e2ce
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+
+/-!
+# Section IX: polymer bound for the actual attachment numerator
+
+The exact finite Fubini identity identifies the literal actual-family
+numerator with the capped fixed-`F` sum.  This module composes that identity
+with the previously proved even-family and polymer bounds.
+
+Both conclusions concern an **unnormalised numerator**: the uniform matching
+mass of the cap/no-return event remains present.  No division by the event
+probability is performed.  Consequently these theorems are not conditional
+expectation bounds, tagged-law integrations, or the final attachment estimate
+of Lemma 9.1.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The actual attachment numerator is bounded by the common local-threshold
+product times the unrestricted finite even-family weight sum.
+
+This is an unnormalised numerator bound, not a conditional expectation. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∑ F ∈ bipartiteEvenEdgeSets A B,
+          edgeWeightOutsideENN (residualQ M R row col) M F) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+    M R row col htotal hm
+
+/-- The actual attachment numerator is bounded by the common local-threshold
+product times the simple-cycle polymer product.
+
+This is still an unnormalised numerator bound.  It neither conditions on the
+cap/no-return event nor integrates a demand-dependent residual estimate over
+the global tagged law. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+    M R row col htotal hm
+
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 ========================================================================== -/
 
 /- ==========================================================================
@@ -36971,6 +37515,67 @@ END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+Source: Erdos625/Section9CanonicalSupportMatching.lean
+Normalized SHA-256: 4f52e0c8291e1ab062d0605c5d0c6f4f24e7bbd74825377548fb0e3ead36b932
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+
+/-!
+# Section VIII--IX: matchingness of canonical positive support
+
+An attained canonical demand records precisely the cells whose original
+configuration counts exceed the half-cap threshold.  Under the ambient row
+and column degree caps, those high cells form a bipartite matching.  Therefore
+the positive support of every attained canonical demand is a matching as
+required by the deterministic Section IX traversal theorems.
+
+This statement is pointwise in an attained demand.  It asserts no law on
+demands, residual matching, conditional distribution, or attachment bound.
+-/
+
+namespace Erdos625
+
+/-- The positive support of every attained canonical demand is a bipartite
+matching under the ambient degree caps. -/
+theorem positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    IsBipartiteMatching (positiveDemandSupport demand.1) := by
+  classical
+  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
+  have hhigh := configurationCellCount_highCells_form_matching
+    matching U hrowCap hcolCap
+  have high_of_mem : ∀ a b,
+      (a, b) ∈ positiveDemandSupport demand.1 →
+        U / 2 < configurationCellCount matching a b := by
+    intro a b hab
+    have hn : canonicalDemandOfMatching matching U a b ≠ 0 := by
+      rw [hmatching]
+      simpa only [positiveDemandSupport, Finset.mem_filter,
+        Finset.mem_univ, true_and] using hab
+    by_contra hnot
+    exact hn (by simp [canonicalDemandOfMatching,
+      canonicalHighDemand, hnot])
+  constructor
+  · intro a b₁ b₂ hb₁ hb₂
+    exact hhigh.1 a b₁ b₂ (high_of_mem a b₁ hb₁) (high_of_mem a b₂ hb₂)
+  · intro b a₁ a₂ ha₁ ha₂
+    exact hhigh.2 b a₁ a₂ (high_of_mem a₁ b ha₁) (high_of_mem a₂ b ha₂)
+
+#print axioms positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
 Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
@@ -39580,7 +40185,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 769ca672b450a1d7d9f1dbcefb9d7d0e4a1690685894af38b4a33edbbdef8964
+Normalized SHA-256: 831e4696aa22401bb79cf205a6c83549d30ce0df3df653c6bc228e4fb6960c69
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -40066,6 +40671,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_mixedSimpleCycle_weight_le_nested_walkMass
 #print axioms Erdos625.mixedSimpleCycle_weighted_walk_enumeration
 #print axioms Erdos625.existsAbsoluteResidualQMixedCycleWeightedEnumeration
+#print axioms Erdos625.sum_simpleBipartiteCycles_edgeWeight_split
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
@@ -40074,6 +40680,16 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
+#print axioms Erdos625.residualReward_eq_localSignRewardNat
+#print axioms Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub
+#print axioms Erdos625.residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+#print axioms Erdos625.mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+#print axioms Erdos625.sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+#print axioms Erdos625.residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
@@ -40145,6 +40761,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.configurationMatchingEquivSigmaCapNoReturn
 #print axioms Erdos625.uniformSigmaCapNoReturn
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
+#print axioms Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
@@ -40246,7 +40863,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: dcfc0e7372a9b63fd373ba5cb78192cc02c6240c2d9817efe96eea07e435155d
+Normalized SHA-256: 33eb0c2000abf0697467f90af320c240ceaca8983e00ca8b043557727d2b86f6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -40432,10 +41049,15 @@ endpoint masses, and the aggregate mixed-cycle weight is bounded by the nested
 walk mass.  Its abstract geometric summation now has exactly one `2 * |M|`
 marked-start cost, and a deterministic specialization to the literal
 `residualQ` kernel is proved under the exact degree-cap hypotheses and the
-explicit strict `tau < 1/3` premise.  Law-level fixed-`F`/even-family/local-
-factor transport, residual-only cycles, tagged residual-PMF integration,
-uniform large- and small-residual estimates, and complete Lemma 9.1/Proposition
-9.2 assembly remain open.
+explicit strict `tau < 1/3` premise.  The positive support of every attained
+canonical demand is a matching under the ambient caps; the two local reward
+presentations agree; the fixed-`F` local factors and finite even-family polymer
+aggregation are proved; the sum is identified exactly with the unnormalised
+actual-attachment numerator and the polymer bound is transferred to it; and
+the total simple-cycle weight is split exactly into mixed and residual-only
+parts.  Conditional normalization, bounding the residual-only part, tagged
+residual-PMF integration, uniform large- and small-residual
+estimates, and complete Lemma 9.1/Proposition 9.2 assembly remain open.
 The exceptional deficit correction tends to zero, normalized quotients have an
 explicit stability bound, bounded-parameter coordinate limits pass uniformly
 through summable series and normalized quotients, and the `s=n/k`

@@ -140,12 +140,18 @@ import Erdos625.Section9PhysicalCycleEncoder
 import Erdos625.Section9MarkedCycleEnumeration
 import Erdos625.Section9MixedCycleWeightedEnumeration
 import Erdos625.Section9ResidualQMixedCycleEnumeration
+import Erdos625.Section9CycleWeightSplit
 import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
+import Erdos625.Section9RewardCompatibility
+import Erdos625.Section9FixedFFactorization
+import Erdos625.Section9FixedFEvenAggregation
+import Erdos625.Section9FixedFFubiniBridge
+import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.EvenMatchingKernel
@@ -172,6 +178,7 @@ import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
+import Erdos625.Section9CanonicalSupportMatching
 import Erdos625.Section8CanonicalEventProbabilityNormalization
 import Erdos625.Section8ResidualEventProbabilityNormalization
 import Erdos625.Section8CanonicalEventProbabilityFactorization
@@ -673,6 +680,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_mixedSimpleCycle_weight_le_nested_walkMass
 #print axioms Erdos625.mixedSimpleCycle_weighted_walk_enumeration
 #print axioms Erdos625.existsAbsoluteResidualQMixedCycleWeightedEnumeration
+#print axioms Erdos625.sum_simpleBipartiteCycles_edgeWeight_split
 #print axioms Erdos625.prod_localSignRewardNat_eq_pow
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
@@ -681,6 +689,16 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
 #print axioms Erdos625.capped_fixedF_prescribedDemand_expansion
+#print axioms Erdos625.residualReward_eq_localSignRewardNat
+#print axioms Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub
+#print axioms Erdos625.residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+#print axioms Erdos625.mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+#print axioms Erdos625.sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
+#print axioms Erdos625.residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff
 #print axioms Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff
@@ -752,6 +770,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.configurationMatchingEquivSigmaCapNoReturn
 #print axioms Erdos625.uniformSigmaCapNoReturn
 #print axioms Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn
+#print axioms Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
 #print axioms Erdos625.typedPartialMatchingSourceEmbedding
 #print axioms Erdos625.typedPartialMatchingTargetEmbedding
 #print axioms Erdos625.typedPartialMatchingPairing
