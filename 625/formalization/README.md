@@ -350,8 +350,15 @@ deficit choices.  The companion
 defines the physical unlabelled typed skeleton, proves that forgetting the
 cellwise presentation is an exact equivalence onto the prescribed type-table
 fibre, and derives the exact cardinality identity with one cell-factorial
-product and no extra quotient.  The weighted quotient sum, ratio estimates,
-(8.25a), and Lemmas 8.1--8.3 remain open.
+product and no extra quotient.  Its companion
+[`Section8PhysicalSkeletonFibreGrouping.lean`](Erdos625/Section8PhysicalSkeletonFibreGrouping.lean)
+groups arbitrary finite type-table weights over the attained physical-skeleton
+fibres and rewrites the single cell-factorial fibre factor as the matching row
+and column descending-factorial products.  This is a finite grouping and
+one-factorial rewrite only: it proves neither a skeleton probability estimate,
+the Section IX seed or `Lambda` asymptotic, nor `Erdos625Statement`.  The
+weighted quotient sum, ratio estimates, (8.25a), and Lemmas 8.1--8.3 remain
+open.
 
 The six earlier Section 8 source units are
 [`UniformConditionalLaw.lean`](Erdos625/UniformConditionalLaw.lean),

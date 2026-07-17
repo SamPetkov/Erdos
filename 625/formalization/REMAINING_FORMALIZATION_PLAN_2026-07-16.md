@@ -153,12 +153,15 @@ weighted Cauchy inequality are already accepted.  Do not reimplement them.
 Remaining order:
 
 1. **Partly completed:** define the physical **unlabelled typed skeleton** and
-   its type-table map.  The exact fibre equivalence and one-factorial
-   cardinality identity are proved; the manuscript weight remains open;
+   its type-table map.  The exact fibre equivalence, its finite grouping by
+   attained type table, and the one-factorial cardinality rewrite are proved;
+   the manuscript weight and every probability estimate remain open;
 2. re-express the native incidence/event package (8.3) for that skeleton;
 3. **Partly completed:** quotient the cellwise typed partial-matchings by
-   their physical skeleton.  The exact fibre multiplicity is proved; the
-   weighted quotient sum and `W(L)` ratio factors remain open;
+   their physical skeleton.  The exact fibre multiplicity and generic finite
+   type-table grouping are proved; the weighted quotient sum and `W(L)` ratio
+   factors remain open.  This finite rewrite supplies neither the Section IX
+   seed/`Lambda` asymptotic nor the final target;
 4. specialize endpoint transport and weighted Cauchy to the actual weights;
 5. prove the `A₀` base case, near and middle ranges, ratio bounds, and uniform
    `Xi₄` decay;

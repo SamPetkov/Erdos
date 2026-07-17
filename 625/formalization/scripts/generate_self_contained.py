@@ -155,6 +155,11 @@ count are included as finite helper leaves only.  They do not prove the
 four-size signed first moment, the sign-summed second-moment law, the concrete
 chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
 asymptotics, the root separation, or `Erdos625Statement`.
+The physical unlabelled-skeleton fibre grouping is also included: it groups
+finite type-table weights over attained fibres and performs the one-factorial
+fibre rewrite to row and column descending-factorial products.  It does not
+prove a skeleton probability estimate, the Section IX seed or `Lambda`
+asymptotic, or `Erdos625Statement`.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.

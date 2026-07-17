@@ -136,6 +136,11 @@ count are included as finite helper leaves only.  They do not prove the
 four-size signed first moment, the sign-summed second-moment law, the concrete
 chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
 asymptotics, the root separation, or `Erdos625Statement`.
+The physical unlabelled-skeleton fibre grouping is also included: it groups
+finite type-table weights over attained fibres and performs the one-factorial
+fibre rewrite to row and column descending-factorial products.  It does not
+prove a skeleton probability estimate, the Section IX seed or `Lambda`
+asymptotic, or `Erdos625Statement`.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -38603,6 +38608,125 @@ END SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
+Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
+Normalized SHA-256: 5cd55642f4abad470b2ab4644f3e6e54a45b18f2172492a34d2f573d4d49f263
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
+
+/-!
+# E5: physical-skeleton fibre grouping by type table
+
+This file groups the finite physical unlabelled skeleton space by the literal
+`typeTable` map and applies the accepted one-factorial fibre identity.  No
+additional ordering or factorial quotient is introduced.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The finite set of type tables actually attained by physical skeletons. -/
+def attainedUnlabelledTypeTables
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) :
+    Finset (I -> J -> Nat) := by
+  classical
+  exact (Finset.univ : Finset (UnlabelledTypedSkeleton k ell)).image
+    (fun S => S.typeTable)
+
+def typeTableCellFactorialProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (L : I -> J -> Nat) : Nat :=
+  ∏ i : I, ∏ j : J, (L i j).factorial
+
+def typeTableRowDescendingProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (k : I -> Nat) (L : I -> J -> Nat) : Nat :=
+  ∏ i : I, (k i).descFactorial (∑ j : J, L i j)
+
+def typeTableColumnDescendingProduct
+    {I J : Type*}
+    [Fintype I] [Fintype J]
+    (ell : J -> Nat) (L : I -> J -> Nat) : Nat :=
+  ∏ j : J, (ell j).descFactorial (∑ i : I, L i j)
+
+/-- Exact finite grouping of any type-table weight by the fibres of the
+physical skeleton's `typeTable` map. -/
+theorem sum_unlabelledSkeleton_weight_eq_sum_typeTables
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [AddCommMonoid R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} • w L := by
+  simp +decide only [attainedUnlabelledTypeTables, Fintype.card_subtype];
+  rw [ Finset.sum_image' ];
+  simp +contextual [ Finset.sum_filter ];
+  simp +decide [ Finset.sum_ite ]
+
+/-- Casted form of the accepted cross-multiplied fibre cardinality.  It has
+exactly one cell-factorial product. -/
+theorem cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [CommSemiring R]
+    (k : I -> Nat) (ell : J -> Nat) (L : I -> J -> Nat) :
+    (Fintype.card
+        {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : R) *
+      (typeTableCellFactorialProduct L : R) =
+        ((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) := by
+  unfold typeTableCellFactorialProduct typeTableRowDescendingProduct
+    typeTableColumnDescendingProduct
+  simpa only [Nat.cast_mul] using congrArg ((↑) : Nat → R)
+    (card_unlabelledTypedSkeleton_typeTable_mul_factorials L k ell)
+
+/-- Combined weighted grouping after the exact fibre-cardinality rewrite.
+The source contains the same single cell-factorial product as the accepted
+cross-multiplied theorem and no additional multiplicity. -/
+theorem sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [CommSemiring R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell,
+      (typeTableCellFactorialProduct S.typeTable : R) * w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        ((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) * w L := by
+  change (∑ S : UnlabelledTypedSkeleton k ell,
+      (↑(∏ i : I, ∏ j : J, (S.typeTable i j).factorial) : R) * w S.typeTable) = _
+  rw [sum_unlabelledSkeleton_weight_eq_sum_typeTables k ell
+    (fun L => (↑(∏ i : I, ∏ j : J, (L i j).factorial) : R) * w L)]
+  refine Finset.sum_congr rfl fun L _hL => ?_
+  rw [nsmul_eq_mul, ← mul_assoc]
+  exact congrArg (fun x : R => x * w L)
+    (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L)
+
+#print axioms sum_unlabelledSkeleton_weight_eq_sum_typeTables
+#print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+#print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
 Source: Erdos625/UniformSigmaTransport.lean
 Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
@@ -41550,7 +41674,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 4429c1a0859dc0d1f88de409ef943e682bcb877c334f45a0a8b52f582da0a375
+Normalized SHA-256: bf2af0928f869ba60919a71cc23ba795ee95b4cb756f5bcc0a59a3e1b9c31da3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -42169,6 +42293,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.unlabelledSkeletonFibreToTypedPartialMatching
 #print axioms Erdos625.typedPartialMatchingEquivUnlabelledSkeletonFibre
 #print axioms Erdos625.card_unlabelledTypedSkeleton_typeTable_mul_factorials
+#print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables
+#print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+#print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -42259,7 +42386,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 2f7c09df1bba193c0036952f7ceb09dd3271833ce4144bd0889d9eef0a9cda86
+Normalized SHA-256: 96a273af9901191031b535e09786fc519c1f651b8045a662b76526e9c009682a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -42399,7 +42526,11 @@ cardinality rather than declared uniform.  This does not identify one common
 residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
-bounds, and skeleton estimates remain open.
+bounds, and skeleton estimates remain open.  The physical unlabelled-skeleton
+space is also grouped exactly by its attained type tables, with its single
+cell-factorial fibre term rewritten as the corresponding row and column
+descending-factorial products.  This finite rewrite supplies neither a
+skeleton probability estimate nor any Section IX seed or `Lambda` asymptotic.
 Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
 degrees; the ambient uniform PMF transports exactly to the uniform law on

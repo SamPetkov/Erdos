@@ -185,6 +185,7 @@ import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
+import Erdos625.Section8PhysicalSkeletonFibreGrouping
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
@@ -823,6 +824,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.unlabelledSkeletonFibreToTypedPartialMatching
 #print axioms Erdos625.typedPartialMatchingEquivUnlabelledSkeletonFibre
 #print axioms Erdos625.card_unlabelledTypedSkeleton_typeTable_mul_factorials
+#print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables
+#print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+#print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq

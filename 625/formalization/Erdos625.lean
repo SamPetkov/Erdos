@@ -191,6 +191,7 @@ import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
+import Erdos625.Section8PhysicalSkeletonFibreGrouping
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
@@ -350,7 +351,11 @@ cardinality rather than declared uniform.  This does not identify one common
 residual law across demands; each demand fibre has the exact labelled-witness
 times standardized-residual cardinality factorization. Manuscript-specific
 skeleton parameterization, event nonemptiness, quantitative probability
-bounds, and skeleton estimates remain open.
+bounds, and skeleton estimates remain open.  The physical unlabelled-skeleton
+space is also grouped exactly by its attained type tables, with its single
+cell-factorial fibre term rewritten as the corresponding row and column
+descending-factorial products.  This finite rewrite supplies neither a
+skeleton probability estimate nor any Section IX seed or `Lambda` asymptotic.
 Every tagged state of that global disintegration can be retyped by the literal
 Section IX cap/no-return event for its own canonical support and residual
 degrees; the ambient uniform PMF transports exactly to the uniform law on
