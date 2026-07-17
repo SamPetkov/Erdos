@@ -118,9 +118,8 @@ This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX exact tagged fibre/global incidence integration of the
-event-restricted attachment numerator, the actual-even-family/cycle-rank
-identification, uniform large- and small-residual attachment, second-moment
-assembly, and the concrete seed/count/moment estimate and `Lambda`
+event-restricted attachment numerator, uniform large- and small-residual
+attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
 chromatic at-most tail and root separation; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -141,9 +140,11 @@ retains the cap/no-return indicator, so no division by its event mass is
 required.  The pointwise cubic `residualLambda` bound and its deterministic
 total estimate at the scale in (9.13) are included and proved.  The canonical
 full/residual reward-product and support-graph splits are included and proved,
-with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
-actual-even-family/cycle-rank identification or exact tagged fibre/global
-incidence integration is claimed.
+with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
+literal actual even family is exactly transported to the bipartite binary
+cycle space, and the event-restricted attachment numerator is exactly rewritten
+by its finite cycle-rank factor; exact tagged fibre/global incidence
+integration is not claimed.
 The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
 D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
 wrapper are included and proved as conditional implications.  They retain the
