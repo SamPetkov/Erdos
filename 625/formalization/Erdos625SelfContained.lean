@@ -8270,6 +8270,104 @@ END SOURCE MODULE: Erdos625.Section10AmplificationScales
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+Source: Erdos625/Section10CoColorablePaleyZygmundSeed.lean
+Normalized SHA-256: f43c30f550dfa6ad49a9c347781a8af5d02a644ac52a5460e173502e3a91c0f3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+
+/-!
+# Sections IX--X D4: count-to-cocolourable real seed
+
+This task is a generic second-moment adapter.  The construction and moment
+estimates for the count remain entirely external inputs.
+-/
+
+namespace Erdos625
+
+open MeasureTheory Set
+open scoped ENNReal NNReal ProbabilityTheory
+
+/-- Any measurable nonnegative count whose positivity certifies a
+`k`-cocolouring supplies the corresponding real-valued Paley--Zygmund seed
+under the random-graph law. -/
+theorem coColorable_real_seed_of_count
+    (n k : Nat) (Z : LabeledGraph n -> ENNReal)
+    (hZ : Measurable Z)
+    (hPositive : ∀ G, 0 < Z G -> CoColorable G k) :
+    (((∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+        (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n))).toReal ≤
+      (randomGraphMeasure n).real {G | CoColorable G k}) := by
+  have hPZ := paleyZygmund_zero (mu := randomGraphMeasure n) hZ
+  have hMono :
+      (randomGraphMeasure n) {G | 0 < Z G} ≤
+        (randomGraphMeasure n) {G | CoColorable G k} := by
+    apply measure_mono
+    intro G hG
+    exact hPositive G hG
+  have hENN :
+      (∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
+          (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n)) ≤
+        (randomGraphMeasure n) {G | CoColorable G k} :=
+    hPZ.trans hMono
+  rw [Measure.real]
+  apply (ENNReal.toReal_le_toReal
+    (ne_top_of_le_ne_top
+      (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k}) hENN)
+    (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k})).2
+  exact hENN
+
+end Erdos625
+
+#print axioms Erdos625.coColorable_real_seed_of_count
+
+end Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section10SeedLogAdapter
+Source: Erdos625/Section10SeedLogAdapter.lean
+Normalized SHA-256: 13810b1a6a94500654bed4576a1a42e6d9203c2c5738b4fa97dd4ebee5055a7a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section10SeedLogAdapter
+
+/-!
+# Section X: logarithmic seed adapter
+
+This isolated target converts the displayed logarithmic lower bound for a
+strictly positive real seed probability into the exponential seed inequality
+used by the uniform amplification theorem. It intentionally supplies no
+probabilistic or Section IX input.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+/-- Along the full natural-number sequence, an eventual logarithmic lower
+bound for a strictly positive real seed probability implies the corresponding
+exponential lower bound. -/
+theorem eventually_exp_neg_le_of_eventually_neg_le_log
+    (Lambda p : Nat -> Real)
+    (hpos : ∀ᶠ n in atTop, 0 < p n)
+    (hlog : ∀ᶠ n in atTop, -Lambda n ≤ Real.log (p n)) :
+    ∀ᶠ n in atTop, Real.exp (-Lambda n) ≤ p n := by
+  filter_upwards [hpos, hlog] with n hn hn'
+  exact (Real.exp_le_exp.mpr hn').trans_eq (Real.exp_log hn)
+
+#print axioms Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section10SeedLogAdapter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section10SeedLogAdapter
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10CapacityLeftoverQuantitative
 Source: Erdos625/Section10CapacityLeftoverQuantitative.lean
 Normalized SHA-256: 04252e8d4ee18ab5a29a7e390d90f3c2dad9ba2460fe83af003736c2b0c8ab80
@@ -9796,63 +9894,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section10UniformAmplificationSpecialization
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section10UniformAmplificationSpecialization
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
-Source: Erdos625/Section10CoColorablePaleyZygmundSeed.lean
-Normalized SHA-256: f43c30f550dfa6ad49a9c347781a8af5d02a644ac52a5460e173502e3a91c0f3
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
-
-/-!
-# Sections IX--X D4: count-to-cocolourable real seed
-
-This task is a generic second-moment adapter.  The construction and moment
-estimates for the count remain entirely external inputs.
--/
-
-namespace Erdos625
-
-open MeasureTheory Set
-open scoped ENNReal NNReal ProbabilityTheory
-
-/-- Any measurable nonnegative count whose positivity certifies a
-`k`-cocolouring supplies the corresponding real-valued Paley--Zygmund seed
-under the random-graph law. -/
-theorem coColorable_real_seed_of_count
-    (n k : Nat) (Z : LabeledGraph n -> ENNReal)
-    (hZ : Measurable Z)
-    (hPositive : ∀ G, 0 < Z G -> CoColorable G k) :
-    (((∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
-        (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n))).toReal ≤
-      (randomGraphMeasure n).real {G | CoColorable G k}) := by
-  have hPZ := paleyZygmund_zero (mu := randomGraphMeasure n) hZ
-  have hMono :
-      (randomGraphMeasure n) {G | 0 < Z G} ≤
-        (randomGraphMeasure n) {G | CoColorable G k} := by
-    apply measure_mono
-    intro G hG
-    exact hPositive G hG
-  have hENN :
-      (∫⁻ G, Z G ∂(randomGraphMeasure n)) ^ 2 /
-          (∫⁻ G, (Z G) ^ 2 ∂(randomGraphMeasure n)) ≤
-        (randomGraphMeasure n) {G | CoColorable G k} :=
-    hPZ.trans hMono
-  rw [Measure.real]
-  apply (ENNReal.toReal_le_toReal
-    (ne_top_of_le_ne_top
-      (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k}) hENN)
-    (measure_ne_top (randomGraphMeasure n) {G | CoColorable G k})).2
-  exact hENN
-
-end Erdos625
-
-#print axioms Erdos625.coColorable_real_seed_of_count
-
-end Erdos625SelfContained_Module_Erdos625_Section10CoColorablePaleyZygmundSeed
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section10CoColorablePaleyZygmundSeed
 ========================================================================== -/
 
 /- ==========================================================================
@@ -15789,6 +15830,124 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDualOptimalValue
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDualOptimalValue
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjective
+Source: Erdos625/ColoringProfilePhaseObjective.lean
+Normalized SHA-256: 88af43df9424587c34d0535cb102658f810a2e28912958a592d5c72f24fe2cbb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjective
+
+/-!
+# The selected phase/profile objective
+
+This small adapter packages the phase entropy term together with the attained
+finite profile optimum.  It identifies that package with the selected dual
+core which occurs in the logarithmic first-moment reduction.  No asymptotic
+estimate, root statement, or chromatic tail conclusion is supplied here.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The phase entropy term plus the attained finite profile optimum at a real
+part count. -/
+def profilePhaseObjective (n : ℕ) (parts : ℝ) : ℝ :=
+  ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+    profileDualOptimalValue (phaseNat n + 1) (n : ℝ) parts
+
+/-- At nonzero part count, the phase/profile objective is exactly the
+phase-and-dual core evaluated at its selected tilt. -/
+theorem profilePhaseObjective_eq_selected_core
+    (n : ℕ) {parts : ℝ} (hparts : parts ≠ 0) :
+    profilePhaseObjective n parts =
+      ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+        profileDualUpper (phaseNat n + 1) (n : ℝ) parts
+          (profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts)) := by
+  unfold profilePhaseObjective
+  rw [profileDualOptimalValue_eq_profileDualUpper (phaseNat n + 1) hparts]
+
+#print axioms profilePhaseObjective_eq_selected_core
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjective
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjective
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivative
+Source: Erdos625/ColoringProfilePhaseDerivative.lean
+Normalized SHA-256: 9a8c615e228bf906548147be2648a65e70f05184b1ee82ee59ad74226f7386fb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivative
+
+/-!
+# Derivative of the selected phase/profile objective
+
+The phase entropy contribution is constant in the real part count, so the
+derivative is inherited directly from the selected finite dual optimum.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The selected phase/profile objective has the finite-envelope derivative
+with respect to the real part count throughout its interior mean domain. -/
+theorem hasDerivAt_profilePhaseObjective_parts
+    (n : ℕ) {parts : ℝ} (hparts : 0 < parts)
+    (htarget : (n : ℝ) / parts ∈
+      Set.Ioo 1 (((phaseNat n + 1 : ℕ) : ℝ))) :
+    HasDerivAt (fun k ↦ profilePhaseObjective n k)
+      (Real.log (profileDualPartition (phaseNat n + 1)
+          (profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts))) -
+        Real.log parts) parts := by
+  have hbReal : (1 : ℝ) < ((phaseNat n + 1 : ℕ) : ℝ) :=
+    lt_trans htarget.1 htarget.2
+  have hb : 2 ≤ phaseNat n + 1 := by
+    exact_mod_cast hbReal
+  have hConst : HasDerivAt
+      (fun _ : ℝ ↦ ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1))
+      0 parts :=
+    hasDerivAt_const parts _
+  change HasDerivAt
+    (fun k ↦ ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+      profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
+    (Real.log (profileDualPartition (phaseNat n + 1)
+        (profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts))) -
+      Real.log parts) parts
+  apply ((hConst.add
+    (hasDerivAt_profileDualOptimalValue_parts hb hparts htarget)).congr_of_eventuallyEq
+      (f₁ := fun k ↦ ((phaseNat n + 1 : ℕ) : ℝ) *
+        Real.log ((n : ℝ) + 1) +
+        profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
+      (Filter.Eventually.of_forall fun _ ↦ rfl)).congr_deriv
+  simp
+
+/-- The derivative form of `hasDerivAt_profilePhaseObjective_parts`. -/
+theorem deriv_profilePhaseObjective_parts
+    (n : ℕ) {parts : ℝ} (hparts : 0 < parts)
+    (htarget : (n : ℝ) / parts ∈
+      Set.Ioo 1 (((phaseNat n + 1 : ℕ) : ℝ))) :
+    deriv (fun k ↦ profilePhaseObjective n k) parts =
+      Real.log (profileDualPartition (phaseNat n + 1)
+          (profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts))) -
+        Real.log parts :=
+  (hasDerivAt_profilePhaseObjective_parts n hparts htarget).deriv
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivative
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivative
 ========================================================================== -/
 
 /- ==========================================================================
@@ -34643,6 +34802,97 @@ END SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
+Source: Erdos625/Section9ZeroResidualActualAttachment.lean
+Normalized SHA-256: fd9b444b4aa4b1d2da273ad77f0f53ca99745c61634b9275d22d24bad93acc52
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+
+/-!
+# Section IX: zero-residual actual attachment
+
+When the total row-stub mass is zero there are no realised residual pairs.
+With an empty exposed skeleton, the literal even-edge family therefore consists
+only of the empty edge set, and the exact Section IX numerator is one.
+
+The empty-skeleton hypothesis is essential: in the present definition,
+`actualResidualEvenEdgeSets` retains every even subset of the exposed skeleton
+`M`, even if no residual pair is present.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- In the zero-total branch, and with no exposed skeleton edges, the literal
+Section IX actual attachment numerator is exactly one. -/
+theorem residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hrowTotal : Finset.univ.sum row = 0) :
+    residualActualAttachmentNumerator (∅ : Finset (A × B)) R row col htotal = 1 := by
+  classical
+  have hrowzero : ∀ a : A, row a = 0 := by
+    intro a
+    exact (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
+  have hcellzero : ∀ (matching : ConfigurationMatching row col) (a : A) (b : B),
+      configurationCellCount matching a b = 0 := by
+    intro matching a b
+    have hsum : (∑ b', configurationCellCount matching a b') = 0 := by
+      rw [sum_configurationCellCount_row, hrowzero a]
+    exact (Finset.sum_eq_zero_iff.mp hsum) b (Finset.mem_univ b)
+  have hevent : ∀ matching : ConfigurationMatching row col,
+      matching ∈ ResidualCapNoReturnEvent (∅ : Finset (A × B)) R row col := by
+    intro matching
+    constructor
+    · intro a b
+      simp [hcellzero matching a b]
+    · simp
+  have hfamily : ∀ matching : ConfigurationMatching row col,
+      actualResidualEvenEdgeSets (∅ : Finset (A × B)) matching = {∅} := by
+    intro matching
+    ext F
+    constructor
+    · intro hF
+      simp only [actualResidualEvenEdgeSets, Finset.mem_filter,
+        bipartiteEvenEdgeSets, Finset.mem_univ, true_and] at hF
+      have hFempty : F = ∅ := by
+        by_contra hne
+        obtain ⟨e, he⟩ := Finset.nonempty_iff_ne_empty.mpr hne
+        have hcondition := hF.2 e he
+        simp [hcellzero matching e.1 e.2] at hcondition
+      simp [hFempty]
+    · intro hF
+      have hFempty : F = ∅ := by
+        simpa only [Finset.mem_singleton] using hF
+      subst F
+      simp only [actualResidualEvenEdgeSets, Finset.mem_filter]
+      constructor
+      · simp only [bipartiteEvenEdgeSets, Finset.mem_filter, Finset.mem_univ, true_and]
+        constructor <;> intro x <;> simp
+      · simp
+  unfold residualActualAttachmentNumerator
+  simp_rw [hevent, if_pos, hfamily, hcellzero]
+  simp [residualReward]
+  simpa only [tsum_fintype] using
+    (uniformConfigurationMatching row col htotal).tsum_coe
+
+#print axioms residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualCycleRankAssembly
 Source: Erdos625/Section9ActualResidualCycleRankAssembly.lean
 Normalized SHA-256: b42cede08a21b8dfc4b8b5be8bd9e73cb9e45036b9c28aa3f165f60d3c7411a1
@@ -37577,6 +37827,219 @@ END SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
+Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+
+/-!
+# Section VIII--IX: tagged global canonical residuals
+
+Every state of the global dependent canonical-demand/witness/residual sigma
+space carries a residual configuration satisfying the literal Section IX
+cap/no-return event for that state's own demand support and residual degrees.
+This is a pointwise membership bridge only: it does not construct an untagged
+residual PMF, condition a law, take an expectation, or assert an asymptotic
+bound.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+local instance fintypeCanonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance fintypeResidualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
+    Fintype (ResidualCapNoReturnEvent M R row col) :=
+  Fintype.ofFinite _
+
+/-- A tagged state in the global canonical residual disintegration supplies
+the exact cap/no-return hypothesis used by the Section IX fixed-family
+machinery. -/
+theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} (U : Nat)
+    (z : Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) :
+    z.2.2.1 ∈ ResidualCapNoReturnEvent
+      (positiveDemandSupport z.1.1) (U / 2)
+      (residualRowDegree z.2.1) (residualColumnDegree z.2.1) := by
+  simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
+    using z.2.2.2
+
+/-- Fibrewise retyping of the global canonical residual sigma family by its
+literal Section IX cap/no-return events.  The attained demand and labelled
+witness remain part of the state, so this is not an identification of a
+single residual space across demands. -/
+noncomputable def sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    (Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  refine Equiv.sigmaCongrRight fun demand => ?_
+  refine Equiv.sigmaCongrRight fun witness => ?_
+  exact Equiv.setCongr
+    (canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U)
+
+/-- The matching-space equivalence followed by fibrewise Section IX
+retyping. -/
+noncomputable def configurationMatchingEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    ConfigurationMatching row col ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).trans
+    (sigmaCanonicalDemandResidualEquivSigmaCapNoReturn row col U)
+
+/-- The uniform law on the tagged global Section IX cap/no-return family.
+Its nonemptiness is supplied by the ambient matching equivalence. -/
+noncomputable def uniformSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    PMF
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  exact PMF.uniformOfFintype _
+
+/-- Exact global finite-law transport to the tagged Section IX cap/no-return
+family.  It retains demand and witness tags, and therefore asserts neither an
+untagged residual law, conditioning statement, expectation, nor asymptotic
+bound. -/
+theorem uniformConfigurationMatching_map_sigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    (uniformConfigurationMatching row col htotal).map
+        (configurationMatchingEquivSigmaCapNoReturn row col U) =
+      uniformSigmaCapNoReturn row col U htotal := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
+  simpa only [uniformSigmaCapNoReturn] using
+    (uniformOfFintype_map_equiv equivalence)
+
+#print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+#print axioms sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+#print axioms configurationMatchingEquivSigmaCapNoReturn
+#print axioms uniformSigmaCapNoReturn
+#print axioms uniformConfigurationMatching_map_sigmaCapNoReturn
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
+Source: Erdos625/Section9TaggedTransportGeneric.lean
+Normalized SHA-256: f4110f755cafc44f5184c60de50907585acbd83f99466d72ede43937073b53cd
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
+
+/-!
+# Section VIII--IX: generic tagged finite-sum transport
+
+This isolated helper transports an arbitrary nonnegative observable through
+the exact configuration-matching equivalence to the dependent tagged
+demand/witness/residual Section IX family.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance fintypeResidualCapNoReturnEventTaggedTransport
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
+    Fintype (ResidualCapNoReturnEvent M R row col) :=
+  Fintype.ofFinite _
+
+/-- Exact finite expectation/sum transport through the configuration matching
+equivalence. The observable is evaluated on the full dependent tagged state, so
+demand and witness labels are never discarded. -/
+theorem uniformConfigurationMatching_sum_tagged_transport
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (f : (Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)) -> ENNReal) :
+    (Finset.univ.sum fun matching : ConfigurationMatching row col =>
+      uniformConfigurationMatching row col htotal matching *
+        f (configurationMatchingEquivSigmaCapNoReturn row col U matching)) =
+      Finset.univ.sum fun z :
+        Sigma fun demand : canonicalDemandImage row col U =>
+          Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+            ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree witness) (residualColumnDegree witness) =>
+        uniformSigmaCapNoReturn row col U htotal z * f z := by
+  convert Equiv.sum_comp
+    (configurationMatchingEquivSigmaCapNoReturn row col U)
+    (fun z => uniformSigmaCapNoReturn row col U htotal z * f z) using 1
+  simp [← uniformConfigurationMatching_map_sigmaCapNoReturn]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
 Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
@@ -37652,6 +38115,71 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
+Source: Erdos625/Section9AttachmentExpectationBound.lean
+Normalized SHA-256: 59a914ab66727404e5c25bcf2b3576591627eb47bbddcc4e5d2aad85663a2463
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
+
+/-!
+# Section IX: raw attachment numerator from a pointwise event bound
+
+This target is deliberately only the elementary finite-PMF step. It keeps the
+cap/no-return indicator inside the numerator and never divides by the event
+probability.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- A pointwise upper bound for the literal actual attachment integrand on the
+cap/no-return event bounds the raw, non-conditional residual numerator. -/
+theorem residualActualAttachmentNumerator_le_of_forall_event_integrand_le
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) (K : ENNReal)
+    (hK : ∀ matching : ConfigurationMatching row col,
+      matching ∈ ResidualCapNoReturnEvent M R row col ->
+        (∏ a : A, ∏ b : B,
+          (residualReward (configurationCellCount matching a b) : ENNReal)) *
+          ((actualResidualEvenEdgeSets M matching).card : ENNReal) ≤ K) :
+    residualActualAttachmentNumerator M R row col htotal ≤ K := by
+  classical
+  unfold residualActualAttachmentNumerator
+  calc
+    _ ≤ ∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching * K := by
+      apply Finset.sum_le_sum
+      intro matching _
+      by_cases hevent : matching ∈ ResidualCapNoReturnEvent M R row col
+      · simp only [hevent, if_pos, mul_one]
+        rw [mul_assoc]
+        exact mul_le_mul_right (hK matching hevent) _
+      · simp [hevent]
+    _ = (∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching) * K := by
+      rw [Finset.sum_mul]
+    _ = K := by
+      rw [show (∑ matching : ConfigurationMatching row col,
+          uniformConfigurationMatching row col htotal matching) = 1 by
+        rw [← tsum_fintype (L := SummationFilter.unconditional _)]
+        exact (uniformConfigurationMatching row col htotal).tsum_coe,
+        one_mul]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -40042,153 +40570,48 @@ END SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
-Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
-Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
+BEGIN SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
+Source: Erdos625/Section8WeightedSkeletonQuotient.lean
+Normalized SHA-256: 21b0a3ed00b3909bbc3edda415ccbc80b0e17e8efd44be6b9089a266340d1f55
 ========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+section Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
 
 /-!
-# Section VIII--IX: tagged global canonical residuals
+# Section VIII: weighted reindexing through the physical skeleton fibre
 
-Every state of the global dependent canonical-demand/witness/residual sigma
-space carries a residual configuration satisfying the literal Section IX
-cap/no-return event for that state's own demand support and residual degrees.
-This is a pointwise membership bridge only: it does not construct an untagged
-residual PMF, condition a law, take an expectation, or assert an asymptotic
-bound.
+This is only a finite-equivalence reindexing statement. It makes no probability
+claim and introduces no quotient multiplicity beyond the already constructed
+equivalence.
 -/
 
 namespace Erdos625
 
+open scoped BigOperators
+
 noncomputable section
 
-local instance fintypeCanonicalResidualCellEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
-    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-local instance fintypeResidualCapNoReturnEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
-    Fintype (ResidualCapNoReturnEvent M R row col) :=
-  Fintype.ofFinite _
-
-/-- A tagged state in the global canonical residual disintegration supplies
-the exact cap/no-return hypothesis used by the Section IX fixed-family
-machinery. -/
-theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A -> Nat} {col : B -> Nat} (U : Nat)
-    (z : Sigma fun demand : canonicalDemandImage row col U =>
-      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-        canonicalResidualCellEvent witness U) :
-    z.2.2.1 ∈ ResidualCapNoReturnEvent
-      (positiveDemandSupport z.1.1) (U / 2)
-      (residualRowDegree z.2.1) (residualColumnDegree z.2.1) := by
-  simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
-    using z.2.2.2
-
-/-- Fibrewise retyping of the global canonical residual sigma family by its
-literal Section IX cap/no-return events.  The attained demand and labelled
-witness remain part of the state, so this is not an identification of a
-single residual space across demands. -/
-noncomputable def sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    (Sigma fun demand : canonicalDemandImage row col U =>
-      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-        canonicalResidualCellEvent witness U) ≃
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) := by
-  refine Equiv.sigmaCongrRight fun demand => ?_
-  refine Equiv.sigmaCongrRight fun witness => ?_
-  exact Equiv.setCongr
-    (canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U)
-
-/-- The matching-space equivalence followed by fibrewise Section IX
-retyping. -/
-noncomputable def configurationMatchingEquivSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    ConfigurationMatching row col ≃
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).trans
-    (sigmaCanonicalDemandResidualEquivSigmaCapNoReturn row col U)
-
-/-- The uniform law on the tagged global Section IX cap/no-return family.
-Its nonemptiness is supplied by the ambient matching equivalence. -/
-noncomputable def uniformSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    PMF
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
-  letI : Nonempty
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  exact PMF.uniformOfFintype _
-
-/-- Exact global finite-law transport to the tagged Section IX cap/no-return
-family.  It retains demand and witness tags, and therefore asserts neither an
-untagged residual law, conditioning statement, expectation, nor asymptotic
-bound. -/
-theorem uniformConfigurationMatching_map_sigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    (uniformConfigurationMatching row col htotal).map
-        (configurationMatchingEquivSigmaCapNoReturn row col U) =
-      uniformSigmaCapNoReturn row col U htotal := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
-  letI : Nonempty
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
-  simpa only [uniformSigmaCapNoReturn] using
-    (uniformOfFintype_map_equiv equivalence)
-
-#print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
-#print axioms sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
-#print axioms configurationMatchingEquivSigmaCapNoReturn
-#print axioms uniformSigmaCapNoReturn
-#print axioms uniformConfigurationMatching_map_sigmaCapNoReturn
+/-- Reindex a physical-skeleton weight from literal typed partial matchings
+through the exact equivalence with the prescribed type-table fibre. -/
+theorem sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [AddCommMonoid R]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (w : UnlabelledTypedSkeleton k ell -> R) :
+    (∑ matching : TypedPartialMatching L k ell,
+      w (typedPartialMatchingToUnlabelledSkeletonFibre L k ell matching).1) =
+      ∑ S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}, w S.1 := by
+  simpa [typedPartialMatchingEquivUnlabelledSkeletonFibre] using
+    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell).sum_comp
+      (fun S => w S.1)
 
 end
 
 end Erdos625
 
-end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+end Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
 /- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+END SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
 ========================================================================== -/
 
 /- ==========================================================================
@@ -42506,6 +42929,48 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfileDualExponentRewrite
+Source: Erdos625/ColoringProfileDualExponentRewrite.lean
+Normalized SHA-256: 86d7893aa625a927846d4191ccf610e489cb337eb2cf2df0c3a185263c6571be
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfileDualExponentRewrite
+
+/-!
+# Exact exponent normalization for the coloring-profile dual bound
+
+This is an algebraic rewrite only. It does not claim that the resulting
+exponent tends to `-∞`; that analytic estimate remains a separate obligation.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The polynomial prefactor in the finite profile-dual bound can be absorbed
+exactly into the exponential. The base `n + 1` is strictly positive, so this
+does not need an eventual or asymptotic side condition. -/
+theorem coloringProfileDualExponentRewrite
+    (n b : ℕ) (L : ℝ) :
+    ENNReal.ofReal (((n : ℝ) + 1) ^ b) * ENNReal.ofReal (Real.exp L) =
+      ENNReal.ofReal
+        (Real.exp ((b : ℝ) * Real.log ((n : ℝ) + 1) + L)) := by
+  have hpos : 0 < (n : ℝ) + 1 := by positivity
+  rw [← ENNReal.ofReal_mul (le_of_lt (pow_pos hpos b))]
+  congr 1
+  rw [Real.exp_add, Real.exp_nat_mul, Real.exp_log hpos]
+
+#print axioms Erdos625.coloringProfileDualExponentRewrite
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfileDualExponentRewrite
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfileDualExponentRewrite
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 Source: Erdos625/ColoringProfileDualLogReduction.lean
 Normalized SHA-256: a819559645ced984109028172bcc073fb9f073244470b90200cb6636ee116f65
@@ -42712,9 +43177,43 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
+Source: Erdos625/ExpTailTransport.lean
+Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ExpTailTransport
+
+/-!
+# Generic exponential-tail transport
+
+This module transports a real exponential tail through `ENNReal.ofReal`.
+It intentionally contains no phase-specific asymptotic input.
+-/
+
+namespace Erdos625
+
+open Filter
+
+/-- If a real exponent tends to `-∞`, then its exponential tends to `0` after
+embedding into `ENNReal`. -/
+theorem tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot
+    {f : Nat -> Real} (hf : Tendsto f atTop atBot) :
+    Tendsto (fun n : Nat => ENNReal.ofReal (Real.exp (f n))) atTop (nhds 0) := by
+  change Tendsto (ENNReal.ofReal ∘ Real.exp ∘ f) atTop (nhds 0)
+  simpa only [ENNReal.ofReal_zero] using
+    (ENNReal.continuous_ofReal.tendsto 0).comp (Real.tendsto_exp_atBot.comp hf)
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ExpTailTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ExpTailTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: a6f85b11dc033c38616fb5dbe6f7f86494a541e21a46fe5255ebd1b496428cc7
+Normalized SHA-256: abdcb81513a903fd488a0dafd642542fdf0df34173ffc54eecb8bb5bfcea72df
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -43437,6 +43936,16 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.root_midpoint_rounding_gap
 #print axioms Erdos625.root_midpoint_rounding_gap_toNat
 #print axioms Erdos625.root_rounding_budget_spec
+#print axioms Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log
+#print axioms Erdos625.tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot
+#print axioms Erdos625.profilePhaseObjective_eq_selected_core
+#print axioms Erdos625.hasDerivAt_profilePhaseObjective_parts
+#print axioms Erdos625.deriv_profilePhaseObjective_parts
+#print axioms Erdos625.coloringProfileDualExponentRewrite
+#print axioms Erdos625.sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
+#print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
+#print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -43446,7 +43955,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: d0634e15972df2d7923b70cde2f92aee50bd59e7fa830fb2a42545294fc33bc6
+Normalized SHA-256: 7eb997d52508e0a2a91c9ba12243b3735fd1f50b84ca2b194b4d5d37c161c81d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

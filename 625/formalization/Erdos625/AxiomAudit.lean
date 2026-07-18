@@ -43,6 +43,7 @@ import Erdos625.Section10UniformAmplification
 import Erdos625.Section10UniformAmplificationSpecialization
 import Erdos625.Section10CoColorablePaleyZygmundSeed
 import Erdos625.Section10_11UniformSeedRootFinal
+import Erdos625.Section10SeedLogAdapter
 import Erdos625.PhaseExpansion
 import Erdos625.PhaseEstimates
 import Erdos625.PhaseAsymptotic
@@ -73,6 +74,8 @@ import Erdos625.ColoringProfileDualTilt
 import Erdos625.ColoringProfileDualOptimizer
 import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
+import Erdos625.ColoringProfilePhaseObjective
+import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
@@ -163,9 +166,12 @@ import Erdos625.Section9RewardCompatibility
 import Erdos625.Section9FixedFFactorization
 import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
+import Erdos625.Section9ZeroResidualActualAttachment
 import Erdos625.Section9ActualResidualCycleRankAssembly
 import Erdos625.Section9TaggedFiberCancellation
+import Erdos625.Section9TaggedTransportGeneric
 import Erdos625.Section9ActualAttachmentPolymerBridge
+import Erdos625.Section9AttachmentExpectationBound
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ResidualLambdaCubic
 import Erdos625.Section9ResidualLambdaTotalBound
@@ -193,6 +199,7 @@ import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
+import Erdos625.Section8WeightedSkeletonQuotient
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
@@ -214,7 +221,9 @@ import Erdos625.ColoringProfileChromaticBridge
 import Erdos625.ColoringProfileProbability
 import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
+import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
+import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
 /-!
@@ -936,3 +945,13 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.root_midpoint_rounding_gap
 #print axioms Erdos625.root_midpoint_rounding_gap_toNat
 #print axioms Erdos625.root_rounding_budget_spec
+#print axioms Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log
+#print axioms Erdos625.tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot
+#print axioms Erdos625.profilePhaseObjective_eq_selected_core
+#print axioms Erdos625.hasDerivAt_profilePhaseObjective_parts
+#print axioms Erdos625.deriv_profilePhaseObjective_parts
+#print axioms Erdos625.coloringProfileDualExponentRewrite
+#print axioms Erdos625.sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
+#print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
+#print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero

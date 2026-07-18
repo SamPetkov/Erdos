@@ -40,6 +40,7 @@ import Erdos625.Section10QuarterChainFailure
 import Erdos625.Section10QuarterChainGreedyNumeric
 import Erdos625.Section10QuarterChainLinearEvent
 import Erdos625.Section10AmplificationScales
+import Erdos625.Section10SeedLogAdapter
 import Erdos625.Section10CapacityLeftoverQuantitative
 import Erdos625.Section11EventAssembly
 import Erdos625.Section11AsymptoticAssembly
@@ -78,6 +79,8 @@ import Erdos625.ColoringProfileDualTilt
 import Erdos625.ColoringProfileDualOptimizer
 import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
+import Erdos625.ColoringProfilePhaseObjective
+import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
@@ -169,9 +172,12 @@ import Erdos625.Section9RewardCompatibility
 import Erdos625.Section9FixedFFactorization
 import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
+import Erdos625.Section9ZeroResidualActualAttachment
 import Erdos625.Section9ActualResidualCycleRankAssembly
 import Erdos625.Section9TaggedFiberCancellation
+import Erdos625.Section9TaggedTransportGeneric
 import Erdos625.Section9ActualAttachmentPolymerBridge
+import Erdos625.Section9AttachmentExpectationBound
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ResidualLambdaCubic
 import Erdos625.Section9ResidualLambdaTotalBound
@@ -199,6 +205,7 @@ import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
+import Erdos625.Section8WeightedSkeletonQuotient
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
@@ -220,7 +227,9 @@ import Erdos625.ColoringProfileChromaticBridge
 import Erdos625.ColoringProfileProbability
 import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
+import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
+import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 
 /-!
