@@ -166,6 +166,7 @@ import Erdos625.Section9FixedFFactorization
 import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
 import Erdos625.Section9ActualResidualCycleRankAssembly
+import Erdos625.Section9TaggedFiberCancellation
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ResidualLambdaCubic
@@ -215,6 +216,7 @@ import Erdos625.ColoringProfileChromaticBridge
 import Erdos625.ColoringProfileProbability
 import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
+import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.AxiomAudit
 
 /-!

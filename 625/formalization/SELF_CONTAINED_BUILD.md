@@ -50,7 +50,11 @@ uniform law on that tagged sigma family. The literal actual residual family is
 also transported exactly to the binary cycle space of its support, and the
 event-restricted attachment numerator is rewritten by that finite cycle-rank
 factor. This does not create an untagged
-residual law or an expectation bound. The file also contains a recoverable
+residual law or an expectation bound. For one attained canonical-demand fibre,
+the weighted tagged-law attachment sum is exactly the labelled-witness
+incidence times the event-restricted residual numerator. This finite factorial
+cancellation neither sums over demands nor supplies a uniform attachment
+estimate. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound. The actual residual even-edge family has an exact one-sided
 weighted `ENNReal` inclusion into the all-even finite sum and a finite

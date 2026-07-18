@@ -419,8 +419,11 @@ reward-product and support-graph splits are also proved, with no-return
 explicit for the reward identity and `2 ≤ U` explicit for the graph identity.
 The literal actual-even-family/cycle-rank identification is now proved,
 including the exact rewrite of the event-restricted attachment numerator by
-that finite cycle-rank factor. Exact tagged fibre/global incidence integration
-and the large- and small-residual attachment estimates remain open.
+that finite cycle-rank factor. For one attained canonical-demand fibre, the
+weighted tagged-law sum is exactly the labelled-witness incidence times that
+numerator; this is a factorial cancellation, not a sum over demands or a
+uniform attachment estimate. The latter and the large- and small-residual
+attachment estimates remain open.
 The residual-only cycle
 summand now has an exact deterministic row-rooted even-walk bound under finite
 row/column kernel hypotheses.  The earlier high-cell mass
@@ -688,12 +691,12 @@ bounds the residual-only sum by
 `|A| * tau^4 * (1 - tau^2)⁻¹` whenever every row and column sum of the finite
 kernel is at most `tau < 1`.  This is a deterministic finite-kernel theorem;
 the cubic total-`residualLambda` estimate is now proved separately, while the
-exact tagged fibre/global incidence identity remains open.  The finite fixed-`F`
+global demand-sum tagged-incidence identity remains open.  The finite fixed-`F`
 aggregation is proved separately,
 and its exact Fubini bridge identifies it with the event-restricted actual-
 attachment numerator.  No division by the cap/no-return event mass belongs in
 the manuscript (9.1)--(9.2) route.  What remains is to prove the exact
-the per-demand/global tagged incidence identity, the uniform strict-regime
+global demand-sum tagged-incidence identity, the uniform strict-regime
 instantiation, and the large-
 and small-residual attachment estimates.  The full/residual reward-product
 and support-graph splits are proved separately.
@@ -827,6 +830,15 @@ locally converts a full-sequence probability-zero bound for `X n <= k n` into
 probability one for the complementary strict event `k n < X n`, allowing the
 sample space to depend on `n`.  The actual chromatic at-most tail and its
 manuscript threshold remain open.
+
+[`ColoringProfileDualLogReduction.lean`](Erdos625/ColoringProfileDualLogReduction.lean)
+adds five conditional scalar reductions immediately upstream of that tail.  A
+complete dual logarithmic envelope tending to `-∞`, an eventual `-log(n+1)`
+envelope bound, or a negative normalized envelope limit each yields the
+chromatic at-most tail.  The zero-safe factorial correction is proved to have
+normalized limit `1`, so a phase-and-dual core limit below `-1` is another
+sufficient condition.  The concrete phase/root estimate establishing any of
+these hypotheses is deliberately still open.
 
 Four reviewed conditional adapters now make the Sections X--XI closing route
 explicit.  [`Section11ChromaticTailAdapter.lean`](Erdos625/Section11ChromaticTailAdapter.lean)

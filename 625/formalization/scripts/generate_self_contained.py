@@ -117,8 +117,8 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX exact tagged fibre/global incidence integration of the
-event-restricted attachment numerator, uniform large- and small-residual
+Section IX global demand-sum assembly from the exact per-demand tagged-fibre
+incidence identity, uniform large- and small-residual
 attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
 chromatic at-most tail and root separation; and the final probabilistic
@@ -143,8 +143,10 @@ full/residual reward-product and support-graph splits are included and proved,
 with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
 literal actual even family is exactly transported to the bipartite binary
 cycle space, and the event-restricted attachment numerator is exactly rewritten
-by its finite cycle-rank factor; exact tagged fibre/global incidence
-integration is not claimed.
+by its finite cycle-rank factor.  For one attained canonical-demand fibre, the
+tagged uniform-law attachment sum is exactly the labelled-witness incidence
+times that numerator; this cancellation neither sums over all demands nor
+proves a uniform attachment estimate.
 The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
 D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
 wrapper are included and proved as conditional implications.  They retain the

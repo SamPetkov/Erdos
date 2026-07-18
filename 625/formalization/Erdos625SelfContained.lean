@@ -98,8 +98,8 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX exact tagged fibre/global incidence integration of the
-event-restricted attachment numerator, uniform large- and small-residual
+Section IX global demand-sum assembly from the exact per-demand tagged-fibre
+incidence identity, uniform large- and small-residual
 attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
 chromatic at-most tail and root separation; and the final probabilistic
@@ -124,8 +124,10 @@ full/residual reward-product and support-graph splits are included and proved,
 with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
 literal actual even family is exactly transported to the bipartite binary
 cycle space, and the event-restricted attachment numerator is exactly rewritten
-by its finite cycle-rank factor; exact tagged fibre/global incidence
-integration is not claimed.
+by its finite cycle-rank factor.  For one attained canonical-demand fibre, the
+tagged uniform-law attachment sum is exactly the labelled-witness incidence
+times that numerator; this cancellation neither sums over all demands nor
+proves a uniform attachment estimate.
 The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
 D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
 wrapper are included and proved as conditional implications.  They retain the
@@ -34549,6 +34551,2809 @@ END SOURCE MODULE: Erdos625.Section9ActualResidualCycleRankAssembly
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
+Source: Erdos625/Section8CanonicalSkeleton.lean
+Normalized SHA-256: 1acf1ef4036b14a61c195807a5a15dbe59bd559a4fa4a3738cf4bb0ebd326122
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
+
+/-!
+# Canonical high-support atoms for Section VIII
+
+This module packages four finite deterministic facts used when the canonical
+high-cell support is extracted from a configuration table.  It proves that
+entries above half a common row/column cap form a partial matching, that zero
+residual mass forces uniqueness of the selected fibres and their compatible
+pairing, and that the full-cell cap/no-return event translates exactly to the
+residual event.
+
+These statements do not count canonical skeletons, prove the incidence formula
+(8.3), or establish the endpoint/near/middle sums in Lemma 8.3.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Retain the whole cell demand precisely above the cutoff `U / 2`. -/
+def canonicalHighDemand {A B : Type*}
+    (table : A → B → ℕ) (U : ℕ) : A → B → ℕ :=
+  fun a b => if U / 2 < table a b then table a b else 0
+
+/-- Once source and target fibres are fixed, compatibility with the ambient
+matching determines their labelled pairing uniquely. -/
+theorem compatiblePairing_unique
+    {X Y : Type*} [Fintype X] [Fintype Y]
+    [DecidableEq X] [DecidableEq Y]
+    (matching : X ≃ Y) (source : Finset X) (target : Finset Y)
+    (pairing₁ pairing₂ : (↥source) ≃ (↥target))
+    (hpairing₁ : ∀ x, (pairing₁ x).1 = matching x.1)
+    (hpairing₂ : ∀ x, (pairing₂ x).1 = matching x.1) :
+    pairing₁ = pairing₂ := by
+  ext x
+  exact (hpairing₁ x).trans (hpairing₂ x).symm
+
+/-- A selected fibre with the full fibre's cardinality is the full fibre.  The
+displayed demand-plus-residual equality is the form produced by the fixed-
+witness decomposition. -/
+theorem selectedFiber_eq_fullFiber_of_zero_residual
+    {X : Type*} [Fintype X] [DecidableEq X]
+    (selected fullFiber : Finset X) (demand residual : ℕ)
+    (hsubset : selected ⊆ fullFiber)
+    (hselected : selected.card = demand)
+    (hfull : fullFiber.card = demand + residual)
+    (hzero : residual = 0) :
+    selected = fullFiber := by
+  apply Finset.eq_of_subset_of_card_le hsubset
+  rw [hselected, hfull, hzero]
+  omega
+
+/-- Under common row and column caps, the support of the canonical high demand
+is a bipartite partial matching, with exact on- and off-support values. -/
+theorem canonicalHighDemand_partialMatching_and_incidence
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (table : A → B → ℕ) (U : ℕ)
+    (hrow : ∀ a, (∑ b, table a b) ≤ U)
+    (hcolumn : ∀ b, (∑ a, table a b) ≤ U) :
+    (∀ a b₁ b₂,
+      canonicalHighDemand table U a b₁ ≠ 0 →
+      canonicalHighDemand table U a b₂ ≠ 0 → b₁ = b₂) ∧
+    (∀ b a₁ a₂,
+      canonicalHighDemand table U a₁ b ≠ 0 →
+      canonicalHighDemand table U a₂ b ≠ 0 → a₁ = a₂) ∧
+    (∀ a b, U / 2 < table a b →
+      canonicalHighDemand table U a b = table a b) ∧
+    (∀ a b, ¬ U / 2 < table a b →
+      canonicalHighDemand table U a b = 0) := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro a b₁ b₂ h₁ h₂
+    by_contra hne
+    have hb₁ : U / 2 < table a b₁ := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₁
+    have hb₂ : U / 2 < table a b₂ := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₂
+    have hsub : table a b₁ + table a b₂ ≤ ∑ b, table a b := by
+      have hs : ({b₁, b₂} : Finset B) ⊆ Finset.univ := Finset.subset_univ _
+      calc
+        table a b₁ + table a b₂ =
+            ∑ b ∈ ({b₁, b₂} : Finset B), table a b := by
+          rw [Finset.sum_pair hne]
+        _ ≤ ∑ b, table a b := Finset.sum_le_sum_of_subset hs
+    have hcap := hrow a
+    omega
+  · intro b a₁ a₂ h₁ h₂
+    by_contra hne
+    have ha₁ : U / 2 < table a₁ b := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₁
+    have ha₂ : U / 2 < table a₂ b := by
+      by_contra h
+      simp [canonicalHighDemand, h] at h₂
+    have hsub : table a₁ b + table a₂ b ≤ ∑ a, table a b := by
+      have hs : ({a₁, a₂} : Finset A) ⊆ Finset.univ := Finset.subset_univ _
+      calc
+        table a₁ b + table a₂ b =
+            ∑ a ∈ ({a₁, a₂} : Finset A), table a b := by
+          rw [Finset.sum_pair hne]
+        _ ≤ ∑ a, table a b := Finset.sum_le_sum_of_subset hs
+    have hcap := hcolumn b
+    omega
+  · intro a b h
+    simp [canonicalHighDemand, h]
+  · intro a b h
+    simp [canonicalHighDemand, h]
+
+/-- A table has canonical high demand `demand` exactly when it equals `demand`
+on its nonzero support and is capped by the cutoff off that support.  This is a
+deterministic cutoff identity; it does not by itself identify a labelled
+witness event or its configuration-model probability. -/
+theorem canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    {A B : Type*} (table demand : A → B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    canonicalHighDemand table U = demand ↔
+      (∀ a b, demand a b ≠ 0 → table a b = demand a b) ∧
+      (∀ a b, demand a b = 0 → table a b ≤ U / 2) := by
+  constructor
+  · intro h_eq
+    constructor
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      unfold canonicalHighDemand at hab
+      aesop
+    · intro a b h
+      have hab := congr_fun (congr_fun h_eq a) b
+      simp_all [canonicalHighDemand]
+      grind
+  · rintro ⟨hsupport, hcapped⟩
+    funext a b
+    by_cases hab : demand a b = 0 <;> simp_all [canonicalHighDemand]
+
+#print axioms canonicalHighDemand_eq_iff_exact_support_and_capped_off
+
+/-- Translate the simultaneous full-cell cap/no-return condition into the
+unshifted residual cap and zero residual mass on the canonical support. -/
+theorem supportIndexed_fullConstraints_iff_residual
+    {A B : Type*}
+    (full demand residual cap : A → B → ℕ)
+    (support : A → B → Prop)
+    (hsplit : ∀ a b, full a b = demand a b + residual a b)
+    (hdemandCap : ∀ a b, demand a b ≤ cap a b)
+    (hdemandOff : ∀ a b, ¬ support a b → demand a b = 0) :
+    (∀ a b,
+        full a b ≤ cap a b ∧
+          (support a b → full a b = demand a b)) ↔
+      (∀ a b,
+        residual a b ≤ cap a b ∧
+          (support a b → residual a b = 0)) := by
+  constructor
+  · intro h a b
+    obtain ⟨hcap, hsupp⟩ := h a b
+    have hs := hsplit a b
+    exact ⟨by omega, fun hsup => by
+      have heq := hsupp hsup
+      omega⟩
+  · intro h a b
+    obtain ⟨hcap, hsupp⟩ := h a b
+    have hs := hsplit a b
+    have hdc := hdemandCap a b
+    refine ⟨?_, fun hsup => by
+      have hzero := hsupp hsup
+      omega⟩
+    by_cases hsup : support a b
+    · have hzero := hsupp hsup
+      omega
+    · have hoff := hdemandOff a b hsup
+      omega
+
+#print axioms compatiblePairing_unique
+#print axioms selectedFiber_eq_fullFiber_of_zero_residual
+#print axioms canonicalHighDemand_partialMatching_and_incidence
+#print axioms supportIndexed_fullConstraints_iff_residual
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
+Source: Erdos625/Section8CanonicalLabelledWitness.lean
+Normalized SHA-256: 4f1fcaee9ef845c16c05b9223d95c3fb135dcd0e840030f9a35dfde4d0557e5f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
+
+/-!
+# Canonical labelled witness
+
+For a fixed configuration matching, retain the complete cell precisely when
+its multiplicity is above the canonical cutoff.  The resulting demand has one
+and only one labelled prescribed-demand witness extended by that matching.
+This is the missing labelled-witness identification before manuscript (8.3).
+-/
+
+namespace Erdos625
+
+/-- Canonical high-cell demand extracted from one literal configuration
+matching. -/
+def canonicalDemandOfMatching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) : A → B → ℕ :=
+  canonicalHighDemand (configurationCellCount matching) U
+
+private theorem rowAllocation_subset_cellFiber_of_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (witness : PrescribedDemandWitness demand row col)
+    (hextends : ExtendsPrescribedDemandWitness matching witness)
+    (a : A) (b : B) :
+    (witness.1 a).1 b ⊆
+      Finset.univ.filter
+        (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+  intro stub hstub
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  have hpair :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching witness).1
+      hextends a b ⟨stub, hstub⟩
+  exact congrArg Sigma.fst hpair
+
+private theorem cellPairings_eq_of_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (rowAllocation : ∀ a, StubAllocation (row a) (demand a))
+    (colAllocation : ∀ b, StubAllocation (col b) (fun a ↦ demand a b))
+    (pairing₁ pairing₂ : ∀ a b,
+      (↑((rowAllocation a).1 b)) ≃ (↑((colAllocation b).1 a)))
+    (h₁ : ExtendsPrescribedDemandWitness matching
+      ⟨rowAllocation, colAllocation, pairing₁⟩)
+    (h₂ : ExtendsPrescribedDemandWitness matching
+      ⟨rowAllocation, colAllocation, pairing₂⟩) :
+    pairing₁ = pairing₂ := by
+  funext a b
+  apply Equiv.ext
+  intro stub
+  apply Subtype.ext
+  have hpair₁ :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching
+      ⟨rowAllocation, colAllocation, pairing₁⟩).1 h₁ a b stub
+  have hpair₂ :=
+    (extendsPrescribedDemandWitness_iff_cellwise matching
+      ⟨rowAllocation, colAllocation, pairing₂⟩).1 h₂ a b stub
+  exact eq_of_heq (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
+
+private theorem extendingWitness_unique_of_full_or_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col)
+    (hfull : ∀ a b, demand a b = configurationCellCount matching a b ∨
+      demand a b = 0)
+    (w₁ w₂ : PrescribedDemandWitness demand row col)
+    (h₁ : ExtendsPrescribedDemandWitness matching w₁)
+    (h₂ : ExtendsPrescribedDemandWitness matching w₂) :
+    w₁ = w₂ := by
+  obtain ⟨w₁_row, w₁_col, w₁_eq⟩ := w₁
+  obtain ⟨w₂_row, w₂_col, w₂_eq⟩ := w₂
+  have h_row : w₁_row = w₂_row := by
+    funext a
+    apply Subtype.ext
+    funext b
+    by_cases h_demand :
+        demand a b = configurationCellCount matching a b
+    · have hw₁_full :
+          (w₁_row a).1 b =
+            Finset.univ.filter
+              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+        refine Finset.eq_of_subset_of_card_le
+          (rowAllocation_subset_cellFiber_of_extends matching
+            ⟨w₁_row, w₁_col, w₁_eq⟩ h₁ a b) ?_
+        rw [(w₁_row a).2.1 b, h_demand]
+        rfl
+      have hw₂_full :
+          (w₂_row a).1 b =
+            Finset.univ.filter
+              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
+        refine Finset.eq_of_subset_of_card_le
+          (rowAllocation_subset_cellFiber_of_extends matching
+            ⟨w₂_row, w₂_col, w₂_eq⟩ h₂ a b) ?_
+        rw [(w₂_row a).2.1 b, h_demand]
+        rfl
+      exact hw₁_full.trans hw₂_full.symm
+    · have hzero : demand a b = 0 :=
+        (hfull a b).resolve_left h_demand
+      have hw₁_zero : (w₁_row a).1 b = ∅ := by
+        apply Finset.card_eq_zero.mp
+        exact ((w₁_row a).2.1 b).trans hzero
+      have hw₂_zero : (w₂_row a).1 b = ∅ := by
+        apply Finset.card_eq_zero.mp
+        exact ((w₂_row a).2.1 b).trans hzero
+      exact hw₁_zero.trans hw₂_zero.symm
+  cases h_row
+  have h_col : w₁_col = w₂_col := by
+    funext b
+    apply Subtype.ext
+    funext a
+    apply Finset.eq_of_subset_of_card_le
+    · intro x hx
+      let y : ↑((w₁_row a).1 b) :=
+        (w₁_eq a b).symm ⟨x, hx⟩
+      have hy : (w₁_eq a b y).1 = x :=
+        congrArg Subtype.val ((w₁_eq a b).apply_symm_apply ⟨x, hx⟩)
+      have hpair₁ :=
+        (extendsPrescribedDemandWitness_iff_cellwise matching
+          ⟨w₁_row, w₁_col, w₁_eq⟩).1 h₁ a b y
+      have hpair₂ :=
+        (extendsPrescribedDemandWitness_iff_cellwise matching
+          ⟨w₁_row, w₂_col, w₂_eq⟩).1 h₂ a b y
+      have hvalue : (w₁_eq a b y).1 = (w₂_eq a b y).1 :=
+        eq_of_heq
+          (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
+      have hxvalue : x = (w₂_eq a b y).1 := hy.symm.trans hvalue
+      rw [hxvalue]
+      exact (w₂_eq a b y).2
+    · rw [(w₂_col b).2.1 a, (w₁_col b).2.1 a]
+  cases h_col
+  have h_eq : w₁_eq = w₂_eq :=
+    cellPairings_eq_of_extends matching w₁_row w₁_col
+      w₁_eq w₂_eq h₁ h₂
+  cases h_eq
+  rfl
+
+private theorem canonicalDemandOfMatching_le_cellCount
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∀ a b,
+      canonicalDemandOfMatching matching U a b ≤
+        configurationCellCount matching a b := by
+  intro a b
+  by_cases hhigh : U / 2 < configurationCellCount matching a b
+  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
+  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
+    exact Nat.zero_le _
+
+private theorem canonicalDemandOfMatching_full_or_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∀ a b,
+      canonicalDemandOfMatching matching U a b =
+          configurationCellCount matching a b ∨
+        canonicalDemandOfMatching matching U a b = 0 := by
+  intro a b
+  by_cases hhigh : U / 2 < configurationCellCount matching a b
+  · left
+    rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
+  · right
+    rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
+
+/-- The canonical full-cell demand determines a unique labelled exposure of
+the supplied matching.  No witness-existence or uniqueness premise is assumed. -/
+theorem existsUnique_canonicalHighDemandWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ)
+    (matching : ConfigurationMatching row col) (U : ℕ) :
+    ∃! witness : PrescribedDemandWitness
+        (canonicalDemandOfMatching matching U) row col,
+      ExtendsPrescribedDemandWitness matching witness := by
+  obtain ⟨w₁, hw₁⟩ :=
+    exists_extendingWitness_of_mem_prescribedCellEvent
+      (matching := matching)
+      (canonicalDemandOfMatching_le_cellCount matching U)
+  refine ⟨w₁, hw₁, ?_⟩
+  intro w₂ hw₂
+  exact extendingWitness_unique_of_full_or_zero matching
+    (canonicalDemandOfMatching_full_or_zero matching U)
+    w₂ w₁ hw₂ hw₁
+
+#print axioms existsUnique_canonicalHighDemandWitness
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ResidualFiberCounts
+Source: Erdos625/ResidualFiberCounts.lean
+Normalized SHA-256: e220f5a42d471945404610823ce9294348ac55c58ebbaeb860721cec86a0c961
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ResidualFiberCounts
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-!
+# Degree fibres of the exposed witness
+
+These theorems refine the global selected-stub cardinalities class by class.
+They are deterministic counts only; the conditional residual probability law
+is not asserted here.
+-/
+
+theorem card_selectedRowStubs_in_class
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A) :
+    ((witnessSelectedRowStubs witness).filter
+      (fun stub => stub.1 = a)).card = ∑ b, demand a b := by
+  classical
+  let f := witnessRowEmbedding witness
+  have himage :
+      (Finset.univ.image f).filter (fun stub => stub.1 = a) =
+        (Finset.univ.filter
+          (fun atom : WitnessRowAtom witness => (f atom).1 = a)).image f := by
+    ext stub
+    constructor
+    · intro h
+      obtain ⟨himage, hclass⟩ := Finset.mem_filter.mp h
+      obtain ⟨atom, _, rfl⟩ := Finset.mem_image.mp himage
+      exact Finset.mem_image.mpr ⟨atom,
+        Finset.mem_filter.mpr ⟨Finset.mem_univ atom, hclass⟩, rfl⟩
+    · intro h
+      obtain ⟨atom, hatom, rfl⟩ := Finset.mem_image.mp h
+      obtain ⟨_, hclass⟩ := Finset.mem_filter.mp hatom
+      exact Finset.mem_filter.mpr ⟨
+        Finset.mem_image_of_mem f (Finset.mem_univ atom), hclass⟩
+  have hfilter :
+      Finset.univ.filter
+          (fun atom : WitnessRowAtom witness => (f atom).1 = a) =
+        Finset.univ.filter (fun atom : WitnessRowAtom witness => atom.1 = a) := by
+    ext atom
+    simp [f, witnessRowEmbedding]
+  unfold witnessSelectedRowStubs
+  rw [himage, Finset.card_image_of_injective, hfilter]
+  · rw [Finset.card_filter, Fintype.sum_sigma]
+    have hinner : ∀ x : A,
+        (∑ y : (b : B) × ↑((witness.1 x).1 b),
+          if (⟨x, y⟩ : WitnessRowAtom witness).1 = a then (1 : ℕ) else 0) =
+          if x = a then (∑ b, demand x b) else 0 := by
+      intro x
+      by_cases hx : x = a
+      · subst x
+        simp [Fintype.card_sigma, (witness.1 a).2.1]
+      · simp [hx]
+    rw [Finset.sum_congr rfl (fun x _ => hinner x),
+      Finset.sum_ite_eq' Finset.univ a (fun x => ∑ b, demand x b)]
+    simp
+  · exact f.injective
+
+theorem card_selectedColumnStubs_in_class
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (b : B) :
+    ((witnessSelectedColumnStubs witness).filter
+      (fun stub => stub.1 = b)).card = ∑ a, demand a b := by
+  classical
+  let f := witnessColumnPairingEmbedding witness
+  have himage :
+      (Finset.univ.image f).filter (fun stub => stub.1 = b) =
+        (Finset.univ.filter
+          (fun atom : WitnessRowAtom witness => (f atom).1 = b)).image f := by
+    ext stub
+    constructor
+    · intro h
+      obtain ⟨himage, hclass⟩ := Finset.mem_filter.mp h
+      obtain ⟨atom, _, rfl⟩ := Finset.mem_image.mp himage
+      exact Finset.mem_image.mpr ⟨atom,
+        Finset.mem_filter.mpr ⟨Finset.mem_univ atom, hclass⟩, rfl⟩
+    · intro h
+      obtain ⟨atom, hatom, rfl⟩ := Finset.mem_image.mp h
+      obtain ⟨_, hclass⟩ := Finset.mem_filter.mp hatom
+      exact Finset.mem_filter.mpr ⟨
+        Finset.mem_image_of_mem f (Finset.mem_univ atom), hclass⟩
+  have hfilter :
+      Finset.univ.filter
+          (fun atom : WitnessRowAtom witness => (f atom).1 = b) =
+        Finset.univ.filter
+          (fun atom : WitnessRowAtom witness => atom.2.1 = b) := by
+    ext atom
+    simp [f, witnessColumnPairingEmbedding, witnessAtomEquiv,
+      witnessColumnEmbedding]
+  unfold witnessSelectedColumnStubs
+  rw [himage, Finset.card_image_of_injective, hfilter]
+  · rw [Finset.card_filter, Fintype.sum_sigma]
+    apply Finset.sum_congr rfl
+    intro a _
+    rw [Fintype.sum_sigma]
+    have hinner : ∀ x : B,
+        (∑ _stub : ↑((witness.1 a).1 x),
+          if x = b then (1 : ℕ) else 0) =
+          if x = b then demand a x else 0 := by
+      intro x
+      by_cases hx : x = b
+      · subst x
+        simpa [Fintype.card_coe] using (witness.1 a).2.1 b
+      · simp [hx]
+    rw [Finset.sum_congr rfl (fun x _ => hinner x),
+      Finset.sum_ite_eq' Finset.univ b (fun x => demand a x)]
+    simp
+  · exact f.injective
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ResidualFiberCounts
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ResidualFiberCounts
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ResidualDegreeMatching
+Source: Erdos625/ResidualDegreeMatching.lean
+Normalized SHA-256: 9b20d59e27de0a1249cac955721f4264deb3a2fb9e5ebce0d9cbf1ede31bd700
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ResidualDegreeMatching
+
+/-!
+# Degree-labelled residual configuration matchings
+
+For a fixed prescribed-demand witness, this module turns the unused global
+stub subtypes into ordinary dependent sums indexed by the exact residual row
+and column degrees.  It then transports the deterministic extension
+equivalence to the standard `ConfigurationMatching` type for those residual
+degrees.
+
+No conditioning statement is made here: this module identifies the finite
+sample spaces only.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The selected local row-stub indices in class `a`, obtained by pulling back
+the witness's global selected-stub set. -/
+def witnessSelectedRowIndices
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A) :
+    Finset (Fin (row a)) :=
+  Finset.univ.filter (fun i =>
+    (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness)
+
+/-- The selected local column-stub indices in class `b`. -/
+def witnessSelectedColumnIndices
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (b : B) :
+    Finset (Fin (col b)) :=
+  Finset.univ.filter (fun i =>
+    (⟨b, i⟩ : ColumnStub col) ∈ witnessSelectedColumnStubs witness)
+
+/-- Exact residual degree of row class `a`. -/
+def residualRowDegree
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (_witness : PrescribedDemandWitness demand row col) (a : A) : ℕ :=
+  row a - ∑ b, demand a b
+
+/-- Exact residual degree of column class `b`. -/
+def residualColumnDegree
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (_witness : PrescribedDemandWitness demand row col) (b : B) : ℕ :=
+  col b - ∑ a, demand a b
+
+theorem card_witnessSelectedRowIndices
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A) :
+    (witnessSelectedRowIndices witness a).card = ∑ b, demand a b := by
+  classical
+  let f : Fin (row a) → RowStub row := fun i => ⟨a, i⟩
+  have hf : Function.Injective f := by
+    intro i j h
+    exact eq_of_heq (Sigma.mk.inj_iff.mp h).2
+  have himage :
+      (witnessSelectedRowIndices witness a).image f =
+        (witnessSelectedRowStubs witness).filter (fun stub => stub.1 = a) := by
+    ext stub
+    constructor
+    · intro h
+      obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp h
+      exact Finset.mem_filter.mpr ⟨by
+        simpa [f, witnessSelectedRowIndices] using hi, rfl⟩
+    · intro h
+      obtain ⟨hselected, hclass⟩ := Finset.mem_filter.mp h
+      obtain ⟨a', i⟩ := stub
+      simp only at hclass
+      subst a'
+      exact Finset.mem_image.mpr ⟨i, by
+        simp [witnessSelectedRowIndices, hselected], rfl⟩
+  calc
+    (witnessSelectedRowIndices witness a).card =
+        ((witnessSelectedRowIndices witness a).image f).card := by
+      rw [Finset.card_image_of_injective _ hf]
+    _ = ((witnessSelectedRowStubs witness).filter
+          (fun stub => stub.1 = a)).card := by rw [himage]
+    _ = ∑ b, demand a b := card_selectedRowStubs_in_class witness a
+
+theorem card_witnessSelectedColumnIndices
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (b : B) :
+    (witnessSelectedColumnIndices witness b).card = ∑ a, demand a b := by
+  classical
+  let f : Fin (col b) → ColumnStub col := fun i => ⟨b, i⟩
+  have hf : Function.Injective f := by
+    intro i j h
+    exact eq_of_heq (Sigma.mk.inj_iff.mp h).2
+  have himage :
+      (witnessSelectedColumnIndices witness b).image f =
+        (witnessSelectedColumnStubs witness).filter (fun stub => stub.1 = b) := by
+    ext stub
+    constructor
+    · intro h
+      obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp h
+      exact Finset.mem_filter.mpr ⟨by
+        simpa [f, witnessSelectedColumnIndices] using hi, rfl⟩
+    · intro h
+      obtain ⟨hselected, hclass⟩ := Finset.mem_filter.mp h
+      obtain ⟨b', i⟩ := stub
+      simp only at hclass
+      subst b'
+      exact Finset.mem_image.mpr ⟨i, by
+        simp [witnessSelectedColumnIndices, hselected], rfl⟩
+  calc
+    (witnessSelectedColumnIndices witness b).card =
+        ((witnessSelectedColumnIndices witness b).image f).card := by
+      rw [Finset.card_image_of_injective _ hf]
+    _ = ((witnessSelectedColumnStubs witness).filter
+          (fun stub => stub.1 = b)).card := by rw [himage]
+    _ = ∑ a, demand a b := card_selectedColumnStubs_in_class witness b
+
+/-- The unused local row-stub fibre has the manuscript's residual degree. -/
+theorem card_remainingRowFiber
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A) :
+    Fintype.card
+        {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} =
+      residualRowDegree witness a := by
+  classical
+  rw [Fintype.card_subtype]
+  have hfilter :
+      Finset.univ.filter
+          (fun i : Fin (row a) => i ∉ witnessSelectedRowIndices witness a) =
+        (witnessSelectedRowIndices witness a)ᶜ := by
+    ext i
+    simp
+  rw [hfilter, Finset.card_compl, Fintype.card_fin,
+    card_witnessSelectedRowIndices witness]
+  rfl
+
+/-- The unused local column-stub fibre has the manuscript's residual degree. -/
+theorem card_remainingColumnFiber
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (b : B) :
+    Fintype.card
+        {i : Fin (col b) // i ∉ witnessSelectedColumnIndices witness b} =
+      residualColumnDegree witness b := by
+  classical
+  rw [Fintype.card_subtype]
+  have hfilter :
+      Finset.univ.filter
+          (fun i : Fin (col b) => i ∉ witnessSelectedColumnIndices witness b) =
+        (witnessSelectedColumnIndices witness b)ᶜ := by
+    ext i
+    simp
+  rw [hfilter, Finset.card_compl, Fintype.card_fin,
+    card_witnessSelectedColumnIndices witness]
+  rfl
+
+private def remainingRowStubEquivFibres
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    RemainingRowStub witness ≃
+      Σ a, {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} where
+  toFun x := ⟨x.1.1, ⟨x.1.2, by
+    simpa [witnessSelectedRowIndices] using x.2⟩⟩
+  invFun x := ⟨⟨x.1, x.2.1⟩, by
+    simpa [witnessSelectedRowIndices] using x.2.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+private def remainingColumnStubEquivFibres
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    RemainingColumnStub witness ≃
+      Σ b, {i : Fin (col b) // i ∉ witnessSelectedColumnIndices witness b} where
+  toFun x := ⟨x.1.1, ⟨x.1.2, by
+    simpa [witnessSelectedColumnIndices] using x.2⟩⟩
+  invFun x := ⟨⟨x.1, x.2.1⟩, by
+    simpa [witnessSelectedColumnIndices] using x.2.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+/-- Class-preserving identification of unused row stubs with the standard
+dependent sum carrying the residual row degrees. -/
+def remainingRowStubEquivResidual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    RemainingRowStub witness ≃ RowStub (residualRowDegree witness) :=
+  (remainingRowStubEquivFibres witness).trans
+    (Equiv.sigmaCongrRight (fun a =>
+      Fintype.equivFinOfCardEq (card_remainingRowFiber witness a)))
+
+/-- Class-preserving identification of unused column stubs with the standard
+dependent sum carrying the residual column degrees. -/
+def remainingColumnStubEquivResidual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    RemainingColumnStub witness ≃ ColumnStub (residualColumnDegree witness) :=
+  (remainingColumnStubEquivFibres witness).trans
+    (Equiv.sigmaCongrRight (fun b =>
+      Fintype.equivFinOfCardEq (card_remainingColumnFiber witness b)))
+
+@[simp] theorem remainingRowStubEquivResidual_class
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (x : RemainingRowStub witness) :
+    (remainingRowStubEquivResidual witness x).1 = x.1.1 := rfl
+
+@[simp] theorem remainingColumnStubEquivResidual_class
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (x : RemainingColumnStub witness) :
+    (remainingColumnStubEquivResidual witness x).1 = x.1.1 := rfl
+
+/-- Exact finite-space identification: full matchings extending a fixed
+exposed witness are equivalent to configuration matchings having the induced
+residual row and column degrees. -/
+def extensionsOfWitnessEquivResidualConfiguration
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    {matching : ConfigurationMatching row col //
+        ExtendsPrescribedDemandWitness matching witness} ≃
+      ConfigurationMatching (residualRowDegree witness)
+        (residualColumnDegree witness) :=
+  (extensionsOfPrescribedDemandWitnessEquivRemaining witness).trans
+    ((remainingRowStubEquivResidual witness).equivCongr
+      (remainingColumnStubEquivResidual witness))
+
+/-- Uniformity transports across the exact extension/residual equivalence.
+This is a law on the extension subtype; conditioning the ambient law is a
+separate generic step. -/
+theorem uniform_extensionSubtype_map_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    [Nonempty {matching : ConfigurationMatching row col //
+        ExtendsPrescribedDemandWitness matching witness}]
+    [Nonempty (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness))] :
+    (PMF.uniformOfFintype
+        {matching : ConfigurationMatching row col //
+          ExtendsPrescribedDemandWitness matching witness}).map
+        (extensionsOfWitnessEquivResidualConfiguration witness) =
+      PMF.uniformOfFintype
+        (ConfigurationMatching (residualRowDegree witness)
+          (residualColumnDegree witness)) :=
+  uniformOfFintype_map_equiv
+    (extensionsOfWitnessEquivResidualConfiguration witness)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ResidualDegreeMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ResidualDegreeMatching
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ConfigurationResidualCellCounts
+Source: Erdos625/ConfigurationResidualCellCounts.lean
+Normalized SHA-256: 40e6121a0c72160f1ae7c0907ef65488bb3d682fa00a51a2789ea1acd692cdd7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellCounts
+
+/-!
+# Cell-count decomposition after a fixed exposure
+
+This module proves the deterministic classwise split of a configuration cell
+after exposing one fixed prescribed-demand witness.  It does not assert a
+conditional probability law, a high-cell cap, or canonical-skeleton
+uniqueness.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A finite target fibre splits into its used part and the transported fibre
+on the complement. -/
+theorem card_targetFiber_eq_usedTarget_add_residual
+    {X Y B : Type*} [Fintype X] [Fintype Y]
+    [DecidableEq X] [DecidableEq Y] [DecidableEq B]
+    (used : Finset X) (fullTarget : X → B) (b : B)
+    (residualEquiv : {x : X // x ∉ used} ≃ Y)
+    (residualTarget : Y → B)
+    (htransport : ∀ x, residualTarget (residualEquiv x) = fullTarget x.1) :
+    (Finset.univ.filter (fun x => fullTarget x = b)).card =
+      (used.filter (fun x => fullTarget x = b)).card +
+        (Finset.univ.filter (fun y => residualTarget y = b)).card := by
+  classical
+  let complementFiberEquiv :
+      {x : X // x ∉ used ∧ fullTarget x = b} ≃
+        {y : Y // residualTarget y = b} :=
+    { toFun := fun x => ⟨residualEquiv ⟨x.1, x.2.1⟩, by
+        rw [htransport]
+        exact x.2.2⟩
+      invFun := fun y =>
+        let x := residualEquiv.symm y.1
+        ⟨x.1, x.2, by
+          rw [← htransport x, residualEquiv.apply_symm_apply]
+          exact y.2⟩
+      left_inv := fun x => by
+        apply Subtype.ext
+        simp
+      right_inv := fun y => by
+        apply Subtype.ext
+        simp }
+  have hresidualCard :
+      (Finset.univ.filter (fun y => residualTarget y = b)).card =
+        (Finset.univ.filter
+          (fun x => x ∉ used ∧ fullTarget x = b)).card := by
+    rw [← Fintype.card_subtype, ← Fintype.card_subtype]
+    exact Fintype.card_congr complementFiberEquiv.symm
+  let fullFiber := Finset.univ.filter (fun x => fullTarget x = b)
+  have hused :
+      fullFiber.filter (fun x => x ∈ used) =
+        used.filter (fun x => fullTarget x = b) := by
+    ext x
+    simp [fullFiber, and_comm]
+  have hunused :
+      fullFiber.filter (fun x => ¬ x ∈ used) =
+        Finset.univ.filter (fun x => x ∉ used ∧ fullTarget x = b) := by
+    ext x
+    simp [fullFiber, and_comm]
+  have hpartition :=
+    Finset.card_filter_add_card_filter_not (s := fullFiber)
+      (fun x => x ∈ used)
+  rw [hused, hunused] at hpartition
+  rw [hresidualCard]
+  exact hpartition.symm
+
+/-- The classwise component of `remainingRowStubEquivResidual`. -/
+def remainingRowIndexEquivResidual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A) :
+    {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} ≃
+      Fin (residualRowDegree witness a) :=
+  Fintype.equivFinOfCardEq (card_remainingRowFiber witness a)
+
+theorem remainingRowStubEquivResidual_apply_in_class
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (a : A)
+    (i : {i : Fin (row a) //
+      i ∉ witnessSelectedRowIndices witness a}) :
+    remainingRowStubEquivResidual witness
+        ⟨⟨a, i.1⟩, by
+          simpa [witnessSelectedRowIndices] using i.2⟩ =
+      ⟨a, remainingRowIndexEquivResidual witness a i⟩ := by
+  rfl
+
+/-- The transported residual matching preserves the target class of every
+unused row stub. -/
+theorem residualConfiguration_targetClass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (extension : {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness})
+    (x : RemainingRowStub witness) :
+    ((extensionsOfWitnessEquivResidualConfiguration witness extension)
+      (remainingRowStubEquivResidual witness x)).1 =
+        (extension.1 x.1).1 := by
+  calc
+    ((extensionsOfWitnessEquivResidualConfiguration witness extension)
+        (remainingRowStubEquivResidual witness x)).1 =
+        (remainingColumnStubEquivResidual witness
+          ((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
+            ((remainingRowStubEquivResidual witness).symm
+              (remainingRowStubEquivResidual witness x)))).1 := rfl
+    _ = (remainingColumnStubEquivResidual witness
+          ((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
+            x)).1 := by rw [Equiv.symm_apply_apply]
+    _ = (((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
+          x).1).1 := remainingColumnStubEquivResidual_class _ _
+    _ = (extension.1 x.1).1 := by
+      rfl
+
+/-- Among all row stubs selected by the witness, the ones that a full
+extension sends to class `b` are exactly the stubs selected in cell `(a,b)`. -/
+theorem usedRowTargetIndices_eq_witnessCell
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (extension : {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness})
+    (a : A) (b : B) :
+    (witnessSelectedRowIndices witness a).filter
+        (fun i => (extension.1 ⟨a, i⟩).1 = b) =
+      (witness.1 a).1 b := by
+  classical
+  ext i
+  constructor
+  · intro hi
+    obtain ⟨hselected, htarget⟩ := Finset.mem_filter.mp hi
+    have hglobal :
+        (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness := by
+      simpa [witnessSelectedRowIndices] using hselected
+    obtain ⟨atom, _, hatom⟩ := Finset.mem_image.mp hglobal
+    obtain ⟨a', b', stub⟩ := atom
+    have ha : a' = a := (Sigma.mk.inj_iff.mp hatom).1
+    subst a'
+    have hstub : (stub : Fin (row a)) = i :=
+      eq_of_heq (Sigma.mk.inj_iff.mp hatom).2
+    have hbtarget := congrArg Sigma.fst (extension.2 ⟨a, b', stub⟩)
+    change (extension.1 ⟨a, (stub : Fin (row a))⟩).1 = b' at hbtarget
+    have hb : b' = b := by
+      rw [hstub] at hbtarget
+      exact hbtarget.symm.trans htarget
+    subst b'
+    simpa [hstub] using stub.2
+  · intro hi
+    let atom : WitnessRowAtom witness := ⟨a, b, ⟨i, hi⟩⟩
+    have hglobal :
+        (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness := by
+      apply Finset.mem_image.mpr
+      exact ⟨atom, Finset.mem_univ atom, rfl⟩
+    have hselected : i ∈ witnessSelectedRowIndices witness a := by
+      simp [witnessSelectedRowIndices, hglobal]
+    have htarget := congrArg Sigma.fst (extension.2 atom)
+    change (extension.1 ⟨a, i⟩).1 = b at htarget
+    exact Finset.mem_filter.mpr ⟨hselected, htarget⟩
+
+/-- Exact classwise cell-count split after exposing a fixed labelled witness:
+the full cell consists of its prescribed pairs plus the corresponding cell of
+the transported residual configuration matching. -/
+theorem configurationCellCount_eq_demand_add_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (extension : {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness})
+    (a : A) (b : B) :
+    configurationCellCount extension.1 a b =
+      demand a b +
+        configurationCellCount
+          (extensionsOfWitnessEquivResidualConfiguration witness extension)
+          a b := by
+  let residual :=
+    extensionsOfWitnessEquivResidualConfiguration witness extension
+  have htransport : ∀ x :
+      {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a},
+      (residual ⟨a, remainingRowIndexEquivResidual witness a x⟩).1 =
+        (extension.1 ⟨a, x.1⟩).1 := by
+    intro x
+    let unused : RemainingRowStub witness :=
+      ⟨⟨a, x.1⟩, by
+        simpa [witnessSelectedRowIndices] using x.2⟩
+    have hclass := residualConfiguration_targetClass witness extension unused
+    rw [remainingRowStubEquivResidual_apply_in_class witness a x] at hclass
+    exact hclass
+  have hsplit := card_targetFiber_eq_usedTarget_add_residual
+    (witnessSelectedRowIndices witness a)
+    (fun i => (extension.1 ⟨a, i⟩).1) b
+    (remainingRowIndexEquivResidual witness a)
+    (fun i => (residual ⟨a, i⟩).1) htransport
+  rw [usedRowTargetIndices_eq_witnessCell witness extension a b,
+    (witness.1 a).2.1 b] at hsplit
+  exact hsplit
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellCounts
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ConfigurationResidualCellCounts
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ConfigurationResidualCellConstraints
+Source: Erdos625/ConfigurationResidualCellConstraints.lean
+Normalized SHA-256: 48b07fecc63e15fddf15ed8218fe2cfb50c66e48a24372532f0f95d8a4ea8d4c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellConstraints
+
+/-!
+# Residual cell constraints after a fixed exposure
+
+This module translates two cellwise conditions through the exact decomposition
+`full = demand + residual`: equality with the exposed demand means zero
+residual count, and a cap becomes the corresponding truncated residual cap.
+It contains no probability or canonical-skeleton statement.
+-/
+
+namespace Erdos625
+
+/-- Adding a natural number changes nothing exactly when the addend is zero. -/
+theorem nat_add_eq_left_iff_right_eq_zero (d r : ℕ) :
+    d + r = d ↔ r = 0 := by
+  constructor
+  · intro h
+    exact Nat.add_left_cancel (n := d) (m := r) (k := 0)
+      (by simpa using h)
+  · rintro rfl
+    simp
+
+/-- If the exposed demand is at most the cap, the remaining capacity is the
+natural subtraction `cap - demand`, with no truncation ambiguity. -/
+theorem nat_add_le_iff_le_sub_of_le {d r cap : ℕ} (hcap : d ≤ cap) :
+    d + r ≤ cap ↔ r ≤ cap - d := by
+  constructor
+  · intro h
+    exact (Nat.le_sub_iff_add_le hcap).2 (by
+      simpa [Nat.add_comm] using h)
+  · intro h
+    have := (Nat.le_sub_iff_add_le hcap).1 h
+    simpa [Nat.add_comm] using this
+
+/-- Arithmetic packaging used by the configuration-model theorem below. -/
+theorem exposedCell_constraints_iff_residual
+    (full demand residual cap : ℕ)
+    (hsplit : full = demand + residual) (hcap : demand ≤ cap) :
+    (full = demand ↔ residual = 0) ∧
+      (full ≤ cap ↔ residual ≤ cap - demand) := by
+  rw [hsplit]
+  exact ⟨nat_add_eq_left_iff_right_eq_zero demand residual,
+    nat_add_le_iff_le_sub_of_le hcap⟩
+
+/-- For one actual cell of a configuration matching extending a fixed labelled
+witness, no additional pair and the cell cap are exactly the corresponding
+conditions on the transported residual matching. -/
+theorem configurationCell_constraints_iff_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (extension : {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness})
+    (a : A) (b : B) (cap : ℕ) (hcap : demand a b ≤ cap) :
+    (configurationCellCount extension.1 a b = demand a b ↔
+        configurationCellCount
+          (extensionsOfWitnessEquivResidualConfiguration witness extension)
+          a b = 0) ∧
+      (configurationCellCount extension.1 a b ≤ cap ↔
+        configurationCellCount
+          (extensionsOfWitnessEquivResidualConfiguration witness extension)
+          a b ≤ cap - demand a b) := by
+  exact exposedCell_constraints_iff_residual
+    (configurationCellCount extension.1 a b)
+    (demand a b)
+    (configurationCellCount
+      (extensionsOfWitnessEquivResidualConfiguration witness extension) a b)
+    cap
+    (configurationCellCount_eq_demand_add_residual witness extension a b)
+    hcap
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellConstraints
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ConfigurationResidualCellConstraints
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
+Source: Erdos625/Section8FixedWitnessAssembly.lean
+Normalized SHA-256: 7cd3c62a331ce1615a41833732ab8e4a561df2bd20774f054e2e2bcc563440cc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
+
+/-!
+# Section VIII fixed-witness assembly
+
+This module composes the accepted deterministic and finite-uniform pieces for
+one fixed labelled prescribed-demand witness.  It packages:
+
+* conditioning the ambient finite uniform law on the extension event;
+* transport of the uniform extension law to the residual configuration space;
+* the exact cell-count split `full = demand + residual`; and
+* simultaneous transport of cell caps and "no additional pair" constraints.
+
+It does **not** choose a canonical skeleton, prove uniqueness of an exposure,
+or estimate the probability of any skeleton event.  Those are separate
+Section VIII obligations.
+-/
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+/-- The event that a full configuration matching extends one fixed labelled
+prescribed-demand witness. -/
+def fixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    Set (ConfigurationMatching row col) :=
+  {matching | ExtendsPrescribedDemandWitness matching witness}
+
+/-- The fixed-witness extension event is finite because the ambient matching
+space is finite.  This explicit instance avoids making the event predicate's
+decidability part of downstream theorem signatures. -/
+noncomputable instance instFintypeFixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    Fintype (fixedWitnessExtensionEvent witness) :=
+  Fintype.ofFinite _
+
+/-- The extension-event subtype is the domain of the accepted exact residual
+configuration equivalence. -/
+def fixedWitnessExtensionEquivResidual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    fixedWitnessExtensionEvent witness ≃
+      ConfigurationMatching (residualRowDegree witness)
+        (residualColumnDegree witness) :=
+  extensionsOfWitnessEquivResidualConfiguration witness
+
+/-- Simultaneous constraints on full cells.  Every cell is capped, while the
+cells selected by `noAdditional` must contain exactly the exposed demand and
+therefore no additional matched pair. -/
+def FixedWitnessFullCellConstraints
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (extension : fixedWitnessExtensionEvent witness) : Prop :=
+  ∀ a b,
+    configurationCellCount extension.1 a b ≤ cap a b ∧
+      (noAdditional a b →
+        configurationCellCount extension.1 a b = demand a b)
+
+/-- The residual form of `FixedWitnessFullCellConstraints`: cell caps lose the
+already exposed demand, and a no-additional-pair constraint becomes a zero
+residual-cell constraint. -/
+def FixedWitnessResidualCellConstraints
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (residual : ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness)) : Prop :=
+  ∀ a b,
+    configurationCellCount residual a b ≤ cap a b - demand a b ∧
+      (noAdditional a b → configurationCellCount residual a b = 0)
+
+/-- Conditioning the ambient uniform law on the fixed-witness extension event
+is the pushforward of the uniform law on the extension subtype. -/
+theorem uniform_filter_fixedWitnessExtensionEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    [Nonempty (ConfigurationMatching row col)]
+    [Nonempty (fixedWitnessExtensionEvent witness)] :
+    (PMF.uniformOfFintype (ConfigurationMatching row col)).filter
+        (fixedWitnessExtensionEvent witness)
+        (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
+      (PMF.uniformOfFintype
+        (fixedWitnessExtensionEvent witness)).map Subtype.val := by
+  exact uniform_filter_eq_uniformSubtype_map
+    (fixedWitnessExtensionEvent witness)
+
+/-- The uniform extension-subtype law pushes forward to the uniform law on
+the degree-labelled residual configuration space. -/
+theorem uniform_fixedWitnessExtension_map_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    [Nonempty (fixedWitnessExtensionEvent witness)]
+    [Nonempty (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness))] :
+    (PMF.uniformOfFintype
+        (fixedWitnessExtensionEvent witness)).map
+        (fixedWitnessExtensionEquivResidual witness) =
+      PMF.uniformOfFintype
+        (ConfigurationMatching (residualRowDegree witness)
+          (residualColumnDegree witness)) := by
+  letI : Nonempty {matching : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness matching witness} := by
+    let extension : fixedWitnessExtensionEvent witness :=
+      Classical.choice inferInstance
+    have hExtension := extension.2
+    change ExtendsPrescribedDemandWitness extension.1 witness at hExtension
+    exact ⟨⟨extension.1, hExtension⟩⟩
+  exact uniform_extensionSubtype_map_residual witness
+
+/-- All full-cell cap and no-additional-pair constraints transport through the
+fixed-witness residual equivalence, simultaneously over every cell. -/
+theorem fixedWitnessFullCellConstraints_iff_residual
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (hcap : ∀ a b, demand a b ≤ cap a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
+      FixedWitnessResidualCellConstraints witness cap noAdditional
+        (fixedWitnessExtensionEquivResidual witness extension) := by
+  constructor
+  · intro hFull a b
+    have hCell := configurationCell_constraints_iff_residual
+      witness extension a b (cap a b) (hcap a b)
+    exact ⟨hCell.2.mp (hFull a b).1,
+      fun hNoAdditional ↦ hCell.1.mp ((hFull a b).2 hNoAdditional)⟩
+  · intro hResidual a b
+    have hCell := configurationCell_constraints_iff_residual
+      witness extension a b (cap a b) (hcap a b)
+    exact ⟨hCell.2.mpr (hResidual a b).1,
+      fun hNoAdditional ↦ hCell.1.mpr
+        ((hResidual a b).2 hNoAdditional)⟩
+
+/-- Fixed-witness Section VIII seam.  The conclusion contains only results
+already justified for a fixed labelled witness.  In particular, it does not
+assert that such a witness is canonical or that its event is likely. -/
+theorem fixedWitnessSection8Assembly
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col)
+    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
+    (hcap : ∀ a b, demand a b ≤ cap a b)
+    [Nonempty (ConfigurationMatching row col)]
+    [Nonempty (fixedWitnessExtensionEvent witness)]
+    [Nonempty (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness))] :
+    ((PMF.uniformOfFintype (ConfigurationMatching row col)).filter
+          (fixedWitnessExtensionEvent witness)
+          (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
+        (PMF.uniformOfFintype
+          (fixedWitnessExtensionEvent witness)).map Subtype.val) ∧
+      ((PMF.uniformOfFintype
+          (fixedWitnessExtensionEvent witness)).map
+          (fixedWitnessExtensionEquivResidual witness) =
+        PMF.uniformOfFintype
+          (ConfigurationMatching (residualRowDegree witness)
+            (residualColumnDegree witness))) ∧
+      (∀ extension a b,
+        configurationCellCount extension.1 a b =
+          demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b) ∧
+      (∀ extension,
+        FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
+          FixedWitnessResidualCellConstraints witness cap noAdditional
+            (fixedWitnessExtensionEquivResidual witness extension)) := by
+  refine ⟨uniform_filter_fixedWitnessExtensionEvent witness,
+    uniform_fixedWitnessExtension_map_residual witness, ?_, ?_⟩
+  · intro extension a b
+    exact configurationCellCount_eq_demand_add_residual
+      witness extension a b
+  · intro extension
+    exact fixedWitnessFullCellConstraints_iff_residual
+      witness cap noAdditional hcap extension
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
+Source: Erdos625/Section8CanonicalEventResidual.lean
+Normalized SHA-256: b1bdee927da3d5615f5eec59e3bebe5de6db13ed3095f1545ba213c80c24988c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
+
+/-!
+# Section 8: canonical event under the residual equivalence
+
+For one fixed labelled prescribed-demand exposure, this module identifies the
+event that the full matching has exactly the canonical high-cell table with
+the residual event imposing the half-cap off that table and no return to its
+nonzero support.  This is a deterministic event equivalence; counting the
+global event and identifying its conditioned probability law remain separate.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Full configurations whose literal canonical high-cell demand is the fixed
+table `demand`. -/
+def canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Set (ConfigurationMatching row col) :=
+  {matching | canonicalDemandOfMatching matching U = demand}
+
+/-- Inside the extension subtype of one labelled witness, require the ambient
+matching to have exactly the prescribed canonical high-cell table. -/
+def fixedWitnessCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Set (fixedWitnessExtensionEvent witness) :=
+  {extension | canonicalDemandOfMatching extension.1 U = demand}
+
+/-- The canonical residual cap/no-return event: every residual cell is at most
+`U / 2`, and cells in the nonzero exposed support receive no further pair. -/
+def canonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Set (ConfigurationMatching (residualRowDegree witness)
+      (residualColumnDegree witness)) :=
+  {residual | ∀ a b,
+    configurationCellCount residual a b ≤ U / 2 ∧
+      (demand a b ≠ 0 → configurationCellCount residual a b = 0)}
+
+/-- For one fixed labelled exposure, the canonical full event transports
+exactly to the residual half-cap/no-return event. -/
+theorem mem_fixedWitnessCanonicalDemandEvent_iff_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
+      fixedWitnessExtensionEquivResidual witness extension ∈
+        canonicalResidualCellEvent witness U := by
+  change canonicalHighDemand (configurationCellCount extension.1) U = demand ↔ _
+  rw [canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    (configurationCellCount extension.1) demand U hhigh]
+  constructor
+  · rintro ⟨hsupport, hcapped⟩ a b
+    have hsplit := configurationCellCount_eq_demand_add_residual
+      witness extension a b
+    change configurationCellCount extension.1 a b = demand a b +
+      configurationCellCount
+        (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+    by_cases hab : demand a b = 0
+    · constructor
+      · calc
+          configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b =
+              configurationCellCount extension.1 a b := by
+                simpa [hab] using hsplit.symm
+          _ ≤ U / 2 := hcapped a b hab
+      · exact fun h ↦ (h hab).elim
+    · have hzero : configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b = 0 := by
+        have heq := hsupport a b hab
+        apply Nat.add_left_cancel (n := demand a b)
+        simpa using hsplit.symm.trans heq
+      exact ⟨by simp [hzero], fun _ ↦ hzero⟩
+  · intro h
+    constructor
+    · intro a b hab
+      have hsplit := configurationCellCount_eq_demand_add_residual
+        witness extension a b
+      change configurationCellCount extension.1 a b = demand a b +
+        configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+      have hzero := (h a b).2 hab
+      calc
+        configurationCellCount extension.1 a b = demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
+        _ = demand a b := by simp [hzero]
+    · intro a b hab
+      have hsplit := configurationCellCount_eq_demand_add_residual
+        witness extension a b
+      change configurationCellCount extension.1 a b = demand a b +
+        configurationCellCount
+          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
+      have hcap := (h a b).1
+      calc
+        configurationCellCount extension.1 a b = demand a b +
+            configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
+        _ = configurationCellCount
+              (fixedWitnessExtensionEquivResidual witness extension) a b := by
+            simp [hab]
+        _ ≤ U / 2 := hcap
+
+#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
+Source: Erdos625/Section8CanonicalEventCharacterization.lean
+Normalized SHA-256: 302979dcc00452ec5f8218a21cfda4c6e7b2479a943e9f551ec0bd4e513f128b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
+
+/-!
+# Section 8: canonical-event characterization
+
+This names the event-level form of the existing exact support/cap
+characterization for a full configuration matching.
+-/
+
+namespace Erdos625
+
+/-- A matching has the prescribed canonical high-demand table exactly when it
+equals that table on its nonzero support and is half-capped off the support. -/
+theorem mem_canonicalDemandEvent_iff_exact_support_and_capped_off
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (matching : ConfigurationMatching row col) :
+    matching ∈ canonicalDemandEvent demand row col U ↔
+      (∀ a b, demand a b ≠ 0 →
+        configurationCellCount matching a b = demand a b) ∧
+      (∀ a b, demand a b = 0 →
+        configurationCellCount matching a b ≤ U / 2) := by
+  exact canonicalHighDemand_eq_iff_exact_support_and_capped_off
+    (configurationCellCount matching) demand U hhigh
+
+#print axioms mem_canonicalDemandEvent_iff_exact_support_and_capped_off
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
+Source: Erdos625/Section8CanonicalEventCardinality.lean
+Normalized SHA-256: 81d21fc85db6fb922bdb064555d44fa542bc2f654c8b140762703ddd200f8d48
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
+
+/-!
+# Section 8: canonical-event cardinality
+
+The literal canonical event partitions into one fixed-witness fibre for each
+labelled prescribed-demand witness.  Each fibre transports to the same residual
+half-cap/no-return event, yielding the exact finite incidence count.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-! The event subtypes are finite, but the project deliberately does not make
+their `Fintype` instances global.  Keep them local to this counting module. -/
+local instance instFintypeCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeFixedWitnessCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (fixedWitnessCanonicalDemandEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeCanonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- For a fixed labelled witness, transport the canonical full-event fibre to
+the corresponding residual half-cap/no-return fibre. -/
+noncomputable def fixedWitnessCanonicalDemandEventEquivResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    fixedWitnessCanonicalDemandEvent witness U ≃
+      canonicalResidualCellEvent witness U := by
+  classical
+  exact
+  { toFun := fun extension =>
+      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh extension.1).mp extension.2⟩
+    invFun := fun residual =>
+      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh
+          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
+          (by
+            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
+            exact residual.2)⟩
+    left_inv := by
+      intro extension
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
+    right_inv := by
+      intro residual
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+
+private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
+      Fintype.card (canonicalResidualCellEvent witness U) := by
+  classical
+  let f :
+      ↑(fixedWitnessCanonicalDemandEvent witness U) →
+        ↑(canonicalResidualCellEvent witness U) :=
+    fun extension =>
+      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh extension.1).mp extension.2⟩
+  apply Fintype.card_congr
+  exact
+  { toFun := f
+    invFun := fun residual =>
+      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
+        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+          witness U hhigh
+          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
+          (by
+            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
+            exact residual.2)⟩
+    left_inv := by
+      intro extension
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
+    right_inv := by
+      intro residual
+      apply Subtype.ext
+      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+
+private theorem card_canonicalResidualCellEvent_eq
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness witness₀ : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype.card (canonicalResidualCellEvent witness U) =
+      Fintype.card (canonicalResidualCellEvent witness₀ U) := by
+  apply Fintype.card_congr
+  exact Equiv.refl _
+
+private theorem existsUnique_canonicalDemandEventWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U)) :
+    ∃! witness : PrescribedDemandWitness demand row col,
+      ExtendsPrescribedDemandWitness x.1 witness := by
+  have hx : canonicalDemandOfMatching x.1 U = demand := x.2
+  have hunique :=
+    existsUnique_canonicalHighDemandWitness row col x.1 U
+  rw [hx] at hunique
+  exact hunique
+
+private noncomputable def canonicalDemandEventWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U)) :
+    PrescribedDemandWitness demand row col :=
+  Classical.choose
+    (existsUnique_canonicalDemandEventWitness demand row col U x).exists
+
+private theorem canonicalDemandEventWitness_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U)) :
+    ExtendsPrescribedDemandWitness x.1
+      (canonicalDemandEventWitness demand row col U x) := by
+  unfold canonicalDemandEventWitness
+  exact Classical.choose_spec
+    (existsUnique_canonicalDemandEventWitness demand row col U x).exists
+
+private theorem canonicalDemandEventWitness_unique
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U))
+    (witness : PrescribedDemandWitness demand row col)
+    (hwitness : ExtendsPrescribedDemandWitness x.1 witness) :
+    canonicalDemandEventWitness demand row col U x = witness := by
+  obtain ⟨witness₀, hwitness₀, hunique⟩ :=
+    existsUnique_canonicalDemandEventWitness demand row col U x
+  have hchosen : canonicalDemandEventWitness demand row col U x = witness₀ :=
+    hunique _ (canonicalDemandEventWitness_extends demand row col U x)
+  have hgiven : witness = witness₀ := hunique _ hwitness
+  exact hchosen.trans hgiven.symm
+
+private theorem canonicalDemandEventWitness_eq_iff_extends
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (x : ↑(canonicalDemandEvent demand row col U))
+    (witness : PrescribedDemandWitness demand row col) :
+    canonicalDemandEventWitness demand row col U x = witness ↔
+      ExtendsPrescribedDemandWitness x.1 witness := by
+  constructor
+  · intro h
+    exact h ▸ canonicalDemandEventWitness_extends demand row col U x
+  · intro h
+    exact canonicalDemandEventWitness_unique demand row col U x witness h
+
+private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    fixedWitnessCanonicalDemandEvent witness U ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        canonicalDemandEventWitness demand row col U x = witness} := by
+  let e₁ : fixedWitnessCanonicalDemandEvent witness U ≃
+      {m : ConfigurationMatching row col //
+        ExtendsPrescribedDemandWitness m witness ∧
+          canonicalDemandOfMatching m U = demand} := by
+    change {e : {m : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness m witness} //
+      canonicalDemandOfMatching e.1 U = demand} ≃ _
+    exact Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        ExtendsPrescribedDemandWitness m witness)
+      (fun m => canonicalDemandOfMatching m U = demand)
+  let e₂ : {m : ConfigurationMatching row col //
+      ExtendsPrescribedDemandWitness m witness ∧
+        canonicalDemandOfMatching m U = demand} ≃
+      {m : ConfigurationMatching row col //
+        canonicalDemandOfMatching m U = demand ∧
+          ExtendsPrescribedDemandWitness m witness} :=
+    Equiv.subtypeEquivRight (fun _ => and_comm)
+  let e₃ : {m : ConfigurationMatching row col //
+      canonicalDemandOfMatching m U = demand ∧
+        ExtendsPrescribedDemandWitness m witness} ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        ExtendsPrescribedDemandWitness x.1 witness} := by
+    change _ ≃ {x : {m : ConfigurationMatching row col //
+      canonicalDemandOfMatching m U = demand} //
+      ExtendsPrescribedDemandWitness x.1 witness}
+    exact (Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun m : ConfigurationMatching row col =>
+        canonicalDemandOfMatching m U = demand)
+      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
+  let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
+      ExtendsPrescribedDemandWitness x.1 witness} ≃
+      {x : ↑(canonicalDemandEvent demand row col U) //
+        canonicalDemandEventWitness demand row col U x = witness} :=
+    (Equiv.subtypeEquivRight (fun x =>
+      canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
+  exact e₁.trans (e₂.trans (e₃.trans e₄))
+
+private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    ↑(canonicalDemandEvent demand row col U) ≃
+      Σ witness : PrescribedDemandWitness demand row col,
+        ↑(fixedWitnessCanonicalDemandEvent witness U) := by
+  exact
+    (Equiv.sigmaFiberEquiv
+      (canonicalDemandEventWitness demand row col U)).symm.trans
+      (Equiv.sigmaCongrRight
+      (fun witness =>
+        (fixedWitnessCanonicalDemandEventEquivFiber
+          (demand := demand) (row := row) (col := col) witness U).symm))
+
+/-- Exact partition of a fixed canonical-demand event by its unique labelled
+canonical witness.  No high-demand hypothesis is needed for this first
+finite decomposition. -/
+noncomputable def canonicalDemandEventEquivSigmaFixedWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    ↑(canonicalDemandEvent demand row col U) ≃
+      Σ witness : PrescribedDemandWitness demand row col,
+        ↑(fixedWitnessCanonicalDemandEvent witness U) :=
+  canonicalDemandEvent_equiv_sigma_fixedWitness demand row col U
+
+/-- Under the strict high-demand condition, the canonical-demand event is
+exactly the sigma family of residual half-cap/no-return fibres.  This is a
+finite equivalence, not a conditional-probability assertion. -/
+noncomputable def canonicalDemandEventEquivSigmaResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    ↑(canonicalDemandEvent demand row col U) ≃
+      Σ witness : PrescribedDemandWitness demand row col,
+        ↑(canonicalResidualCellEvent witness U) :=
+  (canonicalDemandEventEquivSigmaFixedWitness demand row col U).trans
+    (Equiv.sigmaCongrRight (fun witness =>
+      fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh))
+
+private theorem card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype.card ↑(canonicalDemandEvent demand row col U) =
+      ∑ witness : PrescribedDemandWitness demand row col,
+        Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) := by
+  rw [← Fintype.card_sigma]
+  exact Fintype.card_congr
+    (canonicalDemandEvent_equiv_sigma_fixedWitness demand row col U)
+
+/-- Exact once-only incidence count: canonical configurations are a labelled
+witness choice times one common residual cap/no-return fibre. -/
+theorem card_canonicalDemandEvent_eq_witness_mul_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (witness₀ : PrescribedDemandWitness demand row col) :
+    Fintype.card ↑(canonicalDemandEvent demand row col U) =
+      Fintype.card (PrescribedDemandWitness demand row col) *
+        Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
+  classical
+  calc
+    Fintype.card ↑(canonicalDemandEvent demand row col U) =
+        ∑ witness : PrescribedDemandWitness demand row col,
+          Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) :=
+      card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
+        demand row col U
+    _ = ∑ witness : PrescribedDemandWitness demand row col,
+          Fintype.card ↑(canonicalResidualCellEvent witness U) := by
+      apply Finset.sum_congr rfl
+      intro witness _
+      exact card_fixedWitnessCanonicalDemandEvent_eq_residual witness U hhigh
+    _ = ∑ _witness : PrescribedDemandWitness demand row col,
+          Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
+      apply Finset.sum_congr rfl
+      intro witness _
+      exact card_canonicalResidualCellEvent_eq witness witness₀ U
+    _ = Fintype.card (PrescribedDemandWitness demand row col) *
+          Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
+      simp
+
+#print axioms card_canonicalDemandEvent_eq_witness_mul_residual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
+Source: Erdos625/Section8CanonicalDemandPartition.lean
+Normalized SHA-256: f94d7912ddce1543088a6a6fc313af45914fa55f1b39697ba854731e6dfbfb3e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
+
+/-!
+# Section VIII: ambient canonical-demand partition
+
+The canonical high-demand map partitions the whole finite configuration
+matching space into its literal canonical-demand fibres.  This is an exact
+finite counting identity; it makes no probability, residual-law, or
+typed-skeleton estimate claim.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-! Keep the finite-event instance local, consistently with the other
+canonical-event counting modules. -/
+local instance instFintypeCanonicalDemandEventPartition
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+/-- The finite range of literal canonical high-demand tables realized by
+ambient configuration matchings. -/
+noncomputable def canonicalDemandImage
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) : Finset (A → B → ℕ) := by
+  classical
+  exact
+    (Finset.univ : Finset (ConfigurationMatching row col)).image
+      (fun matching => canonicalDemandOfMatching matching U)
+
+/-- The explicit finite equivalence from ambient matchings to their attained
+canonical demand and the corresponding literal fibre. -/
+noncomputable def configurationMatchingEquivSigmaCanonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    ConfigurationMatching row col ≃
+      Σ demand : canonicalDemandImage row col U,
+        ↑(canonicalDemandEvent demand.1 row col U) := by
+  classical
+  exact
+    (Equiv.sigmaSubtypeFiberEquiv
+      (fun matching : ConfigurationMatching row col =>
+        canonicalDemandOfMatching matching U)
+      (fun demand => demand ∈ canonicalDemandImage row col U)
+      (fun matching => Finset.mem_image_of_mem _ (Finset.mem_univ matching))).symm
+
+/-- Exact ambient partition by the literal canonical high-demand table.
+The statement is valid even when the configuration-matching type is empty,
+so it requires no total-balance or nonemptiness hypothesis. -/
+theorem card_configurationMatching_eq_sum_card_canonicalDemandEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
+    Fintype.card (ConfigurationMatching row col) =
+      ∑ demand : canonicalDemandImage row col U,
+        Fintype.card ↑(canonicalDemandEvent demand.1 row col U) := by
+  rw [← Fintype.card_sigma]
+  exact Fintype.card_congr
+    (configurationMatchingEquivSigmaCanonicalDemandEvent row col U)
+
+#print axioms configurationMatchingEquivSigmaCanonicalDemandEvent
+#print axioms card_configurationMatching_eq_sum_card_canonicalDemandEvent
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
+Source: Erdos625/UniformSigmaTransport.lean
+Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
+
+/-!
+# Uniform finite probability on a dependent sum
+
+For a finite dependent sum, this module calculates the marginal of the
+uniform law under the first projection.  It is an exact finite probability
+identity only: it makes no configuration-model, canonical-event, or
+asymptotic assertion.  In particular, the base coordinate is generally not
+uniform; its mass is proportional to the cardinality of its fibre.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Under the uniform law on a nonempty finite dependent sum, the mass of a
+base point is the cardinality of its fibre divided by the total cardinality. -/
+theorem uniformOfFintype_sigma_map_fst_apply
+    {D : Type*} {X : D -> Type*}
+    [Fintype D] [(d : D) -> Fintype (X d)]
+    [Nonempty (Sigma X)]
+    (d : D) :
+    ((PMF.uniformOfFintype (Sigma X)).map
+        (fun z : Sigma X => z.1)) d =
+      (Fintype.card (X d) : ENNReal) /
+        (Fintype.card (Sigma X) : ENNReal) := by
+  classical
+  rw [PMF.map_apply, tsum_fintype]
+  simp_rw [PMF.uniformOfFintype_apply]
+  rw [Fintype.sum_sigma]
+  have hinner : forall x : D,
+      (∑ _y : X x,
+          if d = x then (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
+        if d = x then
+          (Fintype.card (X x) : ENNReal) *
+            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 := by
+    intro x
+    by_cases h : d = x
+    · subst x
+      simp [nsmul_eq_mul]
+    · simp [h]
+  rw [Finset.sum_congr rfl (fun x _ => hinner x)]
+  rw [show (∑ x : D,
+      if d = x then
+        (Fintype.card (X x) : ENNReal) *
+          (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
+      ∑ x : D,
+        if x = d then
+          (Fintype.card (X x) : ENNReal) *
+            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 by
+      simp_rw [eq_comm]]
+  rw [Finset.sum_ite_eq' Finset.univ d]
+  simp only [Finset.mem_univ, if_true]
+  rw [ENNReal.div_eq_inv_mul]
+  ac_rfl
+
+#print axioms uniformOfFintype_sigma_map_fst_apply
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformSigmaTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
+Source: Erdos625/Section8CanonicalDemandGlobalResidual.lean
+Normalized SHA-256: eb5923f1a7f5718fdedd0170a6cc5b4eceba47a432169a900f3d13bb9eabc17a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
+
+/-!
+# Section VIII: global canonical-demand/residual disintegration
+
+The literal canonical-demand map decomposes every configuration matching into
+its attained canonical demand, the unique labelled witness for that demand,
+and the corresponding residual cap/no-return configuration.  The residual
+type depends on the attained demand (and its witness), so the result is a
+dependent finite sigma decomposition.  This is structural only: it neither
+asserts a common residual law across demands nor proves a quantitative
+high-skeleton estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! Keep finite-event instances local, as in the fixed-fibre law modules. -/
+local instance instFintypeCanonicalResidualCellEventGlobalResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance instFintypeCanonicalDemandEventGlobalResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    Fintype (canonicalDemandEvent demand row col U) :=
+  Fintype.ofFinite _
+
+/-- A nonzero entry retained by the literal canonical-demand map is strictly
+above the half-cutoff. -/
+theorem canonicalDemandOfMatching_high_of_ne_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat}
+    (matching : ConfigurationMatching row col) (U : Nat) (a : A) (b : B)
+    (h : canonicalDemandOfMatching matching U a b ≠ 0) :
+    U / 2 < canonicalDemandOfMatching matching U a b := by
+  by_cases hhigh : U / 2 < configurationCellCount matching a b
+  · simp [canonicalDemandOfMatching, canonicalHighDemand, hhigh]
+  · simp [canonicalDemandOfMatching, canonicalHighDemand, hhigh] at h
+
+/-- Every demand table in the finite image has a literal matching in its
+canonical-demand fibre.  No total-balance or probability hypothesis is used. -/
+theorem nonempty_canonicalDemandEvent_of_canonicalDemandImage
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (demand : canonicalDemandImage row col U) :
+    Nonempty (canonicalDemandEvent demand.1 row col U) := by
+  classical
+  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
+  exact ⟨⟨matching, hmatching⟩⟩
+
+/-- The strict high-demand premise for the fixed-fibre residual equivalence
+is automatic for any demand table actually attained by a matching. -/
+theorem canonicalDemandImage_high
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (demand : canonicalDemandImage row col U)
+    (a : A) (b : B) (h : demand.1 a b ≠ 0) :
+    U / 2 < demand.1 a b := by
+  classical
+  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
+  have hnonzero : canonicalDemandOfMatching matching U a b ≠ 0 := by
+    intro hzero
+    apply h
+    rw [← hmatching]
+    exact hzero
+  rw [← hmatching]
+  exact canonicalDemandOfMatching_high_of_ne_zero matching U a b hnonzero
+
+/-- Exact finite decomposition of every configuration matching into its
+attained canonical demand, its labelled witness, and its residual canonical
+event configuration.  The equivalence remains valid if the ambient matching
+type is empty. -/
+noncomputable def configurationMatchingEquivSigmaCanonicalDemandResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    ConfigurationMatching row col ≃
+      Σ demand : canonicalDemandImage row col U,
+        Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U :=
+  (configurationMatchingEquivSigmaCanonicalDemandEvent row col U).trans
+    (Equiv.sigmaCongrRight fun demand =>
+      canonicalDemandEventEquivSigmaResidual demand.1 row col U
+        (canonicalDemandImage_high row col U demand))
+
+/-- The uniform finite PMF on the global dependent canonical-demand/witness/
+residual sigma space.  The equal-total hypothesis supplies its nonemptiness
+through the matching equivalence; no individual demand fibre is assumed
+nonempty separately. -/
+noncomputable def uniformSigmaCanonicalDemandResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    PMF
+      (Σ demand : canonicalDemandImage row col U,
+        Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence :=
+    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+  letI : Nonempty
+      (Σ demand : canonicalDemandImage row col U,
+        Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  exact PMF.uniformOfFintype _
+
+/-- With equal ambient stub totals, the uniform matching law transports
+exactly to the uniform law on the full dependent canonical-demand/witness/
+residual sigma space.  This is a finite-equivalence statement only. -/
+theorem uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    (uniformConfigurationMatching row col htotal).map
+        (configurationMatchingEquivSigmaCanonicalDemandResidual row col U) =
+      uniformSigmaCanonicalDemandResidual row col U htotal := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence :=
+    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+  letI : Nonempty
+      (Σ demand : canonicalDemandImage row col U,
+        Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
+  simpa only [uniformSigmaCanonicalDemandResidual] using
+    (uniformOfFintype_map_equiv equivalence)
+
+/-- The canonical-demand marginal of the ambient uniform matching law is
+exactly proportional to the cardinality of its dependent witness/residual
+fibre.  Thus the attained demand tables are not treated as uniformly likely;
+their finite fibre sizes are the exact mixture weights. -/
+theorem uniformConfigurationMatching_map_canonicalDemand_apply
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b)
+    (demand : canonicalDemandImage row col U) :
+    ((uniformConfigurationMatching row col htotal).map
+        (fun matching =>
+          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+            matching).1)) demand =
+      (Fintype.card
+        (Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) : ENNReal) /
+        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence :=
+    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+  letI : Nonempty
+      (Σ demand : canonicalDemandImage row col U,
+        Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  change ((uniformConfigurationMatching row col htotal).map
+      (fun matching => (equivalence matching).1)) demand = _
+  calc
+    ((uniformConfigurationMatching row col htotal).map
+        (fun matching => (equivalence matching).1)) demand =
+        ((uniformConfigurationMatching row col htotal).map equivalence).map
+          (fun z : Σ demand : canonicalDemandImage row col U,
+            Σ witness : PrescribedDemandWitness demand.1 row col,
+              canonicalResidualCellEvent witness U => z.1) demand := by
+      exact congrArg
+        (fun p : PMF (canonicalDemandImage row col U) => p demand)
+        (by
+          simpa only [Function.comp_def] using
+            (PMF.map_comp (p := uniformConfigurationMatching row col htotal)
+              (f := equivalence)
+              (fun z : Σ demand : canonicalDemandImage row col U,
+                Σ witness : PrescribedDemandWitness demand.1 row col,
+                  canonicalResidualCellEvent witness U => z.1)).symm)
+    _ = (uniformSigmaCanonicalDemandResidual row col U htotal).map
+          (fun z : Σ demand : canonicalDemandImage row col U,
+            Σ witness : PrescribedDemandWitness demand.1 row col,
+              canonicalResidualCellEvent witness U => z.1) demand := by
+      rw [uniformConfigurationMatching_map_sigmaCanonicalDemandResidual]
+    _ =
+        (Fintype.card
+          (Σ witness : PrescribedDemandWitness demand.1 row col,
+            canonicalResidualCellEvent witness U) : ENNReal) /
+          (Fintype.card
+            (Σ demand : canonicalDemandImage row col U,
+              Σ witness : PrescribedDemandWitness demand.1 row col,
+                canonicalResidualCellEvent witness U) : ENNReal) := by
+      change ((PMF.uniformOfFintype
+        (Σ demand : canonicalDemandImage row col U,
+          Σ witness : PrescribedDemandWitness demand.1 row col,
+            canonicalResidualCellEvent witness U)).map
+          (fun z : Σ demand : canonicalDemandImage row col U,
+            Σ witness : PrescribedDemandWitness demand.1 row col,
+              canonicalResidualCellEvent witness U => z.1)) demand = _
+      exact uniformOfFintype_sigma_map_fst_apply demand
+    _ = _ := by
+      rw [← Fintype.card_congr equivalence]
+
+/-- Each global demand fibre factors exactly into its labelled-witness count
+and one standardized residual-event count.  The reference witness remains an
+explicit parameter: the residual event varies with the attained demand. -/
+theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    Fintype.card
+      (Σ witness : PrescribedDemandWitness demand.1 row col,
+        canonicalResidualCellEvent witness U) =
+      Fintype.card (PrescribedDemandWitness demand.1 row col) *
+        Fintype.card (canonicalResidualCellEvent witness0 U) := by
+  calc
+    Fintype.card
+        (Σ witness : PrescribedDemandWitness demand.1 row col,
+          canonicalResidualCellEvent witness U) =
+        Fintype.card (canonicalDemandEvent demand.1 row col U) := by
+      exact Fintype.card_congr
+        (canonicalDemandEventEquivSigmaResidual demand.1 row col U
+          (canonicalDemandImage_high row col U demand)).symm
+    _ = Fintype.card (PrescribedDemandWitness demand.1 row col) *
+          Fintype.card (canonicalResidualCellEvent witness0 U) := by
+      exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
+        (canonicalDemandImage_high row col U demand) witness0
+
+/-- The exact global canonical-demand mass is the labelled-witness count
+times one demand-specific standardized residual-event count, divided by the
+ambient matching cardinality.  The reference witness is explicit, so this
+does not identify residual spaces across different attained demands. -/
+theorem uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    ((uniformConfigurationMatching row col htotal).map
+        (fun matching =>
+          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+            matching).1)) demand =
+      ((Fintype.card (PrescribedDemandWitness demand.1 row col) : ENNReal) *
+        (Fintype.card (canonicalResidualCellEvent witness0 U) : ENNReal)) /
+        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
+  rw [uniformConfigurationMatching_map_canonicalDemand_apply]
+  rw [card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+    row col U demand witness0]
+  simp only [Nat.cast_mul]
+
+#print axioms canonicalDemandOfMatching_high_of_ne_zero
+#print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
+#print axioms canonicalDemandImage_high
+#print axioms configurationMatchingEquivSigmaCanonicalDemandResidual
+#print axioms uniformSigmaCanonicalDemandResidual
+#print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
+#print axioms uniformConfigurationMatching_map_canonicalDemand_apply
+#print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
+#print axioms uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
+Source: Erdos625/Section8LabelledIncidence.lean
+Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
+
+/-!
+# Normalized labelled-witness incidence for Section VIII
+
+This module isolates the algebraic normalized labelled-exposure incidence
+used in manuscript (8.3).  It is not, by itself, the full configuration-model
+event-probability identity: that application still requires equal ambient
+row and column totals, matching-extension normalization, and specialization
+to the canonical partial-matching demand.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+/-- The number of labelled prescribed-demand witnesses, normalized by the
+ambient row-stub descending factorial `(m)_J`. -/
+noncomputable def labelledWitnessIncidence
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) : ℝ≥0∞ :=
+  (Fintype.card (PrescribedDemandWitness demand row col) : ℝ≥0∞) /
+    ((Finset.univ.sum row).descFactorial (totalDemand demand) : ℝ≥0∞)
+
+/-- Exact algebraic form of the normalized labelled-witness incidence.  The
+displayed total-demand hypothesis makes every ENNReal denominator nonzero;
+the result remains a counting identity rather than the full probability
+statement of manuscript (8.3). -/
+theorem labelledWitnessIncidence_eq
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ)
+    (hDemand : totalDemand demand ≤ Finset.univ.sum row) :
+    labelledWitnessIncidence demand row col =
+      ((rowDescendingProduct demand row *
+        columnDescendingProduct demand col : ℕ) : ℝ≥0∞) /
+      (((Finset.univ.sum row).descFactorial (totalDemand demand) *
+        demandFactorialProduct demand : ℕ) : ℝ≥0∞) := by
+  have hdesc_pos :
+      0 < (Finset.univ.sum row).descFactorial (totalDemand demand) :=
+    Nat.descFactorial_pos.mpr hDemand
+  have hfactorial_pos : 0 < demandFactorialProduct demand := by
+    exact Finset.prod_pos fun a _ ↦
+      Finset.prod_pos fun b _ ↦ Nat.factorial_pos _
+  unfold labelledWitnessIncidence
+  rw [ENNReal.div_eq_div_iff]
+  · norm_cast
+    simpa only [demandFactorialProduct, rowDescendingProduct,
+      columnDescendingProduct, mul_assoc, mul_comm, mul_left_comm] using
+      congr_arg
+        (fun n ↦
+          (Finset.univ.sum row).descFactorial (totalDemand demand) * n)
+        (card_prescribedDemandWitness_mul_factorials demand row col)
+  · exact ne_of_gt (by exact_mod_cast mul_pos hdesc_pos hfactorial_pos)
+  · exact ENNReal.natCast_ne_top _
+  · exact ne_of_gt (by exact_mod_cast hdesc_pos)
+  · exact ENNReal.natCast_ne_top _
+
+#print axioms labelledWitnessIncidence_eq
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8LabelledIncidence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
+Source: Erdos625/Section8ResidualDegreeTotal.lean
+Normalized SHA-256: 08b5a0f2efdc1b60de2714abb034da3362758d50905b5481edaac3ccfce58e94
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
+
+/-!
+# Section 8: total residual degree balance
+
+Removing a feasible labelled prescribed-demand witness preserves equality of
+the total row and column residual degrees.  This is a finite deterministic
+bridge used by the canonical-residual construction.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Removing one feasible prescribed-demand witness preserves equality of the
+total row and column residual degrees. -/
+theorem sum_residualRowDegree_eq_sum_residualColumnDegree
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ a, residualRowDegree witness a) =
+      ∑ b, residualColumnDegree witness b := by
+  calc
+    (∑ a, residualRowDegree witness a) =
+        Fintype.card (RowStub (residualRowDegree witness)) :=
+      (card_rowStub (residualRowDegree witness)).symm
+    _ = Fintype.card (RemainingRowStub witness) :=
+      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
+    _ = Fintype.card (RemainingColumnStub witness) :=
+      card_remainingStubs_eq witness htotal
+    _ = Fintype.card (ColumnStub (residualColumnDegree witness)) :=
+      Fintype.card_congr (remainingColumnStubEquivResidual witness)
+    _ = ∑ b, residualColumnDegree witness b :=
+      card_columnStub (residualColumnDegree witness)
+
+#print axioms sum_residualRowDegree_eq_sum_residualColumnDegree
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total row residual degree. -/
+theorem sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ a, residualRowDegree witness a) =
+      (∑ a, row a) - totalDemand demand := by
+  calc
+    (∑ a, residualRowDegree witness a) =
+        Fintype.card (RowStub (residualRowDegree witness)) :=
+      (card_rowStub (residualRowDegree witness)).symm
+    _ = Fintype.card (RemainingRowStub witness) :=
+      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
+    _ = (∑ a, row a) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingRowStub witness
+
+#print axioms sum_residualRowDegree_eq_rowTotal_sub_totalDemand
+
+/-- Exposing a prescribed-demand witness removes exactly its total demand
+from the total column residual degree. -/
+theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    (∑ b, residualColumnDegree witness b) =
+      (∑ b, col b) - totalDemand demand := by
+  calc
+    (∑ b, residualColumnDegree witness b) =
+        Fintype.card (ColumnStub (residualColumnDegree witness)) :=
+      (card_columnStub (residualColumnDegree witness)).symm
+    _ = Fintype.card (RemainingColumnStub witness) :=
+      (Fintype.card_congr (remainingColumnStubEquivResidual witness)).symm
+    _ = (∑ b, col b) - totalDemand demand := by
+      simpa only [totalDemand] using card_remainingColumnStub witness
+
+#print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
+
+/-- Every feasible prescribed-demand witness leaves residual degrees bounded
+by their ambient row and column degrees, and preserves equality of the two
+residual totals. -/
+theorem residualDegreeProfile_of_witness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (witness : PrescribedDemandWitness demand row col) :
+    (∀ a, residualRowDegree witness a ≤ row a) ∧
+      (∀ b, residualColumnDegree witness b ≤ col b) ∧
+      ((∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b) := by
+  refine ⟨?_, ?_,
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness⟩
+  · intro a
+    change row a - (∑ b, demand a b) ≤ row a
+    exact Nat.sub_le _ _
+  · intro b
+    change col b - (∑ a, demand a b) ≤ col b
+    exact Nat.sub_le _ _
+
+#print axioms residualDegreeProfile_of_witness
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
+Source: Erdos625/Section8WitnessDemandFeasibility.lean
+Normalized SHA-256: f22be5b82d996e47d647dce7c2fe81c2501f48e32d26c24a536b9b4d592810de
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
+
+/-!
+# Section 8: prescribed-demand feasibility
+
+A labelled prescribed-demand witness chooses pairwise disjoint row stubs in
+every row class.  Consequently its total demand cannot exceed the ambient
+row-stub mass.  This is the finite feasibility condition needed before
+factorial cancellation in the canonical-event count.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Existence of a labelled prescribed-demand witness forces total demand not
+to exceed the ambient row-stub mass. -/
+theorem totalDemand_le_rowTotal_of_witness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) :
+    totalDemand demand ≤ ∑ a, row a := by
+  refine Finset.sum_le_sum fun a _ ↦ ?_
+  have hcard := card_iUnion_stubAllocation (witness.1 a)
+  calc
+    ∑ b, demand a b =
+        (Finset.univ.biUnion (witness.1 a).1).card := hcard.symm
+    _ ≤ (Finset.univ : Finset (Fin (row a))).card := Finset.card_le_univ _
+    _ = row a := by simp
+
+#print axioms totalDemand_le_rowTotal_of_witness
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
+Source: Erdos625/Section8ResidualEventToSection9.lean
+Normalized SHA-256: 5714d0c5217c8f65f8795a1f8e90d1d4bf9ceb10c8b42907ab5bc874a5ed40c7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
+
+/-!
+# Section VIII--IX: canonical residual event in Section IX form
+
+The canonical residual half-cap/no-return event of Section VIII is exactly the
+cap/no-return event used by the fixed-`F` expansion of Section IX, once the
+exposed support is written as a finite set.  This is a deterministic event
+identification only; it does not establish a conditioned law or any global
+probability estimate.
+-/
+
+namespace Erdos625
+
+/-- The finite support of the nonzero cells of a prescribed demand table. -/
+def positiveDemandSupport
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) : Finset (A × B) :=
+  Finset.univ.filter (fun e ↦ demand e.1 e.2 ≠ 0)
+
+/-- The Section VIII canonical residual event is the Section IX cap/no-return
+event for the finite support of the exposed demand table. -/
+theorem canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    canonicalResidualCellEvent witness U =
+      ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) := by
+  ext residual
+  constructor
+  · intro h
+    refine ⟨?_, ?_⟩
+    · intro a b
+      exact (h a b).1
+    · intro e he
+      exact (h e.1 e.2).2 (by
+        simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+          true_and] using he)
+  · rintro ⟨hcap, hreturn⟩ a b
+    refine ⟨hcap a b, ?_⟩
+    intro hpositive
+    exact hreturn (a, b) (by
+      simp only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+        true_and]
+      exact hpositive)
+
+/-- The fixed-witness canonical event transports to the Section IX
+cap/no-return event under the existing residual matching equivalence. -/
+theorem mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
+    (extension : fixedWitnessExtensionEvent witness) :
+    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
+      fixedWitnessExtensionEquivResidual witness extension ∈
+        ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness) := by
+  rw [mem_fixedWitnessCanonicalDemandEvent_iff_residual witness U hhigh extension,
+    canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
+
+#print axioms canonicalResidualCellEvent_eq_residualCapNoReturnEvent
+#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
+Source: Erdos625/Section9TaggedFiberCancellation.lean
+Normalized SHA-256: afbe66f411b5ff5f75780612d2416ca6518e67e2db2558534e545d7d2e40014a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9TaggedFiberCancellation
+
+/-!
+# Section VIII--IX weighted tagged-fibre cancellation seam
+
+For one attained canonical demand, the global uniform law on dependent
+`demand/witness/residual` tags assigns every tagged state mass `1 / m!`.
+The manuscript instead writes the same contribution as the labelled-witness
+incidence `#witnesses / (m)_J` times an unnormalised residual numerator under
+the uniform residual matching law.  The target theorem below is the exact
+finite equality between those two presentations.
+
+This theorem does not estimate either side and does not cancel or divide by
+the cap/no-return event probability.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventTaggedCancellation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- The literal residual attachment observable carried by one tagged state.
+The residual configuration is already in the canonical cap/no-return subtype,
+so no additional event indicator appears here. -/
+def taggedResidualAttachmentValue
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat}
+    (demand : A -> B -> Nat) (U : Nat)
+    (witness : PrescribedDemandWitness demand row col)
+    (residual : canonicalResidualCellEvent witness U) : ENNReal :=
+  (Finset.univ.prod fun a : A =>
+    Finset.univ.prod fun b : B =>
+      (residualReward (configurationCellCount residual.1 a b) : ENNReal)) *
+    ((actualResidualEvenEdgeSets
+      (positiveDemandSupport demand) residual.1).card : ENNReal)
+
+private theorem uniformSigmaCanonicalDemandResidual_apply_eq_factorial_inv
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (z : Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) :
+    uniformSigmaCanonicalDemandResidual row col U htotal z =
+      ((Finset.univ.sum row).factorial : ENNReal)⁻¹ := by
+  unfold uniformSigmaCanonicalDemandResidual
+  simp [PMF.uniformOfFintype_apply]
+  have h_card : ∃ matching : ConfigurationMatching row col, True := by
+    exact ⟨configurationMatchingEquiv row col htotal, trivial⟩
+  obtain ⟨matching, _⟩ := h_card
+  have hmap := uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
+    row col U htotal
+  replace hmap := congr_arg
+    (fun p => p
+      (configurationMatchingEquivSigmaCanonicalDemandResidual row col U matching))
+    hmap
+  simp [uniformSigmaCanonicalDemandResidual] at hmap
+  unfold uniformConfigurationMatching at hmap
+  simp at hmap
+  rw [← hmap, card_configurationMatching row col htotal]
+
+private theorem sum_taggedResidualAttachmentValue_fiber
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} (U : Nat)
+    (demand : A -> B -> Nat)
+    (witness0 : PrescribedDemandWitness demand row col) :
+    (Finset.univ.sum fun z :
+      Sigma fun witness : PrescribedDemandWitness demand row col =>
+        canonicalResidualCellEvent witness U =>
+      taggedResidualAttachmentValue demand U z.1 z.2) =
+      (Fintype.card (PrescribedDemandWitness demand row col) : ENNReal) *
+        (Finset.univ.sum fun residual : canonicalResidualCellEvent witness0 U =>
+          taggedResidualAttachmentValue demand U witness0 residual) := by
+  rw [Fintype.sum_sigma]
+  change (∑ _witness : PrescribedDemandWitness demand row col,
+      ∑ residual : canonicalResidualCellEvent witness0 U,
+        taggedResidualAttachmentValue demand U witness0 residual) = _
+  simp
+
+private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat)
+    (hres : Finset.univ.sum (residualRowDegree witness) =
+      Finset.univ.sum (residualColumnDegree witness)) :
+    residualActualAttachmentNumerator
+        (positiveDemandSupport demand) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) hres =
+      ((Finset.univ.sum (residualRowDegree witness)).factorial : ENNReal)⁻¹ *
+        (Finset.univ.sum fun residual : canonicalResidualCellEvent witness U =>
+          taggedResidualAttachmentValue demand U witness residual) := by
+  classical
+  unfold residualActualAttachmentNumerator uniformConfigurationMatching
+  simp only [PMF.uniformOfFintype_apply]
+  rw [card_configurationMatching _ _ hres]
+  let weight := fun matching : ConfigurationMatching
+      (residualRowDegree witness) (residualColumnDegree witness) =>
+    (Finset.univ.prod fun a : A =>
+      Finset.univ.prod fun b : B =>
+        (residualReward (configurationCellCount matching a b) : ENNReal)) *
+      ((actualResidualEvenEdgeSets
+        (positiveDemandSupport demand) matching).card : ENNReal)
+  calc
+    _ = ((Finset.univ.sum (residualRowDegree witness)).factorial : ENNReal)⁻¹ *
+        ∑ matching, if matching ∈ ResidualCapNoReturnEvent
+          (positiveDemandSupport demand) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)
+          then weight matching else 0 := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro matching _
+      by_cases hmatching : matching ∈ ResidualCapNoReturnEvent
+        (positiveDemandSupport demand) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness)
+      · simp [hmatching, weight, mul_assoc]
+      · simp [hmatching]
+    _ = _ := by
+      congr 1
+      unfold taggedResidualAttachmentValue weight
+      convert (Finset.sum_subtype_eq_sum_filter
+          (s := (Finset.univ : Finset (ConfigurationMatching
+            (residualRowDegree witness) (residualColumnDegree witness))))
+          (f := fun matching =>
+            (Finset.univ.prod fun a : A =>
+              Finset.univ.prod fun b : B =>
+                (residualReward
+                  (configurationCellCount matching a b) : ENNReal)) *
+              ((actualResidualEvenEdgeSets
+                (positiveDemandSupport demand) matching).card : ENNReal))
+          (p := fun matching => matching ∈ ResidualCapNoReturnEvent
+            (positiveDemandSupport demand) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness))).symm using 1
+      · rw [Finset.sum_filter]
+      ·
+        refine' Finset.sum_bij ( fun x _ => ⟨ x.1, by
+          grind +suggestions ⟩ ) _ _ _ _ <;> simp +decide;
+        grind +suggestions
+
+/-- Exact per-demand factorial cancellation and weighted tagged-law
+integration.  The left side is the contribution of one attained demand fibre
+inside the global dependent uniform law.  The right side is precisely its
+labelled-witness incidence times the unnormalised residual attachment
+numerator used by Section IX.
+-/
+theorem sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U)
+    (witness0 : PrescribedDemandWitness demand.1 row col) :
+    (Finset.univ.sum fun z :
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal
+          ⟨demand, z⟩ *
+        taggedResidualAttachmentValue demand.1 U z.1 z.2) =
+      labelledWitnessIncidence demand.1 row col *
+        residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness0) (residualColumnDegree witness0)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree
+            htotal witness0) := by
+  convert congr_arg _ ( sum_taggedResidualAttachmentValue_fiber U demand.1 witness0 ) using 1;
+  rotate_right;
+  use fun x => x * ( ( Finset.univ.sum row |> Nat.factorial ) : ENNReal ) ⁻¹;
+  · rw [ Finset.sum_mul _ _ _ ];
+    refine' Finset.sum_congr rfl fun x hx => _;
+    rw [ mul_comm, uniformSigmaCanonicalDemandResidual_apply_eq_factorial_inv ];
+  · rw [ residualActualAttachmentNumerator_eq_factorial_inv_mul_sum ];
+    unfold labelledWitnessIncidence;
+    rw [ show ( Finset.univ.sum ( residualRowDegree witness0 ) ) = Finset.univ.sum row - totalDemand ( demand : A → B → ℕ ) from sum_residualRowDegree_eq_rowTotal_sub_totalDemand witness0 ];
+    rw [ Nat.descFactorial_eq_factorial_mul_choose ];
+    rw [ ← Nat.choose_mul_factorial_mul_factorial ( show totalDemand ( demand : A → B → ℕ ) ≤ Finset.univ.sum row from totalDemand_le_rowTotal_of_witness witness0 ) ] ; ring;
+    simp +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ];
+    simp +decide [ ← mul_assoc, ENNReal.mul_inv ];
+    rw [ ENNReal.mul_inv, ENNReal.mul_inv ] ; ring;
+    · exact Or.inr ( ENNReal.natCast_ne_top _ );
+    · exact Or.inl ENNReal.coe_ne_top;
+    · exact Or.inr ( ENNReal.natCast_ne_top _ );
+    · exact Or.inl ENNReal.coe_ne_top
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9TaggedFiberCancellation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
 Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
@@ -35409,1455 +38214,6 @@ END SOURCE MODULE: Erdos625.WeightedCauchyTools
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ResidualFiberCounts
-Source: Erdos625/ResidualFiberCounts.lean
-Normalized SHA-256: e220f5a42d471945404610823ce9294348ac55c58ebbaeb860721cec86a0c961
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ResidualFiberCounts
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-!
-# Degree fibres of the exposed witness
-
-These theorems refine the global selected-stub cardinalities class by class.
-They are deterministic counts only; the conditional residual probability law
-is not asserted here.
--/
-
-theorem card_selectedRowStubs_in_class
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A) :
-    ((witnessSelectedRowStubs witness).filter
-      (fun stub => stub.1 = a)).card = ∑ b, demand a b := by
-  classical
-  let f := witnessRowEmbedding witness
-  have himage :
-      (Finset.univ.image f).filter (fun stub => stub.1 = a) =
-        (Finset.univ.filter
-          (fun atom : WitnessRowAtom witness => (f atom).1 = a)).image f := by
-    ext stub
-    constructor
-    · intro h
-      obtain ⟨himage, hclass⟩ := Finset.mem_filter.mp h
-      obtain ⟨atom, _, rfl⟩ := Finset.mem_image.mp himage
-      exact Finset.mem_image.mpr ⟨atom,
-        Finset.mem_filter.mpr ⟨Finset.mem_univ atom, hclass⟩, rfl⟩
-    · intro h
-      obtain ⟨atom, hatom, rfl⟩ := Finset.mem_image.mp h
-      obtain ⟨_, hclass⟩ := Finset.mem_filter.mp hatom
-      exact Finset.mem_filter.mpr ⟨
-        Finset.mem_image_of_mem f (Finset.mem_univ atom), hclass⟩
-  have hfilter :
-      Finset.univ.filter
-          (fun atom : WitnessRowAtom witness => (f atom).1 = a) =
-        Finset.univ.filter (fun atom : WitnessRowAtom witness => atom.1 = a) := by
-    ext atom
-    simp [f, witnessRowEmbedding]
-  unfold witnessSelectedRowStubs
-  rw [himage, Finset.card_image_of_injective, hfilter]
-  · rw [Finset.card_filter, Fintype.sum_sigma]
-    have hinner : ∀ x : A,
-        (∑ y : (b : B) × ↑((witness.1 x).1 b),
-          if (⟨x, y⟩ : WitnessRowAtom witness).1 = a then (1 : ℕ) else 0) =
-          if x = a then (∑ b, demand x b) else 0 := by
-      intro x
-      by_cases hx : x = a
-      · subst x
-        simp [Fintype.card_sigma, (witness.1 a).2.1]
-      · simp [hx]
-    rw [Finset.sum_congr rfl (fun x _ => hinner x),
-      Finset.sum_ite_eq' Finset.univ a (fun x => ∑ b, demand x b)]
-    simp
-  · exact f.injective
-
-theorem card_selectedColumnStubs_in_class
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (b : B) :
-    ((witnessSelectedColumnStubs witness).filter
-      (fun stub => stub.1 = b)).card = ∑ a, demand a b := by
-  classical
-  let f := witnessColumnPairingEmbedding witness
-  have himage :
-      (Finset.univ.image f).filter (fun stub => stub.1 = b) =
-        (Finset.univ.filter
-          (fun atom : WitnessRowAtom witness => (f atom).1 = b)).image f := by
-    ext stub
-    constructor
-    · intro h
-      obtain ⟨himage, hclass⟩ := Finset.mem_filter.mp h
-      obtain ⟨atom, _, rfl⟩ := Finset.mem_image.mp himage
-      exact Finset.mem_image.mpr ⟨atom,
-        Finset.mem_filter.mpr ⟨Finset.mem_univ atom, hclass⟩, rfl⟩
-    · intro h
-      obtain ⟨atom, hatom, rfl⟩ := Finset.mem_image.mp h
-      obtain ⟨_, hclass⟩ := Finset.mem_filter.mp hatom
-      exact Finset.mem_filter.mpr ⟨
-        Finset.mem_image_of_mem f (Finset.mem_univ atom), hclass⟩
-  have hfilter :
-      Finset.univ.filter
-          (fun atom : WitnessRowAtom witness => (f atom).1 = b) =
-        Finset.univ.filter
-          (fun atom : WitnessRowAtom witness => atom.2.1 = b) := by
-    ext atom
-    simp [f, witnessColumnPairingEmbedding, witnessAtomEquiv,
-      witnessColumnEmbedding]
-  unfold witnessSelectedColumnStubs
-  rw [himage, Finset.card_image_of_injective, hfilter]
-  · rw [Finset.card_filter, Fintype.sum_sigma]
-    apply Finset.sum_congr rfl
-    intro a _
-    rw [Fintype.sum_sigma]
-    have hinner : ∀ x : B,
-        (∑ _stub : ↑((witness.1 a).1 x),
-          if x = b then (1 : ℕ) else 0) =
-          if x = b then demand a x else 0 := by
-      intro x
-      by_cases hx : x = b
-      · subst x
-        simpa [Fintype.card_coe] using (witness.1 a).2.1 b
-      · simp [hx]
-    rw [Finset.sum_congr rfl (fun x _ => hinner x),
-      Finset.sum_ite_eq' Finset.univ b (fun x => demand a x)]
-    simp
-  · exact f.injective
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ResidualFiberCounts
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ResidualFiberCounts
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ResidualDegreeMatching
-Source: Erdos625/ResidualDegreeMatching.lean
-Normalized SHA-256: 9b20d59e27de0a1249cac955721f4264deb3a2fb9e5ebce0d9cbf1ede31bd700
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ResidualDegreeMatching
-
-/-!
-# Degree-labelled residual configuration matchings
-
-For a fixed prescribed-demand witness, this module turns the unused global
-stub subtypes into ordinary dependent sums indexed by the exact residual row
-and column degrees.  It then transports the deterministic extension
-equivalence to the standard `ConfigurationMatching` type for those residual
-degrees.
-
-No conditioning statement is made here: this module identifies the finite
-sample spaces only.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- The selected local row-stub indices in class `a`, obtained by pulling back
-the witness's global selected-stub set. -/
-def witnessSelectedRowIndices
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A) :
-    Finset (Fin (row a)) :=
-  Finset.univ.filter (fun i =>
-    (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness)
-
-/-- The selected local column-stub indices in class `b`. -/
-def witnessSelectedColumnIndices
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (b : B) :
-    Finset (Fin (col b)) :=
-  Finset.univ.filter (fun i =>
-    (⟨b, i⟩ : ColumnStub col) ∈ witnessSelectedColumnStubs witness)
-
-/-- Exact residual degree of row class `a`. -/
-def residualRowDegree
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (_witness : PrescribedDemandWitness demand row col) (a : A) : ℕ :=
-  row a - ∑ b, demand a b
-
-/-- Exact residual degree of column class `b`. -/
-def residualColumnDegree
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (_witness : PrescribedDemandWitness demand row col) (b : B) : ℕ :=
-  col b - ∑ a, demand a b
-
-theorem card_witnessSelectedRowIndices
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A) :
-    (witnessSelectedRowIndices witness a).card = ∑ b, demand a b := by
-  classical
-  let f : Fin (row a) → RowStub row := fun i => ⟨a, i⟩
-  have hf : Function.Injective f := by
-    intro i j h
-    exact eq_of_heq (Sigma.mk.inj_iff.mp h).2
-  have himage :
-      (witnessSelectedRowIndices witness a).image f =
-        (witnessSelectedRowStubs witness).filter (fun stub => stub.1 = a) := by
-    ext stub
-    constructor
-    · intro h
-      obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp h
-      exact Finset.mem_filter.mpr ⟨by
-        simpa [f, witnessSelectedRowIndices] using hi, rfl⟩
-    · intro h
-      obtain ⟨hselected, hclass⟩ := Finset.mem_filter.mp h
-      obtain ⟨a', i⟩ := stub
-      simp only at hclass
-      subst a'
-      exact Finset.mem_image.mpr ⟨i, by
-        simp [witnessSelectedRowIndices, hselected], rfl⟩
-  calc
-    (witnessSelectedRowIndices witness a).card =
-        ((witnessSelectedRowIndices witness a).image f).card := by
-      rw [Finset.card_image_of_injective _ hf]
-    _ = ((witnessSelectedRowStubs witness).filter
-          (fun stub => stub.1 = a)).card := by rw [himage]
-    _ = ∑ b, demand a b := card_selectedRowStubs_in_class witness a
-
-theorem card_witnessSelectedColumnIndices
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (b : B) :
-    (witnessSelectedColumnIndices witness b).card = ∑ a, demand a b := by
-  classical
-  let f : Fin (col b) → ColumnStub col := fun i => ⟨b, i⟩
-  have hf : Function.Injective f := by
-    intro i j h
-    exact eq_of_heq (Sigma.mk.inj_iff.mp h).2
-  have himage :
-      (witnessSelectedColumnIndices witness b).image f =
-        (witnessSelectedColumnStubs witness).filter (fun stub => stub.1 = b) := by
-    ext stub
-    constructor
-    · intro h
-      obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp h
-      exact Finset.mem_filter.mpr ⟨by
-        simpa [f, witnessSelectedColumnIndices] using hi, rfl⟩
-    · intro h
-      obtain ⟨hselected, hclass⟩ := Finset.mem_filter.mp h
-      obtain ⟨b', i⟩ := stub
-      simp only at hclass
-      subst b'
-      exact Finset.mem_image.mpr ⟨i, by
-        simp [witnessSelectedColumnIndices, hselected], rfl⟩
-  calc
-    (witnessSelectedColumnIndices witness b).card =
-        ((witnessSelectedColumnIndices witness b).image f).card := by
-      rw [Finset.card_image_of_injective _ hf]
-    _ = ((witnessSelectedColumnStubs witness).filter
-          (fun stub => stub.1 = b)).card := by rw [himage]
-    _ = ∑ a, demand a b := card_selectedColumnStubs_in_class witness b
-
-/-- The unused local row-stub fibre has the manuscript's residual degree. -/
-theorem card_remainingRowFiber
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A) :
-    Fintype.card
-        {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} =
-      residualRowDegree witness a := by
-  classical
-  rw [Fintype.card_subtype]
-  have hfilter :
-      Finset.univ.filter
-          (fun i : Fin (row a) => i ∉ witnessSelectedRowIndices witness a) =
-        (witnessSelectedRowIndices witness a)ᶜ := by
-    ext i
-    simp
-  rw [hfilter, Finset.card_compl, Fintype.card_fin,
-    card_witnessSelectedRowIndices witness]
-  rfl
-
-/-- The unused local column-stub fibre has the manuscript's residual degree. -/
-theorem card_remainingColumnFiber
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (b : B) :
-    Fintype.card
-        {i : Fin (col b) // i ∉ witnessSelectedColumnIndices witness b} =
-      residualColumnDegree witness b := by
-  classical
-  rw [Fintype.card_subtype]
-  have hfilter :
-      Finset.univ.filter
-          (fun i : Fin (col b) => i ∉ witnessSelectedColumnIndices witness b) =
-        (witnessSelectedColumnIndices witness b)ᶜ := by
-    ext i
-    simp
-  rw [hfilter, Finset.card_compl, Fintype.card_fin,
-    card_witnessSelectedColumnIndices witness]
-  rfl
-
-private def remainingRowStubEquivFibres
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    RemainingRowStub witness ≃
-      Σ a, {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} where
-  toFun x := ⟨x.1.1, ⟨x.1.2, by
-    simpa [witnessSelectedRowIndices] using x.2⟩⟩
-  invFun x := ⟨⟨x.1, x.2.1⟩, by
-    simpa [witnessSelectedRowIndices] using x.2.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
-
-private def remainingColumnStubEquivFibres
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    RemainingColumnStub witness ≃
-      Σ b, {i : Fin (col b) // i ∉ witnessSelectedColumnIndices witness b} where
-  toFun x := ⟨x.1.1, ⟨x.1.2, by
-    simpa [witnessSelectedColumnIndices] using x.2⟩⟩
-  invFun x := ⟨⟨x.1, x.2.1⟩, by
-    simpa [witnessSelectedColumnIndices] using x.2.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
-
-/-- Class-preserving identification of unused row stubs with the standard
-dependent sum carrying the residual row degrees. -/
-def remainingRowStubEquivResidual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    RemainingRowStub witness ≃ RowStub (residualRowDegree witness) :=
-  (remainingRowStubEquivFibres witness).trans
-    (Equiv.sigmaCongrRight (fun a =>
-      Fintype.equivFinOfCardEq (card_remainingRowFiber witness a)))
-
-/-- Class-preserving identification of unused column stubs with the standard
-dependent sum carrying the residual column degrees. -/
-def remainingColumnStubEquivResidual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    RemainingColumnStub witness ≃ ColumnStub (residualColumnDegree witness) :=
-  (remainingColumnStubEquivFibres witness).trans
-    (Equiv.sigmaCongrRight (fun b =>
-      Fintype.equivFinOfCardEq (card_remainingColumnFiber witness b)))
-
-@[simp] theorem remainingRowStubEquivResidual_class
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (x : RemainingRowStub witness) :
-    (remainingRowStubEquivResidual witness x).1 = x.1.1 := rfl
-
-@[simp] theorem remainingColumnStubEquivResidual_class
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (x : RemainingColumnStub witness) :
-    (remainingColumnStubEquivResidual witness x).1 = x.1.1 := rfl
-
-/-- Exact finite-space identification: full matchings extending a fixed
-exposed witness are equivalent to configuration matchings having the induced
-residual row and column degrees. -/
-def extensionsOfWitnessEquivResidualConfiguration
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    {matching : ConfigurationMatching row col //
-        ExtendsPrescribedDemandWitness matching witness} ≃
-      ConfigurationMatching (residualRowDegree witness)
-        (residualColumnDegree witness) :=
-  (extensionsOfPrescribedDemandWitnessEquivRemaining witness).trans
-    ((remainingRowStubEquivResidual witness).equivCongr
-      (remainingColumnStubEquivResidual witness))
-
-/-- Uniformity transports across the exact extension/residual equivalence.
-This is a law on the extension subtype; conditioning the ambient law is a
-separate generic step. -/
-theorem uniform_extensionSubtype_map_residual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    [Nonempty {matching : ConfigurationMatching row col //
-        ExtendsPrescribedDemandWitness matching witness}]
-    [Nonempty (ConfigurationMatching (residualRowDegree witness)
-      (residualColumnDegree witness))] :
-    (PMF.uniformOfFintype
-        {matching : ConfigurationMatching row col //
-          ExtendsPrescribedDemandWitness matching witness}).map
-        (extensionsOfWitnessEquivResidualConfiguration witness) =
-      PMF.uniformOfFintype
-        (ConfigurationMatching (residualRowDegree witness)
-          (residualColumnDegree witness)) :=
-  uniformOfFintype_map_equiv
-    (extensionsOfWitnessEquivResidualConfiguration witness)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ResidualDegreeMatching
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ResidualDegreeMatching
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
-Source: Erdos625/Section8ResidualDegreeTotal.lean
-Normalized SHA-256: 08b5a0f2efdc1b60de2714abb034da3362758d50905b5481edaac3ccfce58e94
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
-
-/-!
-# Section 8: total residual degree balance
-
-Removing a feasible labelled prescribed-demand witness preserves equality of
-the total row and column residual degrees.  This is a finite deterministic
-bridge used by the canonical-residual construction.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Removing one feasible prescribed-demand witness preserves equality of the
-total row and column residual degrees. -/
-theorem sum_residualRowDegree_eq_sum_residualColumnDegree
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (witness : PrescribedDemandWitness demand row col) :
-    (∑ a, residualRowDegree witness a) =
-      ∑ b, residualColumnDegree witness b := by
-  calc
-    (∑ a, residualRowDegree witness a) =
-        Fintype.card (RowStub (residualRowDegree witness)) :=
-      (card_rowStub (residualRowDegree witness)).symm
-    _ = Fintype.card (RemainingRowStub witness) :=
-      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
-    _ = Fintype.card (RemainingColumnStub witness) :=
-      card_remainingStubs_eq witness htotal
-    _ = Fintype.card (ColumnStub (residualColumnDegree witness)) :=
-      Fintype.card_congr (remainingColumnStubEquivResidual witness)
-    _ = ∑ b, residualColumnDegree witness b :=
-      card_columnStub (residualColumnDegree witness)
-
-#print axioms sum_residualRowDegree_eq_sum_residualColumnDegree
-
-/-- Exposing a prescribed-demand witness removes exactly its total demand
-from the total row residual degree. -/
-theorem sum_residualRowDegree_eq_rowTotal_sub_totalDemand
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    (∑ a, residualRowDegree witness a) =
-      (∑ a, row a) - totalDemand demand := by
-  calc
-    (∑ a, residualRowDegree witness a) =
-        Fintype.card (RowStub (residualRowDegree witness)) :=
-      (card_rowStub (residualRowDegree witness)).symm
-    _ = Fintype.card (RemainingRowStub witness) :=
-      (Fintype.card_congr (remainingRowStubEquivResidual witness)).symm
-    _ = (∑ a, row a) - totalDemand demand := by
-      simpa only [totalDemand] using card_remainingRowStub witness
-
-#print axioms sum_residualRowDegree_eq_rowTotal_sub_totalDemand
-
-/-- Exposing a prescribed-demand witness removes exactly its total demand
-from the total column residual degree. -/
-theorem sum_residualColumnDegree_eq_colTotal_sub_totalDemand
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    (∑ b, residualColumnDegree witness b) =
-      (∑ b, col b) - totalDemand demand := by
-  calc
-    (∑ b, residualColumnDegree witness b) =
-        Fintype.card (ColumnStub (residualColumnDegree witness)) :=
-      (card_columnStub (residualColumnDegree witness)).symm
-    _ = Fintype.card (RemainingColumnStub witness) :=
-      (Fintype.card_congr (remainingColumnStubEquivResidual witness)).symm
-    _ = (∑ b, col b) - totalDemand demand := by
-      simpa only [totalDemand] using card_remainingColumnStub witness
-
-#print axioms sum_residualColumnDegree_eq_colTotal_sub_totalDemand
-
-/-- Every feasible prescribed-demand witness leaves residual degrees bounded
-by their ambient row and column degrees, and preserves equality of the two
-residual totals. -/
-theorem residualDegreeProfile_of_witness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (witness : PrescribedDemandWitness demand row col) :
-    (∀ a, residualRowDegree witness a ≤ row a) ∧
-      (∀ b, residualColumnDegree witness b ≤ col b) ∧
-      ((∑ a, residualRowDegree witness a) =
-        ∑ b, residualColumnDegree witness b) := by
-  refine ⟨?_, ?_,
-    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness⟩
-  · intro a
-    change row a - (∑ b, demand a b) ≤ row a
-    exact Nat.sub_le _ _
-  · intro b
-    change col b - (∑ a, demand a b) ≤ col b
-    exact Nat.sub_le _ _
-
-#print axioms residualDegreeProfile_of_witness
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8ResidualDegreeTotal
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8ResidualDegreeTotal
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ConfigurationResidualCellCounts
-Source: Erdos625/ConfigurationResidualCellCounts.lean
-Normalized SHA-256: 40e6121a0c72160f1ae7c0907ef65488bb3d682fa00a51a2789ea1acd692cdd7
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellCounts
-
-/-!
-# Cell-count decomposition after a fixed exposure
-
-This module proves the deterministic classwise split of a configuration cell
-after exposing one fixed prescribed-demand witness.  It does not assert a
-conditional probability law, a high-cell cap, or canonical-skeleton
-uniqueness.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- A finite target fibre splits into its used part and the transported fibre
-on the complement. -/
-theorem card_targetFiber_eq_usedTarget_add_residual
-    {X Y B : Type*} [Fintype X] [Fintype Y]
-    [DecidableEq X] [DecidableEq Y] [DecidableEq B]
-    (used : Finset X) (fullTarget : X → B) (b : B)
-    (residualEquiv : {x : X // x ∉ used} ≃ Y)
-    (residualTarget : Y → B)
-    (htransport : ∀ x, residualTarget (residualEquiv x) = fullTarget x.1) :
-    (Finset.univ.filter (fun x => fullTarget x = b)).card =
-      (used.filter (fun x => fullTarget x = b)).card +
-        (Finset.univ.filter (fun y => residualTarget y = b)).card := by
-  classical
-  let complementFiberEquiv :
-      {x : X // x ∉ used ∧ fullTarget x = b} ≃
-        {y : Y // residualTarget y = b} :=
-    { toFun := fun x => ⟨residualEquiv ⟨x.1, x.2.1⟩, by
-        rw [htransport]
-        exact x.2.2⟩
-      invFun := fun y =>
-        let x := residualEquiv.symm y.1
-        ⟨x.1, x.2, by
-          rw [← htransport x, residualEquiv.apply_symm_apply]
-          exact y.2⟩
-      left_inv := fun x => by
-        apply Subtype.ext
-        simp
-      right_inv := fun y => by
-        apply Subtype.ext
-        simp }
-  have hresidualCard :
-      (Finset.univ.filter (fun y => residualTarget y = b)).card =
-        (Finset.univ.filter
-          (fun x => x ∉ used ∧ fullTarget x = b)).card := by
-    rw [← Fintype.card_subtype, ← Fintype.card_subtype]
-    exact Fintype.card_congr complementFiberEquiv.symm
-  let fullFiber := Finset.univ.filter (fun x => fullTarget x = b)
-  have hused :
-      fullFiber.filter (fun x => x ∈ used) =
-        used.filter (fun x => fullTarget x = b) := by
-    ext x
-    simp [fullFiber, and_comm]
-  have hunused :
-      fullFiber.filter (fun x => ¬ x ∈ used) =
-        Finset.univ.filter (fun x => x ∉ used ∧ fullTarget x = b) := by
-    ext x
-    simp [fullFiber, and_comm]
-  have hpartition :=
-    Finset.card_filter_add_card_filter_not (s := fullFiber)
-      (fun x => x ∈ used)
-  rw [hused, hunused] at hpartition
-  rw [hresidualCard]
-  exact hpartition.symm
-
-/-- The classwise component of `remainingRowStubEquivResidual`. -/
-def remainingRowIndexEquivResidual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A) :
-    {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a} ≃
-      Fin (residualRowDegree witness a) :=
-  Fintype.equivFinOfCardEq (card_remainingRowFiber witness a)
-
-theorem remainingRowStubEquivResidual_apply_in_class
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (a : A)
-    (i : {i : Fin (row a) //
-      i ∉ witnessSelectedRowIndices witness a}) :
-    remainingRowStubEquivResidual witness
-        ⟨⟨a, i.1⟩, by
-          simpa [witnessSelectedRowIndices] using i.2⟩ =
-      ⟨a, remainingRowIndexEquivResidual witness a i⟩ := by
-  rfl
-
-/-- The transported residual matching preserves the target class of every
-unused row stub. -/
-theorem residualConfiguration_targetClass
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (extension : {matching : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness matching witness})
-    (x : RemainingRowStub witness) :
-    ((extensionsOfWitnessEquivResidualConfiguration witness extension)
-      (remainingRowStubEquivResidual witness x)).1 =
-        (extension.1 x.1).1 := by
-  calc
-    ((extensionsOfWitnessEquivResidualConfiguration witness extension)
-        (remainingRowStubEquivResidual witness x)).1 =
-        (remainingColumnStubEquivResidual witness
-          ((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
-            ((remainingRowStubEquivResidual witness).symm
-              (remainingRowStubEquivResidual witness x)))).1 := rfl
-    _ = (remainingColumnStubEquivResidual witness
-          ((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
-            x)).1 := by rw [Equiv.symm_apply_apply]
-    _ = (((extensionsOfPrescribedDemandWitnessEquivRemaining witness extension)
-          x).1).1 := remainingColumnStubEquivResidual_class _ _
-    _ = (extension.1 x.1).1 := by
-      rfl
-
-/-- Among all row stubs selected by the witness, the ones that a full
-extension sends to class `b` are exactly the stubs selected in cell `(a,b)`. -/
-theorem usedRowTargetIndices_eq_witnessCell
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (extension : {matching : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness matching witness})
-    (a : A) (b : B) :
-    (witnessSelectedRowIndices witness a).filter
-        (fun i => (extension.1 ⟨a, i⟩).1 = b) =
-      (witness.1 a).1 b := by
-  classical
-  ext i
-  constructor
-  · intro hi
-    obtain ⟨hselected, htarget⟩ := Finset.mem_filter.mp hi
-    have hglobal :
-        (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness := by
-      simpa [witnessSelectedRowIndices] using hselected
-    obtain ⟨atom, _, hatom⟩ := Finset.mem_image.mp hglobal
-    obtain ⟨a', b', stub⟩ := atom
-    have ha : a' = a := (Sigma.mk.inj_iff.mp hatom).1
-    subst a'
-    have hstub : (stub : Fin (row a)) = i :=
-      eq_of_heq (Sigma.mk.inj_iff.mp hatom).2
-    have hbtarget := congrArg Sigma.fst (extension.2 ⟨a, b', stub⟩)
-    change (extension.1 ⟨a, (stub : Fin (row a))⟩).1 = b' at hbtarget
-    have hb : b' = b := by
-      rw [hstub] at hbtarget
-      exact hbtarget.symm.trans htarget
-    subst b'
-    simpa [hstub] using stub.2
-  · intro hi
-    let atom : WitnessRowAtom witness := ⟨a, b, ⟨i, hi⟩⟩
-    have hglobal :
-        (⟨a, i⟩ : RowStub row) ∈ witnessSelectedRowStubs witness := by
-      apply Finset.mem_image.mpr
-      exact ⟨atom, Finset.mem_univ atom, rfl⟩
-    have hselected : i ∈ witnessSelectedRowIndices witness a := by
-      simp [witnessSelectedRowIndices, hglobal]
-    have htarget := congrArg Sigma.fst (extension.2 atom)
-    change (extension.1 ⟨a, i⟩).1 = b at htarget
-    exact Finset.mem_filter.mpr ⟨hselected, htarget⟩
-
-/-- Exact classwise cell-count split after exposing a fixed labelled witness:
-the full cell consists of its prescribed pairs plus the corresponding cell of
-the transported residual configuration matching. -/
-theorem configurationCellCount_eq_demand_add_residual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (extension : {matching : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness matching witness})
-    (a : A) (b : B) :
-    configurationCellCount extension.1 a b =
-      demand a b +
-        configurationCellCount
-          (extensionsOfWitnessEquivResidualConfiguration witness extension)
-          a b := by
-  let residual :=
-    extensionsOfWitnessEquivResidualConfiguration witness extension
-  have htransport : ∀ x :
-      {i : Fin (row a) // i ∉ witnessSelectedRowIndices witness a},
-      (residual ⟨a, remainingRowIndexEquivResidual witness a x⟩).1 =
-        (extension.1 ⟨a, x.1⟩).1 := by
-    intro x
-    let unused : RemainingRowStub witness :=
-      ⟨⟨a, x.1⟩, by
-        simpa [witnessSelectedRowIndices] using x.2⟩
-    have hclass := residualConfiguration_targetClass witness extension unused
-    rw [remainingRowStubEquivResidual_apply_in_class witness a x] at hclass
-    exact hclass
-  have hsplit := card_targetFiber_eq_usedTarget_add_residual
-    (witnessSelectedRowIndices witness a)
-    (fun i => (extension.1 ⟨a, i⟩).1) b
-    (remainingRowIndexEquivResidual witness a)
-    (fun i => (residual ⟨a, i⟩).1) htransport
-  rw [usedRowTargetIndices_eq_witnessCell witness extension a b,
-    (witness.1 a).2.1 b] at hsplit
-  exact hsplit
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellCounts
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ConfigurationResidualCellCounts
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ConfigurationResidualCellConstraints
-Source: Erdos625/ConfigurationResidualCellConstraints.lean
-Normalized SHA-256: 48b07fecc63e15fddf15ed8218fe2cfb50c66e48a24372532f0f95d8a4ea8d4c
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellConstraints
-
-/-!
-# Residual cell constraints after a fixed exposure
-
-This module translates two cellwise conditions through the exact decomposition
-`full = demand + residual`: equality with the exposed demand means zero
-residual count, and a cap becomes the corresponding truncated residual cap.
-It contains no probability or canonical-skeleton statement.
--/
-
-namespace Erdos625
-
-/-- Adding a natural number changes nothing exactly when the addend is zero. -/
-theorem nat_add_eq_left_iff_right_eq_zero (d r : ℕ) :
-    d + r = d ↔ r = 0 := by
-  constructor
-  · intro h
-    exact Nat.add_left_cancel (n := d) (m := r) (k := 0)
-      (by simpa using h)
-  · rintro rfl
-    simp
-
-/-- If the exposed demand is at most the cap, the remaining capacity is the
-natural subtraction `cap - demand`, with no truncation ambiguity. -/
-theorem nat_add_le_iff_le_sub_of_le {d r cap : ℕ} (hcap : d ≤ cap) :
-    d + r ≤ cap ↔ r ≤ cap - d := by
-  constructor
-  · intro h
-    exact (Nat.le_sub_iff_add_le hcap).2 (by
-      simpa [Nat.add_comm] using h)
-  · intro h
-    have := (Nat.le_sub_iff_add_le hcap).1 h
-    simpa [Nat.add_comm] using this
-
-/-- Arithmetic packaging used by the configuration-model theorem below. -/
-theorem exposedCell_constraints_iff_residual
-    (full demand residual cap : ℕ)
-    (hsplit : full = demand + residual) (hcap : demand ≤ cap) :
-    (full = demand ↔ residual = 0) ∧
-      (full ≤ cap ↔ residual ≤ cap - demand) := by
-  rw [hsplit]
-  exact ⟨nat_add_eq_left_iff_right_eq_zero demand residual,
-    nat_add_le_iff_le_sub_of_le hcap⟩
-
-/-- For one actual cell of a configuration matching extending a fixed labelled
-witness, no additional pair and the cell cap are exactly the corresponding
-conditions on the transported residual matching. -/
-theorem configurationCell_constraints_iff_residual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (extension : {matching : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness matching witness})
-    (a : A) (b : B) (cap : ℕ) (hcap : demand a b ≤ cap) :
-    (configurationCellCount extension.1 a b = demand a b ↔
-        configurationCellCount
-          (extensionsOfWitnessEquivResidualConfiguration witness extension)
-          a b = 0) ∧
-      (configurationCellCount extension.1 a b ≤ cap ↔
-        configurationCellCount
-          (extensionsOfWitnessEquivResidualConfiguration witness extension)
-          a b ≤ cap - demand a b) := by
-  exact exposedCell_constraints_iff_residual
-    (configurationCellCount extension.1 a b)
-    (demand a b)
-    (configurationCellCount
-      (extensionsOfWitnessEquivResidualConfiguration witness extension) a b)
-    cap
-    (configurationCellCount_eq_demand_add_residual witness extension a b)
-    hcap
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ConfigurationResidualCellConstraints
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ConfigurationResidualCellConstraints
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
-Source: Erdos625/Section8FixedWitnessAssembly.lean
-Normalized SHA-256: 7cd3c62a331ce1615a41833732ab8e4a561df2bd20774f054e2e2bcc563440cc
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
-
-/-!
-# Section VIII fixed-witness assembly
-
-This module composes the accepted deterministic and finite-uniform pieces for
-one fixed labelled prescribed-demand witness.  It packages:
-
-* conditioning the ambient finite uniform law on the extension event;
-* transport of the uniform extension law to the residual configuration space;
-* the exact cell-count split `full = demand + residual`; and
-* simultaneous transport of cell caps and "no additional pair" constraints.
-
-It does **not** choose a canonical skeleton, prove uniqueness of an exposure,
-or estimate the probability of any skeleton event.  Those are separate
-Section VIII obligations.
--/
-
-namespace Erdos625
-
-open Set
-
-noncomputable section
-
-/-- The event that a full configuration matching extends one fixed labelled
-prescribed-demand witness. -/
-def fixedWitnessExtensionEvent
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    Set (ConfigurationMatching row col) :=
-  {matching | ExtendsPrescribedDemandWitness matching witness}
-
-/-- The fixed-witness extension event is finite because the ambient matching
-space is finite.  This explicit instance avoids making the event predicate's
-decidability part of downstream theorem signatures. -/
-noncomputable instance instFintypeFixedWitnessExtensionEvent
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    Fintype (fixedWitnessExtensionEvent witness) :=
-  Fintype.ofFinite _
-
-/-- The extension-event subtype is the domain of the accepted exact residual
-configuration equivalence. -/
-def fixedWitnessExtensionEquivResidual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    fixedWitnessExtensionEvent witness ≃
-      ConfigurationMatching (residualRowDegree witness)
-        (residualColumnDegree witness) :=
-  extensionsOfWitnessEquivResidualConfiguration witness
-
-/-- Simultaneous constraints on full cells.  Every cell is capped, while the
-cells selected by `noAdditional` must contain exactly the exposed demand and
-therefore no additional matched pair. -/
-def FixedWitnessFullCellConstraints
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
-    (extension : fixedWitnessExtensionEvent witness) : Prop :=
-  ∀ a b,
-    configurationCellCount extension.1 a b ≤ cap a b ∧
-      (noAdditional a b →
-        configurationCellCount extension.1 a b = demand a b)
-
-/-- The residual form of `FixedWitnessFullCellConstraints`: cell caps lose the
-already exposed demand, and a no-additional-pair constraint becomes a zero
-residual-cell constraint. -/
-def FixedWitnessResidualCellConstraints
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
-    (residual : ConfigurationMatching (residualRowDegree witness)
-      (residualColumnDegree witness)) : Prop :=
-  ∀ a b,
-    configurationCellCount residual a b ≤ cap a b - demand a b ∧
-      (noAdditional a b → configurationCellCount residual a b = 0)
-
-/-- Conditioning the ambient uniform law on the fixed-witness extension event
-is the pushforward of the uniform law on the extension subtype. -/
-theorem uniform_filter_fixedWitnessExtensionEvent
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    [Nonempty (ConfigurationMatching row col)]
-    [Nonempty (fixedWitnessExtensionEvent witness)] :
-    (PMF.uniformOfFintype (ConfigurationMatching row col)).filter
-        (fixedWitnessExtensionEvent witness)
-        (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
-      (PMF.uniformOfFintype
-        (fixedWitnessExtensionEvent witness)).map Subtype.val := by
-  exact uniform_filter_eq_uniformSubtype_map
-    (fixedWitnessExtensionEvent witness)
-
-/-- The uniform extension-subtype law pushes forward to the uniform law on
-the degree-labelled residual configuration space. -/
-theorem uniform_fixedWitnessExtension_map_residual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    [Nonempty (fixedWitnessExtensionEvent witness)]
-    [Nonempty (ConfigurationMatching (residualRowDegree witness)
-      (residualColumnDegree witness))] :
-    (PMF.uniformOfFintype
-        (fixedWitnessExtensionEvent witness)).map
-        (fixedWitnessExtensionEquivResidual witness) =
-      PMF.uniformOfFintype
-        (ConfigurationMatching (residualRowDegree witness)
-          (residualColumnDegree witness)) := by
-  letI : Nonempty {matching : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness matching witness} := by
-    let extension : fixedWitnessExtensionEvent witness :=
-      Classical.choice inferInstance
-    have hExtension := extension.2
-    change ExtendsPrescribedDemandWitness extension.1 witness at hExtension
-    exact ⟨⟨extension.1, hExtension⟩⟩
-  exact uniform_extensionSubtype_map_residual witness
-
-/-- All full-cell cap and no-additional-pair constraints transport through the
-fixed-witness residual equivalence, simultaneously over every cell. -/
-theorem fixedWitnessFullCellConstraints_iff_residual
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
-    (hcap : ∀ a b, demand a b ≤ cap a b)
-    (extension : fixedWitnessExtensionEvent witness) :
-    FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
-      FixedWitnessResidualCellConstraints witness cap noAdditional
-        (fixedWitnessExtensionEquivResidual witness extension) := by
-  constructor
-  · intro hFull a b
-    have hCell := configurationCell_constraints_iff_residual
-      witness extension a b (cap a b) (hcap a b)
-    exact ⟨hCell.2.mp (hFull a b).1,
-      fun hNoAdditional ↦ hCell.1.mp ((hFull a b).2 hNoAdditional)⟩
-  · intro hResidual a b
-    have hCell := configurationCell_constraints_iff_residual
-      witness extension a b (cap a b) (hcap a b)
-    exact ⟨hCell.2.mpr (hResidual a b).1,
-      fun hNoAdditional ↦ hCell.1.mpr
-        ((hResidual a b).2 hNoAdditional)⟩
-
-/-- Fixed-witness Section VIII seam.  The conclusion contains only results
-already justified for a fixed labelled witness.  In particular, it does not
-assert that such a witness is canonical or that its event is likely. -/
-theorem fixedWitnessSection8Assembly
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col)
-    (cap : A → B → ℕ) (noAdditional : A → B → Prop)
-    (hcap : ∀ a b, demand a b ≤ cap a b)
-    [Nonempty (ConfigurationMatching row col)]
-    [Nonempty (fixedWitnessExtensionEvent witness)]
-    [Nonempty (ConfigurationMatching (residualRowDegree witness)
-      (residualColumnDegree witness))] :
-    ((PMF.uniformOfFintype (ConfigurationMatching row col)).filter
-          (fixedWitnessExtensionEvent witness)
-          (uniformFilterWitness (fixedWitnessExtensionEvent witness)) =
-        (PMF.uniformOfFintype
-          (fixedWitnessExtensionEvent witness)).map Subtype.val) ∧
-      ((PMF.uniformOfFintype
-          (fixedWitnessExtensionEvent witness)).map
-          (fixedWitnessExtensionEquivResidual witness) =
-        PMF.uniformOfFintype
-          (ConfigurationMatching (residualRowDegree witness)
-            (residualColumnDegree witness))) ∧
-      (∀ extension a b,
-        configurationCellCount extension.1 a b =
-          demand a b +
-            configurationCellCount
-              (fixedWitnessExtensionEquivResidual witness extension) a b) ∧
-      (∀ extension,
-        FixedWitnessFullCellConstraints witness cap noAdditional extension ↔
-          FixedWitnessResidualCellConstraints witness cap noAdditional
-            (fixedWitnessExtensionEquivResidual witness extension)) := by
-  refine ⟨uniform_filter_fixedWitnessExtensionEvent witness,
-    uniform_fixedWitnessExtension_map_residual witness, ?_, ?_⟩
-  · intro extension a b
-    exact configurationCellCount_eq_demand_add_residual
-      witness extension a b
-  · intro extension
-    exact fixedWitnessFullCellConstraints_iff_residual
-      witness cap noAdditional hcap extension
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8FixedWitnessAssembly
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8FixedWitnessAssembly
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
-Source: Erdos625/Section8CanonicalSkeleton.lean
-Normalized SHA-256: 1acf1ef4036b14a61c195807a5a15dbe59bd559a4fa4a3738cf4bb0ebd326122
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
-
-/-!
-# Canonical high-support atoms for Section VIII
-
-This module packages four finite deterministic facts used when the canonical
-high-cell support is extracted from a configuration table.  It proves that
-entries above half a common row/column cap form a partial matching, that zero
-residual mass forces uniqueness of the selected fibres and their compatible
-pairing, and that the full-cell cap/no-return event translates exactly to the
-residual event.
-
-These statements do not count canonical skeletons, prove the incidence formula
-(8.3), or establish the endpoint/near/middle sums in Lemma 8.3.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Retain the whole cell demand precisely above the cutoff `U / 2`. -/
-def canonicalHighDemand {A B : Type*}
-    (table : A → B → ℕ) (U : ℕ) : A → B → ℕ :=
-  fun a b => if U / 2 < table a b then table a b else 0
-
-/-- Once source and target fibres are fixed, compatibility with the ambient
-matching determines their labelled pairing uniquely. -/
-theorem compatiblePairing_unique
-    {X Y : Type*} [Fintype X] [Fintype Y]
-    [DecidableEq X] [DecidableEq Y]
-    (matching : X ≃ Y) (source : Finset X) (target : Finset Y)
-    (pairing₁ pairing₂ : (↥source) ≃ (↥target))
-    (hpairing₁ : ∀ x, (pairing₁ x).1 = matching x.1)
-    (hpairing₂ : ∀ x, (pairing₂ x).1 = matching x.1) :
-    pairing₁ = pairing₂ := by
-  ext x
-  exact (hpairing₁ x).trans (hpairing₂ x).symm
-
-/-- A selected fibre with the full fibre's cardinality is the full fibre.  The
-displayed demand-plus-residual equality is the form produced by the fixed-
-witness decomposition. -/
-theorem selectedFiber_eq_fullFiber_of_zero_residual
-    {X : Type*} [Fintype X] [DecidableEq X]
-    (selected fullFiber : Finset X) (demand residual : ℕ)
-    (hsubset : selected ⊆ fullFiber)
-    (hselected : selected.card = demand)
-    (hfull : fullFiber.card = demand + residual)
-    (hzero : residual = 0) :
-    selected = fullFiber := by
-  apply Finset.eq_of_subset_of_card_le hsubset
-  rw [hselected, hfull, hzero]
-  omega
-
-/-- Under common row and column caps, the support of the canonical high demand
-is a bipartite partial matching, with exact on- and off-support values. -/
-theorem canonicalHighDemand_partialMatching_and_incidence
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (table : A → B → ℕ) (U : ℕ)
-    (hrow : ∀ a, (∑ b, table a b) ≤ U)
-    (hcolumn : ∀ b, (∑ a, table a b) ≤ U) :
-    (∀ a b₁ b₂,
-      canonicalHighDemand table U a b₁ ≠ 0 →
-      canonicalHighDemand table U a b₂ ≠ 0 → b₁ = b₂) ∧
-    (∀ b a₁ a₂,
-      canonicalHighDemand table U a₁ b ≠ 0 →
-      canonicalHighDemand table U a₂ b ≠ 0 → a₁ = a₂) ∧
-    (∀ a b, U / 2 < table a b →
-      canonicalHighDemand table U a b = table a b) ∧
-    (∀ a b, ¬ U / 2 < table a b →
-      canonicalHighDemand table U a b = 0) := by
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · intro a b₁ b₂ h₁ h₂
-    by_contra hne
-    have hb₁ : U / 2 < table a b₁ := by
-      by_contra h
-      simp [canonicalHighDemand, h] at h₁
-    have hb₂ : U / 2 < table a b₂ := by
-      by_contra h
-      simp [canonicalHighDemand, h] at h₂
-    have hsub : table a b₁ + table a b₂ ≤ ∑ b, table a b := by
-      have hs : ({b₁, b₂} : Finset B) ⊆ Finset.univ := Finset.subset_univ _
-      calc
-        table a b₁ + table a b₂ =
-            ∑ b ∈ ({b₁, b₂} : Finset B), table a b := by
-          rw [Finset.sum_pair hne]
-        _ ≤ ∑ b, table a b := Finset.sum_le_sum_of_subset hs
-    have hcap := hrow a
-    omega
-  · intro b a₁ a₂ h₁ h₂
-    by_contra hne
-    have ha₁ : U / 2 < table a₁ b := by
-      by_contra h
-      simp [canonicalHighDemand, h] at h₁
-    have ha₂ : U / 2 < table a₂ b := by
-      by_contra h
-      simp [canonicalHighDemand, h] at h₂
-    have hsub : table a₁ b + table a₂ b ≤ ∑ a, table a b := by
-      have hs : ({a₁, a₂} : Finset A) ⊆ Finset.univ := Finset.subset_univ _
-      calc
-        table a₁ b + table a₂ b =
-            ∑ a ∈ ({a₁, a₂} : Finset A), table a b := by
-          rw [Finset.sum_pair hne]
-        _ ≤ ∑ a, table a b := Finset.sum_le_sum_of_subset hs
-    have hcap := hcolumn b
-    omega
-  · intro a b h
-    simp [canonicalHighDemand, h]
-  · intro a b h
-    simp [canonicalHighDemand, h]
-
-/-- A table has canonical high demand `demand` exactly when it equals `demand`
-on its nonzero support and is capped by the cutoff off that support.  This is a
-deterministic cutoff identity; it does not by itself identify a labelled
-witness event or its configuration-model probability. -/
-theorem canonicalHighDemand_eq_iff_exact_support_and_capped_off
-    {A B : Type*} (table demand : A → B → ℕ) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
-    canonicalHighDemand table U = demand ↔
-      (∀ a b, demand a b ≠ 0 → table a b = demand a b) ∧
-      (∀ a b, demand a b = 0 → table a b ≤ U / 2) := by
-  constructor
-  · intro h_eq
-    constructor
-    · intro a b h
-      have hab := congr_fun (congr_fun h_eq a) b
-      unfold canonicalHighDemand at hab
-      aesop
-    · intro a b h
-      have hab := congr_fun (congr_fun h_eq a) b
-      simp_all [canonicalHighDemand]
-      grind
-  · rintro ⟨hsupport, hcapped⟩
-    funext a b
-    by_cases hab : demand a b = 0 <;> simp_all [canonicalHighDemand]
-
-#print axioms canonicalHighDemand_eq_iff_exact_support_and_capped_off
-
-/-- Translate the simultaneous full-cell cap/no-return condition into the
-unshifted residual cap and zero residual mass on the canonical support. -/
-theorem supportIndexed_fullConstraints_iff_residual
-    {A B : Type*}
-    (full demand residual cap : A → B → ℕ)
-    (support : A → B → Prop)
-    (hsplit : ∀ a b, full a b = demand a b + residual a b)
-    (hdemandCap : ∀ a b, demand a b ≤ cap a b)
-    (hdemandOff : ∀ a b, ¬ support a b → demand a b = 0) :
-    (∀ a b,
-        full a b ≤ cap a b ∧
-          (support a b → full a b = demand a b)) ↔
-      (∀ a b,
-        residual a b ≤ cap a b ∧
-          (support a b → residual a b = 0)) := by
-  constructor
-  · intro h a b
-    obtain ⟨hcap, hsupp⟩ := h a b
-    have hs := hsplit a b
-    exact ⟨by omega, fun hsup => by
-      have heq := hsupp hsup
-      omega⟩
-  · intro h a b
-    obtain ⟨hcap, hsupp⟩ := h a b
-    have hs := hsplit a b
-    have hdc := hdemandCap a b
-    refine ⟨?_, fun hsup => by
-      have hzero := hsupp hsup
-      omega⟩
-    by_cases hsup : support a b
-    · have hzero := hsupp hsup
-      omega
-    · have hoff := hdemandOff a b hsup
-      omega
-
-#print axioms compatiblePairing_unique
-#print axioms selectedFiber_eq_fullFiber_of_zero_residual
-#print axioms canonicalHighDemand_partialMatching_and_incidence
-#print axioms supportIndexed_fullConstraints_iff_residual
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalSkeleton
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalSkeleton
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
-Source: Erdos625/Section8CanonicalLabelledWitness.lean
-Normalized SHA-256: 4f1fcaee9ef845c16c05b9223d95c3fb135dcd0e840030f9a35dfde4d0557e5f
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
-
-/-!
-# Canonical labelled witness
-
-For a fixed configuration matching, retain the complete cell precisely when
-its multiplicity is above the canonical cutoff.  The resulting demand has one
-and only one labelled prescribed-demand witness extended by that matching.
-This is the missing labelled-witness identification before manuscript (8.3).
--/
-
-namespace Erdos625
-
-/-- Canonical high-cell demand extracted from one literal configuration
-matching. -/
-def canonicalDemandOfMatching
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col) (U : ℕ) : A → B → ℕ :=
-  canonicalHighDemand (configurationCellCount matching) U
-
-private theorem rowAllocation_subset_cellFiber_of_extends
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col)
-    (witness : PrescribedDemandWitness demand row col)
-    (hextends : ExtendsPrescribedDemandWitness matching witness)
-    (a : A) (b : B) :
-    (witness.1 a).1 b ⊆
-      Finset.univ.filter
-        (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
-  intro stub hstub
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-  have hpair :=
-    (extendsPrescribedDemandWitness_iff_cellwise matching witness).1
-      hextends a b ⟨stub, hstub⟩
-  exact congrArg Sigma.fst hpair
-
-private theorem cellPairings_eq_of_extends
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col)
-    (rowAllocation : ∀ a, StubAllocation (row a) (demand a))
-    (colAllocation : ∀ b, StubAllocation (col b) (fun a ↦ demand a b))
-    (pairing₁ pairing₂ : ∀ a b,
-      (↑((rowAllocation a).1 b)) ≃ (↑((colAllocation b).1 a)))
-    (h₁ : ExtendsPrescribedDemandWitness matching
-      ⟨rowAllocation, colAllocation, pairing₁⟩)
-    (h₂ : ExtendsPrescribedDemandWitness matching
-      ⟨rowAllocation, colAllocation, pairing₂⟩) :
-    pairing₁ = pairing₂ := by
-  funext a b
-  apply Equiv.ext
-  intro stub
-  apply Subtype.ext
-  have hpair₁ :=
-    (extendsPrescribedDemandWitness_iff_cellwise matching
-      ⟨rowAllocation, colAllocation, pairing₁⟩).1 h₁ a b stub
-  have hpair₂ :=
-    (extendsPrescribedDemandWitness_iff_cellwise matching
-      ⟨rowAllocation, colAllocation, pairing₂⟩).1 h₂ a b stub
-  exact eq_of_heq (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
-
-private theorem extendingWitness_unique_of_full_or_zero
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col)
-    (hfull : ∀ a b, demand a b = configurationCellCount matching a b ∨
-      demand a b = 0)
-    (w₁ w₂ : PrescribedDemandWitness demand row col)
-    (h₁ : ExtendsPrescribedDemandWitness matching w₁)
-    (h₂ : ExtendsPrescribedDemandWitness matching w₂) :
-    w₁ = w₂ := by
-  obtain ⟨w₁_row, w₁_col, w₁_eq⟩ := w₁
-  obtain ⟨w₂_row, w₂_col, w₂_eq⟩ := w₂
-  have h_row : w₁_row = w₂_row := by
-    funext a
-    apply Subtype.ext
-    funext b
-    by_cases h_demand :
-        demand a b = configurationCellCount matching a b
-    · have hw₁_full :
-          (w₁_row a).1 b =
-            Finset.univ.filter
-              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
-        refine Finset.eq_of_subset_of_card_le
-          (rowAllocation_subset_cellFiber_of_extends matching
-            ⟨w₁_row, w₁_col, w₁_eq⟩ h₁ a b) ?_
-        rw [(w₁_row a).2.1 b, h_demand]
-        rfl
-      have hw₂_full :
-          (w₂_row a).1 b =
-            Finset.univ.filter
-              (fun stub : Fin (row a) ↦ (matching ⟨a, stub⟩).1 = b) := by
-        refine Finset.eq_of_subset_of_card_le
-          (rowAllocation_subset_cellFiber_of_extends matching
-            ⟨w₂_row, w₂_col, w₂_eq⟩ h₂ a b) ?_
-        rw [(w₂_row a).2.1 b, h_demand]
-        rfl
-      exact hw₁_full.trans hw₂_full.symm
-    · have hzero : demand a b = 0 :=
-        (hfull a b).resolve_left h_demand
-      have hw₁_zero : (w₁_row a).1 b = ∅ := by
-        apply Finset.card_eq_zero.mp
-        exact ((w₁_row a).2.1 b).trans hzero
-      have hw₂_zero : (w₂_row a).1 b = ∅ := by
-        apply Finset.card_eq_zero.mp
-        exact ((w₂_row a).2.1 b).trans hzero
-      exact hw₁_zero.trans hw₂_zero.symm
-  cases h_row
-  have h_col : w₁_col = w₂_col := by
-    funext b
-    apply Subtype.ext
-    funext a
-    apply Finset.eq_of_subset_of_card_le
-    · intro x hx
-      let y : ↑((w₁_row a).1 b) :=
-        (w₁_eq a b).symm ⟨x, hx⟩
-      have hy : (w₁_eq a b y).1 = x :=
-        congrArg Subtype.val ((w₁_eq a b).apply_symm_apply ⟨x, hx⟩)
-      have hpair₁ :=
-        (extendsPrescribedDemandWitness_iff_cellwise matching
-          ⟨w₁_row, w₁_col, w₁_eq⟩).1 h₁ a b y
-      have hpair₂ :=
-        (extendsPrescribedDemandWitness_iff_cellwise matching
-          ⟨w₁_row, w₂_col, w₂_eq⟩).1 h₂ a b y
-      have hvalue : (w₁_eq a b y).1 = (w₂_eq a b y).1 :=
-        eq_of_heq
-          (Sigma.mk.inj_iff.mp (hpair₁.symm.trans hpair₂)).2
-      have hxvalue : x = (w₂_eq a b y).1 := hy.symm.trans hvalue
-      rw [hxvalue]
-      exact (w₂_eq a b y).2
-    · rw [(w₂_col b).2.1 a, (w₁_col b).2.1 a]
-  cases h_col
-  have h_eq : w₁_eq = w₂_eq :=
-    cellPairings_eq_of_extends matching w₁_row w₁_col
-      w₁_eq w₂_eq h₁ h₂
-  cases h_eq
-  rfl
-
-private theorem canonicalDemandOfMatching_le_cellCount
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col) (U : ℕ) :
-    ∀ a b,
-      canonicalDemandOfMatching matching U a b ≤
-        configurationCellCount matching a b := by
-  intro a b
-  by_cases hhigh : U / 2 < configurationCellCount matching a b
-  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
-  · rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
-    exact Nat.zero_le _
-
-private theorem canonicalDemandOfMatching_full_or_zero
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A → ℕ} {col : B → ℕ}
-    (matching : ConfigurationMatching row col) (U : ℕ) :
-    ∀ a b,
-      canonicalDemandOfMatching matching U a b =
-          configurationCellCount matching a b ∨
-        canonicalDemandOfMatching matching U a b = 0 := by
-  intro a b
-  by_cases hhigh : U / 2 < configurationCellCount matching a b
-  · left
-    rw [canonicalDemandOfMatching, canonicalHighDemand, if_pos hhigh]
-  · right
-    rw [canonicalDemandOfMatching, canonicalHighDemand, if_neg hhigh]
-
-/-- The canonical full-cell demand determines a unique labelled exposure of
-the supplied matching.  No witness-existence or uniqueness premise is assumed. -/
-theorem existsUnique_canonicalHighDemandWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ)
-    (matching : ConfigurationMatching row col) (U : ℕ) :
-    ∃! witness : PrescribedDemandWitness
-        (canonicalDemandOfMatching matching U) row col,
-      ExtendsPrescribedDemandWitness matching witness := by
-  obtain ⟨w₁, hw₁⟩ :=
-    exists_extendingWitness_of_mem_prescribedCellEvent
-      (matching := matching)
-      (canonicalDemandOfMatching_le_cellCount matching U)
-  refine ⟨w₁, hw₁, ?_⟩
-  intro w₂ hw₂
-  exact extendingWitness_unique_of_full_or_zero matching
-    (canonicalDemandOfMatching_full_or_zero matching U)
-    w₂ w₁ hw₂ hw₁
-
-#print axioms existsUnique_canonicalHighDemandWitness
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalLabelledWitness
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalLabelledWitness
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalResidualProfile
 Source: Erdos625/Section8CanonicalResidualProfile.lean
 Normalized SHA-256: 5ffe86c4f9c02e305e19ea345e2bf1c701eafce34a8b6269f90d70afa5f7a15c
@@ -36923,585 +38279,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalResidualProfile
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalResidualProfile
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
-Source: Erdos625/Section8CanonicalEventResidual.lean
-Normalized SHA-256: b1bdee927da3d5615f5eec59e3bebe5de6db13ed3095f1545ba213c80c24988c
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
-
-/-!
-# Section 8: canonical event under the residual equivalence
-
-For one fixed labelled prescribed-demand exposure, this module identifies the
-event that the full matching has exactly the canonical high-cell table with
-the residual event imposing the half-cap off that table and no return to its
-nonzero support.  This is a deterministic event equivalence; counting the
-global event and identifying its conditioned probability law remain separate.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- Full configurations whose literal canonical high-cell demand is the fixed
-table `demand`. -/
-def canonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Set (ConfigurationMatching row col) :=
-  {matching | canonicalDemandOfMatching matching U = demand}
-
-/-- Inside the extension subtype of one labelled witness, require the ambient
-matching to have exactly the prescribed canonical high-cell table. -/
-def fixedWitnessCanonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Set (fixedWitnessExtensionEvent witness) :=
-  {extension | canonicalDemandOfMatching extension.1 U = demand}
-
-/-- The canonical residual cap/no-return event: every residual cell is at most
-`U / 2`, and cells in the nonzero exposed support receive no further pair. -/
-def canonicalResidualCellEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Set (ConfigurationMatching (residualRowDegree witness)
-      (residualColumnDegree witness)) :=
-  {residual | ∀ a b,
-    configurationCellCount residual a b ≤ U / 2 ∧
-      (demand a b ≠ 0 → configurationCellCount residual a b = 0)}
-
-/-- For one fixed labelled exposure, the canonical full event transports
-exactly to the residual half-cap/no-return event. -/
-theorem mem_fixedWitnessCanonicalDemandEvent_iff_residual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
-    (extension : fixedWitnessExtensionEvent witness) :
-    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
-      fixedWitnessExtensionEquivResidual witness extension ∈
-        canonicalResidualCellEvent witness U := by
-  change canonicalHighDemand (configurationCellCount extension.1) U = demand ↔ _
-  rw [canonicalHighDemand_eq_iff_exact_support_and_capped_off
-    (configurationCellCount extension.1) demand U hhigh]
-  constructor
-  · rintro ⟨hsupport, hcapped⟩ a b
-    have hsplit := configurationCellCount_eq_demand_add_residual
-      witness extension a b
-    change configurationCellCount extension.1 a b = demand a b +
-      configurationCellCount
-        (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
-    by_cases hab : demand a b = 0
-    · constructor
-      · calc
-          configurationCellCount
-              (fixedWitnessExtensionEquivResidual witness extension) a b =
-              configurationCellCount extension.1 a b := by
-                simpa [hab] using hsplit.symm
-          _ ≤ U / 2 := hcapped a b hab
-      · exact fun h ↦ (h hab).elim
-    · have hzero : configurationCellCount
-          (fixedWitnessExtensionEquivResidual witness extension) a b = 0 := by
-        have heq := hsupport a b hab
-        apply Nat.add_left_cancel (n := demand a b)
-        simpa using hsplit.symm.trans heq
-      exact ⟨by simp [hzero], fun _ ↦ hzero⟩
-  · intro h
-    constructor
-    · intro a b hab
-      have hsplit := configurationCellCount_eq_demand_add_residual
-        witness extension a b
-      change configurationCellCount extension.1 a b = demand a b +
-        configurationCellCount
-          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
-      have hzero := (h a b).2 hab
-      calc
-        configurationCellCount extension.1 a b = demand a b +
-            configurationCellCount
-              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
-        _ = demand a b := by simp [hzero]
-    · intro a b hab
-      have hsplit := configurationCellCount_eq_demand_add_residual
-        witness extension a b
-      change configurationCellCount extension.1 a b = demand a b +
-        configurationCellCount
-          (fixedWitnessExtensionEquivResidual witness extension) a b at hsplit
-      have hcap := (h a b).1
-      calc
-        configurationCellCount extension.1 a b = demand a b +
-            configurationCellCount
-              (fixedWitnessExtensionEquivResidual witness extension) a b := hsplit
-        _ = configurationCellCount
-              (fixedWitnessExtensionEquivResidual witness extension) a b := by
-            simp [hab]
-        _ ≤ U / 2 := hcap
-
-#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residual
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventResidual
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalEventResidual
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
-Source: Erdos625/Section8ResidualEventToSection9.lean
-Normalized SHA-256: 5714d0c5217c8f65f8795a1f8e90d1d4bf9ceb10c8b42907ab5bc874a5ed40c7
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
-
-/-!
-# Section VIII--IX: canonical residual event in Section IX form
-
-The canonical residual half-cap/no-return event of Section VIII is exactly the
-cap/no-return event used by the fixed-`F` expansion of Section IX, once the
-exposed support is written as a finite set.  This is a deterministic event
-identification only; it does not establish a conditioned law or any global
-probability estimate.
--/
-
-namespace Erdos625
-
-/-- The finite support of the nonzero cells of a prescribed demand table. -/
-def positiveDemandSupport
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) : Finset (A × B) :=
-  Finset.univ.filter (fun e ↦ demand e.1 e.2 ≠ 0)
-
-/-- The Section VIII canonical residual event is the Section IX cap/no-return
-event for the finite support of the exposed demand table. -/
-theorem canonicalResidualCellEvent_eq_residualCapNoReturnEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    canonicalResidualCellEvent witness U =
-      ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
-        (residualRowDegree witness) (residualColumnDegree witness) := by
-  ext residual
-  constructor
-  · intro h
-    refine ⟨?_, ?_⟩
-    · intro a b
-      exact (h a b).1
-    · intro e he
-      exact (h e.1 e.2).2 (by
-        simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
-          true_and] using he)
-  · rintro ⟨hcap, hreturn⟩ a b
-    refine ⟨hcap a b, ?_⟩
-    intro hpositive
-    exact hreturn (a, b) (by
-      simp only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
-        true_and]
-      exact hpositive)
-
-/-- The fixed-witness canonical event transports to the Section IX
-cap/no-return event under the existing residual matching equivalence. -/
-theorem mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
-    (extension : fixedWitnessExtensionEvent witness) :
-    extension ∈ fixedWitnessCanonicalDemandEvent witness U ↔
-      fixedWitnessExtensionEquivResidual witness extension ∈
-        ResidualCapNoReturnEvent (positiveDemandSupport demand) (U / 2)
-          (residualRowDegree witness) (residualColumnDegree witness) := by
-  rw [mem_fixedWitnessCanonicalDemandEvent_iff_residual witness U hhigh extension,
-    canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
-
-#print axioms canonicalResidualCellEvent_eq_residualCapNoReturnEvent
-#print axioms mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8ResidualEventToSection9
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
-Source: Erdos625/Section8CanonicalEventCharacterization.lean
-Normalized SHA-256: 302979dcc00452ec5f8218a21cfda4c6e7b2479a943e9f551ec0bd4e513f128b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
-
-/-!
-# Section 8: canonical-event characterization
-
-This names the event-level form of the existing exact support/cap
-characterization for a full configuration matching.
--/
-
-namespace Erdos625
-
-/-- A matching has the prescribed canonical high-demand table exactly when it
-equals that table on its nonzero support and is half-capped off the support. -/
-theorem mem_canonicalDemandEvent_iff_exact_support_and_capped_off
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
-    (matching : ConfigurationMatching row col) :
-    matching ∈ canonicalDemandEvent demand row col U ↔
-      (∀ a b, demand a b ≠ 0 →
-        configurationCellCount matching a b = demand a b) ∧
-      (∀ a b, demand a b = 0 →
-        configurationCellCount matching a b ≤ U / 2) := by
-  exact canonicalHighDemand_eq_iff_exact_support_and_capped_off
-    (configurationCellCount matching) demand U hhigh
-
-#print axioms mem_canonicalDemandEvent_iff_exact_support_and_capped_off
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCharacterization
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
-Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 81d21fc85db6fb922bdb064555d44fa542bc2f654c8b140762703ddd200f8d48
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
-
-/-!
-# Section 8: canonical-event cardinality
-
-The literal canonical event partitions into one fixed-witness fibre for each
-labelled prescribed-demand witness.  Each fibre transports to the same residual
-half-cap/no-return event, yielding the exact finite incidence count.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-! The event subtypes are finite, but the project deliberately does not make
-their `Fintype` instances global.  Keep them local to this counting module. -/
-local instance instFintypeCanonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Fintype (canonicalDemandEvent demand row col U) :=
-  Fintype.ofFinite _
-
-local instance instFintypeFixedWitnessCanonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (fixedWitnessCanonicalDemandEvent witness U) :=
-  Fintype.ofFinite _
-
-local instance instFintypeCanonicalResidualCellEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-/-- For a fixed labelled witness, transport the canonical full-event fibre to
-the corresponding residual half-cap/no-return fibre. -/
-noncomputable def fixedWitnessCanonicalDemandEventEquivResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
-    fixedWitnessCanonicalDemandEvent witness U ≃
-      canonicalResidualCellEvent witness U := by
-  classical
-  exact
-  { toFun := fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
-
-private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
-    Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
-      Fintype.card (canonicalResidualCellEvent witness U) := by
-  classical
-  let f :
-      ↑(fixedWitnessCanonicalDemandEvent witness U) →
-        ↑(canonicalResidualCellEvent witness U) :=
-    fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-  apply Fintype.card_congr
-  exact
-  { toFun := f
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
-
-private theorem card_canonicalResidualCellEvent_eq
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness witness₀ : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype.card (canonicalResidualCellEvent witness U) =
-      Fintype.card (canonicalResidualCellEvent witness₀ U) := by
-  apply Fintype.card_congr
-  exact Equiv.refl _
-
-private theorem existsUnique_canonicalDemandEventWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (x : ↑(canonicalDemandEvent demand row col U)) :
-    ∃! witness : PrescribedDemandWitness demand row col,
-      ExtendsPrescribedDemandWitness x.1 witness := by
-  have hx : canonicalDemandOfMatching x.1 U = demand := x.2
-  have hunique :=
-    existsUnique_canonicalHighDemandWitness row col x.1 U
-  rw [hx] at hunique
-  exact hunique
-
-private noncomputable def canonicalDemandEventWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (x : ↑(canonicalDemandEvent demand row col U)) :
-    PrescribedDemandWitness demand row col :=
-  Classical.choose
-    (existsUnique_canonicalDemandEventWitness demand row col U x).exists
-
-private theorem canonicalDemandEventWitness_extends
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (x : ↑(canonicalDemandEvent demand row col U)) :
-    ExtendsPrescribedDemandWitness x.1
-      (canonicalDemandEventWitness demand row col U x) := by
-  unfold canonicalDemandEventWitness
-  exact Classical.choose_spec
-    (existsUnique_canonicalDemandEventWitness demand row col U x).exists
-
-private theorem canonicalDemandEventWitness_unique
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (x : ↑(canonicalDemandEvent demand row col U))
-    (witness : PrescribedDemandWitness demand row col)
-    (hwitness : ExtendsPrescribedDemandWitness x.1 witness) :
-    canonicalDemandEventWitness demand row col U x = witness := by
-  obtain ⟨witness₀, hwitness₀, hunique⟩ :=
-    existsUnique_canonicalDemandEventWitness demand row col U x
-  have hchosen : canonicalDemandEventWitness demand row col U x = witness₀ :=
-    hunique _ (canonicalDemandEventWitness_extends demand row col U x)
-  have hgiven : witness = witness₀ := hunique _ hwitness
-  exact hchosen.trans hgiven.symm
-
-private theorem canonicalDemandEventWitness_eq_iff_extends
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (x : ↑(canonicalDemandEvent demand row col U))
-    (witness : PrescribedDemandWitness demand row col) :
-    canonicalDemandEventWitness demand row col U x = witness ↔
-      ExtendsPrescribedDemandWitness x.1 witness := by
-  constructor
-  · intro h
-    exact h ▸ canonicalDemandEventWitness_extends demand row col U x
-  · intro h
-    exact canonicalDemandEventWitness_unique demand row col U x witness h
-
-private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    fixedWitnessCanonicalDemandEvent witness U ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        canonicalDemandEventWitness demand row col U x = witness} := by
-  let e₁ : fixedWitnessCanonicalDemandEvent witness U ≃
-      {m : ConfigurationMatching row col //
-        ExtendsPrescribedDemandWitness m witness ∧
-          canonicalDemandOfMatching m U = demand} := by
-    change {e : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness} //
-      canonicalDemandOfMatching e.1 U = demand} ≃ _
-    exact Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        ExtendsPrescribedDemandWitness m witness)
-      (fun m => canonicalDemandOfMatching m U = demand)
-  let e₂ : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness ∧
-        canonicalDemandOfMatching m U = demand} ≃
-      {m : ConfigurationMatching row col //
-        canonicalDemandOfMatching m U = demand ∧
-          ExtendsPrescribedDemandWitness m witness} :=
-    Equiv.subtypeEquivRight (fun _ => and_comm)
-  let e₃ : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand ∧
-        ExtendsPrescribedDemandWitness m witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        ExtendsPrescribedDemandWitness x.1 witness} := by
-    change _ ≃ {x : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand} //
-      ExtendsPrescribedDemandWitness x.1 witness}
-    exact (Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        canonicalDemandOfMatching m U = demand)
-      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
-  let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
-      ExtendsPrescribedDemandWitness x.1 witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        canonicalDemandEventWitness demand row col U x = witness} :=
-    (Equiv.subtypeEquivRight (fun x =>
-      canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
-  exact e₁.trans (e₂.trans (e₃.trans e₄))
-
-private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    ↑(canonicalDemandEvent demand row col U) ≃
-      Σ witness : PrescribedDemandWitness demand row col,
-        ↑(fixedWitnessCanonicalDemandEvent witness U) := by
-  exact
-    (Equiv.sigmaFiberEquiv
-      (canonicalDemandEventWitness demand row col U)).symm.trans
-      (Equiv.sigmaCongrRight
-      (fun witness =>
-        (fixedWitnessCanonicalDemandEventEquivFiber
-          (demand := demand) (row := row) (col := col) witness U).symm))
-
-/-- Exact partition of a fixed canonical-demand event by its unique labelled
-canonical witness.  No high-demand hypothesis is needed for this first
-finite decomposition. -/
-noncomputable def canonicalDemandEventEquivSigmaFixedWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    ↑(canonicalDemandEvent demand row col U) ≃
-      Σ witness : PrescribedDemandWitness demand row col,
-        ↑(fixedWitnessCanonicalDemandEvent witness U) :=
-  canonicalDemandEvent_equiv_sigma_fixedWitness demand row col U
-
-/-- Under the strict high-demand condition, the canonical-demand event is
-exactly the sigma family of residual half-cap/no-return fibres.  This is a
-finite equivalence, not a conditional-probability assertion. -/
-noncomputable def canonicalDemandEventEquivSigmaResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
-    ↑(canonicalDemandEvent demand row col U) ≃
-      Σ witness : PrescribedDemandWitness demand row col,
-        ↑(canonicalResidualCellEvent witness U) :=
-  (canonicalDemandEventEquivSigmaFixedWitness demand row col U).trans
-    (Equiv.sigmaCongrRight (fun witness =>
-      fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh))
-
-private theorem card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Fintype.card ↑(canonicalDemandEvent demand row col U) =
-      ∑ witness : PrescribedDemandWitness demand row col,
-        Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) := by
-  rw [← Fintype.card_sigma]
-  exact Fintype.card_congr
-    (canonicalDemandEvent_equiv_sigma_fixedWitness demand row col U)
-
-/-- Exact once-only incidence count: canonical configurations are a labelled
-witness choice times one common residual cap/no-return fibre. -/
-theorem card_canonicalDemandEvent_eq_witness_mul_residual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b)
-    (witness₀ : PrescribedDemandWitness demand row col) :
-    Fintype.card ↑(canonicalDemandEvent demand row col U) =
-      Fintype.card (PrescribedDemandWitness demand row col) *
-        Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
-  classical
-  calc
-    Fintype.card ↑(canonicalDemandEvent demand row col U) =
-        ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) :=
-      card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
-        demand row col U
-    _ = ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(canonicalResidualCellEvent witness U) := by
-      apply Finset.sum_congr rfl
-      intro witness _
-      exact card_fixedWitnessCanonicalDemandEvent_eq_residual witness U hhigh
-    _ = ∑ _witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
-      apply Finset.sum_congr rfl
-      intro witness _
-      exact card_canonicalResidualCellEvent_eq witness witness₀ U
-    _ = Fintype.card (PrescribedDemandWitness demand row col) *
-          Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
-      simp
-
-#print axioms card_canonicalDemandEvent_eq_witness_mul_residual
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 ========================================================================== -/
 
 /- ==========================================================================
@@ -37746,91 +38523,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8CanonicalConditionalLaw
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8CanonicalConditionalLaw
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
-Source: Erdos625/Section8CanonicalDemandPartition.lean
-Normalized SHA-256: f94d7912ddce1543088a6a6fc313af45914fa55f1b39697ba854731e6dfbfb3e
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
-
-/-!
-# Section VIII: ambient canonical-demand partition
-
-The canonical high-demand map partitions the whole finite configuration
-matching space into its literal canonical-demand fibres.  This is an exact
-finite counting identity; it makes no probability, residual-law, or
-typed-skeleton estimate claim.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-! Keep the finite-event instance local, consistently with the other
-canonical-event counting modules. -/
-local instance instFintypeCanonicalDemandEventPartition
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Fintype (canonicalDemandEvent demand row col U) :=
-  Fintype.ofFinite _
-
-/-- The finite range of literal canonical high-demand tables realized by
-ambient configuration matchings. -/
-noncomputable def canonicalDemandImage
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ) : Finset (A → B → ℕ) := by
-  classical
-  exact
-    (Finset.univ : Finset (ConfigurationMatching row col)).image
-      (fun matching => canonicalDemandOfMatching matching U)
-
-/-- The explicit finite equivalence from ambient matchings to their attained
-canonical demand and the corresponding literal fibre. -/
-noncomputable def configurationMatchingEquivSigmaCanonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    ConfigurationMatching row col ≃
-      Σ demand : canonicalDemandImage row col U,
-        ↑(canonicalDemandEvent demand.1 row col U) := by
-  classical
-  exact
-    (Equiv.sigmaSubtypeFiberEquiv
-      (fun matching : ConfigurationMatching row col =>
-        canonicalDemandOfMatching matching U)
-      (fun demand => demand ∈ canonicalDemandImage row col U)
-      (fun matching => Finset.mem_image_of_mem _ (Finset.mem_univ matching))).symm
-
-/-- Exact ambient partition by the literal canonical high-demand table.
-The statement is valid even when the configuration-matching type is empty,
-so it requires no total-balance or nonemptiness hypothesis. -/
-theorem card_configurationMatching_eq_sum_card_canonicalDemandEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ) :
-    Fintype.card (ConfigurationMatching row col) =
-      ∑ demand : canonicalDemandImage row col U,
-        Fintype.card ↑(canonicalDemandEvent demand.1 row col U) := by
-  rw [← Fintype.card_sigma]
-  exact Fintype.card_congr
-    (configurationMatchingEquivSigmaCanonicalDemandEvent row col U)
-
-#print axioms configurationMatchingEquivSigmaCanonicalDemandEvent
-#print axioms card_configurationMatching_eq_sum_card_canonicalDemandEvent
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandPartition
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
 ========================================================================== -/
 
 /- ==========================================================================
@@ -39127,369 +39819,6 @@ END SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
-Source: Erdos625/UniformSigmaTransport.lean
-Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
-
-/-!
-# Uniform finite probability on a dependent sum
-
-For a finite dependent sum, this module calculates the marginal of the
-uniform law under the first projection.  It is an exact finite probability
-identity only: it makes no configuration-model, canonical-event, or
-asymptotic assertion.  In particular, the base coordinate is generally not
-uniform; its mass is proportional to the cardinality of its fibre.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- Under the uniform law on a nonempty finite dependent sum, the mass of a
-base point is the cardinality of its fibre divided by the total cardinality. -/
-theorem uniformOfFintype_sigma_map_fst_apply
-    {D : Type*} {X : D -> Type*}
-    [Fintype D] [(d : D) -> Fintype (X d)]
-    [Nonempty (Sigma X)]
-    (d : D) :
-    ((PMF.uniformOfFintype (Sigma X)).map
-        (fun z : Sigma X => z.1)) d =
-      (Fintype.card (X d) : ENNReal) /
-        (Fintype.card (Sigma X) : ENNReal) := by
-  classical
-  rw [PMF.map_apply, tsum_fintype]
-  simp_rw [PMF.uniformOfFintype_apply]
-  rw [Fintype.sum_sigma]
-  have hinner : forall x : D,
-      (∑ _y : X x,
-          if d = x then (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
-        if d = x then
-          (Fintype.card (X x) : ENNReal) *
-            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 := by
-    intro x
-    by_cases h : d = x
-    · subst x
-      simp [nsmul_eq_mul]
-    · simp [h]
-  rw [Finset.sum_congr rfl (fun x _ => hinner x)]
-  rw [show (∑ x : D,
-      if d = x then
-        (Fintype.card (X x) : ENNReal) *
-          (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
-      ∑ x : D,
-        if x = d then
-          (Fintype.card (X x) : ENNReal) *
-            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 by
-      simp_rw [eq_comm]]
-  rw [Finset.sum_ite_eq' Finset.univ d]
-  simp only [Finset.mem_univ, if_true]
-  rw [ENNReal.div_eq_inv_mul]
-  ac_rfl
-
-#print axioms uniformOfFintype_sigma_map_fst_apply
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.UniformSigmaTransport
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
-Source: Erdos625/Section8CanonicalDemandGlobalResidual.lean
-Normalized SHA-256: eb5923f1a7f5718fdedd0170a6cc5b4eceba47a432169a900f3d13bb9eabc17a
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
-
-/-!
-# Section VIII: global canonical-demand/residual disintegration
-
-The literal canonical-demand map decomposes every configuration matching into
-its attained canonical demand, the unique labelled witness for that demand,
-and the corresponding residual cap/no-return configuration.  The residual
-type depends on the attained demand (and its witness), so the result is a
-dependent finite sigma decomposition.  This is structural only: it neither
-asserts a common residual law across demands nor proves a quantitative
-high-skeleton estimate.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-! Keep finite-event instances local, as in the fixed-fibre law modules. -/
-local instance instFintypeCanonicalResidualCellEventGlobalResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
-    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-local instance instFintypeCanonicalDemandEventGlobalResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A -> B -> Nat) (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    Fintype (canonicalDemandEvent demand row col U) :=
-  Fintype.ofFinite _
-
-/-- A nonzero entry retained by the literal canonical-demand map is strictly
-above the half-cutoff. -/
-theorem canonicalDemandOfMatching_high_of_ne_zero
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A -> Nat} {col : B -> Nat}
-    (matching : ConfigurationMatching row col) (U : Nat) (a : A) (b : B)
-    (h : canonicalDemandOfMatching matching U a b ≠ 0) :
-    U / 2 < canonicalDemandOfMatching matching U a b := by
-  by_cases hhigh : U / 2 < configurationCellCount matching a b
-  · simp [canonicalDemandOfMatching, canonicalHighDemand, hhigh]
-  · simp [canonicalDemandOfMatching, canonicalHighDemand, hhigh] at h
-
-/-- Every demand table in the finite image has a literal matching in its
-canonical-demand fibre.  No total-balance or probability hypothesis is used. -/
-theorem nonempty_canonicalDemandEvent_of_canonicalDemandImage
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (demand : canonicalDemandImage row col U) :
-    Nonempty (canonicalDemandEvent demand.1 row col U) := by
-  classical
-  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
-  exact ⟨⟨matching, hmatching⟩⟩
-
-/-- The strict high-demand premise for the fixed-fibre residual equivalence
-is automatic for any demand table actually attained by a matching. -/
-theorem canonicalDemandImage_high
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (demand : canonicalDemandImage row col U)
-    (a : A) (b : B) (h : demand.1 a b ≠ 0) :
-    U / 2 < demand.1 a b := by
-  classical
-  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
-  have hnonzero : canonicalDemandOfMatching matching U a b ≠ 0 := by
-    intro hzero
-    apply h
-    rw [← hmatching]
-    exact hzero
-  rw [← hmatching]
-  exact canonicalDemandOfMatching_high_of_ne_zero matching U a b hnonzero
-
-/-- Exact finite decomposition of every configuration matching into its
-attained canonical demand, its labelled witness, and its residual canonical
-event configuration.  The equivalence remains valid if the ambient matching
-type is empty. -/
-noncomputable def configurationMatchingEquivSigmaCanonicalDemandResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    ConfigurationMatching row col ≃
-      Σ demand : canonicalDemandImage row col U,
-        Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U :=
-  (configurationMatchingEquivSigmaCanonicalDemandEvent row col U).trans
-    (Equiv.sigmaCongrRight fun demand =>
-      canonicalDemandEventEquivSigmaResidual demand.1 row col U
-        (canonicalDemandImage_high row col U demand))
-
-/-- The uniform finite PMF on the global dependent canonical-demand/witness/
-residual sigma space.  The equal-total hypothesis supplies its nonemptiness
-through the matching equivalence; no individual demand fibre is assumed
-nonempty separately. -/
-noncomputable def uniformSigmaCanonicalDemandResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    PMF
-      (Σ demand : canonicalDemandImage row col U,
-        Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence :=
-    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
-  letI : Nonempty
-      (Σ demand : canonicalDemandImage row col U,
-        Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  exact PMF.uniformOfFintype _
-
-/-- With equal ambient stub totals, the uniform matching law transports
-exactly to the uniform law on the full dependent canonical-demand/witness/
-residual sigma space.  This is a finite-equivalence statement only. -/
-theorem uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    (uniformConfigurationMatching row col htotal).map
-        (configurationMatchingEquivSigmaCanonicalDemandResidual row col U) =
-      uniformSigmaCanonicalDemandResidual row col U htotal := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence :=
-    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
-  letI : Nonempty
-      (Σ demand : canonicalDemandImage row col U,
-        Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
-  simpa only [uniformSigmaCanonicalDemandResidual] using
-    (uniformOfFintype_map_equiv equivalence)
-
-/-- The canonical-demand marginal of the ambient uniform matching law is
-exactly proportional to the cardinality of its dependent witness/residual
-fibre.  Thus the attained demand tables are not treated as uniformly likely;
-their finite fibre sizes are the exact mixture weights. -/
-theorem uniformConfigurationMatching_map_canonicalDemand_apply
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b)
-    (demand : canonicalDemandImage row col U) :
-    ((uniformConfigurationMatching row col htotal).map
-        (fun matching =>
-          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
-            matching).1)) demand =
-      (Fintype.card
-        (Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) : ENNReal) /
-        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence :=
-    configurationMatchingEquivSigmaCanonicalDemandResidual row col U
-  letI : Nonempty
-      (Σ demand : canonicalDemandImage row col U,
-        Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  change ((uniformConfigurationMatching row col htotal).map
-      (fun matching => (equivalence matching).1)) demand = _
-  calc
-    ((uniformConfigurationMatching row col htotal).map
-        (fun matching => (equivalence matching).1)) demand =
-        ((uniformConfigurationMatching row col htotal).map equivalence).map
-          (fun z : Σ demand : canonicalDemandImage row col U,
-            Σ witness : PrescribedDemandWitness demand.1 row col,
-              canonicalResidualCellEvent witness U => z.1) demand := by
-      exact congrArg
-        (fun p : PMF (canonicalDemandImage row col U) => p demand)
-        (by
-          simpa only [Function.comp_def] using
-            (PMF.map_comp (p := uniformConfigurationMatching row col htotal)
-              (f := equivalence)
-              (fun z : Σ demand : canonicalDemandImage row col U,
-                Σ witness : PrescribedDemandWitness demand.1 row col,
-                  canonicalResidualCellEvent witness U => z.1)).symm)
-    _ = (uniformSigmaCanonicalDemandResidual row col U htotal).map
-          (fun z : Σ demand : canonicalDemandImage row col U,
-            Σ witness : PrescribedDemandWitness demand.1 row col,
-              canonicalResidualCellEvent witness U => z.1) demand := by
-      rw [uniformConfigurationMatching_map_sigmaCanonicalDemandResidual]
-    _ =
-        (Fintype.card
-          (Σ witness : PrescribedDemandWitness demand.1 row col,
-            canonicalResidualCellEvent witness U) : ENNReal) /
-          (Fintype.card
-            (Σ demand : canonicalDemandImage row col U,
-              Σ witness : PrescribedDemandWitness demand.1 row col,
-                canonicalResidualCellEvent witness U) : ENNReal) := by
-      change ((PMF.uniformOfFintype
-        (Σ demand : canonicalDemandImage row col U,
-          Σ witness : PrescribedDemandWitness demand.1 row col,
-            canonicalResidualCellEvent witness U)).map
-          (fun z : Σ demand : canonicalDemandImage row col U,
-            Σ witness : PrescribedDemandWitness demand.1 row col,
-              canonicalResidualCellEvent witness U => z.1)) demand = _
-      exact uniformOfFintype_sigma_map_fst_apply demand
-    _ = _ := by
-      rw [← Fintype.card_congr equivalence]
-
-/-- Each global demand fibre factors exactly into its labelled-witness count
-and one standardized residual-event count.  The reference witness remains an
-explicit parameter: the residual event varies with the attained demand. -/
-theorem card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (demand : canonicalDemandImage row col U)
-    (witness0 : PrescribedDemandWitness demand.1 row col) :
-    Fintype.card
-      (Σ witness : PrescribedDemandWitness demand.1 row col,
-        canonicalResidualCellEvent witness U) =
-      Fintype.card (PrescribedDemandWitness demand.1 row col) *
-        Fintype.card (canonicalResidualCellEvent witness0 U) := by
-  calc
-    Fintype.card
-        (Σ witness : PrescribedDemandWitness demand.1 row col,
-          canonicalResidualCellEvent witness U) =
-        Fintype.card (canonicalDemandEvent demand.1 row col U) := by
-      exact Fintype.card_congr
-        (canonicalDemandEventEquivSigmaResidual demand.1 row col U
-          (canonicalDemandImage_high row col U demand)).symm
-    _ = Fintype.card (PrescribedDemandWitness demand.1 row col) *
-          Fintype.card (canonicalResidualCellEvent witness0 U) := by
-      exact card_canonicalDemandEvent_eq_witness_mul_residual demand.1 row col U
-        (canonicalDemandImage_high row col U demand) witness0
-
-/-- The exact global canonical-demand mass is the labelled-witness count
-times one demand-specific standardized residual-event count, divided by the
-ambient matching cardinality.  The reference witness is explicit, so this
-does not identify residual spaces across different attained demands. -/
-theorem uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b)
-    (demand : canonicalDemandImage row col U)
-    (witness0 : PrescribedDemandWitness demand.1 row col) :
-    ((uniformConfigurationMatching row col htotal).map
-        (fun matching =>
-          (configurationMatchingEquivSigmaCanonicalDemandResidual row col U
-            matching).1)) demand =
-      ((Fintype.card (PrescribedDemandWitness demand.1 row col) : ENNReal) *
-        (Fintype.card (canonicalResidualCellEvent witness0 U) : ENNReal)) /
-        (Fintype.card (ConfigurationMatching row col) : ENNReal) := by
-  rw [uniformConfigurationMatching_map_canonicalDemand_apply]
-  rw [card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
-    row col U demand witness0]
-  simp only [Nat.cast_mul]
-
-#print axioms canonicalDemandOfMatching_high_of_ne_zero
-#print axioms nonempty_canonicalDemandEvent_of_canonicalDemandImage
-#print axioms canonicalDemandImage_high
-#print axioms configurationMatchingEquivSigmaCanonicalDemandResidual
-#print axioms uniformSigmaCanonicalDemandResidual
-#print axioms uniformConfigurationMatching_map_sigmaCanonicalDemandResidual
-#print axioms uniformConfigurationMatching_map_canonicalDemand_apply
-#print axioms card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual
-#print axioms uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8CanonicalDemandGlobalResidual
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
 Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
@@ -39943,124 +40272,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8ResidualEventProbabilityNormalization
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8LabelledIncidence
-Source: Erdos625/Section8LabelledIncidence.lean
-Normalized SHA-256: d7e2d74abbf9c643605d2c0674ab1ce08c565a2359726034768a989fde08473b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
-
-/-!
-# Normalized labelled-witness incidence for Section VIII
-
-This module isolates the algebraic normalized labelled-exposure incidence
-used in manuscript (8.3).  It is not, by itself, the full configuration-model
-event-probability identity: that application still requires equal ambient
-row and column totals, matching-extension normalization, and specialization
-to the canonical partial-matching demand.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-/-- The number of labelled prescribed-demand witnesses, normalized by the
-ambient row-stub descending factorial `(m)_J`. -/
-noncomputable def labelledWitnessIncidence
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ) : ℝ≥0∞ :=
-  (Fintype.card (PrescribedDemandWitness demand row col) : ℝ≥0∞) /
-    ((Finset.univ.sum row).descFactorial (totalDemand demand) : ℝ≥0∞)
-
-/-- Exact algebraic form of the normalized labelled-witness incidence.  The
-displayed total-demand hypothesis makes every ENNReal denominator nonzero;
-the result remains a counting identity rather than the full probability
-statement of manuscript (8.3). -/
-theorem labelledWitnessIncidence_eq
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (row : A → ℕ) (col : B → ℕ)
-    (hDemand : totalDemand demand ≤ Finset.univ.sum row) :
-    labelledWitnessIncidence demand row col =
-      ((rowDescendingProduct demand row *
-        columnDescendingProduct demand col : ℕ) : ℝ≥0∞) /
-      (((Finset.univ.sum row).descFactorial (totalDemand demand) *
-        demandFactorialProduct demand : ℕ) : ℝ≥0∞) := by
-  have hdesc_pos :
-      0 < (Finset.univ.sum row).descFactorial (totalDemand demand) :=
-    Nat.descFactorial_pos.mpr hDemand
-  have hfactorial_pos : 0 < demandFactorialProduct demand := by
-    exact Finset.prod_pos fun a _ ↦
-      Finset.prod_pos fun b _ ↦ Nat.factorial_pos _
-  unfold labelledWitnessIncidence
-  rw [ENNReal.div_eq_div_iff]
-  · norm_cast
-    simpa only [demandFactorialProduct, rowDescendingProduct,
-      columnDescendingProduct, mul_assoc, mul_comm, mul_left_comm] using
-      congr_arg
-        (fun n ↦
-          (Finset.univ.sum row).descFactorial (totalDemand demand) * n)
-        (card_prescribedDemandWitness_mul_factorials demand row col)
-  · exact ne_of_gt (by exact_mod_cast mul_pos hdesc_pos hfactorial_pos)
-  · exact ENNReal.natCast_ne_top _
-  · exact ne_of_gt (by exact_mod_cast hdesc_pos)
-  · exact ENNReal.natCast_ne_top _
-
-#print axioms labelledWitnessIncidence_eq
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8LabelledIncidence
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8LabelledIncidence
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
-Source: Erdos625/Section8WitnessDemandFeasibility.lean
-Normalized SHA-256: f22be5b82d996e47d647dce7c2fe81c2501f48e32d26c24a536b9b4d592810de
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
-
-/-!
-# Section 8: prescribed-demand feasibility
-
-A labelled prescribed-demand witness chooses pairwise disjoint row stubs in
-every row class.  Consequently its total demand cannot exceed the ambient
-row-stub mass.  This is the finite feasibility condition needed before
-factorial cancellation in the canonical-event count.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Existence of a labelled prescribed-demand witness forces total demand not
-to exceed the ambient row-stub mass. -/
-theorem totalDemand_le_rowTotal_of_witness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) :
-    totalDemand demand ≤ ∑ a, row a := by
-  refine Finset.sum_le_sum fun a _ ↦ ?_
-  have hcard := card_iUnion_stubAllocation (witness.1 a)
-  calc
-    ∑ b, demand a b =
-        (Finset.univ.biUnion (witness.1 a).1).card := hcard.symm
-    _ ≤ (Finset.univ : Finset (Fin (row a))).card := Finset.card_le_univ _
-    _ = row a := by simp
-
-#print axioms totalDemand_le_rowTotal_of_witness
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8WitnessDemandFeasibility
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8WitnessDemandFeasibility
 ========================================================================== -/
 
 /- ==========================================================================
@@ -42072,9 +42283,215 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
+Source: Erdos625/ColoringProfileDualLogReduction.lean
+Normalized SHA-256: a819559645ced984109028172bcc073fb9f073244470b90200cb6636ee116f65
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfileDualLogReduction
+
+/-!
+# Logarithmic reductions for the chromatic profile tail
+
+These lemmas isolate the remaining chromatic first-moment estimate as a scalar
+logarithmic asymptotic.  They are conditional reductions: the concrete
+phase/dual-core limit is still an explicit hypothesis.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- It is enough for the logarithm of the complete dual envelope to tend to
+`-∞`. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+    (parts : ℕ → ℕ) (t : ℕ → ℝ)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hlog : Tendsto
+      (fun n : ℕ ↦
+        ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+          profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+          factorialLogErrorBound n)
+      atTop atBot) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        (chromaticNumberAtMostEvent n (parts n)))
+      atTop (𝓝 0) := by
+  apply randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual
+    parts t hpartsPos hpartsLe
+  have hExp : Tendsto
+      (fun n : ℕ ↦ Real.exp
+        (((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+          profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+          factorialLogErrorBound n))
+      atTop (𝓝 0) :=
+    Real.tendsto_exp_atBot.comp hlog
+  have hOfReal := ENNReal.tendsto_ofReal hExp
+  simpa only [ENNReal.ofReal_zero] using hOfReal.congr' (by
+    filter_upwards with n
+    have hnPos : 0 < (n : ℝ) + 1 := by positivity
+    rw [show
+      ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+          profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+          factorialLogErrorBound n =
+        ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+          (profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+            factorialLogErrorBound n) by ring,
+      Real.exp_add, ENNReal.ofReal_mul (Real.exp_nonneg _),
+      Real.exp_nat_mul, Real.exp_log hnPos])
+
+/-- It suffices to bound the logarithmic envelope eventually by
+`-log (n + 1)`. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
+    (parts : ℕ → ℕ) (t : ℕ → ℝ)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hlogLe : ∀ᶠ n : ℕ in atTop,
+      ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+          profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+          factorialLogErrorBound n ≤
+        -Real.log ((n : ℝ) + 1)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        (chromaticNumberAtMostEvent n (parts n)))
+      atTop (𝓝 0) := by
+  apply randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+    parts t hpartsPos hpartsLe
+  apply tendsto_atBot_mono' atTop hlogLe
+  have hcast : Tendsto (fun n : ℕ ↦ (n : ℝ)) atTop atTop :=
+    tendsto_natCast_atTop_atTop
+  have hadd : Tendsto (fun n : ℕ ↦ (n : ℝ) + 1) atTop atTop :=
+    tendsto_atTop_add_const_right atTop 1 hcast
+  apply tendsto_neg_atBot_iff.mpr
+  exact Real.tendsto_log_atTop.comp hadd
+
+/-- If the logarithmic envelope normalized by `log n` tends to a negative
+constant, then the chromatic tail tends to zero. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
+    (parts : ℕ → ℕ) (t : ℕ → ℝ) (c : ℝ)
+    (hc : c < 0)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hnorm : Tendsto
+      (fun n : ℕ ↦
+        (((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+            profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+            factorialLogErrorBound n) /
+          logOrder n)
+      atTop (𝓝 c)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        (chromaticNumberAtMostEvent n (parts n)))
+      atTop (𝓝 0) := by
+  let envelope : ℕ → ℝ := fun n ↦
+    ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+      profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n) +
+      factorialLogErrorBound n
+  change Tendsto (fun n ↦ envelope n / logOrder n) atTop (𝓝 c) at hnorm
+  apply randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+    parts t hpartsPos hpartsLe
+  change Tendsto envelope atTop atBot
+  have hcHalf : c < c / 2 := by linarith
+  have hratio : ∀ᶠ n in atTop, envelope n / logOrder n < c / 2 :=
+    hnorm.eventually (Iio_mem_nhds hcHalf)
+  have hlogPos : ∀ᶠ n in atTop, 0 < logOrder n :=
+    tendsto_logOrder_atTop.eventually (eventually_gt_atTop 0)
+  apply tendsto_atBot_mono' atTop (by
+    filter_upwards [hratio, hlogPos] with n hn hlog
+    calc
+      envelope n = (envelope n / logOrder n) * logOrder n := by
+        field_simp
+      _ ≤ (c / 2) * logOrder n :=
+        mul_le_mul_of_nonneg_right (le_of_lt hn) (le_of_lt hlog))
+  exact tendsto_logOrder_atTop.const_mul_atTop_of_neg (by linarith)
+
+/-- The zero-safe Robbins error contributes one logarithmic unit at first
+order. -/
+theorem factorialLogErrorBound_div_logOrder_tendsto_one :
+    Tendsto (fun n : ℕ ↦ factorialLogErrorBound n / logOrder n)
+      atTop (𝓝 1) := by
+  have hInv : Tendsto (fun n : ℕ ↦ (logOrder n)⁻¹) atTop (𝓝 0) :=
+    tendsto_logOrder_atTop.inv_tendsto_atTop
+  have hCorrection : Tendsto
+      (fun n : ℕ ↦
+        Real.log ((n : ℝ) / ((n : ℝ) + 1)) * (logOrder n)⁻¹)
+      atTop (𝓝 0) := by
+    simpa using tendsto_log_nat_div_nat_add_one.mul hInv
+  have hFour : Tendsto (fun n : ℕ ↦ (4 : ℝ) * (logOrder n)⁻¹)
+      atTop (𝓝 0) := by
+    simpa using hInv.const_mul (4 : ℝ)
+  have hOne : Tendsto (fun _n : ℕ ↦ (1 : ℝ)) atTop (𝓝 1) :=
+    tendsto_const_nhds
+  have h := (hOne.sub hCorrection).add hFour
+  have h' : Tendsto
+      (fun n : ℕ ↦
+        1 - Real.log ((n : ℝ) / ((n : ℝ) + 1)) * (logOrder n)⁻¹ +
+          4 * (logOrder n)⁻¹)
+      atTop (𝓝 1) := by
+    simpa using h
+  refine h'.congr' ?_
+  filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
+  have hnReal : (n : ℝ) ≠ 0 := by positivity
+  have hnAdd : (n : ℝ) + 1 ≠ 0 := by positivity
+  rw [Real.log_div hnReal hnAdd]
+  simp only [factorialLogErrorBound, logOrder, Nat.cast_add, Nat.cast_one,
+    div_eq_mul_inv]
+  have hnPos : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
+  have hnNeOne : (n : ℝ) ≠ 1 := by
+    exact_mod_cast (show n ≠ 1 by omega)
+  have hlog : Real.log (n : ℝ) ≠ 0 :=
+    Real.log_ne_zero_of_pos_of_ne_one hnPos hnNeOne
+  field_simp [hlog]
+  ring
+
+/-- If the normalized phase-and-dual core tends to a constant below `-1`,
+the explicit factorial contribution leaves a negative complete envelope. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+    (parts : ℕ → ℕ) (t : ℕ → ℝ) (c : ℝ)
+    (hc : c < -1)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hcore : Tendsto
+      (fun n : ℕ ↦
+        (((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+            profileDualUpper (phaseNat n + 1) (n : ℝ) (parts n : ℝ) (t n)) /
+          logOrder n)
+      atTop (𝓝 c)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        (chromaticNumberAtMostEvent n (parts n)))
+      atTop (𝓝 0) := by
+  apply randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
+    parts t (c + 1) (by linarith) hpartsPos hpartsLe
+  have hsum := hcore.add factorialLogErrorBound_div_logOrder_tendsto_one
+  convert hsum using 1
+  · funext n
+    by_cases hlog : logOrder n = 0
+    · simp [hlog]
+    · field_simp [hlog]
+
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
+#print axioms factorialLogErrorBound_div_logOrder_tendsto_one
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfileDualLogReduction
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2adec8c5b0a6ed488d7a2a7e748e4e33e3fd0323503d1e6de884e50ce7a7c4cb
+Normalized SHA-256: 89e371ac2d7d743a15d02aa7beee8e9409f119590f4557d5aaf9b13cba64d282
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -42612,6 +43029,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
 #print axioms Erdos625.residualCycleRankExpectation
 #print axioms Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation
+#print axioms Erdos625.taggedResidualAttachmentValue
+#print axioms Erdos625.sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
@@ -42786,6 +43205,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_box_mul_exp_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_profileDual_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
+#print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -42795,7 +43219,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: ee40fed2d18a71d9eca87af75d207a4a8f43e25b68b3f1399e531d8e5db56ffc
+Normalized SHA-256: 10428c7fb13ed0a23609ac7122a5b8374c76f9b839451c2367b71e41dd34933e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

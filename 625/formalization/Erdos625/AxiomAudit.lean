@@ -160,6 +160,7 @@ import Erdos625.Section9FixedFFactorization
 import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
 import Erdos625.Section9ActualResidualCycleRankAssembly
+import Erdos625.Section9TaggedFiberCancellation
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ResidualLambdaCubic
@@ -209,6 +210,7 @@ import Erdos625.ColoringProfileChromaticBridge
 import Erdos625.ColoringProfileProbability
 import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
+import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ProbabilityTools
 
 /-!
@@ -745,6 +747,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
 #print axioms Erdos625.residualCycleRankExpectation
 #print axioms Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation
+#print axioms Erdos625.taggedResidualAttachmentValue
+#print axioms Erdos625.sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
@@ -919,3 +923,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_box_mul_exp_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_profileDual_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
+#print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
