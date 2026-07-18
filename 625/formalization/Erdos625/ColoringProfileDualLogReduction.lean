@@ -1,4 +1,5 @@
 import Erdos625.ColoringProfileDualAsymptotic
+import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ProfileAsymptoticTools
 
 /-!
@@ -185,11 +186,49 @@ theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normal
     · simp [hlog]
     · field_simp [hlog]
 
+/-- Phase-objective version of the normalized chromatic-tail reduction.
+
+This is a purely mechanical adapter around
+`randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core`:
+it rewrites the selected dual core as the named `profilePhaseObjective`.  The
+substantive asymptotic estimate remains the explicit hypothesis `hphase`.
+
+This finite-limit interface is not the manuscript's concrete threshold: there
+the phase objective is expected to be of order `-(log n)^3`, so division by
+`logOrder n` tends to `-∞`, not to a finite constant.  The concrete manuscript
+route must therefore use the `atBot` envelope theorem above (or an equivalent
+cubic-scale adapter). -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
+    (parts : ℕ → ℕ) (c : ℝ)
+    (hc : c < -1)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hphase : Tendsto
+      (fun n : ℕ ↦
+        profilePhaseObjective n (parts n : ℝ) / logOrder n)
+      atTop (𝓝 c)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ parts n})
+      atTop (𝓝 0) := by
+  apply
+    randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+      parts
+      (fun n : ℕ ↦
+        profileDualTilt (phaseNat n + 1) ((n : ℝ) / (parts n : ℝ)))
+      c hc hpartsPos hpartsLe
+  refine hphase.congr' ?_
+  filter_upwards [hpartsPos] with n hn
+  have hparts_ne : (parts n : ℝ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hn
+  rw [profilePhaseObjective_eq_selected_core n hparts_ne]
+
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
 
 end
 

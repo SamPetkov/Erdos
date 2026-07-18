@@ -108,6 +108,7 @@ import Erdos625.RootSeparationSlope
 import Erdos625.RootSeparationRounding
 import Erdos625.RootSeparationRoundingNatAdapter
 import Erdos625.RootSeparationRoundingBudget
+import Erdos625.RootSeparationConcreteAdapter
 import Erdos625.OrderedOverlapLaw
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
@@ -170,6 +171,7 @@ import Erdos625.Section9ZeroResidualActualAttachment
 import Erdos625.Section9ActualResidualCycleRankAssembly
 import Erdos625.Section9TaggedFiberCancellation
 import Erdos625.Section9TaggedTransportGeneric
+import Erdos625.Section9GlobalTaggedAttachmentAssembly
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9AttachmentExpectationBound
 import Erdos625.Section9ResidualQQuadratic
@@ -331,6 +333,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterChainLeftoverBound_probability_tendsto_one
 #print axioms Erdos625.quarterChainLeftoverBound_compl_probability_le
 #print axioms Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+#print axioms Erdos625.erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
 #print axioms Erdos625.quarterChainLinearColoringEvent_mono_constant
 #print axioms Erdos625.cochromaticCapacityDeficitRadius_lt_displayed
 #print axioms Erdos625.capacityAmplification_inter_linear_subset_cochromaticUpperEvent
@@ -763,6 +766,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation
 #print axioms Erdos625.taggedResidualAttachmentValue
 #print axioms Erdos625.sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+#print axioms Erdos625.canonicalDemandReferenceWitness
+#print axioms Erdos625.sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
@@ -856,6 +861,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables
 #print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+#print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -942,9 +949,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
 #print axioms Erdos625.signed_root_separation_of_advantage_and_slope
 #print axioms Erdos625.root_midpoint_rounding_gap
 #print axioms Erdos625.root_midpoint_rounding_gap_toNat
+#print axioms Erdos625.eventually_concrete_root_corridor_gap
 #print axioms Erdos625.root_rounding_budget_spec
 #print axioms Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log
 #print axioms Erdos625.tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot

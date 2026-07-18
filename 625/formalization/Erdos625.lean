@@ -113,6 +113,7 @@ import Erdos625.RootSeparationSlope
 import Erdos625.RootSeparationRounding
 import Erdos625.RootSeparationRoundingNatAdapter
 import Erdos625.RootSeparationRoundingBudget
+import Erdos625.RootSeparationConcreteAdapter
 import Erdos625.OrderedOverlapLaw
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
@@ -176,6 +177,7 @@ import Erdos625.Section9ZeroResidualActualAttachment
 import Erdos625.Section9ActualResidualCycleRankAssembly
 import Erdos625.Section9TaggedFiberCancellation
 import Erdos625.Section9TaggedTransportGeneric
+import Erdos625.Section9GlobalTaggedAttachmentAssembly
 import Erdos625.Section9ActualAttachmentPolymerBridge
 import Erdos625.Section9AttachmentExpectationBound
 import Erdos625.Section9ResidualQQuadratic

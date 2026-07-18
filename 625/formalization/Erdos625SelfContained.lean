@@ -98,9 +98,8 @@ project's lake-manifest.json and lean-toolchain.
 This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
-Section IX global demand-sum assembly from the exact per-demand tagged-fibre
-incidence identity, uniform large- and small-residual
-attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
+Section IX uniform large- and small-residual attachment estimate,
+second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
 chromatic at-most tail and root separation; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -124,10 +123,11 @@ full/residual reward-product and support-graph splits are included and proved,
 with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
 literal actual even family is exactly transported to the bipartite binary
 cycle space, and the event-restricted attachment numerator is exactly rewritten
-by its finite cycle-rank factor.  For one attained canonical-demand fibre, the
-tagged uniform-law attachment sum is exactly the labelled-witness incidence
-times that numerator; this cancellation neither sums over all demands nor
-proves a uniform attachment estimate.
+by its finite cycle-rank factor.  For each attained canonical-demand fibre,
+the tagged uniform-law attachment sum is exactly the labelled-witness incidence
+times that numerator, and this identity is now summed exactly over the full
+dependent demand/witness/residual sigma space.  This global finite assembly
+still proves no uniform attachment estimate.
 The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
 D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
 wrapper are included and proved as conditional implications.  They retain the
@@ -135,20 +135,22 @@ concrete chromatic at-most tail, concrete seed/count/moment estimate with
 `Lambda` asymptotics, and concrete root separation as explicit inputs; none of
 those inputs is proved by the adapters.
 The generic signed-slope root-separation lemma, exact midpoint floor/ceiling
-rounding lemma (and explicit natural-index adapter), and negligible explicit
-rounding budget are included. They remain conditional/deterministic: they do
-not construct the manuscript roots, establish their signed advantage or
-derivative ceiling, or prove the concrete chromatic tail.
+rounding lemma (and explicit natural-index adapter), negligible explicit
+rounding budget, and their exact-constant corridor adapter are included. They
+remain conditional/deterministic: they do not construct the manuscript roots,
+establish their signed advantage or derivative ceiling, or prove the concrete
+chromatic tail.
 The exact four-deficit score convergence and compatible-Boolean-sign component
 count are included as finite helper leaves only.  They do not prove the
 four-size signed first moment, the sign-summed second-moment law, the concrete
 chromatic tail, the Section IX seed/count/moment estimate or its `Lambda`
 asymptotics, the root separation, or `Erdos625Statement`.
 The physical unlabelled-skeleton fibre grouping is also included: it groups
-finite type-table weights over attained fibres and performs the one-factorial
-fibre rewrite to row and column descending-factorial products.  It does not
-prove a skeleton probability estimate, the Section IX seed or `Lambda`
-asymptotic, or `Erdos625Statement`.
+finite type-table weights over attained fibres and performs both the
+one-factorial fibre rewrite and the exact characteristic-zero quotient form
+with a single cell-factorial denominator.  It does not prove a skeleton
+probability estimate, the Section IX seed or `Lambda` asymptotic, or
+`Erdos625Statement`.
 The final target proposition `Erdos625Statement` remains deliberately
 unproved.  The included #print axioms commands audit the central declarations
 that have actually been proved.
@@ -9206,7 +9208,7 @@ END SOURCE MODULE: Erdos625.Section10_11ConditionalAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section10QuarterChainLeftoverEvent
 Source: Erdos625/Section10QuarterChainLeftoverEvent.lean
-Normalized SHA-256: 8a781f3091fb9454e9632deadacec9d9fca3b83d6b9972412f584ddb9cc13d91
+Normalized SHA-256: 45fd24365131428a10616f16e3686602379f1084afdb783055f4fe968fc7eccd
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section10QuarterChainLeftoverEvent
 
@@ -9389,6 +9391,45 @@ theorem erdos625Statement_of_capacity_quarterChainLeftover_thresholds
     (quarterChainLeftoverBound_probability_tendsto_one deficit)
     hChromaticTail hCochromaticThreshold hGapThreshold
 
+/-- Fully adapted capacity/quarter-chain route to the final target.
+
+This wrapper discharges the capacity-tail and strict chromatic-tail interfaces
+of `erdos625Statement_of_capacity_quarterChainLeftover_thresholds` using the
+proved rounded-capacity and chromatic-complement adapters.  The remaining
+hypotheses are the substantive seed, radius/rounding, chromatic at-most, and
+threshold estimates. -/
+theorem erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
+    (kChi kSeed deficit kCo : ℕ → ℕ) (a : ℕ → ℝ)
+    (Lambda r : ℕ → ℝ)
+    (hLambda : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hSeed : ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real {G | CoColorable G (kSeed n)})
+    (hround : ∀ᶠ n in atTop,
+      cochromaticCapacityDeficitRadius n (Lambda n) (r n) ≤
+        (((deficit n) + 1 : ℕ) : ℝ))
+    (hrTop : Tendsto r atTop atTop)
+    (hChromaticAtMost : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0))
+    (hCochromaticThreshold : ∀ᶠ n in atTop,
+      (((kSeed n) + quarterChainLeftoverBound n (deficit n) : ℕ) : ℝ) ≤
+        (kCo n : ℝ) + a n)
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)) :
+    Erdos625Statement := by
+  exact erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+    kChi kSeed deficit kCo a
+    (capacityDeficitEvent_probability_tendsto_one
+      kSeed deficit Lambda r hLambda (hrTop.eventually_ge_atTop 0)
+      hSeed hround hrTop)
+    (chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+      kChi hChromaticAtMost)
+    hCochromaticThreshold hGapThreshold
+
+#print axioms erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
 #print axioms ceilDivNat_mono_left
 #print axioms quarterChainLeftoverBound_real_upper_bound_eventually
 #print axioms univ_sdiff_card_eq_compl_fintype_card
@@ -21709,6 +21750,89 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_RootSeparationRoundingBudget
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.RootSeparationRoundingBudget
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RootSeparationConcreteAdapter
+Source: Erdos625/RootSeparationConcreteAdapter.lean
+Normalized SHA-256: eaa6c3b0feada8c844895a0ee54e2b4272bd913c6d5c067b8f1f1edd9e90b7d8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RootSeparationConcreteAdapter
+
+/-!
+# Concrete root-corridor adapter for Section XI
+
+This module composes the signed mean-value root separation, the concrete
+negligible rounding budget, and transport of the rounded integer locations to
+natural numbers.  Its conclusion is the exact constant and root scale used by
+the final Section XI assembly.
+-/
+
+namespace Erdos625
+
+open Filter Set
+open scoped Topology
+
+noncomputable section
+
+/-- The analytic signed-objective corridor data, with advantage-to-slope ratio
+at least the manuscript root gap, yields the exact eventual natural-number
+threshold separation after the manuscript floor/ceiling choices. -/
+theorem eventually_concrete_root_corridor_gap
+    (F : ℕ → ℝ → ℝ)
+    (rCo rPlus advantage slope : ℕ → ℝ)
+    (hCorridor : ∀ᶠ n : ℕ in atTop,
+      rCo n ≤ rPlus n ∧
+      ContinuousOn (F n) (Icc (rCo n) (rPlus n)) ∧
+      DifferentiableOn ℝ (F n) (Ioo (rCo n) (rPlus n)) ∧
+      0 < slope n ∧
+      (∀ x ∈ Ioo (rCo n) (rPlus n), deriv (F n) x ≤ slope n) ∧
+      F n (rCo n) = 0 ∧
+      advantage n ≤ F n (rPlus n) ∧
+      (Real.log 2) ^ 2 / 8 * Real.log (200 / 153 : ℝ) * baseScale n ≤
+        advantage n / slope n ∧
+      0 ≤ rootChromaticIndex (rPlus n) (Real.log (n : ℝ)) ∧
+      0 ≤ rootCochromaticIndex (rCo n) (rPlus n)) :
+    ∀ᶠ n : ℕ in atTop,
+      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ)) -
+          rootRoundingBudget n) * baseScale n ≤
+        (((rootChromaticIndex (rPlus n) (Real.log (n : ℝ))).toNat : ℕ) : ℝ) -
+          (((rootCochromaticIndex (rCo n) (rPlus n)).toNat : ℕ) : ℝ) := by
+  filter_upwards [hCorridor, root_rounding_budget_spec.2] with n hn hround
+  rcases hn with
+    ⟨hOrder, hCont, hDiff, hSlopePos, hSlope, hRootCo, hAdvantage,
+      hConcrete, hChromaticNonneg, hCochromaticNonneg⟩
+  have hSeparation : advantage n / slope n ≤ rPlus n - rCo n :=
+    signed_root_separation_of_advantage_and_slope
+      hOrder hCont hDiff hSlopePos hSlope hRootCo hAdvantage
+  have hGap :
+      (Real.log 2) ^ 2 / 8 * Real.log (200 / 153 : ℝ) * baseScale n ≤
+        rPlus n - rCo n :=
+    hConcrete.trans hSeparation
+  have hRounding :
+      Real.log (n : ℝ) + 3 ≤ rootRoundingBudget n * baseScale n := by
+    simpa only [baseScale] using hround
+  have h := root_midpoint_rounding_gap_toNat
+    (rPlus n) (rCo n) (Real.log (n : ℝ))
+    ((Real.log 2) ^ 2 / 8 * Real.log (200 / 153 : ℝ))
+    (baseScale n) (rootRoundingBudget n)
+    hGap hRounding hChromaticNonneg hCochromaticNonneg
+  calc
+    (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ)) -
+          rootRoundingBudget n) * baseScale n =
+        (((Real.log 2) ^ 2 / 8 * Real.log (200 / 153 : ℝ)) / 2 -
+          rootRoundingBudget n) * baseScale n := by ring
+    _ ≤ _ := h
+
+#print axioms eventually_concrete_root_corridor_gap
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RootSeparationConcreteAdapter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RootSeparationConcreteAdapter
 ========================================================================== -/
 
 /- ==========================================================================
@@ -37965,6 +38089,99 @@ END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
+Source: Erdos625/Section9GlobalTaggedAttachmentAssembly.lean
+Normalized SHA-256: f1db767f745329e300717ae4f9311c72d291b5d7471e41c15475b0da6b56e7b8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
+
+/-!
+# Section IX: global tagged attachment assembly
+
+This module sums the exact per-demand tagged-fibre cancellation identity over
+all attained canonical demands.  It closes the finite global Fubini seam
+between the dependent canonical demand/witness/residual law and the literal
+Section IX event-restricted attachment numerators.
+
+No asymptotic estimate, division by the cap/no-return event mass, or rare-seed
+claim is made here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventGlobalAssembly
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- A fixed labelled witness for each attained canonical demand.  Existence is
+forced by attainment: a matching in the corresponding canonical-demand fibre
+transports to a witness/residual pair. -/
+noncomputable def canonicalDemandReferenceWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) :
+    PrescribedDemandWitness demand.1 row col := by
+  let x : canonicalDemandEvent demand.1 row col U :=
+    Classical.choice
+      (nonempty_canonicalDemandEvent_of_canonicalDemandImage row col U demand)
+  exact (canonicalDemandEventEquivSigmaResidual demand.1 row col U
+    (canonicalDemandImage_high row col U demand) x).1
+
+/-- Exact global finite assembly of the weighted tagged law.  The left side is
+one sum over the full dependent canonical demand/witness/residual sigma space.
+The right side is the sum of labelled-witness incidence times the literal
+unnormalised, event-restricted Section IX attachment numerator in each attained
+demand fibre. -/
+theorem sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) =
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          residualActualAttachmentNumerator
+            (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree
+              (canonicalDemandReferenceWitness row col U demand))
+            (residualColumnDegree
+              (canonicalDemandReferenceWitness row col U demand))
+            (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+              (canonicalDemandReferenceWitness row col U demand)) := by
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro demand _
+  exact sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+    row col U htotal demand
+      (canonicalDemandReferenceWitness row col U demand)
+
+#print axioms canonicalDemandReferenceWitness
+#print axioms sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
 Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
@@ -40582,7 +40799,7 @@ END SOURCE MODULE: Erdos625.Section8TypeTableFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
-Normalized SHA-256: 5cd55642f4abad470b2ab4644f3e6e54a45b18f2172492a34d2f573d4d49f263
+Normalized SHA-256: c48c90682f539fe5249e8792d63f5be4ad2a2459da64f3b19e6eb5df5bffb445
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
 
@@ -40685,9 +40902,60 @@ theorem sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
   exact congrArg (fun x : R => x * w L)
     (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L)
 
+/-- The manuscript-facing weighted quotient rewrite.  Over a
+characteristic-zero semifield, grouping physical skeletons by their type table
+replaces the fibre multiplicity by the exact ratio of the row/column
+descending-factorial products to the single cell-factorial product. -/
+theorem sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [Semifield R] [CharZero R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) /
+            (typeTableCellFactorialProduct L : R)) * w L := by
+  rw [show (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        (Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : R) * w L by
+    convert sum_unlabelledSkeleton_weight_eq_sum_typeTables k ell w using 1
+    grind]
+  refine Finset.sum_congr rfl fun L _hL => ?_
+  rw [div_mul_eq_mul_div, eq_div_iff]
+  · convert congrArg (· * w L)
+      (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L) using 1
+    all_goals ring
+  · exact Nat.cast_ne_zero.mpr
+      (Finset.prod_ne_zero_iff.mpr fun _ _ =>
+        Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
+
+/-- Cancellation form of the exact `W(L)` ratio: there is precisely one
+cell-factorial denominator, and multiplying it back gives the two endpoint
+descending-factorial products. -/
+theorem typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J]
+    [Semifield R] [CharZero R]
+    (k : I -> Nat) (ell : J -> Nat) (L : I -> J -> Nat) :
+    (typeTableCellFactorialProduct L : R) *
+        (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) /
+            (typeTableCellFactorialProduct L : R)) =
+      ((typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : Nat) : R) := by
+  rw [mul_div_cancel₀]
+  exact Nat.cast_ne_zero.mpr
+    (Finset.prod_ne_zero_iff.mpr fun _ _ =>
+      Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
+
 #print axioms sum_unlabelledSkeleton_weight_eq_sum_typeTables
 #print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+#print axioms sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 
 end
 
@@ -43102,7 +43370,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualExponentRewrite
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 Source: Erdos625/ColoringProfileDualLogReduction.lean
-Normalized SHA-256: a819559645ced984109028172bcc073fb9f073244470b90200cb6636ee116f65
+Normalized SHA-256: 36c9bcd2e6a7ac92e62ce2f96c025c643d9c2d893916ef00ebcdb18ec50d0897
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_ColoringProfileDualLogReduction
 
@@ -43290,11 +43558,49 @@ theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normal
     · simp [hlog]
     · field_simp [hlog]
 
+/-- Phase-objective version of the normalized chromatic-tail reduction.
+
+This is a purely mechanical adapter around
+`randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core`:
+it rewrites the selected dual core as the named `profilePhaseObjective`.  The
+substantive asymptotic estimate remains the explicit hypothesis `hphase`.
+
+This finite-limit interface is not the manuscript's concrete threshold: there
+the phase objective is expected to be of order `-(log n)^3`, so division by
+`logOrder n` tends to `-∞`, not to a finite constant.  The concrete manuscript
+route must therefore use the `atBot` envelope theorem above (or an equivalent
+cubic-scale adapter). -/
+theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
+    (parts : ℕ → ℕ) (c : ℝ)
+    (hc : c < -1)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (hphase : Tendsto
+      (fun n : ℕ ↦
+        profilePhaseObjective n (parts n : ℝ) / logOrder n)
+      atTop (𝓝 c)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ parts n})
+      atTop (𝓝 0) := by
+  apply
+    randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+      parts
+      (fun n : ℕ ↦
+        profileDualTilt (phaseNat n + 1) ((n : ℝ) / (parts n : ℝ)))
+      c hc hpartsPos hpartsLe
+  refine hphase.congr' ?_
+  filter_upwards [hpartsPos] with n hn
+  have hparts_ne : (parts n : ℝ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hn
+  rw [profilePhaseObjective_eq_selected_core n hparts_ne]
+
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
 
 end
 
@@ -43342,7 +43648,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: a84b6359e24289e6af576ccec83470a1f9737d4a162b1182da4f9b379adc0f8e
+Normalized SHA-256: 2a080d91f063d04eccdbdf5542daf12da3d3103322e611615c37b1ed5bb544b0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -43450,6 +43756,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quarterChainLeftoverBound_probability_tendsto_one
 #print axioms Erdos625.quarterChainLeftoverBound_compl_probability_le
 #print axioms Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+#print axioms Erdos625.erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
 #print axioms Erdos625.quarterChainLinearColoringEvent_mono_constant
 #print axioms Erdos625.cochromaticCapacityDeficitRadius_lt_displayed
 #print axioms Erdos625.capacityAmplification_inter_linear_subset_cochromaticUpperEvent
@@ -43882,6 +44189,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation
 #print axioms Erdos625.taggedResidualAttachmentValue
 #print axioms Erdos625.sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+#print axioms Erdos625.canonicalDemandReferenceWitness
+#print axioms Erdos625.sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
@@ -43975,6 +44284,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables
 #print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+#print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
@@ -44061,9 +44372,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective
 #print axioms Erdos625.signed_root_separation_of_advantage_and_slope
 #print axioms Erdos625.root_midpoint_rounding_gap
 #print axioms Erdos625.root_midpoint_rounding_gap_toNat
+#print axioms Erdos625.eventually_concrete_root_corridor_gap
 #print axioms Erdos625.root_rounding_budget_spec
 #print axioms Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log
 #print axioms Erdos625.tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot
@@ -44086,7 +44399,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 3d129091c020dd9e7abec9e45c19fbc6949a4eda2191d54241658dc2e47ac5d4
+Normalized SHA-256: f051832d526d10440284df9bedbdb1c1d6acdac15ba543ccef434841d599b479
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

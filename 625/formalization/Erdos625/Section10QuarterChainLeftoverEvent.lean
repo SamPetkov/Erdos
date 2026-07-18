@@ -2,6 +2,7 @@ import Erdos625.Section10QuarterChainIndependentBlock
 import Erdos625.Section10QuarterChainFailure
 import Erdos625.Section10QuarterChainGreedyNumeric
 import Erdos625.Section10_11ConditionalAssembly
+import Erdos625.Section11ChromaticTailAdapter
 import Mathlib.Tactic
 
 /-!
@@ -183,6 +184,45 @@ theorem erdos625Statement_of_capacity_quarterChainLeftover_thresholds
     (quarterChainLeftoverBound_probability_tendsto_one deficit)
     hChromaticTail hCochromaticThreshold hGapThreshold
 
+/-- Fully adapted capacity/quarter-chain route to the final target.
+
+This wrapper discharges the capacity-tail and strict chromatic-tail interfaces
+of `erdos625Statement_of_capacity_quarterChainLeftover_thresholds` using the
+proved rounded-capacity and chromatic-complement adapters.  The remaining
+hypotheses are the substantive seed, radius/rounding, chromatic at-most, and
+threshold estimates. -/
+theorem erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
+    (kChi kSeed deficit kCo : ℕ → ℕ) (a : ℕ → ℝ)
+    (Lambda r : ℕ → ℝ)
+    (hLambda : ∀ᶠ n in atTop, 0 ≤ Lambda n)
+    (hSeed : ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real {G | CoColorable G (kSeed n)})
+    (hround : ∀ᶠ n in atTop,
+      cochromaticCapacityDeficitRadius n (Lambda n) (r n) ≤
+        (((deficit n) + 1 : ℕ) : ℝ))
+    (hrTop : Tendsto r atTop atTop)
+    (hChromaticAtMost : Tendsto
+      (fun n ↦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (nhds 0))
+    (hCochromaticThreshold : ∀ᶠ n in atTop,
+      (((kSeed n) + quarterChainLeftoverBound n (deficit n) : ℕ) : ℝ) ≤
+        (kCo n : ℝ) + a n)
+    (hGapThreshold : ∀ᶠ n in atTop,
+      gapScale n ≤
+        (((kChi n) + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)) :
+    Erdos625Statement := by
+  exact erdos625Statement_of_capacity_quarterChainLeftover_thresholds
+    kChi kSeed deficit kCo a
+    (capacityDeficitEvent_probability_tendsto_one
+      kSeed deficit Lambda r hLambda (hrTop.eventually_ge_atTop 0)
+      hSeed hround hrTop)
+    (chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero
+      kChi hChromaticAtMost)
+    hCochromaticThreshold hGapThreshold
+
+#print axioms erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds
 #print axioms ceilDivNat_mono_left
 #print axioms quarterChainLeftoverBound_real_upper_bound_eventually
 #print axioms univ_sdiff_card_eq_compl_fintype_card

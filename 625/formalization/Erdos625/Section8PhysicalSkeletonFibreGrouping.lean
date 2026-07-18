@@ -100,9 +100,60 @@ theorem sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
   exact congrArg (fun x : R => x * w L)
     (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L)
 
+/-- The manuscript-facing weighted quotient rewrite.  Over a
+characteristic-zero semifield, grouping physical skeletons by their type table
+replaces the fibre multiplicity by the exact ratio of the row/column
+descending-factorial products to the single cell-factorial product. -/
+theorem sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [Semifield R] [CharZero R]
+    (k : I -> Nat) (ell : J -> Nat)
+    (w : (I -> J -> Nat) -> R) :
+    (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) /
+            (typeTableCellFactorialProduct L : R)) * w L := by
+  rw [show (∑ S : UnlabelledTypedSkeleton k ell, w S.typeTable) =
+      ∑ L ∈ attainedUnlabelledTypeTables k ell,
+        (Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : R) * w L by
+    convert sum_unlabelledSkeleton_weight_eq_sum_typeTables k ell w using 1
+    grind]
+  refine Finset.sum_congr rfl fun L _hL => ?_
+  rw [div_mul_eq_mul_div, eq_div_iff]
+  · convert congrArg (· * w L)
+      (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L) using 1
+    all_goals ring
+  · exact Nat.cast_ne_zero.mpr
+      (Finset.prod_ne_zero_iff.mpr fun _ _ =>
+        Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
+
+/-- Cancellation form of the exact `W(L)` ratio: there is precisely one
+cell-factorial denominator, and multiplying it back gives the two endpoint
+descending-factorial products. -/
+theorem typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
+    {I J R : Type*}
+    [Fintype I] [Fintype J]
+    [Semifield R] [CharZero R]
+    (k : I -> Nat) (ell : J -> Nat) (L : I -> J -> Nat) :
+    (typeTableCellFactorialProduct L : R) *
+        (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) /
+            (typeTableCellFactorialProduct L : R)) =
+      ((typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : Nat) : R) := by
+  rw [mul_div_cancel₀]
+  exact Nat.cast_ne_zero.mpr
+    (Finset.prod_ne_zero_iff.mpr fun _ _ =>
+      Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
+
 #print axioms sum_unlabelledSkeleton_weight_eq_sum_typeTables
 #print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
+#print axioms sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 
 end
 
