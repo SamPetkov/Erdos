@@ -199,6 +199,7 @@ import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
+import Erdos625.Section8TypeTableFeasibility
 import Erdos625.Section8WeightedSkeletonQuotient
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
@@ -952,6 +953,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deriv_profilePhaseObjective_parts
 #print axioms Erdos625.coloringProfileDualExponentRewrite
 #print axioms Erdos625.sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms Erdos625.UnlabelledTypedSkeleton.sum_typeTable_row_le
+#print axioms Erdos625.UnlabelledTypedSkeleton.sum_typeTable_column_le
 #print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
 #print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
