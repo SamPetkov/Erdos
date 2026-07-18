@@ -1,4 +1,5 @@
 import Erdos625.Section8UnlabelledTypedSkeleton
+import Mathlib.Tactic
 
 /-!
 # Section VIII: feasibility margins for unlabelled typed skeleton tables
@@ -24,24 +25,23 @@ private theorem cellEdges_card_eq_typeTable_aux
     UnlabelledTypedSkeleton.typeTable
   refine Finset.card_bij
     (fun p _ =>
-      ((Sigma.mk i p.1, Sigma.mk j p.2) :
-        Prod (RowStub k) (ColumnStub ell))) ?_ ?_ ?_
-  next p hp =>
-    rw [Finset.mem_filter] at hp
-    rw [Finset.mem_filter]
-    exact And.intro hp.2 (And.intro rfl rfl)
-  next p1 hp1 p2 hp2 hEq =>
+      ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+        RowStub k × ColumnStub ell)) ?_ ?_ ?_
+  · intro p hp
+    rw [Finset.mem_filter] at hp ⊢
+    exact ⟨hp.2, rfl, rfl⟩
+  · intro p₁ hp₁ p₂ hp₂ hEq
     exact Prod.ext
       (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hEq)).2)
       (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEq)).2)
-  next e he =>
+  · intro e he
     rw [Finset.mem_filter] at he
-    rcases he with ⟨hEdge, hI, hJ⟩
-    rcases e with ⟨⟨iPrime, r⟩, ⟨jPrime, c⟩⟩
+    obtain ⟨hEdge, hI, hJ⟩ := he
+    obtain ⟨⟨i', r⟩, ⟨j', c⟩⟩ := e
     simp only at hI hJ
-    subst iPrime
-    subst jPrime
-    exact ⟨(r, c), by simpa using hEdge, rfl⟩
+    subst i'
+    subst j'
+    exact ⟨(r, c), by simp [hEdge], rfl⟩
 
 private theorem rowCell_card_aux
     {I J : Type*}
@@ -51,18 +51,17 @@ private theorem rowCell_card_aux
     (S.rowCell i j).card = S.typeTable i j := by
   rw [UnlabelledTypedSkeleton.rowCell,
     Finset.card_image_of_injOn]
-  next =>
-    exact cellEdges_card_eq_typeTable_aux S i j
-  next p1 hp1 p2 hp2 hFirst =>
-    have hEdge1 :
-        ((Sigma.mk i p1.1, Sigma.mk j p1.2) :
-          Prod (RowStub k) (ColumnStub ell)) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp1
-    have hEdge2 :
-        ((Sigma.mk i p2.1, Sigma.mk j p2.2) :
-          Prod (RowStub k) (ColumnStub ell)) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp2
-    have hGlobal := S.leftUnique _ hEdge1 _ hEdge2 (by
+  · exact cellEdges_card_eq_typeTable_aux S i j
+  · intro p₁ hp₁ p₂ hp₂ hFirst
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.leftUnique _ hEdge₁ _ hEdge₂ (by
       exact Sigma.ext rfl (heq_of_eq hFirst))
     exact Prod.ext hFirst
       (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2)
@@ -75,18 +74,17 @@ private theorem columnCell_card_aux
     (S.columnCell i j).card = S.typeTable i j := by
   rw [UnlabelledTypedSkeleton.columnCell,
     Finset.card_image_of_injOn]
-  next =>
-    exact cellEdges_card_eq_typeTable_aux S i j
-  next p1 hp1 p2 hp2 hSecond =>
-    have hEdge1 :
-        ((Sigma.mk i p1.1, Sigma.mk j p1.2) :
-          Prod (RowStub k) (ColumnStub ell)) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp1
-    have hEdge2 :
-        ((Sigma.mk i p2.1, Sigma.mk j p2.2) :
-          Prod (RowStub k) (ColumnStub ell)) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp2
-    have hGlobal := S.rightUnique _ hEdge1 _ hEdge2 (by
+  · exact cellEdges_card_eq_typeTable_aux S i j
+  · intro p₁ hp₁ p₂ hp₂ hSecond
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
       exact Sigma.ext rfl (heq_of_eq hSecond))
     exact Prod.ext
       (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2)

@@ -204,6 +204,7 @@ import Erdos625.Section8CanonicalDemandPartition
 import Erdos625.Section8CanonicalDemandMixture
 import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
+import Erdos625.Section8TypeTableFeasibility
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
 import Erdos625.Section8WeightedSkeletonQuotient
 import Erdos625.Section8CanonicalDemandGlobalResidual
