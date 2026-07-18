@@ -66,16 +66,17 @@ We prove that, for \(G_n\sim G(n,1/2)\),
        \frac{n}{(\ln n)^3}}\longrightarrow1.             \tag{0.1}
 \]
 
-The proof is organized around the rounding phase of the
-independence-number threshold. We compare ordinary colorings with signed
-cocolorings whose classes have four consecutive sizes and may be declared
-either independent or complete. This extra choice lowers the first-moment
-root by order \(n/(\ln n)^3\), uniformly throughout the phase. To show that
-the lower root is attained, we derive an exact overlap identity and express
-its sign contribution through even subgraphs of a bipartite configuration
-model. The resulting second-moment estimate produces a possibly rare
-cocoloring, which a vertex-exposure argument promotes to a high-probability
-event without changing the leading root separation.
+The delicate point is the rounding phase of the independence-number
+threshold. We compare ordinary colorings with signed cocolorings whose
+classes have four consecutive sizes and may be declared either independent
+or complete. The sign choice creates an exquisitely phase-sensitive but
+uniform first-moment advantage, lowering the relevant root by order
+\(n/(\ln n)^3\). To show that this lower root is attained, we derive an exact
+overlap identity and express its sign contribution through even subgraphs of
+a bipartite configuration model. The resulting second-moment estimate first
+produces a possibly rare cocoloring; a vertex-exposure argument then promotes
+that seed to a high-probability event without changing the leading root
+separation.
 
 \end{abstract}
 
@@ -108,6 +109,13 @@ For \(G_n\sim G(n,1/2)\),
  In particular, \(\chi(G_n)-\zeta(G_n)\) diverges with high probability
  along the full sequence of integers \(n\).
 \end{resultbox}
+
+The full-sequence quantifier is essential. Near an independence-number jump,
+a rounding error of one vertex changes the available profile, so an estimate
+proved only on a dense set of phases does not automatically extend to every
+integer \(n\). The argument below is therefore uniform in the complete phase
+parameter \(\delta\in[0,1)\), including sequences approaching either side of
+each jump.
 
 \paragraph{Background and relation to earlier work.}
 The chromatic number of dense random graphs has been studied since the
@@ -159,18 +167,20 @@ the treatment of all remaining overlap regimes, the all-\(n\) conclusion,
 and the explicit constant in Theorem~1 are the contributions of this paper.
 
 \paragraph{Proof roadmap.}
-Sections~2--4 establish an unrestricted lower location for \(\chi(G_n)\).
-Section~5 constructs a
-four-size signed cocoloring profile whose first moment is positive at a
-threshold lower by order \(n/(\ln n)^3\). Sections~6--9 establish the
-corresponding normalized second-moment estimate: Section~6 gives the exact
-overlap and sign decomposition, Section~7 controls common whole classes,
-Section~8 sums the high-cell skeletons, and Section~9 bounds the
-remaining conditional local and cycle contributions. Section~10 amplifies the
-resulting possibly rare cocoloring event to a high-probability statement.
-Finally, Section~11 combines the chromatic lower location with the
-cocoloring upper location. The roadmap records dependencies only; each
-asymptotic estimate is proved at the point where it is used.
+Sections~2--4 locate \(\chi(G_n)\) from below without imposing a hidden
+profile restriction. Section~2 resolves the complete independence-number
+phase, Section~3 develops the continuous root geometry, and Section~4 turns
+that geometry into an unrestricted chromatic lower bound.
+
+Section~5 constructs the four-size signed profile and proves the decisive
+first-moment separation of order \(n/(\ln n)^3\). The rest of the paper shows
+that this formal root is genuinely populated. Section~6 derives the exact
+overlap and sign decomposition; Section~7 controls common whole classes;
+Section~8 sums every canonical high-cell skeleton; and Section~9 bounds the
+remaining conditional local and cycle attachments. Section~10 then amplifies
+the possibly rare second-moment seed to a high-probability cocoloring event.
+Section~11 subtracts the two locations. The roadmap records dependencies
+only; each asymptotic estimate is proved where it is used.
 
 \section{Notation and elementary
 facts}\label{notation-and-elementary-facts}
@@ -432,7 +442,12 @@ Set
  T=\alpha-\frac nk.                                      \tag{3.4}
 \]
 
-The following lemma supplies all root geometry needed later.
+The profile optimization has two jobs. It must locate the zero of the
+first-moment exponent, and it must compare two different supports at the
+same average class size. The affine part of the deficit weight cancels under
+the fixed-mean constraint; only the curved part distinguishes the supports.
+The following lemma packages both facts, together with the uniform derivative
+needed to convert an entropy advantage into a root displacement.
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 3.1 (root phase, derivative, and support comparison)}
@@ -548,7 +563,7 @@ while (3.13) also supplies the uniform bound \(h_n(i)\le-{\ln 2}i^2/2\).
 The target mean \(T_0\) stays in the compact interval
 
 \[
- \frac2{\ln 2}\le T_0\le1+\frac2{\ln 2},                             \tag{3.15}
+ \frac2{\ln 2}\le T_0\le1+\frac2{\ln 2}.                             \tag{3.15}
 \]
 
 To control the optimizing tilts uniformly, define
@@ -719,7 +734,7 @@ bounded profiles. Applying (1.2) to (4.2), uniformly even when some
 \(k_i=0\), yields
 
 \[
- \ln E_{n,k,\alpha+1}\le L_+(n,k)+O((\ln n)^2),                \tag{4.3}
+ \ln E_{n,k,\alpha+1}\le L_+(n,k)+O((\ln n)^2).                \tag{4.3}
 \]
 
 By Lemma 3.1,
@@ -748,6 +763,12 @@ declared either ``independent'' or ``complete''; it is realized when each
 class induces the graph specified by its declaration.  Thus the sign is a
 two-way declaration attached to a class, and the signed counts below count
 witnesses for ordinary cocolorings rather than a new graph invariant.
+
+There are two logically separate tasks. First, restricting the deficits to
+\(S_4=\{2,3,4,5\}\) must cost strictly less than \(\ln 2\) per part. Second,
+the \(2^k\) choices of signs must convert that strict inequality into a
+macroscopic separation of the two roots. Lemma~5.1 proves the first point;
+the derivative estimate from Lemma~3.1 then proves the second.
 
 For \(S\in\{S_+,S_4\}\), introduce the tilted weights, partition
 function, and mean map
@@ -1197,11 +1218,11 @@ integer vector
 
 \[
  \mathbf k=(k_2,k_3,k_4,k_5),\qquad
- u_i=\alpha-i,\qquad k_i=\Theta(n/{\ln n}),                    \tag{5.17}
+ u_i=\alpha-i,\qquad k_i=\Theta(n/{\ln n}).                    \tag{5.17}
 \]
 
-Applying (1.2) to the factorials in its
-exact signed first moment
+Applying (1.2) to the factorials in the exact signed first moment of this
+vector gives
 
 \[
  \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
@@ -1349,6 +1370,11 @@ gives
 \]
 
 which is the first expression in (6.4).
+
+Formula (6.4) separates two effects that will be estimated by different
+methods. The product of the \(g(r_{ab})\) is purely local and is trivial for
+cell sizes at most two; the factor \(2^{\beta(H)}\) is topological and counts
+the independent cycle choices of the support graph.
 
 For every support edge, split \(\binom{r}{2}\) as
 \((\binom{r}{2}-1)+1\). Since
@@ -1592,6 +1618,12 @@ For the exact midpoint profile,
 
 \end{lemmabox}
 
+The proof has three ranges, classified by the vertex mass occupied by the
+marked common classes. The recurrence (7.4) controls the empty corner, the
+continuous rate function controls the central range, and the reverse
+recurrence (7.6) controls the full corner. The ranges overlap only at their
+boundaries and together exhaust every common subprofile.
+
 \paragraph{Proof: the empty corner.}\label{proof-the-empty-corner}
 
 Let
@@ -1658,7 +1690,7 @@ identity
 2\sum_i\{\ln(k_i!)-\ln(\ell_i!)-\ln((k_i-\ell_i)!)\}\\
 &-\ell_\bullet\ln 2-\ln(n!)+\ln((n-m)!)
  +\sum_i\ell_i\ln(u_i!)+\sum_i\ln(\ell_i!)
- +(\ln 2)b_\ell .
+ +(\ln 2)b_\ell.
 \end{split}
 \]
 Applying Stirling to this identity, with the convention
@@ -1926,8 +1958,10 @@ Multiplying this expression by (8.3), and using
       {n!\prod_{a,b}r_{ab}!},
 \]
 which is exactly (6.2). Thus every overlap matrix occurs exactly once.
+The canonical choice of all cells above \(R_0\) is what prevents an overlap
+matrix from being charged to two different skeletons.
 
- We first sum the bare high-skeleton contribution, postponing all local and
+We first sum the bare high-skeleton contribution, postponing all local and
  topological factors in the capped residual model. Index the four sizes
 as
 
@@ -2143,6 +2177,12 @@ are inserted.
 \end{lemmabox}
 
 \paragraph{Proof.}\label{proof-7}
+
+Replacing a high cell by full containment creates two qualitatively different
+errors. A small deficit from the endpoint factorizes over the matching and is
+summable cell by cell; a middle multiplicity must instead be estimated inside
+the residual configuration model. The proof treats these mechanisms
+separately and then recombines them through the exact canonical decomposition.
 
 We first record why the following two ranges exhaust the canonical
 high-skeleton sum. If a high cell joins slots of sizes \(m\) and \(m+d\),
@@ -2521,6 +2561,11 @@ upper-bound direction. This gives
                                                                \tag{9.12}
 \]
 
+The right side now has a clean division of labour: the exponential term pays
+for higher local multiplicities, while the weighted even-subgraph sum pays
+for the cycle space. The remaining proof bounds these two quantities
+independently.
+
 Here \(R\) is the finite potential residual support graph (all residual
 row--column cells), and \(\mathcal C_{\rm even}(\mathcal M,R)\) is the finite family of
 edge subsets \(F\subseteq E(\mathcal M\cup R)\) having even degree at every vertex;
@@ -2542,7 +2587,7 @@ Every residual degree is at most \(u_{\max}\), and both degree sums equal
 \[
  \Lambda_{\mathrm{loc}}\le\frac C{m_0^3}
    \left(\sum_a d_a^3\right)\left(\sum_b(d'_b)^3\right)
- \le C\frac{u_{\max}^4}{m_0},                                  \tag{9.13}
+ \le C\frac{u_{\max}^4}{m_0}.                                  \tag{9.13}
 \]
 
 For a fixed row \(a\), the quadratic bound in (9.9) also gives
@@ -2799,11 +2844,13 @@ choices, then
  s_{t+1}\ge(s_t-1)/4,\qquad s_t\ge4^{-t}s_0-1/3.         \tag{10.3a}
 \]
 
-The chosen vertices form a clique in \(H\). Starting from any
+The chosen vertices form a clique in \(H\): after a vertex is chosen, the
+current set is replaced by its \(H\)-neighbourhood, so every later choice is
+adjacent in \(H\) to every earlier one. Starting from any
 \(\lceil n^{1/3}\rceil\)-subset, (10.3a) stays above \(n^{1/4}\) for at
-least \(\lfloor {\ln n}/(13\ln4)\rfloor\) steps. Thus it constructs at least
-\(c{\ln n}\) vertices for an absolute \(c>0\). They are an independent set in
-\(G_n\).
+least \(\lfloor {\ln n}/(13\ln4)\rfloor\) steps. Thus the procedure constructs
+at least \(c{\ln n}\) vertices for an absolute \(c>0\), and these vertices form
+an independent set in \(G_n\).
 
 For an arbitrary \(S\), repeatedly remove such independent sets and
 give each a new color until fewer than \(n^{1/3}\) vertices
@@ -2855,10 +2902,11 @@ and define
 
 Expose the random graph in \(n-1\) independent vertex blocks, where
 block \(v\) contains the edges from \(v\) to earlier vertices.
-Changing one block changes \(S_k\) by at most one: after deletion
-of the affected vertex, every feasible induced set loses at most one
-vertex and the two configurations agree on the remainder. Therefore
-(1.3) applies.
+Changing one block changes \(S_k\) by at most one. Indeed, after deleting
+the affected vertex, every feasible induced set loses at most one vertex,
+and the two graph configurations agree on all remaining edges. Thus a
+maximizer in either configuration yields a feasible set of size at least one
+less in the other configuration. Therefore (1.3) applies.
 
 Since \(S_k=n\) exactly when \(\zeta(G_n)\le k_n\),
 (10.4) and the upper one-sided bounded-differences tail give
@@ -2957,18 +3005,35 @@ every fixed \(K\),
  \Prob{\chi(G_n)-\zeta(G_n)\ge K}\longrightarrow1.      \tag{11.3}
 \]
 
-Every estimate used above is uniform for \(\delta \in [0,1)\) and
-for the exact tangent-rounded finite-\(n\) profile. The conclusion
-therefore holds along all sufficiently large integers, including
-sequences approaching either side of every independence-number jump. It
-is a high-probability statement, not a density-subset or subsequence
-result. \(\blacksquare\)
+Every estimate used above is uniform for \(\delta \in [0,1)\) and for the
+exact tangent-rounded finite-\(n\) profile. The conclusion therefore holds
+along all sufficiently large integers, including sequences approaching
+either side of every independence-number jump. The phase has not been
+averaged away or discarded: the result is a full-sequence high-probability
+statement, not a density-subset or subsequence statement. \(\blacksquare\)
 
-\section*{Formalization}
+\section*{Reproducibility and formalisation}
 
-A partial Lean~4 formalization developed using ChatGPT-5.6 and Aristotle
-\citep{achim-et-al-2025} is available in a self-contained source file on
-\href{https://github.com/SamPetkov/Erdos/blob/main/625/formalization/Erdos625SelfContained.lean}{GitHub}.
+The complete proof sources and reproducibility material are collected in the
+numbered dossiers of the public
+\href{https://github.com/SamPetkov/Erdos}{\texttt{Erdos} repository}; the
+present paper is in \texttt{625/}. All theorem statements and proof text are
+also available in Markdown, so the argument can be inspected without
+compiling the TeX. The dossier includes the TeX source, bibliography,
+reproducible build material, audit records, and the current partial Lean~4
+formalisation.
+
+The \texttt{625/verification/} directory additionally contains an
+independently written Python checker, its reproduced output, and a Markdown
+verification report. These files provide supplementary finite consistency
+checks and an auditable record of what was tested; they are not a substitute
+for external peer review or for a complete formal proof.
+
+The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle
+\citep{achim-et-al-2025}, is provided as a self-contained source file. Each
+formalised statement is decomposed into smaller claims, with its hypotheses
+and conclusion checked explicitly. This is a partial machine-checked
+formalisation, not a claim that the entire paper has been formalised.
 
 \section*{AI assistance}
 
