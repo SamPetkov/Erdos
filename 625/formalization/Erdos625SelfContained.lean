@@ -134,6 +134,11 @@ wrapper are included and proved as conditional implications.  They retain the
 concrete chromatic at-most tail, concrete seed/count/moment estimate with
 `Lambda` asymptotics, and concrete root separation as explicit inputs; none of
 those inputs is proved by the adapters.
+The generic signed-slope root-separation lemma, exact midpoint floor/ceiling
+rounding lemma (and explicit natural-index adapter), and negligible explicit
+rounding budget are included. They remain conditional/deterministic: they do
+not construct the manuscript roots, establish their signed advantage or
+derivative ceiling, or prove the concrete chromatic tail.
 The exact four-deficit score convergence and compatible-Boolean-sign component
 count are included as finite helper leaves only.  They do not prove the
 four-size signed first moment, the sign-summed second-moment law, the concrete
@@ -21326,6 +21331,228 @@ END SOURCE MODULE: Erdos625.ProfileCorridorTools
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RootSeparationSlope
+Source: Erdos625/RootSeparationSlope.lean
+Normalized SHA-256: 713ad7684bb9d97fd285f600ce75918d35b868bc41a406561cc16e9f7a241463
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RootSeparationSlope
+
+/-!
+# Root separation from a signed value and a slope ceiling
+
+This is the noncircular mean-value step used after the two real roots have
+already been bracketed in the same corridor. It does not posit a gap between
+the roots: the gap is derived from the value of the signed objective at the
+unrestricted root and an upper derivative bound on the intervening interval.
+-/
+
+namespace Erdos625
+
+open Set
+open scoped Topology
+
+noncomputable section
+
+/-- If a signed objective vanishes at its signed root, has a positive value at
+the unrestricted root, and has derivative at most `slope` throughout the
+already-established interval, then the two roots are separated by at least
+the value divided by that slope. No root-gap hypothesis is assumed. -/
+theorem signed_root_separation_of_advantage_and_slope
+    {F : ℝ → ℝ} {rCo rPlus advantage slope : ℝ}
+    (hOrder : rCo ≤ rPlus)
+    (hCont : ContinuousOn F (Icc rCo rPlus))
+    (hDiff : DifferentiableOn ℝ F (Ioo rCo rPlus))
+    (hSlopePos : 0 < slope)
+    (hSlope : ∀ x ∈ Ioo rCo rPlus, deriv F x ≤ slope)
+    (hRootCo : F rCo = 0)
+    (hAdvantage : advantage ≤ F rPlus) :
+    advantage / slope ≤ rPlus - rCo := by
+  rcases hOrder.eq_or_lt with hEq | hLt
+  · subst rPlus
+    have hAdvantageNonpos : advantage ≤ 0 := by
+      simpa [hRootCo] using hAdvantage
+    simpa using div_nonpos_of_nonpos_of_nonneg hAdvantageNonpos hSlopePos.le
+  · obtain ⟨c, hc, hDeriv⟩ := exists_deriv_eq_slope F hLt hCont hDiff
+    have hGapPos : 0 < rPlus - rCo := sub_pos.mpr hLt
+    have hQuotient : (F rPlus - F rCo) / (rPlus - rCo) ≤ slope := by
+      rw [← hDeriv]
+      exact hSlope c hc
+    apply (div_le_iff₀ hSlopePos).2
+    calc
+      advantage ≤ F rPlus - F rCo := by simpa [hRootCo] using hAdvantage
+      _ = ((F rPlus - F rCo) / (rPlus - rCo)) * (rPlus - rCo) := by
+        exact (div_mul_cancel₀ _ hGapPos.ne').symm
+      _ ≤ slope * (rPlus - rCo) :=
+        mul_le_mul_of_nonneg_right hQuotient hGapPos.le
+      _ = (rPlus - rCo) * slope := mul_comm _ _
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RootSeparationSlope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RootSeparationSlope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RootSeparationRounding
+Source: Erdos625/RootSeparationRounding.lean
+Normalized SHA-256: c0a3c937744f3bd6ec93c4bafbe7a682033bfa3a07e15c9d27fa328c5f30e281
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RootSeparationRounding
+
+/-!
+# Exact midpoint rounding for the root corridor
+
+The real root separation is an upstream analytic task. This file formalizes
+only the deterministic loss from the manuscript choices
+`floor rPlus - ceil N` and `ceil ((rCo + rPlus) / 2)`.
+-/
+
+namespace Erdos625
+
+open scoped Topology
+
+noncomputable section
+
+/-- The integer chromatic lower-location selected from the unrestricted real
+root. -/
+def rootChromaticIndex (rPlus N : ℝ) : ℤ :=
+  ⌊rPlus⌋ - ⌈N⌉
+
+/-- The integer cocolouring witness location selected from the midpoint of
+the two real roots. -/
+def rootCochromaticIndex (rCo rPlus : ℝ) : ℤ :=
+  ⌈(rCo + rPlus) / 2⌉
+
+/-- A real root gap of `c * base` and a deterministic rounding budget
+`N + 3 ≤ rho * base` imply the exact Section XI-style integer threshold gap.
+The three units are the floor loss and the two ceiling losses. -/
+theorem root_midpoint_rounding_gap
+    (rPlus rCo N c base rho : ℝ)
+    (hGap : c * base ≤ rPlus - rCo)
+    (hRounding : N + 3 ≤ rho * base) :
+    (c / 2 - rho) * base ≤
+      ((rootChromaticIndex rPlus N : ℤ) : ℝ) -
+        ((rootCochromaticIndex rCo rPlus : ℤ) : ℝ) := by
+  unfold rootChromaticIndex rootCochromaticIndex
+  norm_num [sub_mul] at *
+  linarith [Int.lt_floor_add_one rPlus, Int.ceil_lt_add_one N,
+    Int.ceil_lt_add_one ((rCo + rPlus) / 2)]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RootSeparationRounding
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RootSeparationRounding
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RootSeparationRoundingNatAdapter
+Source: Erdos625/RootSeparationRoundingNatAdapter.lean
+Normalized SHA-256: 53bfd0387ffbaac20c9ebf4f9f8147c46ce78d85c3c7b90762517c2aa338745e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RootSeparationRoundingNatAdapter
+
+/-!
+# Natural-number transport for the exact root-rounding gap
+
+This is only an `Int.toNat` transport adapter for the already proved
+real-valued rounding gap. The two nonnegativity hypotheses are explicit and
+are the only new hypotheses.
+-/
+
+namespace Erdos625
+
+theorem root_midpoint_rounding_gap_toNat
+    (rPlus rCo N c base rho : ℝ)
+    (hGap : c * base ≤ rPlus - rCo)
+    (hRounding : N + 3 ≤ rho * base)
+    (hChromaticNonneg : 0 ≤ rootChromaticIndex rPlus N)
+    (hCochromaticNonneg : 0 ≤ rootCochromaticIndex rCo rPlus) :
+    (c / 2 - rho) * base ≤
+      (((rootChromaticIndex rPlus N).toNat : Nat) : ℝ) -
+        (((rootCochromaticIndex rCo rPlus).toNat : Nat) : ℝ) := by
+  have h := root_midpoint_rounding_gap rPlus rCo N c base rho hGap hRounding
+  rw [← Int.toNat_of_nonneg hChromaticNonneg,
+    ← Int.toNat_of_nonneg hCochromaticNonneg] at h
+  exact h
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RootSeparationRoundingNatAdapter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RootSeparationRoundingNatAdapter
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RootSeparationRoundingBudget
+Source: Erdos625/RootSeparationRoundingBudget.lean
+Normalized SHA-256: 907acb0c1e66543cad7da0cbdac5c089f9d42b4d64780bb4c848da0923ff30ec
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RootSeparationRoundingBudget
+
+/-!
+# A concrete negligible rounding budget on the root scale
+
+This is independent of the profile/root analysis. It supplies the explicit
+error needed to convert a real `n / (log n)^3` root gap to integer thresholds.
+-/
+
+namespace Erdos625
+
+open Filter Asymptotics
+open scoped Topology
+
+noncomputable section
+
+/-- A deterministic budget dominating the floor/ceiling loss at the root
+scale. Its product with `n / (log n)^3` is eventually `log n + 4`. -/
+def rootRoundingBudget (n : ℕ) : ℝ :=
+  (Real.log (n : ℝ) + 4) * (Real.log (n : ℝ)) ^ 3 / (n : ℝ)
+
+/-- The explicit rounding budget is negligible at the root scale, and it
+eventually pays for `ceil(log n) + 3`. The conclusion is a conjunction so
+both the asymptotic and its exact finite inequality remain visible. -/
+theorem root_rounding_budget_spec :
+    Tendsto rootRoundingBudget atTop (nhds 0) ∧
+      ∀ᶠ n : ℕ in atTop,
+        Real.log (n : ℝ) + 3 ≤
+          rootRoundingBudget n *
+            ((n : ℝ) / (Real.log (n : ℝ)) ^ 3) := by
+  constructor
+  · unfold rootRoundingBudget
+    suffices h : Tendsto (fun y : ℝ => (y + 4) * y ^ 3 / Real.exp y) atTop (nhds 0) by
+      have h' := (h.comp Real.tendsto_log_atTop).comp tendsto_natCast_atTop_atTop
+      apply h'.congr'
+      filter_upwards [eventually_gt_atTop 0] with n hn
+      simp [Real.exp_log (Nat.cast_pos.mpr hn)]
+    ring_nf
+    norm_num [← Real.exp_neg]
+    simpa using
+      (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 3).mul tendsto_const_nhds |>.add
+        (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 4)
+  · filter_upwards [eventually_ge_atTop 2] with n hn
+    have hn0 : (n : ℝ) ≠ 0 := by positivity
+    have hlog : Real.log (n : ℝ) ≠ 0 := by
+      exact ne_of_gt (Real.log_pos (Nat.one_lt_cast.mpr hn))
+    rw [rootRoundingBudget]
+    field_simp
+    norm_num
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RootSeparationRoundingBudget
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RootSeparationRoundingBudget
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.OrderedOverlapLaw
 Source: Erdos625/OrderedOverlapLaw.lean
 Normalized SHA-256: 2ccc0f05da9a77fd00545de0471233acceb9394461b251b1b20fa3b30abb7818
@@ -42491,7 +42718,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 89e371ac2d7d743a15d02aa7beee8e9409f119590f4557d5aaf9b13cba64d282
+Normalized SHA-256: 89ced94128849f41f7a8bfa7b3d02ad1825af23d67b0c53cd970ac07ee65f2ff
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -43210,6 +43437,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms Erdos625.signed_root_separation_of_advantage_and_slope
+#print axioms Erdos625.root_midpoint_rounding_gap
+#print axioms Erdos625.root_midpoint_rounding_gap_toNat
+#print axioms Erdos625.root_rounding_budget_spec
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -43219,7 +43450,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 10428c7fb13ed0a23609ac7122a5b8374c76f9b839451c2367b71e41dd34933e
+Normalized SHA-256: d0634e15972df2d7923b70cde2f92aee50bd59e7fa830fb2a42545294fc33bc6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

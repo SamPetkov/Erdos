@@ -153,6 +153,11 @@ wrapper are included and proved as conditional implications.  They retain the
 concrete chromatic at-most tail, concrete seed/count/moment estimate with
 `Lambda` asymptotics, and concrete root separation as explicit inputs; none of
 those inputs is proved by the adapters.
+The generic signed-slope root-separation lemma, exact midpoint floor/ceiling
+rounding lemma (and explicit natural-index adapter), and negligible explicit
+rounding budget are included. They remain conditional/deterministic: they do
+not construct the manuscript roots, establish their signed advantage or
+derivative ceiling, or prove the concrete chromatic tail.
 The exact four-deficit score convergence and compatible-Boolean-sign component
 count are included as finite helper leaves only.  They do not prove the
 four-size signed first moment, the sign-summed second-moment law, the concrete

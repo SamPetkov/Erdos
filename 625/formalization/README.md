@@ -172,6 +172,16 @@ argument then proves `P(χ≤k)≤E[bounded count]+P(α>b)`, as well as its shar
  optimizer into the part-count objective, establish the scalar root corridor
  and slope, justify the integer rounding decrement, and prove that the
  assembled upper bound tends to zero.
+The generic final deterministic pieces are now independently checked:
+`RootSeparationSlope.lean` derives a real root gap from an already-bracketed
+signed objective value and a positive derivative ceiling;
+`RootSeparationRounding.lean` accounts exactly for the one floor and two
+ceiling losses; its natural-index adapter keeps the required nonnegativity
+explicit; and `RootSeparationRoundingBudget.lean` proves that the displayed
+`(log n + 4)(log n)^3/n` budget vanishes while eventually paying for
+`log n + 3`. These are conditional/deterministic helpers only: they do not
+construct the manuscript roots, prove their signed advantage or slope bound,
+or establish the chromatic tail.
 An explicit phase-cap squeeze theorem already performs the last implication
 once convergence of the displayed dual main term is supplied.
 

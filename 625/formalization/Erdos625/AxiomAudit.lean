@@ -928,3 +928,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core
+#print axioms Erdos625.signed_root_separation_of_advantage_and_slope
+#print axioms Erdos625.root_midpoint_rounding_gap
+#print axioms Erdos625.root_midpoint_rounding_gap_toNat
+#print axioms Erdos625.root_rounding_budget_spec
