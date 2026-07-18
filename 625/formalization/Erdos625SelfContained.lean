@@ -1,4 +1,5 @@
 import Mathlib
+import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Algebra.Order.Field.GeomSum
 import Mathlib.Algebra.Order.Floor.Div
@@ -11,12 +12,14 @@ import Mathlib.Analysis.Calculus.Deriv.MeanValue
 import Mathlib.Analysis.Calculus.Deriv.Shift
 import Mathlib.Analysis.Calculus.SmoothSeries
 import Mathlib.Analysis.Complex.ExponentialBounds
+import Mathlib.Analysis.Normed.Algebra.Exponential
 import Mathlib.Analysis.Normed.Group.FunctionSeries
 import Mathlib.Analysis.Normed.Group.Tannery
 import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+import Mathlib.Analysis.SpecialFunctions.Exponential
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
@@ -17444,6 +17447,500 @@ END SOURCE MODULE: Erdos625.GeometricMomentTools
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TiltedGaussianSummability
+Source: Erdos625/TiltedGaussianSummability.lean
+Normalized SHA-256: aa392f6785a9c7a30b958f8faa879c2a5edc5053d2d0e87cefa0a848374bbea9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
+
+/-!
+# Summability of tilted-Gaussian moments
+
+A fixed positive quadratic coefficient dominates every fixed linear tilt on
+the natural indices.  This module makes that comparison through the existing
+pointwise tilted-Gaussian bound and Mathlib's summability theorem for a
+polynomial times a geometric sequence.
+
+The comparison includes `d = 0` directly.  For the zeroth moment Lean's
+convention gives `0 ^ 0 = 1`, while the first and second moment factors vanish;
+no division by the index or eventual-only ratio argument is used.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Every fixed natural power times a linearly tilted Gaussian with positive
+quadratic coefficient is summable on the natural indices. -/
+theorem summable_natPow_mul_tiltedGaussian
+    {a lambda : ℝ} (ha : 0 < a) (k : ℕ) :
+    Summable
+      (fun d : ℕ ↦
+        ((d : ℝ) ^ k) *
+          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
+  have hrho0 : 0 ≤ Real.exp (-a / 4) := Real.exp_nonneg _
+  have hrho1 : Real.exp (-a / 4) < 1 :=
+    Real.exp_lt_one_iff.mpr (by linarith)
+  have hrhoNorm : ‖Real.exp (-a / 4)‖ < 1 := by
+    rwa [Real.norm_of_nonneg hrho0]
+  have hgeometric :
+      Summable
+        (fun d : ℕ ↦
+          ((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d) :=
+    summable_pow_mul_geometric_of_norm_lt_one k hrhoNorm
+  have hmajorant :
+      Summable
+        (fun d : ℕ ↦
+          Real.exp (|lambda| ^ 2 / a) *
+            (((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d)) :=
+    hgeometric.mul_left _
+  refine hmajorant.of_nonneg_of_le (fun d ↦ ?_) (fun d ↦ ?_)
+  · exact mul_nonneg
+      (pow_nonneg (by positivity) k)
+      (Real.exp_nonneg _)
+  · have hterm := tiltedGaussianTerm_le_geometric
+      ha (show |lambda| ≤ |lambda| from le_rfl) d
+    have hscaled := mul_le_mul_of_nonneg_left hterm
+      (pow_nonneg (show (0 : ℝ) ≤ d by positivity) k)
+    simpa only [mul_assoc, mul_left_comm, mul_comm] using hscaled
+
+/-- A Gaussian with any fixed linear tilt has summable zeroth, first, and
+second natural-index moments. -/
+theorem summable_tiltedGaussian_moments
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+        (fun d : ℕ ↦
+          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
+      Summable
+        (fun d : ℕ ↦
+          (d : ℝ) *
+            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
+      Summable
+        (fun d : ℕ ↦
+          ((d : ℝ) ^ 2) *
+            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
+  refine ⟨?_, ?_, ?_⟩
+  · simpa using summable_natPow_mul_tiltedGaussian ha 0
+  · simpa using summable_natPow_mul_tiltedGaussian ha 1
+  · exact summable_natPow_mul_tiltedGaussian ha 2
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TiltedGaussianSummability
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ExtendedGaussianProfile
+Source: Erdos625/ExtendedGaussianProfile.lean
+Normalized SHA-256: c0943c6e2d41aa613dd7fa5c70d26d018279df4760ea3901ab20cd46e5b76b2e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
+
+/-!
+# The extended tilted-Gaussian deficit profile
+
+This module defines the limiting weight profile on the deficit coordinates
+`{-1, 0, 1, ...}`.  The exceptional deficit `-1` has weight
+
+`exp (-lambda - a / 2)`,
+
+while a natural deficit `d` has weight
+
+`exp (lambda * d - a / 2 * d ^ 2)`.
+
+The partition function and its first two unnormalized moments are represented
+as an exceptional atom plus a `tsum` over the natural deficits.  Only
+foundational analytic and algebraic properties are established here.  In
+particular, this module makes no differentiability, endpoint, optimizer, or
+strict-variance claim.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The unnormalized limiting weight at a natural deficit `d >= 0`. -/
+def extendedGaussianNaturalTerm (a lambda : ℝ) (d : ℕ) : ℝ :=
+  Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)
+
+/-- The exceptional limiting weight at deficit `-1`. -/
+def extendedGaussianExceptionalAtom (a lambda : ℝ) : ℝ :=
+  Real.exp (-lambda - a / 2)
+
+/-- The total mass of the extended tilted-Gaussian profile on
+`{-1, 0, 1, ...}`. -/
+def extendedGaussianPartition (a lambda : ℝ) : ℝ :=
+  extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d
+
+/-- The unnormalized first moment of the extended profile.  The exceptional
+atom contributes its coordinate `-1`. -/
+def extendedGaussianFirstNumerator (a lambda : ℝ) : ℝ :=
+  -extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, (d : ℝ) * extendedGaussianNaturalTerm a lambda d
+
+/-- The unnormalized second moment of the extended profile.  The exceptional
+atom contributes `(-1)^2 = 1`. -/
+def extendedGaussianSecondNumerator (a lambda : ℝ) : ℝ :=
+  extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d
+
+/-- The normalized mean deficit of the extended profile. -/
+def extendedGaussianMean (a lambda : ℝ) : ℝ :=
+  extendedGaussianFirstNumerator a lambda /
+    extendedGaussianPartition a lambda
+
+/-- The raw variance obtained from the normalized first and second moments. -/
+def extendedGaussianRawVariance (a lambda : ℝ) : ℝ :=
+  extendedGaussianSecondNumerator a lambda /
+      extendedGaussianPartition a lambda -
+    (extendedGaussianMean a lambda) ^ 2
+
+@[simp]
+theorem extendedGaussianNaturalTerm_zero (a lambda : ℝ) :
+    extendedGaussianNaturalTerm a lambda 0 = 1 := by
+  simp [extendedGaussianNaturalTerm]
+
+theorem extendedGaussianNaturalTerm_pos (a lambda : ℝ) (d : ℕ) :
+    0 < extendedGaussianNaturalTerm a lambda d := by
+  exact Real.exp_pos _
+
+theorem extendedGaussianExceptionalAtom_pos (a lambda : ℝ) :
+    0 < extendedGaussianExceptionalAtom a lambda := by
+  exact Real.exp_pos _
+
+/-- The natural-index mass is summable whenever the quadratic coefficient is
+positive. -/
+theorem summable_extendedGaussianNaturalTerm
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable (extendedGaussianNaturalTerm a lambda) := by
+  change Summable
+    (fun d : ℕ ↦
+      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2))
+  exact (summable_tiltedGaussian_moments
+    (a := a) (lambda := lambda) ha).1
+
+/-- The natural-index first-moment series is summable. -/
+theorem summable_extendedGaussianFirstMoment
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+      (fun d : ℕ ↦
+        (d : ℝ) * extendedGaussianNaturalTerm a lambda d) := by
+  simpa [extendedGaussianNaturalTerm] using
+    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.1
+
+/-- The natural-index second-moment series is summable. -/
+theorem summable_extendedGaussianSecondMoment
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+      (fun d : ℕ ↦
+        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d) := by
+  simpa [extendedGaussianNaturalTerm] using
+    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.2
+
+/-- The natural-index `tsum` is at least its deficit-zero atom. -/
+theorem one_le_tsum_extendedGaussianNaturalTerm
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
+  calc
+    1 = ∑ d ∈ ({0} : Finset ℕ),
+        extendedGaussianNaturalTerm a lambda d := by simp
+    _ ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d :=
+      (summable_extendedGaussianNaturalTerm ha).sum_le_tsum
+        ({0} : Finset ℕ)
+        (fun d _ ↦ (extendedGaussianNaturalTerm_pos a lambda d).le)
+
+/-- The deficit-zero atom gives the lower bound `1`, in addition to the
+strictly positive exceptional atom. -/
+theorem exceptionalAtom_add_one_le_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianExceptionalAtom a lambda + 1 ≤
+      extendedGaussianPartition a lambda := by
+  rw [extendedGaussianPartition]
+  simpa [add_comm] using
+    add_le_add_left (one_le_tsum_extendedGaussianNaturalTerm ha)
+      (extendedGaussianExceptionalAtom a lambda)
+
+theorem one_lt_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 < extendedGaussianPartition a lambda := by
+  have hatom := extendedGaussianExceptionalAtom_pos a lambda
+  have hlower :=
+    exceptionalAtom_add_one_le_extendedGaussianPartition
+      (a := a) (lambda := lambda) ha
+  linarith
+
+theorem one_le_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 ≤ extendedGaussianPartition a lambda :=
+  (one_lt_extendedGaussianPartition ha).le
+
+theorem extendedGaussianPartition_pos
+    {a lambda : ℝ} (ha : 0 < a) :
+    0 < extendedGaussianPartition a lambda :=
+  lt_trans zero_lt_one (one_lt_extendedGaussianPartition ha)
+
+theorem extendedGaussianPartition_ne_zero
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianPartition a lambda ≠ 0 :=
+  ne_of_gt (extendedGaussianPartition_pos ha)
+
+/-! ## Exact algebraic identities -/
+
+theorem extendedGaussianPartition_sub_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianPartition a lambda -
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianPartition]
+
+theorem extendedGaussianFirstNumerator_add_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianFirstNumerator a lambda +
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ,
+        (d : ℝ) * extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianFirstNumerator]
+
+theorem extendedGaussianSecondNumerator_sub_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianSecondNumerator a lambda -
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ,
+        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianSecondNumerator]
+
+theorem extendedGaussianMean_mul_partition
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianMean a lambda * extendedGaussianPartition a lambda =
+      extendedGaussianFirstNumerator a lambda := by
+  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
+
+theorem extendedGaussianRawVariance_add_mean_sq
+    (a lambda : ℝ) :
+    extendedGaussianRawVariance a lambda +
+        (extendedGaussianMean a lambda) ^ 2 =
+      extendedGaussianSecondNumerator a lambda /
+        extendedGaussianPartition a lambda := by
+  simp [extendedGaussianRawVariance]
+
+theorem extendedGaussianRawVariance_add_mean_sq_mul_partition
+    {a lambda : ℝ} (ha : 0 < a) :
+    (extendedGaussianRawVariance a lambda +
+        (extendedGaussianMean a lambda) ^ 2) *
+        extendedGaussianPartition a lambda =
+      extendedGaussianSecondNumerator a lambda := by
+  rw [extendedGaussianRawVariance_add_mean_sq]
+  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
+
+theorem extendedGaussianRawVariance_eq_moment_quotients
+    (a lambda : ℝ) :
+    extendedGaussianRawVariance a lambda =
+      extendedGaussianSecondNumerator a lambda /
+          extendedGaussianPartition a lambda -
+        (extendedGaussianFirstNumerator a lambda /
+          extendedGaussianPartition a lambda) ^ 2 := by
+  rfl
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedFourEntropyCertificate
+Source: Erdos625/SignedFourEntropyCertificate.lean
+Normalized SHA-256: 7bcfa9c8c829e1e52be7dec6d3a99398c43493bd55faca5b2b6aecb9acbb3eef
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedFourEntropyCertificate
+
+/-!
+# Conditional entropy certificate for the signed four-size profile
+
+This module formalizes the *algebraic endpoint* of manuscript Lemma 5.1.
+It deliberately does not claim the missing analytic estimate
+
+`D₄ < log (153 / 100)`.
+
+The current development contains the four-point optimizer and the limiting
+extended-Gaussian `S₊` partition, but it does not yet define an `S₊` entropy
+value or prove the omitted-tail partition-ratio estimate.  Accordingly, the
+two hypotheses carrying those obligations below are named
+`h_unrestricted_dual_upper` and `h_partition_ratio_bound`.
+-/
+
+open scoped Topology
+
+namespace Erdos625
+
+noncomputable section
+
+/-! ## The exact numerical endpoint -/
+
+/-- The two logarithmic constants in Lemma 5.1 fit exactly. -/
+theorem q_sub_log_153_div_100_eq_log_200_div_153 :
+    q - Real.log (153 / 100 : ℝ) = Real.log (200 / 153 : ℝ) := by
+  unfold q
+  rw [← Real.log_div (by norm_num : (2 : ℝ) ≠ 0)
+    (by norm_num : (153 / 100 : ℝ) ≠ 0)]
+  norm_num
+
+/-- The explicit manuscript margin is positive. -/
+theorem log_200_div_153_pos : 0 < Real.log (200 / 153 : ℝ) := by
+  exact Real.log_pos (by norm_num : (1 : ℝ) < 200 / 153)
+
+/-- The smallest conditional endpoint of the entropy certificate: a strict
+loss bound by `log (153 / 100)` leaves the stated signed margin. -/
+theorem signed_margin_gt_log_200_div_153_of_entropy_loss_lt
+    {entropyLoss : ℝ}
+    (h_entropy_loss_lt : entropyLoss < Real.log (153 / 100 : ℝ)) :
+    Real.log (200 / 153 : ℝ) < q - entropyLoss := by
+  rw [← q_sub_log_153_div_100_eq_log_200_div_153]
+  linarith
+
+/-! ## A dual-ratio bridge to the endpoint -/
+
+/-- The `S₊` dual expression evaluated at an arbitrary tilt.  This is only a
+dual test value; it is not presented as a defined or optimized `S₊` entropy. -/
+noncomputable def extendedGaussianDualTestValue (target tilt : ℝ) : ℝ :=
+  Real.log (extendedGaussianPartition q tilt) - tilt * target
+
+/-- At its own mean, the limiting four-point entropy is exactly its dual
+expression at the given tilt. -/
+theorem fourGaussianEntropy_eq_dual_at_mean (tilt : ℝ) :
+    ProfileEntropyS4.optimizedValue fourGaussianScore
+        (ProfileEntropyS4.mean fourGaussianScore tilt) =
+      Real.log (ProfileEntropyS4.partition fourGaussianScore tilt) -
+        tilt * ProfileEntropyS4.mean fourGaussianScore tilt := by
+  have h_target : ProfileEntropyS4.mean fourGaussianScore tilt ∈
+      Set.Ioo (2 : ℝ) 5 :=
+    ProfileEntropyS4.mean_mem_Ioo fourGaussianScore tilt
+  have h_tilt : tilt =
+      ProfileEntropyS4.tilt fourGaussianScore
+        (ProfileEntropyS4.mean fourGaussianScore tilt) :=
+    ProfileEntropyS4.eq_tilt_of_mean_eq fourGaussianScore h_target rfl
+  unfold ProfileEntropyS4.optimizedValue
+  rw [← h_tilt]
+
+/-- A dual upper bound for an explicitly supplied unrestricted entropy value
+converts to a bound by the ratio of its partition function to the four-point
+partition function.  `h_unrestricted_dual_upper` is the variational direction
+that remains to be supplied for the manuscript's actual `S₊` entropy. -/
+theorem entropy_loss_le_log_partition_ratio
+    {unrestrictedEntropy target tilt : ℝ}
+    (h_mean : ProfileEntropyS4.mean fourGaussianScore tilt = target)
+    (h_unrestricted_dual_upper :
+      unrestrictedEntropy ≤ extendedGaussianDualTestValue target tilt) :
+    unrestrictedEntropy -
+        ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
+      Real.log
+        (extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt) := by
+  have h_target : target ∈ Set.Ioo (2 : ℝ) 5 := by
+    simpa only [h_mean] using
+      (ProfileEntropyS4.mean_mem_Ioo fourGaussianScore tilt)
+  have h_tilt : tilt = ProfileEntropyS4.tilt fourGaussianScore target :=
+    ProfileEntropyS4.eq_tilt_of_mean_eq fourGaussianScore h_target h_mean
+  have h_four : ProfileEntropyS4.optimizedValue fourGaussianScore target =
+      Real.log (ProfileEntropyS4.partition fourGaussianScore tilt) -
+        tilt * target := by
+    unfold ProfileEntropyS4.optimizedValue
+    rw [← h_tilt]
+  have h_extended_pos : 0 < extendedGaussianPartition q tilt :=
+    extendedGaussianPartition_pos q_pos
+  have h_four_pos : 0 < ProfileEntropyS4.partition fourGaussianScore tilt :=
+    ProfileEntropyS4.partition_pos fourGaussianScore tilt
+  rw [h_four]
+  calc
+    unrestrictedEntropy -
+        (Real.log (ProfileEntropyS4.partition fourGaussianScore tilt) -
+          tilt * target) ≤
+        extendedGaussianDualTestValue target tilt -
+          (Real.log (ProfileEntropyS4.partition fourGaussianScore tilt) -
+            tilt * target) :=
+      sub_le_sub_right h_unrestricted_dual_upper _
+    _ = Real.log
+        (extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt) := by
+      unfold extendedGaussianDualTestValue
+      rw [Real.log_div h_extended_pos.ne' h_four_pos.ne']
+      ring
+
+/-- The still-unproved explicit tail-ratio estimate, together with the
+unrestricted dual upper bound, supplies exactly the manuscript entropy-loss
+inequality.  No numerical approximation is used here. -/
+theorem entropy_loss_lt_log_153_div_100_of_dual_ratio
+    {unrestrictedEntropy target tilt : ℝ}
+    (h_mean : ProfileEntropyS4.mean fourGaussianScore tilt = target)
+    (h_unrestricted_dual_upper :
+      unrestrictedEntropy ≤ extendedGaussianDualTestValue target tilt)
+    (h_partition_ratio_bound :
+      extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt <
+        (153 / 100 : ℝ)) :
+    unrestrictedEntropy -
+        ProfileEntropyS4.optimizedValue fourGaussianScore target <
+      Real.log (153 / 100 : ℝ) := by
+  have h_loss := entropy_loss_le_log_partition_ratio h_mean
+    h_unrestricted_dual_upper
+  have h_ratio_pos : 0 <
+      extendedGaussianPartition q tilt /
+        ProfileEntropyS4.partition fourGaussianScore tilt :=
+    div_pos (extendedGaussianPartition_pos q_pos)
+      (ProfileEntropyS4.partition_pos fourGaussianScore tilt)
+  have h_log_ratio_lt :
+      Real.log
+        (extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt) <
+        Real.log (153 / 100 : ℝ) :=
+    Real.strictMonoOn_log h_ratio_pos (by norm_num) h_partition_ratio_bound
+  exact h_loss.trans_lt h_log_ratio_lt
+
+/-- A complete conditional bridge from the two named missing analytic inputs
+to the explicit signed four-size margin `log (200 / 153)`. -/
+theorem signed_margin_gt_log_200_div_153_of_dual_ratio
+    {unrestrictedEntropy target tilt : ℝ}
+    (h_mean : ProfileEntropyS4.mean fourGaussianScore tilt = target)
+    (h_unrestricted_dual_upper :
+      unrestrictedEntropy ≤ extendedGaussianDualTestValue target tilt)
+    (h_partition_ratio_bound :
+      extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt <
+        (153 / 100 : ℝ)) :
+    Real.log (200 / 153 : ℝ) <
+      q -
+        (unrestrictedEntropy -
+          ProfileEntropyS4.optimizedValue fourGaussianScore target) := by
+  apply signed_margin_gt_log_200_div_153_of_entropy_loss_lt
+  exact entropy_loss_lt_log_153_div_100_of_dual_ratio h_mean
+    h_unrestricted_dual_upper h_partition_ratio_bound
+
+end
+
+#print axioms q_sub_log_153_div_100_eq_log_200_div_153
+#print axioms log_200_div_153_pos
+#print axioms signed_margin_gt_log_200_div_153_of_entropy_loss_lt
+#print axioms fourGaussianEntropy_eq_dual_at_mean
+#print axioms entropy_loss_le_log_partition_ratio
+#print axioms entropy_loss_lt_log_153_div_100_of_dual_ratio
+#print axioms signed_margin_gt_log_200_div_153_of_dual_ratio
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedFourEntropyCertificate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedFourEntropyCertificate
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.GaussianMomentTailTools
 Source: Erdos625/GaussianMomentTailTools.lean
 Normalized SHA-256: 5336ebed3aa295e51453fb6603a90e3c125754a6c14621b53eee79c2058c6134
@@ -17767,315 +18264,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_GaussianSecondMomentTailTools
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.GaussianSecondMomentTailTools
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TiltedGaussianSummability
-Source: Erdos625/TiltedGaussianSummability.lean
-Normalized SHA-256: aa392f6785a9c7a30b958f8faa879c2a5edc5053d2d0e87cefa0a848374bbea9
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
-
-/-!
-# Summability of tilted-Gaussian moments
-
-A fixed positive quadratic coefficient dominates every fixed linear tilt on
-the natural indices.  This module makes that comparison through the existing
-pointwise tilted-Gaussian bound and Mathlib's summability theorem for a
-polynomial times a geometric sequence.
-
-The comparison includes `d = 0` directly.  For the zeroth moment Lean's
-convention gives `0 ^ 0 = 1`, while the first and second moment factors vanish;
-no division by the index or eventual-only ratio argument is used.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- Every fixed natural power times a linearly tilted Gaussian with positive
-quadratic coefficient is summable on the natural indices. -/
-theorem summable_natPow_mul_tiltedGaussian
-    {a lambda : ℝ} (ha : 0 < a) (k : ℕ) :
-    Summable
-      (fun d : ℕ ↦
-        ((d : ℝ) ^ k) *
-          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
-  have hrho0 : 0 ≤ Real.exp (-a / 4) := Real.exp_nonneg _
-  have hrho1 : Real.exp (-a / 4) < 1 :=
-    Real.exp_lt_one_iff.mpr (by linarith)
-  have hrhoNorm : ‖Real.exp (-a / 4)‖ < 1 := by
-    rwa [Real.norm_of_nonneg hrho0]
-  have hgeometric :
-      Summable
-        (fun d : ℕ ↦
-          ((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d) :=
-    summable_pow_mul_geometric_of_norm_lt_one k hrhoNorm
-  have hmajorant :
-      Summable
-        (fun d : ℕ ↦
-          Real.exp (|lambda| ^ 2 / a) *
-            (((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d)) :=
-    hgeometric.mul_left _
-  refine hmajorant.of_nonneg_of_le (fun d ↦ ?_) (fun d ↦ ?_)
-  · exact mul_nonneg
-      (pow_nonneg (by positivity) k)
-      (Real.exp_nonneg _)
-  · have hterm := tiltedGaussianTerm_le_geometric
-      ha (show |lambda| ≤ |lambda| from le_rfl) d
-    have hscaled := mul_le_mul_of_nonneg_left hterm
-      (pow_nonneg (show (0 : ℝ) ≤ d by positivity) k)
-    simpa only [mul_assoc, mul_left_comm, mul_comm] using hscaled
-
-/-- A Gaussian with any fixed linear tilt has summable zeroth, first, and
-second natural-index moments. -/
-theorem summable_tiltedGaussian_moments
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-        (fun d : ℕ ↦
-          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
-      Summable
-        (fun d : ℕ ↦
-          (d : ℝ) *
-            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
-      Summable
-        (fun d : ℕ ↦
-          ((d : ℝ) ^ 2) *
-            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
-  refine ⟨?_, ?_, ?_⟩
-  · simpa using summable_natPow_mul_tiltedGaussian ha 0
-  · simpa using summable_natPow_mul_tiltedGaussian ha 1
-  · exact summable_natPow_mul_tiltedGaussian ha 2
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TiltedGaussianSummability
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ExtendedGaussianProfile
-Source: Erdos625/ExtendedGaussianProfile.lean
-Normalized SHA-256: c0943c6e2d41aa613dd7fa5c70d26d018279df4760ea3901ab20cd46e5b76b2e
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
-
-/-!
-# The extended tilted-Gaussian deficit profile
-
-This module defines the limiting weight profile on the deficit coordinates
-`{-1, 0, 1, ...}`.  The exceptional deficit `-1` has weight
-
-`exp (-lambda - a / 2)`,
-
-while a natural deficit `d` has weight
-
-`exp (lambda * d - a / 2 * d ^ 2)`.
-
-The partition function and its first two unnormalized moments are represented
-as an exceptional atom plus a `tsum` over the natural deficits.  Only
-foundational analytic and algebraic properties are established here.  In
-particular, this module makes no differentiability, endpoint, optimizer, or
-strict-variance claim.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- The unnormalized limiting weight at a natural deficit `d >= 0`. -/
-def extendedGaussianNaturalTerm (a lambda : ℝ) (d : ℕ) : ℝ :=
-  Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)
-
-/-- The exceptional limiting weight at deficit `-1`. -/
-def extendedGaussianExceptionalAtom (a lambda : ℝ) : ℝ :=
-  Real.exp (-lambda - a / 2)
-
-/-- The total mass of the extended tilted-Gaussian profile on
-`{-1, 0, 1, ...}`. -/
-def extendedGaussianPartition (a lambda : ℝ) : ℝ :=
-  extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d
-
-/-- The unnormalized first moment of the extended profile.  The exceptional
-atom contributes its coordinate `-1`. -/
-def extendedGaussianFirstNumerator (a lambda : ℝ) : ℝ :=
-  -extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, (d : ℝ) * extendedGaussianNaturalTerm a lambda d
-
-/-- The unnormalized second moment of the extended profile.  The exceptional
-atom contributes `(-1)^2 = 1`. -/
-def extendedGaussianSecondNumerator (a lambda : ℝ) : ℝ :=
-  extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d
-
-/-- The normalized mean deficit of the extended profile. -/
-def extendedGaussianMean (a lambda : ℝ) : ℝ :=
-  extendedGaussianFirstNumerator a lambda /
-    extendedGaussianPartition a lambda
-
-/-- The raw variance obtained from the normalized first and second moments. -/
-def extendedGaussianRawVariance (a lambda : ℝ) : ℝ :=
-  extendedGaussianSecondNumerator a lambda /
-      extendedGaussianPartition a lambda -
-    (extendedGaussianMean a lambda) ^ 2
-
-@[simp]
-theorem extendedGaussianNaturalTerm_zero (a lambda : ℝ) :
-    extendedGaussianNaturalTerm a lambda 0 = 1 := by
-  simp [extendedGaussianNaturalTerm]
-
-theorem extendedGaussianNaturalTerm_pos (a lambda : ℝ) (d : ℕ) :
-    0 < extendedGaussianNaturalTerm a lambda d := by
-  exact Real.exp_pos _
-
-theorem extendedGaussianExceptionalAtom_pos (a lambda : ℝ) :
-    0 < extendedGaussianExceptionalAtom a lambda := by
-  exact Real.exp_pos _
-
-/-- The natural-index mass is summable whenever the quadratic coefficient is
-positive. -/
-theorem summable_extendedGaussianNaturalTerm
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable (extendedGaussianNaturalTerm a lambda) := by
-  change Summable
-    (fun d : ℕ ↦
-      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2))
-  exact (summable_tiltedGaussian_moments
-    (a := a) (lambda := lambda) ha).1
-
-/-- The natural-index first-moment series is summable. -/
-theorem summable_extendedGaussianFirstMoment
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-      (fun d : ℕ ↦
-        (d : ℝ) * extendedGaussianNaturalTerm a lambda d) := by
-  simpa [extendedGaussianNaturalTerm] using
-    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.1
-
-/-- The natural-index second-moment series is summable. -/
-theorem summable_extendedGaussianSecondMoment
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-      (fun d : ℕ ↦
-        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d) := by
-  simpa [extendedGaussianNaturalTerm] using
-    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.2
-
-/-- The natural-index `tsum` is at least its deficit-zero atom. -/
-theorem one_le_tsum_extendedGaussianNaturalTerm
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
-  calc
-    1 = ∑ d ∈ ({0} : Finset ℕ),
-        extendedGaussianNaturalTerm a lambda d := by simp
-    _ ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d :=
-      (summable_extendedGaussianNaturalTerm ha).sum_le_tsum
-        ({0} : Finset ℕ)
-        (fun d _ ↦ (extendedGaussianNaturalTerm_pos a lambda d).le)
-
-/-- The deficit-zero atom gives the lower bound `1`, in addition to the
-strictly positive exceptional atom. -/
-theorem exceptionalAtom_add_one_le_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianExceptionalAtom a lambda + 1 ≤
-      extendedGaussianPartition a lambda := by
-  rw [extendedGaussianPartition]
-  simpa [add_comm] using
-    add_le_add_left (one_le_tsum_extendedGaussianNaturalTerm ha)
-      (extendedGaussianExceptionalAtom a lambda)
-
-theorem one_lt_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 < extendedGaussianPartition a lambda := by
-  have hatom := extendedGaussianExceptionalAtom_pos a lambda
-  have hlower :=
-    exceptionalAtom_add_one_le_extendedGaussianPartition
-      (a := a) (lambda := lambda) ha
-  linarith
-
-theorem one_le_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 ≤ extendedGaussianPartition a lambda :=
-  (one_lt_extendedGaussianPartition ha).le
-
-theorem extendedGaussianPartition_pos
-    {a lambda : ℝ} (ha : 0 < a) :
-    0 < extendedGaussianPartition a lambda :=
-  lt_trans zero_lt_one (one_lt_extendedGaussianPartition ha)
-
-theorem extendedGaussianPartition_ne_zero
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianPartition a lambda ≠ 0 :=
-  ne_of_gt (extendedGaussianPartition_pos ha)
-
-/-! ## Exact algebraic identities -/
-
-theorem extendedGaussianPartition_sub_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianPartition a lambda -
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianPartition]
-
-theorem extendedGaussianFirstNumerator_add_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianFirstNumerator a lambda +
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ,
-        (d : ℝ) * extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianFirstNumerator]
-
-theorem extendedGaussianSecondNumerator_sub_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianSecondNumerator a lambda -
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ,
-        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianSecondNumerator]
-
-theorem extendedGaussianMean_mul_partition
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianMean a lambda * extendedGaussianPartition a lambda =
-      extendedGaussianFirstNumerator a lambda := by
-  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
-
-theorem extendedGaussianRawVariance_add_mean_sq
-    (a lambda : ℝ) :
-    extendedGaussianRawVariance a lambda +
-        (extendedGaussianMean a lambda) ^ 2 =
-      extendedGaussianSecondNumerator a lambda /
-        extendedGaussianPartition a lambda := by
-  simp [extendedGaussianRawVariance]
-
-theorem extendedGaussianRawVariance_add_mean_sq_mul_partition
-    {a lambda : ℝ} (ha : 0 < a) :
-    (extendedGaussianRawVariance a lambda +
-        (extendedGaussianMean a lambda) ^ 2) *
-        extendedGaussianPartition a lambda =
-      extendedGaussianSecondNumerator a lambda := by
-  rw [extendedGaussianRawVariance_add_mean_sq]
-  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
-
-theorem extendedGaussianRawVariance_eq_moment_quotients
-    (a lambda : ℝ) :
-    extendedGaussianRawVariance a lambda =
-      extendedGaussianSecondNumerator a lambda /
-          extendedGaussianPartition a lambda -
-        (extendedGaussianFirstNumerator a lambda /
-          extendedGaussianPartition a lambda) ^ 2 := by
-  rfl
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
 ========================================================================== -/
 
 /- ==========================================================================
@@ -44402,6 +44590,763 @@ END SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
+Source: Erdos625/Section9GlobalTaggedAttachmentAssembly.lean
+Normalized SHA-256: f1db767f745329e300717ae4f9311c72d291b5d7471e41c15475b0da6b56e7b8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
+
+/-!
+# Section IX: global tagged attachment assembly
+
+This module sums the exact per-demand tagged-fibre cancellation identity over
+all attained canonical demands.  It closes the finite global Fubini seam
+between the dependent canonical demand/witness/residual law and the literal
+Section IX event-restricted attachment numerators.
+
+No asymptotic estimate, division by the cap/no-return event mass, or rare-seed
+claim is made here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventGlobalAssembly
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- A fixed labelled witness for each attained canonical demand.  Existence is
+forced by attainment: a matching in the corresponding canonical-demand fibre
+transports to a witness/residual pair. -/
+noncomputable def canonicalDemandReferenceWitness
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) :
+    PrescribedDemandWitness demand.1 row col := by
+  let x : canonicalDemandEvent demand.1 row col U :=
+    Classical.choice
+      (nonempty_canonicalDemandEvent_of_canonicalDemandImage row col U demand)
+  exact (canonicalDemandEventEquivSigmaResidual demand.1 row col U
+    (canonicalDemandImage_high row col U demand) x).1
+
+/-- Exact global finite assembly of the weighted tagged law.  The left side is
+one sum over the full dependent canonical demand/witness/residual sigma space.
+The right side is the sum of labelled-witness incidence times the literal
+unnormalised, event-restricted Section IX attachment numerator in each attained
+demand fibre. -/
+theorem sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) =
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          residualActualAttachmentNumerator
+            (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree
+              (canonicalDemandReferenceWitness row col U demand))
+            (residualColumnDegree
+              (canonicalDemandReferenceWitness row col U demand))
+            (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+              (canonicalDemandReferenceWitness row col U demand)) := by
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro demand _
+  exact sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+    row col U htotal demand
+      (canonicalDemandReferenceWitness row col U demand)
+
+#print axioms canonicalDemandReferenceWitness
+#print axioms sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+Source: Erdos625/Section9CanonicalSupportMatching.lean
+Normalized SHA-256: 4f52e0c8291e1ab062d0605c5d0c6f4f24e7bbd74825377548fb0e3ead36b932
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+
+/-!
+# Section VIII--IX: matchingness of canonical positive support
+
+An attained canonical demand records precisely the cells whose original
+configuration counts exceed the half-cap threshold.  Under the ambient row
+and column degree caps, those high cells form a bipartite matching.  Therefore
+the positive support of every attained canonical demand is a matching as
+required by the deterministic Section IX traversal theorems.
+
+This statement is pointwise in an attained demand.  It asserts no law on
+demands, residual matching, conditional distribution, or attachment bound.
+-/
+
+namespace Erdos625
+
+/-- The positive support of every attained canonical demand is a bipartite
+matching under the ambient degree caps. -/
+theorem positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    IsBipartiteMatching (positiveDemandSupport demand.1) := by
+  classical
+  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
+  have hhigh := configurationCellCount_highCells_form_matching
+    matching U hrowCap hcolCap
+  have high_of_mem : ∀ a b,
+      (a, b) ∈ positiveDemandSupport demand.1 →
+        U / 2 < configurationCellCount matching a b := by
+    intro a b hab
+    have hn : canonicalDemandOfMatching matching U a b ≠ 0 := by
+      rw [hmatching]
+      simpa only [positiveDemandSupport, Finset.mem_filter,
+        Finset.mem_univ, true_and] using hab
+    by_contra hnot
+    exact hn (by simp [canonicalDemandOfMatching,
+      canonicalHighDemand, hnot])
+  constructor
+  · intro a b₁ b₂ hb₁ hb₂
+    exact hhigh.1 a b₁ b₂ (high_of_mem a b₁ hb₁) (high_of_mem a b₂ hb₂)
+  · intro b a₁ a₂ ha₁ ha₂
+    exact hhigh.2 b a₁ a₂ (high_of_mem a₁ b ha₁) (high_of_mem a₂ b ha₂)
+
+#print axioms positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
+Source: Erdos625/Section9CanonicalRewardSupportSplit.lean
+Normalized SHA-256: d56c3e1323a0afc5728ba512239d4b3137b06f6982fff41676cafaa04f64182a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+
+/-!
+# Section IX: canonical reward and support decomposition
+
+For one fixed canonical-demand witness, the full cell count is the sum of its
+exposed demand and transported residual count.  On the canonical residual
+event, no residual pair returns to the positive demand support.  This gives an
+exact product decomposition of the local reward.  If the cutoff parameter is
+at least two, every positive canonical demand is itself at least two, so the
+support of cells of full multiplicity at least two is exactly the union of the
+positive demand support and the residual multiplicity-two support.
+
+The no-return hypothesis is explicit in the reward lemmas.  The graph lemmas
+instead require the separate pointwise lower bound on positive demands; the
+canonical specialization derives it from `2 ≤ U`.  No probability estimate,
+cycle-space cardinality, or attachment bound is asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A local reward splits across an exposed demand and a residual count when
+the residual count vanishes at every positive exposed demand. -/
+theorem residualReward_add_eq_mul_of_noReturn
+    (demand residual : ℕ)
+    (hnoReturn : demand ≠ 0 → residual = 0) :
+    residualReward (demand + residual) =
+      localSignRewardNat demand * residualReward residual := by
+  by_cases hdemand : demand = 0
+  · subst demand
+    simp [localSignRewardNat, residualReward]
+  · rw [hnoReturn hdemand]
+    simp [residualReward_eq_localSignRewardNat, localSignRewardNat]
+
+/-- The product of full-cell rewards splits into the exposed reward on the
+positive demand support and the product of all residual rewards. -/
+theorem prod_residualReward_add_eq_positiveSupport_mul
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hnoReturn : ∀ a b, demand a b ≠ 0 → residual a b = 0) :
+    (∏ a : A, ∏ b : B,
+        residualReward (demand a b + residual a b)) =
+      (∏ e ∈ positiveDemandSupport demand,
+        localSignRewardNat (demand e.1 e.2)) *
+        (∏ a : A, ∏ b : B, residualReward (residual a b)) := by
+  classical
+  have hsupport :
+      (∏ e ∈ positiveDemandSupport demand,
+          localSignRewardNat (demand e.1 e.2)) =
+        ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) := by
+    rw [← Fintype.prod_ite_mem]
+    calc
+      (∏ e : A × B,
+          if e ∈ positiveDemandSupport demand then
+            localSignRewardNat (demand e.1 e.2) else 1) =
+          ∏ e : A × B, localSignRewardNat (demand e.1 e.2) := by
+            apply Fintype.prod_congr
+            intro e
+            by_cases he : demand e.1 e.2 = 0
+            · simp [positiveDemandSupport, he, localSignRewardNat]
+            · simp [positiveDemandSupport, he]
+      _ = ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) :=
+        Fintype.prod_prod_type'
+          (fun a : A ↦ fun b : B ↦ localSignRewardNat (demand a b))
+  simp_rw [residualReward_add_eq_mul_of_noReturn _ _ (hnoReturn _ _)]
+  simp_rw [Finset.prod_mul_distrib]
+  rw [hsupport]
+
+/-- Adding a table entry whose positive values are at least two creates a
+multiplicity-two cell exactly when that entry is positive or the added entry
+already has multiplicity at least two. -/
+theorem two_le_add_iff_positive_or_two_le
+    (demand residual : ℕ)
+    (hpositive : demand ≠ 0 → 2 ≤ demand) :
+    2 ≤ demand + residual ↔ demand ≠ 0 ∨ 2 ≤ residual := by
+  by_cases hdemand : demand = 0
+  · simp [hdemand]
+  · have htwo := hpositive hdemand
+    omega
+
+/-- The support graph of cells of total multiplicity at least two is the
+union of the positive demand support and the residual multiplicity-two
+support, provided every positive demand is at least two. -/
+theorem bipartiteGraph_positiveSupport_add_eq_union
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (demand residual : A → B → ℕ)
+    (hpositive : ∀ a b, demand a b ≠ 0 → 2 ≤ demand a b) :
+    bipartiteGraph (fun a b ↦ 2 ≤ demand a b + residual a b) =
+      bipartiteGraph
+          (fun a b ↦ (a, b) ∈ positiveDemandSupport demand) ⊔
+        bipartiteGraph (fun a b ↦ 2 ≤ residual a b) := by
+  rw [← bipartiteGraph_or_eq_sup]
+  apply congrArg bipartiteGraph
+  funext a b
+  apply propext
+  simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
+    true_and] using
+      two_le_add_iff_positive_or_two_le
+        (demand a b) (residual a b) (hpositive a b)
+
+/-- For a fixed labelled witness of an attained canonical demand, membership
+in the canonical event gives both exact deterministic decompositions needed
+by the Section IX local expansion: the local-reward product split and the
+multiplicity-two support-graph split.
+
+The assumption `2 ≤ U` is used only to turn the strict canonical high-demand
+bound `U / 2 < demand` into `2 ≤ demand`. -/
+theorem fixedWitnessCanonical_reward_support_split
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
+    (hU : 2 ≤ U)
+    (demand : canonicalDemandImage row col U)
+    (witness : PrescribedDemandWitness demand.1 row col)
+    (extension : fixedWitnessExtensionEvent witness)
+    (hevent : extension ∈ fixedWitnessCanonicalDemandEvent witness U) :
+    let residual := fixedWitnessExtensionEquivResidual witness extension
+    ((∏ a : A, ∏ b : B,
+          residualReward (configurationCellCount extension.1 a b)) =
+        (∏ e ∈ positiveDemandSupport demand.1,
+          localSignRewardNat (demand.1 e.1 e.2)) *
+          (∏ a : A, ∏ b : B,
+            residualReward (configurationCellCount residual a b))) ∧
+      (bipartiteGraph
+          (fun a b ↦ 2 ≤ configurationCellCount extension.1 a b) =
+        bipartiteGraph
+            (fun a b ↦ (a, b) ∈ positiveDemandSupport demand.1) ⊔
+          bipartiteGraph
+            (fun a b ↦ 2 ≤ configurationCellCount residual a b)) := by
+  dsimp only
+  let residual := fixedWitnessExtensionEquivResidual witness extension
+  have hhigh : ∀ a b, demand.1 a b ≠ 0 → U / 2 < demand.1 a b :=
+    canonicalDemandImage_high row col U demand
+  have hresidual : residual ∈ canonicalResidualCellEvent witness U := by
+    exact (mem_fixedWitnessCanonicalDemandEvent_iff_residual
+      witness U hhigh extension).mp hevent
+  have hnoReturn : ∀ a b, demand.1 a b ≠ 0 →
+      configurationCellCount residual a b = 0 := by
+    intro a b hab
+    exact (hresidual a b).2 hab
+  have hpositive : ∀ a b, demand.1 a b ≠ 0 → 2 ≤ demand.1 a b := by
+    intro a b hab
+    have hcellHigh := hhigh a b hab
+    omega
+  have hcell : ∀ a b,
+      configurationCellCount extension.1 a b =
+        demand.1 a b + configurationCellCount residual a b := by
+    intro a b
+    exact configurationCellCount_eq_demand_add_residual
+      witness extension a b
+  constructor
+  · simp_rw [hcell]
+    exact prod_residualReward_add_eq_positiveSupport_mul
+      demand.1 (configurationCellCount residual) hnoReturn
+  · simp_rw [hcell]
+    exact bipartiteGraph_positiveSupport_add_eq_union
+      demand.1 (configurationCellCount residual) hpositive
+
+#print axioms residualReward_add_eq_mul_of_noReturn
+#print axioms prod_residualReward_add_eq_positiveSupport_mul
+#print axioms two_le_add_iff_positive_or_two_le
+#print axioms bipartiteGraph_positiveSupport_add_eq_union
+#print axioms fixedWitnessCanonical_reward_support_split
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SignedOverlapCanonicalDecomposition
+Source: Erdos625/Section9SignedOverlapCanonicalDecomposition.lean
+Normalized SHA-256: 9e5f085ea328ef7e197b90f3a7ec9f9941f8c856118d6d14f31c66b477b79a0c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SignedOverlapCanonicalDecomposition
+
+/-!
+# Section IX: exact signed-overlap canonical decomposition
+
+This module supplies the finite equality behind the manuscript's equation
+(9.2).  A uniform configuration matching is transported through its attained
+canonical high-demand table, its labelled witness, and the corresponding
+cap/no-return residual configuration.  On every tagged state, the full signed
+overlap reward splits exactly into
+
+* the local reward of the exposed high-demand support;
+* the residual local reward; and
+* the literal binary cycle-space factor of the union support graph.
+
+The final two theorems provide both the raw configuration-model statement and
+the profile-overlap version transported by
+`ProfileOverlapConfigurationBridge`.  They are finite identities only: no
+asymptotic estimate, cap probability division, or rare-event conclusion is
+asserted here.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventRewardBridge
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → Nat} {row : A → Nat} {col : B → Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+abbrev CanonicalRewardState
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → Nat) (col : B → Nat) (U : Nat) :=
+  Sigma fun demand : canonicalDemandImage row col U =>
+    Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+      canonicalResidualCellEvent witness U
+
+noncomputable def canonicalRewardStateFullMatching
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → Nat) (col : B → Nat) (U : Nat)
+    (z : CanonicalRewardState row col U) : ConfigurationMatching row col :=
+  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).symm z
+
+noncomputable def canonicalRewardStateExtension
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (z : CanonicalRewardState row col U) : fixedWitnessExtensionEvent z.2.1 :=
+  (fixedWitnessExtensionEquivResidual z.2.1).symm z.2.2.1
+
+theorem canonicalRewardStateFullMatching_eq_extension
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (z : CanonicalRewardState row col U) :
+    canonicalRewardStateFullMatching row col U z =
+      (canonicalRewardStateExtension z).1 := by
+  rfl
+
+theorem canonicalRewardStateExtension_mem_canonical
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (z : CanonicalRewardState row col U) :
+    canonicalRewardStateExtension z ∈
+      fixedWitnessCanonicalDemandEvent z.2.1 U := by
+  rw [mem_fixedWitnessCanonicalDemandEvent_iff_residual z.2.1 U
+    (canonicalDemandImage_high row col U z.1)]
+  change (fixedWitnessExtensionEquivResidual z.2.1
+    ((fixedWitnessExtensionEquivResidual z.2.1).symm z.2.2.1)) ∈
+      canonicalResidualCellEvent z.2.1 U
+  simp
+
+noncomputable def canonicalDemandLocalReward
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (demand : canonicalDemandImage row col U) : Nat :=
+  ∏ e ∈ positiveDemandSupport demand.1,
+    localSignRewardNat (demand.1 e.1 e.2)
+
+noncomputable def canonicalRewardStateAttachment
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (z : CanonicalRewardState row col U) : ENNReal :=
+  (canonicalDemandLocalReward z.1 : ENNReal) *
+    taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2
+
+/-- Under the usual ambient degree caps, the positive support attached to
+every canonical state is a bipartite matching.  The decomposition theorems
+below do not need this additional hypothesis, but this is the precise link
+between an attained high-demand tag and the manuscript's high skeleton. -/
+theorem canonicalRewardState_positiveSupport_isBipartiteMatching
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (z : CanonicalRewardState row col U) :
+    IsBipartiteMatching (positiveDemandSupport z.1.1) := by
+  exact positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    U hrowCap hcolCap z.1
+
+theorem canonicalRewardState_residual_eq
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (z : CanonicalRewardState row col U) :
+    fixedWitnessExtensionEquivResidual z.2.1
+      (canonicalRewardStateExtension z) = z.2.2.1 := by
+  simp [canonicalRewardStateExtension]
+
+theorem signedOverlapReward_canonicalRewardState_eq_attachment
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (hU : 2 ≤ U) (z : CanonicalRewardState row col U) :
+    (signedOverlapReward
+      (configurationCellCount (canonicalRewardStateFullMatching row col U z)) : ENNReal) =
+      canonicalRewardStateAttachment z := by
+  let extension := canonicalRewardStateExtension z
+  let residual := fixedWitnessExtensionEquivResidual z.2.1 extension
+  have hcanonical : extension ∈ fixedWitnessCanonicalDemandEvent z.2.1 U := by
+    exact canonicalRewardStateExtension_mem_canonical z
+  have hsplit := fixedWitnessCanonical_reward_support_split U hU z.1 z.2.1
+    extension hcanonical
+  have hfull : canonicalRewardStateFullMatching row col U z = extension.1 := by
+    exact canonicalRewardStateFullMatching_eq_extension z
+  have hresidual : residual = z.2.2.1 := by
+    exact canonicalRewardState_residual_eq z
+  have hlocal :
+      (∏ a : A, ∏ b : B,
+        localSignRewardNat
+          (configurationCellCount (canonicalRewardStateFullMatching row col U z) a b)) =
+        canonicalDemandLocalReward z.1 *
+          (∏ a : A, ∏ b : B,
+            residualReward (configurationCellCount z.2.2.1 a b)) := by
+    rw [hfull]
+    simp_rw [← residualReward_eq_localSignRewardNat]
+    rw [hsplit.1]
+    simp [canonicalDemandLocalReward, residual, hresidual]
+  have hcycle :
+      2 ^ cycleRank
+        (signedOverlapSupportGraph
+          (configurationCellCount (canonicalRewardStateFullMatching row col U z))) =
+        (actualResidualEvenEdgeSets (positiveDemandSupport z.1.1) z.2.2.1).card := by
+    change 2 ^ cycleRank
+        (bipartiteGraph fun a b =>
+          2 ≤ configurationCellCount
+            (canonicalRewardStateFullMatching row col U z) a b) = _
+    rw [hfull]
+    rw [hsplit.2]
+    rw [← bipartiteGraph_or_eq_sup]
+    simpa [residual, hresidual] using
+      (card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+        (positiveDemandSupport z.1.1) z.2.2.1).symm
+  unfold signedOverlapReward canonicalRewardStateAttachment taggedResidualAttachmentValue
+  rw [hlocal, hcycle]
+  simp only [Nat.cast_mul, Nat.cast_prod]
+  ac_rfl
+
+private theorem canonicalRewardState_sum_pmf_mul_comp_eq_sum_pmf_map
+    {α β : Type*} [Fintype α] [Fintype β]
+    (p : PMF α) (f : α → β) (weight : β → ENNReal) :
+    (∑ x : α, p x * weight (f x)) =
+      ∑ y : β, (p.map f) y * weight y := by
+  classical
+  calc
+    (∑ x : α, p x * weight (f x)) =
+        ∑ x : α, ∑ y : β,
+          (if y = f x then p x else 0) * weight y := by
+      apply Finset.sum_congr rfl
+      intro x _
+      simp only [ite_mul, zero_mul]
+      rw [Finset.sum_ite_eq' Finset.univ (f x)]
+      simp
+    _ = ∑ y : β, ∑ x : α,
+          (if y = f x then p x else 0) * weight y := Finset.sum_comm
+    _ = ∑ y : β,
+        (∑ x : α, if y = f x then p x else 0) * weight y := by
+      apply Finset.sum_congr rfl
+      intro y _
+      rw [Finset.sum_mul]
+    _ = ∑ y : β, (p.map f) y * weight y := by
+      apply Finset.sum_congr rfl
+      intro y _
+      rw [PMF.map_apply, tsum_fintype]
+
+theorem sum_uniformConfigurationMatching_signedOverlapReward_eq_sum_canonicalRewardStateAttachment
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → Nat) (col : B → Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hU : 2 ≤ U) :
+    (∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (signedOverlapReward (configurationCellCount matching) : ENNReal)) =
+      ∑ z : CanonicalRewardState row col U,
+        uniformSigmaCanonicalDemandResidual row col U htotal z *
+          canonicalRewardStateAttachment z := by
+  classical
+  let equivalence := configurationMatchingEquivSigmaCanonicalDemandResidual row col U
+  let p := uniformConfigurationMatching row col htotal
+  let weight : CanonicalRewardState row col U → ENNReal := fun z =>
+    (signedOverlapReward
+      (configurationCellCount (canonicalRewardStateFullMatching row col U z)) : ENNReal)
+  have hweight : ∀ matching : ConfigurationMatching row col,
+      (signedOverlapReward (configurationCellCount matching) : ENNReal) =
+        weight (equivalence matching) := by
+    intro matching
+    simp [weight, equivalence, canonicalRewardStateFullMatching]
+  calc
+    (∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching *
+          (signedOverlapReward (configurationCellCount matching) : ENNReal)) =
+        ∑ matching : ConfigurationMatching row col,
+          p matching * weight (equivalence matching) := by
+      apply Finset.sum_congr rfl
+      intro matching _
+      rw [hweight]
+    _ = ∑ z : CanonicalRewardState row col U,
+        (p.map equivalence) z * weight z :=
+      canonicalRewardState_sum_pmf_mul_comp_eq_sum_pmf_map p equivalence weight
+    _ = ∑ z : CanonicalRewardState row col U,
+        uniformSigmaCanonicalDemandResidual row col U htotal z * weight z := by
+      rw [uniformConfigurationMatching_map_sigmaCanonicalDemandResidual]
+    _ = ∑ z : CanonicalRewardState row col U,
+        uniformSigmaCanonicalDemandResidual row col U htotal z *
+          canonicalRewardStateAttachment z := by
+      apply Finset.sum_congr rfl
+      intro z _
+      change uniformSigmaCanonicalDemandResidual row col U htotal z *
+          (signedOverlapReward
+            (configurationCellCount (canonicalRewardStateFullMatching row col U z)) : ENNReal) = _
+      rw [signedOverlapReward_canonicalRewardState_eq_attachment hU z]
+
+theorem sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → Nat) (col : B → Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hU : 2 ≤ U) :
+    (∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (signedOverlapReward (configurationCellCount matching) : ENNReal)) =
+      ∑ demand : canonicalDemandImage row col U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 row col *
+            residualActualAttachmentNumerator
+              (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (residualColumnDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+                (canonicalDemandReferenceWitness row col U demand))) := by
+  rw [sum_uniformConfigurationMatching_signedOverlapReward_eq_sum_canonicalRewardStateAttachment
+    row col U htotal hU]
+  rw [Fintype.sum_sigma]
+  apply Finset.sum_congr rfl
+  intro demand _
+  calc
+    ∑ z : Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U,
+        uniformSigmaCanonicalDemandResidual row col U htotal ⟨demand, z⟩ *
+          canonicalRewardStateAttachment ⟨demand, z⟩ =
+      (canonicalDemandLocalReward demand : ENNReal) *
+        ∑ z : Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U,
+          uniformSigmaCanonicalDemandResidual row col U htotal ⟨demand, z⟩ *
+            taggedResidualAttachmentValue demand.1 U z.1 z.2 := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro z _
+      simp only [canonicalRewardStateAttachment]
+      ac_rfl
+    _ =
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 row col *
+            residualActualAttachmentNumerator
+              (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (residualColumnDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+                (canonicalDemandReferenceWitness row col U demand))) := by
+      rw [sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
+        row col U htotal demand
+          (canonicalDemandReferenceWitness row col U demand)]
+    _ = _ := rfl
+
+theorem sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      ∑ demand : canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            residualActualAttachmentNumerator
+              (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))
+              (residualColumnDegree
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))
+              (sum_residualRowDegree_eq_sum_residualColumnDegree
+                (profileBlockMargin_total_eq_self row₀)
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))) := by
+  calc
+    (∑ column : OrderedProfilePartition n k,
+        uniformOrderedProfilePartition row₀ column *
+          (signedOverlapReward
+            (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+        ∑ matching : ConfigurationMatching (profileBlockMargin k)
+          (profileBlockMargin k),
+          uniformConfigurationMatching (profileBlockMargin k)
+            (profileBlockMargin k) (profileBlockMargin_total_eq_self row₀) matching *
+            (signedOverlapReward
+              (profileOverlapTableOfConfigurationMatching row₀ matching).tableNat : ENNReal) := by
+      exact (weightedExpectation_uniformConfigurationMatching_eq_uniformProfile row₀
+        (fun r => (signedOverlapReward r : ENNReal))).symm
+    _ = ∑ matching : ConfigurationMatching (profileBlockMargin k)
+          (profileBlockMargin k),
+          uniformConfigurationMatching (profileBlockMargin k)
+            (profileBlockMargin k) (profileBlockMargin_total_eq_self row₀) matching *
+            (signedOverlapReward (configurationCellCount matching) : ENNReal) := by
+      apply Finset.sum_congr rfl
+      intro matching _
+      congr 2
+      congr 1
+      funext a q
+      exact profileOverlapTableOfConfigurationMatching_tableNat_eq_cellCount
+        row₀ matching a q
+    _ = _ :=
+      sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum
+        (profileBlockMargin k) (profileBlockMargin k) U
+        (profileBlockMargin_total_eq_self row₀) hU
+
+theorem sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → Nat) (col : B → Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hU : 2 ≤ U) :
+    (∑ matching : ConfigurationMatching row col,
+      uniformConfigurationMatching row col htotal matching *
+        (signedOverlapReward (configurationCellCount matching) : ENNReal)) =
+      ∑ demand : canonicalDemandImage row col U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 row col *
+            residualCycleRankExpectation
+              (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (residualColumnDegree
+                (canonicalDemandReferenceWitness row col U demand))
+              (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+                (canonicalDemandReferenceWitness row col U demand))) := by
+  rw [sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum
+    row col U htotal hU]
+  apply Finset.sum_congr rfl
+  intro demand _
+  rw [residualActualAttachmentNumerator_eq_cycleRankExpectation]
+
+theorem sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      ∑ demand : canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            residualCycleRankExpectation
+              (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))
+              (residualColumnDegree
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))
+              (sum_residualRowDegree_eq_sum_residualColumnDegree
+                (profileBlockMargin_total_eq_self row₀)
+                (canonicalDemandReferenceWitness (profileBlockMargin k)
+                  (profileBlockMargin k) U demand))) := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
+  apply Finset.sum_congr rfl
+  intro demand _
+  rw [residualActualAttachmentNumerator_eq_cycleRankExpectation]
+
+#print axioms canonicalRewardStateFullMatching_eq_extension
+#print axioms canonicalRewardStateExtension_mem_canonical
+#print axioms canonicalRewardState_positiveSupport_isBipartiteMatching
+#print axioms canonicalRewardState_residual_eq
+#print axioms signedOverlapReward_canonicalRewardState_eq_attachment
+#print axioms sum_uniformConfigurationMatching_signedOverlapReward_eq_sum_canonicalRewardStateAttachment
+#print axioms sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum
+#print axioms sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum
+#print axioms sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+#print axioms sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SignedOverlapCanonicalDecomposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SignedOverlapCanonicalDecomposition
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
 Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
@@ -44614,99 +45559,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
-Source: Erdos625/Section9GlobalTaggedAttachmentAssembly.lean
-Normalized SHA-256: f1db767f745329e300717ae4f9311c72d291b5d7471e41c15475b0da6b56e7b8
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
-
-/-!
-# Section IX: global tagged attachment assembly
-
-This module sums the exact per-demand tagged-fibre cancellation identity over
-all attained canonical demands.  It closes the finite global Fubini seam
-between the dependent canonical demand/witness/residual law and the literal
-Section IX event-restricted attachment numerators.
-
-No asymptotic estimate, division by the cap/no-return event mass, or rare-seed
-claim is made here.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-local instance instFintypeCanonicalResidualCellEventGlobalAssembly
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-/-- A fixed labelled witness for each attained canonical demand.  Existence is
-forced by attainment: a matching in the corresponding canonical-demand fibre
-transports to a witness/residual pair. -/
-noncomputable def canonicalDemandReferenceWitness
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) :
-    PrescribedDemandWitness demand.1 row col := by
-  let x : canonicalDemandEvent demand.1 row col U :=
-    Classical.choice
-      (nonempty_canonicalDemandEvent_of_canonicalDemandImage row col U demand)
-  exact (canonicalDemandEventEquivSigmaResidual demand.1 row col U
-    (canonicalDemandImage_high row col U demand) x).1
-
-/-- Exact global finite assembly of the weighted tagged law.  The left side is
-one sum over the full dependent canonical demand/witness/residual sigma space.
-The right side is the sum of labelled-witness incidence times the literal
-unnormalised, event-restricted Section IX attachment numerator in each attained
-demand fibre. -/
-theorem sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
-    (Finset.univ.sum fun z :
-      Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          canonicalResidualCellEvent witness U =>
-      uniformSigmaCanonicalDemandResidual row col U htotal z *
-        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) =
-      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
-        labelledWitnessIncidence demand.1 row col *
-          residualActualAttachmentNumerator
-            (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree
-              (canonicalDemandReferenceWitness row col U demand))
-            (residualColumnDegree
-              (canonicalDemandReferenceWitness row col U demand))
-            (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-              (canonicalDemandReferenceWitness row col U demand)) := by
-  rw [Fintype.sum_sigma]
-  apply Finset.sum_congr rfl
-  intro demand _
-  exact sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator
-    row col U htotal demand
-      (canonicalDemandReferenceWitness row col U demand)
-
-#print axioms canonicalDemandReferenceWitness
-#print axioms sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9GlobalTaggedAttachmentAssembly
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9GlobalTaggedAttachmentAssembly
 ========================================================================== -/
 
 /- ==========================================================================
@@ -47540,251 +48392,6 @@ END SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
-Source: Erdos625/Section9CanonicalSupportMatching.lean
-Normalized SHA-256: 4f52e0c8291e1ab062d0605c5d0c6f4f24e7bbd74825377548fb0e3ead36b932
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
-
-/-!
-# Section VIII--IX: matchingness of canonical positive support
-
-An attained canonical demand records precisely the cells whose original
-configuration counts exceed the half-cap threshold.  Under the ambient row
-and column degree caps, those high cells form a bipartite matching.  Therefore
-the positive support of every attained canonical demand is a matching as
-required by the deterministic Section IX traversal theorems.
-
-This statement is pointwise in an attained demand.  It asserts no law on
-demands, residual matching, conditional distribution, or attachment bound.
--/
-
-namespace Erdos625
-
-/-- The positive support of every attained canonical demand is a bipartite
-matching under the ambient degree caps. -/
-theorem positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (demand : canonicalDemandImage row col U) :
-    IsBipartiteMatching (positiveDemandSupport demand.1) := by
-  classical
-  obtain ⟨matching, -, hmatching⟩ := Finset.mem_image.mp demand.2
-  have hhigh := configurationCellCount_highCells_form_matching
-    matching U hrowCap hcolCap
-  have high_of_mem : ∀ a b,
-      (a, b) ∈ positiveDemandSupport demand.1 →
-        U / 2 < configurationCellCount matching a b := by
-    intro a b hab
-    have hn : canonicalDemandOfMatching matching U a b ≠ 0 := by
-      rw [hmatching]
-      simpa only [positiveDemandSupport, Finset.mem_filter,
-        Finset.mem_univ, true_and] using hab
-    by_contra hnot
-    exact hn (by simp [canonicalDemandOfMatching,
-      canonicalHighDemand, hnot])
-  constructor
-  · intro a b₁ b₂ hb₁ hb₂
-    exact hhigh.1 a b₁ b₂ (high_of_mem a b₁ hb₁) (high_of_mem a b₂ hb₂)
-  · intro b a₁ a₂ ha₁ ha₂
-    exact hhigh.2 b a₁ a₂ (high_of_mem a₁ b ha₁) (high_of_mem a₂ b ha₂)
-
-#print axioms positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalSupportMatching
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalSupportMatching
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
-Source: Erdos625/Section9CanonicalRewardSupportSplit.lean
-Normalized SHA-256: d56c3e1323a0afc5728ba512239d4b3137b06f6982fff41676cafaa04f64182a
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
-
-/-!
-# Section IX: canonical reward and support decomposition
-
-For one fixed canonical-demand witness, the full cell count is the sum of its
-exposed demand and transported residual count.  On the canonical residual
-event, no residual pair returns to the positive demand support.  This gives an
-exact product decomposition of the local reward.  If the cutoff parameter is
-at least two, every positive canonical demand is itself at least two, so the
-support of cells of full multiplicity at least two is exactly the union of the
-positive demand support and the residual multiplicity-two support.
-
-The no-return hypothesis is explicit in the reward lemmas.  The graph lemmas
-instead require the separate pointwise lower bound on positive demands; the
-canonical specialization derives it from `2 ≤ U`.  No probability estimate,
-cycle-space cardinality, or attachment bound is asserted here.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- A local reward splits across an exposed demand and a residual count when
-the residual count vanishes at every positive exposed demand. -/
-theorem residualReward_add_eq_mul_of_noReturn
-    (demand residual : ℕ)
-    (hnoReturn : demand ≠ 0 → residual = 0) :
-    residualReward (demand + residual) =
-      localSignRewardNat demand * residualReward residual := by
-  by_cases hdemand : demand = 0
-  · subst demand
-    simp [localSignRewardNat, residualReward]
-  · rw [hnoReturn hdemand]
-    simp [residualReward_eq_localSignRewardNat, localSignRewardNat]
-
-/-- The product of full-cell rewards splits into the exposed reward on the
-positive demand support and the product of all residual rewards. -/
-theorem prod_residualReward_add_eq_positiveSupport_mul
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand residual : A → B → ℕ)
-    (hnoReturn : ∀ a b, demand a b ≠ 0 → residual a b = 0) :
-    (∏ a : A, ∏ b : B,
-        residualReward (demand a b + residual a b)) =
-      (∏ e ∈ positiveDemandSupport demand,
-        localSignRewardNat (demand e.1 e.2)) *
-        (∏ a : A, ∏ b : B, residualReward (residual a b)) := by
-  classical
-  have hsupport :
-      (∏ e ∈ positiveDemandSupport demand,
-          localSignRewardNat (demand e.1 e.2)) =
-        ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) := by
-    rw [← Fintype.prod_ite_mem]
-    calc
-      (∏ e : A × B,
-          if e ∈ positiveDemandSupport demand then
-            localSignRewardNat (demand e.1 e.2) else 1) =
-          ∏ e : A × B, localSignRewardNat (demand e.1 e.2) := by
-            apply Fintype.prod_congr
-            intro e
-            by_cases he : demand e.1 e.2 = 0
-            · simp [positiveDemandSupport, he, localSignRewardNat]
-            · simp [positiveDemandSupport, he]
-      _ = ∏ a : A, ∏ b : B, localSignRewardNat (demand a b) :=
-        Fintype.prod_prod_type'
-          (fun a : A ↦ fun b : B ↦ localSignRewardNat (demand a b))
-  simp_rw [residualReward_add_eq_mul_of_noReturn _ _ (hnoReturn _ _)]
-  simp_rw [Finset.prod_mul_distrib]
-  rw [hsupport]
-
-/-- Adding a table entry whose positive values are at least two creates a
-multiplicity-two cell exactly when that entry is positive or the added entry
-already has multiplicity at least two. -/
-theorem two_le_add_iff_positive_or_two_le
-    (demand residual : ℕ)
-    (hpositive : demand ≠ 0 → 2 ≤ demand) :
-    2 ≤ demand + residual ↔ demand ≠ 0 ∨ 2 ≤ residual := by
-  by_cases hdemand : demand = 0
-  · simp [hdemand]
-  · have htwo := hpositive hdemand
-    omega
-
-/-- The support graph of cells of total multiplicity at least two is the
-union of the positive demand support and the residual multiplicity-two
-support, provided every positive demand is at least two. -/
-theorem bipartiteGraph_positiveSupport_add_eq_union
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (demand residual : A → B → ℕ)
-    (hpositive : ∀ a b, demand a b ≠ 0 → 2 ≤ demand a b) :
-    bipartiteGraph (fun a b ↦ 2 ≤ demand a b + residual a b) =
-      bipartiteGraph
-          (fun a b ↦ (a, b) ∈ positiveDemandSupport demand) ⊔
-        bipartiteGraph (fun a b ↦ 2 ≤ residual a b) := by
-  rw [← bipartiteGraph_or_eq_sup]
-  apply congrArg bipartiteGraph
-  funext a b
-  apply propext
-  simpa only [positiveDemandSupport, Finset.mem_filter, Finset.mem_univ,
-    true_and] using
-      two_le_add_iff_positive_or_two_le
-        (demand a b) (residual a b) (hpositive a b)
-
-/-- For a fixed labelled witness of an attained canonical demand, membership
-in the canonical event gives both exact deterministic decompositions needed
-by the Section IX local expansion: the local-reward product split and the
-multiplicity-two support-graph split.
-
-The assumption `2 ≤ U` is used only to turn the strict canonical high-demand
-bound `U / 2 < demand` into `2 ≤ demand`. -/
-theorem fixedWitnessCanonical_reward_support_split
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A → ℕ} {col : B → ℕ} (U : ℕ)
-    (hU : 2 ≤ U)
-    (demand : canonicalDemandImage row col U)
-    (witness : PrescribedDemandWitness demand.1 row col)
-    (extension : fixedWitnessExtensionEvent witness)
-    (hevent : extension ∈ fixedWitnessCanonicalDemandEvent witness U) :
-    let residual := fixedWitnessExtensionEquivResidual witness extension
-    ((∏ a : A, ∏ b : B,
-          residualReward (configurationCellCount extension.1 a b)) =
-        (∏ e ∈ positiveDemandSupport demand.1,
-          localSignRewardNat (demand.1 e.1 e.2)) *
-          (∏ a : A, ∏ b : B,
-            residualReward (configurationCellCount residual a b))) ∧
-      (bipartiteGraph
-          (fun a b ↦ 2 ≤ configurationCellCount extension.1 a b) =
-        bipartiteGraph
-            (fun a b ↦ (a, b) ∈ positiveDemandSupport demand.1) ⊔
-          bipartiteGraph
-            (fun a b ↦ 2 ≤ configurationCellCount residual a b)) := by
-  dsimp only
-  let residual := fixedWitnessExtensionEquivResidual witness extension
-  have hhigh : ∀ a b, demand.1 a b ≠ 0 → U / 2 < demand.1 a b :=
-    canonicalDemandImage_high row col U demand
-  have hresidual : residual ∈ canonicalResidualCellEvent witness U := by
-    exact (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-      witness U hhigh extension).mp hevent
-  have hnoReturn : ∀ a b, demand.1 a b ≠ 0 →
-      configurationCellCount residual a b = 0 := by
-    intro a b hab
-    exact (hresidual a b).2 hab
-  have hpositive : ∀ a b, demand.1 a b ≠ 0 → 2 ≤ demand.1 a b := by
-    intro a b hab
-    have hcellHigh := hhigh a b hab
-    omega
-  have hcell : ∀ a b,
-      configurationCellCount extension.1 a b =
-        demand.1 a b + configurationCellCount residual a b := by
-    intro a b
-    exact configurationCellCount_eq_demand_add_residual
-      witness extension a b
-  constructor
-  · simp_rw [hcell]
-    exact prod_residualReward_add_eq_positiveSupport_mul
-      demand.1 (configurationCellCount residual) hnoReturn
-  · simp_rw [hcell]
-    exact bipartiteGraph_positiveSupport_add_eq_union
-      demand.1 (configurationCellCount residual) hpositive
-
-#print axioms residualReward_add_eq_mul_of_noReturn
-#print axioms prod_residualReward_add_eq_positiveSupport_mul
-#print axioms two_le_add_iff_positive_or_two_le
-#print axioms bipartiteGraph_positiveSupport_add_eq_union
-#print axioms fixedWitnessCanonical_reward_support_split
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalRewardSupportSplit
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalRewardSupportSplit
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
 Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
@@ -48578,6 +49185,663 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_PartialDiagonalWeights
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.PartialDiagonalWeights
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PartialDiagonalDecayReindexing
+Source: Erdos625/PartialDiagonalDecayReindexing.lean
+Normalized SHA-256: e6e45fb20b213a0e9a21c55509f5c57fc47255e925789269d3fb4433614e697c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PartialDiagonalDecayReindexing
+
+/-!
+# Finite partial-diagonal decay and reindexing
+
+This file supplies the finite bookkeeping bridge behind the empty-corner
+part of Section VII.  It deliberately contains no asymptotic statement.
+
+For a finite type of block types, `partialSubprofileBox k` is exactly the
+finite box of vectors `ell` with `ell i <= k i`.  A coordinatewise
+factorial majorant reindexes exactly into a product of one-dimensional
+truncated exponential sums.  The final theorem then applies that purely
+finite reindexing to `partialDiagonalWeight` under a supplied pointwise
+majorant.
+
+The exact recurrence from `PartialDiagonalWeights` is also converted into
+one explicit one-step decay inequality.  Its hypotheses retain the vertex
+mass feasibility and the required lower bound on `mu`; no phase window or
+limit estimate is assumed here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+variable {I : Type*} [Fintype I] [DecidableEq I]
+
+/-- The finite box of genuine subprofiles of `k`. -/
+def partialSubprofileBox (k : I -> Nat) : Finset (I -> Nat) :=
+  Fintype.piFinset fun i => Finset.range (k i + 1)
+
+@[simp] theorem mem_partialSubprofileBox {k ell : I -> Nat} :
+    ell ∈ partialSubprofileBox k ↔ IsPartialSubprofile k ell := by
+  simp [partialSubprofileBox, IsPartialSubprofile]
+
+/-- The exact number of coordinatewise subprofiles. -/
+@[simp] theorem card_partialSubprofileBox (k : I -> Nat) :
+    (partialSubprofileBox k).card = ∏ i, (k i + 1) := by
+  simp [partialSubprofileBox]
+
+/-- The product of the one-coordinate factorial decay majorants. -/
+def partialDiagonalFactorialMajorant
+    (xi : I -> Real) (ell : I -> Nat) : Real :=
+  ∏ i, xi i ^ ell i / ((ell i).factorial : Real)
+
+private theorem partialDiagonalFactorialMajorant_prod_update_mul
+    {M : Type*} [CommMonoid M]
+    (f : I -> M) (i : I) (b : M) :
+    (∏ j, Function.update f i (f i * b) j) = (∏ j, f j) * b := by
+  rw [Finset.prod_update_of_mem (Finset.mem_univ i)]
+  have hold := Finset.prod_update_of_mem (Finset.mem_univ i) f (f i)
+  have hself : Function.update f i (f i) = f := by
+    funext j
+    by_cases hji : j = i
+    · subst j
+      simp
+    · simp [hji]
+  rw [hself] at hold
+  rw [hold]
+  ac_rfl
+
+/-- Updating one coordinate of the factorial majorant has exactly the
+factor expected from the formal exponential series. -/
+theorem partialDiagonalFactorialMajorant_increment
+    (xi : I -> Real) (ell : I -> Nat) (i : I) :
+    partialDiagonalFactorialMajorant xi (incrementProfile ell i) =
+      partialDiagonalFactorialMajorant xi ell *
+        (xi i / (ell i + 1 : Real)) := by
+  let f : I -> Real := fun j =>
+    xi j ^ ell j / ((ell j).factorial : Real)
+  have hlocal :
+      xi i ^ (ell i + 1) / ((ell i + 1).factorial : Real) =
+        f i * (xi i / (ell i + 1 : Real)) := by
+    dsimp [f]
+    rw [pow_succ, Nat.factorial_succ]
+    norm_num only [Nat.cast_mul, Nat.cast_add, Nat.cast_one]
+    have hfactorial : ((ell i).factorial : Real) ≠ 0 := by positivity
+    have hsucc : (ell i + 1 : Real) ≠ 0 := by positivity
+    field_simp
+  have hfun :
+      (fun j => xi j ^ incrementProfile ell i j /
+        ((incrementProfile ell i j).factorial : Real)) =
+        Function.update f i (f i * (xi i / (ell i + 1 : Real))) := by
+    funext j
+    by_cases hji : j = i
+    · subst j
+      simpa [incrementProfile] using hlocal
+    · simp [incrementProfile, f, hji]
+  rw [partialDiagonalFactorialMajorant,
+    partialDiagonalFactorialMajorant, hfun,
+      partialDiagonalFactorialMajorant_prod_update_mul]
+
+/-- Any nonnegative-coordinate one-step factorial decay certificate can be
+iterated over the whole finite subprofile box.  This is a finite induction on
+the number of selected blocks; it has no limiting or phase hypothesis. -/
+theorem pointwise_le_factorialMajorant_of_increment_decay
+    (k : I -> Nat) (xi : I -> Real) (w : (I -> Nat) -> Real)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hzero : w (fun _ => 0) ≤ 1)
+    (hstep : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      w (incrementProfile ell i) ≤ w ell *
+        (xi i / (ell i + 1 : Real))) :
+    ∀ ell, IsPartialSubprofile k ell ->
+      w ell ≤ partialDiagonalFactorialMajorant xi ell := by
+  have hinduction : ∀ q : Nat, ∀ ell : I -> Nat,
+      selectedBlockCount ell = q -> IsPartialSubprofile k ell ->
+        w ell ≤ partialDiagonalFactorialMajorant xi ell := by
+    intro q
+    induction q using Nat.strong_induction_on with
+    | h q ih =>
+      intro ell hcount hprofile
+      by_cases hq : q = 0
+      · have hsumzero : ∑ j, ell j = 0 := by
+          simpa [selectedBlockCount, hq] using hcount
+        have hcoordinatezero : ∀ j, ell j = 0 := by
+          intro j
+          exact (Finset.sum_eq_zero_iff_of_nonneg
+            (fun a _ => Nat.zero_le (ell a))).mp hsumzero j (Finset.mem_univ j)
+        have hellzero : ell = fun _ => 0 := by
+          funext j
+          exact hcoordinatezero j
+        rw [hellzero]
+        simpa [partialDiagonalFactorialMajorant] using hzero
+      · have hsumne : (∑ j, ell j) ≠ 0 := by
+          intro hsumzero
+          apply hq
+          calc
+            q = selectedBlockCount ell := hcount.symm
+            _ = ∑ j, ell j := rfl
+            _ = 0 := hsumzero
+        obtain ⟨i, -, hine⟩ := Finset.exists_ne_zero_of_sum_ne_zero hsumne
+        have hipos : 0 < ell i := Nat.pos_of_ne_zero hine
+        have hone : 1 ≤ ell i := hipos
+        let ell' : I -> Nat := Function.update ell i (ell i - 1)
+        have hcoordinate : ell' i + 1 = ell i := by
+          have hcoordinateRaw : ell i - 1 + 1 = ell i :=
+            Nat.sub_add_cancel hone
+          simpa only [ell', Function.update_self] using
+            hcoordinateRaw
+        have hcoordinateReal : (ell' i + 1 : Real) = ell i := by
+          exact_mod_cast hcoordinate
+        have hincrement : incrementProfile ell' i = ell := by
+          funext j
+          by_cases hji : j = i
+          · subst j
+            simpa [incrementProfile] using hcoordinate
+          · simp [incrementProfile, ell', hji]
+        have hprofile' : IsPartialSubprofile k ell' := by
+          intro j
+          by_cases hji : j = i
+          · subst j
+            simpa only [ell', Function.update_self] using
+              (Nat.sub_le _ _).trans (hprofile i)
+          · simpa [ell', hji] using hprofile j
+        have hi' : ell' i < k i := by
+          have hle : ell i ≤ k i := hprofile i
+          have hlt : ell i - 1 < k i := by omega
+          simpa only [ell', Function.update_self] using hlt
+        have hcountIncrement := selectedBlockCount_increment ell' i
+        rw [hincrement] at hcountIncrement
+        have hcount' : selectedBlockCount ell' < q := by
+          omega
+        have hinduction' :=
+          ih (selectedBlockCount ell') hcount' ell' rfl hprofile'
+        have hstep' := hstep ell' i hprofile' hi'
+        rw [hincrement, hcoordinateReal] at hstep'
+        have hmajorantIncrement :=
+          partialDiagonalFactorialMajorant_increment xi ell' i
+        rw [hincrement, hcoordinateReal] at hmajorantIncrement
+        have hfactorNonneg : 0 ≤ xi i / (ell i : Real) := by
+          exact div_nonneg (hxi i) (by positivity)
+        calc
+          w ell ≤ w ell' * (xi i / (ell i : Real)) := hstep'
+          _ ≤ partialDiagonalFactorialMajorant xi ell' *
+              (xi i / (ell i : Real)) :=
+            mul_le_mul_of_nonneg_right hinduction' hfactorNonneg
+          _ = partialDiagonalFactorialMajorant xi ell :=
+            hmajorantIncrement.symm
+  intro ell hprofile
+  exact hinduction (selectedBlockCount ell) ell rfl hprofile
+
+/-- The same finite iteration, restricted to any region closed under deleting
+one selected block.  This is the form used for a finite empty-corner cutoff:
+the predicate can be `selectedVertexMass u ell ≤ M`. -/
+theorem pointwise_le_factorialMajorant_of_increment_decay_on
+    (k : I -> Nat) (xi : I -> Real) (w : (I -> Nat) -> Real)
+    (P : (I -> Nat) -> Prop)
+    (hdown : ∀ ell i, P (incrementProfile ell i) -> P ell)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hzero : w (fun _ => 0) ≤ 1)
+    (hstep : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      P (incrementProfile ell i) ->
+      w (incrementProfile ell i) ≤ w ell *
+        (xi i / (ell i + 1 : Real))) :
+    ∀ ell, P ell -> IsPartialSubprofile k ell ->
+      w ell ≤ partialDiagonalFactorialMajorant xi ell := by
+  have hinduction : ∀ q : Nat, ∀ ell : I -> Nat,
+      selectedBlockCount ell = q -> P ell -> IsPartialSubprofile k ell ->
+        w ell ≤ partialDiagonalFactorialMajorant xi ell := by
+    intro q
+    induction q using Nat.strong_induction_on with
+    | h q ih =>
+      intro ell hcount hregion hprofile
+      by_cases hq : q = 0
+      · have hsumzero : ∑ j, ell j = 0 := by
+          simpa [selectedBlockCount, hq] using hcount
+        have hcoordinatezero : ∀ j, ell j = 0 := by
+          intro j
+          exact (Finset.sum_eq_zero_iff_of_nonneg
+            (fun a _ => Nat.zero_le (ell a))).mp hsumzero j (Finset.mem_univ j)
+        have hellzero : ell = fun _ => 0 := by
+          funext j
+          exact hcoordinatezero j
+        rw [hellzero]
+        simpa [partialDiagonalFactorialMajorant] using hzero
+      · have hsumne : (∑ j, ell j) ≠ 0 := by
+          intro hsumzero
+          apply hq
+          calc
+            q = selectedBlockCount ell := hcount.symm
+            _ = ∑ j, ell j := rfl
+            _ = 0 := hsumzero
+        obtain ⟨i, -, hine⟩ := Finset.exists_ne_zero_of_sum_ne_zero hsumne
+        have hipos : 0 < ell i := Nat.pos_of_ne_zero hine
+        have hone : 1 ≤ ell i := hipos
+        let ell' : I -> Nat := Function.update ell i (ell i - 1)
+        have hcoordinate : ell' i + 1 = ell i := by
+          have hcoordinateRaw : ell i - 1 + 1 = ell i :=
+            Nat.sub_add_cancel hone
+          simpa only [ell', Function.update_self] using hcoordinateRaw
+        have hcoordinateReal : (ell' i + 1 : Real) = ell i := by
+          exact_mod_cast hcoordinate
+        have hincrement : incrementProfile ell' i = ell := by
+          funext j
+          by_cases hji : j = i
+          · subst j
+            simpa [incrementProfile] using hcoordinate
+          · simp [incrementProfile, ell', hji]
+        have hprofile' : IsPartialSubprofile k ell' := by
+          intro j
+          by_cases hji : j = i
+          · subst j
+            simpa only [ell', Function.update_self] using
+              (Nat.sub_le _ _).trans (hprofile i)
+          · simpa [ell', hji] using hprofile j
+        have hi' : ell' i < k i := by
+          have hle : ell i ≤ k i := hprofile i
+          have hlt : ell i - 1 < k i := by omega
+          simpa only [ell', Function.update_self] using hlt
+        have hregion' : P ell' := by
+          apply hdown ell' i
+          rw [hincrement]
+          exact hregion
+        have hcountIncrement := selectedBlockCount_increment ell' i
+        rw [hincrement] at hcountIncrement
+        have hcount' : selectedBlockCount ell' < q := by
+          omega
+        have hinduction' :=
+          ih (selectedBlockCount ell') hcount' ell' rfl hregion' hprofile'
+        have hstep' := hstep ell' i hprofile' hi' (by
+          rw [hincrement]
+          exact hregion)
+        rw [hincrement, hcoordinateReal] at hstep'
+        have hmajorantIncrement :=
+          partialDiagonalFactorialMajorant_increment xi ell' i
+        rw [hincrement, hcoordinateReal] at hmajorantIncrement
+        have hfactorNonneg : 0 ≤ xi i / (ell i : Real) := by
+          exact div_nonneg (hxi i) (by positivity)
+        calc
+          w ell ≤ w ell' * (xi i / (ell i : Real)) := hstep'
+          _ ≤ partialDiagonalFactorialMajorant xi ell' *
+              (xi i / (ell i : Real)) :=
+            mul_le_mul_of_nonneg_right hinduction' hfactorNonneg
+          _ = partialDiagonalFactorialMajorant xi ell :=
+            hmajorantIncrement.symm
+  intro ell hregion hprofile
+  exact hinduction (selectedBlockCount ell) ell rfl hregion hprofile
+
+/-- Exact finite reindexing of the factorial majorant into one-dimensional
+truncated exponential sums. -/
+theorem sum_partialDiagonalFactorialMajorant_eq_product
+    (k : I -> Nat) (xi : I -> Real) :
+    ∑ ell ∈ partialSubprofileBox k,
+      partialDiagonalFactorialMajorant xi ell =
+      ∏ i, ∑ r ∈ Finset.range (k i + 1),
+        xi i ^ r / (r.factorial : Real) := by
+  simpa [partialSubprofileBox, partialDiagonalFactorialMajorant] using
+    (Finset.prod_univ_sum
+      (fun i => Finset.range (k i + 1))
+      (fun i r => xi i ^ r / (r.factorial : Real))).symm
+
+omit [DecidableEq I] in
+/-- Nonnegativity of the factorial majorant follows coordinatewise from
+nonnegative activities. -/
+theorem partialDiagonalFactorialMajorant_nonneg
+    (xi : I -> Real) (hxi : ∀ i, 0 ≤ xi i) (ell : I -> Nat) :
+    0 ≤ partialDiagonalFactorialMajorant xi ell := by
+  unfold partialDiagonalFactorialMajorant
+  exact Finset.prod_nonneg fun i _ =>
+    div_nonneg (pow_nonneg (hxi i) _) (by positivity)
+
+/-- Reindex a factorial-majorized sum over any subprofile region into the
+same full product of truncated exponential sums. -/
+theorem sum_le_product_truncatedExp_of_partialDiagonal_majorant_on
+    (k : I -> Nat) (xi : I -> Real) (w : (I -> Nat) -> Real)
+    (P : (I -> Nat) -> Prop) [DecidablePred P] (hxi : ∀ i, 0 ≤ xi i)
+    (hmajorant : ∀ ell, ell ∈ partialSubprofileBox k -> P ell ->
+      w ell ≤ partialDiagonalFactorialMajorant xi ell) :
+    ∑ ell ∈ (partialSubprofileBox k).filter P, w ell ≤
+      ∏ i, ∑ r ∈ Finset.range (k i + 1),
+        xi i ^ r / (r.factorial : Real) := by
+  calc
+    ∑ ell ∈ (partialSubprofileBox k).filter P, w ell ≤
+        ∑ ell ∈ (partialSubprofileBox k).filter P,
+          partialDiagonalFactorialMajorant xi ell := by
+      exact Finset.sum_le_sum fun ell hell =>
+        hmajorant ell (Finset.mem_filter.mp hell).1 (Finset.mem_filter.mp hell).2
+    _ ≤ ∑ ell ∈ partialSubprofileBox k,
+          partialDiagonalFactorialMajorant xi ell := by
+      apply Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
+      intro ell hell _
+      exact partialDiagonalFactorialMajorant_nonneg xi hxi ell
+    _ = ∏ i, ∑ r ∈ Finset.range (k i + 1),
+          xi i ^ r / (r.factorial : Real) :=
+      sum_partialDiagonalFactorialMajorant_eq_product k xi
+
+/-- A finite sum is controlled by a supplied factorial majorant, with the
+right-hand side reindexed exactly as a product of truncated exponential sums. -/
+theorem sum_le_product_truncatedExp_of_partialDiagonal_majorant
+    (k : I -> Nat) (xi : I -> Real) (w : (I -> Nat) -> Real)
+    (hmajorant : ∀ ell, ell ∈ partialSubprofileBox k ->
+      w ell ≤ partialDiagonalFactorialMajorant xi ell) :
+    ∑ ell ∈ partialSubprofileBox k, w ell ≤
+      ∏ i, ∑ r ∈ Finset.range (k i + 1),
+        xi i ^ r / (r.factorial : Real) := by
+  calc
+    ∑ ell ∈ partialSubprofileBox k, w ell ≤
+        ∑ ell ∈ partialSubprofileBox k,
+          partialDiagonalFactorialMajorant xi ell := by
+      exact Finset.sum_le_sum fun ell hell => hmajorant ell hell
+    _ = ∏ i, ∑ r ∈ Finset.range (k i + 1),
+          xi i ^ r / (r.factorial : Real) :=
+      sum_partialDiagonalFactorialMajorant_eq_product k xi
+
+/-- The exact partial-diagonal ratio implies this one-step decay bound once
+the displayed finite lower bound on `mu` is supplied. -/
+theorem partialDiagonalWeight_increment_le_of_mu_activity
+    (n : Nat) (u k ell : I -> Nat) (i : I) (xi : I -> Real)
+    (hprofile : IsPartialSubprofile k ell)
+    (hmass : selectedVertexMass u ell + u i ≤ n)
+    (hactivity : ((k i - ell i : Nat) : Real) ^ 2 ≤
+      2 * xi i * mu (n - selectedVertexMass u ell) (u i)) :
+    partialDiagonalWeight n u k (incrementProfile ell i) ≤
+      partialDiagonalWeight n u k ell * (xi i / (ell i + 1 : Real)) := by
+  have hu : u i ≤ n - selectedVertexMass u ell :=
+    Nat.le_sub_of_add_le (by simpa [Nat.add_comm] using hmass)
+  have hmuPos : 0 < mu (n - selectedVertexMass u ell) (u i) := mu_pos hu
+  have hdenPos : 0 < 2 * (ell i + 1 : Real) *
+      mu (n - selectedVertexMass u ell) (u i) := by
+    positivity
+  have hratio :
+      ((k i - ell i : Nat) : Real) ^ 2 /
+          (2 * (ell i + 1 : Real) *
+            mu (n - selectedVertexMass u ell) (u i)) ≤
+        xi i / (ell i + 1 : Real) := by
+    calc
+      ((k i - ell i : Nat) : Real) ^ 2 /
+          (2 * (ell i + 1 : Real) *
+            mu (n - selectedVertexMass u ell) (u i)) ≤
+          (2 * xi i * mu (n - selectedVertexMass u ell) (u i)) /
+            (2 * (ell i + 1 : Real) *
+              mu (n - selectedVertexMass u ell) (u i)) := by
+        exact div_le_div_of_nonneg_right hactivity hdenPos.le
+      _ = xi i / (ell i + 1 : Real) := by
+        field_simp
+  have hweightPos : 0 < partialDiagonalWeight n u k ell :=
+    partialDiagonalWeight_pos n u k ell hprofile
+  have hratioExact :=
+    partialDiagonalWeight_increment_div n u k ell i hprofile hmass
+  have hquotient :
+      partialDiagonalWeight n u k (incrementProfile ell i) /
+          partialDiagonalWeight n u k ell ≤
+        xi i / (ell i + 1 : Real) := by
+    rw [hratioExact]
+    exact hratio
+  have hmul := (div_le_iff₀ hweightPos).mp hquotient
+  nlinarith
+
+/-- A convenient coarser form of
+`partialDiagonalWeight_increment_le_of_mu_activity`, replacing the exact
+numerator by `k_i^2`. -/
+theorem partialDiagonalWeight_increment_le_of_mu_lower
+    (n : Nat) (u k ell : I -> Nat) (i : I) (xi : I -> Real)
+    (hprofile : IsPartialSubprofile k ell)
+    (hmass : selectedVertexMass u ell + u i ≤ n)
+    (hmu : (k i : Real) ^ 2 ≤
+      2 * xi i * mu (n - selectedVertexMass u ell) (u i)) :
+    partialDiagonalWeight n u k (incrementProfile ell i) ≤
+      partialDiagonalWeight n u k ell * (xi i / (ell i + 1 : Real)) := by
+  have hsub : ((k i - ell i : Nat) : Real) ≤ k i := by
+    exact_mod_cast Nat.sub_le (k i) (ell i)
+  have hnum : ((k i - ell i : Nat) : Real) ^ 2 ≤ (k i : Real) ^ 2 := by
+    nlinarith
+  exact partialDiagonalWeight_increment_le_of_mu_activity
+    n u k ell i xi hprofile hmass (hnum.trans hmu)
+
+/-- Iterating any verified coordinate decay bound gives a pointwise
+factorial majorant for every exact partial-diagonal weight. -/
+theorem partialDiagonalWeight_le_factorialMajorant_of_increment_decay
+    (n : Nat) (u k : I -> Nat) (xi : I -> Real)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hstep : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      partialDiagonalWeight n u k (incrementProfile ell i) ≤
+        partialDiagonalWeight n u k ell *
+          (xi i / (ell i + 1 : Real))) :
+    ∀ ell, IsPartialSubprofile k ell ->
+      partialDiagonalWeight n u k ell ≤
+        partialDiagonalFactorialMajorant xi ell := by
+  apply pointwise_le_factorialMajorant_of_increment_decay k xi
+    (partialDiagonalWeight n u k) hxi
+  · simp
+  · exact hstep
+
+/-- A finite selected-mass cutoff is closed under deleting one block.  Under
+the stated `mu` lower bound at every admissible last step, all weights in that
+cutoff have the factorial majorant. -/
+theorem partialDiagonalWeight_le_factorialMajorant_of_mu_lower_on_mass
+    (n massCap : Nat) (u k : I -> Nat) (xi : I -> Real)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hmassCap : massCap ≤ n)
+    (hmu : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      selectedVertexMass u (incrementProfile ell i) ≤ massCap ->
+      ((k i - ell i : Nat) : Real) ^ 2 ≤
+        2 * xi i * mu (n - selectedVertexMass u ell) (u i)) :
+    ∀ ell, selectedVertexMass u ell ≤ massCap ->
+      IsPartialSubprofile k ell ->
+        partialDiagonalWeight n u k ell ≤
+          partialDiagonalFactorialMajorant xi ell := by
+  apply pointwise_le_factorialMajorant_of_increment_decay_on k xi
+    (partialDiagonalWeight n u k)
+    (fun ell => selectedVertexMass u ell ≤ massCap)
+  · intro ell i hregion
+    rw [selectedVertexMass_increment] at hregion
+    omega
+  · exact hxi
+  · simp
+  · intro ell i hprofile hi hregion
+    apply partialDiagonalWeight_increment_le_of_mu_activity n u k ell i xi hprofile
+    · rw [selectedVertexMass_increment] at hregion
+      omega
+    · exact hmu ell i hprofile hi hregion
+
+/-- Exact finite empty-corner bridge: a coordinatewise `mu` lower bound on
+the selected-mass cutoff controls the entire cutoff sum by a product of
+truncated exponential sums. -/
+theorem sum_partialDiagonalWeight_le_product_truncatedExp_of_mu_lower_on_mass
+    (n massCap : Nat) (u k : I -> Nat) (xi : I -> Real)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hmassCap : massCap ≤ n)
+    (hmu : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      selectedVertexMass u (incrementProfile ell i) ≤ massCap ->
+      ((k i - ell i : Nat) : Real) ^ 2 ≤
+        2 * xi i * mu (n - selectedVertexMass u ell) (u i)) :
+    ∑ ell ∈ (partialSubprofileBox k).filter
+        (fun ell => selectedVertexMass u ell ≤ massCap),
+      partialDiagonalWeight n u k ell ≤
+      ∏ i, ∑ r ∈ Finset.range (k i + 1),
+        xi i ^ r / (r.factorial : Real) := by
+  apply sum_le_product_truncatedExp_of_partialDiagonal_majorant_on k xi
+    (partialDiagonalWeight n u k)
+    (fun ell => selectedVertexMass u ell ≤ massCap) hxi
+  intro ell hell hregion
+  exact partialDiagonalWeight_le_factorialMajorant_of_mu_lower_on_mass
+    n massCap u k xi hxi hmassCap hmu ell hregion
+    (mem_partialSubprofileBox.mp hell)
+
+/-- Each finite truncated exponential sum is bounded by the exact real
+exponential at a nonnegative activity. -/
+theorem truncatedExpSum_le_exp (x : Real) (bound : Nat) (hx : 0 ≤ x) :
+    ∑ r ∈ Finset.range (bound + 1), x ^ r / (r.factorial : Real) ≤
+      Real.exp x := by
+  let f : Nat -> Real := fun r => x ^ r / (r.factorial : Real)
+  have hsum : Summable f := by
+    simpa [f] using NormedSpace.expSeries_div_summable x
+  calc
+    ∑ r ∈ Finset.range (bound + 1), x ^ r / (r.factorial : Real) =
+        ∑ r ∈ Finset.range (bound + 1), f r := by rfl
+    _ ≤ ∑' r, f r := by
+      apply hsum.sum_le_tsum
+      intro r hr
+      exact div_nonneg (pow_nonneg hx _) (by positivity)
+    _ = Real.exp x := by
+      simpa [f, Real.exp_eq_exp_ℝ] using
+        (NormedSpace.expSeries_div_hasSum_exp x).tsum_eq
+
+omit [DecidableEq I] in
+/-- The product of the finite one-dimensional majorants is at most the
+exponential of the total activity. -/
+theorem product_truncatedExp_le_exp_sum
+    (k : I -> Nat) (xi : I -> Real) (hxi : ∀ i, 0 ≤ xi i) :
+    (∏ i, ∑ r ∈ Finset.range (k i + 1),
+      xi i ^ r / (r.factorial : Real)) ≤ Real.exp (∑ i, xi i) := by
+  rw [Real.exp_sum]
+  exact Finset.prod_le_prod
+    (fun i _ => Finset.sum_nonneg fun r _ =>
+      div_nonneg (pow_nonneg (hxi i) _) (by positivity))
+    (fun i _ => truncatedExpSum_le_exp (xi i) (k i) (hxi i))
+
+/-- The finite mass-cutoff bridge in a single exponential form.  This is an
+ordinary inequality for the supplied finite data, not an asymptotic claim. -/
+theorem sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
+    (n massCap : Nat) (u k : I -> Nat) (xi : I -> Real)
+    (hxi : ∀ i, 0 ≤ xi i)
+    (hmassCap : massCap ≤ n)
+    (hmu : ∀ ell i, IsPartialSubprofile k ell -> ell i < k i ->
+      selectedVertexMass u (incrementProfile ell i) ≤ massCap ->
+      ((k i - ell i : Nat) : Real) ^ 2 ≤
+        2 * xi i * mu (n - selectedVertexMass u ell) (u i)) :
+    ∑ ell ∈ (partialSubprofileBox k).filter
+        (fun ell => selectedVertexMass u ell ≤ massCap),
+      partialDiagonalWeight n u k ell ≤ Real.exp (∑ i, xi i) := by
+  exact
+    (sum_partialDiagonalWeight_le_product_truncatedExp_of_mu_lower_on_mass
+      n massCap u k xi hxi hmassCap hmu).trans
+      (product_truncatedExp_le_exp_sum k xi hxi)
+
+/-- Apply the finite factorial-majorant reindexing directly to exact
+partial-diagonal weights.  The hypothesis is intentionally pointwise: a
+Section VII range argument may establish it by any finite recurrence path. -/
+theorem sum_partialDiagonalWeight_le_product_truncatedExp
+    (n : Nat) (u k : I -> Nat) (xi : I -> Real)
+    (hmajorant : ∀ ell, IsPartialSubprofile k ell ->
+      partialDiagonalWeight n u k ell ≤
+        partialDiagonalFactorialMajorant xi ell) :
+    ∑ ell ∈ partialSubprofileBox k, partialDiagonalWeight n u k ell ≤
+      ∏ i, ∑ r ∈ Finset.range (k i + 1),
+        xi i ^ r / (r.factorial : Real) := by
+  apply sum_le_product_truncatedExp_of_partialDiagonal_majorant k xi
+    (partialDiagonalWeight n u k)
+  intro ell hell
+  exact hmajorant ell (mem_partialSubprofileBox.mp hell)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PartialDiagonalDecayReindexing
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PartialDiagonalDecayReindexing
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
+Source: Erdos625/PartialDiagonalMidpointActivityBridge.lean
+Normalized SHA-256: f818351c969520b86e98570c2b5d1f31222e3f0298de5103e38f9cc00d7f6b85
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PartialDiagonalMidpointActivityBridge
+
+/-!
+# Section VII empty-corner cutoff activity
+
+This module records the exact finite cutoff activity used by the
+partial-diagonal iteration.  It is a local port of the useful part of the
+Aristotle S7 activity return, with the proof written out using ordinary Lean
+tactics and no automation-with-suggestions source.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+section MuMonotonicity
+
+/-- For a fixed block size, `mu(v,s)` is nondecreasing in the number of
+available vertices. -/
+theorem mu_le_of_le_vertex_count {s v w : Nat}
+    (_hsv : s <= v) (hvw : v <= w) :
+    mu v s <= mu w s := by
+  unfold mu
+  apply mul_le_mul_of_nonneg_right _ (by positivity)
+  exact_mod_cast Nat.choose_le_choose s hvw
+
+end MuMonotonicity
+
+variable {I : Type*} [Fintype I] [DecidableEq I]
+
+/-- Exact finite empty-corner activity at the worst residual vertex count. -/
+def muCutoffActivity (n massCap : Nat) (u k : I -> Nat) (i : I) : Real :=
+  (k i : Real) ^ 2 / (2 * mu (n - massCap) (u i))
+
+/-- Concrete finite cutoff form of the activity hypothesis consumed by
+`partialDiagonalWeight_increment_le_of_mu_lower`.
+
+The denominator is exactly `mu (n - massCap) (u i)`, the smallest residual
+first moment among last steps whose enlarged selected profile is still inside
+the selected-mass cutoff. -/
+theorem partialDiagonalWeight_increment_le_of_mu_cutoff_activity
+    (n massCap : Nat) (u k ell : I -> Nat) (i : I)
+    (hmassCap : massCap <= n)
+    (hu : u i <= n - massCap)
+    (hprofile : IsPartialSubprofile k ell)
+    (hcut : selectedVertexMass u (incrementProfile ell i) <= massCap) :
+    partialDiagonalWeight n u k (incrementProfile ell i) <=
+      partialDiagonalWeight n u k ell *
+        (muCutoffActivity n massCap u k i / (ell i + 1 : Real)) := by
+  apply partialDiagonalWeight_increment_le_of_mu_lower n u k ell i
+    (fun j => muCutoffActivity n massCap u k j) hprofile
+  · rw [selectedVertexMass_increment] at hcut
+    omega
+  · unfold muCutoffActivity
+    rw [selectedVertexMass_increment] at hcut
+    have hselected : selectedVertexMass u ell <= massCap := by omega
+    have hremLe :
+        n - massCap <= n - selectedVertexMass u ell :=
+      Nat.sub_le_sub_left hselected n
+    have hmuMono :
+        mu (n - massCap) (u i) <=
+          mu (n - selectedVertexMass u ell) (u i) :=
+      mu_le_of_le_vertex_count hu hremLe
+    have hmuCut : 0 < mu (n - massCap) (u i) := mu_pos hu
+    have hratio :
+        1 <= mu (n - selectedVertexMass u ell) (u i) /
+          mu (n - massCap) (u i) := by
+      apply (le_div_iff₀ hmuCut).2
+      simpa using hmuMono
+    calc
+      (k i : Real) ^ 2 = (k i : Real) ^ 2 * 1 := by ring
+      _ <= (k i : Real) ^ 2 *
+          (mu (n - selectedVertexMass u ell) (u i) /
+            mu (n - massCap) (u i)) := by
+        exact mul_le_mul_of_nonneg_left hratio (sq_nonneg _)
+      _ = 2 * ((k i : Real) ^ 2 /
+            (2 * mu (n - massCap) (u i))) *
+          mu (n - selectedVertexMass u ell) (u i) := by
+        field_simp [hmuCut.ne']
+
+#print axioms mu_le_of_le_vertex_count
+#print axioms partialDiagonalWeight_increment_le_of_mu_cutoff_activity
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PartialDiagonalMidpointActivityBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
 ========================================================================== -/
 
 /- ==========================================================================
@@ -50242,7 +51506,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e4180b85e04b18ead5d30effedc0de17185fa89eedca2d065ce1347440f1e828
+Normalized SHA-256: 4b981f4021e41c7f9ae1b6f7aec0508c812f276d7d8caae46fef429e018ebdb7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -51038,6 +52302,17 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
 #print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+#print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
+#print axioms Erdos625.entropy_loss_le_log_partition_ratio
+#print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
+#print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
+#print axioms Erdos625.mu_le_of_le_vertex_count
+#print axioms Erdos625.partialDiagonalWeight_increment_le_of_mu_cutoff_activity
+#print axioms Erdos625.signedOverlapReward_canonicalRewardState_eq_attachment
+#print axioms Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum
+#print axioms Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum
+#print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+#print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -51047,7 +52322,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: cb6b53d3c92d2815b5fc02f40c07ec539cd8b3333992e4c8fa38130fb67f2119
+Normalized SHA-256: bdfd850ca733b9ba8a329e53be83fdc8376ee3e4009c81f23450134f4ae11187
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

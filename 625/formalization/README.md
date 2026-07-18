@@ -935,6 +935,22 @@ chromatic tail, cochromatic threshold, and gap threshold.  Uniform Lemma 10.2
 is now available as a proved upstream interface, but its concrete Section IX
 capacity seed and the remaining Section XI inputs are open.
 
+The exact Section VI overlap expectation is now transported into the
+configuration model and regrouped by canonical demand, labelled witness, and
+residual attachment, including the literal cycle-rank reward.  A separate
+finite Section VII module turns coordinate activity bounds into factorial and
+exponential cutoff-sum bounds.  The signed four-size entropy endpoint is also
+reduced exactly to two named analytic inputs: the unrestricted dual upper bound
+and the partition-ratio estimate below `153/100`.  These are finite or
+conditional bridges; the quantitative Section VIII--IX estimates and the
+actual entropy-ratio proof remain open.
+
+The Section VII cutoff bridge now also includes the finite monotonicity
+`mu(v,s) <= mu(w,s)` for `v <= w` and the concrete empty-corner one-step
+activity at residual order `n - massCap`.  This was ported from a quarantined
+Aristotle candidate and locally replayed under the repository's Lean 4.31
+warning-fatal gate.
+
 The remaining phase-objective root/rounding, unrestricted chromatic lower-location,
 signed-moment/overlap assembly beyond the finite component-count helper,
 asymptotic diagonal ranges, manuscript-specific

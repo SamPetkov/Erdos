@@ -85,6 +85,7 @@ import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.SignedFourSizeObjective
+import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -195,6 +196,7 @@ import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.Section9FixedFFubiniBridge
 import Erdos625.Section9ZeroResidualActualAttachment
 import Erdos625.Section9ActualResidualCycleRankAssembly
+import Erdos625.Section9SignedOverlapCanonicalDecomposition
 import Erdos625.Section9TaggedFiberCancellation
 import Erdos625.Section9TaggedTransportGeneric
 import Erdos625.Section9GlobalTaggedAttachmentAssembly
@@ -242,6 +244,8 @@ import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
+import Erdos625.PartialDiagonalDecayReindexing
+import Erdos625.PartialDiagonalMidpointActivityBridge
 import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
