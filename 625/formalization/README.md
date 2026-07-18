@@ -227,8 +227,12 @@ joint mass is now proved, including the denominator-free identity
 `pairMass * 2^(2 B_k) = 2^(2 partCount k) * A_zeta(r)`.  The fixed-margin
 probability law and reward are also packaged into the manuscript's finite
 table sum.  The remaining Section VI step is the constructive semantic
-transport from unordered signed witnesses to ordered block slots, followed by
-the graph-level normalized second-moment assembly.  The checkpoint also proves the
+transport from unordered signed witnesses to ordered block slots is now
+constructive and preserves signs, validity, and overlap cells in both
+directions.  The canonical profile-table transport, weighted fibration
+regrouping, graph-level finite Fubini expansion, and safe nonzero expectation
+cancellation are also proved.  The remaining Section VI step is their final
+composition into the normalized second-moment equality.  The checkpoint also proves the
 configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,

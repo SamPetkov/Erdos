@@ -113,6 +113,7 @@ import Erdos625.OrderedOverlapLaw
 import Erdos625.ProfileOverlapTables
 import Erdos625.SignedProfileWitness
 import Erdos625.OrderedSignedProfileBridge
+import Erdos625.OrderedSignedProfileSemantics
 import Erdos625.RandomGraphMixedEdgePrescription
 import Erdos625.ProfileOverlapDuplicateEdges
 import Erdos625.OverlapContingencyTools
@@ -146,6 +147,10 @@ import Erdos625.Section6SignedOverlapLocalFactor
 import Erdos625.Section6PairSignCompatibility
 import Erdos625.Section6SignedJointMass
 import Erdos625.Section6SignedSecondMomentPackage
+import Erdos625.ProfileOverlapCanonicalTable
+import Erdos625.ProfileOverlapFibrationRegrouping
+import Erdos625.Section6SignedSecondMomentFubini
+import Erdos625.Section6SignedExpectationDenominator
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -608,6 +613,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_labeledProfilePartition_eq_orderedProfilePartition_all
 #print axioms Erdos625.labeledProfilePartitionEquivOrdered
 #print axioms Erdos625.orderedSignedProfileCount_eq_coordinateMultiplier
+#print axioms Erdos625.labeledProfilePartitionEquivOrderedSemantic
+#print axioms Erdos625.profileSignValid_iff_orderedSlotSignValid_labeled
+#print axioms Erdos625.profileSignValid_iff_orderedSlotSignValid_kernel
+#print axioms Erdos625.orderedOverlapCount_eq_profileOverlapCellCount
 #print axioms Erdos625.randomGraphMeasure_mixedEdgePrescriptionEvent
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_inter
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_union
@@ -624,6 +633,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.boundedOverlapTableProbability_eq_factorialLaw
 #print axioms Erdos625.sum_boundedOverlapTableProbability_eq_one
 #print axioms Erdos625.signedSecondMomentTableSum_eq_factorial_reward_sum
+#print axioms Erdos625.card_profileBlockIndex
+#print axioms Erdos625.profileOverlapTable_realizable_iff
+#print axioms Erdos625.sum_weight_profileOverlapTableOfOrderedPair_eq_sum_card_nsmul
+#print axioms Erdos625.signedProfileSecondMoment_eq_sum_pairEvent
+#print axioms Erdos625.signedProfileExpectation_ne_zero_of_orderedProfilePartition
+#print axioms Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
