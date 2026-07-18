@@ -115,6 +115,10 @@ import Erdos625.RootSeparationRoundingNatAdapter
 import Erdos625.RootSeparationRoundingBudget
 import Erdos625.RootSeparationConcreteAdapter
 import Erdos625.OrderedOverlapLaw
+import Erdos625.ProfileOverlapTables
+import Erdos625.SignedProfileWitness
+import Erdos625.RandomGraphMixedEdgePrescription
+import Erdos625.ProfileOverlapDuplicateEdges
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools
 import Erdos625.PrescribedDemandTools
@@ -142,6 +146,8 @@ import Erdos625.Section9CycleRankConfigurationAssembly
 import Erdos625.Section9CycleSpaceCardinality
 import Erdos625.Section9ActualResidualCycleSpaceEquiv
 import Erdos625.Section6CompatibleSignsComponents
+import Erdos625.Section6SignedOverlapLocalFactor
+import Erdos625.Section6PairSignCompatibility
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel

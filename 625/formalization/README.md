@@ -211,14 +211,19 @@ The active overlap/skeleton/residual decomposition and quarantined Aristotle
 task map are recorded in
 [`SECTIONS_6_9_BREAKDOWN_2026-07-14.md`](SECTIONS_6_9_BREAKDOWN_2026-07-14.md).
 
-The latest exact finite checkpoint proves the fixed-row ordered overlap law
-(6.1)--(6.2).  The separate finite helper
-[`Section6CompatibleSignsComponents.lean`](Erdos625/Section6CompatibleSignsComponents.lean)
-identifies Boolean vertex signs constant on edges with one Boolean choice per
-connected component, including isolated vertices, and hence proves the exact
-cardinality `2 ^ c(G)`.  It does not yet connect that count to the manuscript's
-unordered overlap quotient or prove the sign-summed second-moment law.  The
-checkpoint also proves the configuration-model prescribed-cell estimates
+The latest exact finite checkpoint now defines the actual graph-level signed
+profile count, proves that its positivity yields a cocolouring, and proves its
+exact first moment.  It also proves the mixed present/absent edge-prescription
+law, the exact duplicated-internal-edge count for two profile partitions, and
+the literal finite fibration over bounded fixed-margin overlap tables.  The
+support-graph layer identifies compatible row/column signs with Boolean signs
+constant on support edges and proves the exact local factor both in
+denominator-free form and as
+`2 ^ (W + c(H) - |V(H)|) = (prod g(r_ab)) * 2 ^ cycleRank(H)` over the
+rationals.  The pointwise ordered/unordered quotient and the final
+sign-summed normalized second-moment table identity are the remaining finite
+Section VI assembly steps.  The checkpoint also proves the
+configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,
 and the resulting high-cell matching assertion before (8.2).  Each accepted

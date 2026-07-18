@@ -22461,6 +22461,1210 @@ END SOURCE MODULE: Erdos625.OrderedOverlapLaw
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileOverlapTables
+Source: Erdos625/ProfileOverlapTables.lean
+Normalized SHA-256: 45749c8f52ccfc5bf358e49cbf0ddf82ec5b0688bb672b4539cd2dbda01613df
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileOverlapTables
+
+/-!
+# Bounded fixed-margin overlap tables
+
+This module gives the finite fibration needed when a row labeling is fixed
+and the column labeling ranges uniformly over a prescribed fiber profile.  A
+table is stored with entries in `Fin (n + 1)`, rather than as an unbounded
+natural-valued function.  Thus the indexing family is visibly finite before
+any probability calculation is performed.
+
+The fibration is literal: every fixed-margin column labeling determines one
+and only one bounded overlap table, and its fiber is precisely the existing
+`FixedMarginOverlapEvent`.  No exchangeability or row-independence assertion
+is used.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A finite overlap table on a vertex set of size `n`, with every entry
+stored in the a priori box `0, ..., n`. -/
+structure BoundedFixedMarginTable
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (n : ℕ) (row : Fin n → A) (columnMargin : B → ℕ) where
+  entries : A → B → Fin (n + 1)
+  rowMargin : ∀ a, ∑ b, (entries a b).1 = labelingFiberCount row a
+  columnMargin : ∀ b, ∑ a, (entries a b).1 = columnMargin b
+
+namespace BoundedFixedMarginTable
+
+/-- The natural-valued table represented by a bounded overlap table. -/
+def tableNat
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} {row : Fin n → A} {columnMargin : B → ℕ}
+    (table : BoundedFixedMarginTable n row columnMargin) : A → B → ℕ :=
+  fun a b => (table.entries a b).1
+
+@[simp] theorem tableNat_apply
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} {row : Fin n → A} {columnMargin : B → ℕ}
+    (table : BoundedFixedMarginTable n row columnMargin) (a : A) (b : B) :
+    table.tableNat a b = (table.entries a b).1 :=
+  rfl
+
+@[ext] theorem ext
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} {row : Fin n → A} {columnMargin : B → ℕ}
+    {table table' : BoundedFixedMarginTable n row columnMargin}
+    (h : table.entries = table'.entries) :
+    table = table' := by
+  cases table
+  cases table'
+  cases h
+  rfl
+
+end BoundedFixedMarginTable
+
+noncomputable instance instFintypeBoundedFixedMarginTable
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (n : ℕ) (row : Fin n → A) (columnMargin : B → ℕ) :
+    Fintype (BoundedFixedMarginTable n row columnMargin) :=
+  Fintype.ofInjective
+    (fun table : BoundedFixedMarginTable n row columnMargin => table.entries)
+    (by
+      intro table table' h
+      exact BoundedFixedMarginTable.ext h)
+
+/-- Every actual overlap-cell count is bounded by the number of vertices. -/
+theorem orderedOverlapCount_le_vertexCount
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (column : Fin n → B) (a : A) (b : B) :
+    orderedOverlapCount row column a b ≤ n := by
+  unfold orderedOverlapCount
+  calc
+    (Finset.univ.filter fun v : Fin n => row v = a ∧ column v = b).card ≤
+        Finset.univ.card :=
+      Finset.card_filter_le _ _
+    _ = n := by simp
+
+/-- The bounded table attained by a fixed-margin column labeling against a
+fixed row labeling. -/
+def boundedTableOfFixedFiberLabeling
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (column : FixedFiberLabeling (V := Fin n) columnMargin) :
+    BoundedFixedMarginTable n row columnMargin where
+  entries := fun a b =>
+    ⟨orderedOverlapCount row column.1 a b,
+      Nat.lt_succ_iff.mpr (orderedOverlapCount_le_vertexCount row column.1 a b)⟩
+  rowMargin := by
+    intro a
+    simpa only using sum_orderedOverlapCount_row row column.1 a
+  columnMargin := by
+    intro b
+    calc
+      ∑ a, orderedOverlapCount row column.1 a b =
+          labelingFiberCount column.1 b :=
+        sum_orderedOverlapCount_column row column.1 b
+      _ = columnMargin b := column.2 b
+
+/-- The overlap event attached to a bounded fixed-margin table. -/
+abbrev BoundedFixedMarginTable.event
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (table : BoundedFixedMarginTable n row columnMargin) :=
+  FixedMarginOverlapEvent row table.tableNat columnMargin
+
+/-- For a fixed bounded table, its literal overlap-event fiber is the fiber
+of the deterministic map sending a column labeling to its overlap table. -/
+def fixedFiberLabelingTableFiberEquiv
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (table : BoundedFixedMarginTable n row columnMargin) :
+    {column : FixedFiberLabeling (V := Fin n) columnMargin //
+      boundedTableOfFixedFiberLabeling row columnMargin column = table} ≃
+      table.event row columnMargin where
+  toFun column :=
+    ⟨column.1, fun a b => by
+      have hentry := congrArg
+        (fun t : BoundedFixedMarginTable n row columnMargin => t.tableNat a b)
+        column.2
+      simpa [boundedTableOfFixedFiberLabeling,
+        BoundedFixedMarginTable.tableNat] using hentry⟩
+  invFun event :=
+    ⟨event.1, by
+      apply BoundedFixedMarginTable.ext
+      funext a b
+      apply Fin.ext
+      exact event.2 a b⟩
+  left_inv := by
+    intro column
+    apply Subtype.ext
+    rfl
+  right_inv := by
+    intro event
+    apply Subtype.ext
+    rfl
+
+/-- A fixed-margin column labeling is exactly a bounded overlap table together
+with a point in its literal overlap-event fiber. -/
+def fixedFiberLabelingOverlapTableEquiv
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ) :
+    FixedFiberLabeling (V := Fin n) columnMargin ≃
+      Σ table : BoundedFixedMarginTable n row columnMargin,
+        table.event row columnMargin :=
+  (Equiv.sigmaFiberEquiv
+    (boundedTableOfFixedFiberLabeling row columnMargin)).symm.trans
+    (Equiv.sigmaCongrRight
+      (fun table => fixedFiberLabelingTableFiberEquiv row columnMargin table))
+
+/-- The overlap-event fibers exhaust the fixed-margin sample space, with a
+unique table for every column labeling. -/
+theorem fixedMarginOverlapEvent_exhaustion
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (column : FixedFiberLabeling (V := Fin n) columnMargin) :
+    ∃! table : BoundedFixedMarginTable n row columnMargin,
+      ∀ a b,
+        orderedOverlapCount row column.1 a b = table.tableNat a b := by
+  refine ⟨boundedTableOfFixedFiberLabeling row columnMargin column, ?_, ?_⟩
+  · intro a b
+    rfl
+  · intro table htable
+    apply BoundedFixedMarginTable.ext
+    funext a b
+    apply Fin.ext
+    have h :
+        ((boundedTableOfFixedFiberLabeling row columnMargin column).entries a b).1 =
+          (table.entries a b).1 := by
+      calc
+        ((boundedTableOfFixedFiberLabeling row columnMargin column).entries a b).1 =
+            orderedOverlapCount row column.1 a b := rfl
+        _ = table.tableNat a b := htable a b
+        _ = (table.entries a b).1 := rfl
+    exact h.symm
+
+/-- Distinct bounded tables have disjoint fixed-margin overlap fibers. -/
+theorem fixedMarginOverlapEvent_disjoint
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    {table table' : BoundedFixedMarginTable n row columnMargin}
+    (hne : table ≠ table') :
+    ¬ ∃ column : FixedFiberLabeling (V := Fin n) columnMargin,
+      (∀ a b, orderedOverlapCount row column.1 a b = table.tableNat a b) ∧
+      (∀ a b, orderedOverlapCount row column.1 a b = table'.tableNat a b) := by
+  rintro ⟨column, htable, htable'⟩
+  apply hne
+  apply BoundedFixedMarginTable.ext
+  funext a b
+  apply Fin.ext
+  calc
+    (table.entries a b).1 = table.tableNat a b := rfl
+    _ = orderedOverlapCount row column.1 a b := (htable a b).symm
+    _ = table'.tableNat a b := htable' a b
+    _ = (table'.entries a b).1 := rfl
+
+/-- Exact cardinality disintegration of the fixed-margin sample space over
+the bounded overlap-table fibers. -/
+theorem card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ) :
+    Fintype.card (FixedFiberLabeling (V := Fin n) columnMargin) =
+      ∑ table : BoundedFixedMarginTable n row columnMargin,
+        Fintype.card (table.event row columnMargin) := by
+  calc
+    Fintype.card (FixedFiberLabeling (V := Fin n) columnMargin) =
+        Fintype.card
+          (Σ table : BoundedFixedMarginTable n row columnMargin,
+            table.event row columnMargin) :=
+      Fintype.card_congr (fixedFiberLabelingOverlapTableEquiv row columnMargin)
+    _ = ∑ table : BoundedFixedMarginTable n row columnMargin,
+        Fintype.card (table.event row columnMargin) :=
+      Fintype.card_sigma
+
+/-- The exact fixed-margin overlap-table law for a bounded table.  This is
+the profile-table law (6.2) transported to the finite fibration above. -/
+theorem boundedFixedMarginTable_probability_eq
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (table : BoundedFixedMarginTable n row columnMargin) :
+    (Fintype.card (table.event row columnMargin) : ℚ) /
+          Fintype.card (FixedFiberLabeling (V := Fin n) columnMargin) =
+      ((∏ a, (labelingFiberCount row a).factorial) *
+          ∏ b, (columnMargin b).factorial : ℕ) /
+        (((n.factorial *
+          ∏ a, ∏ b, (table.tableNat a b).factorial : ℕ) : ℚ)) := by
+  simpa using
+    (fixedMarginOverlapEvent_probability_eq row table.tableNat columnMargin
+      table.rowMargin table.columnMargin)
+
+#print axioms fixedFiberLabelingOverlapTableEquiv
+#print axioms fixedMarginOverlapEvent_exhaustion
+#print axioms card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent
+#print axioms boundedFixedMarginTable_probability_eq
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ProfileOverlapTables
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileOverlapTables
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedProfileWitness
+Source: Erdos625/SignedProfileWitness.lean
+Normalized SHA-256: 802dc734cdeb0f1415fe483e62d4f2d8f4b4aa66769ad7a7a285ab7a9416fbd8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
+
+/-!
+# Signed profile witnesses
+
+This file contains the deterministic graph-level layer of the signed
+cocolouring count used in the second-moment argument.  A witness is an
+unordered profile partition together with one Boolean sign per nonempty part:
+`false` requires that part to be independent and `true` requires it to be a
+clique.
+
+The key point here is deliberately finite and pointwise: a valid signed
+witness produces an actual `CoColoring`, and hence positivity of the count
+implies cocolourability with the advertised number of parts.  No
+probabilistic estimate is hidden in this implication.
+-/
+
+namespace Erdos625
+
+open MeasureTheory SimpleGraph
+open scoped BigOperators ENNReal symmDiff
+
+noncomputable section
+
+/-- A sign assignment is valid when every signed profile part is respectively
+an independent set (`false`) or a clique (`true`). -/
+def profileSignValid {b n : ℕ} {k : ColoringProfile b}
+    (G : LabeledGraph n) (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) : Prop :=
+  ∀ B : P.1.parts,
+    match σ B with
+    | false => G.IsIndepSet (B.1 : Set (Fin n))
+    | true => G.IsClique (B.1 : Set (Fin n))
+
+/-- An unordered profile partition together with a Boolean independent/clique
+sign on each of its nonempty parts. -/
+abbrev SignedProfileWitness {b : ℕ} (n : ℕ)
+    (k : ColoringProfile b) :=
+  Σ P : ProfilePartition n k, P.1.parts → Bool
+
+/-- Validity of a signed profile witness in a labelled graph. -/
+def validSignedProfileWitness {b n : ℕ} {k : ColoringProfile b}
+    (G : LabeledGraph n) (w : SignedProfileWitness n k) : Prop :=
+  profileSignValid G w.1 w.2
+
+/-- The number of valid signed witnesses of the fixed profile. -/
+noncomputable def signedProfileCount {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) : ℕ := by
+  classical
+  exact (Finset.univ.filter fun w : SignedProfileWitness n k =>
+    validSignedProfileWitness G w).card
+
+/-- The graph made of precisely the internal complete graphs of the parts
+given clique sign.  It is the edge-toggle used to reduce a mixed signed
+witness to the all-independent event for the same partition. -/
+noncomputable def signedProfileInternalGraph {b n : ℕ}
+    {k : ColoringProfile b} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) : LabeledGraph n :=
+  P.1.parts.attach.sup fun B => if σ B then completeOn B.1 else ⊥
+
+/-- The signed internal graph is contained in the graph of all internal
+partition edges. -/
+theorem signedProfileInternalGraph_le_partitionInternalGraph
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    signedProfileInternalGraph P σ ≤ partitionInternalGraph P.1 := by
+  classical
+  unfold signedProfileInternalGraph partitionInternalGraph
+  refine Finset.sup_le_iff.mpr ?_
+  intro B hB
+  by_cases hσ : σ B
+  · simp only [hσ, ite_true]
+    exact Finset.le_sup B.2
+  · simp [hσ]
+
+/-- A clique-signed part contributes its entire internal complete graph to the
+toggle graph. -/
+theorem completeOn_le_signedProfileInternalGraph_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    completeOn B.1 ≤ signedProfileInternalGraph P σ := by
+  classical
+  unfold signedProfileInternalGraph
+  refine Finset.le_sup_of_le
+    (s := P.1.parts.attach)
+    (f := fun C => if σ C then completeOn C.1 else ⊥)
+    (Finset.mem_attach P.1.parts B) ?_
+  simp [hB]
+
+/-- A part carrying the independent sign is edge-disjoint from the toggle
+graph.  The proof uses disjointness of distinct `Finpartition` parts, rather
+than treating the signed graph as an informal edge list. -/
+theorem signedProfileInternalGraph_disjoint_completeOn_of_sign_false
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = false) :
+    Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) := by
+  classical
+  unfold signedProfileInternalGraph
+  rw [Finset.disjoint_sup_left]
+  intro C hC
+  by_cases hCsign : σ C
+  · rw [if_pos hCsign]
+    apply disjoint_completeOn_of_disjoint
+    apply P.1.disjoint C.2 B.2
+    intro hCB
+    have hCB' : C = B := Subtype.ext hCB
+    subst C
+    simp [hB] at hCsign
+  · simp [hCsign]
+
+/-- A finite set is a clique exactly when its supported complete graph is a
+subgraph of the ambient graph. -/
+theorem isClique_iff_completeOn_le {n : ℕ} (G : LabeledGraph n)
+    (S : Finset (Fin n)) :
+    G.IsClique (S : Set (Fin n)) ↔ completeOn S ≤ G := by
+  constructor
+  · intro h x y hxy
+    rw [completeOn, SimpleGraph.map_adj] at hxy
+    obtain ⟨x', y', hne, rfl, rfl⟩ := hxy
+    exact h x'.property y'.property (by simpa using hne)
+  · intro h x hx y hy hxy
+    apply h
+    rw [completeOn, SimpleGraph.map_adj]
+    exact ⟨⟨x, hx⟩, ⟨y, hy⟩, by simpa using hxy, rfl, rfl⟩
+
+/-- Toggling all clique-signed internal edges leaves no edge of that clique
+part in the toggle remainder. -/
+theorem signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    Disjoint
+      (signedProfileInternalGraph P σ ∆ completeOn B.1)
+      (completeOn B.1) := by
+  have hle : completeOn B.1 ≤ signedProfileInternalGraph P σ :=
+    completeOn_le_signedProfileInternalGraph_of_sign_true P σ B hB
+  rw [symmDiff_of_ge hle]
+  exact disjoint_sdiff_self_left
+
+/-- On an independently signed part, toggling clique-signed internal edges
+does not alter the independence condition. -/
+theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = false) :
+    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
+      G.IsIndepSet (B.1 : Set (Fin n)) := by
+  rw [isIndepSet_iff_disjoint_completeOn,
+    isIndepSet_iff_disjoint_completeOn]
+  have hdis : Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) :=
+    signedProfileInternalGraph_disjoint_completeOn_of_sign_false P σ B hB
+  constructor
+  · intro h
+    have h' : Disjoint
+        ((G ∆ signedProfileInternalGraph P σ) ∆
+          signedProfileInternalGraph P σ)
+        (completeOn B.1) := h.symmDiff_left hdis
+    simpa using h'
+  · intro h
+    exact h.symmDiff_left hdis
+
+/-- On a clique-signed part, toggling the complete internal graph turns the
+clique condition into the independent-set condition. -/
+theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
+      G.IsClique (B.1 : Set (Fin n)) := by
+  rw [isIndepSet_iff_disjoint_completeOn,
+    isClique_iff_completeOn_le]
+  let H := signedProfileInternalGraph P σ
+  let C := completeOn B.1
+  have hHC : Disjoint (H ∆ C) C := by
+    simpa only [H, C] using
+      (signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
+        P σ B hB)
+  have hswap : (G ∆ H) ∆ (H ∆ C) = G ∆ C := by
+    rw [symmDiff_assoc]
+    simp
+  have hswap' : (G ∆ C) ∆ (H ∆ C) = G ∆ H := by
+    calc
+      (G ∆ C) ∆ (H ∆ C) = G ∆ (C ∆ (H ∆ C)) :=
+        symmDiff_assoc G C (H ∆ C)
+      _ = G ∆ ((C ∆ H) ∆ C) :=
+        congrArg (fun X => G ∆ X) (symmDiff_assoc C H C).symm
+      _ = G ∆ ((H ∆ C) ∆ C) :=
+        congrArg (fun X => G ∆ (X ∆ C)) (symmDiff_comm C H)
+      _ = G ∆ H := by simp
+  constructor
+  · intro h
+    have hrem : Disjoint (G ∆ C) C := by
+      rw [← hswap]
+      exact h.symmDiff_left hHC
+    have hle : C ≤ (G ∆ C) ∆ C :=
+      Iff.mpr (le_symmDiff_iff_right (G ∆ C) C) hrem
+    simpa using hle
+  · intro h
+    have hGC : Disjoint (G ∆ C) C := by
+      rw [symmDiff_of_ge h]
+      exact disjoint_sdiff_self_left
+    rw [← hswap']
+    exact hGC.symmDiff_left hHC
+
+/-- A mixed independent/clique signed witness is valid exactly when toggling
+its clique-signed internal edges yields an ordinary proper partition. -/
+theorem profileSignValid_iff_mem_partitionColoringEvent_symmDiff
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    profileSignValid G P σ ↔
+      G ∆ signedProfileInternalGraph P σ ∈ partitionColoringEvent P.1 := by
+  constructor
+  · intro h
+    change ∀ B ∈ P.1.parts,
+      (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B : Set (Fin n))
+    intro B hB
+    let B' : P.1.parts := ⟨B, hB⟩
+    cases hsign : σ B' with
+    | false =>
+        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+          G P σ B' hsign).mpr (by simpa [hsign] using h B')
+    | true =>
+        exact
+          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+            G P σ B' hsign).mpr (by simpa [hsign] using h B')
+  · intro h B
+    have hB : (G ∆ signedProfileInternalGraph P σ).IsIndepSet
+        (B.1 : Set (Fin n)) := h B.1 B.2
+    cases hsign : σ B with
+    | false =>
+        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+          G P σ B hsign).mp hB
+    | true =>
+        exact
+          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+            G P σ B hsign).mp hB
+
+/-- Symmetric difference with a fixed labelled graph is a measure-preserving
+involution of the half-random-graph space.  This is the mixed
+present/absent-edge analogue of global complementation. -/
+theorem randomGraphMeasure_map_symmDiff (n : ℕ) (H : LabeledGraph n) :
+    (randomGraphMeasure n).map (fun G : LabeledGraph n => G ∆ H) =
+      randomGraphMeasure n := by
+  classical
+  apply Measure.ext_of_singleton
+  intro G
+  rw [Measure.map_apply (measurable_of_finite _) (MeasurableSet.singleton G)]
+  have hpre :
+      (fun K : LabeledGraph n => K ∆ H) ⁻¹' ({G} : Set (LabeledGraph n)) =
+        {G ∆ H} := by
+    ext K
+    simp only [Set.mem_preimage, Set.mem_singleton_iff]
+    constructor
+    · intro h
+      calc
+        K = (K ∆ H) ∆ H := (symmDiff_symmDiff_cancel_right H K).symm
+        _ = G ∆ H := congrArg (fun X => X ∆ H) h
+    · intro h
+      calc
+        K ∆ H = (G ∆ H) ∆ H := congrArg (fun X => X ∆ H) h
+        _ = G := symmDiff_symmDiff_cancel_right H G
+  rw [hpre, randomGraphMeasure_singleton_uniform,
+    randomGraphMeasure_singleton_uniform]
+
+/-- Event probabilities are unchanged after translating every graph by a
+fixed symmetric difference. -/
+theorem randomGraphMeasure_symmDiff_preimage_eq
+    (n : ℕ) (H : LabeledGraph n) (A : Set (LabeledGraph n)) :
+    randomGraphMeasure n {G | G ∆ H ∈ A} = randomGraphMeasure n A := by
+  calc
+    randomGraphMeasure n {G | G ∆ H ∈ A} =
+        randomGraphMeasure n ((fun G : LabeledGraph n => G ∆ H) ⁻¹' A) := rfl
+    _ = ((randomGraphMeasure n).map
+        (fun G : LabeledGraph n => G ∆ H)) A :=
+      (Measure.map_apply (measurable_of_finite _)
+        (Set.toFinite A |>.measurableSet)).symm
+    _ = randomGraphMeasure n A := by rw [randomGraphMeasure_map_symmDiff]
+
+/-- The event on which one fixed signed profile witness is valid. -/
+def signedProfileWitnessEvent {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    Set (LabeledGraph n) :=
+  {G | profileSignValid G P σ}
+
+/-- The exact half-random-graph mass of a fixed signed witness.  It is
+independent of the sign assignment: symmetric-difference translation changes
+the mixed present/absent requirements into the all-absent internal-edge event. -/
+theorem randomGraphMeasure_signedProfileWitnessEvent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    randomGraphMeasure n (signedProfileWitnessEvent P σ) =
+      (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k := by
+  have hevent : signedProfileWitnessEvent P σ =
+      {G | G ∆ signedProfileInternalGraph P σ ∈
+        partitionColoringEvent P.1} := by
+    ext G
+    exact profileSignValid_iff_mem_partitionColoringEvent_symmDiff G P σ
+  rw [hevent, randomGraphMeasure_symmDiff_preimage_eq,
+    randomGraphMeasure_partitionColoringEvent]
+
+/-- The natural-valued indicator of validity for one fixed signed witness. -/
+noncomputable def signedProfileWitnessIndicator {b n : ℕ}
+    (G : LabeledGraph n) {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) : ℕ := by
+  classical
+  exact if profileSignValid G P σ then 1 else 0
+
+/-- Expanding the filtered cardinality into its finite sum of witness
+indicators. -/
+theorem signedProfileCount_eq_sum_indicator {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) :
+    signedProfileCount G k =
+      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+        signedProfileWitnessIndicator G P σ := by
+  classical
+  unfold signedProfileCount signedProfileWitnessIndicator
+  rw [Finset.card_filter, Fintype.sum_sigma]
+  rfl
+
+/-- Summing the finite indicator of one signed witness against singleton
+masses recovers precisely its witness event. -/
+theorem sum_signedProfileWitnessIndicator_measure {b n : ℕ}
+    {k : ColoringProfile b} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) :
+    (∑ G : LabeledGraph n,
+      (signedProfileWitnessIndicator G P σ : ENNReal) *
+        randomGraphMeasure n {G}) =
+      randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
+  classical
+  let T := (Finset.univ : Finset (LabeledGraph n)).filter
+    fun G => profileSignValid G P σ
+  calc
+    _ = ∑ G : LabeledGraph n,
+        if profileSignValid G P σ then randomGraphMeasure n {G} else 0 := by
+      apply Finset.sum_congr rfl
+      intro G _
+      by_cases h : profileSignValid G P σ <;>
+        simp [signedProfileWitnessIndicator, h]
+    _ = ∑ G ∈ T, randomGraphMeasure n {G} := by
+      simp only [T, Finset.sum_filter]
+    _ = randomGraphMeasure n (T : Set (LabeledGraph n)) := by
+      rw [MeasureTheory.sum_measure_singleton]
+    _ = randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
+      congr 1
+      ext G
+      simp [T, signedProfileWitnessEvent]
+
+/-- The finite weighted first moment of the signed-profile count. -/
+noncomputable def signedProfileExpectation {b : ℕ}
+    (n : ℕ) (k : ColoringProfile b) : ENNReal :=
+  ∑ G : LabeledGraph n,
+    (signedProfileCount G k : ENNReal) * randomGraphMeasure n {G}
+
+/-- Exact first moment of the signed-profile count.  The factor `2^k` occurs
+only after averaging: a fixed graph need not support every sign assignment on
+a proper profile partition. -/
+theorem signedProfileExpectation_eq {b : ℕ}
+    (n : ℕ) (k : ColoringProfile b) :
+    signedProfileExpectation n k =
+      (2 : ENNReal) ^ ColoringProfile.partCount k *
+        profileColoringExpectation n k := by
+  classical
+  let p : ENNReal := (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k
+  have hsign (P : ProfilePartition n k) :
+      (∑ _σ : P.1.parts → Bool, p) =
+        (2 : ENNReal) ^ ColoringProfile.partCount k * p := by
+    simp [p, nsmul_eq_mul, P.card_parts_eq]
+  unfold signedProfileExpectation
+  simp_rw [signedProfileCount_eq_sum_indicator, Nat.cast_sum,
+    Finset.sum_mul]
+  calc
+    (∑ G : LabeledGraph n,
+      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+        (signedProfileWitnessIndicator G P σ : ENNReal) *
+          randomGraphMeasure n {G}) =
+        ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+          ∑ G : LabeledGraph n,
+            (signedProfileWitnessIndicator G P σ : ENNReal) *
+              randomGraphMeasure n {G} := by
+          rw [Finset.sum_comm]
+          apply Finset.sum_congr rfl
+          intro P _
+          rw [Finset.sum_comm]
+    _ = ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool, p := by
+          apply Finset.sum_congr rfl
+          intro P _
+          apply Finset.sum_congr rfl
+          intro σ _
+          rw [sum_signedProfileWitnessIndicator_measure,
+            randomGraphMeasure_signedProfileWitnessEvent]
+    _ = (2 : ENNReal) ^ ColoringProfile.partCount k *
+        profileColoringExpectation n k := by
+          simp_rw [hsign]
+          rw [profileColoringExpectation_eq_card_mul]
+          simp [Finset.sum_const, nsmul_eq_mul, Nat.card_eq_fintype_card,
+            p, mul_assoc, mul_comm]
+
+/-- The canonical cocolouring induced by a valid signed profile witness,
+before relabelling its palette by `Fin (partCount k)`. -/
+noncomputable def profileSignCoColoring {b n : ℕ} {k : ColoringProfile b}
+    {G : LabeledGraph n} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
+    CoColoring G P.1.parts := by
+  classical
+  let color : Fin n → P.1.parts := fun v =>
+    ⟨P.1.part v, P.1.part_mem.mpr (Finset.mem_univ v)⟩
+  have hclass (B : P.1.parts) :
+      {v | color v = B} = (B.1 : Set (Fin n)) := by
+    ext v
+    dsimp [color]
+    constructor
+    · intro h
+      exact (P.1.part_eq_iff_mem B.2).mp (congrArg Subtype.val h)
+    · intro h
+      apply Subtype.ext
+      exact (P.1.part_eq_iff_mem B.2).mpr h
+  exact
+    { color := color
+      kind := fun B => if σ B then .clique else .independent
+      valid := by
+        intro B
+        rw [hclass B]
+        cases hB : σ B with
+        | false => simpa [hB] using hσ B
+        | true => simpa [hB] using hσ B }
+
+/-- A valid signed partition is a cocolouring with exactly its profile's
+number of nonempty parts; the palette is relabelled only after the finite
+partition has supplied the exact cardinality. -/
+theorem profileSignValid_coColorable {b n : ℕ} {k : ColoringProfile b}
+    {G : LabeledGraph n} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
+    CoColorable G (ColoringProfile.partCount k) := by
+  classical
+  have hcard : P.1.parts.card = ColoringProfile.partCount k :=
+    P.card_parts_eq
+  exact ⟨(profileSignCoColoring P σ hσ).relabel
+    (Finset.equivFinOfCardEq hcard)⟩
+
+/-- Positivity of the signed-profile count supplies an actual cocolouring.
+This is the deterministic witness implication needed before applying any
+second-moment inequality. -/
+theorem signedProfileCount_pos_implies_coColorable
+    {b n : ℕ} {G : LabeledGraph n} {k : ColoringProfile b} :
+    0 < signedProfileCount G k →
+      CoColorable G (ColoringProfile.partCount k) := by
+  classical
+  intro hpos
+  unfold signedProfileCount at hpos
+  obtain ⟨w, hw⟩ := Finset.card_pos.mp hpos
+  rw [Finset.mem_filter] at hw
+  exact profileSignValid_coColorable w.1 w.2 hw.2
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedProfileWitness
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.RandomGraphMixedEdgePrescription
+Source: Erdos625/RandomGraphMixedEdgePrescription.lean
+Normalized SHA-256: dc0eec6e7068e2529f9c4a1108def200b3e05a858604362ada2ebf91e6c53ab1
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_RandomGraphMixedEdgePrescription
+
+namespace Erdos625
+
+open MeasureTheory
+
+noncomputable section
+
+/-!
+# Simultaneous present/absent edge prescriptions
+
+For a fixed pair of edge-disjoint labelled graphs `Hpresent` and `Habsent`,
+the event below asks that every edge of `Hpresent` occur and that every edge
+of `Habsent` fail to occur.  The proof is deliberately finite: after the
+prescribed edges are fixed, the remaining graph is an arbitrary subgraph of
+the complement of their union.
+-/
+
+/-- The event that all `Hpresent` edges occur and all `Habsent` edges do not
+occur. -/
+def mixedEdgePrescriptionEvent {n : ℕ}
+    (Hpresent Habsent : LabeledGraph n) : Set (LabeledGraph n) :=
+  {G | Hpresent ≤ G ∧ G ≤ Habsentᶜ}
+
+/-- Finite sample spaces make a mixed prescription event measurable. -/
+theorem measurableSet_mixedEdgePrescriptionEvent {n : ℕ}
+    (Hpresent Habsent : LabeledGraph n) :
+    MeasurableSet (mixedEdgePrescriptionEvent Hpresent Habsent) :=
+  Set.toFinite (mixedEdgePrescriptionEvent Hpresent Habsent) |>.measurableSet
+
+private theorem freeGraph_le_union_compl_of_mem_mixedEdgePrescriptionEvent
+    {n : ℕ} {Hpresent Habsent G : LabeledGraph n}
+    (h : G ∈ mixedEdgePrescriptionEvent Hpresent Habsent) :
+    G \ Hpresent ≤ (Hpresent ⊔ Habsent)ᶜ := by
+  rw [mixedEdgePrescriptionEvent, Set.mem_setOf_eq] at h
+  rw [compl_sup]
+  apply le_inf
+  · exact le_compl_iff_disjoint_right.mpr (by
+      simpa using (disjoint_sdiff_self_left : Disjoint (G \ Hpresent) Hpresent))
+  · exact sdiff_le.trans h.2
+
+private theorem present_sup_free_mem_mixedEdgePrescriptionEvent
+    {n : ℕ} {Hpresent Habsent F : LabeledGraph n}
+    (hdis : Disjoint Hpresent Habsent)
+    (hF : F ≤ (Hpresent ⊔ Habsent)ᶜ) :
+    Hpresent ⊔ F ∈ mixedEdgePrescriptionEvent Hpresent Habsent := by
+  rw [mixedEdgePrescriptionEvent, Set.mem_setOf_eq]
+  constructor
+  · exact le_sup_left
+  · apply sup_le
+    · exact le_compl_iff_disjoint_right.mpr hdis
+    · exact hF.trans (compl_le_compl le_sup_right)
+
+private theorem freeGraph_disjoint_present_of_le_union_compl
+    {n : ℕ} {Hpresent Habsent F : LabeledGraph n}
+    (hF : F ≤ (Hpresent ⊔ Habsent)ᶜ) :
+    Disjoint Hpresent F := by
+  apply Disjoint.symm
+  apply le_compl_iff_disjoint_right.mp
+  exact hF.trans (compl_le_compl le_sup_left)
+
+/-- Remove the prescribed-present edges from a graph satisfying a mixed
+prescription; conversely, add them back to an arbitrary graph on the free
+edges. -/
+noncomputable def mixedEdgePrescriptionEquiv {n : ℕ}
+    (Hpresent Habsent : LabeledGraph n) (hdis : Disjoint Hpresent Habsent) :
+    {G : LabeledGraph n // G ∈ mixedEdgePrescriptionEvent Hpresent Habsent} ≃
+      {F : LabeledGraph n // F ≤ (Hpresent ⊔ Habsent)ᶜ} where
+  toFun G := ⟨G.1 \ Hpresent,
+    freeGraph_le_union_compl_of_mem_mixedEdgePrescriptionEvent G.2⟩
+  invFun F := ⟨Hpresent ⊔ F.1,
+    present_sup_free_mem_mixedEdgePrescriptionEvent hdis F.2⟩
+  left_inv G := by
+    apply Subtype.ext
+    change Hpresent ⊔ (G.1 \ Hpresent) = G.1
+    rw [sup_comm]
+    exact sdiff_sup_cancel G.2.1
+  right_inv F := by
+    apply Subtype.ext
+    exact (freeGraph_disjoint_present_of_le_union_compl F.2).sup_sdiff_cancel_left
+
+/-- The two prescribed edge sets have additive cardinality when they are
+edge-disjoint. -/
+private theorem ncard_edgeSet_sup_of_disjoint {n : ℕ}
+    {Hpresent Habsent : LabeledGraph n}
+    (hdis : Disjoint Hpresent Habsent) :
+    (Hpresent ⊔ Habsent).edgeSet.ncard =
+      Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard := by
+  rw [SimpleGraph.edgeSet_sup]
+  exact Set.ncard_union_eq (SimpleGraph.disjoint_edgeSet.mpr hdis)
+
+/-- The number of labelled graphs satisfying a fixed edge-disjoint mixed
+prescription. -/
+theorem ncard_mixedEdgePrescriptionEvent {n : ℕ}
+    (Hpresent Habsent : LabeledGraph n)
+    (hdis : Disjoint Hpresent Habsent) :
+    (mixedEdgePrescriptionEvent Hpresent Habsent).ncard =
+      2 ^ (n.choose 2 -
+        (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) := by
+  change Nat.card {G : LabeledGraph n //
+    G ∈ mixedEdgePrescriptionEvent Hpresent Habsent} = _
+  calc
+    Nat.card {G : LabeledGraph n //
+        G ∈ mixedEdgePrescriptionEvent Hpresent Habsent} =
+        Nat.card {F : LabeledGraph n // F ≤ (Hpresent ⊔ Habsent)ᶜ} :=
+      Nat.card_congr (mixedEdgePrescriptionEquiv Hpresent Habsent hdis)
+    _ = 2 ^ ((Hpresent ⊔ Habsent)ᶜ).edgeSet.ncard :=
+      card_graphBelow ((Hpresent ⊔ Habsent)ᶜ)
+    _ = 2 ^ (n.choose 2 -
+        (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) := by
+      rw [ncard_edgeSet_compl,
+        ncard_edgeSet_sup_of_disjoint hdis]
+
+/-- Exact `G(n,1/2)` probability of enforcing disjoint present and absent
+edge prescriptions simultaneously. -/
+theorem randomGraphMeasure_mixedEdgePrescriptionEvent {n : ℕ}
+    (Hpresent Habsent : LabeledGraph n)
+    (hdis : Disjoint Hpresent Habsent) :
+    randomGraphMeasure n (mixedEdgePrescriptionEvent Hpresent Habsent) =
+      (1 / 2 : ENNReal) ^
+        (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard) := by
+  classical
+  let T := (Finset.univ : Finset (LabeledGraph n)).filter
+    fun G ↦ G ∈ mixedEdgePrescriptionEvent Hpresent Habsent
+  have hcard : T.card =
+      2 ^ (n.choose 2 -
+        (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) := by
+    calc
+      T.card = Fintype.card {G : LabeledGraph n //
+          G ∈ mixedEdgePrescriptionEvent Hpresent Habsent} := by
+        simp [T]
+      _ = Nat.card {G : LabeledGraph n //
+          G ∈ mixedEdgePrescriptionEvent Hpresent Habsent} := by
+        rw [Nat.card_eq_fintype_card]
+      _ = 2 ^ (n.choose 2 -
+          (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) := by
+        change (mixedEdgePrescriptionEvent Hpresent Habsent).ncard = _
+        exact ncard_mixedEdgePrescriptionEvent Hpresent Habsent hdis
+  have hunion : (Hpresent ⊔ Habsent).edgeSet.ncard ≤ n.choose 2 := by
+    calc
+      (Hpresent ⊔ Habsent).edgeSet.ncard ≤
+          (Sym2.diagSetᶜ : Set (Sym2 (Fin n))).ncard :=
+        Set.ncard_le_ncard (Hpresent ⊔ Habsent).edgeSet_subset_compl_diagSet
+          (Set.toFinite (Sym2.diagSetᶜ : Set (Sym2 (Fin n))))
+      _ = n.choose 2 := by simpa using Sym2.ncard_diagSet_compl (Fin n)
+  have hprescribed :
+      Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard ≤ n.choose 2 := by
+    rw [← ncard_edgeSet_sup_of_disjoint hdis]
+    exact hunion
+  calc
+    randomGraphMeasure n (mixedEdgePrescriptionEvent Hpresent Habsent) =
+        randomGraphMeasure n (T : Set (LabeledGraph n)) := by
+      congr 1
+      ext G
+      simp [T]
+    _ = ∑ G ∈ T, randomGraphMeasure n {G} := by
+      rw [MeasureTheory.sum_measure_singleton]
+    _ = ∑ _G ∈ T, (1 / 2 : ENNReal) ^ n.choose 2 := by
+      simp_rw [randomGraphMeasure_singleton_uniform]
+    _ = (2 : ENNReal) ^
+        (n.choose 2 - (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) *
+        (1 / 2 : ENNReal) ^ n.choose 2 := by
+      simp [Finset.sum_const, hcard, nsmul_eq_mul]
+    _ = (1 / 2 : ENNReal) ^
+        (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard) := by
+      conv_lhs =>
+        rhs
+        rw [show n.choose 2 =
+          (n.choose 2 -
+            (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard)) +
+            (Hpresent.edgeSet.ncard + Habsent.edgeSet.ncard) by
+              exact (Nat.sub_add_cancel hprescribed).symm,
+          pow_add]
+      rw [← mul_assoc, ← mul_pow]
+      rw [div_eq_mul_inv, one_mul,
+        ENNReal.mul_inv_cancel (by norm_num) (by norm_num), one_pow, one_mul]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_RandomGraphMixedEdgePrescription
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.RandomGraphMixedEdgePrescription
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileOverlapDuplicateEdges
+Source: Erdos625/ProfileOverlapDuplicateEdges.lean
+Normalized SHA-256: e3e5b8efc3b293e42e737bcd3c9ec2a27ec3c62b92533ccfdceee75ddf0b245a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileOverlapDuplicateEdges
+
+/-!
+# Duplicate internal edges of two profile partitions
+
+This module isolates the elementary finite edge count used in the signed
+second-moment calculation.  It deliberately contains no probability or
+asymptotic statement.
+-/
+
+namespace Erdos625
+
+open SimpleGraph
+open scoped BigOperators
+
+noncomputable section
+
+/-- Number of vertices in the cell obtained by intersecting two parts. -/
+def profileOverlapCellCount {n : ℕ}
+    (A B : Finset (Fin n)) : ℕ :=
+  (A ∩ B).card
+
+/-- The same cell count with its two profile partitions and certified parts
+kept in the type.  This is the profile-level object used by the signed
+overlap table; its value is just the cardinality of the underlying
+intersection. -/
+def ProfilePartition.overlapCellCount {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) (A : P.1.parts) (B : Q.1.parts) : ℕ :=
+  profileOverlapCellCount A.1 B.1
+
+@[simp] theorem ProfilePartition.overlapCellCount_eq {b n : ℕ}
+    {k : ColoringProfile b} (P Q : ProfilePartition n k)
+    (A : P.1.parts) (B : Q.1.parts) :
+    P.overlapCellCount Q A B = (A.1 ∩ B.1).card := rfl
+
+/-- The graph made of the complete graphs on all overlap cells.  Empty and
+singleton cells are retained harmlessly: they contribute no edge. -/
+def partitionOverlapGraph {n : ℕ} (P Q : VertexPartition n) : LabeledGraph n :=
+  (P.parts.product Q.parts).sup fun e => completeOn (e.1 ∩ e.2)
+
+private theorem completeOn_adj_iff {V : Type*} [DecidableEq V]
+    (S : Finset V) (v w : V) :
+    (completeOn S).Adj v w ↔ v ≠ w ∧ v ∈ S ∧ w ∈ S := by
+  rw [completeOn, SimpleGraph.map_adj]
+  constructor
+  · rintro ⟨v', w', hvw', hv', hw'⟩
+    have hne : v ≠ w := by
+      intro h
+      apply hvw'
+      apply Subtype.ext
+      change (v' : V) = (w' : V)
+      calc
+        (v' : V) = v := hv'
+        _ = w := h
+        _ = (w' : V) := hw'.symm
+    refine ⟨hne, ?_, ?_⟩
+    · rw [← hv']
+      exact v'.property
+    · rw [← hw']
+      exact w'.property
+  · rintro ⟨hvw, hv, hw⟩
+    refine ⟨⟨v, hv⟩, ⟨w, hw⟩, ?_, rfl, rfl⟩
+    change (⟨v, hv⟩ : S) ≠ ⟨w, hw⟩
+    intro h
+    apply hvw
+    exact congrArg Subtype.val h
+
+private theorem adj_finset_sup_iff {V I : Type*}
+    [DecidableEq I] (s : Finset I) (f : I → SimpleGraph V) (v w : V) :
+    (s.sup f).Adj v w ↔ ∃ i ∈ s, (f i).Adj v w := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      rw [Finset.sup_insert, SimpleGraph.sup_adj, ih]
+      simp
+
+private theorem partitionInternalGraph_adj_iff {n : ℕ}
+    (P : VertexPartition n) (v w : Fin n) :
+    (partitionInternalGraph P).Adj v w ↔
+      P.part v = P.part w ∧ v ≠ w := by
+  rw [partitionInternalGraph, adj_finset_sup_iff]
+  constructor
+  · rintro ⟨B, hB, hB_adj⟩
+    obtain ⟨hvw, hvB, hwB⟩ := (completeOn_adj_iff B v w).mp hB_adj
+    refine ⟨?_, hvw⟩
+    calc
+      P.part v = B := (P.part_eq_iff_mem hB).mpr hvB
+      _ = P.part w := ((P.part_eq_iff_mem hB).mpr hwB).symm
+  · rintro ⟨hpart, hvw⟩
+    let B := P.part v
+    have hB : B ∈ P.parts := by
+      dsimp [B]
+      exact P.part_mem.mpr (Finset.mem_univ v)
+    have hvB : v ∈ B := by
+      dsimp [B]
+      exact (P.part_eq_iff_mem hB).mp rfl
+    have hwB : w ∈ B := by
+      apply (P.part_eq_iff_mem hB).mp
+      dsimp [B]
+      exact hpart.symm
+    exact ⟨B, hB, (completeOn_adj_iff B v w).mpr ⟨hvw, hvB, hwB⟩⟩
+
+private theorem partitionOverlapGraph_adj_iff {n : ℕ}
+    (P Q : VertexPartition n) (v w : Fin n) :
+    (partitionOverlapGraph P Q).Adj v w ↔
+      P.part v = P.part w ∧ Q.part v = Q.part w ∧ v ≠ w := by
+  rw [partitionOverlapGraph, adj_finset_sup_iff]
+  constructor
+  · rintro ⟨AB, hAB, hAB_adj⟩
+    rcases Finset.mem_product.mp hAB with ⟨hA, hB⟩
+    obtain ⟨hvw, hv, hw⟩ :=
+      (completeOn_adj_iff (AB.1 ∩ AB.2) v w).mp hAB_adj
+    have hvA : v ∈ AB.1 := Finset.mem_of_mem_inter_left hv
+    have hwA : w ∈ AB.1 := Finset.mem_of_mem_inter_left hw
+    have hvB : v ∈ AB.2 := Finset.mem_of_mem_inter_right hv
+    have hwB : w ∈ AB.2 := Finset.mem_of_mem_inter_right hw
+    refine ⟨?_, ?_, hvw⟩
+    · calc
+        P.part v = AB.1 := (P.part_eq_iff_mem hA).mpr hvA
+        _ = P.part w := ((P.part_eq_iff_mem hA).mpr hwA).symm
+    · calc
+        Q.part v = AB.2 := (Q.part_eq_iff_mem hB).mpr hvB
+        _ = Q.part w := ((Q.part_eq_iff_mem hB).mpr hwB).symm
+  · rintro ⟨hP, hQ, hvw⟩
+    let A := P.part v
+    let B := Q.part v
+    have hA : A ∈ P.parts := by
+      dsimp [A]
+      exact P.part_mem.mpr (Finset.mem_univ v)
+    have hB : B ∈ Q.parts := by
+      dsimp [B]
+      exact Q.part_mem.mpr (Finset.mem_univ v)
+    have hvA : v ∈ A := by
+      dsimp [A]
+      exact (P.part_eq_iff_mem hA).mp rfl
+    have hwA : w ∈ A := by
+      apply (P.part_eq_iff_mem hA).mp
+      dsimp [A]
+      exact hP.symm
+    have hvB : v ∈ B := by
+      dsimp [B]
+      exact (Q.part_eq_iff_mem hB).mp rfl
+    have hwB : w ∈ B := by
+      apply (Q.part_eq_iff_mem hB).mp
+      dsimp [B]
+      exact hQ.symm
+    refine ⟨(A, B), Finset.mem_product.mpr ⟨hA, hB⟩, ?_⟩
+    exact (completeOn_adj_iff (A ∩ B) v w).mpr
+      ⟨hvw, Finset.mem_inter.mpr ⟨hvA, hvB⟩,
+        Finset.mem_inter.mpr ⟨hwA, hwB⟩⟩
+
+/-- The common internal edges of two partitions are precisely the internal
+edges of their overlap cells. -/
+theorem partitionInternalGraph_inf_eq_partitionOverlapGraph {n : ℕ}
+    (P Q : VertexPartition n) :
+    partitionInternalGraph P ⊓ partitionInternalGraph Q =
+      partitionOverlapGraph P Q := by
+  ext v w
+  rw [SimpleGraph.inf_adj, partitionInternalGraph_adj_iff,
+    partitionInternalGraph_adj_iff, partitionOverlapGraph_adj_iff]
+  constructor
+  · rintro ⟨⟨hP, _⟩, ⟨hQ, hvw⟩⟩
+    exact ⟨hP, hQ, hvw⟩
+  · rintro ⟨hP, hQ, hvw⟩
+    exact ⟨⟨hP, hvw⟩, ⟨hQ, hvw⟩⟩
+
+private theorem pairwiseDisjoint_completeOn_overlapCells {n : ℕ}
+    (P Q : VertexPartition n) :
+    ((↑(P.parts.product Q.parts) : Set
+        (Finset (Fin n) × Finset (Fin n)))).PairwiseDisjoint
+      (fun AB => completeOn (AB.1 ∩ AB.2)) := by
+  intro AB hAB CD hCD hne
+  apply disjoint_completeOn_of_disjoint
+  rcases Finset.mem_product.mp hAB with ⟨hA, hB⟩
+  rcases Finset.mem_product.mp hCD with ⟨hC, hD⟩
+  by_cases hAC : AB.1 = CD.1
+  · have hBD : AB.2 ≠ CD.2 := by
+      intro hBD
+      apply hne
+      exact Prod.ext hAC hBD
+    exact Finset.disjoint_of_subset_left Finset.inter_subset_right
+      (Finset.disjoint_of_subset_right Finset.inter_subset_right
+        (Q.disjoint hB hD hBD))
+  · exact Finset.disjoint_of_subset_left Finset.inter_subset_left
+      (Finset.disjoint_of_subset_right Finset.inter_subset_left
+        (P.disjoint hA hC hAC))
+
+/-- The overlap-cell graph has one edge for each unordered pair inside an
+overlap cell. -/
+theorem ncard_partitionOverlapGraph {n : ℕ}
+    (P Q : VertexPartition n) :
+    (partitionOverlapGraph P Q).edgeSet.ncard =
+      ∑ A ∈ P.parts, ∑ B ∈ Q.parts, (A ∩ B).card.choose 2 := by
+  classical
+  rw [partitionOverlapGraph,
+    ncard_edgeSet_finset_sup_of_pairwise
+      (P.parts.product Q.parts) (fun AB => completeOn (AB.1 ∩ AB.2))
+      (pairwiseDisjoint_completeOn_overlapCells P Q)]
+  simp_rw [ncard_edgeSet_completeOn]
+  exact Finset.sum_product P.parts Q.parts
+    (fun AB => (AB.1 ∩ AB.2).card.choose 2)
+
+/-- Exact duplicated-edge count: an edge is shared by the two internal
+graphs exactly when both endpoints lie in one overlap cell. -/
+theorem ncard_partitionInternalGraph_edgeSet_inter {n : ℕ}
+    (P Q : VertexPartition n) :
+    ((partitionInternalGraph P).edgeSet ∩ (partitionInternalGraph Q).edgeSet).ncard =
+      ∑ A ∈ P.parts, ∑ B ∈ Q.parts, (A ∩ B).card.choose 2 := by
+  rw [← SimpleGraph.edgeSet_inf,
+    partitionInternalGraph_inf_eq_partitionOverlapGraph]
+  exact ncard_partitionOverlapGraph P Q
+
+/-- Profile-indexed spelling of the overlap-cell count. -/
+theorem ncard_profilePartitionInternalGraph_edgeSet_inter
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    ((partitionInternalGraph P.1).edgeSet ∩
+      (partitionInternalGraph Q.1).edgeSet).ncard =
+      ∑ A ∈ P.1.parts, ∑ B ∈ Q.1.parts,
+        (profileOverlapCellCount A B).choose 2 := by
+  simpa [profileOverlapCellCount] using
+    ncard_partitionInternalGraph_edgeSet_inter P.1 Q.1
+
+/-- Inclusion--exclusion for the prescribed internal-edge bits of arbitrary
+partitions, with the overlap contribution written as the explicit cell sum. -/
+theorem ncard_partitionInternalGraph_edgeSet_union {n : ℕ}
+    (P Q : VertexPartition n) :
+    (partitionInternalGraph P ⊔ partitionInternalGraph Q).edgeSet.ncard +
+        ∑ A ∈ P.parts, ∑ B ∈ Q.parts, (A ∩ B).card.choose 2 =
+      (partitionInternalGraph P).edgeSet.ncard +
+        (partitionInternalGraph Q).edgeSet.ncard := by
+  rw [SimpleGraph.edgeSet_sup,
+    ← ncard_partitionInternalGraph_edgeSet_inter P Q]
+  exact Set.ncard_union_add_ncard_inter _ _
+
+/-- For two profile partitions of the same profile, the union of prescribed
+internal edge bits has size `2 B_k - W`, recorded in cancellation-safe
+addition form over `ℕ`. -/
+theorem ncard_profilePartitionInternalGraph_edgeSet_union_add_overlap
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    (partitionInternalGraph P.1 ⊔ partitionInternalGraph Q.1).edgeSet.ncard +
+        ∑ A ∈ P.1.parts, ∑ B ∈ Q.1.parts,
+          (profileOverlapCellCount A B).choose 2 =
+      2 * ColoringProfile.forbiddenEdges k := by
+  simp only [profileOverlapCellCount]
+  rw [ncard_partitionInternalGraph_edgeSet_union P.1 Q.1,
+    P.ncard_partitionInternalGraph, Q.ncard_partitionInternalGraph]
+  omega
+
+/-- Subtraction form of the preceding identity; this is the exponent
+`B_P + B_Q - W = 2 B_k - W` used in the joint signed-witness probability. -/
+theorem ncard_profilePartitionInternalGraph_edgeSet_union
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    (partitionInternalGraph P.1 ⊔ partitionInternalGraph Q.1).edgeSet.ncard =
+      2 * ColoringProfile.forbiddenEdges k -
+        ∑ A ∈ P.1.parts, ∑ B ∈ Q.1.parts,
+          (profileOverlapCellCount A B).choose 2 := by
+  have h := ncard_profilePartitionInternalGraph_edgeSet_union_add_overlap P Q
+  omega
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ProfileOverlapDuplicateEdges
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileOverlapDuplicateEdges
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.OverlapContingencyTools
 Source: Erdos625/OverlapContingencyTools.lean
 Normalized SHA-256: 26d344c5420cd52d61bfea7cd5ed197a7ff3958a0048d07da6710a0f18ef44ae
@@ -27763,6 +28967,598 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section6CompatibleSignsComponents
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.LocalSignReward
+Source: Erdos625/LocalSignReward.lean
+Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_LocalSignReward
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-!
+# Product of local sign rewards
+
+This module isolates the finite exponent arithmetic in the local part of the
+signed overlap reward.  It does not include the component-sign factor or the
+global second-moment assembly.
+-/
+
+def localSignRewardNat (x : ℕ) : ℕ :=
+  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
+
+theorem prod_localSignRewardNat_eq_pow
+    {E : Type*} [DecidableEq E]
+    (S : Finset E) (r : E → ℕ)
+    (hlarge : ∀ e ∈ S, 3 ≤ r e) :
+    (∏ e ∈ S, localSignRewardNat (r e)) =
+      2 ^ ((∑ e ∈ S, (r e).choose 2) - S.card) := by
+  have hone : ∀ e ∈ S, 1 ≤ (r e).choose 2 := by
+    intro e he
+    have h3 : (3 : ℕ).choose 2 ≤ (r e).choose 2 :=
+      Nat.choose_le_choose 2 (hlarge e he)
+    have : (3 : ℕ).choose 2 = 3 := by decide
+    omega
+  have hprod :
+      (∏ e ∈ S, localSignRewardNat (r e)) =
+        ∏ e ∈ S, 2 ^ ((r e).choose 2 - 1) := by
+    refine Finset.prod_congr rfl ?_
+    intro e he
+    simp only [localSignRewardNat, if_pos (hlarge e he)]
+  rw [hprod, Finset.prod_pow_eq_pow_sum]
+  congr 1
+  have hsub := Finset.sum_tsub_distrib (s := S)
+    (f := fun e => (r e).choose 2) (g := fun _ => 1) hone
+  rw [hsub]
+  simp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_LocalSignReward
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.LocalSignReward
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6SignedOverlapLocalFactor
+Source: Erdos625/Section6SignedOverlapLocalFactor.lean
+Normalized SHA-256: 22a0b43972b06647d6dc1fcbf52b40d1cf2fe1c126b4736152b9696c9e37123d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6SignedOverlapLocalFactor
+
+/-!
+# Section VI: exact signed-overlap local factor
+
+This module proves the finite, denominator-free local-factor identity from
+Lemma 6.1.  It includes isolated support-graph vertices, so their free Boolean
+signs are counted by the connected-component factor.
+-/
+
+namespace Erdos625
+
+open SimpleGraph
+open scoped BigOperators
+
+noncomputable section
+
+/-- The bipartite support graph of overlap cells of multiplicity at least two. -/
+def signedOverlapSupportGraph {A B : Type*}
+    (r : A → B → ℕ) : SimpleGraph (A ⊕ B) :=
+  bipartiteGraph fun a b => 2 ≤ r a b
+
+/-- Total number of edge bits duplicated by a pair of profile partitions. -/
+noncomputable def overlapDuplicateEdgeCount
+    {A B : Type*} [Fintype A] [Fintype B]
+    (r : A → B → ℕ) : ℕ :=
+  ∑ a, ∑ b, (r a b).choose 2
+
+/-- The local signed-overlap reward, including its binary cycle factor. -/
+noncomputable def signedOverlapReward
+    {A B : Type*} [Fintype A] [Fintype B]
+    (r : A → B → ℕ) : ℕ :=
+  (∏ a, ∏ b, localSignRewardNat (r a b)) *
+    2 ^ cycleRank (signedOverlapSupportGraph r)
+
+/-- Row and column signs compatible across every multiplicity-two support edge. -/
+noncomputable def CompatibleOverlapSignAssignments
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) := by
+  classical
+  exact CompatibleBoolSignAssignments (signedOverlapSupportGraph r)
+
+/-- The support graph has exactly one edge for every supported row--column
+cell. -/
+theorem signedOverlapSupportGraph_edgeSet_natCard
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    Nat.card (signedOverlapSupportGraph r).edgeSet =
+      (Finset.univ.filter fun e : A × B => 2 ≤ r e.1 e.2).card := by
+  classical
+  let P : A → B → Prop := fun a b => 2 ≤ r a b
+  calc
+    Nat.card (signedOverlapSupportGraph r).edgeSet =
+        Nat.card {e : A × B // P e.1 e.2} := by
+      simpa [signedOverlapSupportGraph, P] using
+        Nat.card_congr (supportedCellEquivBipartiteGraphEdge P).symm
+    _ = (Finset.univ.filter fun e : A × B => 2 ≤ r e.1 e.2).card := by
+      simpa [P] using
+        (Fintype.card_subtype (fun e : A × B => 2 ≤ r e.1 e.2))
+
+private lemma localSignRewardNat_eq_pow_choose_sub_indicator (x : ℕ) :
+    localSignRewardNat x =
+      2 ^ (x.choose 2 - if 2 ≤ x then 1 else 0) := by
+  by_cases h3 : 3 ≤ x
+  · simp [localSignRewardNat, h3, le_trans (by omega : 2 ≤ 3) h3]
+  · have hx : x ≤ 2 := by omega
+    interval_cases x <;> norm_num [localSignRewardNat]
+
+private lemma indicator_two_le_le_choose (x : ℕ) :
+    (if 2 ≤ x then 1 else 0) ≤ x.choose 2 := by
+  by_cases h2 : 2 ≤ x
+  · simp only [if_pos h2]
+    have hchoose : (2 : ℕ).choose 2 ≤ x.choose 2 :=
+      Nat.choose_le_choose 2 h2
+    norm_num at hchoose ⊢
+    exact hchoose
+  · simp [h2]
+
+/-- The product of local rewards is exactly `2` to the duplicated-bit count
+minus the number of support edges. -/
+theorem prod_localSignRewardNat_matrix_eq_pow
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    (∏ a, ∏ b, localSignRewardNat (r a b)) =
+      2 ^ (overlapDuplicateEdgeCount r -
+        Nat.card (signedOverlapSupportGraph r).edgeSet) := by
+  classical
+  let f : A × B → ℕ := fun e => (r e.1 e.2).choose 2
+  let q : A × B → ℕ := fun e => if 2 ≤ r e.1 e.2 then 1 else 0
+  have hsumSub :
+      (∑ e : A × B, (f e - q e)) =
+        (∑ e : A × B, f e) - ∑ e : A × B, q e := by
+    exact Finset.sum_tsub_distrib
+        (s := (Finset.univ : Finset (A × B))) (f := f) (g := q)
+        (by
+          intro e _
+          exact indicator_two_le_le_choose (r e.1 e.2))
+  have hsupportSum :
+      (∑ e : A × B, q e) =
+        Nat.card (signedOverlapSupportGraph r).edgeSet := by
+    rw [signedOverlapSupportGraph_edgeSet_natCard r]
+    simp [q]
+  have hduplicateSum :
+      (∑ e : A × B, f e) = overlapDuplicateEdgeCount r := by
+    simpa [f, overlapDuplicateEdgeCount] using
+      (Fintype.sum_prod_type'
+        (fun a : A => fun b : B => (r a b).choose 2))
+  calc
+    (∏ a, ∏ b, localSignRewardNat (r a b)) =
+        ∏ e : A × B, localSignRewardNat (r e.1 e.2) :=
+      (Fintype.prod_prod_type'
+        (fun a : A => fun b : B => localSignRewardNat (r a b))).symm
+    _ = ∏ e : A × B, 2 ^ (f e - q e) := by
+      apply Fintype.prod_congr
+      intro e
+      exact localSignRewardNat_eq_pow_choose_sub_indicator (r e.1 e.2)
+    _ = 2 ^ ∑ e : A × B, (f e - q e) := by
+      simpa using
+        (Finset.prod_pow_eq_pow_sum
+          (s := (Finset.univ : Finset (A × B))) (f := fun e => f e - q e) 2)
+    _ = 2 ^ (overlapDuplicateEdgeCount r -
+          Nat.card (signedOverlapSupportGraph r).edgeSet) := by
+      rw [hsumSub, hsupportSum, hduplicateSum]
+
+/-- Every finite graph has at most one more vertex than edge per connected
+component, summed over all components. -/
+private theorem card_vertices_le_edges_add_components
+    {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
+    Fintype.card V ≤
+      Nat.card G.edgeSet + Fintype.card G.ConnectedComponent := by
+  classical
+  let A := graphIncidenceMatrix G
+  have hTranspose :
+      A.rank + Fintype.card G.ConnectedComponent = Fintype.card V := by
+    calc
+      A.rank + Fintype.card G.ConnectedComponent =
+          (Matrix.transpose A).rank + Module.finrank (ZMod 2)
+            (LinearMap.ker (Matrix.transpose A).mulVecLin) := by
+        rw [Matrix.rank_transpose,
+          finrank_ker_graphIncidenceMatrix_transpose G]
+      _ = Module.finrank (ZMod 2)
+            (LinearMap.range (Matrix.transpose A).mulVecLin) +
+          Module.finrank (ZMod 2)
+            (LinearMap.ker (Matrix.transpose A).mulVecLin) := rfl
+      _ = Module.finrank (ZMod 2) (V → ZMod 2) :=
+        LinearMap.finrank_range_add_finrank_ker
+          (Matrix.transpose A).mulVecLin
+      _ = Fintype.card V := by simp
+  have hRank : A.rank ≤ Nat.card G.edgeSet := by
+    simpa only [Nat.card_eq_fintype_card] using A.rank_le_card_width
+  omega
+
+/-- Exact denominator-free finite form of the signed local factor. -/
+theorem signedOverlapLocalFactor_cross
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    Nat.card (CompatibleOverlapSignAssignments r) *
+        2 ^ overlapDuplicateEdgeCount r =
+      2 ^ (Fintype.card A + Fintype.card B) *
+        signedOverlapReward r := by
+  classical
+  let G := signedOverlapSupportGraph r
+  let E := Nat.card G.edgeSet
+  let C := Fintype.card G.ConnectedComponent
+  let V := Fintype.card A + Fintype.card B
+  let W := overlapDuplicateEdgeCount r
+  have hSigns :
+      Nat.card (CompatibleOverlapSignAssignments r) = 2 ^ C := by
+    simpa [CompatibleOverlapSignAssignments, G, C] using
+      natCard_compatibleBoolSignAssignments_eq_two_pow_components G
+  have hReward :
+      (∏ a, ∏ b, localSignRewardNat (r a b)) = 2 ^ (W - E) := by
+    simpa [G, E, W] using prod_localSignRewardNat_matrix_eq_pow r
+  have hEW : E ≤ W := by
+    change Nat.card (signedOverlapSupportGraph r).edgeSet ≤
+      overlapDuplicateEdgeCount r
+    rw [signedOverlapSupportGraph_edgeSet_natCard r]
+    calc
+      (Finset.univ.filter fun e : A × B => 2 ≤ r e.1 e.2).card =
+          ∑ e : A × B, if 2 ≤ r e.1 e.2 then 1 else 0 := by simp
+      _ ≤ ∑ e : A × B, (r e.1 e.2).choose 2 :=
+        Finset.sum_le_sum fun e _ => indicator_two_le_le_choose (r e.1 e.2)
+      _ = overlapDuplicateEdgeCount r := by
+        simpa [overlapDuplicateEdgeCount] using
+          (Fintype.sum_prod_type'
+            (fun a : A => fun b : B => (r a b).choose 2))
+  have hVE : V ≤ E + C := by
+    simpa [G, E, C, V] using card_vertices_le_edges_add_components G
+  have hCycle : cycleRank G = E + C - V := by
+    let M := graphIncidenceMatrix G
+    have hTranspose :
+        M.rank + Fintype.card G.ConnectedComponent = Fintype.card (A ⊕ B) := by
+      calc
+        M.rank + Fintype.card G.ConnectedComponent =
+            (Matrix.transpose M).rank + Module.finrank (ZMod 2)
+              (LinearMap.ker (Matrix.transpose M).mulVecLin) := by
+          rw [Matrix.rank_transpose,
+            finrank_ker_graphIncidenceMatrix_transpose G]
+        _ = Module.finrank (ZMod 2)
+              (LinearMap.range (Matrix.transpose M).mulVecLin) +
+            Module.finrank (ZMod 2)
+              (LinearMap.ker (Matrix.transpose M).mulVecLin) := rfl
+        _ = Module.finrank (ZMod 2) ((A ⊕ B) → ZMod 2) :=
+          LinearMap.finrank_range_add_finrank_ker
+            (Matrix.transpose M).mulVecLin
+        _ = Fintype.card (A ⊕ B) := by simp
+    have hOriginal :
+        M.rank + Module.finrank (ZMod 2) (LinearMap.ker M.mulVecLin) =
+          Fintype.card G.edgeSet := by
+      calc
+        M.rank + Module.finrank (ZMod 2) (LinearMap.ker M.mulVecLin) =
+            Module.finrank (ZMod 2) (LinearMap.range M.mulVecLin) +
+              Module.finrank (ZMod 2) (LinearMap.ker M.mulVecLin) := rfl
+        _ = Module.finrank (ZMod 2) (G.edgeSet → ZMod 2) :=
+          LinearMap.finrank_range_add_finrank_ker M.mulVecLin
+        _ = Fintype.card G.edgeSet := by simp
+    have hDimension :
+        Module.finrank (ZMod 2) (graphCycleSpace G) = E + C - V := by
+      change Module.finrank (ZMod 2) (LinearMap.ker M.mulVecLin) = _
+      simp only [E, C, V, G, Nat.card_eq_fintype_card,
+        Fintype.card_sum] at hTranspose hOriginal ⊢
+      omega
+    exact (finrank_graphCycleSpace_eq_cycleRank G).symm.trans hDimension
+  have hExponent :
+      C + W = V + ((W - E) + (E + C - V)) := by
+    omega
+  rw [hSigns]
+  unfold signedOverlapReward
+  rw [hReward]
+  change 2 ^ C * 2 ^ W = 2 ^ V * (2 ^ (W - E) * 2 ^ cycleRank G)
+  rw [hCycle]
+  simp only [← pow_add]
+  exact congrArg (fun x : ℕ => 2 ^ x) hExponent
+
+/-- The exponent `W + c(H) - |V(H)|` is an honest subtraction: the
+subtrahend is at most the preceding sum. -/
+theorem signedOverlap_exponent_nonnegative
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    Fintype.card A + Fintype.card B ≤
+      overlapDuplicateEdgeCount r +
+        Nat.card (signedOverlapSupportGraph r).ConnectedComponent := by
+  classical
+  let G := signedOverlapSupportGraph r
+  let E := Nat.card G.edgeSet
+  have hVertices :
+      Fintype.card A + Fintype.card B ≤
+        E + Nat.card G.ConnectedComponent := by
+    simpa only [G, E, Nat.card_eq_fintype_card, Fintype.card_sum] using
+      card_vertices_le_edges_add_components G
+  have hEdges : E ≤ overlapDuplicateEdgeCount r := by
+    change Nat.card (signedOverlapSupportGraph r).edgeSet ≤
+      overlapDuplicateEdgeCount r
+    rw [signedOverlapSupportGraph_edgeSet_natCard r]
+    calc
+      (Finset.univ.filter fun e : A × B => 2 ≤ r e.1 e.2).card =
+          ∑ e : A × B, if 2 ≤ r e.1 e.2 then 1 else 0 := by simp
+      _ ≤ ∑ e : A × B, (r e.1 e.2).choose 2 :=
+        Finset.sum_le_sum fun e _ => indicator_two_le_le_choose (r e.1 e.2)
+      _ = overlapDuplicateEdgeCount r := by
+        simpa [overlapDuplicateEdgeCount] using
+          (Fintype.sum_prod_type'
+            (fun a : A => fun b : B => (r a b).choose 2))
+  simpa [G] using hVertices.trans
+    (Nat.add_le_add_right hEdges
+      (Nat.card G.ConnectedComponent))
+
+/-- Rational form of the normalized local-factor identity.  This is the
+division form used in the manuscript, with the nonzero denominator handled
+inside the proof. -/
+theorem signedOverlapLocalFactor_div_pow_eq_reward_rat
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    ((Nat.card (CompatibleOverlapSignAssignments r) : ℚ) *
+          (2 : ℚ) ^ overlapDuplicateEdgeCount r) /
+        (2 : ℚ) ^ (Fintype.card A + Fintype.card B) =
+      (signedOverlapReward r : ℚ) := by
+  have hcross := signedOverlapLocalFactor_cross r
+  have hcast := congrArg (fun x : ℕ => (x : ℚ)) hcross
+  norm_num only [Nat.cast_mul, Nat.cast_pow] at hcast
+  apply (div_eq_iff (pow_ne_zero _ (by norm_num : (2 : ℚ) ≠ 0))).2
+  simpa [mul_assoc, mul_comm, mul_left_comm] using hcast
+
+/-- The same normalized factor written as the manuscript exponent
+`W + c(H) - |V(H)|`. -/
+theorem signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    ((Nat.card (CompatibleOverlapSignAssignments r) : ℚ) *
+          (2 : ℚ) ^ overlapDuplicateEdgeCount r) /
+        (2 : ℚ) ^ (Fintype.card A + Fintype.card B) =
+      (2 : ℚ) ^
+        (overlapDuplicateEdgeCount r +
+          Nat.card (signedOverlapSupportGraph r).ConnectedComponent -
+            (Fintype.card A + Fintype.card B)) := by
+  classical
+  let C := Nat.card
+    (signedOverlapSupportGraph r).ConnectedComponent
+  let W := overlapDuplicateEdgeCount r
+  let V := Fintype.card A + Fintype.card B
+  have hSigns :
+      Nat.card (CompatibleOverlapSignAssignments r) = 2 ^ C := by
+    simpa only [CompatibleOverlapSignAssignments, C,
+      ← Nat.card_eq_fintype_card] using
+      natCard_compatibleBoolSignAssignments_eq_two_pow_components
+        (signedOverlapSupportGraph r)
+  have hNonnegative : V ≤ W + C := by
+    simpa [V, W, C] using signedOverlap_exponent_nonnegative r
+  have hSplit : W + C - V + V = W + C := Nat.sub_add_cancel hNonnegative
+  rw [hSigns]
+  norm_num only [Nat.cast_pow, Nat.cast_ofNat]
+  change ((2 : ℚ) ^ C * 2 ^ W) / 2 ^ V = 2 ^ (W + C - V)
+  calc
+    ((2 : ℚ) ^ C * 2 ^ W) / 2 ^ V = 2 ^ (W + C) / 2 ^ V := by
+      rw [← pow_add, Nat.add_comm C W]
+    _ = (2 ^ (W + C - V) * 2 ^ V) / 2 ^ V := by
+      congr 1
+      rw [← pow_add, hSplit]
+    _ = 2 ^ (W + C - V) :=
+      mul_div_cancel_right₀ _
+        (pow_ne_zero _ (by norm_num : (2 : ℚ) ≠ 0))
+
+#print axioms signedOverlapSupportGraph_edgeSet_natCard
+#print axioms prod_localSignRewardNat_matrix_eq_pow
+#print axioms signedOverlapLocalFactor_cross
+#print axioms signedOverlap_exponent_nonnegative
+#print axioms signedOverlapLocalFactor_div_pow_eq_reward_rat
+#print axioms signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6SignedOverlapLocalFactor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6SignedOverlapLocalFactor
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6PairSignCompatibility
+Source: Erdos625/Section6PairSignCompatibility.lean
+Normalized SHA-256: 1b82450fcbd62bc9fa5f33386ef6e595adb706ff36e3f0daab510086ceac75d1
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6PairSignCompatibility
+
+/-!
+# Section VI: row/column signs as support-graph signs
+
+This module identifies a pair consisting of one Boolean sign on every row
+part and one Boolean sign on every column part with a Boolean sign on the
+vertices of the bipartite support graph.  Under this identification, the
+cellwise compatibility condition at cells of multiplicity at least two is
+exactly constancy across every support-graph edge.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A Boolean sign on every row part and on every column part. -/
+abbrev PairBoolSignAssignments (A B : Type*) :=
+  (A → Bool) × (B → Bool)
+
+/-- Splitting a sign function on a disjoint union into its row and column
+restrictions is an equivalence. -/
+def pairBoolSignAssignmentsEquivSum (A B : Type*) :
+    PairBoolSignAssignments A B ≃ (A ⊕ B → Bool) where
+  toFun sigma := Sum.elim sigma.1 sigma.2
+  invFun tau := (fun a ↦ tau (Sum.inl a), fun b ↦ tau (Sum.inr b))
+  left_inv sigma := by
+    rcases sigma with ⟨sigmaA, sigmaB⟩
+    rfl
+  right_inv tau := by
+    funext x
+    cases x <;> rfl
+
+/-- Row and column signs agree at every overlap cell containing at least two
+vertices.  Cells of multiplicity zero or one impose no condition. -/
+def CompatiblePairSignAssignments
+    {A B : Type*} (r : A → B → ℕ) :=
+  {sigma : PairBoolSignAssignments A B //
+    ∀ a b, 2 ≤ r a b → sigma.1 a = sigma.2 b}
+
+/-- The multiplicity-at-least-two support graph used by the pair-sign
+compatibility relation. -/
+def pairSignSupportGraph {A B : Type*} (r : A → B → ℕ) :
+    SimpleGraph (A ⊕ B) :=
+  bipartiteGraph fun a b ↦ 2 ≤ r a b
+
+/-- The pair-sign support graph is definitionally the canonical signed-overlap
+support graph used by the local-factor theorem. -/
+theorem pairSignSupportGraph_eq_signedOverlapSupportGraph
+    {A B : Type*} (r : A → B → ℕ) :
+    pairSignSupportGraph r = signedOverlapSupportGraph r := rfl
+
+/-- For a fixed pair of row/column sign functions, agreement on every
+multiplicity-at-least-two cell is equivalent to constancy across every edge of
+the support graph. -/
+theorem pairSign_cellCompatible_iff_graphEdgeConstant
+    {A B : Type*} (r : A → B → ℕ)
+    (sigma : PairBoolSignAssignments A B) :
+    (∀ a b, 2 ≤ r a b → sigma.1 a = sigma.2 b) ↔
+      ∀ u v, (pairSignSupportGraph r).Adj u v →
+        pairBoolSignAssignmentsEquivSum A B sigma u =
+          pairBoolSignAssignmentsEquivSum A B sigma v := by
+  constructor
+  · intro h u v huv
+    cases u with
+    | inl a =>
+        cases v with
+        | inl a' =>
+            simp [pairSignSupportGraph, bipartiteGraph,
+              SimpleGraph.fromRel_adj] at huv
+        | inr b =>
+            exact h a b (by
+              simpa [pairSignSupportGraph, bipartiteGraph,
+                SimpleGraph.fromRel_adj] using huv)
+    | inr b =>
+        cases v with
+        | inl a =>
+            exact (h a b (by
+              simpa [pairSignSupportGraph, bipartiteGraph,
+                SimpleGraph.fromRel_adj] using huv)).symm
+        | inr b' =>
+            simp [pairSignSupportGraph, bipartiteGraph,
+              SimpleGraph.fromRel_adj] at huv
+  · intro h a b hab
+    exact h (Sum.inl a) (Sum.inr b) (by
+      simpa [pairSignSupportGraph, bipartiteGraph,
+        SimpleGraph.fromRel_adj] using hab)
+
+/-- Pair-sign consistency at all supported cells is exactly edge constancy on
+the bipartite support graph. -/
+def compatiblePairSignAssignmentsEquivOverlap
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    CompatiblePairSignAssignments r ≃
+      CompatibleOverlapSignAssignments r where
+  toFun sigma := ⟨pairBoolSignAssignmentsEquivSum A B sigma.1, by
+    have hpair :=
+      (pairSign_cellCompatible_iff_graphEdgeConstant r sigma.1).mp sigma.2
+    intro u v huv
+    exact hpair u v (by
+      simpa only [pairSignSupportGraph_eq_signedOverlapSupportGraph] using huv)⟩
+  invFun tau :=
+    ⟨(pairBoolSignAssignmentsEquivSum A B).symm tau.1,
+      (pairSign_cellCompatible_iff_graphEdgeConstant r
+        ((pairBoolSignAssignmentsEquivSum A B).symm tau.1)).mpr (by
+          intro u v huv
+          have htau := tau.2 u v (by
+            simpa only [pairSignSupportGraph_eq_signedOverlapSupportGraph]
+              using huv)
+          simpa only [Equiv.apply_symm_apply] using htau)⟩
+  left_inv sigma := by
+    apply Subtype.ext
+    exact (pairBoolSignAssignmentsEquivSum A B).symm_apply_apply sigma.1
+  right_inv tau := by
+    apply Subtype.ext
+    exact (pairBoolSignAssignmentsEquivSum A B).apply_symm_apply tau.1
+
+/-- Consequently, the two presentations of compatible signs have exactly the
+same finite cardinality. -/
+theorem natCard_compatiblePairSignAssignments_eq_overlap
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    Nat.card (CompatiblePairSignAssignments r) =
+      Nat.card (CompatibleOverlapSignAssignments r) := by
+  exact Nat.card_congr (compatiblePairSignAssignmentsEquivOverlap r)
+
+/-- The pair-sign presentation therefore has one free Boolean choice per
+connected component of the support graph, including isolated vertices. -/
+theorem natCard_compatiblePairSignAssignments_eq_two_pow_components
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (r : A → B → ℕ) :
+    Nat.card (CompatiblePairSignAssignments r) =
+      2 ^ Nat.card (signedOverlapSupportGraph r).ConnectedComponent := by
+  classical
+  let e : CompatiblePairSignAssignments r ≃
+      CompatibleBoolSignAssignments (pairSignSupportGraph r) := {
+    toFun := fun sigma ↦
+      ⟨pairBoolSignAssignmentsEquivSum A B sigma.1,
+        (pairSign_cellCompatible_iff_graphEdgeConstant r sigma.1).mp sigma.2⟩
+    invFun := fun tau ↦
+      ⟨(pairBoolSignAssignmentsEquivSum A B).symm tau.1,
+        (pairSign_cellCompatible_iff_graphEdgeConstant r
+          ((pairBoolSignAssignmentsEquivSum A B).symm tau.1)).mpr (by
+            simpa only [Equiv.apply_symm_apply] using tau.2)⟩
+    left_inv := by
+      intro sigma
+      apply Subtype.ext
+      exact (pairBoolSignAssignmentsEquivSum A B).symm_apply_apply sigma.1
+    right_inv := by
+      intro tau
+      apply Subtype.ext
+      exact (pairBoolSignAssignmentsEquivSum A B).apply_symm_apply tau.1 }
+  calc
+    Nat.card (CompatiblePairSignAssignments r) =
+        Nat.card (CompatibleBoolSignAssignments (pairSignSupportGraph r)) :=
+      Nat.card_congr e
+    _ = 2 ^ Nat.card (pairSignSupportGraph r).ConnectedComponent := by
+      simpa only [Nat.card_eq_fintype_card] using
+        natCard_compatibleBoolSignAssignments_eq_two_pow_components
+          (pairSignSupportGraph r)
+    _ = 2 ^ Nat.card (signedOverlapSupportGraph r).ConnectedComponent := by
+      rw [pairSignSupportGraph_eq_signedOverlapSupportGraph]
+
+#print axioms pairBoolSignAssignmentsEquivSum
+#print axioms pairSignSupportGraph_eq_signedOverlapSupportGraph
+#print axioms pairSign_cellCompatible_iff_graphEdgeConstant
+#print axioms compatiblePairSignAssignmentsEquivOverlap
+#print axioms natCard_compatiblePairSignAssignments_eq_overlap
+#print axioms natCard_compatiblePairSignAssignments_eq_two_pow_components
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6PairSignCompatibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6PairSignCompatibility
 ========================================================================== -/
 
 /- ==========================================================================
@@ -34124,60 +35920,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ResidualOnlyCycleEnumeration
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ResidualOnlyCycleEnumeration
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.LocalSignReward
-Source: Erdos625/LocalSignReward.lean
-Normalized SHA-256: 8b29b03b0d5211f2c131338fcb49fc7264c17c32c8e69113b9a2339c3569a884
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_LocalSignReward
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-!
-# Product of local sign rewards
-
-This module isolates the finite exponent arithmetic in the local part of the
-signed overlap reward.  It does not include the component-sign factor or the
-global second-moment assembly.
--/
-
-def localSignRewardNat (x : ℕ) : ℕ :=
-  if 3 ≤ x then 2 ^ (x.choose 2 - 1) else 1
-
-theorem prod_localSignRewardNat_eq_pow
-    {E : Type*} [DecidableEq E]
-    (S : Finset E) (r : E → ℕ)
-    (hlarge : ∀ e ∈ S, 3 ≤ r e) :
-    (∏ e ∈ S, localSignRewardNat (r e)) =
-      2 ^ ((∑ e ∈ S, (r e).choose 2) - S.card) := by
-  have hone : ∀ e ∈ S, 1 ≤ (r e).choose 2 := by
-    intro e he
-    have h3 : (3 : ℕ).choose 2 ≤ (r e).choose 2 :=
-      Nat.choose_le_choose 2 (hlarge e he)
-    have : (3 : ℕ).choose 2 = 3 := by decide
-    omega
-  have hprod :
-      (∏ e ∈ S, localSignRewardNat (r e)) =
-        ∏ e ∈ S, 2 ^ ((r e).choose 2 - 1) := by
-    refine Finset.prod_congr rfl ?_
-    intro e he
-    simp only [localSignRewardNat, if_pos (hlarge e he)]
-  rw [hprod, Finset.prod_pow_eq_pow_sum]
-  congr 1
-  have hsub := Finset.sum_tsub_distrib (s := S)
-    (f := fun e => (r e).choose 2) (g := fun _ => 1) hone
-  rw [hsub]
-  simp
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_LocalSignReward
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.LocalSignReward
 ========================================================================== -/
 
 /- ==========================================================================
@@ -43648,7 +45390,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2a080d91f063d04eccdbdf5542daf12da3d3103322e611615c37b1ed5bb544b0
+Normalized SHA-256: 72401f2e5b2c0a975538489955e02ce7aa1043beb24fc5fe07af24f260c1abd5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -44013,6 +45755,20 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_orderedOverlapLabeling_probability_identity
 #print axioms Erdos625.orderedOverlapLabeling_probability_eq
 #print axioms Erdos625.fixedMarginOverlapEvent_probability_eq
+#print axioms Erdos625.fixedFiberLabelingOverlapTableEquiv
+#print axioms Erdos625.card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent
+#print axioms Erdos625.boundedFixedMarginTable_probability_eq
+#print axioms Erdos625.randomGraphMeasure_signedProfileWitnessEvent
+#print axioms Erdos625.signedProfileExpectation_eq
+#print axioms Erdos625.signedProfileCount_pos_implies_coColorable
+#print axioms Erdos625.randomGraphMeasure_mixedEdgePrescriptionEvent
+#print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_inter
+#print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_union
+#print axioms Erdos625.signedOverlapLocalFactor_cross
+#print axioms Erdos625.signedOverlapLocalFactor_div_pow_eq_reward_rat
+#print axioms Erdos625.signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat
+#print axioms Erdos625.compatiblePairSignAssignmentsEquivOverlap
+#print axioms Erdos625.natCard_compatiblePairSignAssignments_eq_two_pow_components
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
@@ -44399,7 +46155,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: f051832d526d10440284df9bedbdb1c1d6acdac15ba543ccef434841d599b479
+Normalized SHA-256: acf0b33a3d8c7b4c2f6620b736634907214eb992f0cd06d7eb42f102f3026085
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
