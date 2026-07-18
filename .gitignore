@@ -28,6 +28,7 @@
 # Generated caches and editor/OS files.
 /625/formalization/.lake/
 /625/formalization/.aristotle/
+/625/formalization/.axiom/
 .env
 .env.*
 !.env.example
