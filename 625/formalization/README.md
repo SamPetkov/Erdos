@@ -231,8 +231,11 @@ transport from unordered signed witnesses to ordered block slots is now
 constructive and preserves signs, validity, and overlap cells in both
 directions.  The canonical profile-table transport, weighted fibration
 regrouping, graph-level finite Fubini expansion, and safe nonzero expectation
-cancellation are also proved.  The remaining Section VI step is their final
-composition into the normalized second-moment equality.  The checkpoint also proves the
+cancellation are also proved.  Their semantic quotient and multiplier-square
+cancellation are now assembled into the unconditional feasible-profile
+identity
+`E[Z^2] / E[Z]^2 = sum_r p(r) * A_zeta(r)` in `ENNReal`, with the literal
+fixed-margin table probability.  The checkpoint also proves the
 configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,

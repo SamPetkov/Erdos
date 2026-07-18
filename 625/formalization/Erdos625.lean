@@ -156,6 +156,9 @@ import Erdos625.ProfileOverlapCanonicalTable
 import Erdos625.ProfileOverlapFibrationRegrouping
 import Erdos625.Section6SignedSecondMomentFubini
 import Erdos625.Section6SignedExpectationDenominator
+import Erdos625.Section6SignedOverlapRewardReindex
+import Erdos625.SignedProfileSemanticLift
+import Erdos625.Section6SignedSecondMomentIdentity
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel

@@ -151,6 +151,9 @@ import Erdos625.ProfileOverlapCanonicalTable
 import Erdos625.ProfileOverlapFibrationRegrouping
 import Erdos625.Section6SignedSecondMomentFubini
 import Erdos625.Section6SignedExpectationDenominator
+import Erdos625.Section6SignedOverlapRewardReindex
+import Erdos625.SignedProfileSemanticLift
+import Erdos625.Section6SignedSecondMomentIdentity
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -639,6 +642,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signedProfileSecondMoment_eq_sum_pairEvent
 #print axioms Erdos625.signedProfileExpectation_ne_zero_of_orderedProfilePartition
 #print axioms Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition
+#print axioms Erdos625.signedOverlapReward_reindex
+#print axioms Erdos625.labeledSignedProfileDataEquivOrderedSlots
+#print axioms Erdos625.orderedSignedOverlapRewardSum_eq_labelMultiplier_sq_mul_unordered
+#print axioms Erdos625.signedOverlapQuotientBridge
+#print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_tableSum
+#print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_profileOverlapTableSum
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
