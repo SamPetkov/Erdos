@@ -66,7 +66,7 @@ noncomputable def profileRowFiberToStubEquiv
       rw [profileRowToStubEquiv_fst])).trans (Equiv.sigmaSubtype a)
 
 /-- The ordering data above a fixed-margin column labeling.  This is the
-constant fibre that records which labelled column stub is attached to each
+uniform-size fibre that records which labelled column stub is attached to each
 vertex in a column block. -/
 abbrev ProfileColumnFiberOrders
     {b n : Nat} {k : ColoringProfile b}

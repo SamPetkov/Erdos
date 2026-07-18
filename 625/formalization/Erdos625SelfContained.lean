@@ -32234,7 +32234,7 @@ END SOURCE MODULE: Erdos625.UniformSigmaTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ProfileOverlapConfigurationBridge
 Source: Erdos625/ProfileOverlapConfigurationBridge.lean
-Normalized SHA-256: 74b070c19ab22c7db22c171d03698e28ba83e261f7c1145cd18e015d205862f5
+Normalized SHA-256: 779a0f8ca9a0bfa2ce1bfb72b91398abf4a1a5b4d2a642bdc3092ab019380784
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_ProfileOverlapConfigurationBridge
 
@@ -32299,7 +32299,7 @@ noncomputable def profileRowFiberToStubEquiv
       rw [profileRowToStubEquiv_fst])).trans (Equiv.sigmaSubtype a)
 
 /-- The ordering data above a fixed-margin column labeling.  This is the
-constant fibre that records which labelled column stub is attached to each
+uniform-size fibre that records which labelled column stub is attached to each
 vertex in a column block. -/
 abbrev ProfileColumnFiberOrders
     {b n : Nat} {k : ColoringProfile b}
