@@ -136,7 +136,9 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
     _ = _ := by
       congr 1
       unfold taggedResidualAttachmentValue weight
-      convert (Finset.sum_subtype_eq_sum_filter
+      rw [← canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
+      simpa only [Finset.sum_filter] using
+        (Finset.sum_subtype_eq_sum_filter
           (s := (Finset.univ : Finset (ConfigurationMatching
             (residualRowDegree witness) (residualColumnDegree witness))))
           (f := fun matching =>
@@ -146,14 +148,8 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
                   (configurationCellCount matching a b) : ENNReal)) *
               ((actualResidualEvenEdgeSets
                 (positiveDemandSupport demand) matching).card : ENNReal))
-          (p := fun matching => matching ∈ ResidualCapNoReturnEvent
-            (positiveDemandSupport demand) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness))).symm using 1
-      · rw [Finset.sum_filter]
-      ·
-        refine' Finset.sum_bij ( fun x _ => ⟨ x.1, by
-          grind +suggestions ⟩ ) _ _ _ _ <;> simp +decide;
-        grind +suggestions
+          (p := fun matching =>
+            matching ∈ canonicalResidualCellEvent witness U)).symm
 
 /-- Exact per-demand factorial cancellation and weighted tagged-law
 integration.  The left side is the contribution of one attained demand fibre

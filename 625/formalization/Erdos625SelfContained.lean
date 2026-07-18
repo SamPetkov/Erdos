@@ -37374,7 +37374,7 @@ END SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
 Source: Erdos625/Section9TaggedFiberCancellation.lean
-Normalized SHA-256: afbe66f411b5ff5f75780612d2416ca6518e67e2db2558534e545d7d2e40014a
+Normalized SHA-256: d2cc269808394a8b839f520e24708e51b544b0632564271a875be92a73f3b16a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9TaggedFiberCancellation
 
@@ -37508,7 +37508,9 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
     _ = _ := by
       congr 1
       unfold taggedResidualAttachmentValue weight
-      convert (Finset.sum_subtype_eq_sum_filter
+      rw [← canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
+      simpa only [Finset.sum_filter] using
+        (Finset.sum_subtype_eq_sum_filter
           (s := (Finset.univ : Finset (ConfigurationMatching
             (residualRowDegree witness) (residualColumnDegree witness))))
           (f := fun matching =>
@@ -37518,14 +37520,8 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
                   (configurationCellCount matching a b) : ENNReal)) *
               ((actualResidualEvenEdgeSets
                 (positiveDemandSupport demand) matching).card : ENNReal))
-          (p := fun matching => matching ∈ ResidualCapNoReturnEvent
-            (positiveDemandSupport demand) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness))).symm using 1
-      · rw [Finset.sum_filter]
-      ·
-        refine' Finset.sum_bij ( fun x _ => ⟨ x.1, by
-          grind +suggestions ⟩ ) _ _ _ _ <;> simp +decide;
-        grind +suggestions
+          (p := fun matching =>
+            matching ∈ canonicalResidualCellEvent witness U)).symm
 
 /-- Exact per-demand factorial cancellation and weighted tagged-law
 integration.  The left side is the contribution of one attained demand fibre
