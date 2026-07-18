@@ -112,6 +112,7 @@ import Erdos625.RootSeparationConcreteAdapter
 import Erdos625.OrderedOverlapLaw
 import Erdos625.ProfileOverlapTables
 import Erdos625.SignedProfileWitness
+import Erdos625.OrderedSignedProfileBridge
 import Erdos625.RandomGraphMixedEdgePrescription
 import Erdos625.ProfileOverlapDuplicateEdges
 import Erdos625.OverlapContingencyTools
@@ -143,6 +144,8 @@ import Erdos625.Section9ActualResidualCycleSpaceEquiv
 import Erdos625.Section6CompatibleSignsComponents
 import Erdos625.Section6SignedOverlapLocalFactor
 import Erdos625.Section6PairSignCompatibility
+import Erdos625.Section6SignedJointMass
+import Erdos625.Section6SignedSecondMomentPackage
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -602,6 +605,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_signedProfileWitnessEvent
 #print axioms Erdos625.signedProfileExpectation_eq
 #print axioms Erdos625.signedProfileCount_pos_implies_coColorable
+#print axioms Erdos625.card_labeledProfilePartition_eq_orderedProfilePartition_all
+#print axioms Erdos625.labeledProfilePartitionEquivOrdered
+#print axioms Erdos625.orderedSignedProfileCount_eq_coordinateMultiplier
 #print axioms Erdos625.randomGraphMeasure_mixedEdgePrescriptionEvent
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_inter
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_union
@@ -610,6 +616,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat
 #print axioms Erdos625.compatiblePairSignAssignmentsEquivOverlap
 #print axioms Erdos625.natCard_compatiblePairSignAssignments_eq_two_pow_components
+#print axioms Erdos625.signedProfilePair_prescriptions_disjoint_iff_compatible
+#print axioms Erdos625.signedProfilePairEvent_eq_empty_of_incompatible
+#print axioms Erdos625.randomGraphMeasure_signedProfilePairEvent_of_compatible
+#print axioms Erdos625.signedProfilePairMassSum_eq_compatibleCard_mul
+#print axioms Erdos625.signedProfilePairMassSum_mul_two_pow_forbiddenEdges
+#print axioms Erdos625.boundedOverlapTableProbability_eq_factorialLaw
+#print axioms Erdos625.sum_boundedOverlapTableProbability_eq_one
+#print axioms Erdos625.signedSecondMomentTableSum_eq_factorial_reward_sum
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands

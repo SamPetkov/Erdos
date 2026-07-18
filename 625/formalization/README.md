@@ -216,13 +216,19 @@ profile count, proves that its positivity yields a cocolouring, and proves its
 exact first moment.  It also proves the mixed present/absent edge-prescription
 law, the exact duplicated-internal-edge count for two profile partitions, and
 the literal finite fibration over bounded fixed-margin overlap tables.  The
-support-graph layer identifies compatible row/column signs with Boolean signs
+The ordered/unordered bridge additionally proves, by an explicit equivalence,
+that labeling equal-sized blocks multiplies the signed count by exactly
+`prod_i (k i)!`.  The support-graph layer identifies compatible row/column signs with Boolean signs
 constant on support edges and proves the exact local factor both in
 denominator-free form and as
 `2 ^ (W + c(H) - |V(H)|) = (prod g(r_ab)) * 2 ^ cycleRank(H)` over the
-rationals.  The pointwise ordered/unordered quotient and the final
-sign-summed normalized second-moment table identity are the remaining finite
-Section VI assembly steps.  The checkpoint also proves the
+rationals.  For a fixed pair of profile partitions, the exact sign-summed
+joint mass is now proved, including the denominator-free identity
+`pairMass * 2^(2 B_k) = 2^(2 partCount k) * A_zeta(r)`.  The fixed-margin
+probability law and reward are also packaged into the manuscript's finite
+table sum.  The remaining Section VI step is the constructive semantic
+transport from unordered signed witnesses to ordered block slots, followed by
+the graph-level normalized second-moment assembly.  The checkpoint also proves the
 configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,

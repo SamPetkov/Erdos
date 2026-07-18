@@ -117,6 +117,7 @@ import Erdos625.RootSeparationConcreteAdapter
 import Erdos625.OrderedOverlapLaw
 import Erdos625.ProfileOverlapTables
 import Erdos625.SignedProfileWitness
+import Erdos625.OrderedSignedProfileBridge
 import Erdos625.RandomGraphMixedEdgePrescription
 import Erdos625.ProfileOverlapDuplicateEdges
 import Erdos625.OverlapContingencyTools
@@ -148,6 +149,8 @@ import Erdos625.Section9ActualResidualCycleSpaceEquiv
 import Erdos625.Section6CompatibleSignsComponents
 import Erdos625.Section6SignedOverlapLocalFactor
 import Erdos625.Section6PairSignCompatibility
+import Erdos625.Section6SignedJointMass
+import Erdos625.Section6SignedSecondMomentPackage
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel

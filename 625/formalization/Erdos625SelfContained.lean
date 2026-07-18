@@ -23198,6 +23198,383 @@ END SOURCE MODULE: Erdos625.SignedProfileWitness
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.OrderedSignedProfileBridge
+Source: Erdos625/OrderedSignedProfileBridge.lean
+Normalized SHA-256: baf5782136b1510ba99eda9d5afe8cbcf56e29643a866096bdabe3d41b51d75c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_OrderedSignedProfileBridge
+
+/-!
+# The block-label-only ordered/unordered bridge
+
+The ordered overlap calculation labels equal-sized blocks, but does not order
+vertices inside a block.  This module isolates exactly that finite quotient.
+The multiplier is therefore only the product of the factorials of the block
+multiplicities, rather than the larger decoration multiplier used in the
+enumeration proof.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A block slot records a positive block size occurring in the profile and
+one label below its multiplicity. -/
+abbrev ProfileBlockIndex {b : ℕ} (k : ColoringProfile b) :=
+  ShapeBlockIndex (ColoringProfile.sizes k)
+
+/-- The prescribed number of vertices in a profile block slot. -/
+def profileBlockMargin {b : ℕ} (k : ColoringProfile b) :
+    ProfileBlockIndex k → ℕ := fun q => q.1
+
+/-- An ordered profile partition is a vertex labeling by block slots having
+the prescribed fiber cardinality at every slot. -/
+abbrev OrderedProfilePartition {b : ℕ} (n : ℕ)
+    (k : ColoringProfile b) :=
+  FixedFiberLabeling (V := Fin n) (profileBlockMargin k)
+
+/-- Label equal-sized parts of an unordered profile partition.  No ordering
+of vertices inside a part is included. -/
+abbrev ProfileBlockLabeling {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) :=
+  ∀ s : (ColoringProfile.sizes k).toFinset,
+    ProfilePartsOfSize P s.1 ≃
+      Fin ((ColoringProfile.sizes k).count (s : ℕ))
+
+/-- Choosing a block slot and then a position inside it is exactly choosing a
+canonical shape slot. -/
+def profileBlockPositionEquivShapeSlot {b : ℕ}
+    (k : ColoringProfile b) :
+    (Σ q : ProfileBlockIndex k, Fin (profileBlockMargin k q)) ≃
+      ShapeSlot (ColoringProfile.sizes k) where
+  toFun x := ⟨x.1.1, x.1.2, x.2⟩
+  invFun x := ⟨⟨x.1, x.2.1⟩, x.2.2⟩
+  left_inv := fun _ => rfl
+  right_inv := fun _ => rfl
+
+/-- All unordered profile partitions equipped with block labels. -/
+abbrev LabeledProfilePartition {b : ℕ} (n : ℕ)
+    (k : ColoringProfile b) :=
+  Σ P : ProfilePartition n k, ProfileBlockLabeling P
+
+/-- The block-label-only quotient multiplier. -/
+def profileBlockLabelMultiplier {b : ℕ} (k : ColoringProfile b) : ℕ :=
+  ∏ s : (ColoringProfile.sizes k).toFinset,
+    Nat.factorial ((ColoringProfile.sizes k).count (s : ℕ))
+
+/-- The block-label multiplier has the coordinate form used in the
+manuscript. -/
+theorem profileBlockLabelMultiplier_eq_coordinateProduct
+    {b : ℕ} (k : ColoringProfile b) :
+    profileBlockLabelMultiplier k =
+      ∏ i : Fin b, Nat.factorial (k i) := by
+  rw [profileBlockLabelMultiplier]
+  rw [show
+      (Finset.univ : Finset (ColoringProfile.sizes k).toFinset) =
+        (ColoringProfile.sizes k).toFinset.attach by
+    ext s
+    simp]
+  rw [Finset.prod_attach
+    (s := (ColoringProfile.sizes k).toFinset)
+    (f := fun s : ℕ =>
+      Nat.factorial ((ColoringProfile.sizes k).count s))]
+  have hzero : 0 ∉ (ColoringProfile.sizes k).toFinset := by
+    simpa only [Multiset.mem_toFinset] using zero_not_mem_profileSizes k
+  rw [← Finset.erase_eq_of_notMem hzero]
+  exact ColoringProfile.prod_factorial_count_sizes k
+
+/-- Every unordered partition of the fixed profile has exactly the same
+number of block labelings. -/
+theorem card_profileBlockLabeling {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) :
+    Fintype.card (ProfileBlockLabeling P) =
+      profileBlockLabelMultiplier k := by
+  classical
+  rw [Fintype.card_pi, profileBlockLabelMultiplier]
+  apply Finset.prod_congr rfl
+  intro s hs
+  have hparts :
+      Fintype.card (ProfilePartsOfSize P s.1) =
+        (ColoringProfile.sizes k).count (s : ℕ) :=
+    card_profilePartsOfSize P s.1
+  let e : ProfilePartsOfSize P s ≃
+      Fin ((ColoringProfile.sizes k).count (s : ℕ)) :=
+    Fintype.equivOfCardEq
+      (hparts.trans (Fintype.card_fin _).symm)
+  calc
+    Fintype.card
+        (ProfilePartsOfSize P s ≃
+          Fin ((ColoringProfile.sizes k).count (s : ℕ))) =
+        Nat.factorial (Fintype.card (ProfilePartsOfSize P s)) :=
+      Fintype.card_equiv e
+    _ = Nat.factorial ((ColoringProfile.sizes k).count (s : ℕ)) := by
+      rw [hparts]
+
+/-- Summing the block-slot margins recovers the profile vertex mass. -/
+theorem sum_profileBlockMargin_eq_vertexMass {b : ℕ}
+    (k : ColoringProfile b) :
+    ∑ q : ProfileBlockIndex k, profileBlockMargin k q =
+      ColoringProfile.vertexMass k := by
+  calc
+    (∑ q : ProfileBlockIndex k, profileBlockMargin k q) =
+        ∑ q : ProfileBlockIndex k,
+          Fintype.card (Fin (profileBlockMargin k q)) := by
+      simp
+    _ = Fintype.card
+          (Σ q : ProfileBlockIndex k, Fin (profileBlockMargin k q)) :=
+      Fintype.card_sigma.symm
+    _ = Fintype.card (ShapeSlot (ColoringProfile.sizes k)) :=
+      Fintype.card_congr (profileBlockPositionEquivShapeSlot k)
+    _ = (ColoringProfile.sizes k).sum :=
+      card_shapeSlot (ColoringProfile.sizes k)
+    _ = ColoringProfile.vertexMass k := rfl
+
+/-- Existence of an ordered fixed-margin profile partition forces the same
+vertex-mass equation as existence of an unordered profile partition. -/
+theorem OrderedProfilePartition.vertexMass_eq
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : OrderedProfilePartition n k) :
+    ColoringProfile.vertexMass k = n := by
+  calc
+    ColoringProfile.vertexMass k =
+        ∑ q : ProfileBlockIndex k, profileBlockMargin k q :=
+      (sum_profileBlockMargin_eq_vertexMass k).symm
+    _ = ∑ q : ProfileBlockIndex k,
+          labelingFiberCount P.1 q := by
+      apply Finset.sum_congr rfl
+      intro q hq
+      exact (P.2 q).symm
+    _ = Fintype.card (Fin n) := sum_labelingFiberCount P.1
+    _ = n := Fintype.card_fin n
+
+/-- The product of the factorials of the ordered-block margins is the
+within-block factorial product. -/
+theorem prod_factorial_profileBlockMargin {b : ℕ}
+    (k : ColoringProfile b) :
+    (∏ q : ProfileBlockIndex k,
+        Nat.factorial (profileBlockMargin k q)) =
+      ∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i := by
+  let m := ColoringProfile.sizes k
+  change (∏ q : ShapeBlockIndex m, Nat.factorial (q.1 : ℕ)) = _
+  rw [Fintype.prod_sigma]
+  simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+  rw [show (Finset.univ : Finset m.toFinset) = m.toFinset.attach by
+    ext s
+    simp]
+  rw [Finset.prod_attach
+    (s := m.toFinset)
+    (f := fun s : ℕ => Nat.factorial s ^ m.count s)]
+  calc
+    (∏ s ∈ m.toFinset, Nat.factorial s ^ m.count s) =
+        (m.map Nat.factorial).prod := by
+      rw [Finset.prod_multiset_map_count]
+    _ = ∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i := by
+      exact ColoringProfile.prod_map_factorial_sizes k
+
+/-- Exact cross-multiplied cardinality of ordered profile partitions. -/
+theorem card_orderedProfilePartition_mul_withinFactorials
+    {b n : ℕ} (k : ColoringProfile b)
+    (hmass : ColoringProfile.vertexMass k = n) :
+    Fintype.card (OrderedProfilePartition n k) *
+        (∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i) =
+      Nat.factorial n := by
+  have htotal :
+      ∑ q : ProfileBlockIndex k, profileBlockMargin k q =
+        Fintype.card (Fin n) := by
+    rw [sum_profileBlockMargin_eq_vertexMass, hmass,
+      Fintype.card_fin]
+  simpa only [Fintype.card_fin, prod_factorial_profileBlockMargin] using
+    card_fixedFiberLabeling_mul_factorials
+      (V := Fin n) (profileBlockMargin k) htotal
+
+/-- Exact factorial-quotient cardinality of ordered profile partitions. -/
+theorem card_orderedProfilePartition {b n : ℕ}
+    (k : ColoringProfile b)
+    (hmass : ColoringProfile.vertexMass k = n) :
+    Fintype.card (OrderedProfilePartition n k) =
+      Nat.factorial n /
+        (∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i) := by
+  let A := ∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i
+  have hA : A ≠ 0 := by
+    exact Finset.prod_ne_zero_iff.mpr fun i hi =>
+      pow_ne_zero _ (Nat.factorial_ne_zero _)
+  apply Nat.eq_div_of_mul_eq_left hA
+  simpa only [A] using
+    card_orderedProfilePartition_mul_withinFactorials k hmass
+
+/-- The total number of block-labeled unordered partitions is the unordered
+cardinality times the constant label multiplier. -/
+theorem card_labeledProfilePartition {b n : ℕ}
+    (k : ColoringProfile b) :
+    Fintype.card (LabeledProfilePartition n k) =
+      Fintype.card (ProfilePartition n k) *
+        profileBlockLabelMultiplier k := by
+  classical
+  calc
+    Fintype.card (LabeledProfilePartition n k) =
+        ∑ P : ProfilePartition n k,
+          Fintype.card (ProfileBlockLabeling P) := Fintype.card_sigma
+    _ = ∑ _P : ProfilePartition n k,
+          profileBlockLabelMultiplier k := by
+      apply Finset.sum_congr rfl
+      intro P hP
+      exact card_profileBlockLabeling P
+    _ = Fintype.card (ProfilePartition n k) *
+          profileBlockLabelMultiplier k := by simp
+
+/-- Under the necessary mass constraint, block-labeled unordered partitions
+and fixed-margin ordered partitions have the same cardinality. -/
+theorem card_labeledProfilePartition_eq_orderedProfilePartition
+    {b n : ℕ} (k : ColoringProfile b)
+    (hmass : ColoringProfile.vertexMass k = n) :
+    Fintype.card (LabeledProfilePartition n k) =
+      Fintype.card (OrderedProfilePartition n k) := by
+  classical
+  let A := ∏ i : Fin b, (Nat.factorial (i.1 + 1)) ^ k i
+  let M := profileBlockLabelMultiplier k
+  have hunordered := profileEnumerationStatement n k hmass
+  have hU : Fintype.card (ProfilePartition n k) * A * M =
+      Nat.factorial n := by
+    have henum :
+        Fintype.card (ProfilePartition n k) =
+          ColoringProfile.enumerativeCoefficient k := by
+      simpa only [ProfileEnumerationStatement, Nat.card_eq_fintype_card]
+        using hunordered
+    calc
+      Fintype.card (ProfilePartition n k) * A * M =
+          ColoringProfile.enumerativeCoefficient k * A * M := by rw [henum]
+      _ = Nat.factorial (ColoringProfile.vertexMass k) := by
+        simp only [A, M]
+        rw [profileBlockLabelMultiplier_eq_coordinateProduct]
+        exact
+          ColoringProfile.enumerativeCoefficient_mul_coordinateDenominator_eq k
+      _ = Nat.factorial n := by rw [hmass]
+  have hO : Fintype.card (OrderedProfilePartition n k) * A =
+      Nat.factorial n := by
+    simpa only [A] using
+      card_orderedProfilePartition_mul_withinFactorials k hmass
+  rw [card_labeledProfilePartition]
+  have hA : 0 < A := by
+    exact Finset.prod_pos fun i hi =>
+      pow_pos (Nat.factorial_pos _) _
+  apply Nat.eq_of_mul_eq_mul_right hA
+  calc
+    (Fintype.card (ProfilePartition n k) * M) * A =
+        Nat.factorial n := by
+      rw [← hU]
+      ac_rfl
+    _ = Fintype.card (OrderedProfilePartition n k) * A := hO.symm
+
+/-- The cardinal equality holds without a separate feasibility hypothesis:
+when the mass equation fails, both finite types are empty. -/
+theorem card_labeledProfilePartition_eq_orderedProfilePartition_all
+    {b n : ℕ} (k : ColoringProfile b) :
+    Fintype.card (LabeledProfilePartition n k) =
+      Fintype.card (OrderedProfilePartition n k) := by
+  by_cases hmass : ColoringProfile.vertexMass k = n
+  · exact card_labeledProfilePartition_eq_orderedProfilePartition k hmass
+  · have hleft : Fintype.card (LabeledProfilePartition n k) = 0 := by
+      apply Fintype.card_eq_zero_iff.mpr
+      exact ⟨fun P => hmass P.1.vertexMass_eq⟩
+    have hright : Fintype.card (OrderedProfilePartition n k) = 0 := by
+      apply Fintype.card_eq_zero_iff.mpr
+      exact ⟨fun P => hmass P.vertexMass_eq⟩
+    rw [hleft, hright]
+
+/-- The requested block-label-only equivalence.  Its existence is obtained
+from the two independent exact cardinality computations above; no internal
+vertex orders enter either side. -/
+noncomputable def labeledProfilePartitionEquivOrdered
+    {b n : ℕ} (k : ColoringProfile b) :
+    LabeledProfilePartition n k ≃ OrderedProfilePartition n k :=
+  Fintype.equivOfCardEq
+    (card_labeledProfilePartition_eq_orderedProfilePartition_all k)
+
+/-- A block-labeled signed witness.  The auxiliary block labels do not alter
+the underlying partition or its signs. -/
+abbrev OrderedSignedProfileWitness {b : ℕ} (n : ℕ)
+    (k : ColoringProfile b) :=
+  Σ w : SignedProfileWitness n k, ProfileBlockLabeling w.1
+
+/-- Valid signed witnesses, bundled as a finite type. -/
+abbrev ValidSignedProfileWitness {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) :=
+  {w : SignedProfileWitness n k // validSignedProfileWitness G w}
+
+/-- Valid block-labeled signed witnesses. -/
+abbrev ValidOrderedSignedProfileWitness {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) :=
+  Σ w : ValidSignedProfileWitness G k, ProfileBlockLabeling w.1.1
+
+noncomputable instance instFintypeValidSignedProfileWitness
+    {b n : ℕ} (G : LabeledGraph n) (k : ColoringProfile b) :
+    Fintype (ValidSignedProfileWitness G k) :=
+  Fintype.ofFinite _
+
+noncomputable instance instFintypeValidOrderedSignedProfileWitness
+    {b n : ℕ} (G : LabeledGraph n) (k : ColoringProfile b) :
+    Fintype (ValidOrderedSignedProfileWitness G k) :=
+  Fintype.ofFinite _
+
+/-- The number of valid block-labeled signed profile witnesses. -/
+noncomputable def orderedSignedProfileCount {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) : ℕ :=
+  ∑ w : ValidSignedProfileWitness G k,
+    Fintype.card (ProfileBlockLabeling w.1.1)
+
+/-- The bundled valid-witness type has the cardinality used by the original
+filter definition of `signedProfileCount`. -/
+theorem card_validSignedProfileWitness {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) :
+    Fintype.card (ValidSignedProfileWitness G k) =
+      signedProfileCount G k := by
+  classical
+  unfold signedProfileCount
+  rw [Fintype.card_subtype]
+
+/-- The block-label-only multiplier cancels pointwise, before taking either
+the first or the second moment. -/
+theorem orderedSignedProfileCount_eq_mul_signedProfileCount
+    {b n : ℕ} (G : LabeledGraph n) (k : ColoringProfile b) :
+    orderedSignedProfileCount G k =
+      signedProfileCount G k * profileBlockLabelMultiplier k := by
+  classical
+  rw [orderedSignedProfileCount]
+  calc
+    (∑ w : ValidSignedProfileWitness G k,
+        Fintype.card (ProfileBlockLabeling w.1.1)) =
+        ∑ _w : ValidSignedProfileWitness G k,
+          profileBlockLabelMultiplier k := by
+      apply Finset.sum_congr rfl
+      intro w hw
+      exact card_profileBlockLabeling w.1.1
+    _ = Fintype.card (ValidSignedProfileWitness G k) *
+          profileBlockLabelMultiplier k := by simp
+    _ = signedProfileCount G k *
+          profileBlockLabelMultiplier k := by
+      rw [card_validSignedProfileWitness]
+
+/-- Coordinate form of the pointwise ordered/unordered cancellation. -/
+theorem orderedSignedProfileCount_eq_coordinateMultiplier
+    {b n : ℕ} (G : LabeledGraph n) (k : ColoringProfile b) :
+    orderedSignedProfileCount G k =
+      signedProfileCount G k *
+        ∏ i : Fin b, Nat.factorial (k i) := by
+  rw [orderedSignedProfileCount_eq_mul_signedProfileCount,
+    profileBlockLabelMultiplier_eq_coordinateProduct]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_OrderedSignedProfileBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.OrderedSignedProfileBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.RandomGraphMixedEdgePrescription
 Source: Erdos625/RandomGraphMixedEdgePrescription.lean
 Normalized SHA-256: dc0eec6e7068e2529f9c4a1108def200b3e05a858604362ada2ebf91e6c53ab1
@@ -29559,6 +29936,725 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section6PairSignCompatibility
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section6PairSignCompatibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6SignedJointMass
+Source: Erdos625/Section6SignedJointMass.lean
+Normalized SHA-256: 10d82546710137d4e30316d309ecca40aefa879657d771aca4a399b8fe0591f7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6SignedJointMass
+
+/-!
+# Section VI: exact joint mass of two signed profile witnesses
+
+This file connects the graph-level signed witness event to the finite local
+factor.  Every assertion is pointwise on the finite graph sample space.
+-/
+
+namespace Erdos625
+
+open MeasureTheory SimpleGraph
+open scoped BigOperators ENNReal symmDiff
+
+noncomputable section
+
+/-- Internal edges required absent by a signed profile witness. -/
+def signedProfileAbsentGraph {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) : LabeledGraph n :=
+  P.1.parts.attach.sup fun B => if σ B then ⊥ else completeOn B.1
+
+/-- The required-present and required-absent graphs of one witness are
+edge-disjoint. -/
+theorem signedProfileInternalGraph_disjoint_absent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    Disjoint (signedProfileInternalGraph P σ) (signedProfileAbsentGraph P σ) := by
+  classical
+  unfold signedProfileInternalGraph signedProfileAbsentGraph
+  rw [Finset.disjoint_sup_left]
+  intro A hA
+  rw [Finset.disjoint_sup_right]
+  intro B hB
+  by_cases hAB : A = B
+  · subst B
+    cases hsign : σ A <;> simp
+  · by_cases hAtrue : σ A
+    · rw [if_pos hAtrue]
+      by_cases hBtrue : σ B
+      · simp [hBtrue]
+      · rw [if_neg hBtrue]
+        exact disjoint_completeOn_of_disjoint
+          (P.1.disjoint A.2 B.2 (by simpa using hAB))
+    · simp [hAtrue]
+
+/-- Together the two signed prescription graphs are exactly all internal
+edges of the underlying partition. -/
+theorem signedProfileInternalGraph_sup_absent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    signedProfileInternalGraph P σ ⊔ signedProfileAbsentGraph P σ =
+      partitionInternalGraph P.1 := by
+  classical
+  apply le_antisymm
+  · apply sup_le
+    · exact signedProfileInternalGraph_le_partitionInternalGraph P σ
+    · unfold signedProfileAbsentGraph partitionInternalGraph
+      rw [Finset.sup_le_iff]
+      intro B hB
+      cases hsign : σ B with
+      | false =>
+          simp only [Bool.false_eq]
+          exact Finset.le_sup
+            (f := fun C : Finset (Fin n) => completeOn C) B.2
+      | true => simp
+  · unfold partitionInternalGraph
+    rw [Finset.sup_le_iff]
+    intro B hB
+    let B' : P.1.parts := ⟨B, hB⟩
+    cases hsign : σ B' with
+    | false =>
+        apply le_sup_of_le_right
+        unfold signedProfileAbsentGraph
+        refine Finset.le_sup_of_le (Finset.mem_attach P.1.parts B') ?_
+        simp [hsign, B']
+    | true =>
+        apply le_sup_of_le_left
+        exact completeOn_le_signedProfileInternalGraph_of_sign_true
+          P σ B' hsign
+
+/-- A false-signed part contributes its complete graph to the absent
+prescription. -/
+theorem completeOn_le_signedProfileAbsentGraph_of_sign_false
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = false) :
+    completeOn B.1 ≤ signedProfileAbsentGraph P σ := by
+  classical
+  unfold signedProfileAbsentGraph
+  refine Finset.le_sup_of_le (Finset.mem_attach P.1.parts B) ?_
+  simp [hB]
+
+private theorem completeOn_adj_iff_mem {V : Type*} [DecidableEq V]
+    (S : Finset V) (v w : V) :
+    (completeOn S).Adj v w ↔ v ≠ w ∧ v ∈ S ∧ w ∈ S := by
+  rw [completeOn, SimpleGraph.map_adj]
+  constructor
+  · rintro ⟨v', w', hvw', rfl, rfl⟩
+    exact ⟨by simpa using hvw', v'.2, w'.2⟩
+  · rintro ⟨hvw, hv, hw⟩
+    exact ⟨⟨v, hv⟩, ⟨w, hw⟩, by simpa using hvw, rfl, rfl⟩
+
+private theorem disjoint_completeOn_of_inter_card_lt_two
+    {V : Type*} [DecidableEq V] (A B : Finset V)
+    (hcard : (A ∩ B).card < 2) :
+    Disjoint (completeOn A) (completeOn B) := by
+  rw [SimpleGraph.disjoint_left]
+  intro v w hA hB
+  obtain ⟨hvw, hvA, hwA⟩ := (completeOn_adj_iff_mem A v w).mp hA
+  obtain ⟨_, hvB, hwB⟩ := (completeOn_adj_iff_mem B v w).mp hB
+  have hsubset : ({v, w} : Finset V) ⊆ A ∩ B := by
+    intro x hx
+    rw [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl
+    · exact Finset.mem_inter.mpr ⟨hvA, hvB⟩
+    · exact Finset.mem_inter.mpr ⟨hwA, hwB⟩
+  have htwo : 2 ≤ (A ∩ B).card := by
+    rw [← Finset.card_pair hvw]
+    exact Finset.card_le_card hsubset
+  omega
+
+private theorem not_disjoint_completeOn_of_two_le_inter_card
+    {V : Type*} [DecidableEq V] (A B : Finset V)
+    (hcard : 2 ≤ (A ∩ B).card) :
+    ¬ Disjoint (completeOn A) (completeOn B) := by
+  intro hdis
+  obtain ⟨v, hv, w, hw, hvw⟩ :=
+    Finset.one_lt_card.mp (by omega : 1 < (A ∩ B).card)
+  have hA : (completeOn A).Adj v w :=
+    (completeOn_adj_iff_mem A v w).mpr
+      ⟨hvw, (Finset.mem_inter.mp hv).1, (Finset.mem_inter.mp hw).1⟩
+  have hB : (completeOn B).Adj v w :=
+    (completeOn_adj_iff_mem B v w).mpr
+      ⟨hvw, (Finset.mem_inter.mp hv).2, (Finset.mem_inter.mp hw).2⟩
+  exact (SimpleGraph.disjoint_left.mp hdis v w hA) hB
+
+/-- A fixed signed witness is precisely its mixed present/absent edge
+prescription. -/
+theorem signedProfileWitnessEvent_eq_mixedEdgePrescriptionEvent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    signedProfileWitnessEvent P σ =
+      mixedEdgePrescriptionEvent
+        (signedProfileInternalGraph P σ) (signedProfileAbsentGraph P σ) := by
+  ext G
+  rw [signedProfileWitnessEvent, Set.mem_setOf_eq,
+    mixedEdgePrescriptionEvent, Set.mem_setOf_eq]
+  constructor
+  · intro hvalid
+    constructor
+    · unfold signedProfileInternalGraph
+      rw [Finset.sup_le_iff]
+      intro B hB
+      cases hsign : σ B with
+      | false => simp
+      | true =>
+          simp only [↓reduceIte]
+          exact (isClique_iff_completeOn_le G B.1).mp
+            (by simpa [hsign] using hvalid B)
+    · apply le_compl_iff_disjoint_right.mpr
+      unfold signedProfileAbsentGraph
+      rw [Finset.disjoint_sup_right]
+      intro B hB
+      cases hsign : σ B with
+      | false =>
+          simp only [Bool.false_eq]
+          exact (isIndepSet_iff_disjoint_completeOn G B.1).mp
+            (by simpa [hsign] using hvalid B)
+      | true => simp
+  · rintro ⟨hpresent, habsent⟩ B
+    cases hsign : σ B with
+    | false =>
+        have hdis : Disjoint G (signedProfileAbsentGraph P σ) :=
+          le_compl_iff_disjoint_right.mp habsent
+        have hpart : Disjoint G (completeOn B.1) := by
+          apply hdis.mono_right
+          unfold signedProfileAbsentGraph
+          refine Finset.le_sup_of_le
+            (Finset.mem_attach P.1.parts B) ?_
+          simp [hsign]
+        simpa [hsign] using
+          (isIndepSet_iff_disjoint_completeOn G B.1).mpr hpart
+    | true =>
+        have hpart : completeOn B.1 ≤ signedProfileInternalGraph P σ :=
+          completeOn_le_signedProfileInternalGraph_of_sign_true P σ B hsign
+        simpa [hsign] using
+          (isClique_iff_completeOn_le G B.1).mpr (hpart.trans hpresent)
+
+/-- The joint event of two fixed signed witnesses. -/
+def signedProfilePairEvent {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    Set (LabeledGraph n) :=
+  signedProfileWitnessEvent P σ ∩ signedProfileWitnessEvent Q τ
+
+/-- Combined required-present internal edges. -/
+def signedProfilePairPresentGraph {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    LabeledGraph n :=
+  signedProfileInternalGraph P σ ⊔ signedProfileInternalGraph Q τ
+
+/-- Combined required-absent internal edges. -/
+def signedProfilePairAbsentGraph {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    LabeledGraph n :=
+  signedProfileAbsentGraph P σ ⊔ signedProfileAbsentGraph Q τ
+
+private theorem signedInternal_disjoint_signedAbsent_of_compatible
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hcompat : ∀ A B, 2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    Disjoint (signedProfileInternalGraph P σ)
+      (signedProfileAbsentGraph Q τ) := by
+  classical
+  unfold signedProfileInternalGraph signedProfileAbsentGraph
+  rw [Finset.disjoint_sup_left]
+  intro A hA
+  rw [Finset.disjoint_sup_right]
+  intro B hB
+  cases hσ : σ A with
+  | false => simp
+  | true =>
+      cases hτ : τ B with
+      | true => simp
+      | false =>
+          change Disjoint (completeOn A.1) (completeOn B.1)
+          apply disjoint_completeOn_of_inter_card_lt_two
+          have hn : ¬ 2 ≤ P.overlapCellCount Q A B := by
+            intro htwo
+            have := hcompat A B htwo
+            simp [hσ, hτ] at this
+          have hn' : ¬ 2 ≤ (A.1 ∩ B.1).card := by
+            simpa [ProfilePartition.overlapCellCount,
+              profileOverlapCellCount] using hn
+          omega
+
+private theorem signedAbsent_disjoint_signedInternal_of_compatible
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hcompat : ∀ A B, 2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    Disjoint (signedProfileAbsentGraph P σ)
+      (signedProfileInternalGraph Q τ) := by
+  apply Disjoint.symm
+  apply signedInternal_disjoint_signedAbsent_of_compatible Q P τ σ
+  intro B A htwo
+  have htwo' : 2 ≤ P.overlapCellCount Q A B := by
+    simpa [ProfilePartition.overlapCellCount, profileOverlapCellCount,
+      Finset.inter_comm] using htwo
+  exact (hcompat A B htwo').symm
+
+/-- Cellwise sign compatibility is exactly edge-disjointness of the combined
+present and absent prescriptions. -/
+theorem signedProfilePair_prescriptions_disjoint_iff_compatible
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    Disjoint (signedProfilePairPresentGraph P Q σ τ)
+        (signedProfilePairAbsentGraph P Q σ τ) ↔
+      ∀ A B, 2 ≤ P.overlapCellCount Q A B → σ A = τ B := by
+  constructor
+  · intro hdis A B htwo
+    cases hσ : σ A with
+    | false =>
+        cases hτ : τ B with
+        | false => rfl
+        | true =>
+            exfalso
+            apply not_disjoint_completeOn_of_two_le_inter_card B.1 A.1
+              (by simpa [ProfilePartition.overlapCellCount,
+                profileOverlapCellCount, Finset.inter_comm] using htwo)
+            apply hdis.mono
+            · apply le_sup_of_le_right
+              exact completeOn_le_signedProfileInternalGraph_of_sign_true
+                Q τ B hτ
+            · apply le_sup_of_le_left
+              exact completeOn_le_signedProfileAbsentGraph_of_sign_false
+                P σ A hσ
+    | true =>
+        cases hτ : τ B with
+        | true => rfl
+        | false =>
+            exfalso
+            apply not_disjoint_completeOn_of_two_le_inter_card A.1 B.1
+              (by simpa [ProfilePartition.overlapCellCount,
+                profileOverlapCellCount] using htwo)
+            apply hdis.mono
+            · apply le_sup_of_le_left
+              exact completeOn_le_signedProfileInternalGraph_of_sign_true
+                P σ A hσ
+            · apply le_sup_of_le_right
+              exact completeOn_le_signedProfileAbsentGraph_of_sign_false
+                Q τ B hτ
+  · intro hcompat
+    rw [signedProfilePairPresentGraph, signedProfilePairAbsentGraph,
+      disjoint_sup_left, disjoint_sup_right, disjoint_sup_right]
+    exact ⟨⟨signedProfileInternalGraph_disjoint_absent P σ,
+      signedInternal_disjoint_signedAbsent_of_compatible P Q σ τ hcompat⟩,
+      (signedAbsent_disjoint_signedInternal_of_compatible P Q σ τ hcompat).symm,
+      signedProfileInternalGraph_disjoint_absent Q τ⟩
+
+/-- Intersecting two signed witness events combines their present and absent
+prescriptions.  No compatibility assumption is needed for this identity. -/
+theorem signedProfilePairEvent_eq_mixedEdgePrescriptionEvent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    signedProfilePairEvent P Q σ τ =
+      mixedEdgePrescriptionEvent
+        (signedProfilePairPresentGraph P Q σ τ)
+        (signedProfilePairAbsentGraph P Q σ τ) := by
+  rw [signedProfilePairEvent,
+    signedProfileWitnessEvent_eq_mixedEdgePrescriptionEvent P σ,
+    signedProfileWitnessEvent_eq_mixedEdgePrescriptionEvent Q τ]
+  ext G
+  simp only [Set.mem_inter_iff, mixedEdgePrescriptionEvent, Set.mem_setOf_eq,
+    signedProfilePairPresentGraph, signedProfilePairAbsentGraph,
+    sup_le_iff, compl_sup]
+  constructor
+  · rintro ⟨⟨hp, ha⟩, hq, hb⟩
+    exact ⟨⟨hp, hq⟩, le_inf ha hb⟩
+  · rintro ⟨⟨hp, hq⟩, hab⟩
+    exact ⟨⟨hp, hab.trans inf_le_left⟩, hq, hab.trans inf_le_right⟩
+
+/-- Incompatible row/column signs impose a contradictory edge prescription,
+so the joint witness event is empty. -/
+theorem signedProfilePairEvent_eq_empty_of_incompatible
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hincompat : ¬ ∀ A B,
+      2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    signedProfilePairEvent P Q σ τ = ∅ := by
+  rw [signedProfilePairEvent_eq_mixedEdgePrescriptionEvent]
+  ext G
+  simp only [Set.mem_empty_iff_false, iff_false]
+  intro hG
+  have hforced : Disjoint
+      (signedProfilePairPresentGraph P Q σ τ)
+      (signedProfilePairAbsentGraph P Q σ τ) := by
+    rw [mixedEdgePrescriptionEvent, Set.mem_setOf_eq] at hG
+    exact (le_compl_iff_disjoint_right.mp hG.2).mono_left hG.1
+  exact hincompat
+    ((signedProfilePair_prescriptions_disjoint_iff_compatible P Q σ τ).mp
+      hforced)
+
+/-- The combined present and absent graphs exhaust the union of the two
+partition-internal graphs. -/
+theorem signedProfilePairPresent_sup_absent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+    signedProfilePairPresentGraph P Q σ τ ⊔
+        signedProfilePairAbsentGraph P Q σ τ =
+      partitionInternalGraph P.1 ⊔ partitionInternalGraph Q.1 := by
+  rw [signedProfilePairPresentGraph, signedProfilePairAbsentGraph]
+  calc
+    (signedProfileInternalGraph P σ ⊔ signedProfileInternalGraph Q τ) ⊔
+        (signedProfileAbsentGraph P σ ⊔ signedProfileAbsentGraph Q τ) =
+      (signedProfileInternalGraph P σ ⊔ signedProfileAbsentGraph P σ) ⊔
+        (signedProfileInternalGraph Q τ ⊔ signedProfileAbsentGraph Q τ) := by
+          ac_rfl
+    _ = partitionInternalGraph P.1 ⊔ partitionInternalGraph Q.1 := by
+      rw [signedProfileInternalGraph_sup_absent,
+        signedProfileInternalGraph_sup_absent]
+
+private theorem overlapDuplicateEdgeCount_profile_eq
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    overlapDuplicateEdgeCount (fun A B => P.overlapCellCount Q A B) =
+      ∑ A ∈ P.1.parts, ∑ B ∈ Q.1.parts,
+        (profileOverlapCellCount A B).choose 2 := by
+  classical
+  simp [overlapDuplicateEdgeCount, ProfilePartition.overlapCellCount,
+    profileOverlapCellCount]
+  calc
+    (∑ A ∈ P.1.parts.attach, ∑ B ∈ Q.1.parts.attach,
+        (A.1 ∩ B.1).card.choose 2) =
+      ∑ A ∈ P.1.parts.attach, ∑ B ∈ Q.1.parts,
+        (A.1 ∩ B).card.choose 2 := by
+          apply Finset.sum_congr rfl
+          intro A hA
+          exact Finset.sum_attach Q.1.parts
+            (fun B => (A.1 ∩ B).card.choose 2)
+    _ = ∑ A ∈ P.1.parts, ∑ B ∈ Q.1.parts,
+        (A ∩ B).card.choose 2 :=
+      Finset.sum_attach P.1.parts
+        (fun A => ∑ B ∈ Q.1.parts, (A ∩ B).card.choose 2)
+
+/-- For compatible signs the total number of prescribed edge bits is exactly
+`2 B_k - W`, stated without truncated subtraction. -/
+theorem signedProfilePair_prescribedEdgeCount_add_overlap
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hcompat : ∀ A B,
+      2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    (signedProfilePairPresentGraph P Q σ τ).edgeSet.ncard +
+        (signedProfilePairAbsentGraph P Q σ τ).edgeSet.ncard +
+        overlapDuplicateEdgeCount (fun A B => P.overlapCellCount Q A B) =
+      2 * ColoringProfile.forbiddenEdges k := by
+  have hdis : Disjoint
+      (signedProfilePairPresentGraph P Q σ τ)
+      (signedProfilePairAbsentGraph P Q σ τ) :=
+    (signedProfilePair_prescriptions_disjoint_iff_compatible P Q σ τ).mpr
+      hcompat
+  have hcard :
+      (signedProfilePairPresentGraph P Q σ τ ⊔
+          signedProfilePairAbsentGraph P Q σ τ).edgeSet.ncard =
+        (signedProfilePairPresentGraph P Q σ τ).edgeSet.ncard +
+          (signedProfilePairAbsentGraph P Q σ τ).edgeSet.ncard := by
+    rw [SimpleGraph.edgeSet_sup]
+    exact Set.ncard_union_eq (SimpleGraph.disjoint_edgeSet.mpr hdis)
+  rw [← hcard, signedProfilePairPresent_sup_absent,
+    overlapDuplicateEdgeCount_profile_eq]
+  exact ncard_profilePartitionInternalGraph_edgeSet_union_add_overlap P Q
+
+/-- Subtraction form of the exact prescribed-bit count. -/
+theorem signedProfilePair_prescribedEdgeCount
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hcompat : ∀ A B,
+      2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    (signedProfilePairPresentGraph P Q σ τ).edgeSet.ncard +
+        (signedProfilePairAbsentGraph P Q σ τ).edgeSet.ncard =
+      2 * ColoringProfile.forbiddenEdges k -
+        overlapDuplicateEdgeCount (fun A B => P.overlapCellCount Q A B) := by
+  have h := signedProfilePair_prescribedEdgeCount_add_overlap P Q σ τ hcompat
+  omega
+
+/-- Exact joint probability for a compatible pair of signs. -/
+theorem randomGraphMeasure_signedProfilePairEvent_of_compatible
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool)
+    (hcompat : ∀ A B,
+      2 ≤ P.overlapCellCount Q A B → σ A = τ B) :
+    randomGraphMeasure n (signedProfilePairEvent P Q σ τ) =
+      (1 / 2 : ENNReal) ^
+        (2 * ColoringProfile.forbiddenEdges k -
+          overlapDuplicateEdgeCount (fun A B => P.overlapCellCount Q A B)) := by
+  rw [signedProfilePairEvent_eq_mixedEdgePrescriptionEvent,
+    randomGraphMeasure_mixedEdgePrescriptionEvent _ _
+      ((signedProfilePair_prescriptions_disjoint_iff_compatible P Q σ τ).mpr
+        hcompat),
+    signedProfilePair_prescribedEdgeCount P Q σ τ hcompat]
+
+/-- Joint mass summed over every row-sign and column-sign assignment for a
+fixed pair of profile partitions. -/
+noncomputable def signedProfilePairMassSum
+    {b : ℕ} (n : ℕ) {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) : ENNReal :=
+  ∑ σ : P.1.parts → Bool, ∑ τ : Q.1.parts → Bool,
+    randomGraphMeasure n (signedProfilePairEvent P Q σ τ)
+
+/-- Exact sign-summed joint mass before applying the local-factor identity. -/
+theorem signedProfilePairMassSum_eq_compatibleCard_mul
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    signedProfilePairMassSum n P Q =
+      (Nat.card (CompatiblePairSignAssignments
+        (fun A B => P.overlapCellCount Q A B)) : ENNReal) *
+      (1 / 2 : ENNReal) ^
+        (2 * ColoringProfile.forbiddenEdges k -
+          overlapDuplicateEdgeCount
+            (fun A B => P.overlapCellCount Q A B)) := by
+  classical
+  let r := fun A B => P.overlapCellCount Q A B
+  let p : ENNReal := (1 / 2 : ENNReal) ^
+    (2 * ColoringProfile.forbiddenEdges k - overlapDuplicateEdgeCount r)
+  have hterm (σ : P.1.parts → Bool) (τ : Q.1.parts → Bool) :
+      randomGraphMeasure n (signedProfilePairEvent P Q σ τ) =
+        if (∀ A B, 2 ≤ r A B → σ A = τ B) then p else 0 := by
+    by_cases hcompat : ∀ A B, 2 ≤ r A B → σ A = τ B
+    · rw [if_pos hcompat]
+      simpa [r, p] using
+        randomGraphMeasure_signedProfilePairEvent_of_compatible
+          P Q σ τ hcompat
+    · rw [if_neg hcompat,
+        signedProfilePairEvent_eq_empty_of_incompatible P Q σ τ hcompat]
+      simp
+  unfold signedProfilePairMassSum
+  simp_rw [hterm]
+  rw [← Fintype.sum_prod_type']
+  change (∑ s : PairBoolSignAssignments P.1.parts Q.1.parts,
+      if (∀ A B, 2 ≤ r A B → s.1 A = s.2 B) then p else 0) =
+    (Nat.card (CompatiblePairSignAssignments r) : ENNReal) * p
+  let T := (Finset.univ : Finset
+    (PairBoolSignAssignments P.1.parts Q.1.parts)).filter
+      fun s => ∀ A B, 2 ≤ r A B → s.1 A = s.2 B
+  let e : {s // s ∈ T} ≃ CompatiblePairSignAssignments r := {
+    toFun := fun s => ⟨s.1, by simpa [T] using s.2⟩
+    invFun := fun s => ⟨s.1, by simpa [T] using s.2⟩
+    left_inv := fun s => by apply Subtype.ext; rfl
+    right_inv := fun s => by apply Subtype.ext; rfl }
+  have hTcard : T.card = Nat.card (CompatiblePairSignAssignments r) := by
+    calc
+      T.card = Nat.card {s // s ∈ T} := by
+        rw [Nat.card_eq_fintype_card]
+        simp
+      _ = Nat.card (CompatiblePairSignAssignments r) := Nat.card_congr e
+  calc
+    _ = ∑ _s ∈ T, p := by
+      simpa only [T] using
+        (Finset.sum_filter
+          (fun s : PairBoolSignAssignments P.1.parts Q.1.parts =>
+            ∀ A B, 2 ≤ r A B → s.1 A = s.2 B)
+          (fun _s => p)).symm
+    _ = (T.card : ENNReal) * p := by simp [nsmul_eq_mul]
+    _ = (Nat.card (CompatiblePairSignAssignments r) : ENNReal) * p := by
+      rw [hTcard]
+
+private theorem half_pow_sub_mul_two_pow
+    (a w : ℕ) (hw : w ≤ a) :
+    (1 / 2 : ENNReal) ^ (a - w) * (2 : ENNReal) ^ a =
+      (2 : ENNReal) ^ w := by
+  conv_lhs =>
+    rhs
+    rw [show a = (a - w) + w by omega, pow_add]
+  rw [← mul_assoc, ← mul_pow]
+  rw [div_eq_mul_inv, one_mul,
+    ENNReal.inv_mul_cancel (by norm_num) (by norm_num), one_pow, one_mul]
+
+/-- Denominator-free normalized pair mass.  Multiplication by `2^(2B_k)`
+clears the common one-witness edge probability, and the remaining factor is
+exactly the signed-overlap reward. -/
+theorem signedProfilePairMassSum_mul_two_pow_forbiddenEdges
+    {b n : ℕ} {k : ColoringProfile b}
+    (P Q : ProfilePartition n k) :
+    signedProfilePairMassSum n P Q *
+        (2 : ENNReal) ^ (2 * ColoringProfile.forbiddenEdges k) =
+      (2 : ENNReal) ^ (2 * ColoringProfile.partCount k) *
+        (signedOverlapReward
+          (fun A B => P.overlapCellCount Q A B) : ENNReal) := by
+  classical
+  let r := fun A B => P.overlapCellCount Q A B
+  let W := overlapDuplicateEdgeCount r
+  let Bk := ColoringProfile.forbiddenEdges k
+  let K := ColoringProfile.partCount k
+  have hW : W ≤ 2 * Bk := by
+    have h := ncard_profilePartitionInternalGraph_edgeSet_union_add_overlap P Q
+    rw [← overlapDuplicateEdgeCount_profile_eq P Q] at h
+    change (partitionInternalGraph P.1 ⊔
+      partitionInternalGraph Q.1).edgeSet.ncard + W = 2 * Bk at h
+    omega
+  have hPc : Fintype.card P.1.parts = K := by
+    simpa [K] using P.card_parts_eq
+  have hQc : Fintype.card Q.1.parts = K := by
+    simpa [K] using Q.card_parts_eq
+  have hPairCard :
+      Nat.card (CompatiblePairSignAssignments r) =
+        Nat.card (CompatibleOverlapSignAssignments r) :=
+    natCard_compatiblePairSignAssignments_eq_overlap r
+  have hNat :
+      Nat.card (CompatiblePairSignAssignments r) * 2 ^ W =
+        2 ^ (2 * K) * signedOverlapReward r := by
+    rw [hPairCard]
+    have hlocal := signedOverlapLocalFactor_cross r
+    simpa [W, K, hPc, hQc, two_mul] using hlocal
+  have hCast := congrArg (fun x : ℕ => (x : ENNReal)) hNat
+  norm_num only [Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat] at hCast
+  rw [signedProfilePairMassSum_eq_compatibleCard_mul]
+  change ((Nat.card (CompatiblePairSignAssignments r) : ENNReal) *
+      (1 / 2 : ENNReal) ^ (2 * Bk - W)) *
+      (2 : ENNReal) ^ (2 * Bk) =
+    (2 : ENNReal) ^ (2 * K) * (signedOverlapReward r : ENNReal)
+  rw [mul_assoc, half_pow_sub_mul_two_pow (2 * Bk) W hW]
+  exact hCast
+
+#print axioms signedProfileWitnessEvent_eq_mixedEdgePrescriptionEvent
+#print axioms signedProfilePair_prescriptions_disjoint_iff_compatible
+#print axioms signedProfilePairEvent_eq_empty_of_incompatible
+#print axioms signedProfilePair_prescribedEdgeCount_add_overlap
+#print axioms randomGraphMeasure_signedProfilePairEvent_of_compatible
+#print axioms signedProfilePairMassSum_eq_compatibleCard_mul
+#print axioms signedProfilePairMassSum_mul_two_pow_forbiddenEdges
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6SignedJointMass
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6SignedJointMass
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6SignedSecondMomentPackage
+Source: Erdos625/Section6SignedSecondMomentPackage.lean
+Normalized SHA-256: 0dda1e8f08a73e8b3452f4860a915dedfa82bc3655d4be7bc8cec81480c32860
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6SignedSecondMomentPackage
+
+/-!
+# Section 6 signed second-moment table package
+
+This module packages the already proved finite overlap-table fibration,
+probability law, compatible-sign count, and signed local reward into the exact
+finite table sum occurring on the right hand side of (6.6). It deliberately
+does not identify this table sum with the graph-level second moment; that
+remaining bridge requires the exact joint mass of two fixed signed witnesses.
+
+The previously suggested `OrderedSignedProfileBridge` import is intentionally
+absent: none of the declarations below uses that unfinished quotient bridge.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The probability mass of one bounded fixed-margin overlap table. -/
+def boundedOverlapTableProbability
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (table : BoundedFixedMarginTable n row columnMargin) : ℚ :=
+  (Fintype.card (table.event row columnMargin) : ℚ) /
+    Fintype.card (FixedFiberLabeling (V := Fin n) columnMargin)
+
+/-- The Lemma 6.1 local factor attached to a bounded overlap table. -/
+def boundedOverlapTableLocalFactor
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} {row : Fin n → A} {columnMargin : B → ℕ}
+    (table : BoundedFixedMarginTable n row columnMargin) : ℚ :=
+  signedOverlapReward table.tableNat
+
+/-- The concrete finite right hand side of the normalized second-moment
+identity (6.6), indexed by the bounded fixed-margin table fibration. -/
+def signedSecondMomentTableSum
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ) : ℚ :=
+  ∑ table : BoundedFixedMarginTable n row columnMargin,
+    boundedOverlapTableProbability row columnMargin table *
+      boundedOverlapTableLocalFactor table
+
+/-- Formula (6.2) for the probability term in the packaged finite sum. -/
+theorem boundedOverlapTableProbability_eq_factorialLaw
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (table : BoundedFixedMarginTable n row columnMargin) :
+    boundedOverlapTableProbability row columnMargin table =
+      ((∏ a, (labelingFiberCount row a).factorial) *
+          ∏ b, (columnMargin b).factorial : ℕ) /
+        (((n.factorial *
+          ∏ a, ∏ b, (table.tableNat a b).factorial : ℕ) : ℚ)) := by
+  exact boundedFixedMarginTable_probability_eq row columnMargin table
+
+/-- Formula (6.4): the table local factor is the product of the cell rewards
+`g` and the binary cycle-space factor. -/
+theorem boundedOverlapTableLocalFactor_eq_product_cycleRank
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} {row : Fin n → A} {columnMargin : B → ℕ}
+    (table : BoundedFixedMarginTable n row columnMargin) :
+    boundedOverlapTableLocalFactor table =
+      ((∏ a, ∏ b, localSignRewardNat (table.tableNat a b)) *
+        2 ^ cycleRank (signedOverlapSupportGraph table.tableNat) : ℕ) := by
+  rfl
+
+/-- The finite overlap-table probabilities sum to one whenever the prescribed
+column-labeling sample space is nonempty. -/
+theorem sum_boundedOverlapTableProbability_eq_one
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ)
+    (hne : Fintype.card (FixedFiberLabeling (V := Fin n) columnMargin) ≠ 0) :
+    (∑ table : BoundedFixedMarginTable n row columnMargin,
+      boundedOverlapTableProbability row columnMargin table) = 1 := by
+  unfold boundedOverlapTableProbability
+  rw [← Finset.sum_div]
+  rw [← Nat.cast_sum]
+  rw [← card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent]
+  exact div_self (Nat.cast_ne_zero.mpr hne)
+
+/-- Fully expanded finite form of the packaged right hand side of (6.6). -/
+theorem signedSecondMomentTableSum_eq_factorial_reward_sum
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : ℕ} (row : Fin n → A) (columnMargin : B → ℕ) :
+    signedSecondMomentTableSum row columnMargin =
+      ∑ table : BoundedFixedMarginTable n row columnMargin,
+        (((∏ a, (labelingFiberCount row a).factorial) *
+              ∏ b, (columnMargin b).factorial : ℕ) /
+            (((n.factorial *
+              ∏ a, ∏ b, (table.tableNat a b).factorial : ℕ) : ℚ))) *
+          (signedOverlapReward table.tableNat : ℚ) := by
+  unfold signedSecondMomentTableSum boundedOverlapTableLocalFactor
+  apply Finset.sum_congr rfl
+  intro table _
+  rw [boundedOverlapTableProbability_eq_factorialLaw]
+
+#print axioms boundedOverlapTableProbability_eq_factorialLaw
+#print axioms boundedOverlapTableLocalFactor_eq_product_cycleRank
+#print axioms sum_boundedOverlapTableProbability_eq_one
+#print axioms signedSecondMomentTableSum_eq_factorial_reward_sum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6SignedSecondMomentPackage
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6SignedSecondMomentPackage
 ========================================================================== -/
 
 /- ==========================================================================
@@ -45390,7 +46486,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 72401f2e5b2c0a975538489955e02ce7aa1043beb24fc5fe07af24f260c1abd5
+Normalized SHA-256: 6c627d33723a95a4e8432608bd78c608bd976d5a94879a088fee877643e3a103
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -45761,6 +46857,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_signedProfileWitnessEvent
 #print axioms Erdos625.signedProfileExpectation_eq
 #print axioms Erdos625.signedProfileCount_pos_implies_coColorable
+#print axioms Erdos625.card_labeledProfilePartition_eq_orderedProfilePartition_all
+#print axioms Erdos625.labeledProfilePartitionEquivOrdered
+#print axioms Erdos625.orderedSignedProfileCount_eq_coordinateMultiplier
 #print axioms Erdos625.randomGraphMeasure_mixedEdgePrescriptionEvent
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_inter
 #print axioms Erdos625.ncard_profilePartitionInternalGraph_edgeSet_union
@@ -45769,6 +46868,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat
 #print axioms Erdos625.compatiblePairSignAssignmentsEquivOverlap
 #print axioms Erdos625.natCard_compatiblePairSignAssignments_eq_two_pow_components
+#print axioms Erdos625.signedProfilePair_prescriptions_disjoint_iff_compatible
+#print axioms Erdos625.signedProfilePairEvent_eq_empty_of_incompatible
+#print axioms Erdos625.randomGraphMeasure_signedProfilePairEvent_of_compatible
+#print axioms Erdos625.signedProfilePairMassSum_eq_compatibleCard_mul
+#print axioms Erdos625.signedProfilePairMassSum_mul_two_pow_forbiddenEdges
+#print axioms Erdos625.boundedOverlapTableProbability_eq_factorialLaw
+#print axioms Erdos625.sum_boundedOverlapTableProbability_eq_one
+#print axioms Erdos625.signedSecondMomentTableSum_eq_factorial_reward_sum
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
@@ -46155,7 +47262,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: acf0b33a3d8c7b4c2f6620b736634907214eb992f0cd06d7eb42f102f3026085
+Normalized SHA-256: 17b5a4803f4a8390ec222df1d20f0eee82020d4cec9d6dc54737f75536c3594c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

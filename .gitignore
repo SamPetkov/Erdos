@@ -1,6 +1,8 @@
 # Local research workspace and acquired source material.
 /research/
 /tmp/
+/625/tmp/
+/625/arxiv/tmp/
 
 # Downloaded or rendered third-party/source artifacts.
 *.pdf
