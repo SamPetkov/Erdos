@@ -87,10 +87,16 @@ of the intrinsic conditions. All arguments are carried out in ZFC.
 A finite triple system is \emph{obligatory} if it embeds in every triple
 system of uncountable chromatic number. Erd\H{o}s asked for a
 characterisation of all such systems \citep{erdos1995}; the question is now
-catalogued as Erd\H{o}s Problem~593 \citep{bloom593}. Theorem~A gives both a
-constructive and an intrinsic answer.
+catalogued as Erd\H{o}s Problem~593 \citep{bloom593}. Theorem~A gives an
+exact answer in two complementary languages.
 
-The answer has two complementary forms. One is constructive: start with private-vertex expansions of finite bipartite graphs and close under finite disjoint unions and one-point amalgamations. The other is intrinsic and is read from the Levi graph after isolated vertices are removed.
+The constructive language starts with private-vertex expansions of finite
+bipartite graphs and closes under finite disjoint unions and one-point
+amalgamations. The intrinsic language reads the same class directly from the
+Levi graph after isolated vertices are removed. The bridge between the two is
+an exquisitely rigid decomposition: after the Levi bridges are deleted, every
+active block is a bipartite expansion piece, and the pieces reassemble along a
+forest.
 
 \phantomsection
 \label{theorem-a-exact-characterisation}
@@ -133,9 +139,21 @@ structural target is correct. No statement or argument from Li's preprint is
 used in the proof.
 
 \paragraph{Proof strategy.}
-The positive direction has two parts. Section~3 proves directly that the private-vertex expansion of every finite bipartite graph is obligatory; Section~4 proves closure under disjoint unions and one-point amalgamations. Section~5 identifies the constructive class with the intrinsic Levi-graph conditions by deleting the Levi bridges and reassembling the resulting pieces along a quotient forest.
+The positive direction first isolates the atoms and then proves that the two
+assembly operations preserve obligatoriness. Section~3 establishes directly
+that every private-vertex expansion of a finite bipartite graph is obligatory,
+and Section~4 proves closure under disjoint unions and one-point amalgamations.
+Section~5 then deletes the Levi bridges, identifies every active block as one of
+those atoms, and reconstructs the original system along the quotient forest.
 
-For the converse, Sections~6--8 construct explicit avoidance hosts. A one-apex sequence lift transfers uncountable chromatic number from a graph to a triple system while rigidly controlling every finite linear trace. Nonlinearity is excluded by an Erd\H{o}s--Rado host, failure of the bridge condition by a sequence lift of \(K_{\omega_1}\), and an odd Berge cycle by a sequence lift of an uncountably chromatic graph of sufficiently large odd girth. This proves all three implications needed for Theorem~A.
+The converse is more delicate and is made explicit in Sections~6--8. A
+one-apex sequence lift transfers uncountable chromatic number from a graph to a
+triple system while forcing a precise decomposition of every finite linear
+trace. An Erd\H{o}s--Rado host excludes nonlinearity; the lift of
+\(K_{\omega_1}\) excludes failure of the bridge condition; and the lift of an
+uncountably chromatic graph with sufficiently large odd girth excludes odd
+Berge cycles. These three hosts account for every possible failure of the
+intrinsic conditions.
 
 \paragraph{Set-theoretic scope.}
 All arguments are in ZFC. The only non-elementary external results used as
@@ -185,7 +203,16 @@ For membership in \(\mathcal B\), the implication \(F^\circ\in\mathcal B\Rightar
 
 For the converse, use structural induction on a construction of \(F\) in \(\mathcal B\). If \(F=J^+\), delete the isolated graph vertices of \(J\) to obtain \(J_0\); then \((J^+)^\circ=J_0^+\in\mathcal B\). If \(F\) is edgeless, its reduction is the empty edgeless system. Reduction commutes with disjoint union.
 
-Suppose finally that \(F\) is a one-point amalgamation of \(F_0\) and \(F_1\), identifying \(x_i\in V(F_i)\). By induction \(F_0^\circ,F_1^\circ\in\mathcal B\). If both \(x_i\) are nonisolated in their factors, then \(F^\circ\) is their one-point amalgamation at those vertices. If exactly one \(x_i\) is nonisolated, the isolated side disappears at the identified point and \(F^\circ\) is the disjoint union of the two reductions. The same disjoint-union description applies when both \(x_i\) are isolated, because the identified point is deleted. Hence \(F^\circ\in\mathcal B\) in every case. \(\square\)
+Suppose finally that \(F\) is a one-point amalgamation of \(F_0\) and
+\(F_1\), identifying \(x_i\in V(F_i)\). By induction,
+\(F_0^\circ,F_1^\circ\in\mathcal B\). If both selected vertices are
+nonisolated in their factors, then \(F^\circ\) is the one-point amalgamation
+of the two reductions at those vertices. If exactly one selected vertex is
+nonisolated, the isolated side disappears at the identified point and
+\(F^\circ\) is the disjoint union of the two reductions. The same description
+applies when both selected vertices are isolated, because the identified
+point is then deleted. Hence \(F^\circ\in\mathcal B\) in every case.
+\(\square\)
 
 Thus isolated vertices may be suppressed throughout the substantive argument and restored at the end.
 
@@ -522,7 +549,7 @@ Choose a maximal pairwise disjoint subfamily. It contains at most \(m-1\)
 members; let \(S_v\) be their union. Then
 
 \[
-|S_v|\le(m-1)(|V(F)|-1)=:D,
+|S_v|\le(m-1)(|V(F)|-1)=:D.
 \]
 
 Moreover, \(S_v\) meets the off-root part of every rooted copy at \(v\):
@@ -652,6 +679,12 @@ even number of times. Hence \(T\) is a forest.
 
 A vertex \(C\in V(T)=\mathscr C\) is called \emph{active} if the bridge-deleted component \(C\) contains a hyperedge-node. For an active \(C\), the piece \(P_C\) consists of the hyperedges represented in \(C\), all point-nodes of \(C\), and the point endpoints of bridge incidences leaving hyperedge-nodes in \(C\). An inactive component contains no hyperedge-node and hence no incidence of \(L-B(L)\), so it is a singleton point-node.
 
+At this stage every hyperedge already belongs to a bipartite expansion piece.
+The only remaining issue is global: the pieces must be ordered so that a new
+piece never meets the assembled system in two different points. The quotient
+forest records exactly the attachment geometry needed for this running
+intersection.
+
 \phantomsection
 \label{claim-5.2.1-running-intersection}
 \begin{claimbox}{Claim 5.2.1: running intersection}
@@ -661,7 +694,16 @@ Every component of \(T\) contains an active vertex, because \(F\) has no isolate
 \end{claimbox}
 \textbf{Proof of the claim.} For a point \(p\in V(F)\), let \(X(p)\in\mathscr C\) be the component of \(L-B(L)\) containing the point-node \(p\). The active pieces containing \(p\) are precisely \(P_{X(p)}\), when \(X(p)\) is active, together with the pieces \(P_D\) at active neighbours \(D\) of \(X(p)\) whose corresponding original bridge has point endpoint \(p\). Thus the vertices of \(T\) indexing pieces that contain \(p\) are contained in the closed star centred at \(X(p)\).
 
-Suppose that \(p\in P_C\) also lies in an earlier piece. If \(X(p)=C\), every other piece containing \(p\) is indexed by a neighbour of \(C\), and only the parent neighbour can be earlier. If \(X(p)\ne C\), then \(C\) is a neighbour of \(X(p)\). The vertex \(X(p)\) cannot be a child of \(C\), because then \(X(p)\) and all its other neighbours in the star would be deeper than \(C\). Hence \(X(p)\) is the parent of \(C\). In either case, \(p\) is the point endpoint of the unique parent edge of \(C\). The same reasoning applies to every point shared with an earlier piece, so all such points coincide with this parent point \(p_C\), and
+Suppose that \(p\in P_C\) also lies in an earlier piece. If \(X(p)=C\),
+every other piece containing \(p\) is indexed by a neighbour of \(C\). A tree
+has only one neighbour of \(C\) at smaller depth, namely its parent, so only
+that piece can be earlier. If \(X(p)\ne C\), then \(C\) is a neighbour of
+\(X(p)\). The vertex \(X(p)\) cannot be a child of \(C\), because then both
+\(X(p)\) and every other vertex in its closed star would be deeper than
+\(C\). Hence \(X(p)\) is the parent of \(C\). In either case, \(p\) is the
+point endpoint of the unique parent edge of \(C\). The same reasoning applies
+to every point shared with an earlier piece, so all such points coincide with
+this parent point \(p_C\), and
 
 \[
 P_C\cap\bigcup_{D\text{ earlier}}P_D\subseteq\{p_C\}.
@@ -806,11 +848,12 @@ We claim that \(Q\) is a forest. Suppose it has a cycle, and choose on that cycl
 
 Starting from one neighbour of \(s\), every base node on the remaining
 part of the cycle lies in the same immediate branch below \(s\). Indeed,
-consecutive base nodes share a point and are therefore comparable, and two
-comparable proper descendants of \(s\) cannot lie in different immediate
-branches. Induction along the remaining path therefore keeps every base
-node in the first branch, contradicting that its final node lies in the
-other branch. Hence \(Q\) is acyclic.
+consecutive base nodes share a point and are therefore comparable. For two
+comparable proper descendants of \(s\), the first sequence coordinate after
+\(s\) is the same, so a length-two step through a shared point cannot move
+from one immediate branch to another. Induction along the remaining path
+therefore keeps every base node in the first branch, contradicting that its
+final node lies in the other branch. Hence \(Q\) is acyclic.
 
 Root each component of \(Q\) at a base node, and order its base nodes by
 nondecreasing even distance from the root. For a nonroot base node \(s\), let
@@ -1142,11 +1185,22 @@ F^\circ\text{ is linear},\\[1mm]
 
 All embeddings are non-induced: additional host hyperedges on the image vertices are irrelevant throughout. The proof uses only ZFC, the displayed successor cardinals, graph-colouring compactness, and the standard Erdős--Rado relation (8.1). It assumes neither CH nor GCH, and no forcing axiom or large-cardinal hypothesis.
 
-\section*{Formalisation}
+\section*{Reproducibility and formalisation}
 
-A partial Lean~4 formalisation developed using ChatGPT-5.6 and Aristotle
-\citep{achim-et-al-2025} is available in a self-contained source file on
-\href{https://github.com/SamPetkov/Erdos593/blob/main/formalization/Erdos593SelfContained.lean}{GitHub}. Each statemet was broken down into substatements and verified on input and output for a safer formalisation.
+The complete proof sources and reproducibility material are collected in the
+numbered dossiers of the public
+\href{https://github.com/SamPetkov/Erdos}{\texttt{Erdos} repository}; the
+present paper is in \texttt{593/}. All theorem statements and proof text are
+also available in Markdown, so the argument can be inspected without
+compiling the TeX. The dossier includes the TeX source, bibliography,
+reproducible build material, source and revision records, checksums, and the
+current partial Lean~4 formalisation.
+
+The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle
+\citep{achim-et-al-2025}, is provided as a self-contained source file. Each
+formalised statement is decomposed into smaller claims, with its hypotheses
+and conclusion checked explicitly. This is a partial machine-checked
+formalisation, not a claim that the entire paper has been formalised.
 
 \section*{AI assistance}
 

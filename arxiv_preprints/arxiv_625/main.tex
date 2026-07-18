@@ -7,7 +7,9 @@
 \usepackage{amsmath,mathtools}
 \usepackage[authoryear,round]{natbib}
 \usepackage{enumitem}
+\usepackage{needspace}
 \usepackage{xurl}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
 
@@ -23,19 +25,34 @@
 \newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
 \newcommand{\Exp}[1]{\mathbb{E}\!\left[#1\right]}
 \newcommand{\Expres}[1]{\mathbb{E}_{\mathrm{res}}\!\left[#1\right]}
+\newcommand{\whp}{with high probability}
+\newcommand{\gnp}{G(n,1/2)}
+\newcommand{\gap}{\chi(G_n)-\zeta(G_n)}
+\newcommand{\displayheading}[1]{%
+  \par\addvspace{0.68\baselineskip}%
+  \noindent{\scshape #1.}\par\nobreak\smallskip\noindent}
+
+\definecolor{statementblue}{RGB}{25,55,105}
+\definecolor{statementgray}{RGB}{80,80,80}
 
 \newenvironment{resultbox}[1]
-  {\par\addvspace{0.85\baselineskip}%
-   \noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.35\baselineskip}}
+  {\Needspace{9\baselineskip}\par\addvspace{0.85\baselineskip}%
+   \noindent{\color{statementblue}\rule{\linewidth}{0.55pt}}\par\nobreak
+   \noindent{\color{statementblue}\textbf{#1.}}\enspace\itshape\ignorespaces}
+  {\par\nobreak\noindent{\color{statementblue}\rule{\linewidth}{0.35pt}}%
+   \par\addvspace{0.35\baselineskip}}
 \newenvironment{lemmabox}[1]
-  {\par\addvspace{0.72\baselineskip}%
-   \noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
+  {\Needspace{12\baselineskip}\par\addvspace{0.72\baselineskip}%
+   \noindent{\color{statementgray}\rule{\linewidth}{0.35pt}}\par\nobreak
+   \noindent{\color{statementgray}\textbf{#1.}}\enspace\itshape\ignorespaces}
+  {\par\nobreak\noindent{\color{statementgray}\rule{\linewidth}{0.25pt}}%
+   \par\addvspace{0.30\baselineskip}}
 \newenvironment{propositionbox}[1]
-  {\par\addvspace{0.72\baselineskip}%
-   \noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
+  {\Needspace{8\baselineskip}\par\addvspace{0.72\baselineskip}%
+   \noindent{\color{statementgray}\rule{\linewidth}{0.35pt}}\par\nobreak
+   \noindent{\color{statementgray}\textbf{#1.}}\enspace\itshape\ignorespaces}
+  {\par\nobreak\noindent{\color{statementgray}\rule{\linewidth}{0.25pt}}%
+   \par\addvspace{0.30\baselineskip}}
 
 \hypersetup{
   pdftitle={A Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph},
@@ -66,16 +83,17 @@ We prove that, for \(G_n\sim G(n,1/2)\),
        \frac{n}{(\ln n)^3}}\longrightarrow1.             \tag{0.1}
 \]
 
-The proof is organized around the rounding phase of the
-independence-number threshold. We compare ordinary colorings with signed
-cocolorings whose classes have four consecutive sizes and may be declared
-either independent or complete. This extra choice lowers the first-moment
-root by order \(n/(\ln n)^3\), uniformly throughout the phase. To show that
-the lower root is attained, we derive an exact overlap identity and express
-its sign contribution through even subgraphs of a bipartite configuration
-model. The resulting second-moment estimate produces a possibly rare
-cocoloring, which a vertex-exposure argument promotes to a high-probability
-event without changing the leading root separation.
+The delicate point is the rounding phase of the independence-number
+threshold. We compare ordinary colorings with signed cocolorings whose
+classes have four consecutive sizes and may be declared either independent
+or complete. The sign choice creates an exquisitely phase-sensitive but
+uniform first-moment advantage, lowering the relevant root by order
+\(n/(\ln n)^3\). To show that this lower root is attained, we derive an exact
+overlap identity and express its sign contribution through even subgraphs of
+a bipartite configuration model. The resulting second-moment estimate first
+produces a possibly rare cocoloring; a vertex-exposure argument then promotes
+that seed to a high-probability event without changing the leading root
+separation.
 
 \end{abstract}
 
@@ -109,7 +127,14 @@ For \(G_n\sim G(n,1/2)\),
  along the full sequence of integers \(n\).
 \end{resultbox}
 
-\paragraph{Background and relation to earlier work.}
+The full-sequence quantifier is essential. Near an independence-number jump,
+a rounding error of one vertex changes the available profile, so an estimate
+proved only on a dense set of phases does not automatically extend to every
+integer \(n\). The argument below is therefore uniform in the complete phase
+parameter \(\delta\in[0,1)\), including sequences approaching either side of
+each jump.
+
+\displayheading{Background and relation to earlier work}
 The chromatic number of dense random graphs has been studied since the
 1970s.  \citet[Corollary~3]{grimmett-mcdiarmid-1975} established the correct first-order
 lower scale and formulated the corresponding upper-bound problem.
@@ -158,19 +183,44 @@ amplifier.  The four-size profile, its phase-uniform entropy certificate,
 the treatment of all remaining overlap regimes, the all-\(n\) conclusion,
 and the explicit constant in Theorem~1 are the contributions of this paper.
 
-\paragraph{Proof roadmap.}
-Sections~2--4 establish an unrestricted lower location for \(\chi(G_n)\).
-Section~5 constructs a
-four-size signed cocoloring profile whose first moment is positive at a
-threshold lower by order \(n/(\ln n)^3\). Sections~6--9 establish the
-corresponding normalized second-moment estimate: Section~6 gives the exact
-overlap and sign decomposition, Section~7 controls common whole classes,
-Section~8 sums the high-cell skeletons, and Section~9 bounds the
-remaining conditional local and cycle contributions. Section~10 amplifies the
-resulting possibly rare cocoloring event to a high-probability statement.
-Finally, Section~11 combines the chromatic lower location with the
-cocoloring upper location. The roadmap records dependencies only; each
-asymptotic estimate is proved at the point where it is used.
+\displayheading{Proof roadmap}
+Sections~2--4 locate \(\chi(G_n)\) from below without imposing a hidden
+profile restriction. Section~2 resolves the complete independence-number
+phase, Section~3 develops the continuous root geometry, and Section~4 turns
+that geometry into an unrestricted chromatic lower bound.
+
+Section~5 constructs the four-size signed profile and proves the decisive
+first-moment separation of order \(n/(\ln n)^3\). The rest of the paper shows
+that this formal root is genuinely populated. Section~6 derives the exact
+overlap and sign decomposition; Section~7 controls common whole classes;
+Section~8 sums every canonical high-cell skeleton; and Section~9 bounds the
+remaining conditional local and cycle attachments. Section~10 then amplifies
+the possibly rare second-moment seed to a high-probability cocoloring event.
+Section~11 subtracts the two locations. The roadmap records dependencies
+only; each asymptotic estimate is proved where it is used.
+
+\displayheading{How to read the proof}
+The proof has three layers, which are best kept separate.  The first layer is
+the \emph{location calculation}: Sections~2--5 compare the ordinary coloring
+root with the signed four-size cocoloring root.  This is where the constant
+\((\ln 2)^2\ln(200/153)/32\) enters.  The second layer is the
+\emph{second-moment calculation}: Sections~6--9 prove that the signed
+first-moment advantage is not destroyed by overlaps.  These sections contain
+most of the bookkeeping; their role is to bound one normalized second moment,
+not to move either root.  The third layer is the \emph{probability
+amplification}: Section~10 turns a possibly rare cocoloring witness into a
+high-probability upper bound for \(\zeta(G_n)\), and Section~11 compares it
+with the chromatic lower bound.
+
+The main technical difficulty is that the second layer has to count overlaps
+without losing the phase-uniform constant from the first layer.  To make the
+bookkeeping auditable, the overlap matrix is reduced in stages.  Section~6
+gives an exact sign identity.  Section~7 removes common whole classes.
+Section~8 handles the high-multiplicity cells of the remaining overlap
+matrix.  Section~9 handles the residual local factors and cycle-space
+attachments.  Thus Lemmas~8.3 and~9.1 are not independent black boxes: Lemma
+8.3 bounds the high skeletons before the residual graph is exposed, while
+Lemma~9.1 bounds what remains after one such skeleton has been fixed.
 
 \section{Notation and elementary
 facts}\label{notation-and-elementary-facts}
@@ -432,7 +482,12 @@ Set
  T=\alpha-\frac nk.                                      \tag{3.4}
 \]
 
-The following lemma supplies all root geometry needed later.
+The profile optimization has two jobs. It must locate the zero of the
+first-moment exponent, and it must compare two different supports at the
+same average class size. The affine part of the deficit weight cancels under
+the fixed-mean constraint; only the curved part distinguishes the supports.
+The following lemma packages both facts, together with the uniform derivative
+needed to convert an entropy advantage into a root displacement.
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 3.1 (root phase, derivative, and support comparison)}
@@ -548,7 +603,7 @@ while (3.13) also supplies the uniform bound \(h_n(i)\le-{\ln 2}i^2/2\).
 The target mean \(T_0\) stays in the compact interval
 
 \[
- \frac2{\ln 2}\le T_0\le1+\frac2{\ln 2},                             \tag{3.15}
+ \frac2{\ln 2}\le T_0\le1+\frac2{\ln 2}.                             \tag{3.15}
 \]
 
 To control the optimizing tilts uniformly, define
@@ -719,7 +774,7 @@ bounded profiles. Applying (1.2) to (4.2), uniformly even when some
 \(k_i=0\), yields
 
 \[
- \ln E_{n,k,\alpha+1}\le L_+(n,k)+O((\ln n)^2),                \tag{4.3}
+ \ln E_{n,k,\alpha+1}\le L_+(n,k)+O((\ln n)^2).                \tag{4.3}
 \]
 
 By Lemma 3.1,
@@ -748,6 +803,12 @@ declared either ``independent'' or ``complete''; it is realized when each
 class induces the graph specified by its declaration.  Thus the sign is a
 two-way declaration attached to a class, and the signed counts below count
 witnesses for ordinary cocolorings rather than a new graph invariant.
+
+There are two logically separate tasks. First, restricting the deficits to
+\(S_4=\{2,3,4,5\}\) must cost strictly less than \(\ln 2\) per part. Second,
+the \(2^k\) choices of signs must convert that strict inequality into a
+macroscopic separation of the two roots. Lemma~5.1 proves the first point;
+the derivative estimate from Lemma~3.1 then proves the second.
 
 For \(S\in\{S_+,S_4\}\), introduce the tilted weights, partition
 function, and mean map
@@ -1197,11 +1258,11 @@ integer vector
 
 \[
  \mathbf k=(k_2,k_3,k_4,k_5),\qquad
- u_i=\alpha-i,\qquad k_i=\Theta(n/{\ln n}),                    \tag{5.17}
+ u_i=\alpha-i,\qquad k_i=\Theta(n/{\ln n}).                    \tag{5.17}
 \]
 
-Applying (1.2) to the factorials in its
-exact signed first moment
+Applying (1.2) to the factorials in the exact signed first moment of this
+vector gives
 
 \[
  \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
@@ -1349,6 +1410,11 @@ gives
 \]
 
 which is the first expression in (6.4).
+
+Formula (6.4) separates two effects that will be estimated by different
+methods. The product of the \(g(r_{ab})\) is purely local and is trivial for
+cell sizes at most two; the factor \(2^{\beta(H)}\) is topological and counts
+the independent cycle choices of the support graph.
 
 For every support edge, split \(\binom{r}{2}\) as
 \((\binom{r}{2}-1)+1\). Since
@@ -1592,6 +1658,12 @@ For the exact midpoint profile,
 
 \end{lemmabox}
 
+The proof has three ranges, classified by the vertex mass occupied by the
+marked common classes. The recurrence (7.4) controls the empty corner, the
+continuous rate function controls the central range, and the reverse
+recurrence (7.6) controls the full corner. The ranges overlap only at their
+boundaries and together exhaust every common subprofile.
+
 \paragraph{Proof: the empty corner.}\label{proof-the-empty-corner}
 
 Let
@@ -1658,7 +1730,7 @@ identity
 2\sum_i\{\ln(k_i!)-\ln(\ell_i!)-\ln((k_i-\ell_i)!)\}\\
 &-\ell_\bullet\ln 2-\ln(n!)+\ln((n-m)!)
  +\sum_i\ell_i\ln(u_i!)+\sum_i\ln(\ell_i!)
- +(\ln 2)b_\ell .
+ +(\ln 2)b_\ell.
 \end{split}
 \]
 Applying Stirling to this identity, with the convention
@@ -1865,14 +1937,14 @@ contribution. Together with (7.11) and (7.25), this proves (7.7).
 \section{Canonical high cells and dense endpoint
 transportation}\label{canonical-high-cells-and-dense-endpoint-transportation}
 
-\paragraph{Purpose of this section.}
-Section~7 controls the diagonal contribution coming from common whole
-classes. We now decompose every remaining overlap canonically according to
-its high cells and sum the resulting high-cell contribution, including
-unequal-type and nonendpoint cells. The local and cycle factors of the
-unexposed residual configuration are deliberately deferred: Section~9 will
-bound them uniformly after the present bare high-skeleton sum has been
-established.
+\displayheading{Contract for this section}
+The input is the exact overlap sum (6.6), after Section~7 has removed the
+contribution of common whole classes.  The output is a bound for the sum of
+the weights of all canonical high-cell skeletons, including unequal-type and
+nonendpoint cells.  The local and cycle factors of the unexposed residual
+configuration are deliberately deferred to Section~9.  Keeping those two
+tasks separate is what prevents the same overlap from being charged both as a
+high cell and as a residual attachment.
 
 Put
 
@@ -1896,10 +1968,18 @@ resulting canonical high-cell skeleton and its multiplicities as
 Selecting the exact stub pairs in these cells has incidence
 
 \[
- \pi(\mathcal M,j)=
+\pi(\mathcal M,j)=
  \frac{\prod_r(s_{a_r})_{j_r}(t_{b_r})_{j_r}}
       {(n)_J\prod_rj_r!}.                                \tag{8.3}
 \]
+
+The corresponding \emph{high-skeleton weight} is
+\[
+ w_{\mathrm{hi}}(\mathcal M,j)
+ :=\pi(\mathcal M,j)\prod_{e\in\mathcal M}g(j_e).         \tag{8.3a}
+\]
+It contains the incidence probability and the signed local rewards of the
+exposed high cells, but no residual local factor and no cycle-space factor.
 
 Conditional on the exposed pairs, the remaining matching is a uniform
 configuration model with total degree \(n-J\) and the residual row
@@ -1926,16 +2006,17 @@ Multiplying this expression by (8.3), and using
       {n!\prod_{a,b}r_{ab}!},
 \]
 which is exactly (6.2). Thus every overlap matrix occurs exactly once.
+The canonical choice of all cells above \(R_0\) is what prevents an overlap
+matrix from being charged to two different skeletons.
 
- We first sum the bare high-skeleton contribution, postponing all local and
- topological factors in the capped residual model. Index the four sizes
+We first sum the bare high-skeleton contribution. Index the four sizes
 as
 
 \[
  u_i=a-i,\qquad 0\le i\le3,\qquad a=\alpha-2.             \tag{8.4}
 \]
 
-\paragraph{Exact endpoint bookkeeping.}
+\displayheading{Exact endpoint bookkeeping}
 For a typed full-containment matrix \(\mathbf L=(\ell_{ij})\), put
 
 \[
@@ -1997,7 +2078,15 @@ with
 
 \end{lemmabox}
 
-\paragraph{Proof.}\label{proof-5}
+\begin{proof}\label{proof-5}
+
+The estimate has two sources.  The first is a global falling-factorial
+comparison: replacing a rectangular overlap table by its two one-sided
+margin profiles costs only the small off-diagonal factor in (8.12).  The
+second is a local comparison of unequal class sizes: a cell joining sizes
+that differ by \(d\) carries the factor \(Q_{ij}\), and \(Q_{ij}\) is small
+because the random graph penalty \(2^{-ds/2}\) dominates the polynomial
+choices of the extra \(d\) vertices.
 
 For integer \(x\), let \(f(x)=\ln(n)_x\) and interpolate
 linearly between successive integers. Its successive slopes are
@@ -2053,7 +2142,8 @@ proves (8.8)--(8.9). Finally \(t\le a\),
  2^a=\Theta(n^2/(\ln n)^2)                                    \tag{8.15}
 \]
 
-uniformly in the phase. This proves (8.10). \(\square\)
+uniformly in the phase. This proves (8.10).
+\end{proof}
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 8.2 (sum of all endpoint tables)}
@@ -2078,7 +2168,13 @@ row and column margins lie in \(\mathcal P\).  Then
 
 \end{lemmabox}
 
-\paragraph{Proof.}\label{proof-6}
+\begin{proof}\label{proof-6}
+
+This is the point at which the geometric-mean comparison becomes a genuine
+sum over all endpoint tables.  For fixed margins we forget one set of margin
+constraints at a time.  That enlargement is harmless because all summands are
+nonnegative, and it converts the constrained table sum into a multinomial
+sum.  Cauchy's inequality then restores symmetry between the two margins.
 
 For fixed margins, write
 
@@ -2128,21 +2224,44 @@ There are only \(O(k_{\mathrm{co}}^4)\) margin vectors, and
 
 Use Lemma 7.1 and
 \(\eta_n k_{\mathrm{co}}=O(\sqrt{n{\ln n}})\)
-to finish. \(\square\)
+to finish.
+\end{proof}
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Lemma 8.3 (all nonendpoint high multiplicities)}
 \label{lemma-8.3-all-nonendpoint-high-multiplicities}
 \begin{lemmabox}{Lemma 8.3 (all nonendpoint high multiplicities)}
 
-The full-containment sum (8.16) remains \(\exp(o(n/(\ln n)^4))\) after
-all high-cell multiplicities
-\(R_0<j<\min(u_i,u_j)\)
-are inserted.
+After all feasible high-cell multiplicities
+\(R_0<j\le\min(u_i,u_j)\) are included,
+\[
+ \sum_{(\mathcal M,j)\ \mathrm{feasible}}
+ w_{\mathrm{hi}}(\mathcal M,j)
+ \le \exp\!\left\{o\!\left(\frac{n}{(\ln n)^4}\right)\right\}.
+\]
 
 \end{lemmabox}
 
-\paragraph{Proof.}\label{proof-7}
+\begin{proof}\label{proof-7}
+
+Replacing a high cell by full containment creates two qualitatively different
+errors. A small deficit from the endpoint factorizes over the matching and is
+summable cell by cell; a middle multiplicity must instead be estimated inside
+the residual configuration model. The proof treats these mechanisms
+separately and then recombines them through the exact canonical decomposition.
+
+It may help to view the argument as a charging scheme.  Every high cell is
+charged first to the nearest endpoint table.  If the cell is close to full
+containment, the charge is paid immediately by the rapidly decreasing
+one-cell series (8.25).  If it is not close to full containment, it is left in
+the residual model and paid for by the joint threshold estimate (8.26a), or by
+the crude small-residual bound (8.29a).  The no-double-counting point is that
+the joint probability estimate is applied before the residual restrictions
+are relaxed.  The proof is organized into five explicit steps: the canonical
+near--middle split, the summation of near cells, the two residual-mass
+branches for middle cells, and the final assembly.
+
+\displayheading{Step I: the canonical near--middle split}
 
 We first record why the following two ranges exhaust the canonical
 high-skeleton sum. If a high cell joins slots of sizes \(m\) and \(m+d\),
@@ -2163,6 +2282,7 @@ the no-near-cell restriction, but only after the relevant joint probability
 has been bounded. Since all summands are nonnegative, these relaxations can
 only increase the sum.
 
+\displayheading{Step II: summing near-containment cells}
 Let the smaller slot size be \(m\), the larger \(m+d\), with
 \(0\le d\le 3\). Replacing the endpoint
 multiplicity \(m\) by \(m-e\) has exact local ratio
@@ -2218,7 +2338,7 @@ decreases geometrically and
  \sum_{1\le e<m/4}n^eR_{m,d}(e)=O((\ln n)^3/n).                \tag{8.25}
 \]
 
-\paragraph{Near-containment decorations.}
+\displayheading{From one near cell to a full skeleton}
 The passage from this per-cell estimate to the full skeleton sum is as
 follows. For a full-containment table \(\mathbf L\), temporarily distinguish its
 endpoint cells, write \(\operatorname{cells}(\mathbf L)\) for the resulting
@@ -2248,7 +2368,7 @@ at most \(W(\mathbf L)\) times
  (1+O((\ln n)^3/n))^{k_{\mathrm{co}}}=\exp(O((\ln n)^2)).                     \tag{8.26}
 \]
 
-\paragraph{Middle-strip residual factor.}
+\displayheading{Step III: middle cells with large residual mass}
 It remains to cover the middle strip, rather than silently importing an
 equitable-profile estimate. First expose a near-containment skeleton \(S\).
 Its underlying set of high cells is a matching; write \(\mathcal M(S)\) for
@@ -2319,6 +2439,7 @@ Indeed, the quadratic coefficient is
 on this interval. Hence
 \(\Xi_4=2^{-\Omega(\ell_n^2)}\).
 
+\displayheading{Step IV: middle cells with small residual mass}
 If instead \(m_0<n/(\ln n)^6\), leave the entire residual matching unexposed.
 For an upper bound, replace \(\mathbf1_{\mathcal N(S)}\) by \(1\) and the
 truncated local product by the full product \(\prod_e g(r_e)\); both
@@ -2346,11 +2467,12 @@ explicit conditional bound
  \le\exp(Cam_0).                                         \tag{8.29a}
 \]
 
+\displayheading{Step V: assembly}
 Combining (8.16), (8.25a)--(8.26a), and the two residual-mass branches
 now gives the global inequality
 
 \[
- \sum_{\text{all high skeletons}}\text{bare weight}
+ \sum_{(\mathcal M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(\mathcal M,j)
   \le e^{O((\ln n)^2)}\left(\sum_{\mathbf L}W(\mathbf L)\right)
       \max\{e^{\Xi_4},e^{Cn/(\ln n)^5}\}.                     \tag{8.29b}
 \]
@@ -2358,24 +2480,28 @@ now gives the global inequality
 Therefore
 
 \[
- \sum_{\text{all high skeletons}}\text{bare weight}
+ \sum_{(\mathcal M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(\mathcal M,j)
  \le\exp\{O(\sqrt{n{\ln n}})+O((\ln n)^2)+O(n/(\ln n)^5)\}
- =\exp\{o(n/(\ln n)^4)\}.\qquad\square                       \tag{8.30}
+ =\exp\{o(n/(\ln n)^4)\}.                                   \tag{8.30}
 \]
+
+This is the skeleton-sum half of the factorization (9.2); no residual
+attachment has yet been charged.
+\end{proof}
 
 \section{All residual local and cycle
 attachments}\label{all-residual-local-and-cycle-attachments}
 
-\paragraph{Purpose of this section.}
-Fixing a canonical high skeleton does not yet control the local multiplicity
-factors or the cycle-space factor of the residual overlap graph. The
-conditional quantity defined below collects precisely these residual
-contributions, subject to the residual cap and the prohibition on adding a
-further pair in a high cell. We prove a bound uniform over all feasible
-skeletons; Proposition~9.2 then combines that bound with the bare
-high-skeleton estimate from Section~8.
+\displayheading{Contract for this section}
+Section~8 supplied the sum of the high-skeleton weights
+\(w_{\mathrm{hi}}\), but deliberately left the unexposed local and
+cycle-space factors unpaid.  Here we condition on one feasible skeleton.
+The remaining stubs form a finite bipartite configuration model with
+prescribed residual degrees, and \(\mathcal A(\mathcal M,j)\) records exactly
+its residual attachment.  Lemma~9.1 bounds this quantity uniformly;
+Proposition~9.2 then multiplies that uniform bound by the skeleton sum (8.30).
 
-\paragraph{Exact conditional decomposition.}
+\displayheading{Exact conditional decomposition}
 Fix an actual canonical high skeleton \((\mathcal M,j)\) as in (8.2), and
 let \(m_0=n-J\) be the residual total degree. Its residual degrees
 are at most \(u_{\max}\). Define
@@ -2393,9 +2519,15 @@ pair in a cell of \(\mathcal M\). By (6.4), (8.3), and the exact conditional
 law, the normalized moment is exactly
 
 \[
- \sum_{(\mathcal M,j)}\pi(\mathcal M,j)\left(\prod_{e\in \mathcal M}g(j_e)\right)
- \mathcal A(\mathcal M,j).                                       \tag{9.2}
+ \frac{\Exp{(Z_{\mathbf k}^{\mathrm{sgn}})^2}}
+      {\Exp{Z_{\mathbf k}^{\mathrm{sgn}}}^2}
+ =\sum_{(\mathcal M,j)}w_{\mathrm{hi}}(\mathcal M,j)
+       \mathcal A(\mathcal M,j).                                \tag{9.2}
 \]
+
+The architecture is now visible in a single line: Section~8 bounds the sum
+of \(w_{\mathrm{hi}}\), Lemma~9.1 bounds the supremum of \(\mathcal A\), and
+Proposition~9.2 combines the two bounds.
 
 The sum in (9.2) is over the finite set of feasible canonical high skeletons:
 typed matchings \(\mathcal M\), allowed multiplicities \(j_e>R_0\), and the induced
@@ -2408,7 +2540,7 @@ multiplicities, while \(2^{\beta(\mathcal M\cup H_{\mathrm{res}})}\)
 records the associated cycle-space contribution after the high skeleton has
 already been fixed.
 
-\paragraph{Uniform asymptotic bound.}
+\displayheading{Uniform asymptotic bound}
 We next bound the exact conditional quantity (9.1) uniformly over its
 finite family of feasible skeletons.
 
@@ -2432,7 +2564,15 @@ on \(\mathcal A\) is asserted or needed.
 
 \end{lemmabox}
 
-\paragraph{Proof: large residual degree.}\label{proof-large-residual-degree}
+\begin{proof}\label{proof-large-residual-degree}
+\displayheading{Large residual mass}
+
+There are two possible ways a residual cell can matter.  It may contribute a
+large local multiplicity factor \(g(r'_e)\), or it may be selected as part of
+an even residual subgraph contributing to the cycle-space term.  The expansion
+below assigns these two costs to different weights.  The quantities
+\(\lambda^{\mathrm{loc}}_{ab}\) pay for multiplicity increments \(r'_e\ge3\),
+whereas \(q_{ab}\) pays for a residual edge used by the even-subgraph sum.
 
 Suppose \(m_0\ge n/(\ln n)^6\). Since
 
@@ -2506,11 +2646,20 @@ the base demand \(\mathbf1_{\{r'_e\ge2\}}\) or one increment term
 \(\Delta_x\mathbf1_{\{r'_e\ge x\}}\), but not both in the same monomial.
 Thus a cell of multiplicity at least three is not charged simultaneously as
 a separate double-cell demand and as a higher-threshold local-factor demand.
-After fixing an even subgraph and expanding these alternatives, apply
-Lemma~6.2 jointly to all demanded cells. Every coefficient and event
-indicator is nonnegative, so the residual cap may be removed only after this
-joint bound is taken; doing so enlarges the event and preserves the stated
-upper-bound direction. This gives
+Let \(R\) be the finite potential residual support graph consisting of all
+residual row--column cells, and let
+\(\mathcal C_{\rm even}(\mathcal M,R)\) be the finite family of edge sets
+\(F\subseteq E(\mathcal M\cup R)\) having even degree at every vertex.  The
+edges of \(\mathcal M\) have weight one below.
+
+For clarity, the derivation of the next inequality has four steps.  First,
+expand \(2^\beta\) by the cycle-space identity (6.7).  Second, use (9.10) on
+edges outside the chosen even set and (9.11) on its selected residual edges.
+Third, apply Lemma~6.2 jointly to every resulting threshold demand before
+removing the cap or the no-return restriction.  Fourth, factor the remaining
+local increments cell by cell.  Every coefficient and event indicator is
+nonnegative, so each relaxation preserves the upper-bound direction.  This
+gives
 
 \[
  \mathcal A(\mathcal M,j)
@@ -2521,10 +2670,10 @@ upper-bound direction. This gives
                                                                \tag{9.12}
 \]
 
-Here \(R\) is the finite potential residual support graph (all residual
-row--column cells), and \(\mathcal C_{\rm even}(\mathcal M,R)\) is the finite family of
-edge subsets \(F\subseteq E(\mathcal M\cup R)\) having even degree at every vertex;
-the edges of \(\mathcal M\) have weight one in the displayed product.
+The right side now has a clean division of labour: the exponential term pays
+for higher local multiplicities, while the weighted even-subgraph sum pays
+for the cycle space. The remaining proof bounds these two quantities
+independently.
 
 By (9.9),
 
@@ -2542,7 +2691,7 @@ Every residual degree is at most \(u_{\max}\), and both degree sums equal
 \[
  \Lambda_{\mathrm{loc}}\le\frac C{m_0^3}
    \left(\sum_a d_a^3\right)\left(\sum_b(d'_b)^3\right)
- \le C\frac{u_{\max}^4}{m_0},                                  \tag{9.13}
+ \le C\frac{u_{\max}^4}{m_0}.                                  \tag{9.13}
 \]
 
 For a fixed row \(a\), the quadratic bound in (9.9) also gives
@@ -2560,23 +2709,16 @@ and the same calculation holds for every column.  Hence
  \le C\frac{u_{\max}^3}{m_0}=:\tau=o(1).                       \tag{9.14}
 \]
 
-\paragraph{Cycle-kernel estimate.}
+\displayheading{Cycle-kernel estimate}
 Every even edge set has a deterministic decomposition into edge-disjoint
 simple cycles, and the map from an even edge set to that chosen cycle family
 is injective because the original edge set is recovered by taking the
 union. We now enlarge the image of this map to all finite families of simple
 cycles, allowing cycles in the family to share edges. Since all cycle
-weights are nonnegative, this relaxation can only increase the sum. If
-\(w(C)=\prod_{e\in C\setminus \mathcal M}q_e\), then, with
-\(w(F):=\prod_{e\in F\setminus \mathcal M}q_e\),
-
-\[
- \sum_{F\ {\rm even}}w(F)
- \le\prod_C(1+w(C))
- \le\exp\!\left(\sum_Cw(C)\right),
-\]
-
-which is precisely
+weights are nonnegative, this relaxation can only increase the sum.  With
+\(w(C)=\prod_{e\in C\setminus \mathcal M}q_e\) and
+\(w(F)=\prod_{e\in F\setminus \mathcal M}q_e\), summing over all cycle
+families and using \(1+x\le e^x\) gives
 
 \[
  \sum_{F\text{ even}}\prod_{e\in F\setminus \mathcal M}q_e
@@ -2656,7 +2798,7 @@ Combining (9.12)--(9.18),
 
 at the cutoff \(m_0\ge n/(\ln n)^6\).
 
-\paragraph{Proof: small residual degree.}\label{proof-small-residual-degree}
+\displayheading{Small residual mass}\label{proof-small-residual-degree}
 
 Suppose \(m_0<n/(\ln n)^6\). Since \(\mathcal M\) is a
 matching, it is a forest, and adding a residual support edge increases
@@ -2682,7 +2824,7 @@ Equations (6.5), (9.20), and (9.21) bound the integrand in (9.1) by
 \]
 
 Both exponents in (9.19) and (9.22) are \(o(n/(\ln n)^4)\).
-\(\square\)
+\end{proof}
 
 \phantomsection
 \addcontentsline{toc}{subsection}{Proposition 9.2 (normalized signed second moment)}
@@ -2699,13 +2841,9 @@ For the exact midpoint profile,
 
 \end{propositionbox}
 
-\paragraph{Proof.}\label{proof-8}
+\begin{proof}\label{proof-8}
 
-Equation (9.2) is an exact canonical decomposition.  Write
-\[
- w(\mathcal M,j):=\pi(\mathcal M,j)\prod_{e\in \mathcal M}g(j_e).
-\]
-Lemma 8.3 sums all
+Equation (9.2) is an exact canonical decomposition.  Lemma 8.3 sums all
 bare high skeletons by \(\exp(o(n/(\ln n)^4))\), including the empty
 skeleton, all dense endpoint tables, every near-containment decoration,
 and the two middle-strip regimes. Lemma 9.1 bounds the conditional
@@ -2717,29 +2855,34 @@ skeleton.  Thus (9.2) gives the explicit estimate
       {\Exp{Z_{\mathbf k}^{\mathrm{sgn}}}^2}
  \le
  \left(\sup_{(\mathcal M,j)}\mathcal A(\mathcal M,j)\right)
- \sum_{(\mathcal M,j)}w(\mathcal M,j)
+ \sum_{(\mathcal M,j)}w_{\mathrm{hi}}(\mathcal M,j)
  =\exp\{o(n/(\ln n)^4)\}.
 \]
 
 This proves the upper bound in (9.23). The
 normalized second moment is at least one by variance, so its logarithm
-is nonnegative and (9.23) follows. \(\square\)
+is nonnegative and (9.23) follows.
+\end{proof}
 
 \section{Rare-event amplification}\label{rare-event-amplification}
-
-The proof of \citet[Theorem~1]{heckel-2025-difference} also begins with
-a rare second-moment seed and then uses vertex-exposure concentration of
-\(\zeta(G_n)\) to obtain a high-probability statement.  We use the same
-seed-to-typical strategic principle, but not that theorem as a black box:
-Lemma 10.2 proves the quantitative implication needed here for an
-arbitrary seed exponent \(\Lambda_n\), and Lemma 10.1 supplies the
-simultaneous leftover coloring that controls the added parts.
 
 Proposition 9.2 and (1.4) give the seed
 
 \[
  \Prob{Z_{\mathbf k}^{\mathrm{sgn}}>0}\ge e^{-\Lambda_n}.       \tag{10.1}
 \]
+
+This is only a possibly rare seed.  The purpose of this section is to turn
+it into a high-probability cocoloring event while adding fewer parts than the
+root separation can absorb.
+
+The proof of \citet[Theorem~1]{heckel-2025-difference} also begins with a
+rare second-moment seed and then uses vertex-exposure concentration of
+\(\zeta(G_n)\) to obtain a high-probability statement.  We use the same
+seed-to-typical strategic principle, but not that theorem as a black box:
+Lemma 10.2 proves the quantitative implication needed here for an arbitrary
+seed exponent \(\Lambda_n\), and Lemma 10.1 supplies the simultaneous
+leftover coloring that controls the added parts.
 
 The ordinary-coloring concentration argument motivating this amplification
 appears in \citet[Theorem~1]{scott-2008-2017}. Lemmas 10.1 and 10.2 prove the precise
@@ -2799,11 +2942,13 @@ choices, then
  s_{t+1}\ge(s_t-1)/4,\qquad s_t\ge4^{-t}s_0-1/3.         \tag{10.3a}
 \]
 
-The chosen vertices form a clique in \(H\). Starting from any
+The chosen vertices form a clique in \(H\): after a vertex is chosen, the
+current set is replaced by its \(H\)-neighbourhood, so every later choice is
+adjacent in \(H\) to every earlier one. Starting from any
 \(\lceil n^{1/3}\rceil\)-subset, (10.3a) stays above \(n^{1/4}\) for at
-least \(\lfloor {\ln n}/(13\ln4)\rfloor\) steps. Thus it constructs at least
-\(c{\ln n}\) vertices for an absolute \(c>0\). They are an independent set in
-\(G_n\).
+least \(\lfloor {\ln n}/(13\ln4)\rfloor\) steps. Thus the procedure constructs
+at least \(c{\ln n}\) vertices for an absolute \(c>0\), and these vertices form
+an independent set in \(G_n\).
 
 For an arbitrary \(S\), repeatedly remove such independent sets and
 give each a new color until fewer than \(n^{1/3}\) vertices
@@ -2855,10 +3000,11 @@ and define
 
 Expose the random graph in \(n-1\) independent vertex blocks, where
 block \(v\) contains the edges from \(v\) to earlier vertices.
-Changing one block changes \(S_k\) by at most one: after deletion
-of the affected vertex, every feasible induced set loses at most one
-vertex and the two configurations agree on the remainder. Therefore
-(1.3) applies.
+Changing one block changes \(S_k\) by at most one. Indeed, after deleting
+the affected vertex, every feasible induced set loses at most one vertex,
+and the two graph configurations agree on all remaining edges. Thus a
+maximizer in either configuration yields a feasible set of size at least one
+less in the other configuration. Therefore (1.3) applies.
 
 Since \(S_k=n\) exactly when \(\zeta(G_n)\le k_n\),
 (10.4) and the upper one-sided bounded-differences tail give
@@ -2957,28 +3103,53 @@ every fixed \(K\),
  \Prob{\chi(G_n)-\zeta(G_n)\ge K}\longrightarrow1.      \tag{11.3}
 \]
 
-Every estimate used above is uniform for \(\delta \in [0,1)\) and
-for the exact tangent-rounded finite-\(n\) profile. The conclusion
-therefore holds along all sufficiently large integers, including
-sequences approaching either side of every independence-number jump. It
-is a high-probability statement, not a density-subset or subsequence
-result. \(\blacksquare\)
+Every estimate used above is uniform for \(\delta \in [0,1)\) and for the
+exact tangent-rounded finite-\(n\) profile. The conclusion therefore holds
+along all sufficiently large integers, including sequences approaching
+either side of every independence-number jump. The phase has not been
+averaged away or discarded: the result is a full-sequence high-probability
+statement, not a density-subset or subsequence statement. \(\blacksquare\)
 
-\section*{Formalization}
+\section*{Reproducibility and formalisation}
 
-A partial Lean~4 formalization developed using ChatGPT-5.6 and Aristotle
-\citep{achim-et-al-2025} is available in a self-contained source file on
-\href{https://github.com/SamPetkov/Erdos/blob/main/625/formalization/Erdos625SelfContained.lean}{GitHub}. Each statemet was broken down into substatements and verified on input and output for a safer formalisation.
+The complete proof sources and reproducibility material are collected in the
+numbered dossiers of the public
+\href{https://github.com/SamPetkov/Erdos}{\texttt{Erdos} repository}; the
+present paper is in \texttt{625/}. All theorem statements and proof text are
+available with the manuscript sources. The dossier includes the TeX source,
+bibliography, reproducible build material, audit records, and the current
+partial Lean~4 formalisation.
+
+The \texttt{625/verification/} directory additionally contains an
+independently written Python checker, its reproduced output, and a Markdown
+verification report. These files provide supplementary finite consistency
+checks and an auditable record of what was tested; they are not a substitute
+for external peer review or for a complete formal proof.
+
+The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle
+\citep{achim-et-al-2025}, is provided as a self-contained source file. Each
+formalised statement is decomposed into smaller claims, with its hypotheses
+and conclusion checked explicitly. This is a partial machine-checked
+formalisation, not a claim that the entire paper has been formalised.
 
 \section*{AI assistance}
 
-ChatGPT-5.6 Sol Pro and Aristotle were consulted for proof development,
-adversarial checking, and the Lean formalization. In particular,
-ChatGPT-5.6 Sol Pro proposed the four-size signed profile with class sizes
+The proof and formalisation were completed with extensive assistance from
+ChatGPT-5.6 Sol Ultra and Aristotle. Separate adversarial verification passes
+were run with ChatGPT-5.6 Sol Pro; these passes are not external peer review.
+In particular, ChatGPT-5.6 proposed the four-size signed profile with class sizes
 \(\alpha-2,\alpha-3,\alpha-4,\alpha-5\), which led to the phase-uniform
 first-moment separation used in Section~5. The author reviewed every
 incorporated suggestion and assumes full responsibility for the arguments,
 citations, and final manuscript.
+
+\section*{Funding}
+
+The author received no funding for this work.
+
+\section*{Competing interests}
+
+The author declares no competing interests.
 
 \renewcommand{\bibsection}{\section*{References}}
 \bibliographystyle{unsrtnat}
