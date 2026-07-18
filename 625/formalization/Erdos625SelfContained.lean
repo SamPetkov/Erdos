@@ -37374,7 +37374,7 @@ END SOURCE MODULE: Erdos625.Section8ResidualEventToSection9
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TaggedFiberCancellation
 Source: Erdos625/Section9TaggedFiberCancellation.lean
-Normalized SHA-256: d2cc269808394a8b839f520e24708e51b544b0632564271a875be92a73f3b16a
+Normalized SHA-256: 8626729cf860c22b715b32837525629430f908687bb08901ae83d82e02d90470
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9TaggedFiberCancellation
 
@@ -37509,7 +37509,7 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
       congr 1
       unfold taggedResidualAttachmentValue weight
       rw [← canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
-      simpa only [Finset.sum_filter] using
+      simpa only [Finset.sum_filter, Finset.subtype_univ] using
         (Finset.sum_subtype_eq_sum_filter
           (s := (Finset.univ : Finset (ConfigurationMatching
             (residualRowDegree witness) (residualColumnDegree witness))))

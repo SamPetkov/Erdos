@@ -137,7 +137,7 @@ private theorem residualActualAttachmentNumerator_eq_factorial_inv_mul_sum
       congr 1
       unfold taggedResidualAttachmentValue weight
       rw [← canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U]
-      simpa only [Finset.sum_filter] using
+      simpa only [Finset.sum_filter, Finset.subtype_univ] using
         (Finset.sum_subtype_eq_sum_filter
           (s := (Finset.univ : Finset (ConfigurationMatching
             (residualRowDegree witness) (residualColumnDegree witness))))
