@@ -101,6 +101,10 @@ import Erdos625.ExtendedGaussianTilt
 import Erdos625.ColoringProfileDeficitTiltConvergence
 import Erdos625.ProfileAsymptoticTools
 import Erdos625.ProfileCorridorTools
+import Erdos625.RootSeparationSlope
+import Erdos625.RootSeparationRounding
+import Erdos625.RootSeparationRoundingNatAdapter
+import Erdos625.RootSeparationRoundingBudget
 import Erdos625.OrderedOverlapLaw
 import Erdos625.OverlapContingencyTools
 import Erdos625.StubAllocationTools

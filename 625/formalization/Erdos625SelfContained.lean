@@ -42714,7 +42714,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 89ced94128849f41f7a8bfa7b3d02ad1825af23d67b0c53cd970ac07ee65f2ff
+Normalized SHA-256: a6f85b11dc033c38616fb5dbe6f7f86494a541e21a46fe5255ebd1b496428cc7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
