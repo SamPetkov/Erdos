@@ -84,6 +84,7 @@ import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
+import Erdos625.SignedFourSizeObjective
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -154,11 +155,13 @@ import Erdos625.Section6SignedJointMass
 import Erdos625.Section6SignedSecondMomentPackage
 import Erdos625.ProfileOverlapCanonicalTable
 import Erdos625.ProfileOverlapFibrationRegrouping
+import Erdos625.ProfileOverlapConfigurationBridge
 import Erdos625.Section6SignedSecondMomentFubini
 import Erdos625.Section6SignedExpectationDenominator
 import Erdos625.Section6SignedOverlapRewardReindex
 import Erdos625.SignedProfileSemanticLift
 import Erdos625.Section6SignedSecondMomentIdentity
+import Erdos625.Section6SignedPaleyZygmundSeed
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -249,6 +252,7 @@ import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
 import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
+import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 

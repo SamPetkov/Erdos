@@ -79,6 +79,7 @@ import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
+import Erdos625.SignedFourSizeObjective
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -149,11 +150,13 @@ import Erdos625.Section6SignedJointMass
 import Erdos625.Section6SignedSecondMomentPackage
 import Erdos625.ProfileOverlapCanonicalTable
 import Erdos625.ProfileOverlapFibrationRegrouping
+import Erdos625.ProfileOverlapConfigurationBridge
 import Erdos625.Section6SignedSecondMomentFubini
 import Erdos625.Section6SignedExpectationDenominator
 import Erdos625.Section6SignedOverlapRewardReindex
 import Erdos625.SignedProfileSemanticLift
 import Erdos625.Section6SignedSecondMomentIdentity
+import Erdos625.Section6SignedPaleyZygmundSeed
 import Erdos625.Section9CyclePolymerBound
 import Erdos625.Section9MinimalEvenCycleTour
 import Erdos625.Section9TraversalKernel
@@ -243,6 +246,7 @@ import Erdos625.ColoringProfileDualProbability
 import Erdos625.ColoringProfileDualAsymptotic
 import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
+import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -450,6 +454,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
+#print axioms Erdos625.signedFourDeficitProfileExpectation_eq
+#print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
+#print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
+#print axioms Erdos625.hasDerivAt_signedFourSizeObjective
+#print axioms Erdos625.continuousAt_phaseSignedFourSizeObjective
 #print axioms Erdos625.ColoringProfile.prod_factorial_count_sizes
 #print axioms Erdos625.ColoringProfile.enumerativeCoefficient_mul_coordinateDenominator_eq
 #print axioms Erdos625.ProfilePartition.ncard_partitionInternalGraph
@@ -639,6 +648,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_profileBlockIndex
 #print axioms Erdos625.profileOverlapTable_realizable_iff
 #print axioms Erdos625.sum_weight_profileOverlapTableOfOrderedPair_eq_sum_card_nsmul
+#print axioms Erdos625.configurationMatchingEquivColumnWithOrders
+#print axioms Erdos625.configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount
+#print axioms Erdos625.uniformConfigurationMatching_map_orderedProfileColumn
+#print axioms Erdos625.weightedExpectation_uniformConfigurationMatching_eq_uniformProfile
 #print axioms Erdos625.signedProfileSecondMoment_eq_sum_pairEvent
 #print axioms Erdos625.signedProfileExpectation_ne_zero_of_orderedProfilePartition
 #print axioms Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition
@@ -648,6 +661,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signedOverlapQuotientBridge
 #print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_tableSum
 #print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_profileOverlapTableSum
+#print axioms Erdos625.lintegral_signedProfileCount_eq_signedProfileExpectation
+#print axioms Erdos625.lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment
+#print axioms Erdos625.signedProfile_real_seed_of_tableSum_bound
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
@@ -1003,6 +1019,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_profileDual_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+#print axioms Erdos625.chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one

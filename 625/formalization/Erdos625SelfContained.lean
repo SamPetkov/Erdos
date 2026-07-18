@@ -16399,6 +16399,856 @@ END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedProfileWitness
+Source: Erdos625/SignedProfileWitness.lean
+Normalized SHA-256: 802dc734cdeb0f1415fe483e62d4f2d8f4b4aa66769ad7a7a285ab7a9416fbd8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
+
+/-!
+# Signed profile witnesses
+
+This file contains the deterministic graph-level layer of the signed
+cocolouring count used in the second-moment argument.  A witness is an
+unordered profile partition together with one Boolean sign per nonempty part:
+`false` requires that part to be independent and `true` requires it to be a
+clique.
+
+The key point here is deliberately finite and pointwise: a valid signed
+witness produces an actual `CoColoring`, and hence positivity of the count
+implies cocolourability with the advertised number of parts.  No
+probabilistic estimate is hidden in this implication.
+-/
+
+namespace Erdos625
+
+open MeasureTheory SimpleGraph
+open scoped BigOperators ENNReal symmDiff
+
+noncomputable section
+
+/-- A sign assignment is valid when every signed profile part is respectively
+an independent set (`false`) or a clique (`true`). -/
+def profileSignValid {b n : ℕ} {k : ColoringProfile b}
+    (G : LabeledGraph n) (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) : Prop :=
+  ∀ B : P.1.parts,
+    match σ B with
+    | false => G.IsIndepSet (B.1 : Set (Fin n))
+    | true => G.IsClique (B.1 : Set (Fin n))
+
+/-- An unordered profile partition together with a Boolean independent/clique
+sign on each of its nonempty parts. -/
+abbrev SignedProfileWitness {b : ℕ} (n : ℕ)
+    (k : ColoringProfile b) :=
+  Σ P : ProfilePartition n k, P.1.parts → Bool
+
+/-- Validity of a signed profile witness in a labelled graph. -/
+def validSignedProfileWitness {b n : ℕ} {k : ColoringProfile b}
+    (G : LabeledGraph n) (w : SignedProfileWitness n k) : Prop :=
+  profileSignValid G w.1 w.2
+
+/-- The number of valid signed witnesses of the fixed profile. -/
+noncomputable def signedProfileCount {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) : ℕ := by
+  classical
+  exact (Finset.univ.filter fun w : SignedProfileWitness n k =>
+    validSignedProfileWitness G w).card
+
+/-- The graph made of precisely the internal complete graphs of the parts
+given clique sign.  It is the edge-toggle used to reduce a mixed signed
+witness to the all-independent event for the same partition. -/
+noncomputable def signedProfileInternalGraph {b n : ℕ}
+    {k : ColoringProfile b} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) : LabeledGraph n :=
+  P.1.parts.attach.sup fun B => if σ B then completeOn B.1 else ⊥
+
+/-- The signed internal graph is contained in the graph of all internal
+partition edges. -/
+theorem signedProfileInternalGraph_le_partitionInternalGraph
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    signedProfileInternalGraph P σ ≤ partitionInternalGraph P.1 := by
+  classical
+  unfold signedProfileInternalGraph partitionInternalGraph
+  refine Finset.sup_le_iff.mpr ?_
+  intro B hB
+  by_cases hσ : σ B
+  · simp only [hσ, ite_true]
+    exact Finset.le_sup B.2
+  · simp [hσ]
+
+/-- A clique-signed part contributes its entire internal complete graph to the
+toggle graph. -/
+theorem completeOn_le_signedProfileInternalGraph_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    completeOn B.1 ≤ signedProfileInternalGraph P σ := by
+  classical
+  unfold signedProfileInternalGraph
+  refine Finset.le_sup_of_le
+    (s := P.1.parts.attach)
+    (f := fun C => if σ C then completeOn C.1 else ⊥)
+    (Finset.mem_attach P.1.parts B) ?_
+  simp [hB]
+
+/-- A part carrying the independent sign is edge-disjoint from the toggle
+graph.  The proof uses disjointness of distinct `Finpartition` parts, rather
+than treating the signed graph as an informal edge list. -/
+theorem signedProfileInternalGraph_disjoint_completeOn_of_sign_false
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = false) :
+    Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) := by
+  classical
+  unfold signedProfileInternalGraph
+  rw [Finset.disjoint_sup_left]
+  intro C hC
+  by_cases hCsign : σ C
+  · rw [if_pos hCsign]
+    apply disjoint_completeOn_of_disjoint
+    apply P.1.disjoint C.2 B.2
+    intro hCB
+    have hCB' : C = B := Subtype.ext hCB
+    subst C
+    simp [hB] at hCsign
+  · simp [hCsign]
+
+/-- A finite set is a clique exactly when its supported complete graph is a
+subgraph of the ambient graph. -/
+theorem isClique_iff_completeOn_le {n : ℕ} (G : LabeledGraph n)
+    (S : Finset (Fin n)) :
+    G.IsClique (S : Set (Fin n)) ↔ completeOn S ≤ G := by
+  constructor
+  · intro h x y hxy
+    rw [completeOn, SimpleGraph.map_adj] at hxy
+    obtain ⟨x', y', hne, rfl, rfl⟩ := hxy
+    exact h x'.property y'.property (by simpa using hne)
+  · intro h x hx y hy hxy
+    apply h
+    rw [completeOn, SimpleGraph.map_adj]
+    exact ⟨⟨x, hx⟩, ⟨y, hy⟩, by simpa using hxy, rfl, rfl⟩
+
+/-- Toggling all clique-signed internal edges leaves no edge of that clique
+part in the toggle remainder. -/
+theorem signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    Disjoint
+      (signedProfileInternalGraph P σ ∆ completeOn B.1)
+      (completeOn B.1) := by
+  have hle : completeOn B.1 ≤ signedProfileInternalGraph P σ :=
+    completeOn_le_signedProfileInternalGraph_of_sign_true P σ B hB
+  rw [symmDiff_of_ge hle]
+  exact disjoint_sdiff_self_left
+
+/-- On an independently signed part, toggling clique-signed internal edges
+does not alter the independence condition. -/
+theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = false) :
+    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
+      G.IsIndepSet (B.1 : Set (Fin n)) := by
+  rw [isIndepSet_iff_disjoint_completeOn,
+    isIndepSet_iff_disjoint_completeOn]
+  have hdis : Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) :=
+    signedProfileInternalGraph_disjoint_completeOn_of_sign_false P σ B hB
+  constructor
+  · intro h
+    have h' : Disjoint
+        ((G ∆ signedProfileInternalGraph P σ) ∆
+          signedProfileInternalGraph P σ)
+        (completeOn B.1) := h.symmDiff_left hdis
+    simpa using h'
+  · intro h
+    exact h.symmDiff_left hdis
+
+/-- On a clique-signed part, toggling the complete internal graph turns the
+clique condition into the independent-set condition. -/
+theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
+    (B : P.1.parts) (hB : σ B = true) :
+    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
+      G.IsClique (B.1 : Set (Fin n)) := by
+  rw [isIndepSet_iff_disjoint_completeOn,
+    isClique_iff_completeOn_le]
+  let H := signedProfileInternalGraph P σ
+  let C := completeOn B.1
+  have hHC : Disjoint (H ∆ C) C := by
+    simpa only [H, C] using
+      (signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
+        P σ B hB)
+  have hswap : (G ∆ H) ∆ (H ∆ C) = G ∆ C := by
+    rw [symmDiff_assoc]
+    simp
+  have hswap' : (G ∆ C) ∆ (H ∆ C) = G ∆ H := by
+    calc
+      (G ∆ C) ∆ (H ∆ C) = G ∆ (C ∆ (H ∆ C)) :=
+        symmDiff_assoc G C (H ∆ C)
+      _ = G ∆ ((C ∆ H) ∆ C) :=
+        congrArg (fun X => G ∆ X) (symmDiff_assoc C H C).symm
+      _ = G ∆ ((H ∆ C) ∆ C) :=
+        congrArg (fun X => G ∆ (X ∆ C)) (symmDiff_comm C H)
+      _ = G ∆ H := by simp
+  constructor
+  · intro h
+    have hrem : Disjoint (G ∆ C) C := by
+      rw [← hswap]
+      exact h.symmDiff_left hHC
+    have hle : C ≤ (G ∆ C) ∆ C :=
+      Iff.mpr (le_symmDiff_iff_right (G ∆ C) C) hrem
+    simpa using hle
+  · intro h
+    have hGC : Disjoint (G ∆ C) C := by
+      rw [symmDiff_of_ge h]
+      exact disjoint_sdiff_self_left
+    rw [← hswap']
+    exact hGC.symmDiff_left hHC
+
+/-- A mixed independent/clique signed witness is valid exactly when toggling
+its clique-signed internal edges yields an ordinary proper partition. -/
+theorem profileSignValid_iff_mem_partitionColoringEvent_symmDiff
+    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    profileSignValid G P σ ↔
+      G ∆ signedProfileInternalGraph P σ ∈ partitionColoringEvent P.1 := by
+  constructor
+  · intro h
+    change ∀ B ∈ P.1.parts,
+      (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B : Set (Fin n))
+    intro B hB
+    let B' : P.1.parts := ⟨B, hB⟩
+    cases hsign : σ B' with
+    | false =>
+        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+          G P σ B' hsign).mpr (by simpa [hsign] using h B')
+    | true =>
+        exact
+          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+            G P σ B' hsign).mpr (by simpa [hsign] using h B')
+  · intro h B
+    have hB : (G ∆ signedProfileInternalGraph P σ).IsIndepSet
+        (B.1 : Set (Fin n)) := h B.1 B.2
+    cases hsign : σ B with
+    | false =>
+        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
+          G P σ B hsign).mp hB
+    | true =>
+        exact
+          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
+            G P σ B hsign).mp hB
+
+/-- Symmetric difference with a fixed labelled graph is a measure-preserving
+involution of the half-random-graph space.  This is the mixed
+present/absent-edge analogue of global complementation. -/
+theorem randomGraphMeasure_map_symmDiff (n : ℕ) (H : LabeledGraph n) :
+    (randomGraphMeasure n).map (fun G : LabeledGraph n => G ∆ H) =
+      randomGraphMeasure n := by
+  classical
+  apply Measure.ext_of_singleton
+  intro G
+  rw [Measure.map_apply (measurable_of_finite _) (MeasurableSet.singleton G)]
+  have hpre :
+      (fun K : LabeledGraph n => K ∆ H) ⁻¹' ({G} : Set (LabeledGraph n)) =
+        {G ∆ H} := by
+    ext K
+    simp only [Set.mem_preimage, Set.mem_singleton_iff]
+    constructor
+    · intro h
+      calc
+        K = (K ∆ H) ∆ H := (symmDiff_symmDiff_cancel_right H K).symm
+        _ = G ∆ H := congrArg (fun X => X ∆ H) h
+    · intro h
+      calc
+        K ∆ H = (G ∆ H) ∆ H := congrArg (fun X => X ∆ H) h
+        _ = G := symmDiff_symmDiff_cancel_right H G
+  rw [hpre, randomGraphMeasure_singleton_uniform,
+    randomGraphMeasure_singleton_uniform]
+
+/-- Event probabilities are unchanged after translating every graph by a
+fixed symmetric difference. -/
+theorem randomGraphMeasure_symmDiff_preimage_eq
+    (n : ℕ) (H : LabeledGraph n) (A : Set (LabeledGraph n)) :
+    randomGraphMeasure n {G | G ∆ H ∈ A} = randomGraphMeasure n A := by
+  calc
+    randomGraphMeasure n {G | G ∆ H ∈ A} =
+        randomGraphMeasure n ((fun G : LabeledGraph n => G ∆ H) ⁻¹' A) := rfl
+    _ = ((randomGraphMeasure n).map
+        (fun G : LabeledGraph n => G ∆ H)) A :=
+      (Measure.map_apply (measurable_of_finite _)
+        (Set.toFinite A |>.measurableSet)).symm
+    _ = randomGraphMeasure n A := by rw [randomGraphMeasure_map_symmDiff]
+
+/-- The event on which one fixed signed profile witness is valid. -/
+def signedProfileWitnessEvent {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    Set (LabeledGraph n) :=
+  {G | profileSignValid G P σ}
+
+/-- The exact half-random-graph mass of a fixed signed witness.  It is
+independent of the sign assignment: symmetric-difference translation changes
+the mixed present/absent requirements into the all-absent internal-edge event. -/
+theorem randomGraphMeasure_signedProfileWitnessEvent
+    {b n : ℕ} {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
+    randomGraphMeasure n (signedProfileWitnessEvent P σ) =
+      (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k := by
+  have hevent : signedProfileWitnessEvent P σ =
+      {G | G ∆ signedProfileInternalGraph P σ ∈
+        partitionColoringEvent P.1} := by
+    ext G
+    exact profileSignValid_iff_mem_partitionColoringEvent_symmDiff G P σ
+  rw [hevent, randomGraphMeasure_symmDiff_preimage_eq,
+    randomGraphMeasure_partitionColoringEvent]
+
+/-- The natural-valued indicator of validity for one fixed signed witness. -/
+noncomputable def signedProfileWitnessIndicator {b n : ℕ}
+    (G : LabeledGraph n) {k : ColoringProfile b}
+    (P : ProfilePartition n k) (σ : P.1.parts → Bool) : ℕ := by
+  classical
+  exact if profileSignValid G P σ then 1 else 0
+
+/-- Expanding the filtered cardinality into its finite sum of witness
+indicators. -/
+theorem signedProfileCount_eq_sum_indicator {b n : ℕ}
+    (G : LabeledGraph n) (k : ColoringProfile b) :
+    signedProfileCount G k =
+      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+        signedProfileWitnessIndicator G P σ := by
+  classical
+  unfold signedProfileCount signedProfileWitnessIndicator
+  rw [Finset.card_filter, Fintype.sum_sigma]
+  rfl
+
+/-- Summing the finite indicator of one signed witness against singleton
+masses recovers precisely its witness event. -/
+theorem sum_signedProfileWitnessIndicator_measure {b n : ℕ}
+    {k : ColoringProfile b} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) :
+    (∑ G : LabeledGraph n,
+      (signedProfileWitnessIndicator G P σ : ENNReal) *
+        randomGraphMeasure n {G}) =
+      randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
+  classical
+  let T := (Finset.univ : Finset (LabeledGraph n)).filter
+    fun G => profileSignValid G P σ
+  calc
+    _ = ∑ G : LabeledGraph n,
+        if profileSignValid G P σ then randomGraphMeasure n {G} else 0 := by
+      apply Finset.sum_congr rfl
+      intro G _
+      by_cases h : profileSignValid G P σ <;>
+        simp [signedProfileWitnessIndicator, h]
+    _ = ∑ G ∈ T, randomGraphMeasure n {G} := by
+      simp only [T, Finset.sum_filter]
+    _ = randomGraphMeasure n (T : Set (LabeledGraph n)) := by
+      rw [MeasureTheory.sum_measure_singleton]
+    _ = randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
+      congr 1
+      ext G
+      simp [T, signedProfileWitnessEvent]
+
+/-- The finite weighted first moment of the signed-profile count. -/
+noncomputable def signedProfileExpectation {b : ℕ}
+    (n : ℕ) (k : ColoringProfile b) : ENNReal :=
+  ∑ G : LabeledGraph n,
+    (signedProfileCount G k : ENNReal) * randomGraphMeasure n {G}
+
+/-- Exact first moment of the signed-profile count.  The factor `2^k` occurs
+only after averaging: a fixed graph need not support every sign assignment on
+a proper profile partition. -/
+theorem signedProfileExpectation_eq {b : ℕ}
+    (n : ℕ) (k : ColoringProfile b) :
+    signedProfileExpectation n k =
+      (2 : ENNReal) ^ ColoringProfile.partCount k *
+        profileColoringExpectation n k := by
+  classical
+  let p : ENNReal := (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k
+  have hsign (P : ProfilePartition n k) :
+      (∑ _σ : P.1.parts → Bool, p) =
+        (2 : ENNReal) ^ ColoringProfile.partCount k * p := by
+    simp [p, nsmul_eq_mul, P.card_parts_eq]
+  unfold signedProfileExpectation
+  simp_rw [signedProfileCount_eq_sum_indicator, Nat.cast_sum,
+    Finset.sum_mul]
+  calc
+    (∑ G : LabeledGraph n,
+      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+        (signedProfileWitnessIndicator G P σ : ENNReal) *
+          randomGraphMeasure n {G}) =
+        ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
+          ∑ G : LabeledGraph n,
+            (signedProfileWitnessIndicator G P σ : ENNReal) *
+              randomGraphMeasure n {G} := by
+          rw [Finset.sum_comm]
+          apply Finset.sum_congr rfl
+          intro P _
+          rw [Finset.sum_comm]
+    _ = ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool, p := by
+          apply Finset.sum_congr rfl
+          intro P _
+          apply Finset.sum_congr rfl
+          intro σ _
+          rw [sum_signedProfileWitnessIndicator_measure,
+            randomGraphMeasure_signedProfileWitnessEvent]
+    _ = (2 : ENNReal) ^ ColoringProfile.partCount k *
+        profileColoringExpectation n k := by
+          simp_rw [hsign]
+          rw [profileColoringExpectation_eq_card_mul]
+          simp [Finset.sum_const, nsmul_eq_mul, Nat.card_eq_fintype_card,
+            p, mul_assoc, mul_comm]
+
+/-- The canonical cocolouring induced by a valid signed profile witness,
+before relabelling its palette by `Fin (partCount k)`. -/
+noncomputable def profileSignCoColoring {b n : ℕ} {k : ColoringProfile b}
+    {G : LabeledGraph n} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
+    CoColoring G P.1.parts := by
+  classical
+  let color : Fin n → P.1.parts := fun v =>
+    ⟨P.1.part v, P.1.part_mem.mpr (Finset.mem_univ v)⟩
+  have hclass (B : P.1.parts) :
+      {v | color v = B} = (B.1 : Set (Fin n)) := by
+    ext v
+    dsimp [color]
+    constructor
+    · intro h
+      exact (P.1.part_eq_iff_mem B.2).mp (congrArg Subtype.val h)
+    · intro h
+      apply Subtype.ext
+      exact (P.1.part_eq_iff_mem B.2).mpr h
+  exact
+    { color := color
+      kind := fun B => if σ B then .clique else .independent
+      valid := by
+        intro B
+        rw [hclass B]
+        cases hB : σ B with
+        | false => simpa [hB] using hσ B
+        | true => simpa [hB] using hσ B }
+
+/-- A valid signed partition is a cocolouring with exactly its profile's
+number of nonempty parts; the palette is relabelled only after the finite
+partition has supplied the exact cardinality. -/
+theorem profileSignValid_coColorable {b n : ℕ} {k : ColoringProfile b}
+    {G : LabeledGraph n} (P : ProfilePartition n k)
+    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
+    CoColorable G (ColoringProfile.partCount k) := by
+  classical
+  have hcard : P.1.parts.card = ColoringProfile.partCount k :=
+    P.card_parts_eq
+  exact ⟨(profileSignCoColoring P σ hσ).relabel
+    (Finset.equivFinOfCardEq hcard)⟩
+
+/-- Positivity of the signed-profile count supplies an actual cocolouring.
+This is the deterministic witness implication needed before applying any
+second-moment inequality. -/
+theorem signedProfileCount_pos_implies_coColorable
+    {b n : ℕ} {G : LabeledGraph n} {k : ColoringProfile b} :
+    0 < signedProfileCount G k →
+      CoColorable G (ColoringProfile.partCount k) := by
+  classical
+  intro hpos
+  unfold signedProfileCount at hpos
+  obtain ⟨w, hw⟩ := Finset.card_pos.mp hpos
+  rw [Finset.mem_filter] at hw
+  exact profileSignValid_coColorable w.1 w.2 hw.2
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedProfileWitness
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedFourSizeObjective
+Source: Erdos625/SignedFourSizeObjective.lean
+Normalized SHA-256: dfaa7d5ac3009723ed891f79d884fc2b755d93c5007f0cfda4897a6d304b052f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedFourSizeObjective
+
+/-!
+# The signed four-size finite objective
+
+This module isolates the actual Section V root function.  It is deliberately
+different from `profilePhaseObjective`: the latter is an unrestricted
+size-coordinate upper envelope used for the chromatic lower tail, whereas the
+function below is the four-deficit (`S4 = {2,3,4,5}`) entropy optimum together
+with the exact signed first-moment bonus `log 2` per part.
+
+The module proves the finite algebraic and calculus leaves only.  In
+particular, it does not claim the entropy certificate, a root corridor, a
+root exists, or the numerical `log (200 / 153)` margin.
+-/
+
+open Filter Finset
+open scoped Topology BigOperators
+
+namespace Erdos625
+
+noncomputable section
+
+/-! ## The exact four-deficit score -/
+
+/-- The finite coordinate in the full deficit support corresponding to one of
+the four allowed deficits.  The hypothesis is exactly what makes the class
+sizes `alpha - 2, ..., alpha - 5` positive. -/
+def fourDeficitCoordinate (alpha : Nat) (halpha : 5 < alpha)
+    (i : Fin 4) : Fin (alpha + 1) :=
+  Fin.rev ((⟨fourDeficit i, by
+    have hle : fourDeficit i ≤ 5 := by
+      fin_cases i <;> norm_num [fourDeficit]
+    omega⟩ : Fin alpha).succ)
+
+/-- The reindexed finite coordinate really has the advertised deficit. -/
+theorem profileDeficit_fourDeficitCoordinate
+    (alpha : Nat) (halpha : 5 < alpha) (i : Fin 4) :
+    profileDeficit alpha (fourDeficitCoordinate alpha halpha i) =
+      (fourDeficit i : Real) := by
+  unfold fourDeficitCoordinate profileDeficit profileClassSize
+  rw [Fin.val_rev, Fin.val_succ]
+  push_cast
+  have hle : fourDeficit i ≤ 5 := by
+    fin_cases i <;> norm_num [fourDeficit]
+  have hlt : fourDeficit i < alpha := lt_of_le_of_lt hle halpha
+  have hnat : alpha - (fourDeficit i + 1) + 1 = alpha - fourDeficit i := by
+    omega
+  have hcast :
+      ((alpha - (fourDeficit i + 1) : Nat) : Real) + 1 =
+        ((alpha - fourDeficit i : Nat) : Real) := by
+    norm_cast
+  rw [hcast, Nat.cast_sub (Nat.le_of_lt hlt)]
+  ring
+
+/-- The exact centered residual score at a permitted four-deficit coordinate
+is `fourDeficitScore`.  This is the finite, rather than limiting-Gaussian,
+score used by the Section V objective. -/
+theorem profileDeficitResidualScore_fourDeficitCoordinate
+    (alpha : Nat) (halpha : 5 < alpha) (i : Fin 4) :
+    profileDeficitResidualScore alpha (fourDeficitCoordinate alpha halpha i) =
+      fourDeficitScore alpha i := by
+  unfold fourDeficitCoordinate
+  apply profileDeficitResidualScore_rev_succ_eq_fourDeficitScore
+
+/-- A concrete coloring profile uses only the four allowed deficit
+coordinates when every occupied class has deficit in `{2,3,4,5}`.  This
+semantic predicate is intentionally separate from the real four-point
+optimizer below: integer rounding is a later proof obligation. -/
+def IsFourDeficitSupported (alpha : Nat) (k : ColoringProfile (alpha + 1)) : Prop :=
+  ∀ j, k j ≠ 0 → ∃ i : Fin 4, profileDeficit alpha j = (fourDeficit i : Real)
+
+/-- The signed first-moment factor is exact for every concrete profile, hence
+also for each four-deficit-supported profile.  This is the bridge from the
+analytic sign bonus in the objective to the graph-theoretic signed witness
+count. -/
+theorem signedFourDeficitProfileExpectation_eq
+    (n alpha : Nat) (k : ColoringProfile (alpha + 1))
+    (_hk : IsFourDeficitSupported alpha k) :
+    signedProfileExpectation n k =
+      (2 : ENNReal) ^ ColoringProfile.partCount k *
+        profileColoringExpectation n k :=
+  signedProfileExpectation_eq n k
+
+/-! ## Finite entropy value and the signed objective -/
+
+/-- The target deficit mean attached to a real part count.  In the manuscript
+notation this is `T = alpha - n / k`. -/
+def fourSizeTarget (n alpha : Nat) (parts : Real) : Real :=
+  (alpha : Real) - (n : Real) / parts
+
+/-- The attained finite four-size entropy value at prescribed deficit mean.
+Unlike the limiting Gaussian value, this uses the exact descending-factorial
+scores `fourDeficitScore alpha`. -/
+noncomputable def fourSizeFiniteEntropy (alpha : Nat) (target : Real) : Real :=
+  ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) target
+
+/-- The entropy-plus-score expression evaluated at the exact finite Gibbs
+optimizer.  It is written separately so the exact variational rewrite is
+visible in the formalization. -/
+noncomputable def fourSizeGibbsEntropy (alpha : Nat) (target : Real) : Real :=
+  -(∑ i : Fin 4,
+      ProfileEntropyS4.optimizer (fourDeficitScore alpha) target i *
+        Real.log (ProfileEntropyS4.optimizer (fourDeficitScore alpha) target i)) +
+    ∑ i : Fin 4,
+      ProfileEntropyS4.optimizer (fourDeficitScore alpha) target i *
+        fourDeficitScore alpha i
+
+/-- The exact Gibbs optimizer attains the finite entropy value at every
+interior target. -/
+theorem fourSizeFiniteEntropy_eq_gibbs
+    (alpha : Nat) {target : Real}
+    (htarget : target ∈ Set.Ioo (2 : Real) 5) :
+    fourSizeFiniteEntropy alpha target = fourSizeGibbsEntropy alpha target := by
+  unfold fourSizeFiniteEntropy fourSizeGibbsEntropy
+  simpa only [ProfileEntropyS4.optimizedValue] using
+    (ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target
+      (fourDeficitScore alpha) htarget).symm
+
+/-- The signed `S4` objective at an explicit target mean.  Its three pieces
+are the finite Stirling/part-count term, the exact affine-plus-residual
+deficit entropy, and the signed first-moment bonus `q * parts`. -/
+noncomputable def signedFourSizeObjectiveAtTarget
+    (n alpha : Nat) (parts target : Real) : Real :=
+  (n : Real) * Real.log (n : Real) - (n : Real) +
+    parts - parts * Real.log parts +
+    parts *
+      (profileDeficitAffineA alpha +
+        profileDeficitAffineB alpha * target +
+        fourSizeFiniteEntropy alpha target + q)
+
+/-- The same signed objective with the entropy term displayed at its Gibbs
+optimizer. -/
+noncomputable def signedFourSizeGibbsObjectiveAtTarget
+    (n alpha : Nat) (parts target : Real) : Real :=
+  (n : Real) * Real.log (n : Real) - (n : Real) +
+    parts - parts * Real.log parts +
+    parts *
+      (profileDeficitAffineA alpha +
+        profileDeficitAffineB alpha * target +
+        fourSizeGibbsEntropy alpha target + q)
+
+/-- Exact finite deficit/entropy rewrite of the signed `S4` objective. -/
+theorem signedFourSizeObjectiveAtTarget_eq_gibbs
+    (n alpha : Nat) (parts : Real) {target : Real}
+    (htarget : target ∈ Set.Ioo (2 : Real) 5) :
+    signedFourSizeObjectiveAtTarget n alpha parts target =
+      signedFourSizeGibbsObjectiveAtTarget n alpha parts target := by
+  rw [signedFourSizeObjectiveAtTarget, signedFourSizeGibbsObjectiveAtTarget,
+    fourSizeFiniteEntropy_eq_gibbs alpha htarget]
+
+/-- The actual one-variable signed four-size root function from Section V:
+substitute `T = alpha - n / parts` into the exact finite objective. -/
+noncomputable def signedFourSizeObjective (n alpha : Nat) (parts : Real) : Real :=
+  signedFourSizeObjectiveAtTarget n alpha parts (fourSizeTarget n alpha parts)
+
+/-- The phase-specialized signed root function used in Sections V and XI.
+It is not definitionally or mathematically identified with the ordinary
+`profilePhaseObjective`, which has a different support and no sign bonus. -/
+noncomputable def phaseSignedFourSizeObjective (n : Nat) (parts : Real) : Real :=
+  signedFourSizeObjective n (phaseNat n) parts
+
+/-- A root of the actual signed four-size objective is required to have a
+positive part count and an interior deficit target.  No existence or
+uniqueness assertion is built into this definition. -/
+def IsSignedFourSizeRoot (n alpha : Nat) (root : Real) : Prop :=
+  0 < root ∧
+    fourSizeTarget n alpha root ∈ Set.Ioo (2 : Real) 5 ∧
+      signedFourSizeObjective n alpha root = 0
+
+/-- Phase-specialized root predicate used by the final Section XI assembly. -/
+def IsPhaseSignedFourSizeRoot (n : Nat) (root : Real) : Prop :=
+  IsSignedFourSizeRoot n (phaseNat n) root
+
+/-- Unfolding the root predicate exposes exactly the signed root equation. -/
+theorem isSignedFourSizeRoot_iff
+    (n alpha : Nat) (root : Real) :
+    IsSignedFourSizeRoot n alpha root ↔
+      0 < root ∧
+        fourSizeTarget n alpha root ∈ Set.Ioo (2 : Real) 5 ∧
+          signedFourSizeObjective n alpha root = 0 :=
+  Iff.rfl
+
+/-! ## Finite derivative and continuity leaves -/
+
+/-- The selected exact four-point tilt is differentiable in its target. -/
+theorem hasDerivAt_fourSizeTilt
+    (alpha : Nat) {target : Real}
+    (htarget : target ∈ Set.Ioo (2 : Real) 5) :
+    HasDerivAt (ProfileEntropyS4.tilt (fourDeficitScore alpha))
+      (ProfileEntropyS4.variance (fourDeficitScore alpha)
+        (ProfileEntropyS4.tilt (fourDeficitScore alpha) target))⁻¹ target := by
+  have hContinuous : ContinuousAt
+      (ProfileEntropyS4.tilt (fourDeficitScore alpha)) target := by
+    exact ProfileEntropyS4.tendsto_tilt_of_scores_and_target
+      (h := fun _ : Real => fourDeficitScore alpha)
+      (fourDeficitScore alpha) (T' := id)
+      (fun _ => tendsto_const_nhds) tendsto_id htarget
+  have hLeftInverse : ∀ᶠ y in nhds target,
+      ProfileEntropyS4.mean (fourDeficitScore alpha)
+        (ProfileEntropyS4.tilt (fourDeficitScore alpha) y) = y := by
+    filter_upwards [isOpen_Ioo.mem_nhds htarget] with y hy
+    exact ProfileEntropyS4.mean_tilt_eq (fourDeficitScore alpha) hy
+  exact
+    (ProfileEntropyS4.hasDerivAt_mean (fourDeficitScore alpha)
+      (ProfileEntropyS4.tilt (fourDeficitScore alpha) target)).of_local_left_inverse
+      hContinuous
+      (ProfileEntropyS4.variance_pos (fourDeficitScore alpha)
+        (ProfileEntropyS4.tilt (fourDeficitScore alpha) target)).ne'
+      hLeftInverse
+
+/-- Envelope derivative of the exact finite four-size entropy value. -/
+theorem hasDerivAt_fourSizeFiniteEntropy
+    (alpha : Nat) {target : Real}
+    (htarget : target ∈ Set.Ioo (2 : Real) 5) :
+    HasDerivAt (fourSizeFiniteEntropy alpha)
+      (-ProfileEntropyS4.tilt (fourDeficitScore alpha) target) target := by
+  have hTilt := hasDerivAt_fourSizeTilt alpha htarget
+  have hLog : HasDerivAt
+      (fun t => Real.log (ProfileEntropyS4.partition (fourDeficitScore alpha) t))
+      (ProfileEntropyS4.mean (fourDeficitScore alpha)
+        (ProfileEntropyS4.tilt (fourDeficitScore alpha) target))
+      (ProfileEntropyS4.tilt (fourDeficitScore alpha) target) := by
+    simpa only [ProfileEntropyS4.mean] using
+      (ProfileEntropyS4.hasDerivAt_partition (fourDeficitScore alpha)
+        (ProfileEntropyS4.tilt (fourDeficitScore alpha) target)).log
+        (ProfileEntropyS4.partition_pos (fourDeficitScore alpha)
+          (ProfileEntropyS4.tilt (fourDeficitScore alpha) target)).ne'
+  have hLogComp := hLog.comp target hTilt
+  have hProduct := hTilt.mul (hasDerivAt_id target)
+  have hMean := ProfileEntropyS4.mean_tilt_eq (fourDeficitScore alpha) htarget
+  have hSub := (hLogComp.sub hProduct).congr_of_eventuallyEq
+    (Filter.Eventually.of_forall fun _ => rfl)
+  change HasDerivAt
+    (fun t => Real.log (ProfileEntropyS4.partition (fourDeficitScore alpha)
+      (ProfileEntropyS4.tilt (fourDeficitScore alpha) t)) -
+        ProfileEntropyS4.tilt (fourDeficitScore alpha) t * t)
+      (-ProfileEntropyS4.tilt (fourDeficitScore alpha) target) target
+  apply hSub.congr_deriv
+  rw [hMean]
+  simp only [id_eq]
+  ring
+
+/-- The target map `alpha - n / parts` has its exact finite derivative. -/
+theorem hasDerivAt_fourSizeTarget
+    (n alpha : Nat) {parts : Real} (hparts : 0 < parts) :
+    HasDerivAt (fun x => fourSizeTarget n alpha x)
+      ((n : Real) / parts ^ 2) parts := by
+  have hQuotient : HasDerivAt (fun x : Real => (n : Real) / x)
+      (-(n : Real) / parts ^ 2) parts := by
+    change HasDerivAt ((fun _ : Real => (n : Real)) / id)
+      (-(n : Real) / parts ^ 2) parts
+    apply ((hasDerivAt_const parts (n : Real)).div
+      (hasDerivAt_id parts) hparts.ne').congr_deriv
+    simp only [id_eq, zero_mul, mul_one, zero_sub]
+  have h := (hasDerivAt_const parts (alpha : Real)).sub hQuotient
+  change HasDerivAt ((fun _ : Real => (alpha : Real)) -
+    fun x => (n : Real) / x)
+    ((n : Real) / parts ^ 2) parts
+  exact h.congr_deriv (by ring)
+
+/-- The exact derivative which must be controlled on a later root corridor.
+This statement is finite and contains no asymptotic or numerical bound. -/
+noncomputable def signedFourSizeObjectiveDerivative
+    (n alpha : Nat) (parts : Real) : Real :=
+  -Real.log parts +
+    (profileDeficitAffineA alpha +
+      profileDeficitAffineB alpha * fourSizeTarget n alpha parts +
+      fourSizeFiniteEntropy alpha (fourSizeTarget n alpha parts) + q) +
+    (profileDeficitAffineB alpha -
+      ProfileEntropyS4.tilt (fourDeficitScore alpha)
+        (fourSizeTarget n alpha parts)) *
+      (n : Real) / parts
+
+/-- Finite envelope derivative of the actual signed four-size root function.
+The only analytic hypothesis is that the induced deficit target is interior. -/
+theorem hasDerivAt_signedFourSizeObjective
+    (n alpha : Nat) {parts : Real} (hparts : 0 < parts)
+    (htarget : fourSizeTarget n alpha parts ∈ Set.Ioo (2 : Real) 5) :
+    HasDerivAt (signedFourSizeObjective n alpha)
+      (signedFourSizeObjectiveDerivative n alpha parts) parts := by
+  let target : Real := fourSizeTarget n alpha parts
+  have hTarget := hasDerivAt_fourSizeTarget n alpha hparts
+  have hEntropy := hasDerivAt_fourSizeFiniteEntropy alpha htarget
+  have hEntropyComp := hEntropy.comp parts hTarget
+  have hAffine : HasDerivAt
+      (fun x => profileDeficitAffineA alpha +
+        profileDeficitAffineB alpha * fourSizeTarget n alpha x +
+        fourSizeFiniteEntropy alpha (fourSizeTarget n alpha x) + q)
+      (profileDeficitAffineB alpha * ((n : Real) / parts ^ 2) +
+        (-ProfileEntropyS4.tilt (fourDeficitScore alpha) target) *
+          ((n : Real) / parts ^ 2)) parts := by
+    have h :=
+      (((hasDerivAt_const parts (profileDeficitAffineA alpha)).add
+        (hTarget.const_mul (profileDeficitAffineB alpha))).add hEntropyComp).add
+        (hasDerivAt_const parts q)
+    have hFunction :
+        (fun x : Real => profileDeficitAffineA alpha +
+          profileDeficitAffineB alpha * fourSizeTarget n alpha x +
+          fourSizeFiniteEntropy alpha (fourSizeTarget n alpha x) + q) =
+        (((fun _ : Real => profileDeficitAffineA alpha) +
+          fun x : Real => profileDeficitAffineB alpha * fourSizeTarget n alpha x) +
+          fourSizeFiniteEntropy alpha ∘ fourSizeTarget n alpha +
+          fun _ : Real => q) := by
+      funext x
+      simp only [Function.comp_apply, Pi.add_apply]
+    rw [hFunction]
+    apply h.congr_deriv
+    dsimp [target]
+    ring
+  have hLog := Real.hasDerivAt_log hparts.ne'
+  have hPartEntropy := (hasDerivAt_id parts).sub
+    ((hasDerivAt_id parts).mul hLog)
+  have hProduct := (hasDerivAt_id parts).mul hAffine
+  have hTotal := ((hasDerivAt_const parts
+      ((n : Real) * Real.log (n : Real) - (n : Real))).add hPartEntropy).add hProduct
+  have hObjective := hTotal.congr_of_eventuallyEq
+    (f₁ := signedFourSizeObjective n alpha)
+    (Filter.Eventually.of_forall fun x => by
+      unfold signedFourSizeObjective signedFourSizeObjectiveAtTarget
+      simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, id_eq]
+      ring)
+  apply hObjective.congr_deriv
+  dsimp [signedFourSizeObjectiveDerivative, target]
+  field_simp [hparts.ne']
+  ring
+
+/-- The signed four-size root function is continuous at every admissible
+interior point. -/
+theorem continuousAt_signedFourSizeObjective
+    (n alpha : Nat) {parts : Real} (hparts : 0 < parts)
+    (htarget : fourSizeTarget n alpha parts ∈ Set.Ioo (2 : Real) 5) :
+    ContinuousAt (signedFourSizeObjective n alpha) parts :=
+  (hasDerivAt_signedFourSizeObjective n alpha hparts htarget).continuousAt
+
+/-- The phase-specialized root function inherits the exact finite derivative
+without identifying it with the ordinary chromatic phase objective. -/
+theorem hasDerivAt_phaseSignedFourSizeObjective
+    (n : Nat) {parts : Real} (hparts : 0 < parts)
+    (htarget : fourSizeTarget n (phaseNat n) parts ∈ Set.Ioo (2 : Real) 5) :
+    HasDerivAt (phaseSignedFourSizeObjective n)
+      (signedFourSizeObjectiveDerivative n (phaseNat n) parts) parts := by
+  change HasDerivAt (signedFourSizeObjective n (phaseNat n))
+    (signedFourSizeObjectiveDerivative n (phaseNat n) parts) parts
+  exact hasDerivAt_signedFourSizeObjective n (phaseNat n) hparts htarget
+
+/-- Continuity of the Section V/XI phase-specialized signed root function at
+every admissible interior point. -/
+theorem continuousAt_phaseSignedFourSizeObjective
+    (n : Nat) {parts : Real} (hparts : 0 < parts)
+    (htarget : fourSizeTarget n (phaseNat n) parts ∈ Set.Ioo (2 : Real) 5) :
+    ContinuousAt (phaseSignedFourSizeObjective n) parts :=
+  (hasDerivAt_phaseSignedFourSizeObjective n hparts htarget).continuousAt
+
+end
+
+#print axioms profileDeficitResidualScore_fourDeficitCoordinate
+#print axioms profileDeficit_fourDeficitCoordinate
+#print axioms signedFourDeficitProfileExpectation_eq
+#print axioms fourSizeFiniteEntropy_eq_gibbs
+#print axioms signedFourSizeObjectiveAtTarget_eq_gibbs
+#print axioms hasDerivAt_fourSizeTilt
+#print axioms hasDerivAt_fourSizeFiniteEntropy
+#print axioms hasDerivAt_fourSizeTarget
+#print axioms hasDerivAt_signedFourSizeObjective
+#print axioms continuousAt_signedFourSizeObjective
+#print axioms hasDerivAt_phaseSignedFourSizeObjective
+#print axioms continuousAt_phaseSignedFourSizeObjective
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedFourSizeObjective
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedFourSizeObjective
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.GaussianTailTools
 Source: Erdos625/GaussianTailTools.lean
 Normalized SHA-256: 760fbc526c01ba42d37885509710f288ea26351e6c22ec1ace51f096a6d9f4a3
@@ -22726,475 +23576,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ProfileOverlapTables
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ProfileOverlapTables
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.SignedProfileWitness
-Source: Erdos625/SignedProfileWitness.lean
-Normalized SHA-256: 802dc734cdeb0f1415fe483e62d4f2d8f4b4aa66769ad7a7a285ab7a9416fbd8
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
-
-/-!
-# Signed profile witnesses
-
-This file contains the deterministic graph-level layer of the signed
-cocolouring count used in the second-moment argument.  A witness is an
-unordered profile partition together with one Boolean sign per nonempty part:
-`false` requires that part to be independent and `true` requires it to be a
-clique.
-
-The key point here is deliberately finite and pointwise: a valid signed
-witness produces an actual `CoColoring`, and hence positivity of the count
-implies cocolourability with the advertised number of parts.  No
-probabilistic estimate is hidden in this implication.
--/
-
-namespace Erdos625
-
-open MeasureTheory SimpleGraph
-open scoped BigOperators ENNReal symmDiff
-
-noncomputable section
-
-/-- A sign assignment is valid when every signed profile part is respectively
-an independent set (`false`) or a clique (`true`). -/
-def profileSignValid {b n : ℕ} {k : ColoringProfile b}
-    (G : LabeledGraph n) (P : ProfilePartition n k)
-    (σ : P.1.parts → Bool) : Prop :=
-  ∀ B : P.1.parts,
-    match σ B with
-    | false => G.IsIndepSet (B.1 : Set (Fin n))
-    | true => G.IsClique (B.1 : Set (Fin n))
-
-/-- An unordered profile partition together with a Boolean independent/clique
-sign on each of its nonempty parts. -/
-abbrev SignedProfileWitness {b : ℕ} (n : ℕ)
-    (k : ColoringProfile b) :=
-  Σ P : ProfilePartition n k, P.1.parts → Bool
-
-/-- Validity of a signed profile witness in a labelled graph. -/
-def validSignedProfileWitness {b n : ℕ} {k : ColoringProfile b}
-    (G : LabeledGraph n) (w : SignedProfileWitness n k) : Prop :=
-  profileSignValid G w.1 w.2
-
-/-- The number of valid signed witnesses of the fixed profile. -/
-noncomputable def signedProfileCount {b n : ℕ}
-    (G : LabeledGraph n) (k : ColoringProfile b) : ℕ := by
-  classical
-  exact (Finset.univ.filter fun w : SignedProfileWitness n k =>
-    validSignedProfileWitness G w).card
-
-/-- The graph made of precisely the internal complete graphs of the parts
-given clique sign.  It is the edge-toggle used to reduce a mixed signed
-witness to the all-independent event for the same partition. -/
-noncomputable def signedProfileInternalGraph {b n : ℕ}
-    {k : ColoringProfile b} (P : ProfilePartition n k)
-    (σ : P.1.parts → Bool) : LabeledGraph n :=
-  P.1.parts.attach.sup fun B => if σ B then completeOn B.1 else ⊥
-
-/-- The signed internal graph is contained in the graph of all internal
-partition edges. -/
-theorem signedProfileInternalGraph_le_partitionInternalGraph
-    {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
-    signedProfileInternalGraph P σ ≤ partitionInternalGraph P.1 := by
-  classical
-  unfold signedProfileInternalGraph partitionInternalGraph
-  refine Finset.sup_le_iff.mpr ?_
-  intro B hB
-  by_cases hσ : σ B
-  · simp only [hσ, ite_true]
-    exact Finset.le_sup B.2
-  · simp [hσ]
-
-/-- A clique-signed part contributes its entire internal complete graph to the
-toggle graph. -/
-theorem completeOn_le_signedProfileInternalGraph_of_sign_true
-    {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
-    (B : P.1.parts) (hB : σ B = true) :
-    completeOn B.1 ≤ signedProfileInternalGraph P σ := by
-  classical
-  unfold signedProfileInternalGraph
-  refine Finset.le_sup_of_le
-    (s := P.1.parts.attach)
-    (f := fun C => if σ C then completeOn C.1 else ⊥)
-    (Finset.mem_attach P.1.parts B) ?_
-  simp [hB]
-
-/-- A part carrying the independent sign is edge-disjoint from the toggle
-graph.  The proof uses disjointness of distinct `Finpartition` parts, rather
-than treating the signed graph as an informal edge list. -/
-theorem signedProfileInternalGraph_disjoint_completeOn_of_sign_false
-    {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
-    (B : P.1.parts) (hB : σ B = false) :
-    Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) := by
-  classical
-  unfold signedProfileInternalGraph
-  rw [Finset.disjoint_sup_left]
-  intro C hC
-  by_cases hCsign : σ C
-  · rw [if_pos hCsign]
-    apply disjoint_completeOn_of_disjoint
-    apply P.1.disjoint C.2 B.2
-    intro hCB
-    have hCB' : C = B := Subtype.ext hCB
-    subst C
-    simp [hB] at hCsign
-  · simp [hCsign]
-
-/-- A finite set is a clique exactly when its supported complete graph is a
-subgraph of the ambient graph. -/
-theorem isClique_iff_completeOn_le {n : ℕ} (G : LabeledGraph n)
-    (S : Finset (Fin n)) :
-    G.IsClique (S : Set (Fin n)) ↔ completeOn S ≤ G := by
-  constructor
-  · intro h x y hxy
-    rw [completeOn, SimpleGraph.map_adj] at hxy
-    obtain ⟨x', y', hne, rfl, rfl⟩ := hxy
-    exact h x'.property y'.property (by simpa using hne)
-  · intro h x hx y hy hxy
-    apply h
-    rw [completeOn, SimpleGraph.map_adj]
-    exact ⟨⟨x, hx⟩, ⟨y, hy⟩, by simpa using hxy, rfl, rfl⟩
-
-/-- Toggling all clique-signed internal edges leaves no edge of that clique
-part in the toggle remainder. -/
-theorem signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
-    {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
-    (B : P.1.parts) (hB : σ B = true) :
-    Disjoint
-      (signedProfileInternalGraph P σ ∆ completeOn B.1)
-      (completeOn B.1) := by
-  have hle : completeOn B.1 ≤ signedProfileInternalGraph P σ :=
-    completeOn_le_signedProfileInternalGraph_of_sign_true P σ B hB
-  rw [symmDiff_of_ge hle]
-  exact disjoint_sdiff_self_left
-
-/-- On an independently signed part, toggling clique-signed internal edges
-does not alter the independence condition. -/
-theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
-    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
-    (B : P.1.parts) (hB : σ B = false) :
-    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
-      G.IsIndepSet (B.1 : Set (Fin n)) := by
-  rw [isIndepSet_iff_disjoint_completeOn,
-    isIndepSet_iff_disjoint_completeOn]
-  have hdis : Disjoint (signedProfileInternalGraph P σ) (completeOn B.1) :=
-    signedProfileInternalGraph_disjoint_completeOn_of_sign_false P σ B hB
-  constructor
-  · intro h
-    have h' : Disjoint
-        ((G ∆ signedProfileInternalGraph P σ) ∆
-          signedProfileInternalGraph P σ)
-        (completeOn B.1) := h.symmDiff_left hdis
-    simpa using h'
-  · intro h
-    exact h.symmDiff_left hdis
-
-/-- On a clique-signed part, toggling the complete internal graph turns the
-clique condition into the independent-set condition. -/
-theorem isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
-    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool)
-    (B : P.1.parts) (hB : σ B = true) :
-    (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B.1 : Set (Fin n)) ↔
-      G.IsClique (B.1 : Set (Fin n)) := by
-  rw [isIndepSet_iff_disjoint_completeOn,
-    isClique_iff_completeOn_le]
-  let H := signedProfileInternalGraph P σ
-  let C := completeOn B.1
-  have hHC : Disjoint (H ∆ C) C := by
-    simpa only [H, C] using
-      (signedProfileInternalGraph_symmDiff_completeOn_disjoint_of_sign_true
-        P σ B hB)
-  have hswap : (G ∆ H) ∆ (H ∆ C) = G ∆ C := by
-    rw [symmDiff_assoc]
-    simp
-  have hswap' : (G ∆ C) ∆ (H ∆ C) = G ∆ H := by
-    calc
-      (G ∆ C) ∆ (H ∆ C) = G ∆ (C ∆ (H ∆ C)) :=
-        symmDiff_assoc G C (H ∆ C)
-      _ = G ∆ ((C ∆ H) ∆ C) :=
-        congrArg (fun X => G ∆ X) (symmDiff_assoc C H C).symm
-      _ = G ∆ ((H ∆ C) ∆ C) :=
-        congrArg (fun X => G ∆ (X ∆ C)) (symmDiff_comm C H)
-      _ = G ∆ H := by simp
-  constructor
-  · intro h
-    have hrem : Disjoint (G ∆ C) C := by
-      rw [← hswap]
-      exact h.symmDiff_left hHC
-    have hle : C ≤ (G ∆ C) ∆ C :=
-      Iff.mpr (le_symmDiff_iff_right (G ∆ C) C) hrem
-    simpa using hle
-  · intro h
-    have hGC : Disjoint (G ∆ C) C := by
-      rw [symmDiff_of_ge h]
-      exact disjoint_sdiff_self_left
-    rw [← hswap']
-    exact hGC.symmDiff_left hHC
-
-/-- A mixed independent/clique signed witness is valid exactly when toggling
-its clique-signed internal edges yields an ordinary proper partition. -/
-theorem profileSignValid_iff_mem_partitionColoringEvent_symmDiff
-    {b n : ℕ} {k : ColoringProfile b} (G : LabeledGraph n)
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
-    profileSignValid G P σ ↔
-      G ∆ signedProfileInternalGraph P σ ∈ partitionColoringEvent P.1 := by
-  constructor
-  · intro h
-    change ∀ B ∈ P.1.parts,
-      (G ∆ signedProfileInternalGraph P σ).IsIndepSet (B : Set (Fin n))
-    intro B hB
-    let B' : P.1.parts := ⟨B, hB⟩
-    cases hsign : σ B' with
-    | false =>
-        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
-          G P σ B' hsign).mpr (by simpa [hsign] using h B')
-    | true =>
-        exact
-          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
-            G P σ B' hsign).mpr (by simpa [hsign] using h B')
-  · intro h B
-    have hB : (G ∆ signedProfileInternalGraph P σ).IsIndepSet
-        (B.1 : Set (Fin n)) := h B.1 B.2
-    cases hsign : σ B with
-    | false =>
-        exact (isIndepSet_symmDiff_signedProfileInternalGraph_iff_of_sign_false
-          G P σ B hsign).mp hB
-    | true =>
-        exact
-          (isIndepSet_symmDiff_signedProfileInternalGraph_iff_isClique_of_sign_true
-            G P σ B hsign).mp hB
-
-/-- Symmetric difference with a fixed labelled graph is a measure-preserving
-involution of the half-random-graph space.  This is the mixed
-present/absent-edge analogue of global complementation. -/
-theorem randomGraphMeasure_map_symmDiff (n : ℕ) (H : LabeledGraph n) :
-    (randomGraphMeasure n).map (fun G : LabeledGraph n => G ∆ H) =
-      randomGraphMeasure n := by
-  classical
-  apply Measure.ext_of_singleton
-  intro G
-  rw [Measure.map_apply (measurable_of_finite _) (MeasurableSet.singleton G)]
-  have hpre :
-      (fun K : LabeledGraph n => K ∆ H) ⁻¹' ({G} : Set (LabeledGraph n)) =
-        {G ∆ H} := by
-    ext K
-    simp only [Set.mem_preimage, Set.mem_singleton_iff]
-    constructor
-    · intro h
-      calc
-        K = (K ∆ H) ∆ H := (symmDiff_symmDiff_cancel_right H K).symm
-        _ = G ∆ H := congrArg (fun X => X ∆ H) h
-    · intro h
-      calc
-        K ∆ H = (G ∆ H) ∆ H := congrArg (fun X => X ∆ H) h
-        _ = G := symmDiff_symmDiff_cancel_right H G
-  rw [hpre, randomGraphMeasure_singleton_uniform,
-    randomGraphMeasure_singleton_uniform]
-
-/-- Event probabilities are unchanged after translating every graph by a
-fixed symmetric difference. -/
-theorem randomGraphMeasure_symmDiff_preimage_eq
-    (n : ℕ) (H : LabeledGraph n) (A : Set (LabeledGraph n)) :
-    randomGraphMeasure n {G | G ∆ H ∈ A} = randomGraphMeasure n A := by
-  calc
-    randomGraphMeasure n {G | G ∆ H ∈ A} =
-        randomGraphMeasure n ((fun G : LabeledGraph n => G ∆ H) ⁻¹' A) := rfl
-    _ = ((randomGraphMeasure n).map
-        (fun G : LabeledGraph n => G ∆ H)) A :=
-      (Measure.map_apply (measurable_of_finite _)
-        (Set.toFinite A |>.measurableSet)).symm
-    _ = randomGraphMeasure n A := by rw [randomGraphMeasure_map_symmDiff]
-
-/-- The event on which one fixed signed profile witness is valid. -/
-def signedProfileWitnessEvent {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
-    Set (LabeledGraph n) :=
-  {G | profileSignValid G P σ}
-
-/-- The exact half-random-graph mass of a fixed signed witness.  It is
-independent of the sign assignment: symmetric-difference translation changes
-the mixed present/absent requirements into the all-absent internal-edge event. -/
-theorem randomGraphMeasure_signedProfileWitnessEvent
-    {b n : ℕ} {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool) :
-    randomGraphMeasure n (signedProfileWitnessEvent P σ) =
-      (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k := by
-  have hevent : signedProfileWitnessEvent P σ =
-      {G | G ∆ signedProfileInternalGraph P σ ∈
-        partitionColoringEvent P.1} := by
-    ext G
-    exact profileSignValid_iff_mem_partitionColoringEvent_symmDiff G P σ
-  rw [hevent, randomGraphMeasure_symmDiff_preimage_eq,
-    randomGraphMeasure_partitionColoringEvent]
-
-/-- The natural-valued indicator of validity for one fixed signed witness. -/
-noncomputable def signedProfileWitnessIndicator {b n : ℕ}
-    (G : LabeledGraph n) {k : ColoringProfile b}
-    (P : ProfilePartition n k) (σ : P.1.parts → Bool) : ℕ := by
-  classical
-  exact if profileSignValid G P σ then 1 else 0
-
-/-- Expanding the filtered cardinality into its finite sum of witness
-indicators. -/
-theorem signedProfileCount_eq_sum_indicator {b n : ℕ}
-    (G : LabeledGraph n) (k : ColoringProfile b) :
-    signedProfileCount G k =
-      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
-        signedProfileWitnessIndicator G P σ := by
-  classical
-  unfold signedProfileCount signedProfileWitnessIndicator
-  rw [Finset.card_filter, Fintype.sum_sigma]
-  rfl
-
-/-- Summing the finite indicator of one signed witness against singleton
-masses recovers precisely its witness event. -/
-theorem sum_signedProfileWitnessIndicator_measure {b n : ℕ}
-    {k : ColoringProfile b} (P : ProfilePartition n k)
-    (σ : P.1.parts → Bool) :
-    (∑ G : LabeledGraph n,
-      (signedProfileWitnessIndicator G P σ : ENNReal) *
-        randomGraphMeasure n {G}) =
-      randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
-  classical
-  let T := (Finset.univ : Finset (LabeledGraph n)).filter
-    fun G => profileSignValid G P σ
-  calc
-    _ = ∑ G : LabeledGraph n,
-        if profileSignValid G P σ then randomGraphMeasure n {G} else 0 := by
-      apply Finset.sum_congr rfl
-      intro G _
-      by_cases h : profileSignValid G P σ <;>
-        simp [signedProfileWitnessIndicator, h]
-    _ = ∑ G ∈ T, randomGraphMeasure n {G} := by
-      simp only [T, Finset.sum_filter]
-    _ = randomGraphMeasure n (T : Set (LabeledGraph n)) := by
-      rw [MeasureTheory.sum_measure_singleton]
-    _ = randomGraphMeasure n (signedProfileWitnessEvent P σ) := by
-      congr 1
-      ext G
-      simp [T, signedProfileWitnessEvent]
-
-/-- The finite weighted first moment of the signed-profile count. -/
-noncomputable def signedProfileExpectation {b : ℕ}
-    (n : ℕ) (k : ColoringProfile b) : ENNReal :=
-  ∑ G : LabeledGraph n,
-    (signedProfileCount G k : ENNReal) * randomGraphMeasure n {G}
-
-/-- Exact first moment of the signed-profile count.  The factor `2^k` occurs
-only after averaging: a fixed graph need not support every sign assignment on
-a proper profile partition. -/
-theorem signedProfileExpectation_eq {b : ℕ}
-    (n : ℕ) (k : ColoringProfile b) :
-    signedProfileExpectation n k =
-      (2 : ENNReal) ^ ColoringProfile.partCount k *
-        profileColoringExpectation n k := by
-  classical
-  let p : ENNReal := (1 / 2 : ENNReal) ^ ColoringProfile.forbiddenEdges k
-  have hsign (P : ProfilePartition n k) :
-      (∑ _σ : P.1.parts → Bool, p) =
-        (2 : ENNReal) ^ ColoringProfile.partCount k * p := by
-    simp [p, nsmul_eq_mul, P.card_parts_eq]
-  unfold signedProfileExpectation
-  simp_rw [signedProfileCount_eq_sum_indicator, Nat.cast_sum,
-    Finset.sum_mul]
-  calc
-    (∑ G : LabeledGraph n,
-      ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
-        (signedProfileWitnessIndicator G P σ : ENNReal) *
-          randomGraphMeasure n {G}) =
-        ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool,
-          ∑ G : LabeledGraph n,
-            (signedProfileWitnessIndicator G P σ : ENNReal) *
-              randomGraphMeasure n {G} := by
-          rw [Finset.sum_comm]
-          apply Finset.sum_congr rfl
-          intro P _
-          rw [Finset.sum_comm]
-    _ = ∑ P : ProfilePartition n k, ∑ σ : P.1.parts → Bool, p := by
-          apply Finset.sum_congr rfl
-          intro P _
-          apply Finset.sum_congr rfl
-          intro σ _
-          rw [sum_signedProfileWitnessIndicator_measure,
-            randomGraphMeasure_signedProfileWitnessEvent]
-    _ = (2 : ENNReal) ^ ColoringProfile.partCount k *
-        profileColoringExpectation n k := by
-          simp_rw [hsign]
-          rw [profileColoringExpectation_eq_card_mul]
-          simp [Finset.sum_const, nsmul_eq_mul, Nat.card_eq_fintype_card,
-            p, mul_assoc, mul_comm]
-
-/-- The canonical cocolouring induced by a valid signed profile witness,
-before relabelling its palette by `Fin (partCount k)`. -/
-noncomputable def profileSignCoColoring {b n : ℕ} {k : ColoringProfile b}
-    {G : LabeledGraph n} (P : ProfilePartition n k)
-    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
-    CoColoring G P.1.parts := by
-  classical
-  let color : Fin n → P.1.parts := fun v =>
-    ⟨P.1.part v, P.1.part_mem.mpr (Finset.mem_univ v)⟩
-  have hclass (B : P.1.parts) :
-      {v | color v = B} = (B.1 : Set (Fin n)) := by
-    ext v
-    dsimp [color]
-    constructor
-    · intro h
-      exact (P.1.part_eq_iff_mem B.2).mp (congrArg Subtype.val h)
-    · intro h
-      apply Subtype.ext
-      exact (P.1.part_eq_iff_mem B.2).mpr h
-  exact
-    { color := color
-      kind := fun B => if σ B then .clique else .independent
-      valid := by
-        intro B
-        rw [hclass B]
-        cases hB : σ B with
-        | false => simpa [hB] using hσ B
-        | true => simpa [hB] using hσ B }
-
-/-- A valid signed partition is a cocolouring with exactly its profile's
-number of nonempty parts; the palette is relabelled only after the finite
-partition has supplied the exact cardinality. -/
-theorem profileSignValid_coColorable {b n : ℕ} {k : ColoringProfile b}
-    {G : LabeledGraph n} (P : ProfilePartition n k)
-    (σ : P.1.parts → Bool) (hσ : profileSignValid G P σ) :
-    CoColorable G (ColoringProfile.partCount k) := by
-  classical
-  have hcard : P.1.parts.card = ColoringProfile.partCount k :=
-    P.card_parts_eq
-  exact ⟨(profileSignCoColoring P σ hσ).relabel
-    (Finset.equivFinOfCardEq hcard)⟩
-
-/-- Positivity of the signed-profile count supplies an actual cocolouring.
-This is the deterministic witness implication needed before applying any
-second-moment inequality. -/
-theorem signedProfileCount_pos_implies_coColorable
-    {b n : ℕ} {G : LabeledGraph n} {k : ColoringProfile b} :
-    0 < signedProfileCount G k →
-      CoColorable G (ColoringProfile.partCount k) := by
-  classical
-  intro hpos
-  unfold signedProfileCount at hpos
-  obtain ⟨w, hw⟩ := Finset.card_pos.mp hpos
-  rw [Finset.mem_filter] at hw
-  exact profileSignValid_coColorable w.1 w.2 hw.2
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_SignedProfileWitness
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.SignedProfileWitness
 ========================================================================== -/
 
 /- ==========================================================================
@@ -31776,6 +32157,582 @@ END SOURCE MODULE: Erdos625.ProfileOverlapFibrationRegrouping
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
+Source: Erdos625/UniformSigmaTransport.lean
+Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
+
+/-!
+# Uniform finite probability on a dependent sum
+
+For a finite dependent sum, this module calculates the marginal of the
+uniform law under the first projection.  It is an exact finite probability
+identity only: it makes no configuration-model, canonical-event, or
+asymptotic assertion.  In particular, the base coordinate is generally not
+uniform; its mass is proportional to the cardinality of its fibre.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Under the uniform law on a nonempty finite dependent sum, the mass of a
+base point is the cardinality of its fibre divided by the total cardinality. -/
+theorem uniformOfFintype_sigma_map_fst_apply
+    {D : Type*} {X : D -> Type*}
+    [Fintype D] [(d : D) -> Fintype (X d)]
+    [Nonempty (Sigma X)]
+    (d : D) :
+    ((PMF.uniformOfFintype (Sigma X)).map
+        (fun z : Sigma X => z.1)) d =
+      (Fintype.card (X d) : ENNReal) /
+        (Fintype.card (Sigma X) : ENNReal) := by
+  classical
+  rw [PMF.map_apply, tsum_fintype]
+  simp_rw [PMF.uniformOfFintype_apply]
+  rw [Fintype.sum_sigma]
+  have hinner : forall x : D,
+      (∑ _y : X x,
+          if d = x then (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
+        if d = x then
+          (Fintype.card (X x) : ENNReal) *
+            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 := by
+    intro x
+    by_cases h : d = x
+    · subst x
+      simp [nsmul_eq_mul]
+    · simp [h]
+  rw [Finset.sum_congr rfl (fun x _ => hinner x)]
+  rw [show (∑ x : D,
+      if d = x then
+        (Fintype.card (X x) : ENNReal) *
+          (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
+      ∑ x : D,
+        if x = d then
+          (Fintype.card (X x) : ENNReal) *
+            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 by
+      simp_rw [eq_comm]]
+  rw [Finset.sum_ite_eq' Finset.univ d]
+  simp only [Finset.mem_univ, if_true]
+  rw [ENNReal.div_eq_inv_mul]
+  ac_rfl
+
+#print axioms uniformOfFintype_sigma_map_fst_apply
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformSigmaTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileOverlapConfigurationBridge
+Source: Erdos625/ProfileOverlapConfigurationBridge.lean
+Normalized SHA-256: 74b070c19ab22c7db22c171d03698e28ba83e261f7c1145cd18e015d205862f5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileOverlapConfigurationBridge
+
+/-!
+# The profile-overlap/configuration-model bridge
+
+Fixing an ordered profile row identifies its vertices with the row stubs of
+the bipartite configuration model.  A configuration matching then gives a
+second fixed-margin profile labeling, together with an ordering of every one
+of its column fibres.  This file makes that finite equivalence explicit.
+
+The extra fibre orderings are essential: they are exactly the constant
+``\prod_b m_b!`` multiplicity which turns a uniform configuration matching
+into the uniform fixed-fibre labeling law after the column orders are
+forgotten.  The cell matrix of the matching is proved equal to the literal
+overlap table, so the resulting expectation transport is semantic rather
+than a cardinality-only identification.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-! ## Stub coordinates induced by a fixed row -/
+
+/-- A fixed ordered profile row has a chosen, finite ordering of each of its
+block fibres.  The choice is used only to identify vertices with labelled row
+stubs; all statements below are independent of that auxiliary ordering. -/
+noncomputable def profileRowFiberOrder
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (a : ProfileBlockIndex k) :
+    {v : Fin n // row₀.1 v = a} ≃ Fin (profileBlockMargin k a) :=
+  Fintype.equivOfCardEq (by
+    rw [card_labelingFiber]
+    simpa using row₀.2 a)
+
+/-- The vertex-to-row-stub equivalence determined by the chosen fibre
+orders.  Its first coordinate is exactly the fixed row label. -/
+noncomputable def profileRowToStubEquiv
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    Fin n ≃ RowStub (profileBlockMargin k) :=
+  sigmaEquivOfFiberOrders (profileBlockMargin k) row₀.1
+    (profileRowFiberOrder row₀)
+
+@[simp] theorem profileRowToStubEquiv_fst
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (v : Fin n) :
+    (profileRowToStubEquiv row₀ v).1 = row₀.1 v := by
+  simp [profileRowToStubEquiv]
+
+/-- Restrict the vertex-to-row-stub equivalence to a single row block.  This
+is the canonical fibre equivalence used below, so no dependent cast of a
+stub index is hidden in the cell-table comparison. -/
+noncomputable def profileRowFiberToStubEquiv
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (a : ProfileBlockIndex k) :
+    {v : Fin n // row₀.1 v = a} ≃ Fin (profileBlockMargin k a) :=
+  ((profileRowToStubEquiv row₀).subtypeEquiv (fun v => by
+      rw [profileRowToStubEquiv_fst])).trans (Equiv.sigmaSubtype a)
+
+/-- The ordering data above a fixed-margin column labeling.  This is the
+constant fibre that records which labelled column stub is attached to each
+vertex in a column block. -/
+abbrev ProfileColumnFiberOrders
+    {b n : Nat} {k : ColoringProfile b}
+    (column : OrderedProfilePartition n k) :=
+  ∀ q : ProfileBlockIndex k,
+    {v : Fin n // column.1 v = q} ≃ Fin (profileBlockMargin k q)
+
+/-- Turn a profile column labeling and its fibre orders into its labelled
+column-stub coordinate system. -/
+noncomputable def profileColumnToStubEquiv
+    {b n : Nat} {k : ColoringProfile b}
+    (column : OrderedProfilePartition n k)
+    (orders : ProfileColumnFiberOrders column) :
+    Fin n ≃ ColumnStub (profileBlockMargin k) :=
+  sigmaEquivOfFiberOrders (profileBlockMargin k) column.1 orders
+
+@[simp] theorem profileColumnToStubEquiv_fst
+    {b n : Nat} {k : ColoringProfile b}
+    (column : OrderedProfilePartition n k)
+    (orders : ProfileColumnFiberOrders column) (v : Fin n) :
+    (profileColumnToStubEquiv column orders v).1 = column.1 v := by
+  simp [profileColumnToStubEquiv]
+
+/-! ## The constant-fibre lift -/
+
+/-- A configuration matching, after fixing row-stub coordinates, is exactly
+a vertex-to-column-stub equivalence. -/
+noncomputable def configurationMatchingToVertexColumnStubEquiv
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    ConfigurationMatching (profileBlockMargin k) (profileBlockMargin k) ≃
+      (Fin n ≃ ColumnStub (profileBlockMargin k)) where
+  toFun matching := (profileRowToStubEquiv row₀).trans matching
+  invFun columnStubs := (profileRowToStubEquiv row₀).symm.trans columnStubs
+  left_inv matching := by
+    apply Equiv.ext
+    intro stub
+    simp
+  right_inv columnStubs := by
+    apply Equiv.ext
+    intro v
+    simp
+
+/-- Explicitly lift a configuration matching to its induced fixed-margin
+column labeling and a labelled ordering of every column fibre. -/
+noncomputable def configurationMatchingEquivColumnWithOrders
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    ConfigurationMatching (profileBlockMargin k) (profileBlockMargin k) ≃
+      Σ column : OrderedProfilePartition n k, ProfileColumnFiberOrders column :=
+  (configurationMatchingToVertexColumnStubEquiv row₀).trans
+    (fixedFiberLabelingWithOrdersEquiv (profileBlockMargin k))
+
+/-- Forget the column-stub orders associated to a configuration matching. -/
+noncomputable def orderedProfileColumnOfConfigurationMatching
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (matching : ConfigurationMatching (profileBlockMargin k)
+      (profileBlockMargin k)) : OrderedProfilePartition n k :=
+  (configurationMatchingEquivColumnWithOrders row₀ matching).1
+
+/-- The column-stub orders carried by the canonical lift of a matching. -/
+noncomputable def configurationMatchingColumnOrders
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (matching : ConfigurationMatching (profileBlockMargin k)
+      (profileBlockMargin k)) :
+    ProfileColumnFiberOrders
+      (orderedProfileColumnOfConfigurationMatching row₀ matching) :=
+  (configurationMatchingEquivColumnWithOrders row₀ matching).2
+
+/-- Reconstruct a matching from a fixed-margin column labeling and the
+ordering of each of its column fibres. -/
+noncomputable def configurationMatchingOfColumnWithOrders
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (data : Σ column : OrderedProfilePartition n k, ProfileColumnFiberOrders column) :
+    ConfigurationMatching (profileBlockMargin k) (profileBlockMargin k) :=
+  (configurationMatchingEquivColumnWithOrders row₀).symm data
+
+/-- Evaluation of the reconstructed matching has the expected vertex-level
+description: first recover the vertex from its row stub, then read its
+labelled column stub. -/
+@[simp] theorem configurationMatchingOfColumnWithOrders_apply_stub
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (column : OrderedProfilePartition n k)
+    (orders : ProfileColumnFiberOrders column)
+    (a : ProfileBlockIndex k) (stub : Fin (profileBlockMargin k a)) :
+    configurationMatchingOfColumnWithOrders row₀ ⟨column, orders⟩ ⟨a, stub⟩ =
+      profileColumnToStubEquiv column orders
+        ((profileRowFiberToStubEquiv row₀ a).symm stub).1 := by
+  change ((profileRowToStubEquiv row₀).symm.trans
+      (profileColumnToStubEquiv column orders)) ⟨a, stub⟩ = _
+  simp [profileRowFiberToStubEquiv]
+  rfl
+
+@[simp] theorem configurationMatchingOfColumnWithOrders_apply
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (data : Σ column : OrderedProfilePartition n k, ProfileColumnFiberOrders column) :
+    configurationMatchingEquivColumnWithOrders row₀
+      (configurationMatchingOfColumnWithOrders row₀ data) = data := by
+  exact (configurationMatchingEquivColumnWithOrders row₀).apply_symm_apply data
+
+/-- A configuration matching is recovered exactly from its induced column
+labeling and the remembered column-stub orders. -/
+@[simp] theorem configurationMatching_reconstruct
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (matching : ConfigurationMatching (profileBlockMargin k)
+      (profileBlockMargin k)) :
+    configurationMatchingOfColumnWithOrders row₀
+      ⟨orderedProfileColumnOfConfigurationMatching row₀ matching,
+        configurationMatchingColumnOrders row₀ matching⟩ = matching := by
+  exact (configurationMatchingEquivColumnWithOrders row₀).symm_apply_apply matching
+
+/-! ## Literal agreement of cell matrices -/
+
+/-- The cell count in a configuration matching is the cardinality of the
+corresponding subtype of row stubs. -/
+private theorem configurationCellCount_eq_card_subtype
+    {A B : Type*} [Fintype A] [Fintype B] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat}
+    (matching : ConfigurationMatching row col) (a : A) (b : B) :
+    configurationCellCount matching a b =
+      Fintype.card {stub : Fin (row a) // (matching ⟨a, stub⟩).1 = b} := by
+  rw [Fintype.card_subtype]
+  rfl
+
+/-- The overlap count of two literal vertex labelings is the cardinality of
+the subtype of vertices in the indicated matrix cell. -/
+private theorem orderedOverlapCount_eq_card_subtype
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    {n : Nat} (row : Fin n → A) (column : Fin n → B) (a : A) (b : B) :
+    orderedOverlapCount row column a b =
+      Fintype.card {v : Fin n // row v = a ∧ column v = b} := by
+  rw [Fintype.card_subtype]
+  rfl
+
+/-- For a column labeling with chosen stub orders, the configuration cell
+matrix agrees entrywise with the literal vertex-overlap matrix. -/
+theorem configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (column : OrderedProfilePartition n k)
+    (orders : ProfileColumnFiberOrders column)
+    (a q : ProfileBlockIndex k) :
+    configurationCellCount
+        (configurationMatchingOfColumnWithOrders row₀ ⟨column, orders⟩) a q =
+      orderedOverlapCount row₀.1 column.1 a q := by
+  classical
+  let eRow : Fin (profileBlockMargin k a) ≃
+      {v : Fin n // row₀.1 v = a} :=
+    (profileRowFiberToStubEquiv row₀ a).symm
+  let eCell :
+      {stub : Fin (profileBlockMargin k a) //
+        (configurationMatchingOfColumnWithOrders row₀ ⟨column, orders⟩
+          ⟨a, stub⟩).1 = q} ≃
+        {v : {v : Fin n // row₀.1 v = a} // column.1 v.1 = q} :=
+    eRow.subtypeEquiv (fun stub => by
+      rw [configurationMatchingOfColumnWithOrders_apply_stub]
+      simp [eRow])
+  let eAnd :
+      {v : {v : Fin n // row₀.1 v = a} // column.1 v.1 = q} ≃
+        {v : Fin n // row₀.1 v = a ∧ column.1 v = q} :=
+    Equiv.subtypeSubtypeEquivSubtypeInter
+      (fun v : Fin n => row₀.1 v = a) (fun v => column.1 v = q)
+  let toVertex := eCell.trans eAnd
+  rw [configurationCellCount_eq_card_subtype,
+    orderedOverlapCount_eq_card_subtype]
+  exact Fintype.card_congr toVertex
+
+/-- The canonical profile overlap table read from a configuration matching. -/
+noncomputable def profileOverlapTableOfConfigurationMatching
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (matching : ConfigurationMatching (profileBlockMargin k)
+      (profileBlockMargin k)) : ProfileOverlapTable n k :=
+  profileOverlapTableOfOrderedPair row₀
+    (orderedProfileColumnOfConfigurationMatching row₀ matching)
+
+/-- The table carried by a configuration matching is its actual cell-count
+matrix, not merely an equinumerous contingency table. -/
+theorem profileOverlapTableOfConfigurationMatching_tableNat_eq_cellCount
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (matching : ConfigurationMatching (profileBlockMargin k)
+      (profileBlockMargin k)) (a q : ProfileBlockIndex k) :
+    (profileOverlapTableOfConfigurationMatching row₀ matching).tableNat a q =
+      configurationCellCount matching a q := by
+  let column := orderedProfileColumnOfConfigurationMatching row₀ matching
+  let orders := configurationMatchingColumnOrders row₀ matching
+  have hreconstruct := configurationMatching_reconstruct row₀ matching
+  change orderedOverlapCount row₀.1 column.1 a q = configurationCellCount matching a q
+  rw [← hreconstruct]
+  exact (configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount
+    row₀ column orders a q).symm
+
+/-! ## Constant fibre cardinality and uniform-law transport -/
+
+/-- The number of possible orderings of the fibres of any fixed-margin
+profile column is independent of that column. -/
+theorem card_profileColumnFiberOrders
+    {b n : Nat} {k : ColoringProfile b}
+    (column : OrderedProfilePartition n k) :
+    Fintype.card (ProfileColumnFiberOrders column) =
+      ∏ q : ProfileBlockIndex k, (profileBlockMargin k q).factorial := by
+  classical
+  rw [Fintype.card_pi]
+  apply Finset.prod_congr rfl
+  intro q _
+  let e : {v : Fin n // column.1 v = q} ≃ Fin (profileBlockMargin k q) :=
+    Fintype.equivOfCardEq (by
+      rw [card_labelingFiber]
+      simpa using column.2 q)
+  calc
+    Fintype.card ({v : Fin n // column.1 v = q} ≃
+        Fin (profileBlockMargin k q)) =
+        (Fintype.card {v : Fin n // column.1 v = q}).factorial :=
+      Fintype.card_equiv e
+    _ = (profileBlockMargin k q).factorial := by
+      rw [Fintype.card_congr e, Fintype.card_fin]
+
+/-- The total number of lifted columns is the number of ordinary columns
+times the constant product of within-column stub permutations. -/
+theorem card_sigma_profileColumnFiberOrders
+    {b n : Nat} {k : ColoringProfile b} :
+    Fintype.card (Σ column : OrderedProfilePartition n k,
+      ProfileColumnFiberOrders column) =
+      Fintype.card (OrderedProfilePartition n k) *
+        ∏ q : ProfileBlockIndex k, (profileBlockMargin k q).factorial := by
+  classical
+  rw [Fintype.card_sigma]
+  simp_rw [card_profileColumnFiberOrders]
+  simp [Finset.sum_const]
+
+/-- The fixed profile row witnesses the equal-total-degree condition needed
+by the configuration-model PMF. -/
+theorem profileBlockMargin_total_eq_self
+    {b n : Nat} {k : ColoringProfile b}
+    (_row₀ : OrderedProfilePartition n k) :
+    (Finset.univ.sum (profileBlockMargin k)) =
+      Finset.univ.sum (profileBlockMargin k) := rfl
+
+/-- The uniform distribution on ordered profile partitions, with the
+nonemptiness witness supplied by the fixed row. -/
+noncomputable def uniformOrderedProfilePartition
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    PMF (OrderedProfilePartition n k) := by
+  letI : Nonempty (OrderedProfilePartition n k) := ⟨row₀⟩
+  exact PMF.uniformOfFintype _
+
+/-- Uniform configuration matching, after forgetting the constant number of
+column-stub orderings, is exactly the uniform fixed-fibre profile-column law.
+
+This is a PMF equality, hence it is stronger than equality of table-event
+cardinalities. -/
+theorem uniformConfigurationMatching_map_orderedProfileColumn
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    (uniformConfigurationMatching (profileBlockMargin k) (profileBlockMargin k)
+      (profileBlockMargin_total_eq_self row₀)).map
+        (orderedProfileColumnOfConfigurationMatching row₀) =
+      uniformOrderedProfilePartition row₀ := by
+  classical
+  let m := profileBlockMargin k
+  let E := configurationMatchingEquivColumnWithOrders row₀
+  let K : Nat := ∏ q : ProfileBlockIndex k, (m q).factorial
+  letI : Nonempty (OrderedProfilePartition n k) := ⟨row₀⟩
+  letI : Nonempty (ConfigurationMatching m m) :=
+    ⟨configurationMatchingEquiv m m (profileBlockMargin_total_eq_self row₀)⟩
+  let matching₀ : ConfigurationMatching m m :=
+    configurationMatchingEquiv m m (profileBlockMargin_total_eq_self row₀)
+  letI : Nonempty (Σ column : OrderedProfilePartition n k,
+      ProfileColumnFiberOrders column) := ⟨E matching₀⟩
+  have hE :
+      (PMF.uniformOfFintype (ConfigurationMatching m m)).map E =
+        PMF.uniformOfFintype
+          (Σ column : OrderedProfilePartition n k, ProfileColumnFiberOrders column) :=
+    uniformOfFintype_map_equiv E
+  have hcardFiber : ∀ column : OrderedProfilePartition n k,
+      Fintype.card (ProfileColumnFiberOrders column) = K := by
+    intro column
+    exact card_profileColumnFiberOrders column
+  have hcardSigma :
+      Fintype.card (Σ column : OrderedProfilePartition n k,
+        ProfileColumnFiberOrders column) =
+        Fintype.card (OrderedProfilePartition n k) * K := by
+    exact card_sigma_profileColumnFiberOrders
+  ext column
+  have hmapComp := PMF.map_comp
+    (p := PMF.uniformOfFintype (ConfigurationMatching m m))
+    (f := E) (g := fun z : Σ column : OrderedProfilePartition n k,
+      ProfileColumnFiberOrders column => z.1)
+  change
+    ((PMF.uniformOfFintype (ConfigurationMatching m m)).map
+        (orderedProfileColumnOfConfigurationMatching row₀)) column = _
+  rw [show orderedProfileColumnOfConfigurationMatching row₀ =
+      (fun z : Σ column : OrderedProfilePartition n k,
+        ProfileColumnFiberOrders column => z.1) ∘ E by rfl]
+  rw [← hmapComp, hE, uniformOfFintype_sigma_map_fst_apply]
+  change _ = (PMF.uniformOfFintype (OrderedProfilePartition n k)) column
+  rw [PMF.uniformOfFintype_apply]
+  rw [hcardFiber column, hcardSigma, Nat.cast_mul]
+  have hKpos : (K : ENNReal) ≠ 0 := by
+    dsimp [K]
+    exact_mod_cast Finset.prod_ne_zero_iff.mpr (fun q _ => Nat.factorial_ne_zero _)
+  have hKtop : (K : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top _
+  rw [ENNReal.div_eq_inv_mul]
+  calc
+    (↑(Fintype.card (OrderedProfilePartition n k)) * (K : ENNReal))⁻¹ *
+        (K : ENNReal) =
+        ((Fintype.card (OrderedProfilePartition n k) : ENNReal)⁻¹ *
+          (K : ENNReal)⁻¹) *
+          (K : ENNReal) := by
+      rw [ENNReal.mul_inv (Or.inr hKtop) (Or.inr hKpos)]
+    _ = (Fintype.card (OrderedProfilePartition n k) : ENNReal)⁻¹ *
+        ((K : ENNReal)⁻¹ * (K : ENNReal)) := by ac_rfl
+    _ = (Fintype.card (OrderedProfilePartition n k) : ENNReal)⁻¹ := by
+      rw [ENNReal.inv_mul_cancel hKpos hKtop, mul_one]
+
+/-- The uniform configuration and uniform fixed-fibre laws give the same
+weighted expectation for every `ENNReal` function of the canonical overlap
+matrix. -/
+private theorem sum_pmf_mul_comp_eq_sum_pmf_map
+    {α β : Type*} [Fintype α] [Fintype β]
+    (p : PMF α) (f : α → β) (weight : β → ENNReal) :
+    (∑ x : α, p x * weight (f x)) =
+      ∑ y : β, (p.map f) y * weight y := by
+  classical
+  calc
+    (∑ x : α, p x * weight (f x)) =
+        ∑ x : α, ∑ y : β,
+          (if y = f x then p x else 0) * weight y := by
+      apply Finset.sum_congr rfl
+      intro x _
+      simp only [ite_mul, zero_mul]
+      rw [Finset.sum_ite_eq' Finset.univ (f x)]
+      simp
+    _ = ∑ y : β, ∑ x : α,
+          (if y = f x then p x else 0) * weight y := Finset.sum_comm
+    _ = ∑ y : β,
+        (∑ x : α, if y = f x then p x else 0) * weight y := by
+      apply Finset.sum_congr rfl
+      intro y _
+      rw [Finset.sum_mul]
+    _ = ∑ y : β, (p.map f) y * weight y := by
+      apply Finset.sum_congr rfl
+      intro y _
+      rw [PMF.map_apply, tsum_fintype]
+
+/-- The entire canonical overlap-table distribution induced by a uniform
+configuration matching is the existing uniform fixed-fibre overlap-table
+distribution.  The entrywise cell-table theorem above makes this a semantic
+transport, not merely an equality of finite cardinalities. -/
+theorem uniformConfigurationMatching_map_profileOverlapTable
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    (uniformConfigurationMatching (profileBlockMargin k) (profileBlockMargin k)
+      (profileBlockMargin_total_eq_self row₀)).map
+        (profileOverlapTableOfConfigurationMatching row₀) =
+      (uniformOrderedProfilePartition row₀).map
+        (profileOverlapTableOfOrderedPair row₀) := by
+  let p := uniformConfigurationMatching (profileBlockMargin k)
+    (profileBlockMargin k) (profileBlockMargin_total_eq_self row₀)
+  let f := orderedProfileColumnOfConfigurationMatching row₀
+  let g := profileOverlapTableOfOrderedPair row₀
+  change p.map (g ∘ f) = (uniformOrderedProfilePartition row₀).map g
+  calc
+    p.map (g ∘ f) = (p.map f).map g :=
+      (PMF.map_comp (p := p) (f := f) (g := g)).symm
+    _ = (uniformOrderedProfilePartition row₀).map g := by
+      rw [uniformConfigurationMatching_map_orderedProfileColumn row₀]
+
+theorem weightedExpectation_uniformConfigurationMatching_eq_uniformProfile
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k)
+    (weight : (ProfileBlockIndex k → ProfileBlockIndex k → Nat) → ENNReal) :
+    (∑ matching : ConfigurationMatching (profileBlockMargin k)
+        (profileBlockMargin k),
+      uniformConfigurationMatching (profileBlockMargin k) (profileBlockMargin k)
+        (profileBlockMargin_total_eq_self row₀) matching *
+        weight (profileOverlapTableOfConfigurationMatching row₀ matching).tableNat) =
+      ∑ column : OrderedProfilePartition n k,
+        uniformOrderedProfilePartition row₀ column *
+          weight (profileOverlapTableOfOrderedPair row₀ column).tableNat := by
+  classical
+  let p := uniformConfigurationMatching (profileBlockMargin k)
+    (profileBlockMargin k) (profileBlockMargin_total_eq_self row₀)
+  let f := orderedProfileColumnOfConfigurationMatching row₀
+  let w : OrderedProfilePartition n k → ENNReal := fun column =>
+    weight (profileOverlapTableOfOrderedPair row₀ column).tableNat
+  calc
+    (∑ matching : ConfigurationMatching (profileBlockMargin k)
+        (profileBlockMargin k),
+      uniformConfigurationMatching (profileBlockMargin k) (profileBlockMargin k)
+        (profileBlockMargin_total_eq_self row₀) matching *
+        weight (profileOverlapTableOfConfigurationMatching row₀ matching).tableNat) =
+      ∑ matching : ConfigurationMatching (profileBlockMargin k)
+        (profileBlockMargin k), p matching * w (f matching) := by
+      apply Finset.sum_congr rfl
+      intro matching _
+      rfl
+    _ = ∑ column : OrderedProfilePartition n k,
+        (p.map f) column * w column :=
+      sum_pmf_mul_comp_eq_sum_pmf_map p f w
+    _ = ∑ column : OrderedProfilePartition n k,
+        uniformOrderedProfilePartition row₀ column *
+          weight (profileOverlapTableOfOrderedPair row₀ column).tableNat := by
+      rw [uniformConfigurationMatching_map_orderedProfileColumn row₀]
+
+#print axioms profileRowToStubEquiv
+#print axioms configurationMatchingEquivColumnWithOrders
+#print axioms configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount
+#print axioms profileOverlapTableOfConfigurationMatching_tableNat_eq_cellCount
+#print axioms card_profileColumnFiberOrders
+#print axioms uniformConfigurationMatching_map_orderedProfileColumn
+#print axioms uniformConfigurationMatching_map_profileOverlapTable
+#print axioms weightedExpectation_uniformConfigurationMatching_eq_uniformProfile
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ProfileOverlapConfigurationBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileOverlapConfigurationBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section6SignedSecondMomentFubini
 Source: Erdos625/Section6SignedSecondMomentFubini.lean
 Normalized SHA-256: f275437cf2ba9f2482e9c5cbb220206011e51558079693abe543cc3993da8b52
@@ -33328,6 +34285,141 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section6SignedSecondMomentIdentity
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section6SignedSecondMomentIdentity
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section6SignedPaleyZygmundSeed
+Source: Erdos625/Section6SignedPaleyZygmundSeed.lean
+Normalized SHA-256: 2f265a9366986742891563c54c2588b8b6384d0d2ff0129381494f697f85833b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section6SignedPaleyZygmundSeed
+
+/-!
+# Section VI: signed-profile Paley--Zygmund seed
+
+This module connects the literal finite signed-profile count to the generic
+Paley--Zygmund cocolourability adapter.  Its hypotheses expose, rather than
+hide, the only analytic input: an upper bound on the exact normalized
+fixed-margin overlap-table sum.
+-/
+
+namespace Erdos625
+
+open MeasureTheory Set
+open scoped BigOperators ENNReal NNReal ProbabilityTheory
+
+noncomputable section
+
+/-- The `lintegral` of the finite signed-profile count is its literal
+singleton-mass first moment. -/
+theorem lintegral_signedProfileCount_eq_signedProfileExpectation
+    {b : ℕ} (n : ℕ) (k : ColoringProfile b) :
+    ∫⁻ G, (signedProfileCount G k : ENNReal) ∂(randomGraphMeasure n) =
+      signedProfileExpectation n k := by
+  rw [MeasureTheory.lintegral_fintype]
+  rfl
+
+/-- The `lintegral` of the square of the finite signed-profile count is its
+literal singleton-mass second moment. -/
+theorem lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment
+    {b : ℕ} (n : ℕ) (k : ColoringProfile b) :
+    ∫⁻ G, (signedProfileCount G k : ENNReal) ^ 2 ∂(randomGraphMeasure n) =
+      signedProfileSecondMoment n k := by
+  rw [MeasureTheory.lintegral_fintype]
+  rfl
+
+/-- A feasible ordered profile and an explicit upper bound on its exact
+normalized signed overlap-table sum give the real seed probability needed by
+the later amplification argument.  The proof derives all denominator
+nonvanishing and finiteness facts from the feasible profile, the finite
+sample space, and the displayed table-sum bound. -/
+theorem signedProfile_real_seed_of_tableSum_bound
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (Λ : ℝ)
+    (hTable : signedProfileSecondMomentTableSumENNReal row₀ ≤
+      ENNReal.ofReal (Real.exp Λ)) :
+    Real.exp (-Λ) ≤
+      (randomGraphMeasure n).real
+        {G | CoColorable G (ColoringProfile.partCount k)} := by
+  let Z : LabeledGraph n → ENNReal := fun G => (signedProfileCount G k : ENNReal)
+  let D : ENNReal := signedProfileExpectation n k ^ 2
+  let M : ENNReal := signedProfileSecondMoment n k
+  let B : ENNReal := ENNReal.ofReal (Real.exp Λ)
+  have hZ : Measurable Z := measurable_of_finite _
+  have hD0 : D ≠ 0 := by
+    simpa only [D] using
+      signedProfileExpectation_sq_ne_zero_of_orderedProfilePartition row₀
+  have hDtop : D ≠ ∞ := by
+    simpa only [D] using signedProfileExpectation_sq_ne_top n k
+  have hB0 : B ≠ 0 := by
+    apply ne_of_gt
+    simpa only [B, ENNReal.ofReal_pos] using Real.exp_pos Λ
+  have hBtop : B ≠ ∞ := by
+    simpa only [B] using ENNReal.ofReal_ne_top
+      (r := Real.exp Λ)
+  have hnormalized : M / D =
+      signedProfileSecondMomentTableSumENNReal row₀ := by
+    simpa only [M, D] using
+      normalizedSignedProfileSecondMoment_eq_tableSum row₀
+  have hdiv : M / D ≤ B := by
+    rw [hnormalized]
+    simpa only [B] using hTable
+  have hMle : M ≤ B * D :=
+    (ENNReal.div_le_iff hD0 hDtop).mp hdiv
+  have hMtop : M ≠ ∞ :=
+    ne_top_of_le_ne_top (ENNReal.mul_ne_top hBtop hDtop) hMle
+  have hM0 : M ≠ 0 := by
+    intro hMzero
+    have hMzero' : signedProfileSecondMoment n k = 0 := by
+      simpa only [M] using hMzero
+    have hCS := lintegral_sq_le_measure_support_mul_lintegral_sq
+      (mu := randomGraphMeasure n) (Z := Z) hZ
+    rw [lintegral_signedProfileCount_eq_signedProfileExpectation,
+      lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment] at hCS
+    have hDzero : D = 0 := by
+      apply bot_unique
+      change signedProfileExpectation n k ^ 2 ≤ 0
+      calc
+        signedProfileExpectation n k ^ 2 ≤
+            (randomGraphMeasure n) (Function.support Z) *
+              signedProfileSecondMoment n k := hCS
+        _ = 0 := by rw [hMzero', mul_zero]
+    exact hD0 (by simpa only [D] using hDzero)
+  have hratioENN : B⁻¹ ≤ D / M := by
+    rw [← ENNReal.inv_div (Or.inl hDtop) (Or.inl hD0)]
+    exact ENNReal.inv_le_inv.mpr hdiv
+  have hratioTop : D / M ≠ ∞ := ENNReal.div_ne_top hDtop hM0
+  have hratioReal : Real.exp (-Λ) ≤ (D / M).toReal := by
+    have htoReal := ENNReal.toReal_mono hratioTop hratioENN
+    calc
+      Real.exp (-Λ) = (B⁻¹).toReal := by
+        rw [ENNReal.toReal_inv]
+        simp only [B, ENNReal.toReal_ofReal (Real.exp_nonneg Λ)]
+        exact Real.exp_neg Λ
+      _ ≤ (D / M).toReal := htoReal
+  have hPZ := coColorable_real_seed_of_count n
+    (ColoringProfile.partCount k) Z hZ (fun G hG => by
+      apply signedProfileCount_pos_implies_coColorable
+      exact Nat.cast_pos.mp (by simpa only [Z] using hG))
+  have hPZ' : (D / M).toReal ≤
+      (randomGraphMeasure n).real
+        {G | CoColorable G (ColoringProfile.partCount k)} := by
+    simpa only [Z, D, M,
+      lintegral_signedProfileCount_eq_signedProfileExpectation,
+      lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment] using hPZ
+  exact hratioReal.trans hPZ'
+
+#print axioms lintegral_signedProfileCount_eq_signedProfileExpectation
+#print axioms lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment
+#print axioms signedProfile_real_seed_of_tableSum_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section6SignedPaleyZygmundSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section6SignedPaleyZygmundSeed
 ========================================================================== -/
 
 /- ==========================================================================
@@ -42504,81 +43596,6 @@ END SOURCE MODULE: Erdos625.Section8CanonicalDemandPartition
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.UniformSigmaTransport
-Source: Erdos625/UniformSigmaTransport.lean
-Normalized SHA-256: 68fbc1a32d42d7941fdf359e85841a7e3dc81e3f297df67b7314de86dbf04313
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
-
-/-!
-# Uniform finite probability on a dependent sum
-
-For a finite dependent sum, this module calculates the marginal of the
-uniform law under the first projection.  It is an exact finite probability
-identity only: it makes no configuration-model, canonical-event, or
-asymptotic assertion.  In particular, the base coordinate is generally not
-uniform; its mass is proportional to the cardinality of its fibre.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- Under the uniform law on a nonempty finite dependent sum, the mass of a
-base point is the cardinality of its fibre divided by the total cardinality. -/
-theorem uniformOfFintype_sigma_map_fst_apply
-    {D : Type*} {X : D -> Type*}
-    [Fintype D] [(d : D) -> Fintype (X d)]
-    [Nonempty (Sigma X)]
-    (d : D) :
-    ((PMF.uniformOfFintype (Sigma X)).map
-        (fun z : Sigma X => z.1)) d =
-      (Fintype.card (X d) : ENNReal) /
-        (Fintype.card (Sigma X) : ENNReal) := by
-  classical
-  rw [PMF.map_apply, tsum_fintype]
-  simp_rw [PMF.uniformOfFintype_apply]
-  rw [Fintype.sum_sigma]
-  have hinner : forall x : D,
-      (∑ _y : X x,
-          if d = x then (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
-        if d = x then
-          (Fintype.card (X x) : ENNReal) *
-            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 := by
-    intro x
-    by_cases h : d = x
-    · subst x
-      simp [nsmul_eq_mul]
-    · simp [h]
-  rw [Finset.sum_congr rfl (fun x _ => hinner x)]
-  rw [show (∑ x : D,
-      if d = x then
-        (Fintype.card (X x) : ENNReal) *
-          (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0) =
-      ∑ x : D,
-        if x = d then
-          (Fintype.card (X x) : ENNReal) *
-            (Fintype.card (Sigma X) : ENNReal)⁻¹ else 0 by
-      simp_rw [eq_comm]]
-  rw [Finset.sum_ite_eq' Finset.univ d]
-  simp only [Finset.mem_univ, if_true]
-  rw [ENNReal.div_eq_inv_mul]
-  ac_rfl
-
-#print axioms uniformOfFintype_sigma_map_fst_apply
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_UniformSigmaTransport
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.UniformSigmaTransport
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalDemandGlobalResidual
 Source: Erdos625/Section8CanonicalDemandGlobalResidual.lean
 Normalized SHA-256: eb5923f1a7f5718fdedd0170a6cc5b4eceba47a432169a900f3d13bb9eabc17a
@@ -49123,6 +50140,72 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualLogReduction
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseEnvelopeTail
+Source: Erdos625/ColoringProfilePhaseEnvelopeTail.lean
+Normalized SHA-256: 3d873fcd12cb96a5c37932f38b6b82cfd9075cddec392fe6b58701b23d2b5d38
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseEnvelopeTail
+
+/-!
+# The phase-envelope chromatic tail adapter
+
+This file packages the exact conditional implication needed by the chromatic
+lower-tail argument.  Its hypothesis is the full selected phase envelope,
+including the explicit factorial error.  In particular, no identification of
+an externally supplied cap with `phaseNat n + 1` is assumed: that cap is built
+directly into `profilePhaseObjective`.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- If the selected phase envelope (including the factorial correction) tends
+to `-∞`, then the random-graph probability of admitting a coloring with the
+given number of parts tends to zero.
+
+The eventual hypotheses are exactly those needed by the finite profile
+first-moment bound.  The selected dual tilt is inserted internally using
+`profilePhaseObjective_eq_selected_core`; hence callers do not need to supply
+or equate a separate phase cap. -/
+theorem chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
+    (parts : ℕ → ℕ)
+    (hpartsPos : ∀ᶠ n in atTop, 0 < parts n)
+    (hpartsLe : ∀ᶠ n in atTop, parts n ≤ n)
+    (henvelope : Tendsto
+      (fun n : ℕ ↦
+        profilePhaseObjective n (parts n : ℝ) + factorialLogErrorBound n)
+      atTop atBot) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        (chromaticNumberAtMostEvent n (parts n)))
+      atTop (𝓝 0) := by
+  apply randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+    parts
+    (fun n : ℕ ↦
+      profileDualTilt (phaseNat n + 1) ((n : ℝ) / (parts n : ℝ)))
+    hpartsPos hpartsLe
+  refine henvelope.congr' ?_
+  filter_upwards [hpartsPos] with n hn
+  have hparts_ne : (parts n : ℝ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hn
+  rw [profilePhaseObjective_eq_selected_core n hparts_ne]
+
+#print axioms chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseEnvelopeTail
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseEnvelopeTail
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
 Source: Erdos625/ExpTailTransport.lean
 Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
@@ -49159,7 +50242,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 87ed52a1db3bf46b915f54c1e07e9bfbd194aefc474cacc9e8e2e09d916d947f
+Normalized SHA-256: e4180b85e04b18ead5d30effedc0de17185fa89eedca2d065ce1347440f1e828
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -49367,6 +50450,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
+#print axioms Erdos625.signedFourDeficitProfileExpectation_eq
+#print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
+#print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
+#print axioms Erdos625.hasDerivAt_signedFourSizeObjective
+#print axioms Erdos625.continuousAt_phaseSignedFourSizeObjective
 #print axioms Erdos625.ColoringProfile.prod_factorial_count_sizes
 #print axioms Erdos625.ColoringProfile.enumerativeCoefficient_mul_coordinateDenominator_eq
 #print axioms Erdos625.ProfilePartition.ncard_partitionInternalGraph
@@ -49556,6 +50644,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_profileBlockIndex
 #print axioms Erdos625.profileOverlapTable_realizable_iff
 #print axioms Erdos625.sum_weight_profileOverlapTableOfOrderedPair_eq_sum_card_nsmul
+#print axioms Erdos625.configurationMatchingEquivColumnWithOrders
+#print axioms Erdos625.configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount
+#print axioms Erdos625.uniformConfigurationMatching_map_orderedProfileColumn
+#print axioms Erdos625.weightedExpectation_uniformConfigurationMatching_eq_uniformProfile
 #print axioms Erdos625.signedProfileSecondMoment_eq_sum_pairEvent
 #print axioms Erdos625.signedProfileExpectation_ne_zero_of_orderedProfilePartition
 #print axioms Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition
@@ -49565,6 +50657,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signedOverlapQuotientBridge
 #print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_tableSum
 #print axioms Erdos625.normalizedSignedProfileSecondMoment_eq_profileOverlapTableSum
+#print axioms Erdos625.lintegral_signedProfileCount_eq_signedProfileExpectation
+#print axioms Erdos625.lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment
+#print axioms Erdos625.signedProfile_real_seed_of_tableSum_bound
 #print axioms Erdos625.sum_table_rows_eq_sum_table_columns
 #print axioms Erdos625.sum_demand_le_sum_table
 #print axioms Erdos625.no_contingencyTable_of_infeasible_demands
@@ -49920,6 +51015,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_profileDual_add_mu
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual
+#print axioms Erdos625.chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
 #print axioms Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one
@@ -49951,7 +51047,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: bdd47dcf6fab9cc3f8583711b956af8236ac7bc75dabe0dc1a2f381b73ab61d3
+Normalized SHA-256: cb6b53d3c92d2815b5fc02f40c07ec539cd8b3333992e4c8fa38130fb67f2119
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

@@ -226,16 +226,27 @@ rationals.  For a fixed pair of profile partitions, the exact sign-summed
 joint mass is now proved, including the denominator-free identity
 `pairMass * 2^(2 B_k) = 2^(2 partCount k) * A_zeta(r)`.  The fixed-margin
 probability law and reward are also packaged into the manuscript's finite
-table sum.  The remaining Section VI step is the constructive semantic
-transport from unordered signed witnesses to ordered block slots is now
-constructive and preserves signs, validity, and overlap cells in both
+table sum.  The constructive semantic transport from unordered signed
+witnesses to ordered block slots now preserves signs, validity, and overlap cells in both
 directions.  The canonical profile-table transport, weighted fibration
 regrouping, graph-level finite Fubini expansion, and safe nonzero expectation
 cancellation are also proved.  Their semantic quotient and multiplier-square
 cancellation are now assembled into the unconditional feasible-profile
 identity
 `E[Z^2] / E[Z]^2 = sum_r p(r) * A_zeta(r)` in `ENNReal`, with the literal
-fixed-margin table probability.  The checkpoint also proves the
+fixed-margin table probability.  The finite first/second moment lintegrals and
+Paley--Zygmund adapter now turn any bound of this table sum by `exp(Lambda)`
+into the concrete cocolourable seed `exp(-Lambda)`.  Separately, an admissible
+part sequence whose ordinary phase envelope tends to `-infinity` now yields
+the required chromatic-at-most tail.  A distinct finite signed four-size
+objective is now defined with its exact Gibbs/entropy rewrite, signed
+first-moment specialization, root predicate, derivatives, and continuity;
+the numerical entropy-gap and uniform root-corridor certificates remain open.
+The profile overlap-table law is also transported exactly to the uniform
+configuration model through an explicit constant-fibre equivalence preserving
+every cell count and arbitrary `ENNReal` weighted expectations.  This closes
+the former Section VI-to-IX model-interface seam.
+The checkpoint also proves the
 configuration-model prescribed-cell estimates
 (6.8)--(6.10), the partial-diagonal and full-corner
 identities (7.1)--(7.6), the exact configuration-cell row and column margins,
