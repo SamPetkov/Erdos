@@ -46,7 +46,10 @@ fixed-`F` capped expansion, finite analytic endpoint bounds, and deterministic
 small-residual estimate are proved. Every tagged state in the global Section
 VIII canonical-demand disintegration is retyped by its own literal Section IX
 cap/no-return event, and the ambient uniform PMF transports exactly to the
-uniform law on that tagged sigma family. This does not create an untagged
+uniform law on that tagged sigma family. The literal actual residual family is
+also transported exactly to the binary cycle space of its support, and the
+event-restricted attachment numerator is rewritten by that finite cycle-rank
+factor. This does not create an untagged
 residual law or an expectation bound. The file also contains a recoverable
 disjoint decomposition into minimal nonempty even sets with a real-valued
 polymer bound. The actual residual even-edge family has an exact one-sided
@@ -105,16 +108,16 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean `
   -o .lake/build/lib/lean/Erdos625SelfContained.olean
 ```
 
-The source checkpoint generated on 2026-07-16 has the following reproducible
+The source checkpoint generated on 2026-07-18 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 180;
-- external Mathlib imports: 78;
-- central `#print axioms` commands included: 689;
-- newline count: 34,252;
+- local source modules included: 220;
+- external Mathlib imports: 82;
+- central `#print axioms` commands included: 961;
+- newline count: 43,047;
 - generated source SHA-256:
-  `0A2171FCDA3EEA922010E3BFD0B29D52B86E2663D0449611206B9EDD64E516A7`.
+  `D03BC13F7F6AAFE15D129BDB2391A4077AEEA99E37705284E7C0753B0BFD89E6`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
@@ -129,7 +132,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 176
+The ordered module manifest is embedded in the generated file as 220
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

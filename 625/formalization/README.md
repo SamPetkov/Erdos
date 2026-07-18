@@ -417,9 +417,10 @@ The pointwise cubic `residualLambda` estimate and its exact total bound at
 scale `C * U^4 / m` from (9.13) are now proved.  The canonical full/residual
 reward-product and support-graph splits are also proved, with no-return
 explicit for the reward identity and `2 ≤ U` explicit for the graph identity.
-The actual-even-family/cycle-rank identification, exact tagged fibre/global
-incidence identity, and large- and small-residual attachment estimates remain
-open.
+The literal actual-even-family/cycle-rank identification is now proved,
+including the exact rewrite of the event-restricted attachment numerator by
+that finite cycle-rank factor. Exact tagged fibre/global incidence integration
+and the large- and small-residual attachment estimates remain open.
 The residual-only cycle
 summand now has an exact deterministic row-rooted even-walk bound under finite
 row/column kernel hypotheses.  The earlier high-cell mass
@@ -497,6 +498,15 @@ geometric bounds for cycles meeting the matching.  The cycles disjoint from
 the matching now have their own exact deterministic even-walk enumeration.
 The cubic total-`residualLambda` estimate is proved separately; law-level
 probability transport remains open.
+
+[`Section9ActualResidualCycleSpaceEquiv.lean`](Erdos625/Section9ActualResidualCycleSpaceEquiv.lean)
+identifies the literal actual-residual family with the even edge subsets of
+its exposed-plus-multiplicity-two support graph.
+[`Section9ActualResidualCycleRankAssembly.lean`](Erdos625/Section9ActualResidualCycleRankAssembly.lean)
+then transports that cardinality back to `actualResidualEvenEdgeSets` and
+rewrites the finite event-restricted attachment numerator by the resulting
+cycle-rank factor. Neither module supplies tagged-law integration or an
+attachment estimate.
 
 [`Section9TraversalKernel.lean`](Erdos625/Section9TraversalKernel.lean) defines
 finite `ENNReal` kernel-walk mass and proves propagation by the row norm,
@@ -683,8 +693,8 @@ aggregation is proved separately,
 and its exact Fubini bridge identifies it with the event-restricted actual-
 attachment numerator.  No division by the cap/no-return event mass belongs in
 the manuscript (9.1)--(9.2) route.  What remains is to prove the exact
-actual-even-family/cycle-rank identification, the per-demand/global tagged
-incidence identity, the uniform strict-regime instantiation, and the large-
+the per-demand/global tagged incidence identity, the uniform strict-regime
+instantiation, and the large-
 and small-residual attachment estimates.  The full/residual reward-product
 and support-graph splits are proved separately.
 
@@ -881,8 +891,8 @@ specialization of the exact fixed-demand canonical conditional law and
 probability factorization, skeleton quotient/estimates, and full Section 8
 assembly, exact tagged fibre/global incidence integration of the
 event-restricted attachment numerator, the
-actual-even-family/cycle-rank identification, finite residual attachment
-bounds, conditioned probability control, and full Section 9 assembly,
+finite residual attachment bounds, conditioned probability control, and full
+Section 9 assembly,
 Section 10's concrete Section IX seed/count/moment estimate and `Lambda`
 asymptotics, Section 11's actual chromatic tail, and the concrete root
 separation remain open.  The proved uniform Lemma 10.2 and D1--D4 interfaces

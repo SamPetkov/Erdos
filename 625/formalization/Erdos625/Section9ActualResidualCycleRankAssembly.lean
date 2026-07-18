@@ -74,15 +74,18 @@ theorem coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
   norm_cast
   exact card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank M matching
 
-/-- Exact rewrite of the Section IX event-restricted attachment numerator by
-the literal actual-family cycle-rank factor. -/
-theorem residualActualAttachmentNumerator_eq_cycleRankExpectation
+/-- The Section IX event-restricted expectation after replacing the literal
+finite-family cardinality by its binary cycle-rank expression.  The definition
+is noncomputable only because membership in the cap/no-return event is decided
+classically; it introduces no axiom beyond Lean's standard classical choice. -/
+noncomputable def residualCycleRankExpectation
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     (M : Finset (A × B)) (R : ℕ)
     (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
-    residualActualAttachmentNumerator M R row col htotal =
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ := by
+  classical
+  exact
       ∑ matching : ConfigurationMatching row col,
         uniformConfigurationMatching row col htotal matching *
           (if matching ∈ ResidualCapNoReturnEvent M R row col
@@ -94,9 +97,20 @@ theorem residualActualAttachmentNumerator_eq_cycleRankExpectation
             cycleRank
               (bipartiteGraph fun a b =>
                 (a, b) ∈ M ∨
-                  2 ≤ configurationCellCount matching a b) := by
+                  2 ≤ configurationCellCount matching a b)
+
+/-- Exact rewrite of the Section IX event-restricted attachment numerator by
+the literal actual-family cycle-rank factor. -/
+theorem residualActualAttachmentNumerator_eq_cycleRankExpectation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    residualActualAttachmentNumerator M R row col htotal =
+      residualCycleRankExpectation M R row col htotal := by
   classical
-  unfold residualActualAttachmentNumerator
+  unfold residualActualAttachmentNumerator residualCycleRankExpectation
   apply Finset.sum_congr rfl
   intro matching _
   rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
@@ -104,6 +118,7 @@ theorem residualActualAttachmentNumerator_eq_cycleRankExpectation
 #print axioms actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily
 #print axioms card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
 #print axioms coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+#print axioms residualCycleRankExpectation
 #print axioms residualActualAttachmentNumerator_eq_cycleRankExpectation
 
 end

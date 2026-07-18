@@ -99,9 +99,8 @@ This file is NOT a complete formal proof of Erdos Problem 625.  In particular,
 the remaining Section VIII event-nonemptiness, manuscript-specific
 parameterization, and quantitative canonical-event/skeleton estimates; the
 Section IX exact tagged fibre/global incidence integration of the
-event-restricted attachment numerator, the actual-even-family/cycle-rank
-identification, uniform large- and small-residual attachment, second-moment
-assembly, and the concrete seed/count/moment estimate and `Lambda`
+event-restricted attachment numerator, uniform large- and small-residual
+attachment, second-moment assembly, and the concrete seed/count/moment estimate and `Lambda`
 asymptotics needed to instantiate the proved uniform Lemma 10.2; the concrete
 chromatic at-most tail and root separation; and the final probabilistic
 theorem are open.  The physical faithful cut of one eligible cycle, its
@@ -122,9 +121,11 @@ retains the cap/no-return indicator, so no division by its event mass is
 required.  The pointwise cubic `residualLambda` bound and its deterministic
 total estimate at the scale in (9.13) are included and proved.  The canonical
 full/residual reward-product and support-graph splits are included and proved,
-with no-return and `2 ≤ U` explicit in their respective hypotheses.  No
-actual-even-family/cycle-rank identification or exact tagged fibre/global
-incidence integration is claimed.
+with no-return and `2 ≤ U` explicit in their respective hypotheses.  The
+literal actual even family is exactly transported to the bipartite binary
+cycle space, and the event-restricted attachment numerator is exactly rewritten
+by its finite cycle-rank factor; exact tagged fibre/global incidence
+integration is not claimed.
 The D1 graph-specific chromatic-tail adapter, D2 two-tail threshold assembly,
 D4 count-to-cocolourable Paley--Zygmund seed adapter, and D3 uniform seed/root
 wrapper are included and proved as conditional implications.  They retain the
@@ -26909,6 +26910,270 @@ END SOURCE MODULE: Erdos625.Section9CycleSpaceCardinality
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualCycleSpaceEquiv
+Source: Erdos625/Section9ActualResidualCycleSpaceEquiv.lean
+Normalized SHA-256: 4b74a0ba5040068382b81e234b1021ac002c8f56757ddef95ab7fb37a1d67e69
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualCycleSpaceEquiv
+
+/-!
+# Section IX: exact actual-residual cell/edge and cycle-space equivalence
+
+This finite module identifies supported row--column cell sets with graph edges
+of the corresponding bipartite support graph.  It then identifies the literal
+`ActualResidualEvenEdgeFamily` with its binary even-edge cycle space.
+
+It contains no probability, cap/no-return, reward, or asymptotic assertion.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Supported row--column cells are exactly the edges of their bipartite
+support graph.  The inverse identifies the two cross-edge orientations and
+rejects same-side edges using the edge proof. -/
+noncomputable def supportedCellEquivBipartiteGraphEdge
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A -> B -> Prop) :
+    {e : A × B // P e.1 e.2} ≃ (bipartiteGraph P).edgeSet := by
+  classical
+  let encode : {e : A × B // P e.1 e.2} →
+      (bipartiteGraph P).edgeSet := fun e =>
+    ⟨s(Sum.inl e.1.1, Sum.inr e.1.2), by
+      simpa [bipartiteGraph, SimpleGraph.fromRel_adj] using e.2⟩
+  refine Equiv.ofBijective encode ⟨?_, ?_⟩
+  · intro e f hef
+    apply Subtype.ext
+    have hsym :
+        s(Sum.inl e.1.1, Sum.inr e.1.2) =
+          s(Sum.inl f.1.1, Sum.inr f.1.2) := congrArg Subtype.val hef
+    have hp : e.1.1 = f.1.1 ∧ e.1.2 = f.1.2 := by
+      simpa [Sym2.eq_iff] using hsym
+    exact Prod.ext hp.1 hp.2
+  · intro edge
+    rcases edge with ⟨edge, hedge⟩
+    induction edge using Sym2.inductionOn with
+    | _ u v =>
+      rcases u with (a | b) <;> rcases v with (a' | b')
+      · simp [bipartiteGraph, SimpleGraph.fromRel_adj] at hedge
+      · refine ⟨⟨(a, b'), ?_⟩, ?_⟩
+        · simpa [bipartiteGraph, SimpleGraph.fromRel_adj] using hedge
+        · rfl
+      · refine ⟨⟨(a', b), ?_⟩, ?_⟩
+        · simpa [bipartiteGraph, SimpleGraph.fromRel_adj] using hedge
+        · apply Subtype.ext
+          exact Sym2.eq_swap
+      · simp [bipartiteGraph, SimpleGraph.fromRel_adj] at hedge
+
+/-- Map a supported finite cell set to the corresponding graph-edge set. -/
+noncomputable def supportedCellFinsetToEdges
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A → B → Prop) (F : Finset (A × B)) :
+    Finset (bipartiteGraph P).edgeSet := by
+  classical
+  exact (Finset.subtype (fun e => P e.1 e.2) F).map
+    (supportedCellEquivBipartiteGraphEdge P).toEmbedding
+
+/-- Decode a finite set of graph edges back to its row--column cells. -/
+noncomputable def supportedEdgesToCellFinset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A → B → Prop) (E : Finset (bipartiteGraph P).edgeSet) :
+    Finset (A × B) := by
+  classical
+  exact (E.map (supportedCellEquivBipartiteGraphEdge P).symm.toEmbedding).map
+    (Function.Embedding.subtype _)
+
+@[simp] lemma supportedEdgesToCellFinset_supportedCellFinsetToEdges
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A → B → Prop) (F : Finset (A × B))
+    (hF : ∀ e ∈ F, P e.1 e.2) :
+    supportedEdgesToCellFinset P (supportedCellFinsetToEdges P F) = F := by
+  classical
+  ext e
+  simp [supportedEdgesToCellFinset, supportedCellFinsetToEdges]
+  exact hF e
+
+@[simp] lemma supportedCellFinsetToEdges_supportedEdgesToCellFinset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A → B → Prop) (E : Finset (bipartiteGraph P).edgeSet) :
+    supportedCellFinsetToEdges P (supportedEdgesToCellFinset P E) = E := by
+  classical
+  ext edge
+  simp [supportedEdgesToCellFinset, supportedCellFinsetToEdges]
+  exact fun _ => ((supportedCellEquivBipartiteGraphEdge P).symm edge).2
+
+/-- Under the cell/edge equivalence, row and column parity is precisely
+parity at every vertex of the bipartite graph. -/
+lemma supportedCellFinsetToEdges_even_iff
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (P : A → B → Prop) [DecidableRel (bipartiteGraph P).Adj]
+    (F : Finset (A × B)) (hF : ∀ e ∈ F, P e.1 e.2) :
+    BipartiteEvenEdgeSet F ↔
+      ∀ v, Even (graphEdgeSubsetAtVertex
+        (supportedCellFinsetToEdges P F) v).card := by
+  classical
+  have hrow (a : A) :
+      (graphEdgeSubsetAtVertex (supportedCellFinsetToEdges P F)
+        (Sum.inl a)).card = (bipartiteEdgeRow F a).card := by
+    symm
+    apply Finset.card_bij
+      (fun b _ => (supportedCellEquivBipartiteGraphEdge P)
+        ⟨(a, b), hF (a, b) (by simpa [bipartiteEdgeRow] using ‹b ∈ bipartiteEdgeRow F a›)⟩)
+    · intro b hb
+      simp only [graphEdgeSubsetAtVertex, Finset.mem_filter,
+        Finset.mem_univ, true_and]
+      constructor
+      · simp [supportedCellFinsetToEdges, Finset.mem_subtype,
+          bipartiteEdgeRow] at hb ⊢
+        exact hb
+      · simp [supportedCellEquivBipartiteGraphEdge]
+    · intro b₁ hb₁ b₂ hb₂ heq
+      have := (supportedCellEquivBipartiteGraphEdge P).injective heq
+      simpa using congrArg (fun e => e.1.2) this
+    · intro e he
+      simp only [graphEdgeSubsetAtVertex, Finset.mem_filter,
+        Finset.mem_univ, true_and] at he
+      obtain ⟨heF, heVertex⟩ := he
+      change e ∈ (Finset.subtype (fun e => P e.1 e.2) F).map
+        (supportedCellEquivBipartiteGraphEdge P).toEmbedding at heF
+      rw [Finset.mem_map] at heF
+      obtain ⟨cell, hcell, rfl⟩ := heF
+      have ha : cell.1.1 = a := by
+        symm
+        simpa [supportedCellEquivBipartiteGraphEdge] using heVertex
+      subst a
+      refine ⟨cell.1.2, ?_, rfl⟩
+      simpa [bipartiteEdgeRow, Finset.mem_subtype] using hcell
+  have hcolumn (b : B) :
+      (graphEdgeSubsetAtVertex (supportedCellFinsetToEdges P F)
+        (Sum.inr b)).card = (bipartiteEdgeColumn F b).card := by
+    symm
+    apply Finset.card_bij
+      (fun a _ => (supportedCellEquivBipartiteGraphEdge P)
+        ⟨(a, b), hF (a, b) (by simpa [bipartiteEdgeColumn] using ‹a ∈ bipartiteEdgeColumn F b›)⟩)
+    · intro a ha
+      simp only [graphEdgeSubsetAtVertex, Finset.mem_filter,
+        Finset.mem_univ, true_and]
+      constructor
+      · simp [supportedCellFinsetToEdges, Finset.mem_subtype,
+          bipartiteEdgeColumn] at ha ⊢
+        exact ha
+      · simp [supportedCellEquivBipartiteGraphEdge]
+    · intro a₁ ha₁ a₂ ha₂ heq
+      have := (supportedCellEquivBipartiteGraphEdge P).injective heq
+      simpa using congrArg (fun e => e.1.1) this
+    · intro e he
+      simp only [graphEdgeSubsetAtVertex, Finset.mem_filter,
+        Finset.mem_univ, true_and] at he
+      obtain ⟨heF, heVertex⟩ := he
+      change e ∈ (Finset.subtype (fun e => P e.1 e.2) F).map
+        (supportedCellEquivBipartiteGraphEdge P).toEmbedding at heF
+      rw [Finset.mem_map] at heF
+      obtain ⟨cell, hcell, rfl⟩ := heF
+      have hb : cell.1.2 = b := by
+        symm
+        simpa [supportedCellEquivBipartiteGraphEdge] using heVertex
+      subst b
+      refine ⟨cell.1.1, ?_, rfl⟩
+      simpa [bipartiteEdgeColumn, Finset.mem_subtype] using hcell
+  constructor
+  · rintro ⟨hrows, hcolumns⟩ (a | b)
+    · rw [hrow]
+      exact hrows a
+    · rw [hcolumn]
+      exact hcolumns b
+  · intro h
+    constructor
+    · intro a
+      rw [← hrow]
+      exact h (Sum.inl a)
+    · intro b
+      rw [← hcolumn]
+      exact h (Sum.inr b)
+
+/-- The literal actual residual even-edge family is exactly the even-edge
+subtype of the graph supported on exposed cells or residual multiplicity at
+least two. -/
+noncomputable def actualResidualEvenEdgeFamilyEquivEvenEdgeSubset
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : A -> B -> Prop)
+    [DecidableRel
+      (bipartiteGraph
+        (fun a b => M a b ∨ 2 ≤ cellCount a b)).Adj] :
+    ActualResidualEvenEdgeFamily cellCount M ≃
+      EvenEdgeSubset
+        (bipartiteGraph
+          (fun a b => M a b ∨ 2 ≤ cellCount a b)) := by
+  classical
+  let P : A → B → Prop := fun a b => M a b ∨ 2 ≤ cellCount a b
+  refine
+    { toFun := fun F => ⟨supportedCellFinsetToEdges P F.1,
+        (supportedCellFinsetToEdges_even_iff P F.1 F.2.2).mp F.2.1⟩
+      invFun := fun E => ⟨supportedEdgesToCellFinset P E.1, ?_, ?_⟩
+      left_inv := ?_
+      right_inv := ?_ }
+  · apply (supportedCellFinsetToEdges_even_iff P _ ?_).mpr
+    simpa using E.2
+    intro e he
+    change e ∈ ((E.1.map
+      (supportedCellEquivBipartiteGraphEdge P).symm.toEmbedding).map
+        (Function.Embedding.subtype _)) at he
+    rw [Finset.mem_map] at he
+    obtain ⟨cell, hcell, rfl⟩ := he
+    exact cell.2
+  · intro e he
+    change e ∈ ((E.1.map
+      (supportedCellEquivBipartiteGraphEdge P).symm.toEmbedding).map
+        (Function.Embedding.subtype _)) at he
+    rw [Finset.mem_map] at he
+    obtain ⟨cell, hcell, rfl⟩ := he
+    exact cell.2
+  · intro F
+    apply Subtype.ext
+    exact supportedEdgesToCellFinset_supportedCellFinsetToEdges P F.1 F.2.2
+  · intro E
+    apply Subtype.ext
+    exact supportedCellFinsetToEdges_supportedEdgesToCellFinset P E.1
+
+/-- Exact binary cycle-space cardinality for the actual residual family. -/
+theorem natCard_actualResidualEvenEdgeFamily_eq_two_pow_cycleRank
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (cellCount : A -> B -> Nat) (M : A -> B -> Prop)
+    [DecidableRel
+      (bipartiteGraph
+        (fun a b => M a b ∨ 2 ≤ cellCount a b)).Adj] :
+    Nat.card (ActualResidualEvenEdgeFamily cellCount M) =
+      2 ^ cycleRank
+        (bipartiteGraph
+          (fun a b => M a b ∨ 2 ≤ cellCount a b)) := by
+  rw [Nat.card_congr
+    (actualResidualEvenEdgeFamilyEquivEvenEdgeSubset cellCount M)]
+  exact natCard_evenEdgeSubset_eq_two_pow_cycleRank _
+
+#print axioms supportedCellEquivBipartiteGraphEdge
+#print axioms supportedCellFinsetToEdges_even_iff
+#print axioms actualResidualEvenEdgeFamilyEquivEvenEdgeSubset
+#print axioms natCard_actualResidualEvenEdgeFamily_eq_two_pow_cycleRank
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualCycleSpaceEquiv
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualCycleSpaceEquiv
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section6CompatibleSignsComponents
 Source: Erdos625/Section6CompatibleSignsComponents.lean
 Normalized SHA-256: e6a49d310ddaffa34d28b4c35c5f50ecda1f09ee1095e825078ab51f3360a7fa
@@ -34146,6 +34411,141 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9FixedFFubiniBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualResidualCycleRankAssembly
+Source: Erdos625/Section9ActualResidualCycleRankAssembly.lean
+Normalized SHA-256: b42cede08a21b8dfc4b8b5be8bd9e73cb9e45036b9c28aa3f165f60d3c7411a1
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualResidualCycleRankAssembly
+
+/-!
+# Section IX: literal actual-family cycle-rank factor
+
+For one realised configuration matching, this module transports the literal
+finite family in `actualResidualEvenEdgeSets` to the already-proved actual
+residual even-edge family.  It then rewrites the exact event-restricted
+attachment numerator by the resulting binary cycle-space factor.
+
+The cap/no-return indicator, uniform configuration-matching mass, and local
+reward product are retained verbatim.  This is a finite exact rewrite only:
+it proves neither a tagged-law identity, an attachment estimate, a seed or
+`Lambda` bound, nor the final theorem.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The literal finite family retained by one realised matching is equivalent
+to the existing actual residual even-edge family for its realised cell table.
+-/
+noncomputable def actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    {F : Finset (A × B) // F ∈ actualResidualEvenEdgeSets M matching} ≃
+      ActualResidualEvenEdgeFamily
+        (configurationCellCount matching) (fun a b => (a, b) ∈ M) := by
+  exact Equiv.subtypeEquivRight (fun F =>
+    mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
+      M matching F)
+
+/-- The literal finite family retained by one realised matching has exactly
+the binary cycle-space cardinality of its exposed-plus-residual support graph.
+-/
+theorem card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    (actualResidualEvenEdgeSets M matching).card =
+      2 ^ cycleRank
+        (bipartiteGraph fun a b =>
+          (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b) := by
+  classical
+  have hcard :
+      Nat.card {F : Finset (A × B) // F ∈ actualResidualEvenEdgeSets M matching} =
+        Nat.card
+          (ActualResidualEvenEdgeFamily
+            (configurationCellCount matching) (fun a b => (a, b) ∈ M)) :=
+    Nat.card_congr
+      (actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily M matching)
+  rw [← Fintype.card_coe, ← Nat.card_eq_fintype_card, hcard]
+  exact natCard_actualResidualEvenEdgeFamily_eq_two_pow_cycleRank
+    (configurationCellCount matching) (fun a b => (a, b) ∈ M)
+
+/-- Direct `ENNReal` cast of the literal cycle-space cardinality identity. -/
+theorem coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → ℕ} {col : B → ℕ}
+    (M : Finset (A × B)) (matching : ConfigurationMatching row col) :
+    ((actualResidualEvenEdgeSets M matching).card : ℝ≥0∞) =
+      (2 : ℝ≥0∞) ^ cycleRank
+        (bipartiteGraph fun a b =>
+          (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b) := by
+  norm_cast
+  exact card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank M matching
+
+/-- The Section IX event-restricted expectation after replacing the literal
+finite-family cardinality by its binary cycle-rank expression.  The definition
+is noncomputable only because membership in the cap/no-return event is decided
+classically; it introduces no axiom beyond Lean's standard classical choice. -/
+noncomputable def residualCycleRankExpectation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) : ℝ≥0∞ := by
+  classical
+  exact
+      ∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching *
+          (if matching ∈ ResidualCapNoReturnEvent M R row col
+            then 1 else 0) *
+          (∏ a : A, ∏ b : B,
+            (residualReward
+              (configurationCellCount matching a b) : ℝ≥0∞)) *
+          (2 : ℝ≥0∞) ^
+            cycleRank
+              (bipartiteGraph fun a b =>
+                (a, b) ∈ M ∨
+                  2 ≤ configurationCellCount matching a b)
+
+/-- Exact rewrite of the Section IX event-restricted attachment numerator by
+the literal actual-family cycle-rank factor. -/
+theorem residualActualAttachmentNumerator_eq_cycleRankExpectation
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) :
+    residualActualAttachmentNumerator M R row col htotal =
+      residualCycleRankExpectation M R row col htotal := by
+  classical
+  unfold residualActualAttachmentNumerator residualCycleRankExpectation
+  apply Finset.sum_congr rfl
+  intro matching _
+  rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
+
+#print axioms actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily
+#print axioms card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+#print axioms coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+#print axioms residualCycleRankExpectation
+#print axioms residualActualAttachmentNumerator_eq_cycleRankExpectation
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualCycleRankAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualResidualCycleRankAssembly
 ========================================================================== -/
 
 /- ==========================================================================
@@ -41674,7 +42074,7 @@ END SOURCE MODULE: Erdos625.ColoringProfileDualAsymptotic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: bf2af0928f869ba60919a71cc23ba795ee95b4cb756f5bcc0a59a3e1b9c31da3
+Normalized SHA-256: 2adec8c5b0a6ed488d7a2a7e748e4e33e3fd0323503d1e6de884e50ce7a7c4cb
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -42128,6 +42528,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank
 #print axioms Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff
 #print axioms Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank
+#print axioms Erdos625.supportedCellEquivBipartiteGraphEdge
+#print axioms Erdos625.supportedCellFinsetToEdges_even_iff
+#print axioms Erdos625.actualResidualEvenEdgeFamilyEquivEvenEdgeSubset
+#print axioms Erdos625.natCard_actualResidualEvenEdgeFamily_eq_two_pow_cycleRank
 #print axioms Erdos625.compatibleBoolSignAssignmentsEquivComponents
 #print axioms Erdos625.natCard_compatibleBoolSignAssignments_eq_two_pow_components
 #print axioms Erdos625.weighted_evenSubgraph_polymer_bound
@@ -42203,6 +42607,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate
 #print axioms Erdos625.sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets
 #print axioms Erdos625.residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum
+#print axioms Erdos625.actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily
+#print axioms Erdos625.card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+#print axioms Erdos625.coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank
+#print axioms Erdos625.residualCycleRankExpectation
+#print axioms Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 #print axioms Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
 #print axioms Erdos625.evenMatrix_eq_zero_of_support_rowMatching
@@ -42386,7 +42795,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 96a273af9901191031b535e09786fc519c1f651b8045a662b76526e9c009682a
+Normalized SHA-256: ee40fed2d18a71d9eca87af75d207a4a8f43e25b68b3f1399e531d8e5db56ffc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
