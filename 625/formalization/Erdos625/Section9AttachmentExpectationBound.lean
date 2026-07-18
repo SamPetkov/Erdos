@@ -4,9 +4,9 @@ import Mathlib.Tactic
 /-!
 # Section IX: raw attachment numerator from a pointwise event bound
 
-This target is deliberately only the elementary finite-PMF step. It keeps the
-cap/no-return indicator inside the numerator and never divides by the event
-probability.
+This target is deliberately only the elementary finite-PMF step.  It keeps
+the cap/no-return indicator inside the numerator and never divides by the
+event probability.
 -/
 
 namespace Erdos625
@@ -15,15 +15,15 @@ open scoped BigOperators ENNReal
 
 noncomputable section
 
-/-- A pointwise upper bound for the literal actual attachment integrand on the
-cap/no-return event bounds the raw, non-conditional residual numerator. -/
+/-- A pointwise upper bound for the literal actual attachment integrand on
+the cap/no-return event bounds the raw (not conditional) residual numerator. -/
 theorem residualActualAttachmentNumerator_le_of_forall_event_integrand_le
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat)
+    (M : Finset (A × B)) (R : Nat) (row : A → Nat) (col : B → Nat)
     (htotal : Finset.univ.sum row = Finset.univ.sum col) (K : ENNReal)
     (hK : ∀ matching : ConfigurationMatching row col,
-      matching ∈ ResidualCapNoReturnEvent M R row col ->
+      matching ∈ ResidualCapNoReturnEvent M R row col →
         (∏ a : A, ∏ b : B,
           (residualReward (configurationCellCount matching a b) : ENNReal)) *
           ((actualResidualEvenEdgeSets M matching).card : ENNReal) ≤ K) :

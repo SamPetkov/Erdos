@@ -4,9 +4,11 @@ import Mathlib.Tactic
 /-!
 # Section VIII--IX: generic tagged finite-sum transport
 
-This isolated helper transports an arbitrary nonnegative observable through
-the exact configuration-matching equivalence to the dependent tagged
-demand/witness/residual Section IX family.
+This isolated target transports an arbitrary nonnegative observable through the
+exact configuration-matching equivalence to the *dependent* tagged
+`demand/witness/residual` Section IX family.  It deliberately retains both
+tags.  In particular, it neither identifies a common residual PMF nor
+conditions or divides by any event probability.
 -/
 
 namespace Erdos625
@@ -23,8 +25,8 @@ local instance fintypeResidualCapNoReturnEventTaggedTransport
   Fintype.ofFinite _
 
 /-- Exact finite expectation/sum transport through the configuration matching
-equivalence. The observable is evaluated on the full dependent tagged state, so
-demand and witness labels are never discarded. -/
+equivalence.  The observable is evaluated on the full dependent tagged state,
+so demand and witness labels are never discarded. -/
 theorem uniformConfigurationMatching_sum_tagged_transport
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]

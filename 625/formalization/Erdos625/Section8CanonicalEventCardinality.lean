@@ -47,28 +47,8 @@ noncomputable def fixedWitnessCanonicalDemandEventEquivResidual
     (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
     fixedWitnessCanonicalDemandEvent witness U ≃
       canonicalResidualCellEvent witness U := by
-  classical
-  exact
-  { toFun := fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+  exact Equiv.subtypeEquiv (fixedWitnessExtensionEquivResidual witness)
+    (mem_fixedWitnessCanonicalDemandEvent_iff_residual witness U hhigh)
 
 private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     {A B : Type*}
@@ -78,33 +58,8 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
     Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness U) := by
-  classical
-  let f :
-      ↑(fixedWitnessCanonicalDemandEvent witness U) →
-        ↑(canonicalResidualCellEvent witness U) :=
-    fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-  apply Fintype.card_congr
-  exact
-  { toFun := f
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+  exact Fintype.card_congr
+    (fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh)
 
 private theorem card_canonicalResidualCellEvent_eq
     {A B : Type*}
@@ -113,8 +68,7 @@ private theorem card_canonicalResidualCellEvent_eq
     (witness witness₀ : PrescribedDemandWitness demand row col) (U : ℕ) :
     Fintype.card (canonicalResidualCellEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness₀ U) := by
-  apply Fintype.card_congr
-  exact Equiv.refl _
+  rfl
 
 private theorem existsUnique_canonicalDemandEventWitness
     {A B : Type*}
@@ -123,10 +77,8 @@ private theorem existsUnique_canonicalDemandEventWitness
     (x : ↑(canonicalDemandEvent demand row col U)) :
     ∃! witness : PrescribedDemandWitness demand row col,
       ExtendsPrescribedDemandWitness x.1 witness := by
-  have hx : canonicalDemandOfMatching x.1 U = demand := x.2
-  have hunique :=
-    existsUnique_canonicalHighDemandWitness row col x.1 U
-  rw [hx] at hunique
+  have hunique := existsUnique_canonicalHighDemandWitness row col x.1 U
+  rw [x.2] at hunique
   exact hunique
 
 private noncomputable def canonicalDemandEventWitness
@@ -157,12 +109,8 @@ private theorem canonicalDemandEventWitness_unique
     (witness : PrescribedDemandWitness demand row col)
     (hwitness : ExtendsPrescribedDemandWitness x.1 witness) :
     canonicalDemandEventWitness demand row col U x = witness := by
-  obtain ⟨witness₀, hwitness₀, hunique⟩ :=
-    existsUnique_canonicalDemandEventWitness demand row col U x
-  have hchosen : canonicalDemandEventWitness demand row col U x = witness₀ :=
-    hunique _ (canonicalDemandEventWitness_extends demand row col U x)
-  have hgiven : witness = witness₀ := hunique _ hwitness
-  exact hchosen.trans hgiven.symm
+  exact (existsUnique_canonicalDemandEventWitness demand row col U x).unique
+    (canonicalDemandEventWitness_extends demand row col U x) hwitness
 
 private theorem canonicalDemandEventWitness_eq_iff_extends
     {A B : Type*}
@@ -186,43 +134,16 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     fixedWitnessCanonicalDemandEvent witness U ≃
       {x : ↑(canonicalDemandEvent demand row col U) //
         canonicalDemandEventWitness demand row col U x = witness} := by
-  let e₁ : fixedWitnessCanonicalDemandEvent witness U ≃
-      {m : ConfigurationMatching row col //
-        ExtendsPrescribedDemandWitness m witness ∧
-          canonicalDemandOfMatching m U = demand} := by
-    change {e : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness} //
-      canonicalDemandOfMatching e.1 U = demand} ≃ _
-    exact Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        ExtendsPrescribedDemandWitness m witness)
-      (fun m => canonicalDemandOfMatching m U = demand)
-  let e₂ : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness ∧
-        canonicalDemandOfMatching m U = demand} ≃
-      {m : ConfigurationMatching row col //
-        canonicalDemandOfMatching m U = demand ∧
-          ExtendsPrescribedDemandWitness m witness} :=
-    Equiv.subtypeEquivRight (fun _ => and_comm)
-  let e₃ : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand ∧
-        ExtendsPrescribedDemandWitness m witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        ExtendsPrescribedDemandWitness x.1 witness} := by
-    change _ ≃ {x : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand} //
-      ExtendsPrescribedDemandWitness x.1 witness}
-    exact (Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        canonicalDemandOfMatching m U = demand)
-      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
-  let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
-      ExtendsPrescribedDemandWitness x.1 witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        canonicalDemandEventWitness demand row col U x = witness} :=
-    (Equiv.subtypeEquivRight (fun x =>
-      canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
-  exact e₁.trans (e₂.trans (e₃.trans e₄))
+  exact
+  { toFun := fun extension =>
+      ⟨⟨extension.1.1, extension.2⟩,
+        (canonicalDemandEventWitness_eq_iff_extends
+          demand row col U _ witness).mpr extension.1.2⟩
+    invFun := fun x =>
+      ⟨⟨x.1.1, (canonicalDemandEventWitness_eq_iff_extends
+          demand row col U x.1 witness).mp x.2⟩, x.1.2⟩
+    left_inv := fun _ => rfl
+    right_inv := fun _ => rfl }
 
 private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
     {A B : Type*}
@@ -291,15 +212,13 @@ theorem card_canonicalDemandEvent_eq_witness_mul_residual
   classical
   calc
     Fintype.card ↑(canonicalDemandEvent demand row col U) =
-        ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) :=
-      card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
-        demand row col U
+        Fintype.card (Σ witness : PrescribedDemandWitness demand row col,
+          ↑(canonicalResidualCellEvent witness U)) :=
+      Fintype.card_congr
+        (canonicalDemandEventEquivSigmaResidual demand row col U hhigh)
     _ = ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(canonicalResidualCellEvent witness U) := by
-      apply Finset.sum_congr rfl
-      intro witness _
-      exact card_fixedWitnessCanonicalDemandEvent_eq_residual witness U hhigh
+          Fintype.card ↑(canonicalResidualCellEvent witness U) :=
+      Fintype.card_sigma
     _ = ∑ _witness : PrescribedDemandWitness demand row col,
           Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
       apply Finset.sum_congr rfl
@@ -307,7 +226,11 @@ theorem card_canonicalDemandEvent_eq_witness_mul_residual
       exact card_canonicalResidualCellEvent_eq witness witness₀ U
     _ = Fintype.card (PrescribedDemandWitness demand row col) *
           Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
-      simp
+      calc
+        _ = Finset.univ.card *
+              Fintype.card ↑(canonicalResidualCellEvent witness₀ U) :=
+          Finset.sum_const_nat (fun _ _ => rfl)
+        _ = _ := by rw [Finset.card_univ]
 
 #print axioms card_canonicalDemandEvent_eq_witness_mul_residual
 

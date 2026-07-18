@@ -36536,7 +36536,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalEventCharacterization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventCardinality
 Source: Erdos625/Section8CanonicalEventCardinality.lean
-Normalized SHA-256: 81d21fc85db6fb922bdb064555d44fa542bc2f654c8b140762703ddd200f8d48
+Normalized SHA-256: 930a03b974228ae95edade20583aa322f0faf5f4173d0c6b00a22f6cccb8281e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventCardinality
 
@@ -36587,28 +36587,8 @@ noncomputable def fixedWitnessCanonicalDemandEventEquivResidual
     (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
     fixedWitnessCanonicalDemandEvent witness U ≃
       canonicalResidualCellEvent witness U := by
-  classical
-  exact
-  { toFun := fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+  exact Equiv.subtypeEquiv (fixedWitnessExtensionEquivResidual witness)
+    (mem_fixedWitnessCanonicalDemandEvent_iff_residual witness U hhigh)
 
 private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     {A B : Type*}
@@ -36618,33 +36598,8 @@ private theorem card_fixedWitnessCanonicalDemandEvent_eq_residual
     (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
     Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness U) := by
-  classical
-  let f :
-      ↑(fixedWitnessCanonicalDemandEvent witness U) →
-        ↑(canonicalResidualCellEvent witness U) :=
-    fun extension =>
-      ⟨fixedWitnessExtensionEquivResidual witness extension.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh extension.1).mp extension.2⟩
-  apply Fintype.card_congr
-  exact
-  { toFun := f
-    invFun := fun residual =>
-      ⟨(fixedWitnessExtensionEquivResidual witness).symm residual.1,
-        (mem_fixedWitnessCanonicalDemandEvent_iff_residual
-          witness U hhigh
-          ((fixedWitnessExtensionEquivResidual witness).symm residual.1)).mpr
-          (by
-            rw [(fixedWitnessExtensionEquivResidual witness).apply_symm_apply]
-            exact residual.2)⟩
-    left_inv := by
-      intro extension
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).symm_apply_apply extension.1
-    right_inv := by
-      intro residual
-      apply Subtype.ext
-      exact (fixedWitnessExtensionEquivResidual witness).apply_symm_apply residual.1 }
+  exact Fintype.card_congr
+    (fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh)
 
 private theorem card_canonicalResidualCellEvent_eq
     {A B : Type*}
@@ -36653,8 +36608,7 @@ private theorem card_canonicalResidualCellEvent_eq
     (witness witness₀ : PrescribedDemandWitness demand row col) (U : ℕ) :
     Fintype.card (canonicalResidualCellEvent witness U) =
       Fintype.card (canonicalResidualCellEvent witness₀ U) := by
-  apply Fintype.card_congr
-  exact Equiv.refl _
+  rfl
 
 private theorem existsUnique_canonicalDemandEventWitness
     {A B : Type*}
@@ -36663,10 +36617,8 @@ private theorem existsUnique_canonicalDemandEventWitness
     (x : ↑(canonicalDemandEvent demand row col U)) :
     ∃! witness : PrescribedDemandWitness demand row col,
       ExtendsPrescribedDemandWitness x.1 witness := by
-  have hx : canonicalDemandOfMatching x.1 U = demand := x.2
-  have hunique :=
-    existsUnique_canonicalHighDemandWitness row col x.1 U
-  rw [hx] at hunique
+  have hunique := existsUnique_canonicalHighDemandWitness row col x.1 U
+  rw [x.2] at hunique
   exact hunique
 
 private noncomputable def canonicalDemandEventWitness
@@ -36697,12 +36649,8 @@ private theorem canonicalDemandEventWitness_unique
     (witness : PrescribedDemandWitness demand row col)
     (hwitness : ExtendsPrescribedDemandWitness x.1 witness) :
     canonicalDemandEventWitness demand row col U x = witness := by
-  obtain ⟨witness₀, hwitness₀, hunique⟩ :=
-    existsUnique_canonicalDemandEventWitness demand row col U x
-  have hchosen : canonicalDemandEventWitness demand row col U x = witness₀ :=
-    hunique _ (canonicalDemandEventWitness_extends demand row col U x)
-  have hgiven : witness = witness₀ := hunique _ hwitness
-  exact hchosen.trans hgiven.symm
+  exact (existsUnique_canonicalDemandEventWitness demand row col U x).unique
+    (canonicalDemandEventWitness_extends demand row col U x) hwitness
 
 private theorem canonicalDemandEventWitness_eq_iff_extends
     {A B : Type*}
@@ -36726,43 +36674,16 @@ private noncomputable def fixedWitnessCanonicalDemandEventEquivFiber
     fixedWitnessCanonicalDemandEvent witness U ≃
       {x : ↑(canonicalDemandEvent demand row col U) //
         canonicalDemandEventWitness demand row col U x = witness} := by
-  let e₁ : fixedWitnessCanonicalDemandEvent witness U ≃
-      {m : ConfigurationMatching row col //
-        ExtendsPrescribedDemandWitness m witness ∧
-          canonicalDemandOfMatching m U = demand} := by
-    change {e : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness} //
-      canonicalDemandOfMatching e.1 U = demand} ≃ _
-    exact Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        ExtendsPrescribedDemandWitness m witness)
-      (fun m => canonicalDemandOfMatching m U = demand)
-  let e₂ : {m : ConfigurationMatching row col //
-      ExtendsPrescribedDemandWitness m witness ∧
-        canonicalDemandOfMatching m U = demand} ≃
-      {m : ConfigurationMatching row col //
-        canonicalDemandOfMatching m U = demand ∧
-          ExtendsPrescribedDemandWitness m witness} :=
-    Equiv.subtypeEquivRight (fun _ => and_comm)
-  let e₃ : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand ∧
-        ExtendsPrescribedDemandWitness m witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        ExtendsPrescribedDemandWitness x.1 witness} := by
-    change _ ≃ {x : {m : ConfigurationMatching row col //
-      canonicalDemandOfMatching m U = demand} //
-      ExtendsPrescribedDemandWitness x.1 witness}
-    exact (Equiv.subtypeSubtypeEquivSubtypeInter
-      (fun m : ConfigurationMatching row col =>
-        canonicalDemandOfMatching m U = demand)
-      (fun m => ExtendsPrescribedDemandWitness m witness)).symm
-  let e₄ : {x : ↑(canonicalDemandEvent demand row col U) //
-      ExtendsPrescribedDemandWitness x.1 witness} ≃
-      {x : ↑(canonicalDemandEvent demand row col U) //
-        canonicalDemandEventWitness demand row col U x = witness} :=
-    (Equiv.subtypeEquivRight (fun x =>
-      canonicalDemandEventWitness_eq_iff_extends demand row col U x witness)).symm
-  exact e₁.trans (e₂.trans (e₃.trans e₄))
+  exact
+  { toFun := fun extension =>
+      ⟨⟨extension.1.1, extension.2⟩,
+        (canonicalDemandEventWitness_eq_iff_extends
+          demand row col U _ witness).mpr extension.1.2⟩
+    invFun := fun x =>
+      ⟨⟨x.1.1, (canonicalDemandEventWitness_eq_iff_extends
+          demand row col U x.1 witness).mp x.2⟩, x.1.2⟩
+    left_inv := fun _ => rfl
+    right_inv := fun _ => rfl }
 
 private noncomputable def canonicalDemandEvent_equiv_sigma_fixedWitness
     {A B : Type*}
@@ -36831,15 +36752,13 @@ theorem card_canonicalDemandEvent_eq_witness_mul_residual
   classical
   calc
     Fintype.card ↑(canonicalDemandEvent demand row col U) =
-        ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(fixedWitnessCanonicalDemandEvent witness U) :=
-      card_canonicalDemandEvent_eq_sum_fixedWitnessCanonicalDemandEvent
-        demand row col U
+        Fintype.card (Σ witness : PrescribedDemandWitness demand row col,
+          ↑(canonicalResidualCellEvent witness U)) :=
+      Fintype.card_congr
+        (canonicalDemandEventEquivSigmaResidual demand row col U hhigh)
     _ = ∑ witness : PrescribedDemandWitness demand row col,
-          Fintype.card ↑(canonicalResidualCellEvent witness U) := by
-      apply Finset.sum_congr rfl
-      intro witness _
-      exact card_fixedWitnessCanonicalDemandEvent_eq_residual witness U hhigh
+          Fintype.card ↑(canonicalResidualCellEvent witness U) :=
+      Fintype.card_sigma
     _ = ∑ _witness : PrescribedDemandWitness demand row col,
           Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
       apply Finset.sum_congr rfl
@@ -36847,7 +36766,11 @@ theorem card_canonicalDemandEvent_eq_witness_mul_residual
       exact card_canonicalResidualCellEvent_eq witness witness₀ U
     _ = Fintype.card (PrescribedDemandWitness demand row col) *
           Fintype.card ↑(canonicalResidualCellEvent witness₀ U) := by
-      simp
+      calc
+        _ = Finset.univ.card *
+              Fintype.card ↑(canonicalResidualCellEvent witness₀ U) :=
+          Finset.sum_const_nat (fun _ _ => rfl)
+        _ = _ := by rw [Finset.card_univ]
 
 #print axioms card_canonicalDemandEvent_eq_witness_mul_residual
 
@@ -37979,16 +37902,18 @@ END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
 Source: Erdos625/Section9TaggedTransportGeneric.lean
-Normalized SHA-256: f4110f755cafc44f5184c60de50907585acbd83f99466d72ede43937073b53cd
+Normalized SHA-256: 0fad127abbdd414215a33db86b0a49a35a17192c0c9a6e3e2aeef68f1eb6d8be
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
 
 /-!
 # Section VIII--IX: generic tagged finite-sum transport
 
-This isolated helper transports an arbitrary nonnegative observable through
-the exact configuration-matching equivalence to the dependent tagged
-demand/witness/residual Section IX family.
+This isolated target transports an arbitrary nonnegative observable through the
+exact configuration-matching equivalence to the *dependent* tagged
+`demand/witness/residual` Section IX family.  It deliberately retains both
+tags.  In particular, it neither identifies a common residual PMF nor
+conditions or divides by any event probability.
 -/
 
 namespace Erdos625
@@ -38005,8 +37930,8 @@ local instance fintypeResidualCapNoReturnEventTaggedTransport
   Fintype.ofFinite _
 
 /-- Exact finite expectation/sum transport through the configuration matching
-equivalence. The observable is evaluated on the full dependent tagged state, so
-demand and witness labels are never discarded. -/
+equivalence.  The observable is evaluated on the full dependent tagged state,
+so demand and witness labels are never discarded. -/
 theorem uniformConfigurationMatching_sum_tagged_transport
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
@@ -38120,16 +38045,16 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
 Source: Erdos625/Section9AttachmentExpectationBound.lean
-Normalized SHA-256: 59a914ab66727404e5c25bcf2b3576591627eb47bbddcc4e5d2aad85663a2463
+Normalized SHA-256: a5606d63f1eaad8bc9aafd11dc1cccc43c2bd73316f95c631567746c2dc5b8bd
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
 
 /-!
 # Section IX: raw attachment numerator from a pointwise event bound
 
-This target is deliberately only the elementary finite-PMF step. It keeps the
-cap/no-return indicator inside the numerator and never divides by the event
-probability.
+This target is deliberately only the elementary finite-PMF step.  It keeps
+the cap/no-return indicator inside the numerator and never divides by the
+event probability.
 -/
 
 namespace Erdos625
@@ -38138,15 +38063,15 @@ open scoped BigOperators ENNReal
 
 noncomputable section
 
-/-- A pointwise upper bound for the literal actual attachment integrand on the
-cap/no-return event bounds the raw, non-conditional residual numerator. -/
+/-- A pointwise upper bound for the literal actual attachment integrand on
+the cap/no-return event bounds the raw (not conditional) residual numerator. -/
 theorem residualActualAttachmentNumerator_le_of_forall_event_integrand_le
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat)
+    (M : Finset (A × B)) (R : Nat) (row : A → Nat) (col : B → Nat)
     (htotal : Finset.univ.sum row = Finset.univ.sum col) (K : ENNReal)
     (hK : ∀ matching : ConfigurationMatching row col,
-      matching ∈ ResidualCapNoReturnEvent M R row col ->
+      matching ∈ ResidualCapNoReturnEvent M R row col →
         (∏ a : A, ∏ b : B,
           (residualReward (configurationCellCount matching a b) : ENNReal)) *
           ((actualResidualEvenEdgeSets M matching).card : ENNReal) ≤ K) :
@@ -43417,7 +43342,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: abdcb81513a903fd488a0dafd642542fdf0df34173ffc54eecb8bb5bfcea72df
+Normalized SHA-256: a84b6359e24289e6af576ccec83470a1f9737d4a162b1182da4f9b379adc0f8e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -44147,6 +44072,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deriv_profilePhaseObjective_parts
 #print axioms Erdos625.coloringProfileDualExponentRewrite
 #print axioms Erdos625.sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms Erdos625.UnlabelledTypedSkeleton.sum_typeTable_row_le
+#print axioms Erdos625.UnlabelledTypedSkeleton.sum_typeTable_column_le
 #print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
 #print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
