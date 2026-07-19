@@ -48935,7 +48935,7 @@ END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
 Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
-Normalized SHA-256: 5b58239960bdca8415f56a6299e81dab04ad3f7b56bbd3f12bc62b572c993648
+Normalized SHA-256: bd9688440743399a9bc9cdc25618e36aa9b3c707fc21c91ff9974e59931ebaf4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
 
@@ -49055,8 +49055,70 @@ theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
         (profileBlockMargin k) U demand))
     (hpositive demand)
 
+/-- Residual stub mass attached to an attained canonical demand. -/
+noncomputable def canonicalDemandResidualTotal
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ℕ :=
+  ∑ a, residualRowDegree
+    (canonicalDemandReferenceWitness row col U demand) a
+
+/-- The raw attachment summand in the exact canonical decomposition. The
+cap/no-return indicator remains inside the numerator. -/
+noncomputable def canonicalDemandRawAttachmentTerm
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) *
+    (labelledWitnessIncidence demand.1 row col *
+      residualActualAttachmentNumerator
+        (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (residualColumnDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+          (canonicalDemandReferenceWitness row col U demand)))
+
+/-- Exact two-regime reindexing of the attained canonical-demand family. The
+zero-residual and positive-residual sums retain the literal raw attachment
+numerator; no event probability is divided out. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand = 0),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) := by
+  classical
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
+  unfold canonicalDemandRawAttachmentTerm
+  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ
+    (fun demand : canonicalDemandImage (profileBlockMargin k)
+      (profileBlockMargin k) U =>
+        canonicalDemandResidualTotal (profileBlockMargin k)
+          (profileBlockMargin k) U demand = 0)]
+  simp only [Nat.pos_iff_ne_zero]
+
 #print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
 #print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+#print axioms sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
 
 end
 
