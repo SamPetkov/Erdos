@@ -152,11 +152,11 @@ theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
   have h_card :
       (Fintype.card
           {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) *
-        (typeTableCellFactorialProduct L : ENNReal) =
+      (typeTableCellFactorialProduct L : ENNReal) =
       (typeTableRowDescendingProduct k L *
         typeTableColumnDescendingProduct ell L : ENNReal) := by
-    norm_cast
-    convert cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L using 1
+    exact cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+      (R := ENNReal) k ell L
   simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
   simp +decide [← mul_assoc, ← h_card]
   by_cases h : typeTableCellFactorialProduct L = 0 <;>
