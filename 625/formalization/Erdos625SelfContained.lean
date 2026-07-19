@@ -48347,6 +48347,86 @@ END SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8AttainedWeightedQuotient
+Source: Erdos625/Section8AttainedWeightedQuotient.lean
+Normalized SHA-256: 3f36124a66a8ba5e383c06d7007cb2744fd76126dca3c6be8522de2aacb1bf9a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8AttainedWeightedQuotient
+
+/-!
+# Section VIII: exact weighted quotient over an attained skeleton family
+
+The existing physical-skeleton quotient groups the entire finite skeleton
+space by every type table that occurs. The manuscript, however, sums over a
+particular finite family of skeleton tables. This module records the exact
+restricted quotient when that family is known to be attained.
+
+The statement keeps the literal finite skeleton indexing and its fibre
+multiplicity. All descending-factorial and cell-factorial factors are shown,
+and no positivity, asymptotic, probability, or near/middle estimate is
+asserted. In particular, this is a usable exact seam toward Section VIII, not
+a claim of Lemmas 8.1--8.3.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- Physical unlabelled skeletons whose type table belongs to the specified
+finite family. Membership is retained in the type, so an attained manuscript
+family is not silently replaced by all numerically feasible tables. -/
+abbrev RestrictedUnlabelledTypedSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I → Nat) (ell : J → Nat) (tables : Finset (I → J → Nat)) :=
+  {S : UnlabelledTypedSkeleton k ell // S.typeTable ∈ tables}
+
+/-- Exact weighted physical-skeleton quotient over a finite *attained* family
+of type tables. The endpoint cases are included: zero cell entries contribute
+`0! = 1`, while an empty family gives two empty sums. There is exactly one
+cell-factorial denominator, and the coefficient is the literal fibre
+multiplicity supplied by the row and column descending-factorial products. -/
+theorem sum_restrictedUnlabelledSkeleton_weight_eq_attainedQuotient
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [Semifield R] [CharZero R]
+    (k : I → Nat) (ell : J → Nat)
+    (tables : Finset (I → J → Nat))
+    (hattained : ∀ L ∈ tables, L ∈ attainedUnlabelledTypeTables k ell)
+    (weight : (I → J → Nat) → R) :
+    (∑ S : RestrictedUnlabelledTypedSkeleton k ell tables,
+      weight S.1.typeTable) =
+      ∑ L ∈ tables,
+        (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : R) /
+            (typeTableCellFactorialProduct L : R)) * weight L := by
+  simp +decide only [attainedUnlabelledTypeTables, Finset.mem_image,
+    Finset.mem_univ, true_and] at hattained
+  convert sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+      k ell (fun L => if L ∈ tables then weight L else 0) using 1
+  · rw [← Finset.sum_filter]
+    refine' Finset.sum_bij (fun S _ => S.val) _ _ _ _ <;> simp +decide
+  · rw [← Finset.sum_subset (show tables ⊆ attainedUnlabelledTypeTables k ell from
+        fun L hL => by
+          obtain ⟨S, rfl⟩ := hattained L hL
+          exact Finset.mem_image_of_mem _ (Finset.mem_univ S))]
+    · aesop
+    · aesop
+
+#print axioms sum_restrictedUnlabelledSkeleton_weight_eq_attainedQuotient
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8AttainedWeightedQuotient
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8AttainedWeightedQuotient
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
 Source: Erdos625/Section8WeightedSkeletonQuotient.lean
 Normalized SHA-256: 21b0a3ed00b3909bbc3edda415ccbc80b0e17e8efd44be6b9089a266340d1f55
@@ -48389,6 +48469,255 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
+Source: Erdos625/Section8ProfileSkeletonWeight.lean
+Normalized SHA-256: 1483b580393dfd2f5f7988580af1bdd1d8651965d69813160efdfbfa473f91da
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
+
+/-!
+# Section VIII: exact profile high-skeleton weights
+
+For one fixed ordered profile, this module packages the bare high-skeleton
+factor from manuscript (8.3): the product of the exposed local rewards times
+the normalized incidence of its labelled prescribed-demand witnesses.  It
+then reindexes that finite weight through literal typed partial matchings and
+through the physical unlabelled-skeleton fibre of its type table.
+
+The last two theorems compose this reindexing with the exact canonical
+decomposition from Section IX.  They retain the residual attachment as an
+explicit finite factor.  In particular, this file proves no near/middle
+estimate, no attachment bound, and no asymptotic form of Lemma 8.3.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The finite family of high-demand tables that are actually attained by a
+configuration matching with the fixed profile margins.  This is deliberately
+an attained family: no unsupported feasibility relaxation is made here. -/
+abbrev ProfileCanonicalHighSkeleton
+    {b : Nat} (k : ColoringProfile b) (U : Nat) :=
+  canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U
+
+/-- The bare high-skeleton weight for one attained profile demand.  The first
+factor is the exposed local signed reward; the second is the normalized count
+of labelled physical realizations.  This is the exact finite counterpart of
+the weight `w_hi` in (8.3), with no residual attachment included. -/
+noncomputable def profileHighSkeletonWeight
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) *
+    labelledWitnessIncidence demand.1 (profileBlockMargin k)
+      (profileBlockMargin k)
+
+/-- The contribution of one labelled physical realization of an attained
+profile high skeleton.  Summing this constant over all labelled witnesses
+recovers `profileHighSkeletonWeight`. -/
+noncomputable def profileHighSkeletonWitnessWeight
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) /
+    (((Finset.univ.sum (profileBlockMargin k)).descFactorial
+      (totalDemand demand.1) : Nat) : ENNReal)
+
+/-- An attained profile high-demand table has total demand at most the total
+profile vertex mass.  The conclusion is obtained from an actual labelled
+witness; it is not assumed as a separate numerical feasibility condition. -/
+theorem profileHighSkeleton_totalDemand_le
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    totalDemand demand.1 <= Finset.univ.sum (profileBlockMargin k) := by
+  exact totalDemand_le_rowTotal_of_witness
+    (canonicalDemandReferenceWitness (profileBlockMargin k)
+      (profileBlockMargin k) U demand)
+
+/-- The completely expanded falling-factorial form of the bare profile
+high-skeleton weight.  The feasibility premise needed by the incidence
+identity is discharged by `profileHighSkeleton_totalDemand_le`. -/
+theorem profileHighSkeletonWeight_eq_descendingFactorials
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (((rowDescendingProduct demand.1 (profileBlockMargin k) *
+          columnDescendingProduct demand.1 (profileBlockMargin k) : Nat) :
+            ENNReal) /
+          (((Finset.univ.sum (profileBlockMargin k)).descFactorial
+            (totalDemand demand.1) * demandFactorialProduct demand.1 : Nat) :
+              ENNReal)) := by
+  unfold profileHighSkeletonWeight
+  rw [labelledWitnessIncidence_eq demand.1 (profileBlockMargin k)
+    (profileBlockMargin k) (profileHighSkeleton_totalDemand_le k U demand)]
+
+/-- Reindex one bare profile high-skeleton weight over its literal typed
+partial matchings.  The equivalence with prescribed-demand witnesses is used
+only to identify the finite cardinality; no probability law is invoked. -/
+theorem profileHighSkeletonWeight_eq_sum_typedPartialMatching
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
+        (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand := by
+  unfold profileHighSkeletonWeight profileHighSkeletonWitnessWeight
+    labelledWitnessIncidence
+  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  rw [Fintype.card_congr
+    (typedPartialMatchingEquivPrescribedDemandWitness demand.1
+      (profileBlockMargin k) (profileBlockMargin k))]
+  rw [div_eq_mul_inv, div_eq_mul_inv]
+  simp only [mul_left_comm]
+
+/-- Reindex one bare profile high-skeleton weight through the exact fibre of
+the physical unlabelled skeleton map.  This is the finite quotient seam that
+keeps the labelled-witness multiplicity honest. -/
+theorem profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+        (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand := by
+  calc
+    profileHighSkeletonWeight k U demand =
+        ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
+          (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand :=
+      profileHighSkeletonWeight_eq_sum_typedPartialMatching k U demand
+    _ = ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand := by
+      simpa using
+        (sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+          demand.1 (profileBlockMargin k) (profileBlockMargin k)
+          (fun _ => profileHighSkeletonWitnessWeight k U demand))
+
+/-- With an explicit profile degree cap, the positive support of every
+attained high skeleton is a bipartite matching.  This is the exact structural
+hypothesis used by the later Section VIII near/middle split. -/
+theorem profileHighSkeleton_positiveSupport_isBipartiteMatching
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (hcap : forall a : ProfileBlockIndex k, profileBlockMargin k a <= U)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    IsBipartiteMatching (positiveDemandSupport demand.1) := by
+  exact positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    U hcap hcap demand
+
+/-- The exact residual attachment belonging to one attained profile high
+skeleton.  The fixed row is retained to make the equal-total-degree proof
+term explicit, even though the value depends only on the profile margins. -/
+noncomputable def profileHighSkeletonAttachment
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  residualActualAttachmentNumerator
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row0)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+
+/-- One exact canonical high-skeleton contribution: its bare Section VIII
+weight times its Section IX residual attachment. -/
+noncomputable def profileHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  profileHighSkeletonWeight k U demand *
+    profileHighSkeletonAttachment row0 U demand
+
+/-- The profile signed-overlap expectation reindexed exactly by attained
+canonical high skeletons.  `hU` is explicit because the underlying reward/
+support split uses it to identify positive demands with multiplicity-two
+support edges. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        profileHighSkeletonContribution row0 U demand := by
+  simpa only [profileHighSkeletonContribution, profileHighSkeletonWeight,
+    profileHighSkeletonAttachment, mul_assoc] using
+    (sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row0 U hU)
+
+/-- Reindex the exact canonical skeleton/attachment sum through the physical
+unlabelled-skeleton fibre of each attained demand table.  The attachment is
+kept unchanged across a fibre because the canonical decomposition already
+standardizes it by a reference witness. -/
+theorem sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) :
+    (∑ demand : ProfileCanonicalHighSkeleton k U,
+      profileHighSkeletonContribution row0 U demand) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand *
+            profileHighSkeletonAttachment row0 U demand := by
+  apply Finset.sum_congr rfl
+  intro demand _
+  unfold profileHighSkeletonContribution
+  rw [profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre k U demand]
+  rw [Finset.sum_mul]
+
+/-- The strongest finite profile-facing reindexing supplied here: the exact
+signed-overlap expectation is a double finite sum over attained demand tables
+and their physical unlabelled high-skeleton fibres.  No bound on this sum is
+asserted. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand *
+            profileHighSkeletonAttachment row0 U demand := by
+  calc
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+        ∑ demand : ProfileCanonicalHighSkeleton k U,
+          profileHighSkeletonContribution row0 U demand :=
+      sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+        row0 U hU
+    _ = _ :=
+      sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre row0 U
+
+#print axioms profileHighSkeleton_totalDemand_le
+#print axioms profileHighSkeletonWeight_eq_descendingFactorials
+#print axioms profileHighSkeletonWeight_eq_sum_typedPartialMatching
+#print axioms profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms profileHighSkeleton_positiveSupport_isBipartiteMatching
+#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+#print axioms sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
+#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
 ========================================================================== -/
 
 /- ==========================================================================
@@ -51470,6 +51799,252 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseEnvelopeTail
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfileCubicPhaseTail
+Source: Erdos625/ColoringProfileCubicPhaseTail.lean
+Normalized SHA-256: 891345795361f50647a49c293564b7cdbf8fe10ef195ecd0ca54c6216c964d57
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfileCubicPhaseTail
+
+/-!
+# Cubic-scale phase condition for the chromatic lower tail
+
+This module gives a full-sequence reduction of the concrete chromatic at-most
+probability to the phase estimate at its natural cubic logarithmic scale.  It
+does not assert that estimate: the only substantive analytic input remains the
+explicit limit of `profilePhaseObjective` below.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped Topology
+
+noncomputable section
+
+/-- The factorial correction is negligible compared with the cubic logarithmic
+scale. -/
+theorem factorialLogErrorBound_div_logOrder_cubed_tendsto_zero :
+    Tendsto
+      (fun n : ℕ ↦ factorialLogErrorBound n / (logOrder n) ^ 3)
+      atTop (𝓝 0) := by
+  have hInv : Tendsto (fun n : ℕ ↦ (logOrder n)⁻¹) atTop (𝓝 0) :=
+    tendsto_logOrder_atTop.inv_tendsto_atTop
+  have hProduct := factorialLogErrorBound_div_logOrder_tendsto_one.mul
+    (hInv.pow 2)
+  convert hProduct using 1
+  · funext n
+    by_cases hlog : logOrder n = 0
+    · simp [hlog]
+    · field_simp [hlog]
+  · norm_num
+
+/-- A negative cubic-scale limit for the selected phase objective implies the
+full-sequence probability-zero chromatic at-most tail.  The natural threshold
+is kept unchanged, so the complementary event remains the strict inequality
+`kChi n < chromaticNumberNat G`.
+
+This is a reduction, not an unconditional assertion of the analytic phase
+limit. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_tendsto_zero_of_cubic_phase
+    (kChi : ℕ → ℕ) (c : ℝ)
+    (hc : c < 0)
+    (hkChiPos : ∀ᶠ n in atTop, 0 < kChi n)
+    (hkChiLe : ∀ᶠ n in atTop, kChi n ≤ n)
+    (hphase : Tendsto
+      (fun n : ℕ ↦
+        profilePhaseObjective n (kChi n : ℝ) / (logOrder n) ^ 3)
+      atTop (𝓝 c)) :
+    Tendsto
+      (fun n : ℕ ↦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
+      atTop (𝓝 0) := by
+  apply chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
+    kChi hkChiPos hkChiLe
+  have hCorrection :=
+    factorialLogErrorBound_div_logOrder_cubed_tendsto_zero
+  have hNormalized := hphase.add hCorrection
+  have hNormalized' : Tendsto
+      (fun n : ℕ ↦
+        (profilePhaseObjective n (kChi n : ℝ) + factorialLogErrorBound n) /
+          (logOrder n) ^ 3)
+      atTop (𝓝 c) := by
+    convert hNormalized using 1
+    · funext n
+      by_cases hlog : logOrder n = 0
+      · simp [hlog]
+      · field_simp [hlog]
+    · simp
+  let envelope : ℕ → ℝ := fun n ↦
+    profilePhaseObjective n (kChi n : ℝ) + factorialLogErrorBound n
+  change Tendsto envelope atTop atBot
+  change Tendsto (fun n ↦ envelope n / (logOrder n) ^ 3)
+    atTop (𝓝 c) at hNormalized'
+  have hcHalf : c < c / 2 := by linarith
+  have hratio : ∀ᶠ n in atTop,
+      envelope n / (logOrder n) ^ 3 < c / 2 :=
+    hNormalized'.eventually (Iio_mem_nhds hcHalf)
+  have hscale : Tendsto (fun n : ℕ ↦ (logOrder n) ^ 3) atTop atTop :=
+    (tendsto_pow_atTop (by norm_num : (3 : ℕ) ≠ 0)).comp
+      tendsto_logOrder_atTop
+  have hscalePos : ∀ᶠ n in atTop, 0 < (logOrder n) ^ 3 :=
+    hscale.eventually (eventually_gt_atTop 0)
+  apply tendsto_atBot_mono' atTop (by
+    filter_upwards [hratio, hscalePos] with n hn hpos
+    calc
+      envelope n = (envelope n / (logOrder n) ^ 3) * (logOrder n) ^ 3 := by
+        exact (div_mul_cancel₀ _ hpos.ne').symm
+      _ ≤ (c / 2) * (logOrder n) ^ 3 :=
+        mul_le_mul_of_nonneg_right (le_of_lt hn) hpos.le)
+  exact hscale.const_mul_atTop_of_neg (by linarith)
+
+#print axioms factorialLogErrorBound_div_logOrder_cubed_tendsto_zero
+#print axioms randomGraphMeasure_chromaticNumberAtMost_tendsto_zero_of_cubic_phase
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfileCubicPhaseTail
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfileCubicPhaseTail
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
+Normalized SHA-256: 5b58239960bdca8415f56a6299e81dab04ad3f7b56bbd3f12bc62b572c993648
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+
+/-!
+# Section IX: profile attachment polymer assembly
+
+This transports the fixed-residual-fibre polymer estimate through the actual
+dependent canonical-demand family. The cap/no-return indicator remains inside
+`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventProfilePolymer
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- The finite polymer majorant attached to one attained canonical demand. -/
+noncomputable def canonicalDemandPolymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  let witness := canonicalDemandReferenceWitness row col U demand
+  (∏ a : A, ∏ b : B,
+      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
+    (∏ C ∈ simpleBipartiteCycles A B,
+      (1 + edgeWeightOutsideENN
+        (residualQ (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness))
+        (positiveDemandSupport demand.1) C))
+
+/-- Strict-regime transport over the full dependent tagged residual family. -/
+theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hpositive : ∀ demand : canonicalDemandImage row col U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          canonicalDemandPolymerMajorant row col U demand := by
+  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    row col U htotal]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+      (canonicalDemandReferenceWitness row col U demand))
+    (hpositive demand)
+
+/-- Ordered-profile specialization in the uniform strict residual regime. -/
+theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U)
+    (hpositive : ∀ demand : canonicalDemandImage
+        (profileBlockMargin k) (profileBlockMargin k) U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      ∑ demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+    row₀ U hU]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row₀)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (hpositive demand)
+
+#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
 Source: Erdos625/ExpTailTransport.lean
 Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
@@ -52322,7 +52897,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: bdfd850ca733b9ba8a329e53be83fdc8376ee3e4009c81f23450134f4ae11187
+Normalized SHA-256: 7ee93aade2aa502aba0b718cb13e34f47357c6d8ae376713e16cdd27771e78e4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
