@@ -271,6 +271,7 @@ import Erdos625.Section9CanonicalTwoRegimeSeed
 import Erdos625.Section9RealSecondMomentSeed
 import Erdos625.Section9CanonicalPolymerAggregation
 import Erdos625.Section9SeparatedTwoRegimeSeed
+import Erdos625.Section9CanonicalDemandProductEstimate
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 
