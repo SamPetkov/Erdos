@@ -87,16 +87,13 @@ of the intrinsic conditions. All arguments are carried out in ZFC.
 A finite triple system is \emph{obligatory} if it embeds in every triple
 system of uncountable chromatic number. Erd\H{o}s asked for a
 characterisation of all such systems \citep{erdos1995}; the question is now
-catalogued as Erd\H{o}s Problem~593 \citep{bloom593}. Theorem~A gives an
-exact answer in two complementary languages.
+catalogued as Erd\H{o}s Problem~593 \citep{bloom593}. Theorem~A gives both a
+constructive and an intrinsic answer.
 
-The constructive language starts with private-vertex expansions of finite
-bipartite graphs and closes under finite disjoint unions and one-point
-amalgamations. The intrinsic language reads the same class directly from the
-Levi graph after isolated vertices are removed. The bridge between the two is
-an exquisitely rigid decomposition: after the Levi bridges are deleted, every
-active block is a bipartite expansion piece, and the pieces reassemble along a
-forest.
+The answer has two complementary forms. One is constructive: start with
+private-vertex expansions of finite bipartite graphs and close under finite
+disjoint unions and one-point amalgamations. The other is intrinsic and is
+read from the Levi graph after isolated vertices are removed.
 
 \phantomsection
 \label{theorem-a-exact-characterisation}
@@ -139,21 +136,37 @@ structural target is correct. No statement or argument from Li's preprint is
 used in the proof.
 
 \paragraph{Proof strategy.}
-The positive direction first isolates the atoms and then proves that the two
-assembly operations preserve obligatoriness. Section~3 establishes directly
-that every private-vertex expansion of a finite bipartite graph is obligatory,
-and Section~4 proves closure under disjoint unions and one-point amalgamations.
-Section~5 then deletes the Levi bridges, identifies every active block as one of
-those atoms, and reconstructs the original system along the quotient forest.
+The positive direction has two parts. Section~3 proves directly that the
+private-vertex expansion of every finite bipartite graph is obligatory;
+Section~4 proves closure under finite disjoint unions and one-point
+amalgamations. Section~5 identifies the constructive class with the intrinsic
+Levi-graph conditions by deleting the Levi bridges and reassembling the
+resulting pieces along a quotient forest.
 
-The converse is more delicate and is made explicit in Sections~6--8. A
+For the converse, Sections~6--8 construct explicit avoidance hosts. A
 one-apex sequence lift transfers uncountable chromatic number from a graph to a
-triple system while forcing a precise decomposition of every finite linear
-trace. An Erd\H{o}s--Rado host excludes nonlinearity; the lift of
-\(K_{\omega_1}\) excludes failure of the bridge condition; and the lift of an
-uncountably chromatic graph with sufficiently large odd girth excludes odd
-Berge cycles. These three hosts account for every possible failure of the
-intrinsic conditions.
+triple system while rigidly controlling every finite linear trace.
+Nonlinearity is excluded by an Erd\H{o}s--Rado host, failure of the bridge
+condition by a sequence lift of \(K_{\omega_1}\), and an odd Berge cycle by a
+sequence lift of an uncountably chromatic graph of sufficiently large odd
+girth. This proves all three implications needed for Theorem~A.
+
+\paragraph{A reading map for the converse.}
+The converse has one reusable mechanism and three short applications.
+The mechanism is Theorem~6.3: a finite linear trace in a sequence lift breaks
+into graph-expansion atoms, joined only at cut points. Consequently, a
+bridge-free hyperedge-node or a Berge cycle cannot be created by crossing
+between atoms. Section~8 then uses this observation in the following order:
+
+\begin{enumerate}
+\item a linear triangle host excludes nonlinearity;
+\item the trace theorem excludes a hyperedge-node with no incident bridge;
+\item the same trace theorem sends an odd Berge cycle to an odd cycle in the
+chosen graph host, where large odd girth rules it out.
+\end{enumerate}
+
+Thus the only role of the shift graph in the final step is to provide a graph
+that is simultaneously uncountably chromatic and free of short odd cycles.
 
 \paragraph{Set-theoretic scope.}
 All arguments are in ZFC. The only non-elementary external results used as
@@ -816,12 +829,39 @@ is a monochromatic hyperedge. Therefore the colours \(k_{s_\alpha}\), \(\alpha<\
 \label{theorem-6.3-exact-finite-linear-trace-theorem}
 \begin{theorembox}{Theorem 6.3: exact finite linear trace theorem}
 
-Every finite linear subhypergraph \(K\) of \(\mathcal L(G)\) is obtainable, by finite disjoint unions and one-point amalgamations, from systems \(J^+\) where \(J\) is a finite subgraph of \(G\).
+Every finite, not necessarily induced, linear subhypergraph \(K\) of
+\(\mathcal L(G)\) is obtainable, by finite disjoint unions and one-point
+amalgamations, from systems \(J^+\) where \(J\) is a finite subgraph of
+\(G\).
 
 \end{theorembox}
-\textit{Proof.} First set aside every isolated vertex of \(K\). Each is a one-vertex edgeless factor, hence isomorphic to \(J^+\) for a one-vertex edgeless subgraph \(J\) of \(G\), and may be restored by disjoint union at the end. We may therefore assume that every vertex of \(K\) lies in a hyperedge.
+\textit{Proof.} The following dictionary records the three local objects used
+in the assembly. A \emph{base node} is a sequence \(s\) at which a lift
+hyperedge begins. Its two vertices with sequence coordinate \(s\) are the
+\emph{core vertices}; its third vertex, whose coordinate properly extends
+\(s\), is the \emph{apex}. The \emph{base fibre} \(K_s\) consists of all
+hyperedges of \(K\) based at \(s\), together with their incident vertices.
+An \emph{active base node} is one whose fibre is nonempty. The proof first
+identifies each fibre with one expansion atom and then shows that the fibres
+are attached along a forest of one-point overlaps.
 
-Every hyperedge of \(\mathcal L(G)\) has a unique base node \(s\): exactly two of its vertices have sequence coordinate \(s\), while the apex has a strictly longer sequence coordinate. Group the hyperedges of \(K\) by their base nodes, and let \(K_s\) be the subhypergraph whose hyperedges are those based at \(s\) and whose vertices are their union.
+First set aside every isolated vertex of \(K\). Each is a one-vertex edgeless
+factor, hence isomorphic to \(J^+\) for a one-vertex edgeless subgraph \(J\)
+of \(G\), and may be restored by disjoint union at the end. We may therefore
+assume that every vertex of \(K\) lies in a hyperedge.
+
+Every hyperedge of \(\mathcal L(G)\) has a unique base node: exactly two of
+its vertices have sequence coordinate \(s\), while the apex has a strictly
+longer sequence coordinate. We group the hyperedges of \(K\) by this
+coordinate and use the notation \(K_s\) from the dictionary.
+
+\medskip
+\noindent\textbf{Claim 6.3.1 (each base fibre is one expansion atom).}
+For every active base node \(s\), there is a finite subgraph \(J_s\) of
+\(G\) such that \(K_s\cong J_s^+\).
+
+\smallskip
+\noindent\emph{Proof of Claim 6.3.1.}
 
 For a fixed graph edge \(a=\{x,y\}\in E(G)\), at most one hyperedge of \(K_s\) can have base pair \(\{x_s,y_s\}\), since two such hyperedges would share two vertices and violate linearity. Let \(J_s\) be the finite subgraph of \(G\) whose edges are precisely the graph edges used by hyperedges of \(K_s\), with vertex set consisting of their endpoints.
 
@@ -834,17 +874,47 @@ after \(s\) would have to equal both \(a\) and \(a'\). No apex is a core
 vertex, because an apex has sequence coordinate strictly extending \(s\),
 whereas every core vertex has coordinate \(s\). The map is therefore
 injective, and by construction it is bijective on hyperedges and preserves
-each incidence. Hence \(K_s\cong J_s^+\).
+each incidence. Hence \(K_s\cong J_s^+\). \(\square\)
 
-Now consider intersections between different \(K_s\). If a point \(z_t\) lies in both \(K_s\) and \(K_u\), then both \(s\) and \(u\) are prefixes of \(t\), so they are comparable. Suppose \(s\subsetneq u\). A common point cannot be a core point of \(K_s\); it is an apex of \(K_s\). The graph edge used by its hyperedge in \(K_s\) is the coordinate of \(u\) immediately following \(s\). Hence all points in \(K_s\cap K_u\) would be apices of the same base edge of \(K_s\). There is at most one such apex. Therefore
+\medskip
+\noindent\textbf{Claim 6.3.2 (two fibres have at most one common point).}
+For distinct active base nodes \(s\) and \(u\),
+\[
+|V(K_s)\cap V(K_u)|\le 1.
+\]
+
+\smallskip
+\noindent\emph{Proof of Claim 6.3.2.}
+If a point \(z_t\) lies in both \(K_s\) and \(K_u\), then both \(s\) and
+\(u\) are prefixes of \(t\), so they are comparable. Suppose
+\(s\subsetneq u\). A common point cannot be a core point of \(K_s\); it is
+an apex of \(K_s\). The graph edge used by its hyperedge in \(K_s\) is the
+coordinate of \(u\) immediately following \(s\). Hence all points in
+\(K_s\cap K_u\) would be apices of the same base edge of \(K_s\). There is
+at most one such apex. Therefore
 
 \[
 |V(K_s)\cap V(K_u)|\le1. \tag{6.2}
 \]
+\(\square\)
 
-Construct a bipartite incidence graph \(Q\) whose one class is the set of active base nodes \(s\), and whose other class consists of points lying in at least two of the \(K_s\); join \(s\) to \(p\) when \(p\in K_s\).
+Let \(Q\) be the bipartite incidence graph of the base fibres. Its left
+class is the set of active base nodes. Its right class consists of points
+that lie in at least two fibres. Join a base node \(s\) to a point \(p\)
+exactly when \(p\in V(K_s)\).
 
-We claim that \(Q\) is a forest. Suppose it has a cycle, and choose on that cycle a base node \(s\) of minimum length. Its two neighbouring base nodes on the cycle are proper descendants of \(s\). The two intervening shared points are distinct, so they are distinct apices in \(K_s\), arising from two distinct graph edges \(a\ne a'\). Thus the two neighbouring base nodes lie in different immediate branches below \(s\), one beginning with \(a\) and the other with \(a'\).
+\medskip
+\noindent\textbf{Claim 6.3.3 (the overlap graph is a forest).}
+The graph \(Q\) is acyclic.
+
+\smallskip
+\noindent\emph{Proof of Claim 6.3.3.}
+Suppose that \(Q\) has a cycle, and choose on it a base node \(s\) of
+minimum sequence length. Its two neighbouring base nodes on the cycle are
+proper descendants of \(s\). The two intervening shared points are distinct,
+so they are distinct apices in \(K_s\), arising from two distinct graph edges
+\(a\ne a'\). Thus the two neighbouring base nodes lie in different immediate
+branches below \(s\), one beginning with \(a\) and the other with \(a'\).
 
 Starting from one neighbour of \(s\), every base node on the remaining
 part of the cycle lies in the same immediate branch below \(s\). Indeed,
@@ -853,20 +923,20 @@ comparable proper descendants of \(s\), the first sequence coordinate after
 \(s\) is the same, so a length-two step through a shared point cannot move
 from one immediate branch to another. Induction along the remaining path
 therefore keeps every base node in the first branch, contradicting that its
-final node lies in the other branch. Hence \(Q\) is acyclic.
+final node lies in the other branch. Hence \(Q\) is acyclic. \(\square\)
 
 Root each component of \(Q\) at a base node, and order its base nodes by
 nondecreasing even distance from the root. For a nonroot base node \(s\), let
 \(p_s\) be the point-node adjacent to \(s\) on the path to the root.
 
 \phantomsection
-\label{claim-6.3.1-base-fibre-running-intersection}
-\begin{claimbox}{Claim 6.3.1: base-fibre running intersection}
+\label{claim-6.3.4-base-fibre-running-intersection}
+\begin{claimbox}{Claim 6.3.4: base-fibre running intersection}
 
 Every earlier factor that meets \(K_s\) meets it at \(p_s\).
 
 \end{claimbox}
-\textbf{Proof of the claim.} Suppose \(K_u\) is earlier and contains a point
+\textbf{Proof of Claim 6.3.4.} Suppose \(K_u\) is earlier and contains a point
 \(p\in K_s\). Then \(Q\) contains the length-two path \(s-p-u\). Let the
 distance of \(s\) from the root be \(2d\). The point-node \(p\) has distance
 either \(2d-1\) or \(2d+1\). In the second case \(u\) has distance \(2d+2\),
@@ -875,16 +945,22 @@ of the path to the root in the tree \(Q\) gives \(p=p_s\). This also covers
 an earlier sibling \(u\), which shares the same parent point \(p_s\).
 \(\square\)
 
-Equation (6.2) and the claim give
+\medskip
+\noindent\textbf{Claim 6.3.5 (the ordered fibres assemble to \(K\)).}
+Let \(U_s\) be the union of the factors preceding \(K_s\). Equation (6.2)
+and Claim 6.3.4 give
 \[
-V(K_s)\cap\bigcup_{u\text{ earlier}}V(K_u)\subseteq\{p_s\}.
+V(K_s)\cap U_s\subseteq\{p_s\}.
 \]
 Starting with the root factor, add the remaining factors in this order by
 disjoint unions or one-point amalgamations as appropriate. At each step the
 natural maps into \(K\) identify exactly the displayed common point and
 nothing else, so they assemble to an isomorphism onto the union of the
 factors already added. Different components of \(Q\), and the isolated
-factors removed at the start, are combined by disjoint union. \(\square\)
+factors removed at the start, are combined by disjoint union. This is the
+running-intersection step: Claim 6.3.1 supplies the expansion atoms, while
+Claims 6.3.2--6.3.4 certify that each new atom is attached along at most one
+previous point. \(\square\)
 
 \phantomsection
 \label{corollary-6.4-restrictions-on-finite-linear-traces}
@@ -1086,7 +1162,7 @@ We prove
 There is an uncountably chromatic linear triple system. Consequently, every finite nonlinear triple system is non-obligatory.
 
 \end{propositionbox}
-\textit{Proof.} We use the Erdős--Rado relation
+\textit{Proof.} We use the Erd\H{o}s--Rado relation
 \citep[Theorem~4(i), formula~(95), p.~471]{erdosrado1956}
 
 \[
@@ -1136,21 +1212,70 @@ If \(F\) appeared in \(\mathcal L(G)\), retain exactly the host hyperedges corre
 Let \(F\) be finite and linear, and suppose \(F^\circ\) has an odd Berge cycle. Then \(F\) is non-obligatory.
 
 \end{propositionbox}
-\textit{Proof.} Again suppress isolated vertices. Put \(m=|E(F)|\). Choose \(r\) with \(2r+1>m\), and set
+\textit{Proof.} Again suppress isolated vertices. The following dictionary
+separates the three kinds of cycles in the argument. A \emph{Berge cycle} in
+a triple system is a simple cycle in its Levi graph, with Levi length twice
+its Berge length. A \emph{factor cycle} is the corresponding cycle inside one
+expansion atom \(J_s^+\). Its \emph{host trace} is the ordinary cycle in the
+graph \(J_s\subseteq G\) obtained by deleting the private vertices. Berge
+length and host-cycle length are equal.
+
+Put \(m=|E(F)|\). Choose \(r\) with \(2r+1>m\), and set
 
 \[
 G=S_r\bigl(\beth_{r-1}(\aleph_0)^+\bigr).
 \]
 
-By Lemmas 7.1 and 7.2, \(\chi(G)>\aleph_0\), and \(G\) has no odd cycle of length at most \(m\). Lemma 6.2 gives
+\medskip
+\noindent\textbf{Claim 8.3.1 (the chosen host is large-chromatic and has the
+required odd-girth bound).}
+By Lemmas 7.1 and 7.2, \(\chi(G)>\aleph_0\), and \(G\) has no odd cycle of
+length at most \(m\). Lemma 6.2 then gives
 
 \[
 \chi(\mathcal L(G))>\aleph_0.
 \]
+\(\square\)
 
-If \(F\) appeared in \(\mathcal L(G)\), the selected image hyperedges would form a finite linear trace. By Corollary 6.4, every Berge cycle of that trace lies in one factor \(J_s^+\) and induces an ordinary graph cycle of the same length in \(J_s\subseteq G\).
+\medskip
+\noindent\textbf{Claim 8.3.2 (cycle localisation).}
+If \(F\) embeds in \(\mathcal L(G)\), every Berge cycle in its selected
+image is contained in a single factor \(J_s^+\).
 
-The odd Berge cycle of \(F\) has length at most \(m\), so \(G\) would contain an odd cycle of length at most \(m\), a contradiction. Thus \(\mathcal L(G)\) is an uncountably chromatic \(F\)-free host. \(\square\)
+\smallskip
+\noindent\emph{Proof of Claim 8.3.2.}
+Retain exactly the host hyperedges corresponding to the hyperedges of \(F\).
+Injectivity of the embedding and linearity of \(F\) make them a finite linear
+trace isomorphic to \(F\). Theorem 6.3 assembles this trace by one-point
+amalgamations. The amalgamation point is a cut vertex of the Levi graph. A
+simple cycle cannot enter a component through that cut vertex and later leave
+through it without repeating the vertex. Hence a simple Levi cycle, and
+therefore a Berge cycle, cannot cross from one factor to another. This is
+precisely the localisation assertion in Corollary 6.4. \(\square\)
+
+\medskip
+\noindent\textbf{Claim 8.3.3 (length and parity are preserved).}
+A Berge cycle of length \(\ell\) localised in \(J_s^+\) gives an ordinary
+cycle of length \(\ell\) in \(J_s\subseteq G\).
+
+\smallskip
+\noindent\emph{Proof of Claim 8.3.3.}
+Write the local Berge cycle in alternating form as core vertices and
+hyperedges. In a private-vertex expansion, each hyperedge contains exactly
+two core vertices; consecutive hyperedges of the Berge cycle meet at their
+common core vertex, so their graph edges are consecutive in \(J_s\).
+Simplicity of the Levi cycle makes both the core vertices and the hyperedges
+distinct; consequently the resulting closed graph walk is a simple graph
+cycle. There is one graph edge for each hyperedge of the Berge cycle. Thus the
+graph cycle has length \(\ell\), not the Levi length \(2\ell\), and in
+particular has the same parity. \(\square\)
+
+Now suppose that \(F\) embeds in \(\mathcal L(G)\). Its given odd Berge
+cycle uses distinct hyperedges, so its length \(\ell\) satisfies \(\ell\le m\).
+Claims 8.3.2 and 8.3.3 produce an odd graph cycle of length \(\ell\) in
+\(G\), contradicting Claim 8.3.1. Therefore \(\mathcal L(G)\) is an
+uncountably chromatic \(F\)-free host, and \(F\) is non-obligatory.
+\(\square\)
 
 The three propositions cover every failure of the intrinsic conditions, and prove
 
@@ -1183,24 +1308,28 @@ F^\circ\text{ is linear},\\[1mm]
 \]
 \endgroup
 
-All embeddings are non-induced: additional host hyperedges on the image vertices are irrelevant throughout. The proof uses only ZFC, the displayed successor cardinals, graph-colouring compactness, and the standard Erdős--Rado relation (8.1). It assumes neither CH nor GCH, and no forcing axiom or large-cardinal hypothesis.
+All embeddings are non-induced: additional host hyperedges on the image vertices are irrelevant throughout. The proof uses only ZFC, the displayed successor cardinals, graph-colouring compactness, and the standard Erd\H{o}s--Rado relation (8.1). It assumes neither CH nor GCH, and no forcing axiom or large-cardinal hypothesis.
 
-\section*{Reproducibility and formalisation}
+\section*{Formalisation}
 
-The complete proof sources and reproducibility material are collected in the
-numbered dossiers of the public
-\href{https://github.com/SamPetkov/Erdos}{\texttt{Erdos} repository}; the
-present paper is in \texttt{593/}. All theorem statements and proof text are
-also available in Markdown, so the argument can be inspected without
-compiling the TeX. The dossier includes the TeX source, bibliography,
-reproducible build material, source and revision records, checksums, and the
-current partial Lean~4 formalisation.
-
-The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle
-\citep{achim-et-al-2025}, is provided as a self-contained source file. Each
-formalised statement is decomposed into smaller claims, with its hypotheses
-and conclusion checked explicitly. This is a partial machine-checked
-formalisation, not a claim that the entire paper has been formalised.
+The complete finite classification in Theorem~A has been machine-checked in
+Lean~4. The self-contained source closure, developed with ChatGPT-5.6 and
+Aristotle \citep{achim-et-al-2025}, is available on
+\href{https://github.com/SamPetkov/Erdos593/blob/main/formalization/Erdos593SelfContained.lean}{GitHub}.
+For every finite triple system \(F\), its final public theorems establish
+\[
+\begin{aligned}
+\mathtt{F.IsObligatory}
+&\Longleftrightarrow \mathtt{F.isolatedReduction.Intrinsic},\\
+\mathtt{F.IsObligatory}
+&\Longleftrightarrow \mathtt{Constructible\ F.isolatedReduction}.
+\end{aligned}
+\]
+Thus the Lean development checks both directions of the finite obligatoriness
+classification stated in this paper, including the isolated-vertex reduction.
+Here ``finite'' refers to the systems \(F\) being classified; the host triple
+systems quantified over in the definition of obligatoriness are unrestricted,
+exactly as in Theorem~A.
 
 \section*{AI assistance}
 
