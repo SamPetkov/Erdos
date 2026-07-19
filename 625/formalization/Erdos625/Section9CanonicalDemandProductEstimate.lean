@@ -180,7 +180,9 @@ theorem exists_absolute_residual_product_exponential_majorant :
   have hmixed := mixedSimpleCycle_weighted_walk_enumeration
     (residualQ M R row col) M hM tau (by simpa [tau] using htau)
     (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
-  have htau1 : tau < 1 := (by simpa [tau] using htau).trans (by norm_num)
+  have htauThird : tau < (1 / 3 : ENNReal) := by
+    simpa [tau] using htau
+  have htau1 : tau < 1 := htauThird.trans (by norm_num)
   have hresidual := residualOnlySimpleCycle_weighted_walk_enumeration
     (residualQ M R row col) M tau htau1
     (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)

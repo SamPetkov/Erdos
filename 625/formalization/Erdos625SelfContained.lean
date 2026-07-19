@@ -54192,7 +54192,7 @@ END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
 Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
-Normalized SHA-256: 913480bc04541bcc307ba49352309a67e0523b544bf87c4d80b0851dd1a0619f
+Normalized SHA-256: b3d1d68b1e3871483a9abed71c3f46ed2854a38c22e9f8c9b6bb19ff0e66ce13
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
 
@@ -54370,7 +54370,9 @@ theorem exists_absolute_residual_product_exponential_majorant :
   have hmixed := mixedSimpleCycle_weighted_walk_enumeration
     (residualQ M R row col) M hM tau (by simpa [tau] using htau)
     (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
-  have htau1 : tau < 1 := (by simpa [tau] using htau).trans (by norm_num)
+  have htauThird : tau < (1 / 3 : ENNReal) := by
+    simpa [tau] using htau
+  have htau1 : tau < 1 := htauThird.trans (by norm_num)
   have hresidual := residualOnlySimpleCycle_weighted_walk_enumeration
     (residualQ M R row col) M tau htau1
     (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
