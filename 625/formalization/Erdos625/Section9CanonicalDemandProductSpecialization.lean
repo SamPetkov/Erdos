@@ -61,7 +61,7 @@ theorem exists_absolute_canonicalDemandPolymer_strict_bound :
         2 ^ U ≤ m ^ 3 →
         kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
           (1 / 3 : ENNReal) →
-        (canonicalDemandPolymerMajorant row col U demand : EReal) ≤
+        canonicalDemandPolymerMajorant row col U demand ≤
           EReal.exp
             ((residualProductExponentMajorant kappaLambda kappaQ
               (Fintype.card A) (positiveDemandSupport demand.1).card U m :

@@ -54578,7 +54578,7 @@ END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
 Source: Erdos625/Section9CanonicalDemandProductSpecialization.lean
-Normalized SHA-256: d7fc3b4021b9f2b82f3af99ad9585d42a55469885774de00f12649849344da3e
+Normalized SHA-256: eb609b580105a919ee382839a2bb1c72d187dfe57e641c0910b08127b2a1c336
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
 
@@ -54640,7 +54640,7 @@ theorem exists_absolute_canonicalDemandPolymer_strict_bound :
         2 ^ U ≤ m ^ 3 →
         kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
           (1 / 3 : ENNReal) →
-        (canonicalDemandPolymerMajorant row col U demand : EReal) ≤
+        canonicalDemandPolymerMajorant row col U demand ≤
           EReal.exp
             ((residualProductExponentMajorant kappaLambda kappaQ
               (Fintype.card A) (positiveDemandSupport demand.1).card U m :
