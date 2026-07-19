@@ -46895,7 +46895,7 @@ END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
 Source: Erdos625/Section9SmallResidualAttachmentBound.lean
-Normalized SHA-256: 2e270899a0576e52c75078db3878010cb921926289ae93da79c6de403a0b41ad
+Normalized SHA-256: 99b135c2e8d946ca0ac66ca50e58b304f4d34511479f25764cde5b219216962b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
 
@@ -46952,8 +46952,14 @@ theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
     · intro _ _
       rw [hR]
       omega
-    · rw [← Fintype.sum_prod_type,
-          sum_configurationCellCount_all matching, hm]
+    · calc
+        (∑ a, ∑ b, configurationCellCount matching a b) =
+            ∑ p : A × B,
+              configurationCellCount matching p.1 p.2 := by
+          exact (Fintype.sum_prod_type fun p : A × B ↦
+            configurationCellCount matching p.1 p.2).symm
+        _ = ∑ a, row a := sum_configurationCellCount_all matching
+        _ = m := hm
     · dsimp only [rank]
       exact
         cycleRank_matching_union_configurationResidualSupport_le_half_m₀
