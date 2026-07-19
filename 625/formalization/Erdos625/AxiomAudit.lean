@@ -236,6 +236,7 @@ import Erdos625.Section8CanonicalEventProbabilityFactorization
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8NearSkeletonExpansion
+import Erdos625.Section8NearSkeletonUniformProductBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -957,6 +958,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 #print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist

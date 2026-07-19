@@ -50410,6 +50410,66 @@ END SOURCE MODULE: Erdos625.Section8NearSkeletonExpansion
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
+Source: Erdos625/Section8NearSkeletonUniformProductBound.lean
+Normalized SHA-256: 9b211a769d3606743b38c3586daefe07f892777b907c8ccbfc4135d5a6077618
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonUniformProductBound
+
+/-!
+# Section VIII: uniform near-skeleton product bound
+
+The exact product formula sums all distinguishable near-deficit choices.
+This module gives its first quantitative consequence: if every one-cell
+deficit tail is at most `eps` and there are at most `K` cells, then the full
+choice sum is at most `(1 + eps) ^ K`.
+
+This is the finite product step used between the per-cell estimate in (8.25)
+and the later asymptotic substitution.  It neither identifies distinguishable
+choices with physical unlabelled skeletons nor proves that asymptotic bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- A uniform finite bound for the exact distinguishable near-skeleton
+expansion.  The assumptions are the literal per-cell weighted-sum bound and
+the literal cardinality bound; no probabilistic or asymptotic premise is
+introduced. -/
+theorem sum_nearSkeletonChoiceWeight_le_one_add_pow
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ENNReal) (eps : ENNReal) (K : Nat)
+    (hcell : ∀ c, (∑ e ∈ allowed c, weight c e) ≤ eps)
+    (hcard : Fintype.card Cell ≤ K) :
+    (∑ choice : NearSkeletonChoice Cell Deficit allowed,
+      nearSkeletonChoiceWeight allowed weight choice) ≤ (1 + eps) ^ K := by
+  rw [sum_nearSkeletonChoiceWeight_eq_product]
+  calc
+    (∏ c, (1 + ∑ e ∈ allowed c, weight c e)) ≤ ∏ _ : Cell, (1 + eps) := by
+      apply Finset.prod_le_prod
+      · intro c _
+        exact bot_le
+      · intro c _
+        exact add_le_add_right (hcell c) 1
+    _ = (1 + eps) ^ Fintype.card Cell := by simp
+    _ ≤ (1 + eps) ^ K := pow_le_pow_right₀ (by simp) hcard
+
+#print axioms sum_nearSkeletonChoiceWeight_le_one_add_pow
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonUniformProductBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.EndpointTransportBounds
 Source: Erdos625/EndpointTransportBounds.lean
 Normalized SHA-256: ceacf74541242d12604a5000bbff19e71cbda2bab66af5cd154839591cad78d1
@@ -55199,7 +55259,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: a42dd2a52836fa4ba07d03fa0d57a72f57f6b1a19ea5badb3adc800ab6eae9cc
+Normalized SHA-256: f39070976acc0909eb2e1fd10d5e318c89a081fce4a6a0c13c69e6f4bed2e307
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -55905,6 +55965,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 #print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
@@ -56019,7 +56080,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: bc6f4f8d9f89c5f7f6e68508b947ea46654bbc4609fbf1fbdd9421e91a473241
+Normalized SHA-256: d299476d5ee7dad2e685103ecabd25ff8060fadce51c94ab954c52a093afa3dc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

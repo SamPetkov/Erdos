@@ -249,6 +249,7 @@ import Erdos625.Section8CanonicalEventProbabilityFactorization
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion
+import Erdos625.Section8NearSkeletonUniformProductBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
