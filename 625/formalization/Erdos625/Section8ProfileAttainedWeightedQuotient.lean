@@ -37,7 +37,7 @@ feasibility relaxation is used. -/
 theorem profileCanonicalHighSkeleton_mem_attainedUnlabelledTypeTables
     {b : Nat} (k : ColoringProfile b) (U : Nat)
     (L : ProfileCanonicalHighSkeleton k U) :
-    L.1 âˆˆ attainedUnlabelledTypeTables
+    L.1 ∈ attainedUnlabelledTypeTables
       (profileBlockMargin k) (profileBlockMargin k) := by
   let witness := canonicalDemandReferenceWitness
     (profileBlockMargin k) (profileBlockMargin k) U L
@@ -46,30 +46,30 @@ theorem profileCanonicalHighSkeleton_mem_attainedUnlabelledTypeTables
     (typedPartialMatchingEquivPrescribedDemandWitness L.1
       (profileBlockMargin k) (profileBlockMargin k)).symm witness
   unfold attainedUnlabelledTypeTables
-  exact Finset.mem_image.mpr âŸ¨typedPartialMatchingUnlabelledSkeleton matching,
-    Finset.mem_univ _, typedPartialMatchingUnlabelledSkeleton_typeTable matchingâŸ©
+  exact Finset.mem_image.mpr ⟨typedPartialMatchingUnlabelledSkeleton matching,
+    Finset.mem_univ _, typedPartialMatchingUnlabelledSkeleton_typeTable matching⟩
 
 /-- Extend the exact per-physical-skeleton contribution from the attained
 canonical family to all tables.  Outside that family it is zero. -/
 noncomputable def profileExactPhysicalTableWeight
     {b n : Nat} {k : ColoringProfile b}
     (row0 : OrderedProfilePartition n k) (U : Nat)
-    (L : ProfileBlockIndex k â†’ ProfileBlockIndex k â†’ Nat) : ENNReal :=
-  if hL : L âˆˆ canonicalDemandImage
+    (L : ProfileBlockIndex k → ProfileBlockIndex k → Nat) : ENNReal :=
+  if hL : L ∈ canonicalDemandImage
       (profileBlockMargin k) (profileBlockMargin k) U then
-    profileHighSkeletonWitnessWeight k U âŸ¨L, hLâŸ© *
-      profileHighSkeletonAttachment row0 U âŸ¨L, hLâŸ©
+    profileHighSkeletonWitnessWeight k U ⟨L, hL⟩ *
+      profileHighSkeletonAttachment row0 U ⟨L, hL⟩
   else 0
 
 /-- Extend a supplied pointwise residual majorant to the same table space,
 while retaining the local reward and ambient normalization exactly. -/
 noncomputable def profileMajorizedPhysicalTableWeight
     {b : Nat} {k : ColoringProfile b} (U : Nat)
-    (majorant : ProfileCanonicalHighSkeleton k U â†’ ENNReal)
-    (L : ProfileBlockIndex k â†’ ProfileBlockIndex k â†’ Nat) : ENNReal :=
-  if hL : L âˆˆ canonicalDemandImage
+    (majorant : ProfileCanonicalHighSkeleton k U → ENNReal)
+    (L : ProfileBlockIndex k → ProfileBlockIndex k → Nat) : ENNReal :=
+  if hL : L ∈ canonicalDemandImage
       (profileBlockMargin k) (profileBlockMargin k) U then
-    profileHighSkeletonWitnessWeight k U âŸ¨L, hLâŸ© * majorant âŸ¨L, hLâŸ©
+    profileHighSkeletonWitnessWeight k U ⟨L, hL⟩ * majorant ⟨L, hL⟩
   else 0
 
 /-- The physical fibre cardinality as an `ENNReal` quotient.  This is the
@@ -79,7 +79,7 @@ is neither zero nor top. -/
 theorem ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials
     {I J : Type*}
     [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (k : I â†’ Nat) (ell : J â†’ Nat) (L : I â†’ J â†’ Nat) :
+    (k : I → Nat) (ell : J → Nat) (L : I → J → Nat) :
     (Fintype.card
       {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) =
       ((typeTableRowDescendingProduct k L *
@@ -99,12 +99,12 @@ local reward, ambient normalization, and exact residual attachment all remain
 visible. -/
 theorem sum_uniformProfile_signedOverlapReward_eq_attainedWeightedQuotient
     {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U) :
-    (âˆ‘ column : OrderedProfilePartition n k,
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
       uniformOrderedProfilePartition row0 column *
         (signedOverlapReward
           (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
-      âˆ‘ L âˆˆ canonicalDemandImage
+      ∑ L ∈ canonicalDemandImage
           (profileBlockMargin k) (profileBlockMargin k) U,
         (((typeTableRowDescendingProduct (profileBlockMargin k) L *
           typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
@@ -112,7 +112,7 @@ theorem sum_uniformProfile_signedOverlapReward_eq_attainedWeightedQuotient
           profileExactPhysicalTableWeight row0 U L := by
   rw [sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
     row0 U hU]
-  rw [â† Finset.sum_attach (canonicalDemandImage
+  rw [← Finset.sum_attach (canonicalDemandImage
     (profileBlockMargin k) (profileBlockMargin k) U)
     (fun L =>
       (((typeTableRowDescendingProduct (profileBlockMargin k) L *
@@ -134,12 +134,12 @@ stub descending-factorial normalization, the physical fibre quotient, and the
 residual attachment as four separate factors. -/
 theorem sum_uniformProfile_signedOverlapReward_eq_expandedAttainedWeightedQuotient
     {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U) :
-    (âˆ‘ column : OrderedProfilePartition n k,
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
       uniformOrderedProfilePartition row0 column *
         (signedOverlapReward
           (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
-      âˆ‘ demand : ProfileCanonicalHighSkeleton k U,
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
         (((typeTableRowDescendingProduct (profileBlockMargin k) demand.1 *
           typeTableColumnDescendingProduct (profileBlockMargin k) demand.1 : Nat) :
             ENNReal) / (typeTableCellFactorialProduct demand.1 : ENNReal)) *
@@ -163,15 +163,15 @@ quotient.  This is a weighted-sum inequality only; it asserts no probability
 bound and requires no positivity of an event mass. -/
 theorem sum_uniformProfile_signedOverlapReward_le_attainedWeightedQuotient_of_attachment_le
     {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U)
-    (majorant : ProfileCanonicalHighSkeleton k U â†’ ENNReal)
-    (hattachment : âˆ€ demand : ProfileCanonicalHighSkeleton k U,
-      profileHighSkeletonAttachment row0 U demand â‰¤ majorant demand) :
-    (âˆ‘ column : OrderedProfilePartition n k,
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U)
+    (majorant : ProfileCanonicalHighSkeleton k U → ENNReal)
+    (hattachment : ∀ demand : ProfileCanonicalHighSkeleton k U,
+      profileHighSkeletonAttachment row0 U demand ≤ majorant demand) :
+    (∑ column : OrderedProfilePartition n k,
       uniformOrderedProfilePartition row0 column *
         (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) â‰¤
-      âˆ‘ L âˆˆ canonicalDemandImage
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) ≤
+      ∑ L ∈ canonicalDemandImage
           (profileBlockMargin k) (profileBlockMargin k) U,
         (((typeTableRowDescendingProduct (profileBlockMargin k) L *
           typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
@@ -185,24 +185,24 @@ theorem sum_uniformProfile_signedOverlapReward_le_attainedWeightedQuotient_of_at
   simp only [profileExactPhysicalTableWeight,
     profileMajorizedPhysicalTableWeight, hL, dite_true]
   apply mul_le_mul_right
-  exact hattachment âŸ¨L, hLâŸ©
+  exact hattachment ⟨L, hL⟩
 
 /-- The explicit Section IX polymer specialization of the preceding quotient
 bound.  The strict positive-residual premise is exactly the premise required
 by the available finite polymer estimate. -/
 theorem sum_uniformProfile_signedOverlapReward_le_attainedPolymerWeightedQuotient
     {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U)
-    (hpositive : âˆ€ demand : ProfileCanonicalHighSkeleton k U,
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U)
+    (hpositive : ∀ demand : ProfileCanonicalHighSkeleton k U,
       0 < Finset.univ.sum
         (residualRowDegree
           (canonicalDemandReferenceWitness (profileBlockMargin k)
             (profileBlockMargin k) U demand))) :
-    (âˆ‘ column : OrderedProfilePartition n k,
+    (∑ column : OrderedProfilePartition n k,
       uniformOrderedProfilePartition row0 column *
         (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) â‰¤
-      âˆ‘ L âˆˆ canonicalDemandImage
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) ≤
+      ∑ L ∈ canonicalDemandImage
           (profileBlockMargin k) (profileBlockMargin k) U,
         (((typeTableRowDescendingProduct (profileBlockMargin k) L *
           typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
