@@ -17758,7 +17758,7 @@ END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExplicitPartitionRatio
 Source: Erdos625/ExplicitPartitionRatio.lean
-Normalized SHA-256: a651a25fb767bdd9e2d774d9b10e8818614d293b89b4022032bf8499c147fc5a
+Normalized SHA-256: cabba3307080bfd58350541cbd2dbaadd08f86b30b5b7b2368e192e50ba60a61
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_ExplicitPartitionRatio
 
@@ -17889,6 +17889,33 @@ theorem selectedTilt_fourPartition_exact :
     rw [show Real.log 2 * 6 = (6 : ℕ) * Real.log 2 by ring,
       Real.exp_nat_mul]
     norm_num [Real.exp_log]]
+  norm_num
+
+/-- The corresponding four-point first-moment numerator is exactly `672`. -/
+theorem selectedTilt_fourFirstNumerator_exact :
+    ProfileEntropyS4.firstNumerator fourGaussianScore signedFourSelectedTilt =
+      (672 : ℝ) := by
+  norm_num [ProfileEntropyS4.firstNumerator, ProfileEntropyS4.unnormalized,
+    fourGaussianScore, ProfileEntropyS4.support, signedFourSelectedTilt, q]
+  simp only [Fin.sum_univ_succ, Fin.sum_univ_zero]
+  norm_num
+  ring_nf
+  rw [show Real.exp (Real.log 2 * 5) = (32 : ℝ) by
+    rw [show Real.log 2 * 5 = (5 : ℕ) * Real.log 2 by ring,
+      Real.exp_nat_mul]
+    norm_num [Real.exp_log]]
+  rw [show Real.exp (Real.log 2 * 6) = (64 : ℝ) by
+    rw [show Real.log 2 * 6 = (6 : ℕ) * Real.log 2 by ring,
+      Real.exp_nat_mul]
+    norm_num [Real.exp_log]]
+  norm_num
+
+/-- The fixed target is explicitly `7/2`; its identification is not left only
+as the definitional equality with the selected four-point mean. -/
+theorem selectedTilt_target_eq :
+    signedFourSelectedTarget = (7 / 2 : ℝ) := by
+  rw [signedFourSelectedTarget, ProfileEntropyS4.mean,
+    selectedTilt_fourFirstNumerator_exact, selectedTilt_fourPartition_exact]
   norm_num
 
 /-- Rigorous explicit partition-ratio estimate at the selected tilt. -/
