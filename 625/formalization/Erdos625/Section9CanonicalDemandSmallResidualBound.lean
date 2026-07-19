@@ -47,7 +47,7 @@ theorem canonicalDemandRawAttachmentTerm_le_smallResidualBound
     hresidualTotal hmatching rfl (by
       simp only [canonicalDemandResidualTotal, witness])
   unfold canonicalDemandRawAttachmentTerm
-  exact mul_le_mul_left' (mul_le_mul_left' hsmall _) _
+  exact mul_le_mul_right (mul_le_mul_right hsmall _) _
 
 #print axioms canonicalDemandRawAttachmentTerm_le_smallResidualBound
 

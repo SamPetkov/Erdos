@@ -47183,7 +47183,7 @@ END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
 Source: Erdos625/Section9CanonicalDemandSmallResidualBound.lean
-Normalized SHA-256: 7c45229803da62bc61d3bfaa14110a73d683fd54f54b738807adaa0a5833bb35
+Normalized SHA-256: ce5f7dfa30c833d113c648c8eab95f7dd28228bb290beb88eea2aa98fa5a0b44
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
 
@@ -47231,7 +47231,7 @@ theorem canonicalDemandRawAttachmentTerm_le_smallResidualBound
     hresidualTotal hmatching rfl (by
       simp only [canonicalDemandResidualTotal, witness])
   unfold canonicalDemandRawAttachmentTerm
-  exact mul_le_mul_left' (mul_le_mul_left' hsmall _) _
+  exact mul_le_mul_right (mul_le_mul_right hsmall _) _
 
 #print axioms canonicalDemandRawAttachmentTerm_le_smallResidualBound
 
@@ -47247,7 +47247,7 @@ END SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalRawTwoRegimeSplit
 Source: Erdos625/Section9CanonicalRawTwoRegimeSplit.lean
-Normalized SHA-256: d2d2e796e21b9704acd85d51b3bc00e223ade3e1e7af54897a3e735f3faf2395
+Normalized SHA-256: 626d0cfe77cd1947d63cc3f62049fe54bec2cafe0f810259fbe4213a1111aed8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalRawTwoRegimeSplit
 
@@ -47293,7 +47293,7 @@ theorem sum_canonicalDemandRawAttachmentTerm_positive_eq_small_add_large
     (Finset.univ.filter fun demand : canonicalDemandImage row col U =>
       0 < canonicalDemandResidualTotal row col U demand)
     (fun demand => canonicalDemandResidualTotal row col U demand < T)]
-  simp only [Finset.filter_filter, not_lt, and_assoc]
+  simp only [Finset.filter_filter, not_lt]
 
 /-- Pointwise bounds in the two residual regimes combine into a bound for the
 entire positive-residual raw attachment sum. -/

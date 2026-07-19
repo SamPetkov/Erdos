@@ -43,7 +43,7 @@ theorem sum_canonicalDemandRawAttachmentTerm_positive_eq_small_add_large
     (Finset.univ.filter fun demand : canonicalDemandImage row col U =>
       0 < canonicalDemandResidualTotal row col U demand)
     (fun demand => canonicalDemandResidualTotal row col U demand < T)]
-  simp only [Finset.filter_filter, not_lt, and_assoc]
+  simp only [Finset.filter_filter, not_lt]
 
 /-- Pointwise bounds in the two residual regimes combine into a bound for the
 entire positive-residual raw attachment sum. -/
