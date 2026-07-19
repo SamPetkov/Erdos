@@ -17941,6 +17941,275 @@ END SOURCE MODULE: Erdos625.SignedFourEntropyCertificate
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SeriesConvergenceTools
+Source: Erdos625/SeriesConvergenceTools.lean
+Normalized SHA-256: 96b3769a270a86cba5492351fe933e7f843c658cad340e7b61e3839d23af0e2c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SeriesConvergenceTools
+
+/-!
+# Series convergence tools
+
+This module records two small analytic interfaces used when passing from
+finite deficit profiles to their limiting natural-index series.
+
+* `tendsto_tsum_of_norm_le_summable` is a real-valued Tannery/dominated-
+  convergence wrapper with a single summable majorant.
+* `tsum_eq_sum_range_of_eq_zero` rewrites a natural-index `tsum` whose terms
+  vanish at and beyond a cutoff as the corresponding finite range sum.
+
+Neither theorem establishes a profile-specific majorant, pointwise limit, or
+optimizer bound; those remain separate proof obligations.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped BigOperators Topology
+
+noncomputable section
+
+/-- Dominated convergence for real series indexed by the natural numbers. -/
+theorem tendsto_tsum_of_norm_le_summable
+    {f : ℕ → ℕ → ℝ} {F g : ℕ → ℝ}
+    (hg : Summable g)
+    (hdom : ∀ n d, ‖f n d‖ ≤ g d)
+    (hpoint : ∀ d, Tendsto (fun n ↦ f n d) atTop (nhds (F d))) :
+    Tendsto (fun n ↦ ∑' d : ℕ, f n d) atTop
+      (nhds (∑' d : ℕ, F d)) := by
+  exact tendsto_tsum_of_dominated_convergence hg hpoint
+    (Filter.Eventually.of_forall fun n d ↦ hdom n d)
+
+/-- A natural-index real series supported below `N` is exactly its finite
+range sum, without any separate summability assumption. -/
+theorem tsum_eq_sum_range_of_eq_zero
+    (f : ℕ → ℝ) (N : ℕ) (hzero : ∀ d, N ≤ d → f d = 0) :
+    (∑' d : ℕ, f d) = ∑ d ∈ Finset.range N, f d := by
+  rw [tsum_eq_sum]
+  aesop
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SeriesConvergenceTools
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SeriesConvergenceTools
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ExtendedGaussianEntropyTransport
+Source: Erdos625/ExtendedGaussianEntropyTransport.lean
+Normalized SHA-256: 414d6b2657c64b32aa3f0c83544a14935a47c5d323e32c8c415bf09e1b69f21b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ExtendedGaussianEntropyTransport
+
+/-!
+# Transport of finite extended-Gaussian entropy bounds
+
+This module supplies the truncation-to-limit step for the entropy lane.  A
+competitor consists of an explicit exceptional mass at deficit `-1` and a
+natural-index mass sequence.  Nonnegativity, normalization, the first moment,
+and convergence of the entropy-plus-Gaussian-score truncations are all stated
+as hypotheses.  No assertion about the numerical partition ratio is made.
+-/
+
+open Filter Finset
+open scoped Topology BigOperators
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The limiting Gaussian score on a natural deficit coordinate. -/
+def extendedGaussianNaturalScore (a : â„) (d : â„•) : â„ :=
+  -a / 2 * (d : â„) ^ 2
+
+/-- The Gaussian score of the exceptional deficit coordinate `-1`. -/
+def extendedGaussianExceptionalScore (a : â„) : â„ := -a / 2
+
+/-- Entropy plus Gaussian score of a competitor, truncated to the exceptional
+coordinate and natural deficits below `N`.  The convention `0 * log 0 = 0`
+is inherited from `Real.log 0 = 0`. -/
+def extendedGaussianEntropyTruncation
+    (a exceptional : â„) (p : â„• â†’ â„) (N : â„•) : â„ :=
+  (-exceptional * Real.log exceptional +
+      exceptional * extendedGaussianExceptionalScore a) +
+    âˆ‘ d âˆˆ range N,
+      (-p d * Real.log (p d) + p d * extendedGaussianNaturalScore a d)
+
+/-- Truncated total mass, including the exceptional endpoint. -/
+def extendedGaussianMassTruncation
+    (exceptional : â„) (p : â„• â†’ â„) (N : â„•) : â„ :=
+  exceptional + âˆ‘ d âˆˆ range N, p d
+
+/-- Truncated first moment, with the exceptional coordinate equal to `-1`. -/
+def extendedGaussianMomentTruncation
+    (exceptional : â„) (p : â„• â†’ â„) (N : â„•) : â„ :=
+  -exceptional + âˆ‘ d âˆˆ range N, (d : â„) * p d
+
+/-- The normalized reference mass retained by a finite truncation. -/
+def extendedGaussianReferenceMassTruncation
+    (a tilt : â„) (N : â„•) : â„ :=
+  extendedGaussianExceptionalAtom a tilt / extendedGaussianPartition a tilt +
+    âˆ‘ d âˆˆ range N,
+      extendedGaussianNaturalTerm a tilt d / extendedGaussianPartition a tilt
+
+/-- The retained normalized reference mass converges to one. -/
+theorem tendsto_extendedGaussianReferenceMassTruncation
+    {a tilt : â„} (ha : 0 < a) :
+    Tendsto (extendedGaussianReferenceMassTruncation a tilt) atTop (nhds 1) := by
+  have hsum : Tendsto
+      (fun N â†¦ âˆ‘ d âˆˆ range N, extendedGaussianNaturalTerm a tilt d)
+      atTop (nhds (âˆ‘' d : â„•, extendedGaussianNaturalTerm a tilt d)) :=
+    (summable_extendedGaussianNaturalTerm ha).hasSum.tendsto_sum_nat
+  have hdiv := hsum.div_const (extendedGaussianPartition a tilt)
+  have hadd : Tendsto
+      (fun N â†¦ extendedGaussianExceptionalAtom a tilt /
+          extendedGaussianPartition a tilt +
+        (âˆ‘ d âˆˆ range N, extendedGaussianNaturalTerm a tilt d) /
+          extendedGaussianPartition a tilt)
+      atTop (nhds (extendedGaussianExceptionalAtom a tilt /
+          extendedGaussianPartition a tilt +
+        (âˆ‘' d : â„•, extendedGaussianNaturalTerm a tilt d) /
+          extendedGaussianPartition a tilt)) :=
+    tendsto_const_nhds.add hdiv
+  have hfun : extendedGaussianReferenceMassTruncation a tilt =
+      fun N â†¦ extendedGaussianExceptionalAtom a tilt /
+          extendedGaussianPartition a tilt +
+        (âˆ‘ d âˆˆ range N, extendedGaussianNaturalTerm a tilt d) /
+          extendedGaussianPartition a tilt := by
+    funext N
+    unfold extendedGaussianReferenceMassTruncation
+    rw [Finset.sum_div]
+  have hlimit : extendedGaussianExceptionalAtom a tilt /
+          extendedGaussianPartition a tilt +
+        (âˆ‘' d : â„•, extendedGaussianNaturalTerm a tilt d) /
+          extendedGaussianPartition a tilt = 1 := by
+    rw [â† add_div, â† extendedGaussianPartition]
+    exact div_self (extendedGaussianPartition_ne_zero ha)
+  rw [hfun, â† hlimit]
+  exact hadd
+
+/-- Finite truncations transport to the extended Gaussian dual bound.  This is
+valid at every real target, including the endpoint value `-1`; no interiority
+assumption is used.  The hypotheses explicitly require nonnegative masses,
+normalization in the limit, convergence of the first moment, and convergence
+of the entropy-plus-score truncations. -/
+theorem extendedGaussianEntropy_le_dual_of_truncations
+    {a target tilt unrestrictedEntropy exceptional : â„} {p : â„• â†’ â„}
+    (ha : 0 < a)
+    (hexceptional : 0 â‰¤ exceptional)
+    (hp : âˆ€ d, 0 â‰¤ p d)
+    (hfinite : 0 â‰¤ exceptional â†’ (âˆ€ d, 0 â‰¤ p d) â†’ âˆ€ N,
+      extendedGaussianEntropyTruncation a exceptional p N â‰¤
+        extendedGaussianReferenceMassTruncation a tilt N -
+          extendedGaussianMassTruncation exceptional p N +
+          Real.log (extendedGaussianPartition a tilt) *
+            extendedGaussianMassTruncation exceptional p N -
+          tilt * extendedGaussianMomentTruncation exceptional p N)
+    (hmass : Tendsto (extendedGaussianMassTruncation exceptional p)
+      atTop (nhds 1))
+    (hmoment : Tendsto (extendedGaussianMomentTruncation exceptional p)
+      atTop (nhds target))
+    (hentropy : Tendsto (extendedGaussianEntropyTruncation a exceptional p)
+      atTop (nhds unrestrictedEntropy)) :
+    unrestrictedEntropy â‰¤
+      Real.log (extendedGaussianPartition a tilt) - tilt * target := by
+  have href := tendsto_extendedGaussianReferenceMassTruncation
+    (a := a) (tilt := tilt) ha
+  have hlogmass : Tendsto
+      (fun N â†¦ Real.log (extendedGaussianPartition a tilt) *
+        extendedGaussianMassTruncation exceptional p N)
+      atTop (nhds (Real.log (extendedGaussianPartition a tilt) * 1)) :=
+    tendsto_const_nhds.mul hmass
+  have htiltmoment : Tendsto
+      (fun N â†¦ tilt * extendedGaussianMomentTruncation exceptional p N)
+      atTop (nhds (tilt * target)) :=
+    tendsto_const_nhds.mul hmoment
+  have hrhs : Tendsto
+      (fun N â†¦ extendedGaussianReferenceMassTruncation a tilt N -
+        extendedGaussianMassTruncation exceptional p N +
+        Real.log (extendedGaussianPartition a tilt) *
+          extendedGaussianMassTruncation exceptional p N -
+        tilt * extendedGaussianMomentTruncation exceptional p N)
+      atTop (nhds (Real.log (extendedGaussianPartition a tilt) -
+        tilt * target)) := by
+    simpa only [sub_self, zero_add, mul_one] using
+      ((href.sub hmass).add hlogmass).sub htiltmoment
+  exact le_of_tendsto_of_tendsto' hentropy hrhs (hfinite hexceptional hp)
+
+/-- Specialization at the manuscript parameter `q`, in exactly the form
+required by `entropy_loss_le_log_partition_ratio`. -/
+theorem extendedGaussianEntropy_le_dual_of_truncations_q
+    {target tilt unrestrictedEntropy exceptional : â„} {p : â„• â†’ â„}
+    (hexceptional : 0 â‰¤ exceptional)
+    (hp : âˆ€ d, 0 â‰¤ p d)
+    (hfinite : 0 â‰¤ exceptional â†’ (âˆ€ d, 0 â‰¤ p d) â†’ âˆ€ N,
+      extendedGaussianEntropyTruncation q exceptional p N â‰¤
+        extendedGaussianReferenceMassTruncation q tilt N -
+          extendedGaussianMassTruncation exceptional p N +
+          Real.log (extendedGaussianPartition q tilt) *
+            extendedGaussianMassTruncation exceptional p N -
+          tilt * extendedGaussianMomentTruncation exceptional p N)
+    (hmass : Tendsto (extendedGaussianMassTruncation exceptional p)
+      atTop (nhds 1))
+    (hmoment : Tendsto (extendedGaussianMomentTruncation exceptional p)
+      atTop (nhds target))
+    (hentropy : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+      atTop (nhds unrestrictedEntropy)) :
+    unrestrictedEntropy â‰¤ extendedGaussianDualTestValue target tilt := by
+  exact extendedGaussianEntropy_le_dual_of_truncations q_pos hexceptional hp
+    hfinite hmass hmoment hentropy
+
+/-- The truncation transport discharges the unrestricted variational input in
+the conditional certificate.  The only remaining manuscript-specific input is
+the displayed strict partition-ratio inequality. -/
+theorem signed_margin_gt_log_200_div_153_of_truncations
+    {target tilt unrestrictedEntropy exceptional : â„} {p : â„• â†’ â„}
+    (h_mean : ProfileEntropyS4.mean fourGaussianScore tilt = target)
+    (hexceptional : 0 â‰¤ exceptional)
+    (hp : âˆ€ d, 0 â‰¤ p d)
+    (hfinite : 0 â‰¤ exceptional â†’ (âˆ€ d, 0 â‰¤ p d) â†’ âˆ€ N,
+      extendedGaussianEntropyTruncation q exceptional p N â‰¤
+        extendedGaussianReferenceMassTruncation q tilt N -
+          extendedGaussianMassTruncation exceptional p N +
+          Real.log (extendedGaussianPartition q tilt) *
+            extendedGaussianMassTruncation exceptional p N -
+          tilt * extendedGaussianMomentTruncation exceptional p N)
+    (hmass : Tendsto (extendedGaussianMassTruncation exceptional p)
+      atTop (nhds 1))
+    (hmoment : Tendsto (extendedGaussianMomentTruncation exceptional p)
+      atTop (nhds target))
+    (hentropy : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+      atTop (nhds unrestrictedEntropy))
+    (h_partition_ratio_bound :
+      extendedGaussianPartition q tilt /
+          ProfileEntropyS4.partition fourGaussianScore tilt <
+        (153 / 100 : â„)) :
+    Real.log (200 / 153 : â„) <
+      q - (unrestrictedEntropy -
+        ProfileEntropyS4.optimizedValue fourGaussianScore target) := by
+  apply signed_margin_gt_log_200_div_153_of_dual_ratio h_mean
+  Â· exact extendedGaussianEntropy_le_dual_of_truncations_q
+      hexceptional hp hfinite hmass hmoment hentropy
+  Â· exact h_partition_ratio_bound
+
+end
+
+#print axioms tendsto_extendedGaussianReferenceMassTruncation
+#print axioms extendedGaussianEntropy_le_dual_of_truncations
+#print axioms extendedGaussianEntropy_le_dual_of_truncations_q
+#print axioms signed_margin_gt_log_200_div_153_of_truncations
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianEntropyTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ExtendedGaussianEntropyTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.GaussianMomentTailTools
 Source: Erdos625/GaussianMomentTailTools.lean
 Normalized SHA-256: 5336ebed3aa295e51453fb6603a90e3c125754a6c14621b53eee79c2058c6134
@@ -19205,63 +19474,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_MeanInversionTools
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.MeanInversionTools
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.SeriesConvergenceTools
-Source: Erdos625/SeriesConvergenceTools.lean
-Normalized SHA-256: 96b3769a270a86cba5492351fe933e7f843c658cad340e7b61e3839d23af0e2c
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_SeriesConvergenceTools
-
-/-!
-# Series convergence tools
-
-This module records two small analytic interfaces used when passing from
-finite deficit profiles to their limiting natural-index series.
-
-* `tendsto_tsum_of_norm_le_summable` is a real-valued Tannery/dominated-
-  convergence wrapper with a single summable majorant.
-* `tsum_eq_sum_range_of_eq_zero` rewrites a natural-index `tsum` whose terms
-  vanish at and beyond a cutoff as the corresponding finite range sum.
-
-Neither theorem establishes a profile-specific majorant, pointwise limit, or
-optimizer bound; those remain separate proof obligations.
--/
-
-namespace Erdos625
-
-open Filter
-open scoped BigOperators Topology
-
-noncomputable section
-
-/-- Dominated convergence for real series indexed by the natural numbers. -/
-theorem tendsto_tsum_of_norm_le_summable
-    {f : ℕ → ℕ → ℝ} {F g : ℕ → ℝ}
-    (hg : Summable g)
-    (hdom : ∀ n d, ‖f n d‖ ≤ g d)
-    (hpoint : ∀ d, Tendsto (fun n ↦ f n d) atTop (nhds (F d))) :
-    Tendsto (fun n ↦ ∑' d : ℕ, f n d) atTop
-      (nhds (∑' d : ℕ, F d)) := by
-  exact tendsto_tsum_of_dominated_convergence hg hpoint
-    (Filter.Eventually.of_forall fun n d ↦ hdom n d)
-
-/-- A natural-index real series supported below `N` is exactly its finite
-range sum, without any separate summability assumption. -/
-theorem tsum_eq_sum_range_of_eq_zero
-    (f : ℕ → ℝ) (N : ℕ) (hzero : ∀ d, N ≤ d → f d = 0) :
-    (∑' d : ℕ, f d) = ∑ d ∈ Finset.range N, f d := by
-  rw [tsum_eq_sum]
-  aesop
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_SeriesConvergenceTools
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.SeriesConvergenceTools
 ========================================================================== -/
 
 /- ==========================================================================
@@ -48721,6 +48933,388 @@ END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
+Normalized SHA-256: 5b58239960bdca8415f56a6299e81dab04ad3f7b56bbd3f12bc62b572c993648
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+
+/-!
+# Section IX: profile attachment polymer assembly
+
+This transports the fixed-residual-fibre polymer estimate through the actual
+dependent canonical-demand family. The cap/no-return indicator remains inside
+`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventProfilePolymer
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- The finite polymer majorant attached to one attained canonical demand. -/
+noncomputable def canonicalDemandPolymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  let witness := canonicalDemandReferenceWitness row col U demand
+  (∏ a : A, ∏ b : B,
+      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
+    (∏ C ∈ simpleBipartiteCycles A B,
+      (1 + edgeWeightOutsideENN
+        (residualQ (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness))
+        (positiveDemandSupport demand.1) C))
+
+/-- Strict-regime transport over the full dependent tagged residual family. -/
+theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hpositive : ∀ demand : canonicalDemandImage row col U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          canonicalDemandPolymerMajorant row col U demand := by
+  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    row col U htotal]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+      (canonicalDemandReferenceWitness row col U demand))
+    (hpositive demand)
+
+/-- Ordered-profile specialization in the uniform strict residual regime. -/
+theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U)
+    (hpositive : ∀ demand : canonicalDemandImage
+        (profileBlockMargin k) (profileBlockMargin k) U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      ∑ demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+    row₀ U hU]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row₀)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (hpositive demand)
+
+#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ProfileAttainedWeightedQuotient
+Source: Erdos625/Section8ProfileAttainedWeightedQuotient.lean
+Normalized SHA-256: 2e3779470308ab17241a55106343279a64066927643e42a1cc5ab91865814693
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ProfileAttainedWeightedQuotient
+
+/-!
+# Section VIII: attained profile weighted quotient
+
+This module combines the exact profile signed-overlap decomposition with the
+physical finite quotient over the attained canonical high-demand family.  The
+result retains, separately and without cancellation,
+
+* the physical row/column descending-factorial fibre coefficient and its
+  single cell-factorial denominator;
+* the exposed local signed reward and ambient descending-factorial
+  normalization; and
+* the exact residual attachment, or any supplied pointwise majorant for it.
+
+All statements are finite identities or inequalities in `ENNReal`.  They
+include zero entries and empty attained families, make no near/middle or
+asymptotic assertion, and do not turn a pointwise estimate into a probability
+statement.  The imported canonical conditional-law results explain the exact
+uniform residual fibre, but no conditioning or event-mass division is used
+below.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Every canonical profile demand is attained by a physical unlabelled typed
+skeleton.  The witness comes from the defining canonical image; no numerical
+feasibility relaxation is used. -/
+theorem profileCanonicalHighSkeleton_mem_attainedUnlabelledTypeTables
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (L : ProfileCanonicalHighSkeleton k U) :
+    L.1 âˆˆ attainedUnlabelledTypeTables
+      (profileBlockMargin k) (profileBlockMargin k) := by
+  let witness := canonicalDemandReferenceWitness
+    (profileBlockMargin k) (profileBlockMargin k) U L
+  let matching : TypedPartialMatching L.1 (profileBlockMargin k)
+      (profileBlockMargin k) :=
+    (typedPartialMatchingEquivPrescribedDemandWitness L.1
+      (profileBlockMargin k) (profileBlockMargin k)).symm witness
+  unfold attainedUnlabelledTypeTables
+  exact Finset.mem_image.mpr âŸ¨typedPartialMatchingUnlabelledSkeleton matching,
+    Finset.mem_univ _, typedPartialMatchingUnlabelledSkeleton_typeTable matchingâŸ©
+
+/-- Extend the exact per-physical-skeleton contribution from the attained
+canonical family to all tables.  Outside that family it is zero. -/
+noncomputable def profileExactPhysicalTableWeight
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat)
+    (L : ProfileBlockIndex k â†’ ProfileBlockIndex k â†’ Nat) : ENNReal :=
+  if hL : L âˆˆ canonicalDemandImage
+      (profileBlockMargin k) (profileBlockMargin k) U then
+    profileHighSkeletonWitnessWeight k U âŸ¨L, hLâŸ© *
+      profileHighSkeletonAttachment row0 U âŸ¨L, hLâŸ©
+  else 0
+
+/-- Extend a supplied pointwise residual majorant to the same table space,
+while retaining the local reward and ambient normalization exactly. -/
+noncomputable def profileMajorizedPhysicalTableWeight
+    {b : Nat} {k : ColoringProfile b} (U : Nat)
+    (majorant : ProfileCanonicalHighSkeleton k U â†’ ENNReal)
+    (L : ProfileBlockIndex k â†’ ProfileBlockIndex k â†’ Nat) : ENNReal :=
+  if hL : L âˆˆ canonicalDemandImage
+      (profileBlockMargin k) (profileBlockMargin k) U then
+    profileHighSkeletonWitnessWeight k U âŸ¨L, hLâŸ© * majorant âŸ¨L, hLâŸ©
+  else 0
+
+/-- The physical fibre cardinality as an `ENNReal` quotient.  This is the
+endpoint-safe specialization missing from the semifield-valued generic
+quotient: the factorial denominator is a finite positive natural cast, hence
+is neither zero nor top. -/
+theorem ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I â†’ Nat) (ell : J â†’ Nat) (L : I â†’ J â†’ Nat) :
+    (Fintype.card
+      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) =
+      ((typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : Nat) : ENNReal) /
+        (typeTableCellFactorialProduct L : ENNReal) := by
+  apply (ENNReal.eq_div_iff
+    (Nat.cast_ne_zero.mpr
+      (Finset.prod_ne_zero_iff.mpr fun _ _ =>
+        Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _))
+    (ENNReal.natCast_ne_top _)).2
+  rw [mul_comm]
+  exact cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L
+
+/-- Exact profile-facing finite quotient.  The expectation is reindexed over
+precisely the attained canonical family, and the physical fibre coefficient,
+local reward, ambient normalization, and exact residual attachment all remain
+visible. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_attainedWeightedQuotient
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U) :
+    (âˆ‘ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      âˆ‘ L âˆˆ canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (((typeTableRowDescendingProduct (profileBlockMargin k) L *
+          typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
+            ENNReal) / (typeTableCellFactorialProduct L : ENNReal)) *
+          profileExactPhysicalTableWeight row0 U L := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+    row0 U hU]
+  rw [â† Finset.sum_attach (canonicalDemandImage
+    (profileBlockMargin k) (profileBlockMargin k) U)
+    (fun L =>
+      (((typeTableRowDescendingProduct (profileBlockMargin k) L *
+        typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
+          ENNReal) / (typeTableCellFactorialProduct L : ENNReal)) *
+        profileExactPhysicalTableWeight row0 U L)]
+  apply Finset.sum_congr rfl
+  intro demand _
+  unfold profileHighSkeletonContribution
+  rw [profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre k U demand]
+  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  rw [ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials]
+  simp only [profileExactPhysicalTableWeight, demand.2, dite_true]
+  ac_rfl
+
+/-- Fully expanded form of the exact quotient.  Unlike the table-extension
+presentation above, this subtype sum displays the local reward, the ambient
+stub descending-factorial normalization, the physical fibre quotient, and the
+residual attachment as four separate factors. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_expandedAttainedWeightedQuotient
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U) :
+    (âˆ‘ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      âˆ‘ demand : ProfileCanonicalHighSkeleton k U,
+        (((typeTableRowDescendingProduct (profileBlockMargin k) demand.1 *
+          typeTableColumnDescendingProduct (profileBlockMargin k) demand.1 : Nat) :
+            ENNReal) / (typeTableCellFactorialProduct demand.1 : ENNReal)) *
+          ((canonicalDemandLocalReward demand : ENNReal) /
+            (((Finset.univ.sum (profileBlockMargin k)).descFactorial
+              (totalDemand demand.1) : Nat) : ENNReal)) *
+          profileHighSkeletonAttachment row0 U demand := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+    row0 U hU]
+  apply Finset.sum_congr rfl
+  intro demand _
+  unfold profileHighSkeletonContribution
+  rw [profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre k U demand]
+  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  rw [ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials]
+  unfold profileHighSkeletonWitnessWeight
+  ac_rfl
+
+/-- Transport an explicit pointwise attachment bound through the exact finite
+quotient.  This is a weighted-sum inequality only; it asserts no probability
+bound and requires no positivity of an event mass. -/
+theorem sum_uniformProfile_signedOverlapReward_le_attainedWeightedQuotient_of_attachment_le
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U)
+    (majorant : ProfileCanonicalHighSkeleton k U â†’ ENNReal)
+    (hattachment : âˆ€ demand : ProfileCanonicalHighSkeleton k U,
+      profileHighSkeletonAttachment row0 U demand â‰¤ majorant demand) :
+    (âˆ‘ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) â‰¤
+      âˆ‘ L âˆˆ canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (((typeTableRowDescendingProduct (profileBlockMargin k) L *
+          typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
+            ENNReal) / (typeTableCellFactorialProduct L : ENNReal)) *
+          profileMajorizedPhysicalTableWeight U majorant L := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_attainedWeightedQuotient
+    row0 U hU]
+  apply Finset.sum_le_sum
+  intro L hL
+  apply mul_le_mul_right
+  simp only [profileExactPhysicalTableWeight,
+    profileMajorizedPhysicalTableWeight, hL, dite_true]
+  apply mul_le_mul_right
+  exact hattachment âŸ¨L, hLâŸ©
+
+/-- The explicit Section IX polymer specialization of the preceding quotient
+bound.  The strict positive-residual premise is exactly the premise required
+by the available finite polymer estimate. -/
+theorem sum_uniformProfile_signedOverlapReward_le_attainedPolymerWeightedQuotient
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 â‰¤ U)
+    (hpositive : âˆ€ demand : ProfileCanonicalHighSkeleton k U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))) :
+    (âˆ‘ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) â‰¤
+      âˆ‘ L âˆˆ canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (((typeTableRowDescendingProduct (profileBlockMargin k) L *
+          typeTableColumnDescendingProduct (profileBlockMargin k) L : Nat) :
+            ENNReal) / (typeTableCellFactorialProduct L : ENNReal)) *
+          profileMajorizedPhysicalTableWeight U
+            (canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U) L := by
+  apply sum_uniformProfile_signedOverlapReward_le_attainedWeightedQuotient_of_attachment_le
+    row0 U hU
+  intro demand
+  unfold profileHighSkeletonAttachment canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row0)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (hpositive demand)
+
+#print axioms profileCanonicalHighSkeleton_mem_attainedUnlabelledTypeTables
+#print axioms ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials
+#print axioms sum_uniformProfile_signedOverlapReward_eq_attainedWeightedQuotient
+#print axioms sum_uniformProfile_signedOverlapReward_eq_expandedAttainedWeightedQuotient
+#print axioms sum_uniformProfile_signedOverlapReward_le_attainedWeightedQuotient_of_attachment_le
+#print axioms sum_uniformProfile_signedOverlapReward_le_attainedPolymerWeightedQuotient
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ProfileAttainedWeightedQuotient
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ProfileAttainedWeightedQuotient
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 Source: Erdos625/Section8ResidualEventProbabilityNormalization.lean
 Normalized SHA-256: 990e7cf3762b2ab11af038a5b40ea767c7ecf7599d155d76024ee8f97997f363
@@ -51910,138 +52504,129 @@ END SOURCE MODULE: Erdos625.ColoringProfileCubicPhaseTail
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
-Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
-Normalized SHA-256: 5b58239960bdca8415f56a6299e81dab04ad3f7b56bbd3f12bc62b572c993648
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseCenteredEnvelope
+Source: Erdos625/ColoringProfilePhaseCenteredEnvelope.lean
+Normalized SHA-256: 7e15475f2e497211c982a15e8cb04e2d3e6b1034a3ccb6292891f4bf2d4f4ece
 ========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseCenteredEnvelope
+
+set_option warningAsError true
 
 /-!
-# Section IX: profile attachment polymer assembly
+# Exact centered form and a finite cubic phase envelope
 
-This transports the fixed-residual-fibre polymer estimate through the actual
-dependent canonical-demand family. The cap/no-return indicator remains inside
-`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
+This module exposes the selected profile phase in the manuscript's deficit
+coordinates without replacing the natural floor phase or the selected finite
+Gibbs tilt.  It also replaces the negative-limit premise of the cubic-tail
+adapter by a one-sided eventual estimate, which is the strictly smaller
+remaining analytic obligation needed by that adapter.
 -/
 
 namespace Erdos625
 
-open scoped BigOperators ENNReal
+open Filter
+open scoped Topology
 
 noncomputable section
 
-local instance instFintypeCanonicalResidualCellEventProfilePolymer
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
+/-- The selected phase objective, in exact finite deficit coordinates.  The
+support is the literal `phaseNat n + 1`, the target is the exact quotient
+`n / parts`, and no asymptotic or rounding replacement occurs. -/
+theorem profilePhaseObjective_eq_deficitCentered
+    (n : â„•) {parts : â„} (hparts : parts â‰  0) :
+    profilePhaseObjective n parts =
+      ((phaseNat n + 1 : â„•) : â„) * Real.log ((n : â„) + 1) +
+        ((n : â„) * Real.log (n : â„) - (n : â„) + parts -
+          parts * Real.log parts +
+          parts *
+            (profileDeficitAffineA (phaseNat n) +
+              profileDeficitAffineB (phaseNat n) *
+                profileDeficitTarget (phaseNat n) (n : â„) parts +
+              Real.log
+                (profileDeficitPartition (phaseNat n)
+                  (profileDeficitTilt (phaseNat n)
+                    (profileDeficitTarget (phaseNat n) (n : â„) parts))) -
+              profileDeficitTilt (phaseNat n)
+                  (profileDeficitTarget (phaseNat n) (n : â„) parts) *
+                profileDeficitTarget (phaseNat n) (n : â„) parts)) := by
+  rw [profilePhaseObjective_eq_selected_core n hparts]
+  have htarget :
+      (n : â„) / parts =
+        (phaseNat n : â„) -
+          profileDeficitTarget (phaseNat n) (n : â„) parts := by
+    simp [profileDeficitTarget]
+  rw [htarget, â† profileDeficitAffineB_sub_profileDeficitTilt]
+  rw [profileDualUpper_eq_deficitCentered (phaseNat n) hparts]
 
-/-- The finite polymer majorant attached to one attained canonical demand. -/
-noncomputable def canonicalDemandPolymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) : ENNReal :=
-  let witness := canonicalDemandReferenceWitness row col U demand
-  (∏ a : A, ∏ b : B,
-      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
-        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
-    (∏ C ∈ simpleBipartiteCycles A B,
-      (1 + edgeWeightOutsideENN
-        (residualQ (positiveDemandSupport demand.1) (U / 2)
-          (residualRowDegree witness) (residualColumnDegree witness))
-        (positiveDemandSupport demand.1) C))
+/-- A fixed negative cubic envelope is enough for the complete logarithmic
+phase envelope to tend to `-âˆž`.  This removes the need to identify an exact
+cubic-scale limit: only the displayed one-sided finite estimate remains. -/
+theorem phaseEnvelope_atBot_of_eventually_le_neg_cubic
+    (parts : â„• â†’ â„•) (epsilon : â„) (hepsilon : 0 < epsilon)
+    (hphase : âˆ€á¶  n : â„• in atTop,
+      profilePhaseObjective n (parts n : â„) â‰¤
+        -epsilon * (logOrder n) ^ 3) :
+    Tendsto
+      (fun n : â„• â†¦
+        profilePhaseObjective n (parts n : â„) + factorialLogErrorBound n)
+      atTop atBot := by
+  have hcorrection : âˆ€á¶  n : â„• in atTop,
+      factorialLogErrorBound n â‰¤
+        (epsilon / 2) * (logOrder n) ^ 3 := by
+    have hratio : âˆ€á¶  n : â„• in atTop,
+        factorialLogErrorBound n / (logOrder n) ^ 3 < epsilon / 2 :=
+      factorialLogErrorBound_div_logOrder_cubed_tendsto_zero.eventually
+        (Iio_mem_nhds (by linarith : (0 : â„) < epsilon / 2))
+    have hscalePos : âˆ€á¶  n : â„• in atTop, 0 < (logOrder n) ^ 3 :=
+      ((tendsto_pow_atTop (by norm_num : (3 : â„•) â‰  0)).comp
+        tendsto_logOrder_atTop).eventually (eventually_gt_atTop 0)
+    filter_upwards [hratio, hscalePos] with n hn hpos
+    calc
+      factorialLogErrorBound n =
+          (factorialLogErrorBound n / (logOrder n) ^ 3) *
+            (logOrder n) ^ 3 := (div_mul_cancelâ‚€ _ hpos.ne').symm
+      _ â‰¤ (epsilon / 2) * (logOrder n) ^ 3 :=
+        mul_le_mul_of_nonneg_right hn.le hpos.le
+  apply tendsto_atBot_mono' atTop (by
+    filter_upwards [hphase, hcorrection] with n hn hc
+    calc
+      profilePhaseObjective n (parts n : â„) + factorialLogErrorBound n â‰¤
+          (-epsilon) * (logOrder n) ^ 3 +
+            (epsilon / 2) * (logOrder n) ^ 3 := add_le_add hn hc
+      _ = (-(epsilon / 2)) * (logOrder n) ^ 3 := by ring)
+  exact (((tendsto_pow_atTop (by norm_num : (3 : â„•) â‰  0)).comp
+    tendsto_logOrder_atTop).const_mul_atTop_of_neg (by linarith))
 
-/-- Strict-regime transport over the full dependent tagged residual family. -/
-theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hpositive : ∀ demand : canonicalDemandImage row col U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness row col U demand))) :
-    (Finset.univ.sum fun z :
-      Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          canonicalResidualCellEvent witness U =>
-      uniformSigmaCanonicalDemandResidual row col U htotal z *
-        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
-      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
-        labelledWitnessIncidence demand.1 row col *
-          canonicalDemandPolymerMajorant row col U demand := by
-  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
-    row col U htotal]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-      (canonicalDemandReferenceWitness row col U demand))
-    (hpositive demand)
+/-- Consequently, the same explicit one-sided cubic estimate implies the
+concrete chromatic at-most tail.  The natural-number threshold sequence and
+all casts are left unchanged. -/
+theorem randomGraphMeasure_chromaticNumberAtMost_tendsto_zero_of_eventually_le_neg_cubic
+    (parts : â„• â†’ â„•) (epsilon : â„) (hepsilon : 0 < epsilon)
+    (hpartsPos : âˆ€á¶  n in atTop, 0 < parts n)
+    (hpartsLe : âˆ€á¶  n in atTop, parts n â‰¤ n)
+    (hphase : âˆ€á¶  n : â„• in atTop,
+      profilePhaseObjective n (parts n : â„) â‰¤
+        -epsilon * (logOrder n) ^ 3) :
+    Tendsto
+      (fun n : â„• â†¦ randomGraphMeasure n
+        {G : LabeledGraph n | chromaticNumberNat G â‰¤ parts n})
+      atTop (ð“ 0) := by
+  apply chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot
+    parts hpartsPos hpartsLe
+  exact phaseEnvelope_atBot_of_eventually_le_neg_cubic
+    parts epsilon hepsilon hphase
 
-/-- Ordered-profile specialization in the uniform strict residual regime. -/
-theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
-    {b n : ℕ} {k : ColoringProfile b}
-    (row₀ : OrderedProfilePartition n k) (U : ℕ)
-    (hU : 2 ≤ U)
-    (hpositive : ∀ demand : canonicalDemandImage
-        (profileBlockMargin k) (profileBlockMargin k) U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness (profileBlockMargin k)
-            (profileBlockMargin k) U demand))) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row₀ column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
-      ∑ demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U,
-        (canonicalDemandLocalReward demand : ENNReal) *
-          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
-            (profileBlockMargin k) *
-            canonicalDemandPolymerMajorant
-              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
-  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
-    row₀ U hU]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree
-      (profileBlockMargin_total_eq_self row₀)
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (hpositive demand)
-
-#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+#print axioms profilePhaseObjective_eq_deficitCentered
+#print axioms phaseEnvelope_atBot_of_eventually_le_neg_cubic
+#print axioms randomGraphMeasure_chromaticNumberAtMost_tendsto_zero_of_eventually_le_neg_cubic
 
 end
 
 end Erdos625
 
-end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseCenteredEnvelope
 /- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseCenteredEnvelope
 ========================================================================== -/
 
 /- ==========================================================================
@@ -52897,7 +53482,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 7ee93aade2aa502aba0b718cb13e34f47357c6d8ae376713e16cdd27771e78e4
+Normalized SHA-256: 91af50367ec7685abf93ee3c91c68701cee3672401edd3900190b3ff2254ab1e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

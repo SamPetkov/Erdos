@@ -86,6 +86,7 @@ import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
+import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -231,6 +232,7 @@ import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8TypeTableFeasibility
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
 import Erdos625.Section8AttainedWeightedQuotient
+import Erdos625.Section8ProfileAttainedWeightedQuotient
 import Erdos625.Section8WeightedSkeletonQuotient
 import Erdos625.Section8ProfileSkeletonWeight
 import Erdos625.Section8CanonicalDemandGlobalResidual
@@ -260,6 +262,7 @@ import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.ColoringProfileCubicPhaseTail
+import Erdos625.ColoringProfilePhaseCenteredEnvelope
 import Erdos625.Section9ProfileAttachmentPolymerAssembly
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
