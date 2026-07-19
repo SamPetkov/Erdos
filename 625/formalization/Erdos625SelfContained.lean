@@ -16402,6 +16402,145 @@ END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
+Source: Erdos625/FourGaussianTiltCorridor.lean
+Normalized SHA-256: 93f30615405dd4b098be9b306b57c420762e7b91ab40e43f4a2740bec7d1772f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourGaussianTiltCorridor
+
+/-!
+# Uniform tilt corridor for the four-point Gaussian profile
+
+This file ports the audited finite analytic leaf of the variable-target
+tilt argument into the repository's existing four-point exponential family.
+It deliberately reuses `q`, `fourGaussianScore`, `ProfileEntropyS4.mean`, and
+`ProfileEntropyS4.strictMono_mean`; in particular, it does not introduce a
+second exponential family or repeat the derivative/variance argument.
+
+The conclusions below are only the analytic endpoint bracket needed later in
+the proof of the uniform partition-ratio estimate.  They do not themselves
+establish that finite uniform estimate or any probabilistic conclusion.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators Topology
+
+set_option autoImplicit false
+
+noncomputable section
+
+private lemma fourGaussianMean_lower_value :
+    ProfileEntropyS4.mean fourGaussianScore (2 * q) =
+      (96 + 53 * Real.sqrt 2) / (40 + 17 * Real.sqrt 2) := by
+  unfold ProfileEntropyS4.mean ProfileEntropyS4.firstNumerator
+    ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+    fourGaussianScore ProfileEntropyS4.support
+  norm_num [Fin.sum_univ_four]
+  ring
+  unfold q
+  norm_num [Real.exp_neg, Real.exp_mul, Real.exp_log]
+  ring
+  rw [show (2 : ℝ) ^ (3 / 2 : ℝ) = 2 * Real.sqrt 2 by
+        rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add'] <;> norm_num,
+      show (2 : ℝ) ^ (5 / 2 : ℝ) = 2 ^ 2 * Real.sqrt 2 by
+        rw [Real.sqrt_eq_rpow, ← Real.rpow_natCast, ← Real.rpow_add'] <;>
+          norm_num]
+  ring
+  grind
+
+private lemma fourGaussianMean_lower_endpoint :
+    ProfileEntropyS4.mean fourGaussianScore (2 * q) < 2 / q := by
+  rw [fourGaussianMean_lower_value]
+  have hqpos : 0 < q := q_pos
+  have hqlt : q < 5 / 7 := by
+    unfold q
+    linarith [Real.log_two_lt_d9]
+  have hsqrt : Real.sqrt 2 < 2 := by
+    nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2),
+      Real.sqrt_nonneg 2]
+  have hden : 0 < 40 + 17 * Real.sqrt 2 := by positivity
+  rw [div_lt_div_iff₀ hden hqpos]
+  have hmean :
+      (96 + 53 * Real.sqrt 2) * 5 <
+        14 * (40 + 17 * Real.sqrt 2) := by
+    linarith
+  nlinarith
+
+private lemma fourGaussianMean_upper_value :
+    ProfileEntropyS4.mean fourGaussianScore (9 * q / 2) = 86 / 21 := by
+  unfold ProfileEntropyS4.mean ProfileEntropyS4.firstNumerator
+    ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+    fourGaussianScore ProfileEntropyS4.support q
+  norm_num [Fin.sum_univ_four]
+  ring_nf
+  norm_num
+  norm_num [Real.exp_mul, Real.exp_log]
+
+private lemma fourGaussianMean_upper_endpoint :
+    1 + 2 / q <
+      ProfileEntropyS4.mean fourGaussianScore (9 * q / 2) := by
+  rw [fourGaussianMean_upper_value]
+  have hqpos : 0 < q := q_pos
+  have hq : 42 / 65 < q := by
+    unfold q
+    linarith [Real.log_two_gt_d9]
+  have hdiv : 2 / q < 65 / 21 := by
+    rw [div_lt_iff₀ hqpos]
+    nlinarith
+  linarith
+
+/-- **Uniform four-size tilt corridor (analytic leaf).**
+
+For every target in the full manuscript interval, any tilt whose existing
+four-point Gaussian mean equals that target lies in the displayed strict
+corridor.  The target remains variable; no selected phase value is silently
+substituted.  This is an analytic input to, not a proof of, the later finite
+uniform partition-ratio estimate.
+-/
+theorem uniform_four_size_tilt_corridor
+    (target lambda : Real)
+    (hTargetLower : 2 / q ≤ target)
+    (hTargetUpper : target ≤ 1 + 2 / q)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda = target) :
+    2 * q < lambda ∧ lambda < 9 * q / 2 := by
+  constructor <;> contrapose! hMean
+  · exact ne_of_lt
+      (lt_of_le_of_lt
+        ((ProfileEntropyS4.strictMono_mean fourGaussianScore).monotone hMean)
+        (lt_of_lt_of_le fourGaussianMean_lower_endpoint hTargetLower))
+  · refine ne_of_gt
+      (lt_of_lt_of_le ?_
+        ((ProfileEntropyS4.strictMono_mean fourGaussianScore).monotone hMean))
+    exact lt_of_le_of_lt hTargetUpper fourGaussianMean_upper_endpoint
+
+/-- The original `delta` parameterization of the same variable-target
+analytic corridor. -/
+theorem uniform_four_size_tilt_corridor_for_delta
+    (delta lambda : Real)
+    (hDeltaLower : 0 ≤ delta)
+    (hDeltaUpper : delta ≤ 1)
+    (hMean :
+      ProfileEntropyS4.mean fourGaussianScore lambda = 1 + 2 / q - delta) :
+    2 * q < lambda ∧ lambda < 9 * q / 2 := by
+  apply uniform_four_size_tilt_corridor (1 + 2 / q - delta) lambda
+  · linarith
+  · linarith
+  · exact hMean
+
+#print axioms uniform_four_size_tilt_corridor
+#print axioms uniform_four_size_tilt_corridor_for_delta
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourGaussianTiltCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.SignedProfileWitness
 Source: Erdos625/SignedProfileWitness.lean
 Normalized SHA-256: 802dc734cdeb0f1415fe483e62d4f2d8f4b4aa66769ad7a7a285ab7a9416fbd8
@@ -49097,7 +49236,7 @@ END SOURCE MODULE: Erdos625.Section8TypeTableFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
-Normalized SHA-256: c48c90682f539fe5249e8792d63f5be4ad2a2459da64f3b19e6eb5df5bffb445
+Normalized SHA-256: b9f9dc738730c65dde1b3154b6787e40dfc5d4c311c87bc4884bdd584f7942fb
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
 
@@ -49230,6 +49369,40 @@ theorem sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
       (Finset.prod_ne_zero_iff.mpr fun _ _ =>
         Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
 
+/-- Summing the fixed-exposure factor over the physical unlabelled skeleton
+fibre has exactly one cell-factorial denominator.  `hfit` is needed only to
+make the ambient descending factorial nonzero before cancellation; no column
+feasibility, positivity, or estimate is assumed. -/
+theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (hfit : totalDemand L <= Finset.univ.sum k)
+    (residualWeight : ENNReal) :
+    (∑ _ : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L},
+      residualWeight /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) : Nat) : ENNReal)) =
+      (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : ENNReal) /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) *
+          typeTableCellFactorialProduct L : Nat) : ENNReal)) * residualWeight := by
+  simp +decide [div_eq_mul_inv, mul_assoc, mul_comm]
+  have h_card :
+      (Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) *
+        (typeTableCellFactorialProduct L : ENNReal) =
+      (typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : ENNReal) := by
+    norm_cast
+    convert cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L using 1
+  simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
+  simp +decide [← mul_assoc, ← h_card]
+  by_cases h : typeTableCellFactorialProduct L = 0 <;>
+    simp_all +decide [mul_assoc, mul_comm, mul_left_comm]
+  · simp_all +decide [typeTableCellFactorialProduct, Finset.prod_eq_zero_iff,
+      Nat.factorial_ne_zero]
+  · simp +decide [← mul_assoc, ENNReal.mul_inv_cancel, h]
+
 /-- Cancellation form of the exact `W(L)` ratio: there is precisely one
 cell-factorial denominator, and multiplying it back gives the two endpoint
 descending-factorial products. -/
@@ -49253,6 +49426,7 @@ theorem typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 
 end
@@ -49949,7 +50123,7 @@ END SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
 Source: Erdos625/Section8CanonicalEventProbabilityFactorization.lean
-Normalized SHA-256: d72c1d3805ecdca1bce9625123061a8b6d06e8c0f8539c132d1ea03e136b9fe5
+Normalized SHA-256: 5dd2501baf133dee8f9925c8be65cd81a09bbead4d47101b2e6b6c5e8a582f09
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
 
@@ -49984,6 +50158,14 @@ local instance instFintypeCanonicalResidualCellEventProbabilityFactorization
     Fintype (canonicalResidualCellEvent witness U) :=
   Fintype.ofFinite _
 
+local instance instFintypeFixedWitnessCanonicalDemandEventProbabilityFactorization
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (fixedWitnessCanonicalDemandEvent witness U) :=
+  Fintype.ofFinite _
+
 private theorem card_factorial_factorization
     (m J W R : ℕ) (hJ : J ≤ m) :
     ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
@@ -50014,6 +50196,52 @@ private theorem card_factorial_factorization
         (c := (m.descFactorial J : ℝ≥0∞))
         (d := ((m - J).factorial : ℝ≥0∞))
         (Or.inl hdescZero) (Or.inl hdescTop)
+
+/-- Under the uniform ambient configuration law, one fixed labelled
+canonical witness has the exact extension incidence `1 / (m)_J` times the
+uniform residual cap/no-return event probability. The strict high-demand
+condition identifies this fixed canonical fibre with the residual event.
+
+This is only a fixed-witness probability factorization. It does not sum over
+physical skeletons or supply any quantitative residual-event estimate. -/
+theorem uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure
+        (fixedWitnessCanonicalDemandEvent witness U) =
+      (1 / (((∑ a, row a).descFactorial (totalDemand demand) : ℕ) : ℝ≥0∞)) *
+        ((uniformConfigurationMatching
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)).toOuterMeasure
+          (canonicalResidualCellEvent witness U)) := by
+  have hJ : totalDemand demand ≤ ∑ a, row a :=
+    totalDemand_le_rowTotal_of_witness witness
+  have hres : (∑ a, residualRowDegree witness a) =
+      ∑ b, residualColumnDegree witness b :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness
+  have hrem : (∑ a, residualRowDegree witness a) =
+      (∑ a, row a) - totalDemand demand :=
+    sum_residualRowDegree_eq_rowTotal_sub_totalDemand witness
+  rw [uniformConfigurationMatching_event_apply row col htotal
+    (Subtype.val '' fixedWitnessCanonicalDemandEvent witness U)]
+  rw [show Fintype.card (Subtype.val '' fixedWitnessCanonicalDemandEvent witness U) =
+      Fintype.card (fixedWitnessCanonicalDemandEvent witness U) from
+    Fintype.card_congr (Equiv.Set.image Subtype.val
+      (fixedWitnessCanonicalDemandEvent witness U) Subtype.val_injective).symm]
+  rw [show Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
+      Fintype.card (canonicalResidualCellEvent witness U) from
+    Fintype.card_congr
+      (fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh)]
+  rw [uniformConfigurationMatching_canonicalResidualCellEvent_apply
+    witness U hres, hrem]
+  simpa only [Nat.one_mul, Nat.cast_one] using
+    (card_factorial_factorization
+      (∑ a, row a) (totalDemand demand) 1
+      (Fintype.card ↑(canonicalResidualCellEvent witness U)) hJ)
 
 /-- Exact finite factorization of the ambient canonical-demand event into its
 normalised labelled-witness incidence and the residual canonical-event
@@ -50053,6 +50281,7 @@ theorem uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_resid
     (Fintype.card ↑(canonicalResidualCellEvent witness₀ U)) hJ
 
 #print axioms uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+#print axioms uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
 
 end
 
@@ -54969,7 +55198,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 4b981f4021e41c7f9ae1b6f7aec0508c812f276d7d8caae46fef429e018ebdb7
+Normalized SHA-256: a42dd2a52836fa4ba07d03fa0d57a72f57f6b1a19ea5badb3adc800ab6eae9cc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -55255,6 +55484,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
+#print axioms Erdos625.uniform_four_size_tilt_corridor
+#print axioms Erdos625.uniform_four_size_tilt_corridor_for_delta
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -55659,12 +55890,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms Erdos625.sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
@@ -55785,7 +56018,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 3f720ab85f208c7041bcf5e03279273f281850a0e20d813956e1003298af37d9
+Normalized SHA-256: bc6f4f8d9f89c5f7f6e68508b947ea46654bbc4609fbf1fbdd9421e91a473241
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

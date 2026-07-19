@@ -79,6 +79,7 @@ import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
+import Erdos625.FourGaussianTiltCorridor
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -536,6 +537,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
+#print axioms Erdos625.uniform_four_size_tilt_corridor
+#print axioms Erdos625.uniform_four_size_tilt_corridor_for_delta
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -940,12 +943,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms Erdos625.sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand

@@ -1,4 +1,5 @@
 import Erdos625.Section8UnlabelledTypedSkeleton
+import Erdos625.ConfigurationModelProbability
 import Mathlib.Tactic
 
 /-!
@@ -130,6 +131,40 @@ theorem sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
       (Finset.prod_ne_zero_iff.mpr fun _ _ =>
         Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
 
+/-- Summing the fixed-exposure factor over the physical unlabelled skeleton
+fibre has exactly one cell-factorial denominator.  `hfit` is needed only to
+make the ambient descending factorial nonzero before cancellation; no column
+feasibility, positivity, or estimate is assumed. -/
+theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (hfit : totalDemand L <= Finset.univ.sum k)
+    (residualWeight : ENNReal) :
+    (∑ _ : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L},
+      residualWeight /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) : Nat) : ENNReal)) =
+      (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : ENNReal) /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) *
+          typeTableCellFactorialProduct L : Nat) : ENNReal)) * residualWeight := by
+  simp +decide [div_eq_mul_inv, mul_assoc, mul_comm]
+  have h_card :
+      (Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) *
+        (typeTableCellFactorialProduct L : ENNReal) =
+      (typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : ENNReal) := by
+    norm_cast
+    convert cast_card_unlabelledSkeleton_fibre_mul_cellFactorials k ell L using 1
+  simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
+  simp +decide [← mul_assoc, ← h_card]
+  by_cases h : typeTableCellFactorialProduct L = 0 <;>
+    simp_all +decide [mul_assoc, mul_comm, mul_left_comm]
+  · simp_all +decide [typeTableCellFactorialProduct, Finset.prod_eq_zero_iff,
+      Nat.factorial_ne_zero]
+  · simp +decide [← mul_assoc, ENNReal.mul_inv_cancel, h]
+
 /-- Cancellation form of the exact `W(L)` ratio: there is precisely one
 cell-factorial denominator, and multiplying it back gives the two endpoint
 descending-factorial products. -/
@@ -153,6 +188,7 @@ theorem typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 
 end
