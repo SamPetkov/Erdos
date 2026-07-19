@@ -208,6 +208,7 @@ import Erdos625.Section9ResidualLambdaCubic
 import Erdos625.Section9ResidualLambdaTotalBound
 import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.Section9SmallResidualAttachmentBound
+import Erdos625.Section9CanonicalDemandSmallResidualBound
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
 import Erdos625.EvenMatchingRestriction

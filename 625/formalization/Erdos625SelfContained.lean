@@ -46993,6 +46993,267 @@ END SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
+Normalized SHA-256: bd9688440743399a9bc9cdc25618e36aa9b3c707fc21c91ff9974e59931ebaf4
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+
+/-!
+# Section IX: profile attachment polymer assembly
+
+This transports the fixed-residual-fibre polymer estimate through the actual
+dependent canonical-demand family. The cap/no-return indicator remains inside
+`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventProfilePolymer
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- The finite polymer majorant attached to one attained canonical demand. -/
+noncomputable def canonicalDemandPolymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  let witness := canonicalDemandReferenceWitness row col U demand
+  (∏ a : A, ∏ b : B,
+      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
+    (∏ C ∈ simpleBipartiteCycles A B,
+      (1 + edgeWeightOutsideENN
+        (residualQ (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness))
+        (positiveDemandSupport demand.1) C))
+
+/-- Strict-regime transport over the full dependent tagged residual family. -/
+theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hpositive : ∀ demand : canonicalDemandImage row col U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          canonicalDemandPolymerMajorant row col U demand := by
+  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    row col U htotal]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+      (canonicalDemandReferenceWitness row col U demand))
+    (hpositive demand)
+
+/-- Ordered-profile specialization in the uniform strict residual regime. -/
+theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U)
+    (hpositive : ∀ demand : canonicalDemandImage
+        (profileBlockMargin k) (profileBlockMargin k) U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      ∑ demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+    row₀ U hU]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row₀)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (hpositive demand)
+
+/-- Residual stub mass attached to an attained canonical demand. -/
+noncomputable def canonicalDemandResidualTotal
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ℕ :=
+  ∑ a, residualRowDegree
+    (canonicalDemandReferenceWitness row col U demand) a
+
+/-- The raw attachment summand in the exact canonical decomposition. The
+cap/no-return indicator remains inside the numerator. -/
+noncomputable def canonicalDemandRawAttachmentTerm
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) *
+    (labelledWitnessIncidence demand.1 row col *
+      residualActualAttachmentNumerator
+        (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (residualColumnDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+          (canonicalDemandReferenceWitness row col U demand)))
+
+/-- Exact two-regime reindexing of the attained canonical-demand family. The
+zero-residual and positive-residual sums retain the literal raw attachment
+numerator; no event probability is divided out. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand = 0),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) := by
+  classical
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
+  unfold canonicalDemandRawAttachmentTerm
+  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ
+    (fun demand : canonicalDemandImage (profileBlockMargin k)
+      (profileBlockMargin k) U =>
+        canonicalDemandResidualTotal (profileBlockMargin k)
+          (profileBlockMargin k) U demand = 0)]
+  simp only [Nat.pos_iff_ne_zero]
+
+#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+#print axioms sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
+Source: Erdos625/Section9CanonicalDemandSmallResidualBound.lean
+Normalized SHA-256: 7c45229803da62bc61d3bfaa14110a73d683fd54f54b738807adaa0a5833bb35
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
+
+/-!
+# Section IX: canonical small-residual attachment specialization
+
+The deterministic small-mass estimate is applied to the residual degrees of
+one attained canonical demand.  The conclusion keeps the exact bare skeleton
+weight outside the raw attachment bound, as required by the two-regime sum.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One canonical raw attachment term is at most its exact bare skeleton
+factor times the deterministic small-residual exponential. -/
+theorem canonicalDemandRawAttachmentTerm_le_smallResidualBound
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    canonicalDemandRawAttachmentTerm row col U htotal demand ≤
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 row col *
+          (2 : ENNReal) ^
+            (U * canonicalDemandResidualTotal row col U demand / 2)) := by
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hmatching :
+      IsBipartiteMatching (positiveDemandSupport demand.1) :=
+    positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+      U hrowCap hcolCap demand
+  have hresidualTotal :
+      (∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness
+  have hsmall := residualActualAttachmentNumerator_le_two_pow_of_small_mass
+    (positiveDemandSupport demand.1) (U / 2) U
+    (canonicalDemandResidualTotal row col U demand)
+    (residualRowDegree witness) (residualColumnDegree witness)
+    hresidualTotal hmatching rfl (by
+      simp only [canonicalDemandResidualTotal, witness])
+  unfold canonicalDemandRawAttachmentTerm
+  exact mul_le_mul_left' (mul_le_mul_left' hsmall _) _
+
+#print axioms canonicalDemandRawAttachmentTerm_le_smallResidualBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.WeightedCauchyTools
 Source: Erdos625/WeightedCauchyTools.lean
 Normalized SHA-256: 17c44eaa169b97f8ecd92badd3e29ae85c11e8715318fab8bbd07a91e0cc1017
@@ -49278,203 +49539,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
-Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
-Normalized SHA-256: bd9688440743399a9bc9cdc25618e36aa9b3c707fc21c91ff9974e59931ebaf4
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
-
-/-!
-# Section IX: profile attachment polymer assembly
-
-This transports the fixed-residual-fibre polymer estimate through the actual
-dependent canonical-demand family. The cap/no-return indicator remains inside
-`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-local instance instFintypeCanonicalResidualCellEventProfilePolymer
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-/-- The finite polymer majorant attached to one attained canonical demand. -/
-noncomputable def canonicalDemandPolymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) : ENNReal :=
-  let witness := canonicalDemandReferenceWitness row col U demand
-  (∏ a : A, ∏ b : B,
-      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
-        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
-    (∏ C ∈ simpleBipartiteCycles A B,
-      (1 + edgeWeightOutsideENN
-        (residualQ (positiveDemandSupport demand.1) (U / 2)
-          (residualRowDegree witness) (residualColumnDegree witness))
-        (positiveDemandSupport demand.1) C))
-
-/-- Strict-regime transport over the full dependent tagged residual family. -/
-theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hpositive : ∀ demand : canonicalDemandImage row col U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness row col U demand))) :
-    (Finset.univ.sum fun z :
-      Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          canonicalResidualCellEvent witness U =>
-      uniformSigmaCanonicalDemandResidual row col U htotal z *
-        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
-      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
-        labelledWitnessIncidence demand.1 row col *
-          canonicalDemandPolymerMajorant row col U demand := by
-  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
-    row col U htotal]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-      (canonicalDemandReferenceWitness row col U demand))
-    (hpositive demand)
-
-/-- Ordered-profile specialization in the uniform strict residual regime. -/
-theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
-    {b n : ℕ} {k : ColoringProfile b}
-    (row₀ : OrderedProfilePartition n k) (U : ℕ)
-    (hU : 2 ≤ U)
-    (hpositive : ∀ demand : canonicalDemandImage
-        (profileBlockMargin k) (profileBlockMargin k) U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness (profileBlockMargin k)
-            (profileBlockMargin k) U demand))) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row₀ column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
-      ∑ demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U,
-        (canonicalDemandLocalReward demand : ENNReal) *
-          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
-            (profileBlockMargin k) *
-            canonicalDemandPolymerMajorant
-              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
-  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
-    row₀ U hU]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree
-      (profileBlockMargin_total_eq_self row₀)
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (hpositive demand)
-
-/-- Residual stub mass attached to an attained canonical demand. -/
-noncomputable def canonicalDemandResidualTotal
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) : ℕ :=
-  ∑ a, residualRowDegree
-    (canonicalDemandReferenceWitness row col U demand) a
-
-/-- The raw attachment summand in the exact canonical decomposition. The
-cap/no-return indicator remains inside the numerator. -/
-noncomputable def canonicalDemandRawAttachmentTerm
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (demand : canonicalDemandImage row col U) : ENNReal :=
-  (canonicalDemandLocalReward demand : ENNReal) *
-    (labelledWitnessIncidence demand.1 row col *
-      residualActualAttachmentNumerator
-        (positiveDemandSupport demand.1) (U / 2)
-        (residualRowDegree
-          (canonicalDemandReferenceWitness row col U demand))
-        (residualColumnDegree
-          (canonicalDemandReferenceWitness row col U demand))
-        (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-          (canonicalDemandReferenceWitness row col U demand)))
-
-/-- Exact two-regime reindexing of the attained canonical-demand family. The
-zero-residual and positive-residual sums retain the literal raw attachment
-numerator; no event probability is divided out. -/
-theorem sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
-    {b n : ℕ} {k : ColoringProfile b}
-    (row₀ : OrderedProfilePartition n k) (U : ℕ)
-    (hU : 2 ≤ U) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row₀ column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
-      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U =>
-            canonicalDemandResidualTotal (profileBlockMargin k)
-              (profileBlockMargin k) U demand = 0),
-        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
-          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) +
-      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U =>
-            0 < canonicalDemandResidualTotal (profileBlockMargin k)
-              (profileBlockMargin k) U demand),
-        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
-          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) := by
-  classical
-  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
-  unfold canonicalDemandRawAttachmentTerm
-  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ
-    (fun demand : canonicalDemandImage (profileBlockMargin k)
-      (profileBlockMargin k) U =>
-        canonicalDemandResidualTotal (profileBlockMargin k)
-          (profileBlockMargin k) U demand = 0)]
-  simp only [Nat.pos_iff_ne_zero]
-
-#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
-#print axioms sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
 ========================================================================== -/
 
 /- ==========================================================================
@@ -55464,7 +55528,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: acfa961356afd83be3d19e0d604548100623de8e1544bfe1f5b8f20ebdd312b6
+Normalized SHA-256: 8ac365898c124d411bf057c65ee126e8a3b566f9264ed828c0e1b6310d572b56
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
