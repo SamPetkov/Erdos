@@ -1,5 +1,6 @@
 import Erdos625.SignedFourSizeObjective
 import Erdos625.ExtendedGaussianProfile
+import Erdos625.ExplicitPartitionRatio
 import Mathlib.Tactic
 
 /-!
@@ -143,6 +144,21 @@ theorem entropy_loss_lt_log_153_div_100_of_dual_ratio
         Real.log (153 / 100 : ℝ) :=
     Real.strictMonoOn_log h_ratio_pos (by norm_num) h_partition_ratio_bound
   exact h_loss.trans_lt h_log_ratio_lt
+
+/-- At the manuscript-selected tilt and its induced target, the numerical
+partition-ratio input is unconditional. -/
+theorem entropy_loss_lt_log_153_div_100_at_selected_tilt
+    {unrestrictedEntropy : ℝ}
+    (h_unrestricted_dual_upper :
+      unrestrictedEntropy ≤ extendedGaussianDualTestValue
+        signedFourSelectedTarget signedFourSelectedTilt) :
+    unrestrictedEntropy -
+        ProfileEntropyS4.optimizedValue fourGaussianScore
+          signedFourSelectedTarget <
+      Real.log (153 / 100 : ℝ) := by
+  exact entropy_loss_lt_log_153_div_100_of_dual_ratio
+    selectedTilt_mean_eq_target h_unrestricted_dual_upper
+    selectedTilt_partition_ratio_lt
 
 /-- A complete conditional bridge from the two named missing analytic inputs
 to the explicit signed four-size margin `log (200 / 153)`. -/

@@ -193,12 +193,42 @@ theorem signed_margin_gt_log_200_div_153_of_truncations
       hexceptional hp hfinite hmass hmoment hentropy
   · exact h_partition_ratio_bound
 
+/-- At the selected tilt/target, truncation transport gives the signed margin
+without any numerical partition-ratio hypothesis. -/
+theorem signed_margin_gt_log_200_div_153_of_truncations_selected
+    {unrestrictedEntropy exceptional : ℝ} {p : ℕ → ℝ}
+    (hexceptional : 0 ≤ exceptional)
+    (hp : ∀ d, 0 ≤ p d)
+    (hfinite : 0 ≤ exceptional → (∀ d, 0 ≤ p d) → ∀ N,
+      extendedGaussianEntropyTruncation q exceptional p N ≤
+        extendedGaussianReferenceMassTruncation q signedFourSelectedTilt N -
+          extendedGaussianMassTruncation exceptional p N +
+          Real.log (extendedGaussianPartition q signedFourSelectedTilt) *
+            extendedGaussianMassTruncation exceptional p N -
+          signedFourSelectedTilt *
+            extendedGaussianMomentTruncation exceptional p N)
+    (hmass : Tendsto (extendedGaussianMassTruncation exceptional p)
+      atTop (nhds 1))
+    (hmoment : Tendsto (extendedGaussianMomentTruncation exceptional p)
+      atTop (nhds signedFourSelectedTarget))
+    (hentropy : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+      atTop (nhds unrestrictedEntropy)) :
+    Real.log (200 / 153 : ℝ) <
+      q - (unrestrictedEntropy -
+        ProfileEntropyS4.optimizedValue fourGaussianScore
+          signedFourSelectedTarget) := by
+  apply signed_margin_gt_log_200_div_153_of_dual_ratio
+    selectedTilt_mean_eq_target
+  · exact extendedGaussianEntropy_le_dual_of_truncations_q
+      hexceptional hp hfinite hmass hmoment hentropy
+  · exact selectedTilt_partition_ratio_lt
+
 end
 
 #print axioms tendsto_extendedGaussianReferenceMassTruncation
 #print axioms extendedGaussianEntropy_le_dual_of_truncations
 #print axioms extendedGaussianEntropy_le_dual_of_truncations_q
 #print axioms signed_margin_gt_log_200_div_153_of_truncations
+#print axioms signed_margin_gt_log_200_div_153_of_truncations_selected
 
 end Erdos625
-
