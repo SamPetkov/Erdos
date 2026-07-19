@@ -230,7 +230,9 @@ import Erdos625.Section8TypedPartialMatching
 import Erdos625.Section8UnlabelledTypedSkeleton
 import Erdos625.Section8TypeTableFeasibility
 import Erdos625.Section8PhysicalSkeletonFibreGrouping
+import Erdos625.Section8AttainedWeightedQuotient
 import Erdos625.Section8WeightedSkeletonQuotient
+import Erdos625.Section8ProfileSkeletonWeight
 import Erdos625.Section8CanonicalDemandGlobalResidual
 import Erdos625.Section9GlobalCanonicalResidualBridge
 import Erdos625.Section9CanonicalSupportMatching
@@ -257,6 +259,8 @@ import Erdos625.ColoringProfileDualAsymptotic
 import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ColoringProfilePhaseEnvelopeTail
+import Erdos625.ColoringProfileCubicPhaseTail
+import Erdos625.Section9ProfileAttachmentPolymerAssembly
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 
