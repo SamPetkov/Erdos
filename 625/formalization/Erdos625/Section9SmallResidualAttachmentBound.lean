@@ -58,8 +58,14 @@ theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
     · intro _ _
       rw [hR]
       omega
-    · rw [← Fintype.sum_prod_type,
-          sum_configurationCellCount_all matching, hm]
+    · calc
+        (∑ a, ∑ b, configurationCellCount matching a b) =
+            ∑ p : A × B,
+              configurationCellCount matching p.1 p.2 := by
+          exact (Fintype.sum_prod_type fun p : A × B ↦
+            configurationCellCount matching p.1 p.2).symm
+        _ = ∑ a, row a := sum_configurationCellCount_all matching
+        _ = m := hm
     · dsimp only [rank]
       exact
         cycleRank_matching_union_configurationResidualSupport_le_half_m₀
