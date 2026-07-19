@@ -265,6 +265,12 @@ import Erdos625.ColoringProfileCubicPhaseTail
 import Erdos625.ColoringProfilePhaseCenteredEnvelope
 import Erdos625.Section9ProfileAttachmentPolymerAssembly
 import Erdos625.Section9ZeroResidualMatchingAttachment
+import Erdos625.Section9MidpointSecondMomentSeed
+import Erdos625.Section9CanonicalLambda
+import Erdos625.Section9CanonicalTwoRegimeSeed
+import Erdos625.Section9RealSecondMomentSeed
+import Erdos625.Section9CanonicalPolymerAggregation
+import Erdos625.Section9SeparatedTwoRegimeSeed
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 

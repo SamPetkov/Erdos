@@ -53151,6 +53151,1045 @@ END SOURCE MODULE: Erdos625.Section9ZeroResidualMatchingAttachment
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MidpointSecondMomentSeed
+Source: Erdos625/Section9MidpointSecondMomentSeed.lean
+Normalized SHA-256: 7282f0f7a8aee177528ee02b010d873d487a7c2f84592d89b0a86bda445ecd8c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MidpointSecondMomentSeed
+
+/-!
+# Section IX: concrete second-moment seed endpoint and analytic dependency cut
+
+This module joins the exact Section VI normalized overlap law to the attained
+canonical-demand decomposition of Sections VIII--IX.  In particular, the
+canonical demand is the one *attained by the literal configuration matching*;
+it is neither replaced by an independent table nor assigned a uniform law.
+
+The first theorem below is an unconditional finite identity for the normalized
+second moment.  The second records an unconditional polymer majorization,
+including the zero-residual branch.
+
+The declaration `MidpointCanonicalPolymerEstimate` is the dependency cut, not
+an assumption of a theorem advertised as Proposition 9.2.  It states the first
+missing analytic estimate with all quantifiers visible: after a concrete
+midpoint profile sequence and its ordered realizations have been constructed,
+the literal attained-demand polymer sum must have a nonnegative exponent which
+is little-o of `n / log(n)^4`.  No theorem in this file asserts that declaration.
+-/
+
+namespace Erdos625
+
+open Filter MeasureTheory
+open scoped BigOperators ENNReal Topology
+
+noncomputable section
+
+/-- The literal attained-canonical-demand attachment sum.  The incidence is
+its exact labelled-witness mass and each residual factor retains the
+cap/no-return indicator through `profileHighSkeletonAttachment`. -/
+noncomputable def midpointCanonicalAttachmentSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat) : ENNReal :=
+  ∑ demand : ProfileCanonicalHighSkeleton k U,
+    profileHighSkeletonContribution row₀ U demand
+
+/-- The literal attained-demand polymer majorant.  This is not a product-law
+surrogate: the sum ranges over `canonicalDemandImage`, and each summand carries
+its exact labelled-witness incidence. -/
+noncomputable def midpointCanonicalPolymerSum
+    {b n : Nat} {k : ColoringProfile b}
+    (_row₀ : OrderedProfilePartition n k) (U : Nat) : ENNReal :=
+  ∑ demand : ProfileCanonicalHighSkeleton k U,
+    (canonicalDemandLocalReward demand : ENNReal) *
+      (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+        (profileBlockMargin k) *
+        canonicalDemandPolymerMajorant
+          (profileBlockMargin k) (profileBlockMargin k) U demand)
+
+/-- The literal uniform ordered-column expectation is the corresponding
+cardinality-normalized finite sum. -/
+lemma sum_uniformOrderedProfile_reward_eq_div
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      (∑ column : OrderedProfilePartition n k,
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) /
+        (Fintype.card (OrderedProfilePartition n k) : ENNReal) := by
+  unfold uniformOrderedProfilePartition
+  simp only [PMF.uniformOfFintype_apply]
+  rw [ENNReal.div_eq_inv_mul, Finset.mul_sum]
+
+/-- Unconditional finite endpoint: the graph-level normalized signed second
+moment is exactly the attained canonical-demand attachment sum. -/
+theorem normalizedSignedProfileSecondMoment_eq_midpointCanonicalAttachmentSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U) :
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 =
+      midpointCanonicalAttachmentSum row₀ U := by
+  calc
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 =
+        signedProfileSecondMomentTableSumENNReal row₀ :=
+      normalizedSignedProfileSecondMoment_eq_tableSum row₀
+    _ = (∑ column : OrderedProfilePartition n k,
+          (signedOverlapReward
+            (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) /
+          (Fintype.card (OrderedProfilePartition n k) : ENNReal) :=
+      (orderedSignedOverlapRewardAverage_eq_tableSum row₀).symm
+    _ = ∑ column : OrderedProfilePartition n k,
+          uniformOrderedProfilePartition row₀ column *
+            (signedOverlapReward
+              (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal) :=
+      (sum_uniformOrderedProfile_reward_eq_div row₀).symm
+    _ = midpointCanonicalAttachmentSum row₀ U := by
+      exact sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+        row₀ U hU
+
+/-- The exact normalized second moment is bounded by the literal attained-demand
+polymer sum in both residual regimes. -/
+theorem normalizedSignedProfileSecondMoment_le_midpointCanonicalPolymerSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U)
+    (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U) :
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 ≤
+      midpointCanonicalPolymerSum row₀ U := by
+  calc
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 =
+        ∑ column : OrderedProfilePartition n k,
+          uniformOrderedProfilePartition row₀ column *
+            (signedOverlapReward
+              (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal) := by
+      rw [normalizedSignedProfileSecondMoment_eq_midpointCanonicalAttachmentSum
+        row₀ U hU]
+      exact (sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+        row₀ U hU).symm
+    _ ≤ midpointCanonicalPolymerSum row₀ U := by
+      exact sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum_unconditional
+        row₀ U hU hcap
+
+/-- A finite explicit exponential endpoint.  This theorem performs no
+analytic estimation: its premises are exactly the finite polymer bound proved
+above and a displayed bound on the literal canonical polymer sum. -/
+theorem normalizedSignedProfileSecondMoment_le_exp_of_polymerSum
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : Nat) (hU : 2 ≤ U)
+    (Lambda : Real)
+    (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+    (hpolymer : midpointCanonicalPolymerSum row₀ U ≤
+      ENNReal.ofReal (Real.exp Lambda)) :
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 ≤
+      ENNReal.ofReal (Real.exp Lambda) := by
+  exact (normalizedSignedProfileSecondMoment_le_midpointCanonicalPolymerSum
+    row₀ U hU hcap).trans hpolymer
+
+/-- **Exact first missing analytic estimate.**  For a proposed concrete
+midpoint profile sequence, this asks for one explicit exponent sequence which
+simultaneously bounds the full attained-demand polymer sum, is eventually
+nonnegative, and is little-o of the Section X amplification scale.
+
+The quantification over every `n` in the exponential estimate is deliberate;
+only nonnegativity and the asymptotic comparison are eventual.  The canonical
+demand law remains inside `midpointCanonicalPolymerSum`.
+-/
+def MidpointCanonicalPolymerEstimate
+    (b U : Nat → Nat)
+    (k : (n : Nat) → ColoringProfile (b n))
+    (row₀ : (n : Nat) → OrderedProfilePartition n (k n))
+    (Lambda : Nat → Real) : Prop :=
+  (∀ n,
+    midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+      ENNReal.ofReal (Real.exp (Lambda n))) ∧
+  (∀ᶠ n in atTop, 0 ≤ Lambda n) ∧
+  Lambda =o[atTop] amplificationBase
+
+/-- Once the dependency-cut estimate is supplied, the requested second-moment
+bound and both stated properties of its exponent follow without any further
+probabilistic or quotient assumptions. -/
+theorem midpoint_secondMoment_seed_of_canonicalPolymerEstimate
+    (b U : Nat → Nat)
+    (k : (n : Nat) → ColoringProfile (b n))
+    (row₀ : (n : Nat) → OrderedProfilePartition n (k n))
+    (Lambda : Nat → Real)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hEstimate : MidpointCanonicalPolymerEstimate b U k row₀ Lambda) :
+    (∀ n,
+      signedProfileSecondMoment n (k n) /
+          signedProfileExpectation n (k n) ^ 2 ≤
+        ENNReal.ofReal (Real.exp (Lambda n))) ∧
+      (∀ᶠ n in atTop, 0 ≤ Lambda n) ∧
+      Lambda =o[atTop] amplificationBase := by
+  refine ⟨fun n => ?_, hEstimate.2⟩
+  exact normalizedSignedProfileSecondMoment_le_exp_of_polymerSum
+    (row₀ n) (U n) (hU n) (Lambda n) (hcap n) (hEstimate.1 n)
+
+#print axioms normalizedSignedProfileSecondMoment_eq_midpointCanonicalAttachmentSum
+#print axioms normalizedSignedProfileSecondMoment_le_midpointCanonicalPolymerSum
+#print axioms normalizedSignedProfileSecondMoment_le_exp_of_polymerSum
+#print axioms midpoint_secondMoment_seed_of_canonicalPolymerEstimate
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MidpointSecondMomentSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MidpointSecondMomentSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalLambda
+Source: Erdos625/Section9CanonicalLambda.lean
+Normalized SHA-256: b0ed835ded92525ac61b5d32cad3d445ad46d4ef7dd0b650587d1af3839bca4f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalLambda
+
+/-!
+# Section IX: canonical finite exponent
+
+This module packages the literal attained-demand polymer sum into an explicit
+canonical exponent. Its pointwise self-envelope is finite algebra, not the
+missing asymptotic estimate. The central analytic obligation remains to prove
+that this concrete exponent is little-o on the intended midpoint profile
+sequence, for example through the direct polymer bound stated below.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped BigOperators ENNReal Topology
+
+noncomputable section
+
+lemma configurationCellTheta_ne_top
+    {A B : Type*} [Fintype A] [Fintype B]
+    (row : A → ℕ) (col : B → ℕ) (a : A) (b : B) :
+    configurationCellTheta row col (Finset.univ.sum row) a b ≠ ∞ := by
+  unfold configurationCellTheta
+  by_cases hm : Finset.univ.sum row = 0
+  · have hrow : row a = 0 :=
+      (Finset.sum_eq_zero_iff.mp hm) a (Finset.mem_univ a)
+    simp [hrow]
+  · exact ENNReal.div_ne_top
+      (ENNReal.mul_ne_top
+        (ENNReal.mul_ne_top ENNReal.ofReal_ne_top (ENNReal.natCast_ne_top _))
+        (ENNReal.natCast_ne_top _))
+      (by exact_mod_cast hm)
+
+lemma residualLambda_ne_top
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) :
+    residualLambda M R row col a b ≠ ∞ := by
+  unfold residualLambda
+  split_ifs
+  · simp
+  · rw [ENNReal.sum_ne_top]
+    intro x hx
+    exact ENNReal.div_ne_top
+      (ENNReal.mul_ne_top (ENNReal.natCast_ne_top _)
+        (ENNReal.pow_ne_top (configurationCellTheta_ne_top row col a b)))
+      (by exact_mod_cast Nat.factorial_ne_zero x)
+
+lemma residualQ_ne_top
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (a : A) (b : B) :
+    residualQ M R row col a b ≠ ∞ := by
+  unfold residualQ
+  split_ifs
+  · simp
+  · rw [ENNReal.add_ne_top]
+    exact ⟨ENNReal.div_ne_top
+      (ENNReal.pow_ne_top (configurationCellTheta_ne_top row col a b))
+      (by norm_num), residualLambda_ne_top M R row col a b⟩
+
+lemma edgeWeightOutsideENN_ne_top
+    {A B : Type*} [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (hq : ∀ a b, q a b ≠ ∞)
+    (M F : Finset (A × B)) :
+    edgeWeightOutsideENN q M F ≠ ∞ := by
+  unfold edgeWeightOutsideENN
+  exact ENNReal.prod_ne_top fun e he => hq e.1 e.2
+
+lemma canonicalDemandPolymerMajorant_ne_top
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) :
+    canonicalDemandPolymerMajorant row col U demand ≠ ∞ := by
+  unfold canonicalDemandPolymerMajorant
+  apply ENNReal.mul_ne_top
+  · apply ENNReal.prod_ne_top
+    intro a ha
+    apply ENNReal.prod_ne_top
+    intro b hb
+    rw [ENNReal.add_ne_top]
+    exact ⟨by simp, residualLambda_ne_top _ _ _ _ _ _⟩
+  · apply ENNReal.prod_ne_top
+    intro C hC
+    rw [ENNReal.add_ne_top]
+    refine ⟨by simp, edgeWeightOutsideENN_ne_top _ ?_ _ _⟩
+    intro a b
+    exact residualQ_ne_top _ _ _ _ _ _
+
+lemma midpointCanonicalPolymerSum_ne_top
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) :
+    midpointCanonicalPolymerSum row₀ U ≠ ∞ := by
+  unfold midpointCanonicalPolymerSum
+  rw [ENNReal.sum_ne_top]
+  intro demand hdemand
+  apply ENNReal.mul_ne_top
+  · exact ENNReal.natCast_ne_top _
+  · apply ENNReal.mul_ne_top
+    · unfold labelledWitnessIncidence
+      exact ENNReal.div_ne_top (ENNReal.natCast_ne_top _) (by
+        exact_mod_cast (Nat.descFactorial_pos.mpr
+          (profileHighSkeleton_totalDemand_le k U demand)).ne')
+    · exact canonicalDemandPolymerMajorant_ne_top
+        (profileBlockMargin k) (profileBlockMargin k) U demand
+
+/-- Explicit finite exponent attached to the literal canonical polymer sum. -/
+noncomputable def canonicalMidpointLambda
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) : ℝ :=
+  max 0 (Real.log (midpointCanonicalPolymerSum row₀ U).toReal)
+
+/-- The canonical exponent is nonnegative, without an additional estimate. -/
+theorem canonicalMidpointLambda_nonneg
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) :
+    0 ≤ canonicalMidpointLambda row₀ U := by
+  exact le_max_left _ _
+
+/-- The literal polymer sum is bounded by the exponential of its canonical
+nonnegative exponent. -/
+theorem midpointCanonicalPolymerSum_le_exp_canonicalMidpointLambda
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) :
+    midpointCanonicalPolymerSum row₀ U ≤
+      ENNReal.ofReal (Real.exp (canonicalMidpointLambda row₀ U)) := by
+  have htop := midpointCanonicalPolymerSum_ne_top row₀ U
+  by_cases hzero : midpointCanonicalPolymerSum row₀ U = 0
+  · simp [hzero]
+  · have hreal : 0 < (midpointCanonicalPolymerSum row₀ U).toReal :=
+      ENNReal.toReal_pos hzero htop
+    rw [← ENNReal.ofReal_toReal htop]
+    apply ENNReal.ofReal_le_ofReal
+    calc
+      (midpointCanonicalPolymerSum row₀ U).toReal =
+          Real.exp (Real.log (midpointCanonicalPolymerSum row₀ U).toReal) :=
+        (Real.exp_log hreal).symm
+      _ ≤ Real.exp (canonicalMidpointLambda row₀ U) := by
+        apply Real.exp_le_exp.mpr
+        exact le_max_right _ _
+
+/-- Concrete finite second-moment bound with an explicit nonnegative exponent. -/
+theorem normalizedSignedProfileSecondMoment_le_exp_canonicalMidpointLambda
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) (hU : 2 ≤ U)
+    (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U) :
+    signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2 ≤
+      ENNReal.ofReal (Real.exp (canonicalMidpointLambda row₀ U)) := by
+  exact (normalizedSignedProfileSecondMoment_le_midpointCanonicalPolymerSum
+    row₀ U hU hcap).trans
+      (midpointCanonicalPolymerSum_le_exp_canonicalMidpointLambda row₀ U)
+
+/-- A direct eventual bound on the concrete polymer sum implies the required
+Little-o estimate for the canonical logarithmic exponent.  This is the exact
+analytic input shape needed from the Section VII--IX near/middle and two-regime
+estimates; no exponent or demand law is hidden in the premise. -/
+theorem canonicalMidpointLambda_isLittleO_of_polymer_bound
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilon : ℕ → ℝ)
+    (hepsilonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilon n)
+    (hepsilon : Tendsto epsilon atTop (nhds 0))
+    (hpolymer : ∀ᶠ n in atTop,
+      midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+        ENNReal.ofReal (Real.exp
+          (epsilon n * amplificationBase n))) :
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  apply Asymptotics.IsLittleO.of_bound
+  intro c hc
+  have hepsilonBound : ∀ᶠ n in atTop, |epsilon n| < c := by
+    simpa [Real.dist_eq] using
+      hepsilon.eventually (Metric.ball_mem_nhds (0 : ℝ) hc)
+  have hbasePos : ∀ᶠ n : ℕ in atTop, 0 < amplificationBase n := by
+    filter_upwards [eventually_gt_atTop 1] with n hn
+    unfold amplificationBase
+    exact div_pos (Nat.cast_pos.mpr (by omega))
+      (pow_pos (Real.log_pos (by exact_mod_cast hn)) 4)
+  filter_upwards [hepsilonNonneg, hepsilonBound, hpolymer, hbasePos] with
+      n hεnonneg hεbound hpoly hbase
+  have hexpPos : 0 < Real.exp (epsilon n * amplificationBase n) := Real.exp_pos _
+  have htoReal :
+      (midpointCanonicalPolymerSum (row₀ n) (U n)).toReal ≤
+        Real.exp (epsilon n * amplificationBase n) := by
+    have h := ENNReal.toReal_mono ENNReal.ofReal_ne_top hpoly
+    simpa [ENNReal.toReal_ofReal hexpPos.le] using h
+  have hlog :
+      Real.log (midpointCanonicalPolymerSum (row₀ n) (U n)).toReal ≤
+        epsilon n * amplificationBase n := by
+    by_cases hz : midpointCanonicalPolymerSum (row₀ n) (U n) = 0
+    · simp [hz, mul_nonneg hεnonneg hbase.le]
+    · apply (Real.log_le_iff_le_exp
+        (ENNReal.toReal_pos hz
+          (midpointCanonicalPolymerSum_ne_top (row₀ n) (U n)))).2
+      exact htoReal
+  have hlambda :
+      canonicalMidpointLambda (row₀ n) (U n) ≤
+        epsilon n * amplificationBase n := by
+    unfold canonicalMidpointLambda
+    exact max_le (mul_nonneg hεnonneg hbase.le) hlog
+  rw [Real.norm_eq_abs,
+    abs_of_nonneg (canonicalMidpointLambda_nonneg (row₀ n) (U n)),
+    Real.norm_eq_abs, abs_of_pos hbase]
+  calc
+    canonicalMidpointLambda (row₀ n) (U n) ≤
+        epsilon n * amplificationBase n := hlambda
+    _ ≤ c * amplificationBase n := by
+      apply mul_le_mul_of_nonneg_right
+      have hεlt : epsilon n < c := by
+        simpa [abs_of_nonneg hεnonneg] using hεbound
+      exact hεlt.le
+      exact hbase.le
+
+/-- For a concrete profile sequence, only the direct polymer bound above
+remains analytic; nonnegativity and the finite second-moment estimate are
+unconditional consequences. -/
+theorem canonicalMidpoint_secondMoment_seed
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hsmall : (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase) :
+    (∀ n, signedProfileSecondMoment n (k n) /
+        signedProfileExpectation n (k n) ^ 2 ≤
+      ENNReal.ofReal
+        (Real.exp (canonicalMidpointLambda (row₀ n) (U n)))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  exact ⟨fun n => normalizedSignedProfileSecondMoment_le_exp_canonicalMidpointLambda
+    (row₀ n) (U n) (hU n) (hcap n),
+    fun n => canonicalMidpointLambda_nonneg (row₀ n) (U n), hsmall⟩
+
+/-- The direct polymer estimate can be consumed immediately: it supplies the
+Little-o property, while the finite second-moment bound and nonnegativity are
+already unconditional. -/
+theorem canonicalMidpoint_secondMoment_seed_of_polymer_bound
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilon : ℕ → ℝ)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hepsilonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilon n)
+    (hepsilon : Tendsto epsilon atTop (nhds 0))
+    (hpolymer : ∀ᶠ n in atTop,
+      midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+        ENNReal.ofReal (Real.exp
+          (epsilon n * amplificationBase n))) :
+    (∀ n, signedProfileSecondMoment n (k n) /
+        signedProfileExpectation n (k n) ^ 2 ≤
+      ENNReal.ofReal
+        (Real.exp (canonicalMidpointLambda (row₀ n) (U n)))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  apply canonicalMidpoint_secondMoment_seed b U k row₀ hU hcap
+  exact canonicalMidpointLambda_isLittleO_of_polymer_bound
+    b U k row₀ epsilon hepsilonNonneg hepsilon hpolymer
+
+
+#print axioms canonicalMidpointLambda_isLittleO_of_polymer_bound
+#print axioms canonicalMidpoint_secondMoment_seed
+#print axioms canonicalMidpoint_secondMoment_seed_of_polymer_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalLambda
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalLambda
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalTwoRegimeSeed
+Source: Erdos625/Section9CanonicalTwoRegimeSeed.lean
+Normalized SHA-256: 73d51ca6dad3f8e36d6cbaeb365f7c67be5d27a104809bf1c3fa2db9db74efb8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalTwoRegimeSeed
+
+/-!
+# Section IX: canonical two-regime seed assembly
+
+This module feeds the existing Section IX two-regime asymptotic mechanism into
+the literal attained-demand polymer sum.  It does not assume Proposition 9.2.
+The two displayed finite estimates are the remaining analytic inputs, stated
+directly for the canonical polymer sum after conversion to its finite real
+value.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- The real value of the finite attained-demand polymer sum. -/
+noncomputable def canonicalPolymerReal
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) : ℝ :=
+  (midpointCanonicalPolymerSum row₀ U).toReal
+
+/-- The finite `ENNReal` polymer sum is recovered exactly from its real value. -/
+theorem ofReal_canonicalPolymerReal
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) :
+    ENNReal.ofReal (canonicalPolymerReal row₀ U) =
+      midpointCanonicalPolymerSum row₀ U := by
+  exact ENNReal.ofReal_toReal (midpointCanonicalPolymerSum_ne_top row₀ U)
+
+/-- Two-regime bounds for the literal canonical polymer sum produce a
+nonnegative vanishing coefficient in the Section X scale. -/
+theorem exists_canonicalPolymer_twoRegime_error
+    (b U m₀ : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (C : ℝ) (hC : 0 ≤ C)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ n : ℝ) →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      (m₀ n : ℝ) < (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    ∃ epsilon : ℕ → ℝ,
+      Tendsto epsilon atTop (nhds 0) ∧
+      (∀ᶠ n in atTop, 0 ≤ epsilon n) ∧
+      ∀ᶠ n in atTop,
+        midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+          ENNReal.ofReal (Real.exp (epsilon n * amplificationBase n)) := by
+  obtain ⟨epsilon, hepsilon, hevent⟩ :=
+    exists_uniform_twoRegime_error
+      (fun _ => Unit)
+      (fun n (_ : Unit) => canonicalPolymerReal (row₀ n) (U n))
+      (fun n (_ : Unit) => m₀ n) C hC
+      (by
+        filter_upwards [hlarge] with n hn
+        intro _ hm
+        exact hn hm)
+      (by
+        filter_upwards [hsmall] with n hn
+        intro _ hm
+        exact hn hm)
+  refine ⟨epsilon, hepsilon, hevent.mono fun n hn => hn.1, ?_⟩
+  filter_upwards [hevent] with n hn
+  rw [← ofReal_canonicalPolymerReal (row₀ n) (U n)]
+  apply ENNReal.ofReal_le_ofReal
+  simpa only [amplificationBase, mul_div_assoc] using (hn.2 ())
+
+/-- Complete conditional theorem-level seed assembly from the concrete two-regime
+canonical-polymer estimates.  The exponent is the explicit
+`canonicalMidpointLambda`; its nonnegativity is unconditional and its Little-o
+property is derived here. -/
+theorem canonicalMidpoint_secondMoment_seed_of_twoRegime
+    (b U m₀ : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (C : ℝ) (hC : 0 ≤ C)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ n : ℝ) →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      (m₀ n : ℝ) < (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    (∀ n, signedProfileSecondMoment n (k n) /
+        signedProfileExpectation n (k n) ^ 2 ≤
+      ENNReal.ofReal
+        (Real.exp (canonicalMidpointLambda (row₀ n) (U n)))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  obtain ⟨epsilon, hepsilon, hepsilonNonneg, hpolymer⟩ :=
+    exists_canonicalPolymer_twoRegime_error
+      b U m₀ k row₀ C hC hlarge hsmall
+  exact canonicalMidpoint_secondMoment_seed_of_polymer_bound
+    b U k row₀ epsilon hU hcap hepsilonNonneg hepsilon hpolymer
+
+#print axioms exists_canonicalPolymer_twoRegime_error
+#print axioms canonicalMidpoint_secondMoment_seed_of_twoRegime
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalTwoRegimeSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalTwoRegimeSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RealSecondMomentSeed
+Source: Erdos625/Section9RealSecondMomentSeed.lean
+Normalized SHA-256: 2eeafcff81a72cb1766436f6fbf5d210f21a0750063594201639aa69dd1aff94
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RealSecondMomentSeed
+
+/-!
+# Section IX: real-valued midpoint second-moment seed
+
+This module states the Section X input in the requested real form.  The real
+normalized second moment is the finite `toReal` image of the exact Section VI
+`ENNReal` quotient; no replacement probability law or altered normalization
+is introduced.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- The exact normalized signed-profile second moment as a real number. -/
+noncomputable def signedProfileNormalizedSecondMomentReal
+    {b : ℕ} (n : ℕ) (k : ColoringProfile b) : ℝ :=
+  (signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2).toReal
+
+/-- The requested finite real inequality with the explicit canonical exponent.
+This is the literal `E[Z^2] / E[Z]^2` quotient formalized in Section VI and
+transported through the attained canonical-demand law. -/
+theorem signedProfileNormalizedSecondMomentReal_le_exp_canonicalMidpointLambda
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) (hU : 2 ≤ U)
+    (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U) :
+    signedProfileNormalizedSecondMomentReal n k ≤
+      Real.exp (canonicalMidpointLambda row₀ U) := by
+  unfold signedProfileNormalizedSecondMomentReal
+  have h := normalizedSignedProfileSecondMoment_le_exp_canonicalMidpointLambda
+    row₀ U hU hcap
+  have htop : ENNReal.ofReal (Real.exp (canonicalMidpointLambda row₀ U)) ≠ ∞ :=
+    ENNReal.ofReal_ne_top
+  calc
+    (signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2).toReal ≤
+        (ENNReal.ofReal (Real.exp (canonicalMidpointLambda row₀ U))).toReal :=
+      ENNReal.toReal_mono htop h
+    _ = Real.exp (canonicalMidpointLambda row₀ U) := by
+      rw [ENNReal.toReal_ofReal (Real.exp_nonneg _)]
+
+/-- Complete real-valued theorem-level seed from the two concrete residual
+regime estimates.  It returns exactly the exponential second-moment bound,
+nonnegativity, and the Little-o property needed by Section X. -/
+theorem real_canonicalMidpoint_secondMoment_seed_of_twoRegime
+    (b U m₀ : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (C : ℝ) (hC : 0 ≤ C)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m₀ n : ℝ) →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      (m₀ n : ℝ) < (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+      canonicalPolymerReal (row₀ n) (U n) ≤
+        Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    (∀ n, signedProfileNormalizedSecondMomentReal n (k n) ≤
+      Real.exp (canonicalMidpointLambda (row₀ n) (U n))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  obtain ⟨_hsecond, hnonneg, hsmallLambda⟩ :=
+    canonicalMidpoint_secondMoment_seed_of_twoRegime
+      b U m₀ k row₀ C hC hU hcap hlarge hsmall
+  exact ⟨fun n =>
+    signedProfileNormalizedSecondMomentReal_le_exp_canonicalMidpointLambda
+      (row₀ n) (U n) (hU n) (hcap n), hnonneg, hsmallLambda⟩
+
+#print axioms signedProfileNormalizedSecondMomentReal_le_exp_canonicalMidpointLambda
+#print axioms real_canonicalMidpoint_secondMoment_seed_of_twoRegime
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RealSecondMomentSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RealSecondMomentSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalPolymerAggregation
+Source: Erdos625/Section9CanonicalPolymerAggregation.lean
+Normalized SHA-256: dffbfdaf4f878213d1f46832fc33487e0f36bd8815496c6d6e88413877a20dcc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalPolymerAggregation
+
+/-!
+# Section IX: separating skeleton mass from residual attachment
+
+The canonical polymer sum contains two mathematically distinct estimates: the
+Section VIII attained-skeleton mass and the Section IX residual polymer
+majorant.  This module separates them without changing the canonical demand
+law.  Consequently the remaining analytic cut can be stated pointwise for the
+actual attained demands, rather than as a bound on an already-aggregated sum.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped BigOperators ENNReal Topology
+
+noncomputable section
+
+/-- Total bare mass of the attained canonical high skeletons.  Each demand is
+weighted by its exact local reward and labelled-witness incidence. -/
+noncomputable def canonicalBareSkeletonSum
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ) : ENNReal :=
+  ∑ demand : ProfileCanonicalHighSkeleton k U,
+    (canonicalDemandLocalReward demand : ENNReal) *
+      labelledWitnessIncidence demand.1 (profileBlockMargin k)
+        (profileBlockMargin k)
+
+/-- A uniform pointwise attachment bound factors out of the literal canonical
+demand mixture. -/
+theorem midpointCanonicalPolymerSum_le_bare_mul
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) (K : ENNReal)
+    (hK : ∀ demand : ProfileCanonicalHighSkeleton k U,
+      canonicalDemandPolymerMajorant
+        (profileBlockMargin k) (profileBlockMargin k) U demand ≤ K) :
+    midpointCanonicalPolymerSum row₀ U ≤
+      canonicalBareSkeletonSum k U * K := by
+  unfold midpointCanonicalPolymerSum canonicalBareSkeletonSum
+  calc
+    (∑ demand : ProfileCanonicalHighSkeleton k U,
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+          (profileBlockMargin k) *
+          canonicalDemandPolymerMajorant
+            (profileBlockMargin k) (profileBlockMargin k) U demand)) ≤
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        ((canonicalDemandLocalReward demand : ENNReal) *
+          labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k)) * K := by
+      apply Finset.sum_le_sum
+      intro demand _
+      calc
+        (canonicalDemandLocalReward demand : ENNReal) *
+            (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+              (profileBlockMargin k) *
+              canonicalDemandPolymerMajorant
+                (profileBlockMargin k) (profileBlockMargin k) U demand) =
+          ((canonicalDemandLocalReward demand : ENNReal) *
+            labelledWitnessIncidence demand.1 (profileBlockMargin k)
+              (profileBlockMargin k)) *
+            canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U demand := by
+                rw [mul_assoc]
+        _ ≤ ((canonicalDemandLocalReward demand : ENNReal) *
+            labelledWitnessIncidence demand.1 (profileBlockMargin k)
+              (profileBlockMargin k)) * K :=
+          mul_le_mul_right (hK demand) _
+    _ = (∑ demand : ProfileCanonicalHighSkeleton k U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k)) * K := by rw [Finset.sum_mul]
+
+/-- Separate exponential bounds for the attained skeleton mass and every
+actual residual attachment combine into an exponential bound for the literal
+canonical polymer sum. -/
+theorem midpointCanonicalPolymerSum_le_exp_add
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) (skeletonError attachmentError : ℝ)
+    (hSkeleton : canonicalBareSkeletonSum k U ≤
+      ENNReal.ofReal (Real.exp skeletonError))
+    (hAttachment : ∀ demand : ProfileCanonicalHighSkeleton k U,
+      canonicalDemandPolymerMajorant
+        (profileBlockMargin k) (profileBlockMargin k) U demand ≤
+          ENNReal.ofReal (Real.exp attachmentError)) :
+    midpointCanonicalPolymerSum row₀ U ≤
+      ENNReal.ofReal (Real.exp (skeletonError + attachmentError)) := by
+  calc
+    midpointCanonicalPolymerSum row₀ U ≤
+        canonicalBareSkeletonSum k U *
+          ENNReal.ofReal (Real.exp attachmentError) :=
+      midpointCanonicalPolymerSum_le_bare_mul row₀ U _ hAttachment
+    _ ≤ ENNReal.ofReal (Real.exp skeletonError) *
+          ENNReal.ofReal (Real.exp attachmentError) := by
+      exact mul_le_mul_of_nonneg_right hSkeleton (by positivity)
+    _ = ENNReal.ofReal (Real.exp (skeletonError + attachmentError)) := by
+      rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add]
+
+/-- Sequence form of the separated dependency cut.  Vanishing nonnegative
+coefficients for the skeleton and attachment estimates give the direct
+polymer bound consumed by `canonicalMidpoint_secondMoment_seed_of_polymer_bound`.
+-/
+theorem eventually_midpointCanonicalPolymerSum_le_exp_of_separate_bounds
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilonSkeleton epsilonAttachment : ℕ → ℝ)
+    (hSkeleton : ∀ᶠ n in atTop,
+      canonicalBareSkeletonSum (k n) (U n) ≤
+        ENNReal.ofReal
+          (Real.exp (epsilonSkeleton n * amplificationBase n)))
+    (hAttachment : ∀ᶠ n in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        canonicalDemandPolymerMajorant
+          (profileBlockMargin (k n)) (profileBlockMargin (k n)) (U n) demand ≤
+            ENNReal.ofReal
+              (Real.exp (epsilonAttachment n * amplificationBase n))) :
+    ∀ᶠ n in atTop,
+      midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+        ENNReal.ofReal (Real.exp
+          ((epsilonSkeleton n + epsilonAttachment n) * amplificationBase n)) := by
+  filter_upwards [hSkeleton, hAttachment] with n hs ha
+  have h := midpointCanonicalPolymerSum_le_exp_add
+    (row₀ n) (U n)
+    (epsilonSkeleton n * amplificationBase n)
+    (epsilonAttachment n * amplificationBase n) hs ha
+  simpa only [add_mul] using h
+
+/-- Complete real second-moment seed from separated Section VIII skeleton and
+Section IX attachment estimates.  This theorem makes the exact remaining
+analytic dependencies declaration-level and keeps every quantifier over the
+attained canonical demand family. -/
+theorem real_canonicalMidpoint_secondMoment_seed_of_separate_bounds
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilonSkeleton epsilonAttachment : ℕ → ℝ)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hSkeletonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilonSkeleton n)
+    (hAttachmentNonneg : ∀ᶠ n in atTop, 0 ≤ epsilonAttachment n)
+    (hSkeletonTendsto : Tendsto epsilonSkeleton atTop (nhds 0))
+    (hAttachmentTendsto : Tendsto epsilonAttachment atTop (nhds 0))
+    (hSkeleton : ∀ᶠ n in atTop,
+      canonicalBareSkeletonSum (k n) (U n) ≤
+        ENNReal.ofReal
+          (Real.exp (epsilonSkeleton n * amplificationBase n)))
+    (hAttachment : ∀ᶠ n in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        canonicalDemandPolymerMajorant
+          (profileBlockMargin (k n)) (profileBlockMargin (k n)) (U n) demand ≤
+            ENNReal.ofReal
+              (Real.exp (epsilonAttachment n * amplificationBase n))) :
+    (∀ n, signedProfileNormalizedSecondMomentReal n (k n) ≤
+      Real.exp (canonicalMidpointLambda (row₀ n) (U n))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  let epsilon := fun n => epsilonSkeleton n + epsilonAttachment n
+  have hnonneg : ∀ᶠ n in atTop, 0 ≤ epsilon n := by
+    filter_upwards [hSkeletonNonneg, hAttachmentNonneg] with n hs ha
+    exact add_nonneg hs ha
+  have htendsto : Tendsto epsilon atTop (nhds 0) := by
+    simpa [epsilon] using hSkeletonTendsto.add hAttachmentTendsto
+  have hpolymer : ∀ᶠ n in atTop,
+      midpointCanonicalPolymerSum (row₀ n) (U n) ≤
+        ENNReal.ofReal (Real.exp (epsilon n * amplificationBase n)) := by
+    simpa only [epsilon] using
+      eventually_midpointCanonicalPolymerSum_le_exp_of_separate_bounds
+        b U k row₀ epsilonSkeleton epsilonAttachment hSkeleton hAttachment
+  have hseed := canonicalMidpoint_secondMoment_seed_of_polymer_bound
+    b U k row₀ epsilon hU hcap hnonneg htendsto hpolymer
+  exact ⟨fun n =>
+    signedProfileNormalizedSecondMomentReal_le_exp_canonicalMidpointLambda
+      (row₀ n) (U n) (hU n) (hcap n), hseed.2⟩
+
+#print axioms midpointCanonicalPolymerSum_le_bare_mul
+#print axioms midpointCanonicalPolymerSum_le_exp_add
+#print axioms eventually_midpointCanonicalPolymerSum_le_exp_of_separate_bounds
+#print axioms real_canonicalMidpoint_secondMoment_seed_of_separate_bounds
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalPolymerAggregation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalPolymerAggregation
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
+Source: Erdos625/Section9SeparatedTwoRegimeSeed.lean
+Normalized SHA-256: 01bab3d93d07503c36eb7adf499a5efbb2b75fb6557ce5997c5ffdb532ebab25
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
+
+/-!
+# Section IX: separated two-regime attachment assembly
+
+This module applies the existing two-regime argument uniformly over the actual
+dependent family of attained canonical demands.  It then combines that result
+with a separate Section VIII skeleton estimate.  No common residual law is
+introduced: the residual mass and polymer majorant are evaluated demand by
+demand using the canonical reference witness.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Residual row-stub mass of an attained canonical demand. -/
+def canonicalDemandResidualMass
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) : ℕ :=
+  Finset.univ.sum
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+
+/-- Finite real value of one attained demand's polymer majorant. -/
+noncomputable def canonicalDemandPolymerReal
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) : ℝ :=
+  (canonicalDemandPolymerMajorant
+    (profileBlockMargin k) (profileBlockMargin k) U demand).toReal
+
+/-- Exact recovery of one finite canonical polymer majorant from its real
+value. -/
+theorem ofReal_canonicalDemandPolymerReal
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    ENNReal.ofReal (canonicalDemandPolymerReal k U demand) =
+      canonicalDemandPolymerMajorant
+        (profileBlockMargin k) (profileBlockMargin k) U demand := by
+  exact ENNReal.ofReal_toReal
+    (canonicalDemandPolymerMajorant_ne_top
+      (profileBlockMargin k) (profileBlockMargin k) U demand)
+
+/-- Uniform large- and small-residual bounds over the literal attained-demand
+family produce one nonnegative vanishing attachment coefficient. -/
+theorem exists_canonicalDemandAttachment_twoRegime_error
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (C : ℝ) (hC : 0 ≤ C)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
+            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
+            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    ∃ epsilonAttachment : ℕ → ℝ,
+      Tendsto epsilonAttachment atTop (nhds 0) ∧
+      (∀ᶠ n in atTop, 0 ≤ epsilonAttachment n) ∧
+      ∀ᶠ n in atTop,
+        ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+          canonicalDemandPolymerMajorant
+            (profileBlockMargin (k n)) (profileBlockMargin (k n))
+              (U n) demand ≤
+            ENNReal.ofReal
+              (Real.exp (epsilonAttachment n * amplificationBase n)) := by
+  obtain ⟨epsilonAttachment, hepsilon, hevent⟩ :=
+    exists_uniform_twoRegime_error
+      (fun n => ProfileCanonicalHighSkeleton (k n) (U n))
+      (fun n demand => canonicalDemandPolymerReal (k n) (U n) demand)
+      (fun n demand => canonicalDemandResidualMass (k n) (U n) demand)
+      C hC hlarge hsmall
+  refine ⟨epsilonAttachment, hepsilon, hevent.mono fun n hn => hn.1, ?_⟩
+  filter_upwards [hevent] with n hn
+  intro demand
+  rw [← ofReal_canonicalDemandPolymerReal (k n) (U n) demand]
+  apply ENNReal.ofReal_le_ofReal
+  simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
+
+/-- Complete real seed from a Section VIII skeleton estimate and the concrete
+Section IX large- and small-residual estimates, all over the attained canonical
+demand family. -/
+theorem real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilonSkeleton : ℕ → ℝ)
+    (C : ℝ) (hC : 0 ≤ C)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hSkeletonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilonSkeleton n)
+    (hSkeletonTendsto : Tendsto epsilonSkeleton atTop (nhds 0))
+    (hSkeleton : ∀ᶠ n in atTop,
+      canonicalBareSkeletonSum (k n) (U n) ≤
+        ENNReal.ofReal
+          (Real.exp (epsilonSkeleton n * amplificationBase n)))
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
+            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
+            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    (∀ n, signedProfileNormalizedSecondMomentReal n (k n) ≤
+      Real.exp (canonicalMidpointLambda (row₀ n) (U n))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  obtain ⟨epsilonAttachment, hAttachmentTendsto,
+      hAttachmentNonneg, hAttachment⟩ :=
+    exists_canonicalDemandAttachment_twoRegime_error
+      b U k C hC hlarge hsmall
+  exact real_canonicalMidpoint_secondMoment_seed_of_separate_bounds
+    b U k row₀ epsilonSkeleton epsilonAttachment hU hcap
+    hSkeletonNonneg hAttachmentNonneg hSkeletonTendsto
+    hAttachmentTendsto hSkeleton hAttachment
+
+#print axioms exists_canonicalDemandAttachment_twoRegime_error
+#print axioms real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
 Source: Erdos625/ExpTailTransport.lean
 Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
@@ -54003,7 +55042,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 2fe5f478e809da8eeeaf88bcbd553e28343cd0824656a6b55b51a24e96674e78
+Normalized SHA-256: 383e893880b0afc6bd147bc86e72326406696ae3a36d801f007787f34f8d2d8b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
