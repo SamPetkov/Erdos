@@ -17047,7 +17047,7 @@ END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
 Source: Erdos625/UniformExplicitPartitionRatio.lean
-Normalized SHA-256: 083de64a0bf7d59e8f979ee6aa99dd8b1b66fa3ee126e27f8a0ea133f488c55f
+Normalized SHA-256: 2ec4ac7f6e1b5d16233524896d5953d3b40896694d0bb8f612c225d11f7e1d24
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformExplicitPartitionRatio
 
@@ -17102,7 +17102,8 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
           nlinarith [show (d : ℝ) ≥ 6 by norm_cast,
             show q = Real.log 2 by rfl, Real.log_pos one_lt_two]
         convert mul_le_mul_of_nonneg_right h_exp
-          (Real.exp_nonneg (lambda * d - q / 2 * d ^ 2)) using 1 <;> ring
+          (Real.exp_nonneg (lambda * d - q / 2 * d ^ 2)) using 1
+        · ring
         rw [← Real.exp_add]
         unfold extendedGaussianNaturalTerm
         push_cast
@@ -17125,10 +17126,7 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
         · exact Summable.mul_right _
             (summable_geometric_of_lt_one (by norm_num) (by norm_num))
         · rw [tsum_mul_right, tsum_geometric_of_lt_one] <;> norm_num
-      convert add_le_add_left h_tail_sum
-          (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) using 1
-      · rw [← Summable.sum_add_tsum_nat_add]
-        exact add_comm _ _
+      have h_summable : Summable (extendedGaussianNaturalTerm q lambda) := by
         refine summable_of_ratio_norm_eventually_le _ _
         exact 1 / 4
         · norm_num
@@ -17136,6 +17134,10 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
             rw [Real.norm_of_nonneg (Real.exp_nonneg _),
               Real.norm_of_nonneg (Real.exp_nonneg _)]
             exact h_tail n hn
+      convert add_le_add_left h_tail_sum
+          (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) using 1
+      · rw [← h_summable.sum_add_tsum_nat_add]
+        exact add_comm _ _
       · ring
     exact lt_of_le_of_lt
       (by
