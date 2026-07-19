@@ -1,5 +1,9 @@
 import Erdos625.Section9ActualResidualENNRealExpBridge
 import Erdos625.Section9CycleWeightSplit
+import Erdos625.Section9ResidualLambdaTotalBound
+import Erdos625.Section9ResidualQDegreeAssembly
+import Erdos625.Section9ResidualQMixedCycleEnumeration
+import Erdos625.Section9ResidualOnlyCycleEnumeration
 import Mathlib.Tactic
 
 /-!
@@ -131,9 +135,80 @@ theorem simpleCycle_sum_le_of_residual_mixed_bounds
   rw [sum_simpleBipartiteCycles_edgeWeight_split]
   exact add_le_add hresidual hmixed
 
+/-- The literal positive-residual lambda and simple-cycle products admit one
+explicit exponential majorant, with absolute constants chosen before all
+finite types and residual data. -/
+theorem exists_absolute_residual_product_exponential_majorant :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+        tau < (1 / 3 : ENNReal) →
+        let beta : ENNReal := tau * (1 - tau)⁻¹
+        beta < 1 ∧
+        residualProductExponentMajorant kappaLambda kappaQ
+          (Fintype.card A) M.card U m ≠ ∞ ∧
+        ((∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN (residualQ M R row col) M C))) ≤
+          EReal.exp
+            ((residualProductExponentMajorant kappaLambda kappaQ
+              (Fintype.card A) M.card U m : ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, hkLpos, hkLtop, hkL⟩ :=
+    existsAbsoluteResidualLambdaTotalBound
+  obtain ⟨kappaQ, hkQpos, hkQtop, hkQ⟩ :=
+    existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hM hm hrow hcol hrowCap hcolCap hR hpow
+  dsimp only
+  intro htau
+  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta : ENNReal := tau * (1 - tau)⁻¹
+  have hnorm := hkQ M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
+  have hmixed := mixedSimpleCycle_weighted_walk_enumeration
+    (residualQ M R row col) M hM tau (by simpa [tau] using htau)
+    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
+  have htau1 : tau < 1 := (by simpa [tau] using htau).trans (by norm_num)
+  have hresidual := residualOnlySimpleCycle_weighted_walk_enumeration
+    (residualQ M R row col) M tau htau1
+    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
+  have hlambda := hkL M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
+  have hbeta : beta < 1 := by simpa [beta] using hmixed.1
+  refine ⟨hbeta, ?_, ?_⟩
+  · exact residualProductExponentMajorant_ne_top
+      kappaLambda kappaQ (Fintype.card A) M.card U m hkLtop hkQtop hm
+      (by simpa [tau] using htau1)
+      (by simpa [tau, beta] using hbeta)
+  · have hcycles := simpleCycle_sum_le_of_residual_mixed_bounds
+      (residualQ M R row col) M
+      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹))
+      (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹))
+      hresidual (by simpa [beta] using hmixed.2)
+    have hproduct := lambda_cycle_products_le_exp_of_sum_bounds
+      (residualLambda M R row col) (simpleBipartiteCycles A B)
+      (edgeWeightOutsideENN (residualQ M R row col) M)
+      (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal))
+      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+        (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)))
+      hlambda hcycles
+    simpa [residualProductExponentMajorant, tau, beta, add_assoc] using hproduct
+
 #print axioms residualProductExponentMajorant_ne_top
 #print axioms lambda_cycle_products_le_exp_of_sum_bounds
 #print axioms simpleCycle_sum_le_of_residual_mixed_bounds
+#print axioms exists_absolute_residual_product_exponential_majorant
 
 end
 
