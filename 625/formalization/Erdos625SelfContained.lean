@@ -46895,7 +46895,7 @@ END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
 Source: Erdos625/Section9SmallResidualAttachmentBound.lean
-Normalized SHA-256: 0820affb5afa13571aabc231730db39cf86a64e7df354ab25a0a089839ca4031
+Normalized SHA-256: 2e270899a0576e52c75078db3878010cb921926289ae93da79c6de403a0b41ad
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
 
@@ -46927,60 +46927,44 @@ theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
     (hm : (∑ a, row a) = m) :
     residualActualAttachmentNumerator M R row col htotal ≤
       ((2 : ENNReal) ^ (U * m / 2)) := by
+  classical
   apply residualActualAttachmentNumerator_le_of_forall_event_integrand_le
   intro matching hevent
-  rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
-  have hmass :
-      (∑ a, ∑ b, configurationCellCount matching a b) = m := by
-    calc
-      (∑ a, ∑ b, configurationCellCount matching a b) = ∑ a, row a := by
-        simpa only [Fintype.sum_prod_type] using
-          sum_configurationCellCount_all matching
-      _ = m := hm
-  have hcycle :
-      cycleRank (bipartiteGraph fun a b =>
-        (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b) ≤ m / 2 := by
-    simpa only [configurationResidualSupportRelation] using
-      cycleRank_matching_union_configurationResidualSupport_le_half_m₀
-        matching (fun a b => (a, b) ∈ M) m hm hM.1 hM.2
-  have hRle : R ≤ U := by
-    rw [hR]
-    exact Nat.div_le_self _ _
-  have hdet := smallResidualDeterministicBound
-    (full := fun a b => configurationCellCount matching a b)
-    (demand := fun _ _ => 0)
-    (residual := fun a b => configurationCellCount matching a b)
-    (cap := fun _ _ => R)
-    (support := fun a b => (a, b) ∈ M)
-    (U := U) (m := m)
-    (cycleRank := cycleRank (bipartiteGraph fun a b =>
-      (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b))
-    (by simp)
-    (by
-      intro a b
+  let rank := cycleRank
+    (bipartiteGraph fun a b =>
+      (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b)
+  have hdet :
+      2 ^ rank *
+          (∏ a : A, ∏ b : B,
+            localSignRewardNat (configurationCellCount matching a b)) ≤
+        2 ^ (U * m / 2) := by
+    apply smallResidualDeterministicBound
+      (configurationCellCount matching) (fun _ _ => 0)
+      (configurationCellCount matching) (fun _ _ => R)
+      (fun a b => (a, b) ∈ M) U m rank
+    · intro a b
+      simp
+    · intro a b
       constructor
       · exact hevent.1 a b
-      · intro hmem
-        simpa using hevent.2 (a, b) hmem)
-    (by intro _ _; exact hRle)
-    hmass hcycle
-  calc
+      · intro hab
+        simpa using hevent.2 (a, b) hab
+    · intro _ _
+      rw [hR]
+      omega
+    · rw [← Fintype.sum_prod_type,
+          sum_configurationCellCount_all matching, hm]
+    · dsimp only [rank]
+      exact
+        cycleRank_matching_union_configurationResidualSupport_le_half_m₀
+          matching (fun a b => (a, b) ∈ M) m hm hM.1 hM.2
+  rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
+  simp_rw [residualReward_eq_localSignRewardNat]
+  exact_mod_cast (show
     (∏ a : A, ∏ b : B,
-        (residualReward (configurationCellCount matching a b) : ENNReal)) *
-      (2 : ENNReal) ^ cycleRank (bipartiteGraph fun a b =>
-        (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b) =
-        ((2 ^ cycleRank (bipartiteGraph fun a b =>
-          (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b) *
-          (∏ a : A, ∏ b : B,
-            localSignRewardNat (configurationCellCount matching a b)) : ℕ) :
-              ENNReal) := by
-          simp only [residualReward_eq_localSignRewardNat, Nat.cast_mul,
-            Nat.cast_pow, Nat.cast_prod]
-          rw [mul_comm]
-          norm_num
-    _ ≤ ((2 ^ (U * m / 2) : ℕ) : ENNReal) := by
-      exact_mod_cast hdet
-    _ = (2 : ENNReal) ^ (U * m / 2) := by norm_num
+      localSignRewardNat (configurationCellCount matching a b)) * 2 ^ rank ≤
+        2 ^ (U * m / 2) by
+      simpa only [mul_comm] using hdet)
 
 #print axioms residualActualAttachmentNumerator_le_two_pow_of_small_mass
 
