@@ -54192,7 +54192,7 @@ END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
 Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
-Normalized SHA-256: 0421c85ba3b904f03289e19b3b2870f4f62e3d243110f637590579150e4bb5ac
+Normalized SHA-256: cc20fc2fd0361da7302baee49fc1c945e9c1a817eb09c733841273c8ac7285a6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
 
@@ -54325,7 +54325,7 @@ theorem simpleCycle_sum_le_of_residual_mixed_bounds
   rw [sum_simpleBipartiteCycles_edgeWeight_split]
   exact add_le_add hresidual hmixed
 
-/-- The literal positive-residual lambda and simple-cycle products admit one
+/-- The literal positive-residual lambda and simple-cycle products have one
 explicit exponential majorant, with absolute constants chosen before all
 finite types and residual data. -/
 theorem exists_absolute_residual_product_exponential_majorant :

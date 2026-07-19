@@ -135,7 +135,7 @@ theorem simpleCycle_sum_le_of_residual_mixed_bounds
   rw [sum_simpleBipartiteCycles_edgeWeight_split]
   exact add_le_add hresidual hmixed
 
-/-- The literal positive-residual lambda and simple-cycle products admit one
+/-- The literal positive-residual lambda and simple-cycle products have one
 explicit exponential majorant, with absolute constants chosen before all
 finite types and residual data. -/
 theorem exists_absolute_residual_product_exponential_majorant :
