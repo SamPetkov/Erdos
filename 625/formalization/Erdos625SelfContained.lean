@@ -54775,7 +54775,7 @@ END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
 Source: Erdos625/Section9LargeResidualEnvelope.lean
-Normalized SHA-256: 3da59d22869f5df1371671044e625cb566260c961c4976d163b8c94aa966e3ea
+Normalized SHA-256: 4ba44abcec1c8c967e21e3eddc37ce5caa69208c3f746f0680064fdf83910cd3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
 
@@ -54815,7 +54815,7 @@ theorem residual_geometric_denominators_le
             rw [ENNReal.le_div_iff_mul_le] <;> norm_num
             aesop)
           2)
-        _) <;>
+        _) ;
       norm_num
     rw [← ENNReal.toReal_le_toReal] <;> norm_num
     rw [ENNReal.toReal_sub_of_le] <;> norm_num

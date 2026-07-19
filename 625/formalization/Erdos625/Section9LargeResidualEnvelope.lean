@@ -37,7 +37,7 @@ theorem residual_geometric_denominators_le
             rw [ENNReal.le_div_iff_mul_le] <;> norm_num
             aesop)
           2)
-        _) <;>
+        _) ;
       norm_num
     rw [← ENNReal.toReal_le_toReal] <;> norm_num
     rw [ENNReal.toReal_sub_of_le] <;> norm_num
