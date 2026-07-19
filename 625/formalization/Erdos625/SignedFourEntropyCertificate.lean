@@ -145,8 +145,9 @@ theorem entropy_loss_lt_log_153_div_100_of_dual_ratio
     Real.strictMonoOn_log h_ratio_pos (by norm_num) h_partition_ratio_bound
   exact h_loss.trans_lt h_log_ratio_lt
 
-/-- At the manuscript-selected tilt and its induced target, the numerical
-partition-ratio input is unconditional. -/
+/-- At the fixed test tilt and its induced target, the numerical
+partition-ratio input is unconditional. This pointwise result is not the
+uniform manuscript certificate over all phase targets. -/
 theorem entropy_loss_lt_log_153_div_100_at_selected_tilt
     {unrestrictedEntropy : ℝ}
     (h_unrestricted_dual_upper :

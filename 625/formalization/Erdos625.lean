@@ -264,6 +264,7 @@ import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.ColoringProfileCubicPhaseTail
 import Erdos625.ColoringProfilePhaseCenteredEnvelope
 import Erdos625.Section9ProfileAttachmentPolymerAssembly
+import Erdos625.Section9ZeroResidualMatchingAttachment
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 

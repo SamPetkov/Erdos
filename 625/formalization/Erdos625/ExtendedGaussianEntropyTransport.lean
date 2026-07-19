@@ -193,8 +193,9 @@ theorem signed_margin_gt_log_200_div_153_of_truncations
       hexceptional hp hfinite hmass hmoment hentropy
   · exact h_partition_ratio_bound
 
-/-- At the selected tilt/target, truncation transport gives the signed margin
-without any numerical partition-ratio hypothesis. -/
+/-- At the fixed test tilt/target, truncation transport gives the signed
+margin without a numerical partition-ratio hypothesis. This does not supply
+the manuscript's uniform phase-target estimate. -/
 theorem signed_margin_gt_log_200_div_153_of_truncations_selected
     {unrestrictedEntropy exceptional : ℝ} {p : ℕ → ℝ}
     (hexceptional : 0 ≤ exceptional)

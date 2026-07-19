@@ -5,10 +5,14 @@ import Mathlib.Tactic
 /-!
 # Explicit extended-Gaussian partition ratio
 
-This file verifies the partition-ratio estimate at the symmetric manuscript
-choice `lambda = 7 log(2) / 2`.  At this tilt all exponents are integral
+This file verifies a useful fixed-test-tilt partition-ratio estimate at
+`lambda = 7 log(2) / 2`. At this tilt all exponents are integral
 powers of two.  The natural tail from deficit nine onward is bounded by the
 geometric series with first term `2⁻⁹` and ratio `2⁻⁶`.
+
+This is a pointwise certificate at the induced target only. It does not prove
+the manuscript's uniform partition-ratio estimate over the full phase target
+interval.
 -/
 
 open scoped BigOperators Topology
@@ -17,10 +21,10 @@ namespace Erdos625
 
 noncomputable section
 
-/-- The explicit tilt used for the four-deficit comparison. -/
+/-- A fixed test tilt used for the four-deficit comparison. -/
 def signedFourSelectedTilt : ℝ := 7 * q / 2
 
-/-- The corresponding target is the mean of the four-point profile. -/
+/-- The corresponding fixed target is the mean of the four-point profile. -/
 def signedFourSelectedTarget : ℝ :=
   ProfileEntropyS4.mean fourGaussianScore signedFourSelectedTilt
 
@@ -158,4 +162,3 @@ theorem selectedTilt_mean_eq_target :
 end
 
 end Erdos625
-
