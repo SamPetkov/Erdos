@@ -155,8 +155,9 @@ theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
       (typeTableCellFactorialProduct L : ENNReal) =
       (typeTableRowDescendingProduct k L *
         typeTableColumnDescendingProduct ell L : ENNReal) := by
-    exact cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
-      (R := ENNReal) k ell L
+    simpa only [Nat.cast_mul] using
+      (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+        (R := ENNReal) k ell L)
   simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
   simp +decide [← mul_assoc, ← h_card]
   by_cases h : typeTableCellFactorialProduct L = 0 <;>

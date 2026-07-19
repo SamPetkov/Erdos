@@ -49236,7 +49236,7 @@ END SOURCE MODULE: Erdos625.Section8TypeTableFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
-Normalized SHA-256: e460dd8728258e6d753cf5f62d51ade368d301671ff4c0d2169c4203ab56c4d3
+Normalized SHA-256: 2e51f10646c6d59d72c4d27941cede2bf31d24aae59a1f5c65f05a3b085ccbb0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
 
@@ -49393,8 +49393,9 @@ theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
       (typeTableCellFactorialProduct L : ENNReal) =
       (typeTableRowDescendingProduct k L *
         typeTableColumnDescendingProduct ell L : ENNReal) := by
-    exact cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
-      (R := ENNReal) k ell L
+    simpa only [Nat.cast_mul] using
+      (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+        (R := ENNReal) k ell L)
   simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
   simp +decide [← mul_assoc, ← h_card]
   by_cases h : typeTableCellFactorialProduct L = 0 <;>
