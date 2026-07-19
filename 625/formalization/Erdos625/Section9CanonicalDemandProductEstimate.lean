@@ -49,7 +49,7 @@ theorem residualProductExponentMajorant_ne_top
   have hbeta_top : beta ≠ ∞ :=
     ne_top_of_le_ne_top ENNReal.one_ne_top hbeta_lt.le
   have htau_sq_lt : tau ^ 2 < 1 := by
-    simpa using ENNReal.pow_lt_pow_left htau_lt (by norm_num : (2 : ℕ) ≠ 0)
+    exact pow_lt_one₀ bot_le htau_lt (by norm_num : (2 : ℕ) ≠ 0)
   have hone_sub_tau_sq : 1 - tau ^ 2 ≠ 0 :=
     (tsub_pos_iff_lt.mpr htau_sq_lt).ne'
   have hone_sub_beta : 1 - beta ≠ 0 :=
@@ -91,9 +91,9 @@ theorem lambda_cycle_products_le_exp_of_sum_bounds
   have hlambdaProduct :
       (∏ a, ∏ b, (1 + lambda a b)) ≤
         EReal.exp (((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) := by
-    simpa only [Fintype.prod_prod_type', Fintype.sum_prod_type'] using
-      (ennreal_polymer_product_le_ereal_exp_sum
-        (Finset.univ : Finset (A × B)) (fun x => lambda x.1 x.2))
+    rw [← Fintype.prod_prod_type', ← Fintype.sum_prod_type']
+    exact ennreal_polymer_product_le_ereal_exp_sum
+      (Finset.univ : Finset (A × B)) (fun x => lambda x.1 x.2)
   have hcycleProduct :
       (∏ C ∈ cycles, (1 + weight C)) ≤
         EReal.exp (((∑ C ∈ cycles, weight C : ENNReal) : EReal)) :=
