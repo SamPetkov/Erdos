@@ -46895,7 +46895,7 @@ END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
 Source: Erdos625/Section9SmallResidualAttachmentBound.lean
-Normalized SHA-256: 5be003b9d6eac00b0d9cce6cfa1c66ca64a1e3b0f49f55ec66d755be79ae8212
+Normalized SHA-256: 0820affb5afa13571aabc231730db39cf86a64e7df354ab25a0a089839ca4031
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
 
@@ -46977,6 +46977,7 @@ theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
           simp only [residualReward_eq_localSignRewardNat, Nat.cast_mul,
             Nat.cast_pow, Nat.cast_prod]
           rw [mul_comm]
+          norm_num
     _ ≤ ((2 ^ (U * m / 2) : ℕ) : ENNReal) := by
       exact_mod_cast hdet
     _ = (2 : ENNReal) ^ (U * m / 2) := by norm_num

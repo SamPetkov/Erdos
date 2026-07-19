@@ -83,6 +83,7 @@ theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
           simp only [residualReward_eq_localSignRewardNat, Nat.cast_mul,
             Nat.cast_pow, Nat.cast_prod]
           rw [mul_comm]
+          norm_num
     _ ≤ ((2 ^ (U * m / 2) : ℕ) : ENNReal) := by
       exact_mod_cast hdet
     _ = (2 : ENNReal) ^ (U * m / 2) := by norm_num
