@@ -80,6 +80,7 @@ import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourGaussianTiltCorridor
+import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -540,6 +541,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
 #print axioms Erdos625.uniform_four_size_tilt_corridor
 #print axioms Erdos625.uniform_four_size_tilt_corridor_for_delta
+#print axioms Erdos625.uniform_four_size_partition_ratio
+#print axioms Erdos625.uniform_four_size_partition_ratio_for_delta
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
