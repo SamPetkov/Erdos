@@ -254,6 +254,7 @@ import Erdos625.ColoringProfileDualAsymptotic
 import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ColoringProfilePhaseEnvelopeTail
+import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -1067,3 +1068,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
+#print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
