@@ -1,4 +1,5 @@
 import Erdos625.Section9ActualResidualENNRealExpBridge
+import Erdos625.Section9CycleWeightSplit
 import Mathlib.Tactic
 
 /-!
@@ -111,8 +112,28 @@ theorem lambda_cycle_products_le_exp_of_sum_bounds
       rw [EReal.exp_le_exp_iff, EReal.coe_ennreal_le_coe_ennreal_iff]
       exact add_le_add hlambda hcycle
 
+/-- Residual-only and mixed-cycle bounds combine into a bound for the complete
+simple-cycle sum. This is the exact finite split used by the later product
+assembly. -/
+theorem simpleCycle_sum_le_of_residual_mixed_bounds
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (residualBound mixedBound : ENNReal)
+    (hresidual :
+      (∑ C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) ≤ residualBound)
+    (hmixed :
+      (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) ≤ mixedBound) :
+    (∑ C ∈ simpleBipartiteCycles A B,
+      edgeWeightOutsideENN q M C) ≤ residualBound + mixedBound := by
+  rw [sum_simpleBipartiteCycles_edgeWeight_split]
+  exact add_le_add hresidual hmixed
+
 #print axioms residualProductExponentMajorant_ne_top
 #print axioms lambda_cycle_products_le_exp_of_sum_bounds
+#print axioms simpleCycle_sum_le_of_residual_mixed_bounds
 
 end
 

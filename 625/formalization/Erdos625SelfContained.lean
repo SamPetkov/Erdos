@@ -54192,7 +54192,7 @@ END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
 Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
-Normalized SHA-256: bbcb27aa55e7d6bba54434661de874cbe672db3f98a17bc667f7a92b53736f47
+Normalized SHA-256: 96719d0fee67dc5333b786bd0947a1a242a62397e7bdb421bcfb2730fad8c323
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
 
@@ -54306,8 +54306,28 @@ theorem lambda_cycle_products_le_exp_of_sum_bounds
       rw [EReal.exp_le_exp_iff, EReal.coe_ennreal_le_coe_ennreal_iff]
       exact add_le_add hlambda hcycle
 
+/-- Residual-only and mixed-cycle bounds combine into a bound for the complete
+simple-cycle sum. This is the exact finite split used by the later product
+assembly. -/
+theorem simpleCycle_sum_le_of_residual_mixed_bounds
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (residualBound mixedBound : ENNReal)
+    (hresidual :
+      (∑ C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) ≤ residualBound)
+    (hmixed :
+      (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) ≤ mixedBound) :
+    (∑ C ∈ simpleBipartiteCycles A B,
+      edgeWeightOutsideENN q M C) ≤ residualBound + mixedBound := by
+  rw [sum_simpleBipartiteCycles_edgeWeight_split]
+  exact add_le_add hresidual hmixed
+
 #print axioms residualProductExponentMajorant_ne_top
 #print axioms lambda_cycle_products_le_exp_of_sum_bounds
+#print axioms simpleCycle_sum_le_of_residual_mixed_bounds
 
 end
 
