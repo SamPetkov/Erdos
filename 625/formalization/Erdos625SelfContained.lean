@@ -51199,7 +51199,7 @@ END SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonExponentialBound
 Source: Erdos625/Section8NearSkeletonExponentialBound.lean
-Normalized SHA-256: e0318fef190e9398faca80c7410b6af2770f8b89c830599c352bd6faad3a8bf5
+Normalized SHA-256: 2202b00a4614bb42646fd2ee0a21795f2b949791b29bc28a444bd5c5cbf5d195
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExponentialBound
 
@@ -51232,9 +51232,14 @@ theorem sum_nearSkeletonChoiceWeight_le_exp_of_card
     rw [Real.exp_nat_mul]
     exact pow_le_pow_left₀ (by positivity)
       (by linarith [Real.add_one_le_exp eps]) _
-  convert ENNReal.ofReal_le_ofReal h_exp_bound using 1
-  rw [ENNReal.ofReal_pow (by positivity), ENNReal.ofReal_add] <;>
-    norm_num [heps]
+  calc
+    (1 + ENNReal.ofReal eps) ^ K =
+        (ENNReal.ofReal (1 + eps)) ^ K := by
+      rw [ENNReal.ofReal_add zero_le_one heps, ENNReal.ofReal_one]
+    _ = ENNReal.ofReal ((1 + eps) ^ K) := by
+      rw [ENNReal.ofReal_pow (by positivity)]
+    _ ≤ ENNReal.ofReal (Real.exp ((K : ℝ) * eps)) :=
+      ENNReal.ofReal_le_ofReal h_exp_bound
 
 end Erdos625
 
