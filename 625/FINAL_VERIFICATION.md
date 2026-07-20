@@ -137,8 +137,8 @@ the title and contents, abstract and main bound, short and long lemma boxes,
 the repaired root corridor, global high-skeleton bridge, green proposition
 box, residual attachments, amplification, final theorem, in-text citations,
 and the reference list.  The rebuilt title page
-displays `Samuil Petkov & ChatGPT 5.6`, and the embedded PDF Author field
-contains the same attribution.
+displays `Samuil Petkov`, and the embedded PDF Author field
+contains the same author metadata.
 Text extraction found no blank page, replacement
 character, or `??` marker and confirmed every lemma title, Proposition 9.2,
 the main constant, all six references, five unique external reference links

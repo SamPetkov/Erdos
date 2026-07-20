@@ -3,7 +3,7 @@
 This directory contains the incremental Lean 4 formalization of the proposed
 resolution of Erdős Problem 625.
 
-**Authors:** Samuil Petkov & ChatGPT 5.6
+**Author:** Samuil Petkov
 
 The confirmed scope, conventions, validation criteria, failure modes, and
 checkpoint policy are recorded in [`FORMALIZATION_BRIEF.md`](FORMALIZATION_BRIEF.md).

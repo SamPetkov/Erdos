@@ -1,6 +1,6 @@
 # A Self-Contained Proof of a Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph
 
-**Authors:** Samuil Petkov & ChatGPT 5.6
+**Author:** Samuil Petkov
 
 **Date:** 12 July 2026
 **Status:** self-contained manuscript assembled from, and checked against, the
