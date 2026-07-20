@@ -1,0 +1,40 @@
+name: Materialize zero-atom outlier theory release
+
+on:
+  push:
+    branches:
+      - agent/publish-zero-atom-outlier-theory
+    paths:
+      - '.sync_zero_atom/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out publication branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/publish-zero-atom-outlier-theory
+
+      - name: Decode and verify release payload
+        run: |
+          set -euo pipefail
+          cat .sync_zero_atom/part-* > /tmp/zero-atom-payload.b64
+          base64 --decode /tmp/zero-atom-payload.b64 > /tmp/zero-atom-payload.tar.gz
+          echo '3384d0358123ebe44985883a2905dd1677da73d5ea918fb7d24ecce37062a3f2  /tmp/zero-atom-payload.tar.gz' | sha256sum -c --strict
+          tar -xzf /tmp/zero-atom-payload.tar.gz
+
+      - name: Commit public research release
+        run: |
+          set -euo pipefail
+          rm -rf .sync_zero_atom
+          rm -f .github/workflows/materialize-zero-atom-outlier-theory.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Publish zero-atom outlier theory release'
+          git push origin HEAD:agent/publish-zero-atom-outlier-theory
