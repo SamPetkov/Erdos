@@ -72,9 +72,46 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          sed -i 's/no claim of full informational independence/no claim of informational independence/g' \
-            arxiv_preprints/arxiv_593/main.tex
-          python -u scripts/sync_arxiv_artifacts.py 2>&1 | tee arxiv-sync.log
+          {
+            sed -i 's/no claim of full informational independence/no claim of informational independence/g' \
+              arxiv_preprints/arxiv_593/main.tex
+            python -u scripts/sync_arxiv_artifacts.py
+            python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          FIXED = (2026, 7, 20, 12, 0, 0)
+
+          def write_zip(target: Path, members: list[tuple[Path, str]]) -> None:
+              with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+                  for source, name in members:
+                      if not source.exists():
+                          continue
+                      info = zipfile.ZipInfo(name, FIXED)
+                      info.compress_type = zipfile.ZIP_DEFLATED
+                      info.external_attr = 0o100644 << 16
+                      archive.writestr(info, source.read_bytes())
+
+          root = Path('.')
+          write_zip(
+              root / 'arxiv_preprints' / 'Erdos593_revised_source.zip',
+              [
+                  (root / 'arxiv_preprints' / 'arxiv_593' / 'main.tex', 'main.tex'),
+                  (root / 'arxiv_preprints' / 'arxiv_593' / 'main.md', 'main.md'),
+              ],
+          )
+          write_zip(
+              root / 'arxiv_preprints' / 'Erdos625_revised_source.zip',
+              [
+                  (root / '625' / 'arxiv' / 'README.md', 'README.md'),
+                  (root / '625' / 'arxiv' / 'main.tex', 'main.tex'),
+                  (root / '625' / 'arxiv' / 'main.md', 'main.md'),
+                  (root / '625' / 'arxiv' / 'main.bbl', 'main.bbl'),
+                  (root / '625' / 'arxiv' / 'references.bib', 'references.bib'),
+              ],
+          )
+          PY
+          } 2>&1 | tee arxiv-sync.log
       - name: Upload synchronization diagnostics
         if: steps.synchronize.outcome == 'failure'
         uses: actions/upload-artifact@v4
@@ -99,33 +136,39 @@ jobs:
       - name: Require committed synchronization
         run: git diff --exit-code -- .
       - name: Verify Erdős 593 publication PDF and mirrors
+        id: verify_593
+        continue-on-error: true
         run: |
           set -euo pipefail
+          mkdir -p verification-artifacts
           pdf=arxiv_preprints/arxiv_593/main.pdf
-          pdfinfo "$pdf" > /tmp/erdos593-pdfinfo.txt
-          pdftotext "$pdf" /tmp/erdos593-paper.txt
-          pdffonts "$pdf" > /tmp/erdos593-fonts.txt
-          grep -Fq 'A4' /tmp/erdos593-pdfinfo.txt
-          grep -Fq 'Obligatory Triple Systems: An Alternative Proof' /tmp/erdos593-paper.txt
-          grep -Fq 'Samuil Petkov' /tmp/erdos593-paper.txt
-          grep -Fq 'Eric Li' /tmp/erdos593-paper.txt
-          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' /tmp/erdos593-paper.txt
-          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/erdos593-fonts.txt
+          pdfinfo "$pdf" | tee verification-artifacts/erdos593-pdfinfo.txt
+          pdftotext "$pdf" verification-artifacts/erdos593-paper.txt
+          pdffonts "$pdf" | tee verification-artifacts/erdos593-fonts.txt
+          grep -Fq 'A4' verification-artifacts/erdos593-pdfinfo.txt
+          grep -Fq 'Obligatory Triple Systems: An Alternative Proof' verification-artifacts/erdos593-pdfinfo.txt
+          grep -Fq 'Samuil Petkov' verification-artifacts/erdos593-pdfinfo.txt
+          grep -Fq 'Eric Li' verification-artifacts/erdos593-paper.txt
+          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' verification-artifacts/erdos593-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' verification-artifacts/erdos593-fonts.txt
           cmp -s "$pdf" arxiv_preprints/arxiv_593.pdf
           cmp -s arxiv_preprints/arxiv_593/main.tex arxiv_preprints/Erdos593_revised.tex
           cmp -s arxiv_preprints/arxiv_593/main.md arxiv_preprints/Erdos593_revised.md
       - name: Verify Erdős 625 publication PDF and mirrors
+        id: verify_625
+        continue-on-error: true
         run: |
           set -euo pipefail
+          mkdir -p verification-artifacts
           pdf=625/arxiv/main.pdf
-          pdfinfo "$pdf" > /tmp/erdos625-pdfinfo.txt
-          pdftotext "$pdf" /tmp/erdos625-paper.txt
-          pdffonts "$pdf" > /tmp/erdos625-fonts.txt
-          grep -Fq 'letter' /tmp/erdos625-pdfinfo.txt
-          grep -Fq 'A Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph' /tmp/erdos625-paper.txt
-          grep -Fq 'Samuil Petkov' /tmp/erdos625-paper.txt
-          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' /tmp/erdos625-paper.txt
-          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/erdos625-fonts.txt
+          pdfinfo "$pdf" | tee verification-artifacts/erdos625-pdfinfo.txt
+          pdftotext "$pdf" verification-artifacts/erdos625-paper.txt
+          pdffonts "$pdf" | tee verification-artifacts/erdos625-fonts.txt
+          grep -Fq 'letter' verification-artifacts/erdos625-pdfinfo.txt
+          grep -Fq 'A Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph' verification-artifacts/erdos625-pdfinfo.txt
+          grep -Fq 'Samuil Petkov' verification-artifacts/erdos625-pdfinfo.txt
+          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' verification-artifacts/erdos625-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' verification-artifacts/erdos625-fonts.txt
           cmp -s "$pdf" arxiv_preprints/arxiv_625/main.pdf
           cmp -s "$pdf" arxiv_preprints/arxiv_625.pdf
           cmp -s 625/arxiv/main.tex arxiv_preprints/arxiv_625/main.tex
@@ -135,13 +178,29 @@ jobs:
           cmp -s 625/arxiv/references.bib arxiv_preprints/arxiv_625/references.bib
           cmp -s 625/arxiv/main.bbl arxiv_preprints/arxiv_625/main.bbl
       - name: Verify sole-author internal proof PDF
+        id: verify_internal
+        continue-on-error: true
         run: |
           set -euo pipefail
+          mkdir -p verification-artifacts
           pdf=625/output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
-          pdfinfo "$pdf" > /tmp/internal-pdfinfo.txt
-          pdftotext "$pdf" /tmp/internal-paper.txt
-          pdffonts "$pdf" > /tmp/internal-fonts.txt
-          grep -Fq 'Samuil Petkov' /tmp/internal-paper.txt
-          ! grep -Eq 'Samuil Petkov (&|and) ChatGPT' /tmp/internal-paper.txt
-          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/internal-fonts.txt
+          pdfinfo "$pdf" | tee verification-artifacts/internal-pdfinfo.txt
+          pdftotext "$pdf" verification-artifacts/internal-paper.txt
+          pdffonts "$pdf" | tee verification-artifacts/internal-fonts.txt
+          grep -Fq 'Samuil Petkov' verification-artifacts/internal-paper.txt
+          ! grep -Eq 'Samuil Petkov (&|and) ChatGPT' verification-artifacts/internal-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' verification-artifacts/internal-fonts.txt
           cmp -s "$pdf" 625/COMPLETE_PROOF_SELF_CONTAINED.pdf
+      - name: Upload publication previews and verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-publication-previews
+          path: |
+            arxiv_preprints/arxiv_593/main.pdf
+            625/arxiv/main.pdf
+            625/output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+            verification-artifacts
+      - name: Stop after verification failure
+        if: steps.verify_593.outcome == 'failure' || steps.verify_625.outcome == 'failure' || steps.verify_internal.outcome == 'failure'
+        run: exit 1
