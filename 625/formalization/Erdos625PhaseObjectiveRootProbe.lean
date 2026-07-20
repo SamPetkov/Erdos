@@ -1,3 +1,8 @@
+/-!
+A focused smoke test for the selected phase-objective endpoint and its axiom
+footprint. The full aggregate build remains the authoritative integration check.
+-/
+
 import Erdos625
 import Erdos625.ColoringProfilePhaseObjective
 
