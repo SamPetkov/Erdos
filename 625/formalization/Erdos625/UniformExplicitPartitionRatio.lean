@@ -83,9 +83,10 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
         · rw [tsum_mul_right, tsum_geometric_of_lt_one] <;> norm_num
       have h_summable : Summable (extendedGaussianNaturalTerm q lambda) := by
         refine summable_of_ratio_norm_eventually_le (r := (1 / 4 : ℝ)) (by norm_num) ?_
-        filter_upwards [eventually_ge_atTop (6 : ℕ)] with n hn
+        filter_upwards [Filter.eventually_ge_atTop (6 : ℕ)] with n hn
         show ‖extendedGaussianNaturalTerm q lambda (n + 1)‖ ≤
           (1 / 4 : ℝ) * ‖extendedGaussianNaturalTerm q lambda n‖
+        unfold extendedGaussianNaturalTerm
         rw [Real.norm_of_nonneg (Real.exp_nonneg _),
           Real.norm_of_nonneg (Real.exp_nonneg _)]
         exact h_tail n hn
