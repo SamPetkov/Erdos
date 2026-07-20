@@ -17047,7 +17047,7 @@ END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
 Source: Erdos625/UniformExplicitPartitionRatio.lean
-Normalized SHA-256: 07402f7214226befe0b3d0ad0b22f75fe6ed61dc8498dbe2ebf8935d4c109d0d
+Normalized SHA-256: 4af67b977029f7b5ddbb5bdcb88a2f6d3aa4eb588dd8dbb41e29ce37dba7deae
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformExplicitPartitionRatio
 
@@ -17131,13 +17131,11 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
             (summable_geometric_of_lt_one (by norm_num) (by norm_num))
         · rw [tsum_mul_right, tsum_geometric_of_lt_one] <;> norm_num
       have h_summable : Summable (extendedGaussianNaturalTerm q lambda) := by
-        refine summable_of_ratio_norm_eventually_le _ _
-        exact 1 / 4
-        · norm_num
-        · filter_upwards [Filter.eventually_ge_atTop 6] with n hn using by
-            rw [Real.norm_of_nonneg (Real.exp_nonneg _),
-              Real.norm_of_nonneg (Real.exp_nonneg _)]
-            exact h_tail n hn
+        refine summable_of_ratio_norm_eventually_le (r := (1 / 4 : ℝ)) ?_ (by norm_num)
+        filter_upwards [Filter.eventually_ge_atTop 6] with n hn using by
+          rw [Real.norm_of_nonneg (Real.exp_nonneg _),
+            Real.norm_of_nonneg (Real.exp_nonneg _)]
+          exact h_tail n hn
       convert add_le_add_left h_tail_sum
           (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) using 1
       · rw [← h_summable.sum_add_tsum_nat_add]
