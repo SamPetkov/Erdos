@@ -23,9 +23,25 @@ jobs:
         run: |
           set -euo pipefail
           : > /tmp/erdos625-payload.b64
-          for i in $(seq -w 0 11); do
-            cat ".sync_erdos625/part-$i" >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-00 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-01 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-02 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-03 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04a >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04b >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04c >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04d >> /tmp/erdos625-payload.b64
+          for i in $(seq 0 7); do
+            cat ".sync_erdos625/part-05x$i" >> /tmp/erdos625-payload.b64
           done
+          cat .sync_erdos625/part-06 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-07 >> /tmp/erdos625-payload.b64
+          for i in $(seq 0 7); do
+            cat ".sync_erdos625/part-08x$i" >> /tmp/erdos625-payload.b64
+          done
+          cat .sync_erdos625/part-09 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-10 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-11 >> /tmp/erdos625-payload.b64
           base64 --decode /tmp/erdos625-payload.b64 > /tmp/erdos625-payload.tar.gz
           echo '858633ad12959a93be505c2cf204d1ef3793f99cad73f1e81b5a0599b3720ac5  /tmp/erdos625-payload.tar.gz' | sha256sum -c --strict
           tar -xzf /tmp/erdos625-payload.tar.gz
