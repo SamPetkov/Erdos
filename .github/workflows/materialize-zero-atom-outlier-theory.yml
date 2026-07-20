@@ -20,19 +20,64 @@ jobs:
           fetch-depth: 0
           ref: agent/publish-zero-atom-outlier-theory
 
-      - name: Decode and verify release payload
+      - name: Decode and verify source payload
         run: |
           set -euo pipefail
-          cat .sync_zero_atom/part-* > /tmp/zero-atom-payload.b64
-          base64 --decode /tmp/zero-atom-payload.b64 > /tmp/zero-atom-payload.tar.gz
-          echo '3384d0358123ebe44985883a2905dd1677da73d5ea918fb7d24ecce37062a3f2  /tmp/zero-atom-payload.tar.gz' | sha256sum -c --strict
-          tar -xzf /tmp/zero-atom-payload.tar.gz
+          cat .sync_zero_atom/part-* > /tmp/zero-atom-source.b64
+          base64 --decode /tmp/zero-atom-source.b64 > /tmp/zero-atom-source.tar.gz
+          echo '6a1a8013be4d648bb5d2dd5719c846db9e9f61ff8fd2d9183aec1642d2bc1416  /tmp/zero-atom-source.tar.gz' | sha256sum -c --strict
+          tar -xzf /tmp/zero-atom-source.tar.gz
 
-      - name: Commit public research release
+      - name: Install Python, TeX, and PDF dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r solveall/zero-atom-outlier-theory/requirements.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-publishers \
+            texlive-science \
+            texlive-fonts-recommended \
+            poppler-utils
+
+      - name: Reproduce figures, compile manuscripts, and verify PDFs
+        run: |
+          set -euo pipefail
+          cd solveall/zero-atom-outlier-theory
+          ./check.sh
+          {
+            echo 'PDF information'
+            pdfinfo paper/prl_letter.pdf
+            echo
+            echo 'Embedded fonts'
+            pdffonts paper/prl_letter.pdf
+          } > paper/prl_letter_preflight.txt
+          {
+            echo 'PDF information'
+            pdfinfo paper/supplement.pdf
+            echo
+            echo 'Embedded fonts'
+            pdffonts paper/supplement.pdf
+          } > paper/supplement_preflight.txt
+          find paper -maxdepth 1 -type f \( \
+            -name '*.aux' -o -name '*.bbl' -o -name '*.blg' -o \
+            -name '*.fdb_latexmk' -o -name '*.fls' -o -name '*.log' -o \
+            -name '*.out' -o -name '*Notes.bib' -o -name '*.toc' \
+          \) -delete
+
+      - name: Finalize checksums and commit public release
         run: |
           set -euo pipefail
           rm -rf .sync_zero_atom
           rm -f .github/workflows/materialize-zero-atom-outlier-theory.yml
+          cd solveall/zero-atom-outlier-theory
+          find . -type f ! -path './MANIFEST.sha256' ! -path './.git/*' -print0 \
+            | sort -z | xargs -0 sha256sum > MANIFEST.sha256
+          cd ../..
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
