@@ -1,15 +1,16 @@
 name: Finalize revised Problem 625 manuscript
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/revise-erdos625-manuscript
+      - main
 
 permissions:
   contents: write
 
 jobs:
   finalize:
+    if: github.head_ref == 'agent/revise-erdos625-manuscript'
     runs-on: ubuntu-latest
     steps:
       - name: Check out manuscript branch
@@ -21,7 +22,10 @@ jobs:
       - name: Materialize revised manuscript sources
         run: |
           set -euo pipefail
-          cat .sync_erdos625/part-* > /tmp/erdos625-payload.b64
+          : > /tmp/erdos625-payload.b64
+          for i in $(seq -w 0 11); do
+            cat ".sync_erdos625/part-$i" >> /tmp/erdos625-payload.b64
+          done
           base64 --decode /tmp/erdos625-payload.b64 > /tmp/erdos625-payload.tar.gz
           echo '858633ad12959a93be505c2cf204d1ef3793f99cad73f1e81b5a0599b3720ac5  /tmp/erdos625-payload.tar.gz' | sha256sum -c --strict
           tar -xzf /tmp/erdos625-payload.tar.gz
