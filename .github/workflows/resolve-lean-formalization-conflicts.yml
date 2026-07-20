@@ -1,16 +1,15 @@
 name: Resolve Lean formalization conflicts
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - codex/lean-full-formalization
 
 permissions:
   contents: write
 
 jobs:
   resolve:
-    if: github.head_ref == 'codex/lean-full-formalization'
     runs-on: ubuntu-24.04
     steps:
       - name: Check out formalization branch
@@ -36,8 +35,7 @@ jobs:
             conflicts="$(git diff --name-only --diff-filter=U)"
             printf '%s\n' "$conflicts"
 
-            # The current main branch is authoritative for the 593 submodule
-            # and all manuscript artefacts. They do not belong in this Lean PR.
+            # Current main is authoritative for the 593 submodule and papers.
             main_paths=(
               '593'
               'arxiv_preprints/Erdos593_revised.tex'
@@ -54,8 +52,8 @@ jobs:
               fi
             done
 
-            # The formalization branch has the superset of aggregate imports.
-            # The generated monolith is selected temporarily and regenerated below.
+            # This branch has the superset of aggregate 625 imports. The
+            # generated monolith is selected temporarily and rebuilt below.
             lean_paths=(
               '625/formalization/Erdos625.lean'
               '625/formalization/Erdos625SelfContained.lean'
@@ -80,7 +78,6 @@ jobs:
             exit 1
           fi
 
-          # Verify that the aggregate import file retained every new module.
           root='625/formalization/Erdos625.lean'
           for module in \
             FourGaussianTiltCorridor \
@@ -96,20 +93,17 @@ jobs:
             grep -Fq "import Erdos625.${module}" "$root"
           done
 
-          # Regenerate the monolith from the merged modular source closure.
           cd 625/formalization
           python3 scripts/generate_self_contained.py
           python3 scripts/generate_self_contained.py --check
           cd ../..
 
-          # Enforce the same source-safety gate as the normal Lean workflow.
           if grep -RInE --include='*.lean' \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization; then
             exit 1
           fi
 
-          # Remove this one-shot workflow before committing the merge.
           rm -f .github/workflows/resolve-lean-formalization-conflicts.yml
           git add -A
           git commit -m 'Merge main and isolate the Problem 625 formalization'
