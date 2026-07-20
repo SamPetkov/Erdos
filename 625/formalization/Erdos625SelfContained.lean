@@ -17047,7 +17047,7 @@ END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
 Source: Erdos625/UniformExplicitPartitionRatio.lean
-Normalized SHA-256: c9cf46fa6b33c7b970d4480a8f0b9c5b8b0ec59469516487125be3fb778bc5d2
+Normalized SHA-256: 07402f7214226befe0b3d0ad0b22f75fe6ed61dc8498dbe2ebf8935d4c109d0d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformExplicitPartitionRatio
 
@@ -17105,8 +17105,8 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
           extendedGaussianNaturalTerm q lambda (d + 1) =
               Real.exp (lambda - q / 2 * (2 * d + 1)) *
                 extendedGaussianNaturalTerm q lambda d := by
-            rw [← Real.exp_add]
             unfold extendedGaussianNaturalTerm
+            rw [← Real.exp_add]
             push_cast
             ring
           _ ≤ (1 / 4) * extendedGaussianNaturalTerm q lambda d :=

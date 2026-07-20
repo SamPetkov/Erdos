@@ -56,8 +56,8 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
           extendedGaussianNaturalTerm q lambda (d + 1) =
               Real.exp (lambda - q / 2 * (2 * d + 1)) *
                 extendedGaussianNaturalTerm q lambda d := by
-            rw [← Real.exp_add]
             unfold extendedGaussianNaturalTerm
+            rw [← Real.exp_add]
             push_cast
             ring
           _ ≤ (1 / 4) * extendedGaussianNaturalTerm q lambda d :=
