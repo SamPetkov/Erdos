@@ -192,7 +192,7 @@ jobs:
           pdffonts "$pdf" | tee verification-artifacts/internal-fonts.txt
           grep -Fq 'Samuil Petkov' verification-artifacts/internal-paper.txt
           grep -Fq '20 July 2026' verification-artifacts/internal-paper.txt
-          grep -Fq '10.1137/24M1715180' verification-artifacts/internal-paper.txt
+          tr -d '[:space:]' < verification-artifacts/internal-paper.txt | grep -Fq '10.1137/24M1715180'
           ! grep -Eq 'Samuil Petkov (&|and) ChatGPT' verification-artifacts/internal-paper.txt
           ! grep -Eq '[[:space:]]no[[:space:]]' verification-artifacts/internal-fonts.txt
           cmp -s "$pdf" 625/COMPLETE_PROOF_SELF_CONTAINED.pdf
