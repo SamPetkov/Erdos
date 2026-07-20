@@ -15,8 +15,9 @@ Regenerate and verify every mirror with:
 
 ```bash
 python scripts/sync_arxiv_artifacts.py
+python scripts/refresh_internal_proof_metadata.py
 ```
 
 The synchronization workflow checks authorship metadata, page size, embedded
-fonts, bibliography mirrors, and byte-identical PDF copies. It does not modify
-Lean source files.
+fonts, bibliography mirrors, current publication citations, and byte-identical
+PDF copies. It does not modify Lean source files.
