@@ -89,6 +89,7 @@ import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
+import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -191,6 +192,7 @@ import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
+import Erdos625.Section9PhaseENNRealTauCorridor
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
 import Erdos625.Section9RewardCompatibility
@@ -212,6 +214,7 @@ import Erdos625.Section9SmallResidualDeterministic
 import Erdos625.Section9SmallResidualAttachmentBound
 import Erdos625.Section9CanonicalDemandSmallResidualBound
 import Erdos625.Section9CanonicalRawTwoRegimeSplit
+import Erdos625.Section9ProfileRawTwoRegimeAssembly
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
 import Erdos625.EvenMatchingRestriction
@@ -251,6 +254,7 @@ import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.Section8NearSkeletonUniformProductBound
+import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights

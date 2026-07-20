@@ -18948,6 +18948,204 @@ END SOURCE MODULE: Erdos625.ExtendedGaussianEntropyTransport
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusEntropyCandidateEmbedding
+Source: Erdos625/SPlusEntropyCandidateEmbedding.lean
+Normalized SHA-256: ccd5883b4c79b83875fa6075e99ee6d81989957d7f0e65db2701859477066540
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusEntropyCandidateEmbedding
+
+/-!
+# Finite `S₄` witness inside the limiting `S₊` entropy lane
+
+This source-only module isolates the exact finite-support inclusion used by
+the limiting-entropy comparison. It does not assert finite-cutoff convergence,
+a moving-root theorem, any random-graph statement, or the final Erdős 625
+conclusion.
+-/
+
+open Filter
+open scoped Topology BigOperators
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A concrete admissible limiting entropy witness at a prescribed target.
+The exceptional atom has deficit `-1`; the natural sequence is indexed by
+nonnegative deficits. The finite inequality is the `tilt = 0` instance of the
+existing truncation dual transport, written explicitly so the finite
+four-point embedding is a genuine candidate rather than an assumed inclusion.
+-/
+structure ExtendedGaussianEntropyWitness
+    (target value exceptional : ℝ) (p : ℕ → ℝ) : Prop where
+  exceptional_nonneg : 0 ≤ exceptional
+  natural_nonneg : ∀ d, 0 ≤ p d
+  finite_dual_bound : ∀ N,
+    extendedGaussianEntropyTruncation q exceptional p N ≤
+      extendedGaussianReferenceMassTruncation q 0 N -
+        extendedGaussianMassTruncation exceptional p N +
+        Real.log (extendedGaussianPartition q 0) *
+          extendedGaussianMassTruncation exceptional p N
+  mass_limit : Tendsto (extendedGaussianMassTruncation exceptional p)
+    atTop (nhds 1)
+  moment_limit : Tendsto (extendedGaussianMomentTruncation exceptional p)
+    atTop (nhds target)
+  entropy_limit : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+    atTop (nhds value)
+
+/-- **Finite `S₄ ⊆ S₊` witness.** The target-matching four-point optimizer is
+embedded at natural deficit coordinates `2,3,4,5`, with zero exceptional mass
+and zero mass elsewhere. This establishes only the limiting candidate
+inclusion; it does not identify a finite-cutoff entropy limit. -/
+theorem exists_s4_embedded_extendedGaussian_witness
+    {target : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    ∃ exceptional p,
+      ExtendedGaussianEntropyWitness target
+        (ProfileEntropyS4.optimizedValue fourGaussianScore target)
+        exceptional p := by
+  let w : Fin 4 → ℝ := ProfileEntropyS4.optimizer fourGaussianScore target
+  let p : ℕ → ℝ := fun d ↦
+    if d = 2 then w 0 else if d = 3 then w 1 else
+    if d = 4 then w 2 else if d = 5 then w 3 else 0
+  refine ⟨0, p, ?_⟩
+  have hw0 : ∀ i, 0 ≤ w i := ProfileEntropyS4.optimizer_nonneg _ _
+  have hwsum : ∑ i : Fin 4, w i = 1 :=
+    ProfileEntropyS4.sum_optimizer _ _
+  have hwmean : ∑ i : Fin 4, w i * ProfileEntropyS4.support i = target :=
+    ProfileEntropyS4.sum_optimizer_mul_support _ hT
+  have hwvalue :
+      -(∑ i : Fin 4, w i * Real.log (w i)) +
+          ∑ i : Fin 4, w i * fourGaussianScore i =
+        ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+    exact ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target
+      fourGaussianScore hT
+  have hp0 (d : ℕ) : 0 ≤ p d := by
+    dsimp [p]
+    split_ifs <;> first | exact hw0 _ | exact le_rfl
+  have hp_out (d : ℕ) (hd : 6 ≤ d) : p d = 0 := by
+    have h2 : d ≠ 2 := by omega
+    have h3 : d ≠ 3 := by omega
+    have h4 : d ≠ 4 := by omega
+    have h5 : d ≠ 5 := by omega
+    simp [p, h2, h3, h4, h5]
+  have hscore (i : Fin 4) :
+      extendedGaussianNaturalScore q (i.1 + 2) = fourGaussianScore i := by
+    simp [extendedGaussianNaturalScore, fourGaussianScore,
+      ProfileEntropyS4.support]
+    ring
+  have hfinite (N : ℕ) :
+      extendedGaussianEntropyTruncation q 0 p N ≤
+        extendedGaussianReferenceMassTruncation q 0 N -
+          extendedGaussianMassTruncation 0 p N +
+          Real.log (extendedGaussianPartition q 0) *
+            extendedGaussianMassTruncation 0 p N := by
+    have hZ : 0 < extendedGaussianPartition q 0 :=
+      extendedGaussianPartition_pos q_pos
+    have hterm (d : ℕ) :
+        -p d * Real.log (p d) + p d * extendedGaussianNaturalScore q d ≤
+          extendedGaussianNaturalTerm q 0 d / extendedGaussianPartition q 0 - p d +
+            Real.log (extendedGaussianPartition q 0) * p d := by
+      have hy : 0 < extendedGaussianNaturalTerm q 0 d /
+          extendedGaussianPartition q 0 :=
+        div_pos (extendedGaussianNaturalTerm_pos q 0 d) hZ
+      have hh := ProfileEntropyS4.neg_mul_log_add_mul_log_le_sub (hp0 d) hy
+      have hlog : Real.log (extendedGaussianNaturalTerm q 0 d /
+            extendedGaussianPartition q 0) =
+          extendedGaussianNaturalScore q d -
+            Real.log (extendedGaussianPartition q 0) := by
+        rw [Real.log_div (extendedGaussianNaturalTerm_pos q 0 d).ne'
+          hZ.ne', extendedGaussianNaturalTerm, Real.log_exp]
+        simp [extendedGaussianNaturalScore]
+        ring
+      rw [hlog] at hh
+      linarith
+    have hsum := Finset.sum_le_sum fun d (_hd : d ∈ Finset.range N) ↦ hterm d
+    unfold extendedGaussianEntropyTruncation extendedGaussianReferenceMassTruncation
+      extendedGaussianMassTruncation extendedGaussianExceptionalScore at *
+    simp only [zero_mul, neg_zero, Real.log_zero, zero_add, Finset.sum_add_distrib,
+      Finset.sum_sub_distrib] at hsum ⊢
+    rw [Finset.mul_sum]
+    have hex : 0 ≤ extendedGaussianExceptionalAtom q 0 /
+        extendedGaussianPartition q 0 :=
+      (div_pos (extendedGaussianExceptionalAtom_pos q 0) hZ).le
+    linarith
+  refine
+    { exceptional_nonneg := le_rfl
+      natural_nonneg := hp0
+      finite_dual_bound := hfinite
+      mass_limit := ?_
+      moment_limit := ?_
+      entropy_limit := ?_ }
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianMassTruncation 0 p N = 1 := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      unfold extendedGaussianMassTruncation
+      simp only [zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ hp_out d (by
+          simp only [Finset.mem_range] at hd6
+          omega))]
+      norm_num [Finset.sum_range_succ, p]
+      simpa [Fin.sum_univ_four] using hwsum
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianMomentTruncation 0 p N = target := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      rw [← hwmean]
+      unfold extendedGaussianMomentTruncation
+      simp only [neg_zero, zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ by
+          rw [hp_out d (by
+            simp only [Finset.mem_range] at hd6
+            omega), mul_zero])]
+      norm_num [Finset.sum_range_succ, p]
+      simp [Fin.sum_univ_four, ProfileEntropyS4.support]
+      ring
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianEntropyTruncation q 0 p N =
+          ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      rw [← hwvalue]
+      unfold extendedGaussianEntropyTruncation
+      simp only [zero_mul, neg_zero, Real.log_zero, zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ by
+          rw [hp_out d (by
+            simp only [Finset.mem_range] at hd6
+            omega)]
+          simp)]
+      have hs0 := hscore (0 : Fin 4)
+      have hs1 := hscore (1 : Fin 4)
+      have hs2 := hscore (2 : Fin 4)
+      have hs3 := hscore (3 : Fin 4)
+      norm_num [Finset.sum_range_succ, p]
+      norm_num at hs0 hs1 hs2 hs3
+      rw [hs0, hs1, hs2, hs3]
+      simp [Fin.sum_univ_four]
+      ring
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusEntropyCandidateEmbedding
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusEntropyCandidateEmbedding
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.GaussianMomentTailTools
 Source: Erdos625/GaussianMomentTailTools.lean
 Normalized SHA-256: 5336ebed3aa295e51453fb6603a90e3c125754a6c14621b53eee79c2058c6134
@@ -42280,6 +42478,64 @@ END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
+Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+
+/-!
+# Section IX: phase-controlled `ENNReal` tau corridor
+
+This is only the numerical bridge needed to supply the strict tau hypothesis
+of the accepted actual-attachment large-residual envelope.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
+and the manuscript large-residual cutoff eventually give the strict
+`ENNReal` tau corridor used by the attachment envelope. -/
+theorem eventually_phaseControlled_ennreal_tau_lt_one_third
+    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
+    ∀ᶠ n : Nat in atTop,
+      ∀ (U m : Nat),
+        U ≤ phaseNat n →
+        0 < m →
+        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) := by
+  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
+    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
+      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
+    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    constructor <;> intro h;
+    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    · use 0;
+      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
+      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
+  filter_upwards [ hC ] with n hn U m hU hm hmn;
+  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
+  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
+  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
+
+#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
 Source: Erdos625/Section9RewardCompatibility.lean
 Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
@@ -47841,6 +48097,126 @@ END SOURCE MODULE: Erdos625.Section9CanonicalRawTwoRegimeSplit
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileRawTwoRegimeAssembly
+Source: Erdos625/Section9ProfileRawTwoRegimeAssembly.lean
+Normalized SHA-256: 0adeb91aec2bcc5f41d079cec6619e00f6c5520f18bb10185f0defb1a9f4a502
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileRawTwoRegimeAssembly
+
+/-!
+# Section IX: profile-level raw two-regime bookkeeping
+
+This module combines the exact zero/positive-residual decomposition with the
+literal raw split of the positive branch.  Both the zero branch and the small
+positive-residual branch retain `canonicalDemandRawAttachmentTerm`, including
+its cap/no-return event.  Only the positive large-residual branch is replaced
+by the already-proved polymer majorant.
+
+The result is conditional bookkeeping: it supplies no quantitative estimate
+for either raw branch and therefore does not close Section IX.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Profile-level raw two-regime assembly.  The threshold convention is
+literal: `0 < residualTotal < T` is small and `T ≤ residualTotal` is large.
+The raw cap/no-return numerator remains present on the zero and small branches.
+This theorem alone is not a quantitative Section IX bound. -/
+theorem uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U T : Nat)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand = 0),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U
+            (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand ∧
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand < T),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U
+            (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand ∧
+            T ≤ canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand),
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant (profileBlockMargin k)
+              (profileBlockMargin k) U demand)) := by
+  classical
+  have hidentity :=
+    sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+      (row₀ := row₀) (U := U) hU
+  have htwo := sum_canonicalDemandRawAttachmentTerm_positive_le_twoRegime
+    (A := ProfileBlockIndex k) (B := ProfileBlockIndex k)
+    (row := profileBlockMargin k) (col := profileBlockMargin k)
+    (U := U) (T := T) (htotal := profileBlockMargin_total_eq_self row₀)
+    (smallTerm := canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+      (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀))
+    (largeTerm := fun demand =>
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+          (profileBlockMargin k) *
+          canonicalDemandPolymerMajorant (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+    (hsmall := by
+      intro demand _ _
+      rfl)
+    (hlarge := by
+      intro demand hpositive _
+      unfold canonicalDemandRawAttachmentTerm
+      apply mul_le_mul_right
+      apply mul_le_mul_right
+      unfold canonicalDemandPolymerMajorant
+      exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+        (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (residualColumnDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (sum_residualRowDegree_eq_sum_residualColumnDegree
+          (profileBlockMargin_total_eq_self row₀)
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (by simpa only [canonicalDemandResidualTotal] using hpositive))
+  have add_two_regime {z p s l : ENNReal} (h : p ≤ s + l) :
+      z + p ≤ z + s + l := by
+    rw [add_assoc]
+    exact add_le_add_right h z
+  exact hidentity.le.trans (add_two_regime htwo)
+
+#print axioms uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileRawTwoRegimeAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileRawTwoRegimeAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.WeightedCauchyTools
 Source: Erdos625/WeightedCauchyTools.lean
 Normalized SHA-256: 17c44eaa169b97f8ecd92badd3e29ae85c11e8715318fab8bbd07a91e0cc1017
@@ -50818,6 +51194,55 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonUniformProductBound
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonExponentialBound
+Source: Erdos625/Section8NearSkeletonExponentialBound.lean
+Normalized SHA-256: e0318fef190e9398faca80c7410b6af2770f8b89c830599c352bd6faad3a8bf5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExponentialBound
+
+/-!
+# Section VIII: exponential form of the near-skeleton product bound
+
+This is the finite conversion from the already proved `(1 + ε)^K` bound to
+its exponential form.  It does not assert a concrete `ε` asymptotic or any
+physical/unlabelled skeleton estimate.
+-/
+
+namespace Erdos625
+
+/-- If every one-cell deficit tail is at most `ENNReal.ofReal eps` and there
+are at most `K` cells, then the exact distinguishable near-skeleton expansion
+is at most `exp (K * eps)`. -/
+theorem sum_nearSkeletonChoiceWeight_le_exp_of_card
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ENNReal) (eps : ℝ) (K : ℕ)
+    (heps : 0 ≤ eps)
+    (hcell : ∀ c, (∑ e ∈ allowed c, weight c e) ≤ ENNReal.ofReal eps)
+    (hcard : Fintype.card Cell ≤ K) :
+    (∑ choice : NearSkeletonChoice Cell Deficit allowed,
+      nearSkeletonChoiceWeight allowed weight choice) ≤
+      ENNReal.ofReal (Real.exp ((K : ℝ) * eps)) := by
+  refine le_trans
+    (sum_nearSkeletonChoiceWeight_le_one_add_pow _ _ _ _ hcell hcard) ?_
+  have h_exp_bound : (1 + eps) ^ K ≤ Real.exp (K * eps) := by
+    rw [Real.exp_nat_mul]
+    exact pow_le_pow_left₀ (by positivity)
+      (by linarith [Real.add_one_le_exp eps]) _
+  convert ENNReal.ofReal_le_ofReal h_exp_bound using 1
+  rw [ENNReal.ofReal_pow (by positivity), ENNReal.ofReal_add] <;>
+    norm_num [heps]
+
+end Erdos625
+
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExponentialBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearSkeletonExponentialBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -55711,7 +56136,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: d434c363d926e24e750529f9f6a599a229a88b2f44ddad1b36f555c441084a72
+Normalized SHA-256: 74f7ea1285a09a01e0b36c60f9d472346df170b1c7de504de0b9414977846abf
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -56288,6 +56713,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
 #print axioms Erdos625.eventually_tau_lt_one_third
+#print axioms Erdos625.eventually_phaseControlled_ennreal_tau_lt_one_third
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
@@ -56420,6 +56846,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
@@ -56516,6 +56943,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
+#print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
@@ -56526,6 +56954,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+#print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -56535,7 +56964,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: b08f8391deb5628e5e923626b8915359f40d49e524c5bd8058efb303be543c3c
+Normalized SHA-256: 89b3e47ba5799d44219bd67567b9aae0b92b1a51321213633cd9d66411b9671c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

@@ -81,6 +81,7 @@ import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
+import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -184,6 +185,7 @@ import Erdos625.LocalSignReward
 import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
+import Erdos625.Section9PhaseENNRealTauCorridor
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
 import Erdos625.Section9RewardCompatibility
@@ -202,6 +204,7 @@ import Erdos625.Section9ResidualQQuadratic
 import Erdos625.Section9ResidualLambdaCubic
 import Erdos625.Section9ResidualLambdaTotalBound
 import Erdos625.Section9SmallResidualDeterministic
+import Erdos625.Section9ProfileRawTwoRegimeAssembly
 import Erdos625.EvenMatchingKernel
 import Erdos625.BipartiteEdgeMatrix
 import Erdos625.EvenMatchingRestriction
@@ -238,6 +241,7 @@ import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.Section8NearSkeletonUniformProductBound
+import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
@@ -831,6 +835,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
 #print axioms Erdos625.eventually_tau_lt_one_third
+#print axioms Erdos625.eventually_phaseControlled_ennreal_tau_lt_one_third
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
@@ -963,6 +968,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
@@ -1059,6 +1065,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
+#print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
@@ -1069,3 +1076,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+#print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
