@@ -52,13 +52,17 @@ private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
           norm_num
           nlinarith [show (d : ℝ) ≥ 6 by norm_cast,
             show q = Real.log 2 by rfl, Real.log_pos one_lt_two]
-        convert mul_le_mul_of_nonneg_right h_exp
-          (Real.exp_nonneg (lambda * d - q / 2 * d ^ 2)) using 1
-        · rfl
-        · rw [← Real.exp_add]
-          unfold extendedGaussianNaturalTerm
-          push_cast
-          ring
+        calc
+          extendedGaussianNaturalTerm q lambda (d + 1) =
+              Real.exp (lambda - q / 2 * (2 * d + 1)) *
+                extendedGaussianNaturalTerm q lambda d := by
+            rw [← Real.exp_add]
+            unfold extendedGaussianNaturalTerm
+            push_cast
+            ring
+          _ ≤ (1 / 4) * extendedGaussianNaturalTerm q lambda d :=
+            mul_le_mul_of_nonneg_right h_exp
+              (Real.exp_nonneg (lambda * d - q / 2 * d ^ 2))
       have h_tail_sum :
           ∑' d : ℕ, extendedGaussianNaturalTerm q lambda (d + 6) ≤
             (4 / 3) * extendedGaussianNaturalTerm q lambda 6 := by
