@@ -1,185 +1,189 @@
-\documentclass[11pt,reqno]{amsart}
+\documentclass[a4paper,11pt,reqno]{amsart}
 
-\usepackage[letterpaper,margin=1.18in,headheight=14pt]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext,newtxmath}
 \usepackage{microtype}
 \usepackage{amsmath,mathtools}
-\usepackage[authoryear,round]{natbib}
+\usepackage[numbers,sort&compress]{natbib}
 \usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{etoolbox}
 \usepackage{xurl}
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks,pdfencoding=auto,psdextra]{hyperref}
 \usepackage{bookmark}
 
+\setcounter{secnumdepth}{1}
+\setcounter{tocdepth}{1}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{3em}
+\setlist[itemize]{leftmargin=2em,itemsep=0.12em,topsep=0.35em}
+\setlist[enumerate]{leftmargin=2.2em,itemsep=0.12em,topsep=0.35em}
+\allowdisplaybreaks[2]
+\raggedbottom
+\Urlmuskip=0mu plus 1mu
+\frenchspacing
+\tolerance=1800
+\pretolerance=500
+\ifdefined\pdfgentounicode
+  \pdfgentounicode=1
+\fi
+
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\passthrough}[1]{#1}
+\newcommand{\proofpart}[1]{%
+  \par\smallskip\noindent\textit{#1.}\enspace\ignorespaces}
+
+\theoremstyle{plain}
+\newtheorem*{theoremA}{Theorem A}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem*{claim}{Claim}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\BeforeBeginEnvironment{theoremA}{\Needspace{8\baselineskip}}
+\BeforeBeginEnvironment{theorem}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{lemma}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{proposition}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{corollary}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{claim}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{definition}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{remark}{\Needspace{4\baselineskip}}
+\BeforeBeginEnvironment{proof}{\Needspace{4\baselineskip}}
 \hypersetup{
-  pdftitle={Obligatory triple systems and Erdos Problem 593},
+  pdftitle={Obligatory Triple Systems: An Alternative Proof},
   pdfauthor={Samuil Petkov},
-  pdfsubject={A characterisation of finite obligatory triple systems}
+  pdfsubject={An alternative proof and Lean verification of the classification of finite obligatory triple systems first proved by Eric Li},
+  pdfkeywords={obligatory triple system, hypergraph colouring, Levi graph, Berge cycle, uncountable chromatic number, Erdos Problem 593},
+  pdfcreator={LaTeX with amsart},
+  pdfproducer={pdfTeX},
+  pdfdisplaydoctitle=true
 }
 
-\setlength{\parindent}{1.45em}
-\setlength{\parskip}{0pt}
-\setlist[itemize]{leftmargin=2.05em,itemsep=0.12em,topsep=0.32em}
-\setlist[enumerate]{leftmargin=2.15em,itemsep=0.12em,topsep=0.32em}
-\setcounter{tocdepth}{2}
-\setcounter{secnumdepth}{1}
-\emergencystretch=2.5em
-
-\newcommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\providecommand{\passthrough}[1]{#1}
-\providecommand{\square}{\ensuremath{\Box}}
-\newcommand{\topic}[1]{%
-  \par\addvspace{0.72\baselineskip}%
-  \noindent\textsc{#1}\par\nobreak\smallskip}
-
-% Plain theorem typography: bold heading, italic statement, no colour or shadow.
-\newenvironment{theorembox}[1]
-  {\par\addvspace{0.78\baselineskip}\noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.34\baselineskip}}
-\newenvironment{lemmabox}[1]
-  {\par\addvspace{0.70\baselineskip}\noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
-\newenvironment{propositionbox}[1]
-  {\par\addvspace{0.70\baselineskip}\noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
-\newenvironment{corollarybox}[1]
-  {\par\addvspace{0.70\baselineskip}\noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
-\newenvironment{claimbox}[1]
-  {\par\addvspace{0.58\baselineskip}\noindent\textbf{#1.}\enspace\itshape\ignorespaces}
-  {\par\addvspace{0.26\baselineskip}}
-\newenvironment{definitionbox}[1]
-  {\par\addvspace{0.70\baselineskip}\noindent\textbf{#1.}\enspace\normalfont\ignorespaces}
-  {\par\addvspace{0.30\baselineskip}}
-\newenvironment{remarkbox}[1]
-  {\par\addvspace{0.58\baselineskip}\noindent\textit{#1.}\enspace\normalfont\ignorespaces}
-  {\par\addvspace{0.26\baselineskip}}
-
-\title[Obligatory triple systems]{Obligatory triple systems and Erd\H{o}s Problem 593}
+\title[Obligatory triple systems]{Obligatory Triple Systems: An Alternative Proof}
 \author{Samuil Petkov}
-\address{\'Ecole normale sup\'erieure, Universit\'e PSL, Paris, France}
-\email{samuil.petkov@ens.psl.eu}
-\date{11 July 2026}
+\date{20 July 2026}
 \subjclass[2020]{Primary 05C65; Secondary 05C15, 05C63, 03E05}
-\keywords{obligatory triple system, hypergraph colouring, Levi graph, Berge cycle, uncountable chromatic number, Erd\H{o}s Problem 593}
+\keywords{obligatory triple system, hypergraph colouring, Levi graph, Berge cycle, uncountable chromatic number, Erdős Problem 593}
 
 \begin{document}
 
 \begin{abstract}
-An obligatory triple system is a finite \(3\)-uniform hypergraph that occurs
-in every \(3\)-uniform hypergraph of uncountable chromatic number. Erd\H{o}s
-Problem~593 asks for a characterisation of these systems. We prove that,
-after isolated vertices are removed, a finite triple system is obligatory if
-and only if it is linear, every hyperedge-node of its Levi graph is incident
-with a bridge, and every Berge cycle has even length. Equivalently, the
-obligatory systems are generated by private-vertex expansions of finite
-bipartite graphs and finite edgeless systems under disjoint unions and
-one-point amalgamations. One direction follows from a bridge-block
-decomposition into bipartite expansion pieces. For the converse, sequence
-lifts provide uncountably chromatic hosts that exclude each possible failure
-of the intrinsic conditions. All arguments are carried out in ZFC.
+Eric Li's preprint gave the first publicly posted complete classification of
+the finite triple systems that occur in every triple system of uncountable
+chromatic number.  We present
+an alternative proof of that classification together with a Lean
+formalisation of the finite theorem.  After isolated vertices are removed,
+obligatoriness is equivalent to linearity, incidence of every hyperedge-node
+of the Levi graph with a bridge, and evenness of every Berge cycle;
+equivalently, the systems are generated from private-vertex expansions of
+finite bipartite graphs and finite edgeless systems by disjoint unions and
+one-point amalgamations.  The positive direction uses a probabilistic rainbow
+lemma and rooted abundance, while the intrinsic decomposition deletes
+selected Levi-graph bridges and reassembles the resulting expansion pieces
+along a quotient forest.  For the converse, we use the one-apex sequence-lift
+and bridge-trace framework introduced in Li's proof, reorganised here as a
+base-fibre decomposition and support-incidence forest; the three obstructions
+come from an Erdős--Rado linear host, the lift of $K_{\omega_1}$, and the
+classical Erdős--Hajnal high-odd-girth theorem, all in ZFC.
 \end{abstract}
 
 \maketitle
 
 \section*{Introduction}\label{introduction}
 
-A finite triple system is \emph{obligatory} if it embeds in every triple
-system of uncountable chromatic number. Erd\H{o}s asked for a
-characterisation of all such systems \citep{erdos1995}; the question is now
-catalogued as Erd\H{o}s Problem~593 \citep{bloom593}. Theorem~A gives both a
-constructive and an intrinsic answer.
+A finite triple system is \emph{obligatory} if it occurs in every triple
+system of uncountable chromatic number.  Erdős asked for a characterization
+of these finite systems \citep{erdos1995}; the question is catalogued as
+Erdős Problem~593 \citep{bloom593}.  The answer has both a constructive form
+and an intrinsic form.
 
-The answer has two complementary forms. One is constructive: start with
-private-vertex expansions of finite bipartite graphs and close under finite
-disjoint unions and one-point amalgamations. The other is intrinsic and is
-read from the Levi graph after isolated vertices are removed.
+For a finite graph $J$, write $J^+$ for its private-vertex expansion.  Let
+$\mathcal B$ be the smallest class containing $J^+$ for every finite
+bipartite graph $J$ and every finite edgeless triple system, and closed under
+finite disjoint unions and one-point amalgamations.  If $F$ is a triple
+system, let $F^\circ$ denote the system obtained by deleting its isolated
+vertices.
 
-\phantomsection
-\label{theorem-a-exact-characterisation}
-\begin{theorembox}{Theorem A}
-
-For every finite triple system \(F\), the following are equivalent:
-
+\begin{theoremA}\label{theorem-a-exact-characterisation}
+For every finite triple system $F$, the following are equivalent:
 \begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  \(F\) is obligatory.
-\item
-  \(F\in\mathcal B\).
-\item
-  \(F^\circ\) is linear, every hyperedge-node of \(I(F^\circ)\) is incident with a bridge, and every Berge cycle of \(F^\circ\) has even length.
+\item $F$ is obligatory;
+\item $F\in\mathcal B$;
+\item $F^\circ$ is linear, every hyperedge-node of $I(F^\circ)$ is incident
+with a bridge, and every Berge cycle of $F^\circ$ has even length.
 \end{enumerate}
+\end{theoremA}
 
-Here \(F^\circ\) is obtained by deleting all isolated vertices, and \(\mathcal B\) is the smallest class containing every private-vertex expansion \(J^+\) of a finite bipartite graph and every finite edgeless triple system, and closed under finite disjoint unions and one-point amalgamations.
+Theorem~A, including both the constructive and intrinsic formulations, was
+first proved by \citet[Theorem~1.1]{li2026}.  Li also introduced the
+complete-rank one-apex sequence lift and exact bridge-trace theorem that
+organise the negative half of the proof
+\citep[Sections~3--4 and Theorem~4.6]{li2026}.  The author began developing
+the present argument before becoming aware of Li's preprint, but, for the
+provenance reasons stated at the end of the paper, no claim of informational
+independence is made.  This paper presents an alternative proof and a Lean
+formalisation of the finite classification.  Its main expository difference
+is to replace the bridge-selector derivative theorem by an explicit
+base-fibre decomposition and support-incidence forest suited to machine
+checking.
 
-\end{theorembox}
-
-The corresponding graph problem was settled by
-\citet[Corollary~5.6 and Theorem~7.4]{erdoshajnal1966}: the finite
-obligatory graphs are precisely the bipartite graphs. The classical
-linearity obstruction for uniform hypergraphs is due to
-\citet[Theorem~2, p.~532]{ehr1973}. A systematic study of obligatory triple
-systems was initiated by \citet{egh1975} and developed further by
-\citet{komjath2001}, \citet{hajnalkomjath2008}, and
-\citet{komjath2008}. The expansion theorem of
+The graph analogue was proved by Erdős and Hajnal: the obligatory finite
+graphs are exactly the bipartite graphs
+\citep[Corollary~5.6 and Theorem~7.4]{erdoshajnal1966}.  The classical
+nonlinearity obstruction for uniform hypergraphs is due to Erdős, Hajnal,
+and Rothschild \citep[Theorem~2, p.~532]{ehr1973}.  Obligatory triple
+systems were studied further by \citet{egh1975}, \citet{komjath2001},
+\citet{hajnalkomjath2008}, and \citet{komjath2008}; the expansion theorem of
 \citet[Theorem~1.2]{reiher2024} supplies the positive atoms used below.
 
-\paragraph{Independent related work.}
-The proof presented here was developed without consulting Li's manuscript;
-the comparison in this paragraph was added only after the present argument
-was complete. \citet[Theorems~1.1 and~4.6]{li2026} states the same
-classification and proposes an exact bridge-trace theorem for a related
-sequence lift. The self-contained proof below shows independently that this
-structural target is correct. No statement or argument from Li's preprint is
-used in the proof.
+\paragraph{Relation to Li's proof.}
+The classification theorem, complete-rank one-apex lift, bridge-trace
+architecture, selected-incidence decomposition, quotient forest, and
+running-intersection assembly all appear in Li's preprint
+\citep[Sections~3--5]{li2026}.  The present paper makes no priority claim for
+those ingredients.  Its alternative implementation gives direct proofs of
+the positive expansion atoms and closure statements in the notation used
+here, replaces the bridge-selector derivative formalism by an explicit
+base-fibre and support-incidence analysis, invokes the older Erdős--Hajnal
+high-odd-girth theorem directly, and supplies a complete Lean formalisation of
+this implementation.
 
-\paragraph{Proof strategy.}
-The positive direction has two parts. Section~3 proves directly that the
-private-vertex expansion of every finite bipartite graph is obligatory;
-Section~4 proves closure under finite disjoint unions and one-point
-amalgamations. Section~5 identifies the constructive class with the intrinsic
-Levi-graph conditions by deleting the Levi bridges and reassembling the
-resulting pieces along a quotient forest.
+The proof separates the positive and negative directions.  First, a
+probabilistic rainbow lemma provides the local injectivity needed to force
+complete bipartite expansions.  A rooted-abundance lemma then proves closure
+under one-point amalgamation, including at singular uncountable cardinals.
+Deleting the bridges of the Levi graph identifies each remaining active
+component with the expansion of a finite bipartite graph; the quotient graph
+is a forest, and its running-intersection property gives the required
+amalgamation order.
 
-For the converse, Sections~6--8 construct explicit avoidance hosts. A
-one-apex sequence lift transfers uncountable chromatic number from a graph to a
-triple system while rigidly controlling every finite linear trace.
-Nonlinearity is excluded by an Erd\H{o}s--Rado host, failure of the bridge
-condition by a sequence lift of \(K_{\omega_1}\), and an odd Berge cycle by a
-sequence lift of an uncountably chromatic graph of sufficiently large odd
-girth. This proves all three implications needed for Theorem~A.
+For the converse, we use Li's one-apex sequence-lift strategy
+\citep[Sections~3--4]{li2026}.  The lift transfers uncountable chromatic
+number from a graph to a triple system while controlling every finite linear
+trace.  We prove the required trace statement through expansion fibres and a
+support-incidence forest, so that the fibres are joined only at cut points.
+This prevents a bridge-free hyperedge-node or a Berge cycle from being
+assembled across different fibres.  The three failures of the intrinsic
+conditions are excluded respectively by an Erdős--Rado linear host, the lift
+of $K_{\omega_1}$, and a classical Erdős--Hajnal graph of uncountable
+chromatic number and prescribed odd girth.
 
-\paragraph{A reading map for the converse.}
-The converse has one reusable mechanism and three short applications.
-The mechanism is Theorem~6.3: a finite linear trace in a sequence lift breaks
-into graph-expansion atoms, joined only at cut points. Consequently, a
-bridge-free hyperedge-node or a Berge cycle cannot be created by crossing
-between atoms. Section~8 then uses this observation in the following order:
+All embeddings are injective and non-induced.  The argument is carried out
+in ZFC.  The imported results used as black boxes are the de Bruijn--Erdős
+compactness theorem \citep[Theorem~1, pp.~371--373]{debruijn1951}, the
+Erdős--Hajnal high-odd-girth theorem
+\citep[Theorem~7.4, p.~76]{erdoshajnal1966}, and the pair case of the
+Erdős--Rado partition theorem
+\citep[Theorem~4(i), formula~(95), p.~471]{erdosrado1956}.
 
-\begin{enumerate}
-\item a linear triangle host excludes nonlinearity;
-\item the trace theorem excludes a hyperedge-node with no incident bridge;
-\item the same trace theorem sends an odd Berge cycle to an odd cycle in the
-chosen graph host, where large odd girth rules it out.
-\end{enumerate}
-
-Thus the only role of the shift graph in the final step is to provide a graph
-that is simultaneously uncountably chromatic and free of short odd cycles.
-
-\paragraph{Set-theoretic scope.}
-All arguments are in ZFC. The only non-elementary external results used as
-black boxes are the de Bruijn--Erd\H{o}s compactness theorem
-\citep[Theorem~1, pp.~371--373]{debruijn1951} and the pair case of the
-Erd\H{o}s--Rado partition theorem
-\citep[Theorem~4(i), formula~(95), p.~471]{erdosrado1956},
-\[
-(2^{\aleph_0})^+\longrightarrow(\aleph_1)^2_{\aleph_0}.
-\]
-All embeddings are non-induced.
-
-\section{Preliminaries and definitions}\label{conventions-and-definitions}
+\section{Preliminaries}\label{conventions-and-definitions}
 
 A \emph{triple system} is a simple \(3\)-uniform hypergraph \(H=(V(H),E(H))\), so \(E(H)\subseteq[V(H)]^3\). A colouring \(c:V(H)\to\lambda\) is \emph{proper} when no hyperedge is monochromatic, and \(\chi(H)\) is the least cardinal \(\lambda\) admitting such a colouring. An embedding of a triple system \(F\) in \(H\) is an injective map \(f:V(F)\to V(H)\) such that \(f[e]\in E(H)\) for every \(e\in E(F)\); embeddings are not required to be induced. A finite triple system \(F\) is \emph{obligatory} if every triple system \(H\) with \(\chi(H)>\aleph_0\) contains an embedding of \(F\). A point is \emph{isolated} if it belongs to no hyperedge, and \(F^\circ\) denotes the result of deleting all isolated points.
 
@@ -191,11 +195,9 @@ V(J)\mathbin{\dot\cup}\{p_a:a\in E(J)\}
 \]
 and hyperedges \(\{u,v,p_{\{u,v\}}\}\) for \(\{u,v\}\in E(J)\), where the points \(p_a\) are new and pairwise distinct. A \emph{one-point amalgamation} of vertex-disjoint triple systems \(F_0,F_1\) is obtained by choosing \(x_i\in V(F_i)\), identifying \(x_0\) with \(x_1\), and making no other identifications or new hyperedges. Finite disjoint unions and finite edgeless systems include the empty cases.
 
-\topic{Finite reductions}\label{finite-reductions}
+\paragraph{Finite reductions.}\label{finite-reductions}
 
-\phantomsection
-\label{lemma-1.1-isolated-vertex-reduction}
-\begin{lemmabox}{Lemma 1.1: isolated-vertex reduction}
+\begin{lemma}[Isolated-vertex reduction]\label{lemma-1.1-isolated-vertex-reduction}
 
 Let \(F\) be a finite triple system and let \(F^\circ\) be obtained by deleting all isolated vertices. Then
 
@@ -209,8 +211,9 @@ and
 F\in\mathcal B\iff F^\circ\in\mathcal B.
 \]
 
-\end{lemmabox}
-\textit{Proof.} If \(F^\circ\) is obligatory and \(H\) has uncountable chromatic number, then \(H\) has infinitely many vertices. After embedding the finite system \(F^\circ\), map the isolated vertices of \(F\) injectively to unused host vertices. Containment is non-induced, so additional host edges are irrelevant. The converse follows because \(F^\circ\) is a subhypergraph of \(F\).
+\end{lemma}
+\begin{proof}
+If \(F^\circ\) is obligatory and \(H\) has uncountable chromatic number, then \(H\) has infinitely many vertices. After embedding the finite system \(F^\circ\), map the isolated vertices of \(F\) injectively to unused host vertices. Containment is non-induced, so additional host edges are irrelevant. The converse follows because \(F^\circ\) is a subhypergraph of \(F\).
 
 For membership in \(\mathcal B\), the implication \(F^\circ\in\mathcal B\Rightarrow F\in\mathcal B\) follows by taking the disjoint union with a finite edgeless system.
 
@@ -225,13 +228,11 @@ nonisolated, the isolated side disappears at the identified point and
 \(F^\circ\) is the disjoint union of the two reductions. The same description
 applies when both selected vertices are isolated, because the identified
 point is then deleted. Hence \(F^\circ\in\mathcal B\) in every case.
-\(\square\)
+\end{proof}
 
 Thus isolated vertices may be suppressed throughout the substantive argument and restored at the end.
 
-\phantomsection
-\label{lemma-1.2-finite-deletion}
-\begin{lemmabox}{Lemma 1.2: finite deletion}
+\begin{lemma}[Finite deletion]\label{lemma-1.2-finite-deletion}
 
 If \(\chi(H)>\aleph_0\) and \(S\subseteq V(H)\) is finite, then
 
@@ -239,16 +240,16 @@ If \(\chi(H)>\aleph_0\) and \(S\subseteq V(H)\) is finite, then
 \chi(H-S)>\aleph_0.
 \]
 
-\end{lemmabox}
-\textit{Proof.} Otherwise a countable colouring of \(H-S\), together with finitely many fresh colours for \(S\), would colour \(H\) countably. \(\square\)
+\end{lemma}
+\begin{proof}
+Otherwise a countable colouring of \(H-S\), together with finitely many fresh colours for \(S\), would colour \(H\) countably.
+\end{proof}
 
-\topic{Colouring and closure tools}\label{colouring-and-closure-tools}
+\paragraph{Colouring and closure tools.}\label{colouring-and-closure-tools}
 
-\phantomsection
-\label{lemma-1.3-two-elementary-colouring-facts}
-\begin{lemmabox}{Lemma 1.3: two elementary colouring facts}
+\begin{lemma}[Two elementary colouring facts]\label{lemma-1.3-two-elementary-colouring-facts}
 
-The following facts will be used repeatedly.
+We shall use the following two facts repeatedly.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -259,14 +260,14 @@ The following facts will be used repeatedly.
   If a graph \(G\) admits an orientation in which every vertex has outdegree at most \(d<\omega\), then \(\chi(G)\le 2d+1\).
 \end{enumerate}
 
-\end{lemmabox}
-\textit{Proof.} For the first assertion, take the product of the \(r\) countable colourings.
+\end{lemma}
+\begin{proof}
+For the first assertion, take the product of the \(r\) countable colourings.
 
-For the second, every finite subgraph has at most \(d|V|\) edges and therefore a vertex of degree at most \(2d\). It is \((2d+1)\)-colourable by greedy deletion. The de Bruijn--Erdős compactness theorem \citep[Theorem~1]{debruijn1951} then gives a \((2d+1)\)-colouring of all of \(G\). \(\square\)
+For the second, every finite subgraph has at most \(d|V|\) edges and therefore a vertex of degree at most \(2d\). It is \((2d+1)\)-colourable by greedy deletion. The de Bruijn--Erdős compactness theorem \citep[Theorem~1]{debruijn1951} then gives a \((2d+1)\)-colouring of all of \(G\).
+\end{proof}
 
-\phantomsection
-\label{lemma-1.4-closure-chain-lemma}
-\begin{lemmabox}{Lemma 1.4: closure-chain lemma}
+\begin{lemma}[Closure-chain lemma]\label{lemma-1.4-closure-chain-lemma}
 
 Let \(\kappa\) be an uncountable cardinal, let \(1\le r<\omega\), and let
 
@@ -294,8 +295,10 @@ and every \(M_i\) is \(\Phi\)-closed:
 a\in[M_i]^r\quad\Longrightarrow\quad\Phi(a)\subseteq M_i.
 \]
 
-\end{lemmabox}
-\textit{Proof.} Choose sets \(A_i\subseteq\kappa\), each of cardinality below \(\kappa\), whose union is \(\kappa\). At a successor stage close \(M_i\cup A_i\) under \(\Phi\), iterating the operation \(\omega\) times. Since \(\Phi\) is finitary and finite-valued, this does not increase an infinite cardinal below \(\kappa\). At a limit stage take the union. A union of an increasing chain of sets closed under a finitary operation remains closed; and because the stage is below \(\operatorname{cf}\kappa\), its cardinality remains below \(\kappa\). \(\square\)
+\end{lemma}
+\begin{proof}
+Choose sets \(A_i\subseteq\kappa\), each of cardinality below \(\kappa\), whose union is \(\kappa\). At a successor stage close \(M_i\cup A_i\) under \(\Phi\), iterating the operation \(\omega\) times. Since \(\Phi\) is finitary and finite-valued, this does not increase an infinite cardinal below \(\kappa\). At a limit stage take the union. A union of an increasing chain of sets closed under a finitary operation remains closed; and because the stage is below \(\operatorname{cf}\kappa\), its cardinality remains below \(\kappa\).
+\end{proof}
 
 Write
 
@@ -305,20 +308,19 @@ I_i=M_{i+1}\setminus M_i.
 
 Then \((I_i)_{i<\operatorname{cf}\kappa}\) partitions \(\kappa\), and \(M_i=\bigcup_{j<i}I_j\).
 
-\section{The graph lemma needed for the expansion atom}\label{the-graph-lemma-needed-for-the-expansion-atom}
+\section{A bipartite subgraph lemma}\label{the-graph-lemma-needed-for-the-expansion-atom}
 
 The next lemma is the finite complete-bipartite consequence of
 \citet[Corollary~5.6, p.~72]{erdoshajnal1966}. We include its short
 closure-chain proof because the same construction is used later.
 
-\phantomsection
-\label{lemma-2.1-uncountable-chromatic-number-forces-complete-bipartite-graphs}
-\begin{lemmabox}{Lemma 2.1: uncountable chromatic number forces complete bipartite graphs}
+\begin{lemma}[Uncountable chromatic number forces complete bipartite graphs]\label{lemma-2.1-uncountable-chromatic-number-forces-complete-bipartite-graphs}
 
 For every positive integer \(n\), every graph of uncountable chromatic number contains \(K_{n,n}\).
 
-\end{lemmabox}
-\textit{Proof.} Suppose otherwise, and choose a \(K_{n,n}\)-free graph \(G\) of uncountable chromatic number whose vertex cardinality \(\kappa\) is minimal.
+\end{lemma}
+\begin{proof}
+Suppose otherwise, and choose a \(K_{n,n}\)-free graph \(G\) of uncountable chromatic number whose vertex cardinality \(\kappa\) is minimal.
 
 For \(A\in[\kappa]^n\), let
 
@@ -336,20 +338,20 @@ v\in N(A)\subseteq M_i,
 
 contrary to \(v\in I_i\). Thus the orientation of \(G^\times\) has outdegree at most \(n-1\). By Lemma 1.3, \(G^\times\) is finitely colourable.
 
-Colour each \(G[I_i]\) with colours in \(\omega\), reusing the same palette on all layers, and combine this with a finite proper colouring of \(G^\times\). The resulting countable product colouring is proper on all of \(G\), a contradiction. \(\square\)
+Colour each \(G[I_i]\) with colours in \(\omega\), reusing the same palette on all layers, and combine this with a finite proper colouring of \(G^\times\). The resulting countable product colouring is proper on all of \(G\), a contradiction.
+\end{proof}
 
-\section{Private-vertex expansions of bipartite graphs are obligatory}\label{private-vertex-expansions-of-bipartite-graphs-are-obligatory}
+\section{Bipartite expansions}\label{private-vertex-expansions-of-bipartite-graphs-are-obligatory}
 
-\topic{Rainbow bipartite submatrices}\label{rainbow-bipartite-submatrices}
+\paragraph{Rainbow bipartite submatrices.}\label{rainbow-bipartite-submatrices}
 
-\phantomsection
-\label{lemma-3.1-rainbow-bipartite-submatrices}
-\begin{lemmabox}{Lemma 3.1: rainbow bipartite submatrices}
+\begin{lemma}[Rainbow bipartite submatrices]\label{lemma-3.1-rainbow-bipartite-submatrices}
 
 For all positive integers \(n,t\), there exists \(q=q(n,t)\) with the following property. Suppose the edges of \(K_{q,q}\) are coloured, with an arbitrary colour set, so that at every vertex each individual colour occurs on fewer than \(t\) incident edges. Then there are \(n\)-element subsets \(X'\) and \(Y'\) of the two vertex classes such that all \(n^2\) edges between \(X'\) and \(Y'\) have distinct colours.
 
-\end{lemmabox}
-\textit{Proof.} Choose independent uniformly random \(n\)-subsets \(X'\) and \(Y'\). For every unordered pair \(P\) of distinct same-coloured edges, let \(I_P\) be the indicator that both edges of \(P\) lie in the selected \(K_{n,n}\), and put
+\end{lemma}
+\begin{proof}
+Choose independent uniformly random \(n\)-subsets \(X'\) and \(Y'\). For every unordered pair \(P\) of distinct same-coloured edges, let \(I_P\) be the indicator that both edges of \(P\) lie in the selected \(K_{n,n}\), and put
 \[
  Z=\sum_P I_P.
 \]
@@ -394,18 +396,17 @@ respectively. By linearity of expectation,
 This is below \(1\) for sufficiently large \(q\). Since \(Z\) is
 integer-valued and nonnegative, it cannot satisfy \(Z\ge1\) for every
 choice when \(\mathbb{E}\!\left[Z\right]<1\). Hence some choice has \(Z=0\), and the
-selected \(K_{n,n}\) is rainbow. \(\square\)
+selected \(K_{n,n}\) is rainbow.
+\end{proof}
 
-\topic{The complete bipartite expansion atom}\label{the-complete-bipartite-expansion-atom}
-
-\phantomsection
-\label{proposition-3.2-the-complete-bipartite-expansion-atom}
-\begin{propositionbox}{Proposition 3.2: the complete bipartite expansion atom}
+\paragraph{The complete bipartite expansion atom.}\label{the-complete-bipartite-expansion-atom}
+\begin{proposition}[The complete bipartite expansion atom]\label{proposition-3.2-the-complete-bipartite-expansion-atom}
 
 For every positive integer \(n\), the triple system \(K_{n,n}^{+}\) is obligatory.
 
-\end{propositionbox}
-\textit{Proof.} Suppose not. Choose a \(K_{n,n}^{+}\)-free triple system
+\end{proposition}
+\begin{proof}
+Suppose not. Choose a \(K_{n,n}^{+}\)-free triple system
 
 \[
 H=(\kappa,E)
@@ -425,7 +426,7 @@ Set \(t=3n^2+1\) and define a graph \(R\) on \(\kappa\) by
 xy\in E(R)\quad\Longleftrightarrow\quad d_H(xy)\ge t.
 \]
 
-\subsubsection{\texorpdfstring{Claim 3.2.1: \(R\) is countably chromatic}{Claim 3.2.1: R is countably chromatic}}\label{claim-3.2.1-r-is-countably-chromatic}
+\medskip\noindent\textbf{Claim 3.2.1 (the graph \(R\) is countably chromatic).}
 
 Otherwise Lemma 2.1 gives a \(K_{n,n}\) in \(R\), with core vertex set \(C\), \(|C|=2n\). For each of its \(n^2\) graph edges \(xy\), choose a third vertex \(p_{xy}\) with
 
@@ -495,51 +496,48 @@ Lemma 3.1 gives \(n\)-sets \(X'\subseteq X\), \(Y'\subseteq Y\) for which the \(
 \qquad x\in X',\ y\in Y',
 \]
 
-form \(K_{n,n}^{+}\), the final contradiction. \(\square\)
+form \(K_{n,n}^{+}\), the final contradiction.
+\end{proof}
 
-\phantomsection
-\label{corollary-3.3-every-finite-bipartite-expansion-is-obligatory}
-\begin{corollarybox}{Corollary 3.3: every finite bipartite expansion is obligatory}
+\begin{corollary}[Every finite bipartite expansion is obligatory]\label{corollary-3.3-every-finite-bipartite-expansion-is-obligatory}
 
 If \(J\) is any finite bipartite graph, then \(J^+\) is obligatory.
 
-\end{corollarybox}
-\textit{Proof.} Embed the two vertex classes of \(J\) in the two classes of some \(K_{n,n}\). Then \(J^+\) is a subhypergraph of \(K_{n,n}^+\). Obligatoriness is downward closed under non-induced containment: a copy of the larger finite system contains a copy of the smaller one. Apply Proposition 3.2. \(\square\)
+\end{corollary}
+\begin{proof}
+Embed the two vertex classes of \(J\) in the two classes of some \(K_{n,n}\). Then \(J^+\) is a subhypergraph of \(K_{n,n}^+\). Obligatoriness is downward closed under non-induced containment: a copy of the larger finite system contains a copy of the smaller one. Apply Proposition 3.2.
+\end{proof}
 
 Corollary~3.3 is also a consequence of
 \citet[Theorem~1.2]{reiher2024}; the preceding argument gives a direct proof
 in the present notation.
 
-\section{\texorpdfstring{Closure of obligatoriness under the operations defining \(\mathcal B\)}{Closure of obligatoriness under the operations defining \textbackslash mathcal B}}\label{closure-of-obligatoriness-under-the-operations-defining-mathcal-b}
+\section{Closure properties}\label{closure-of-obligatoriness-under-the-operations-defining-mathcal-b}
 
 Closure under disjoint unions and one-point amalgamations is part of the
 established theory; see \citet[pp.~233--238]{komjath2001} and the summary in
 \citet[p.~1]{reiher2024}. We include complete proofs because the rooted
 abundance argument is used below.
 
-\topic{Disjoint-union closure}\label{disjoint-union-closure}
+\paragraph{Disjoint-union closure.}\label{disjoint-union-closure}
 
-\phantomsection
-\label{lemma-4.1-disjoint-union-closure}
-\begin{lemmabox}{Lemma 4.1: disjoint-union closure}
+\begin{lemma}[Disjoint-union closure]\label{lemma-4.1-disjoint-union-closure}
 
 The class of finite obligatory triple systems is closed under finite disjoint unions.
 
-\end{lemmabox}
-\textit{Proof.} Let \(F_1,F_2\) be obligatory and let \(H\) be uncountably chromatic. First find a copy of \(F_1\). Delete its finite vertex set. By Lemma 1.2 the remaining triple system is still uncountably chromatic, so it contains \(F_2\). The two copies are disjoint. Iteration proves the finite case. \(\square\)
+\end{lemma}
+\begin{proof}
+Let \(F_1,F_2\) be obligatory and let \(H\) be uncountably chromatic. First find a copy of \(F_1\). Delete its finite vertex set. By Lemma 1.2 the remaining triple system is still uncountably chromatic, so it contains \(F_2\). The two copies are disjoint. Iteration proves the finite case.
+\end{proof}
 
-\topic{Rooted abundance and one-point amalgamation}\label{rooted-abundance-and-one-point-amalgamation}
+\paragraph{Rooted abundance and one-point amalgamation.}\label{rooted-abundance-and-one-point-amalgamation}
 
-\phantomsection
-\label{definition-4.2-rooted-abundance}
-\begin{definitionbox}{Definition 4.2: rooted abundance}
+\begin{definition}[Rooted abundance]\label{definition-4.2-rooted-abundance}
 
 Let \((F,r)\) be a finite rooted triple system with \(|V(F)|>1\). For a triple system \(H\) and \(m\ge1\), let \(R_m(F,r;H)\) be the set of vertices \(v\) for which there are \(m\) rooted copies of \(F\), all sending \(r\) to \(v\), whose off-root vertex sets are pairwise disjoint.
 
-\end{definitionbox}
-\phantomsection
-\label{lemma-4.3-rooted-abundance-lemma}
-\begin{lemmabox}{Lemma 4.3: rooted-abundance lemma}
+\end{definition}
+\begin{lemma}[Rooted-abundance lemma]\label{lemma-4.3-rooted-abundance-lemma}
 
 If \((F,r)\) is finite, \(|V(F)|>1\), and \(F\) is obligatory, and if
 \(\chi(H)>\aleph_0\), then
@@ -548,8 +546,9 @@ If \((F,r)\) is finite, \(|V(F)|>1\), and \(F\) is obligatory, and if
 \chi\bigl(H[R_m(F,r;H)]\bigr)>\aleph_0.
 \]
 
-\end{lemmabox}
-\textit{Proof.} Put
+\end{lemma}
+\begin{proof}
+Put
 
 \[
 B=V(H)\setminus R_m(F,r;H).
@@ -579,16 +578,16 @@ S_v\cap A=\varnothing\qquad(v\in A).
 
 Consequently \(H[A]\) contains no copy of \(F\). Indeed, if \(\varphi\) were such a copy and \(v=\varphi(r)\), its off-root part would have to meet \(S_v\) although both are subsets of \(A\). Since \(F\) is obligatory, every \(F\)-free triple system is countably chromatic. Thus each of the finitely many colour classes of \(D_B\) induces a countably chromatic subsystem. Tagging a vertex by its finite \(D_B\)-colour and its countable colour inside that class gives a countable proper colouring of \(H[B]\).
 
-If \(H[R_m(F,r;H)]\) were countably chromatic as well, tagging the two sides would give a countable colouring of \(H\). This contradicts \(\chi(H)>\aleph_0\). \(\square\)
+If \(H[R_m(F,r;H)]\) were countably chromatic as well, tagging the two sides would give a countable colouring of \(H\). This contradicts \(\chi(H)>\aleph_0\).
+\end{proof}
 
-\phantomsection
-\label{proposition-4.4-one-point-amalgamation-closure}
-\begin{propositionbox}{Proposition 4.4: one-point amalgamation closure}
+\begin{proposition}[One-point amalgamation closure]\label{proposition-4.4-one-point-amalgamation-closure}
 
 The class of finite obligatory triple systems is closed under one-point amalgamations.
 
-\end{propositionbox}
-\textit{Proof.} Let \(F_1,F_2\) be obligatory, with selected vertices \(r_1,r_2\), and let \(F\) be their one-point amalgamation. If one factor consists only of its selected vertex, the assertion is immediate. Otherwise set
+\end{proposition}
+\begin{proof}
+Let \(F_1,F_2\) be obligatory, with selected vertices \(r_1,r_2\), and let \(F\) be their one-point amalgamation. If one factor consists only of its selected vertex, the assertion is immediate. Otherwise set
 
 \[
 m=|V(F_2)|.
@@ -602,7 +601,8 @@ R=R_m(F_1,r_1;H)
 
 induces an uncountably chromatic subsystem of every uncountably chromatic \(H\). Hence \(H[R]\) contains a copy of \(F_2\); write \(\varphi\) for its embedding and let \(v=\varphi(r_2)\).
 
-At \(v\) there are \(m\) rooted copies of \(F_1\) with pairwise disjoint off-root sets. The set \(\varphi(V(F_2)\setminus\{r_2\})\) has \(m-1\) vertices, so it meets at most \(m-1\) of those off-root sets. One rooted \(F_1\)-copy therefore avoids the \(F_2\)-copy outside \(v\). Their union is the required one-point amalgamation. \(\square\)
+At \(v\) there are \(m\) rooted copies of \(F_1\) with pairwise disjoint off-root sets. The set \(\varphi(V(F_2)\setminus\{r_2\})\) has \(m-1\) vertices, so it meets at most \(m-1\) of those off-root sets. One rooted \(F_1\)-copy therefore avoids the \(F_2\)-copy outside \(v\). Their union is the required one-point amalgamation.
+\end{proof}
 
 Corollary 3.3, Lemma 4.1, Proposition 4.4, and the trivial edgeless case prove
 
@@ -610,22 +610,28 @@ Corollary 3.3, Lemma 4.1, Proposition 4.4, and the trivial edgeless case prove
 (2)\Longrightarrow(1). \tag{4.1}
 \]
 
-\section{Equivalence of the constructive and intrinsic descriptions}\label{equivalence-of-the-constructive-and-intrinsic-descriptions}
+\section{The intrinsic decomposition}\label{equivalence-of-the-constructive-and-intrinsic-descriptions}
+
+The selected-incidence decomposition, quotient forest, and running-intersection
+architecture in this section follow the positive structural framework of
+\citet[Sections~4--5]{li2026}.  We give the full argument in the present
+notation because its explicit assembly order is also used by the Lean
+development.
 
 We prove \((2)\Longleftrightarrow(3)\). Isolated vertices may be ignored by Lemma 1.1.
 
-\topic{Forward preservation}\label{forward-preservation}
+\paragraph{Forward preservation.}\label{forward-preservation}
 
-\phantomsection
-\label{proposition-5.1-the-intrinsic-conditions-are-preserved-by-the-generators-and-operations}
-\begin{propositionbox}{Proposition 5.1: the intrinsic conditions are preserved by the generators and operations}
+\begin{proposition}[The intrinsic conditions are preserved by the generators and operations]\label{proposition-5.1-the-intrinsic-conditions-are-preserved-by-the-generators-and-operations}
 
 Every generator of \(\mathcal B\) satisfies the intrinsic conditions, and the conditions are preserved under finite disjoint unions and one-point amalgamations.
 
-\end{propositionbox}
-\textit{Proof.} For a bipartite graph \(J\), the expansion \(J^+\) is linear. Every hyperedge-node is joined to its private point by a bridge. A Berge cycle cannot use a private point, so the Berge cycles of \(J^+\) are precisely the ordinary graph cycles of \(J\), with the same lengths; these are even. Edgeless systems satisfy the conditions vacuously, and disjoint union plainly preserves them.
+\end{proposition}
+\begin{proof}
+For a bipartite graph \(J\), the expansion \(J^+\) is linear. Every hyperedge-node is joined to its private point by a bridge. A Berge cycle cannot use a private point, so the Berge cycles of \(J^+\) are precisely the ordinary graph cycles of \(J\), with the same lengths; these are even. Edgeless systems satisfy the conditions vacuously, and disjoint union plainly preserves them.
 
-Consider a one-point amalgamation. Hyperedges belonging to different factors intersect only in the identified point, so linearity is preserved. Its Levi graph is the vertex-sum of the two Levi graphs at a point-node. Every simple cycle in a vertex-sum lies wholly in one factor: a cycle crossing into the other factor would have to pass through the cut vertex twice. Consequently bridges in the factors remain bridges, and every Berge cycle lies in one factor and retains its parity. \(\square\)
+Consider a one-point amalgamation. Hyperedges belonging to different factors intersect only in the identified point, so linearity is preserved. Its Levi graph is the vertex-sum of the two Levi graphs at a point-node. Every simple cycle in a vertex-sum lies wholly in one factor: a cycle crossing into the other factor would have to pass through the cut vertex twice. Consequently bridges in the factors remain bridges, and every Berge cycle lies in one factor and retains its parity.
+\end{proof}
 
 Thus
 
@@ -633,20 +639,19 @@ Thus
 (2)\Longrightarrow(3). \tag{5.1}
 \]
 
-\topic{Bridge-block reconstruction}\label{bridge-block-reconstruction}
+\paragraph{Bridge-block reconstruction.}\label{bridge-block-reconstruction}
 
-\phantomsection
-\label{proposition-5.2-bridge-block-decomposition}
-\begin{propositionbox}{Proposition 5.2: bridge-block decomposition}
+\begin{proposition}[Bridge-block decomposition]\label{proposition-5.2-bridge-block-decomposition}
 
 Suppose \(F\) is finite, has no isolated vertices, and satisfies the three intrinsic conditions. Then \(F\in\mathcal B\).
 
-\end{propositionbox}
-\textit{Proof.} If \(E(F)=\varnothing\), then the assumption that \(F\) has no isolated vertices gives \(V(F)=\varnothing\), and \(F\) is an edgeless generator. Hence assume \(E(F)\ne\varnothing\). Put \(L=I(F)\), let \(B(L)\) be its set of bridges, and let \(\mathscr C\) be the set of connected components of \(L-B(L)\).
+\end{proposition}
+\begin{proof}
+If \(E(F)=\varnothing\), then the assumption that \(F\) has no isolated vertices gives \(V(F)=\varnothing\), and \(F\) is an edgeless generator. Hence assume \(E(F)\ne\varnothing\). Put \(L=I(F)\), let \(B(L)\) be its set of bridges, and let \(\mathscr C\) be the set of connected components of \(L-B(L)\).
 
 Consider a hyperedge-node \(e\). Since \(e\) is incident with a bridge and has degree three, it has at most two nonbridge incidences. It cannot have exactly one: a nonbridge incidence lies on a cycle, and that cycle must leave \(e\) through a second nonbridge incidence. Therefore every hyperedge-node has either no nonbridge incidences or exactly two.
 
-\subsubsection{The nontrivial components}\label{the-nontrivial-components}
+\paragraph{The nontrivial components.}\label{the-nontrivial-components}
 
 Let \(C\in\mathscr C\) contain a nonbridge incidence. Every hyperedge-node \(e\in C\) has exactly two point-neighbours in \(C\). Contract each such \(e\) to an ordinary graph edge between those two point-neighbours. This produces a finite graph \(J_C\).
 
@@ -674,11 +679,11 @@ outside \(C\). Every \(e\) has exactly the two contracted endpoints and
 surjective on the vertices and hyperedges of \(P_C\). Hence it is an
 isomorphism \(J_C^+\cong P_C\).
 
-\subsubsection{Components consisting of one hyperedge-node}\label{components-consisting-of-one-hyperedge-node}
+\paragraph{Components consisting of one hyperedge-node.}\label{components-consisting-of-one-hyperedge-node}
 
 If a hyperedge-node \(e\) has no nonbridge incidence, it is an isolated component after the bridges are deleted. Its single triple is the expansion of a one-edge bipartite graph. Thus every hyperedge of \(F\) belongs to a piece \(P_C\) isomorphic to \(J^+\) for a finite bipartite graph \(J\). The hyperedge sets of these pieces partition \(E(F)\). Their vertex sets cover \(V(F)\): every point is incident with a hyperedge, and it either lies in that hyperedge-node's bridge-deleted component or is the point endpoint of a bridge leaving it.
 
-\subsubsection{Quotient forest}\label{quotient-forest}
+\paragraph{Quotient forest.}\label{quotient-forest}
 
 Contract every component of \(L-B(L)\). The original bridges become edges of a quotient multigraph \(T\). Two distinct bridges cannot join the same pair of bridge-deleted components: paths inside those two components, together with the two bridges, would form a cycle containing both, contradicting that they are bridges. Thus \(T\) is a simple graph.
 
@@ -698,14 +703,13 @@ piece never meets the assembled system in two different points. The quotient
 forest records exactly the attachment geometry needed for this running
 intersection.
 
-\phantomsection
-\label{claim-5.2.1-running-intersection}
-\begin{claimbox}{Claim 5.2.1: running intersection}
+\begin{claim}[5.2.1. Running intersection]
 
 Every component of \(T\) contains an active vertex, because \(F\) has no isolated vertices. Choose an active root in each component, and order the active vertices by nondecreasing depth, with arbitrary order among equal-depth vertices. When an active component \(C\) is added, its piece \(P_C\) meets the union of the earlier pieces in at most one point.
 
-\end{claimbox}
-\textbf{Proof of the claim.} For a point \(p\in V(F)\), let \(X(p)\in\mathscr C\) be the component of \(L-B(L)\) containing the point-node \(p\). The active pieces containing \(p\) are precisely \(P_{X(p)}\), when \(X(p)\) is active, together with the pieces \(P_D\) at active neighbours \(D\) of \(X(p)\) whose corresponding original bridge has point endpoint \(p\). Thus the vertices of \(T\) indexing pieces that contain \(p\) are contained in the closed star centred at \(X(p)\).
+\end{claim}
+\begin{proof}[Proof of the claim]
+For a point \(p\in V(F)\), let \(X(p)\in\mathscr C\) be the component of \(L-B(L)\) containing the point-node \(p\). The active pieces containing \(p\) are precisely \(P_{X(p)}\), when \(X(p)\) is active, together with the pieces \(P_D\) at active neighbours \(D\) of \(X(p)\) whose corresponding original bridge has point endpoint \(p\). Thus the vertices of \(T\) indexing pieces that contain \(p\) are contained in the closed star centred at \(X(p)\).
 
 Suppose that \(p\in P_C\) also lies in an earlier piece. If \(X(p)=C\),
 every other piece containing \(p\) is indexed by a neighbour of \(C\). A tree
@@ -722,7 +726,8 @@ this parent point \(p_C\), and
 P_C\cap\bigcup_{D\text{ earlier}}P_D\subseteq\{p_C\}.
 \]
 
-For a root active component the intersection is empty. \(\square\)
+For a root active component the intersection is empty.
+\end{proof}
 
 Starting with the root piece in each component, add the active pieces in this
 order. If the new intersection is empty, use a disjoint union. If it is the
@@ -739,7 +744,8 @@ construction makes no unintended identification. The piece hyperedge sets
 are disjoint and partition \(E(F)\), while their vertex sets cover \(V(F)\).
 After all active pieces have been added, the resulting subsystem is therefore
 all of \(F\). Different components of \(T\) are combined by disjoint union.
-Hence \(F\in\mathcal B\). \(\square\)
+Hence \(F\in\mathcal B\).
+\end{proof}
 
 This proves
 
@@ -753,9 +759,16 @@ Combining (5.1) and (5.2),
 (2)\Longleftrightarrow(3). \tag{5.3}
 \]
 
-\section{The sequence lift used in the avoidance constructions}\label{the-sequence-lift-used-in-the-avoidance-constructions}
+\section{The sequence lift}\label{the-sequence-lift-used-in-the-avoidance-constructions}
 
-\topic{The one-apex construction}\label{the-one-apex-construction}
+The one-apex construction and bridge-trace strategy were introduced by Li
+\citep[Sections~3--4 and Theorem~4.6]{li2026}.  We specialise the lift to
+$\omega_1$ and replace Li's bridge-selector derivative formulation by a
+base-fibre and support-incidence decomposition convenient for formalisation.
+The detailed proof below is self-contained as an exposition, but it is not a
+claim of independent discovery.
+
+\paragraph{The one-apex construction.}\label{the-one-apex-construction}
 
 Let \(G=(X,A)\) be an arbitrary graph, where \(A=E(G)\) is also regarded as an alphabet. Let
 
@@ -765,9 +778,7 @@ T=A^{<\omega_1}
 
 be the tree of all sequences of graph edges of countable ordinal length. For \(s\in T\) and \(x\in X\), write \(x_s=(s,x)\).
 
-\phantomsection
-\label{definition-6.1-the-one-apex-lift}
-\begin{definitionbox}{Definition 6.1: the one-apex lift}
+\begin{definition}[The one-apex lift]\label{definition-6.1-the-one-apex-lift}
 
 Define the triple system \(\mathcal L(G)\) by
 
@@ -783,13 +794,11 @@ For \(s\in T\), an edge \(a=\{x,y\}\in A\), a sequence \(t\in T\) extending \(s^
 
 The two vertices \(x_s,y_s\) form the base pair and \(z_t\) is the apex. Since \(t\) properly extends \(s\), these are three distinct vertices. In the resulting triple, the sequence node occurring twice uniquely identifies \(s\); its two graph labels identify the edge \(a=\{x,y\}\), and the remaining vertex identifies \(t,z\). Thus each hyperedge arises from unique data, up to interchanging \(x\) and \(y\), and the system is simple and \(3\)-uniform.
 
-\end{definitionbox}
+\end{definition}
 
-\topic{Chromatic and finite-trace properties}\label{chromatic-and-finite-trace-properties}
+\paragraph{Chromatic and finite-trace properties.}\label{chromatic-and-finite-trace-properties}
 
-\phantomsection
-\label{lemma-6.2-chromatic-lower-bound}
-\begin{lemmabox}{Lemma 6.2: chromatic lower bound}
+\begin{lemma}[Chromatic lower bound]\label{lemma-6.2-chromatic-lower-bound}
 
 If \(\chi(G)>\aleph_0\), then
 
@@ -797,8 +806,9 @@ If \(\chi(G)>\aleph_0\), then
 \chi(\mathcal L(G))>\aleph_0.
 \]
 
-\end{lemmabox}
-\textit{Proof.} Suppose \(c:T\times X\to\omega\) is proper. For every \(s\in T\), the restriction \(x\mapsto c(x_s)\) is a countable colouring of \(G\). Hence there is an edge
+\end{lemma}
+\begin{proof}
+Suppose \(c:T\times X\to\omega\) is proper. For every \(s\in T\), the restriction \(x\mapsto c(x_s)\) is a countable colouring of \(G\). Hence there is an edge
 
 \[
 a_s=\{x_s^0,x_s^1\}\in E(G)
@@ -823,19 +833,22 @@ If \(\alpha<\beta\), then \(s_\beta\) extends \(s_\alpha^\frown a_{s_\alpha}\). 
   (s_\beta,z)\}
 \]
 
-is a monochromatic hyperedge. Therefore the colours \(k_{s_\alpha}\), \(\alpha<\omega_1\), are pairwise distinct, impossible in \(\omega\). \(\square\)
+is a monochromatic hyperedge. Therefore the colours \(k_{s_\alpha}\), \(\alpha<\omega_1\), are pairwise distinct, impossible in \(\omega\).
+\end{proof}
 
-\phantomsection
-\label{theorem-6.3-exact-finite-linear-trace-theorem}
-\begin{theorembox}{Theorem 6.3: exact finite linear trace theorem}
+The next result is the fibre-decomposition form of Li's bridge-trace theorem
+needed in this paper \citep[Theorem~4.6]{li2026}.
+
+\begin{theorem}[Finite linear trace decomposition]\label{theorem-6.3-exact-finite-linear-trace-theorem}
 
 Every finite, not necessarily induced, linear subhypergraph \(K\) of
 \(\mathcal L(G)\) is obtainable, by finite disjoint unions and one-point
 amalgamations, from systems \(J^+\) where \(J\) is a finite subgraph of
 \(G\).
 
-\end{theorembox}
-\textit{Proof.} The following dictionary records the three local objects used
+\end{theorem}
+\begin{proof}
+The following dictionary records the three local objects used
 in the assembly. A \emph{base node} is a sequence \(s\) at which a lift
 hyperedge begins. Its two vertices with sequence coordinate \(s\) are the
 \emph{core vertices}; its third vertex, whose coordinate properly extends
@@ -861,7 +874,7 @@ For every active base node \(s\), there is a finite subgraph \(J_s\) of
 \(G\) such that \(K_s\cong J_s^+\).
 
 \smallskip
-\noindent\emph{Proof of Claim 6.3.1.}
+\begin{proof}[Proof of Claim 6.3.1]
 
 For a fixed graph edge \(a=\{x,y\}\in E(G)\), at most one hyperedge of \(K_s\) can have base pair \(\{x_s,y_s\}\), since two such hyperedges would share two vertices and violate linearity. Let \(J_s\) be the finite subgraph of \(G\) whose edges are precisely the graph edges used by hyperedges of \(K_s\), with vertex set consisting of their endpoints.
 
@@ -874,7 +887,8 @@ after \(s\) would have to equal both \(a\) and \(a'\). No apex is a core
 vertex, because an apex has sequence coordinate strictly extending \(s\),
 whereas every core vertex has coordinate \(s\). The map is therefore
 injective, and by construction it is bijective on hyperedges and preserves
-each incidence. Hence \(K_s\cong J_s^+\). \(\square\)
+each incidence. Hence \(K_s\cong J_s^+\).
+\end{proof}
 
 \medskip
 \noindent\textbf{Claim 6.3.2 (two fibres have at most one common point).}
@@ -884,7 +898,7 @@ For distinct active base nodes \(s\) and \(u\),
 \]
 
 \smallskip
-\noindent\emph{Proof of Claim 6.3.2.}
+\begin{proof}[Proof of Claim 6.3.2]
 If a point \(z_t\) lies in both \(K_s\) and \(K_u\), then both \(s\) and
 \(u\) are prefixes of \(t\), so they are comparable. Suppose
 \(s\subsetneq u\). A common point cannot be a core point of \(K_s\); it is
@@ -896,7 +910,7 @@ at most one such apex. Therefore
 \[
 |V(K_s)\cap V(K_u)|\le1. \tag{6.2}
 \]
-\(\square\)
+\end{proof}
 
 Let \(Q\) be the bipartite incidence graph of the base fibres. Its left
 class is the set of active base nodes. Its right class consists of points
@@ -908,7 +922,7 @@ exactly when \(p\in V(K_s)\).
 The graph \(Q\) is acyclic.
 
 \smallskip
-\noindent\emph{Proof of Claim 6.3.3.}
+\begin{proof}[Proof of Claim 6.3.3]
 Suppose that \(Q\) has a cycle, and choose on it a base node \(s\) of
 minimum sequence length. Its two neighbouring base nodes on the cycle are
 proper descendants of \(s\). The two intervening shared points are distinct,
@@ -923,27 +937,27 @@ comparable proper descendants of \(s\), the first sequence coordinate after
 \(s\) is the same, so a length-two step through a shared point cannot move
 from one immediate branch to another. Induction along the remaining path
 therefore keeps every base node in the first branch, contradicting that its
-final node lies in the other branch. Hence \(Q\) is acyclic. \(\square\)
+final node lies in the other branch. Hence \(Q\) is acyclic.
+\end{proof}
 
 Root each component of \(Q\) at a base node, and order its base nodes by
 nondecreasing even distance from the root. For a nonroot base node \(s\), let
 \(p_s\) be the point-node adjacent to \(s\) on the path to the root.
 
-\phantomsection
-\label{claim-6.3.4-base-fibre-running-intersection}
-\begin{claimbox}{Claim 6.3.4: base-fibre running intersection}
+\begin{claim}[6.3.4. Base-fibre running intersection]
 
 Every earlier factor that meets \(K_s\) meets it at \(p_s\).
 
-\end{claimbox}
-\textbf{Proof of Claim 6.3.4.} Suppose \(K_u\) is earlier and contains a point
+\end{claim}
+\begin{proof}[Proof of Claim 6.3.4]
+Suppose \(K_u\) is earlier and contains a point
 \(p\in K_s\). Then \(Q\) contains the length-two path \(s-p-u\). Let the
 distance of \(s\) from the root be \(2d\). The point-node \(p\) has distance
 either \(2d-1\) or \(2d+1\). In the second case \(u\) has distance \(2d+2\),
 so it cannot be earlier. Thus \(p\) has distance \(2d-1\), and the uniqueness
 of the path to the root in the tree \(Q\) gives \(p=p_s\). This also covers
 an earlier sibling \(u\), which shares the same parent point \(p_s\).
-\(\square\)
+\end{proof}
 
 \medskip
 \noindent\textbf{Claim 6.3.5 (the ordered fibres assemble to \(K\)).}
@@ -960,11 +974,10 @@ factors already added. Different components of \(Q\), and the isolated
 factors removed at the start, are combined by disjoint union. This is the
 running-intersection step: Claim 6.3.1 supplies the expansion atoms, while
 Claims 6.3.2--6.3.4 certify that each new atom is attached along at most one
-previous point. \(\square\)
+previous point.
+\end{proof}
 
-\phantomsection
-\label{corollary-6.4-restrictions-on-finite-linear-traces}
-\begin{corollarybox}{Corollary 6.4: restrictions on finite linear traces}
+\begin{corollary}[Restrictions on finite linear traces]\label{corollary-6.4-restrictions-on-finite-linear-traces}
 
 Every finite linear \(K\subseteq\mathcal L(G)\) satisfies:
 
@@ -979,173 +992,37 @@ Every finite linear \(K\subseteq\mathcal L(G)\) satisfies:
   a Berge cycle of length \(\ell\) in \(K\) yields an ordinary cycle of length \(\ell\) in \(G\).
 \end{enumerate}
 
-\end{corollarybox}
-\textit{Proof.} In every \(J_s^+\) the incidence with the private vertex is a bridge. Bridgehood is preserved by one-point amalgamation. A simple Levi cycle cannot cross a one-point cut, so every Berge cycle lies in one factor. Berge cycles in \(J_s^+\) are exactly ordinary graph cycles in \(J_s\). \(\square\)
+\end{corollary}
+\begin{proof}
+In every \(J_s^+\) the incidence with the private vertex is a bridge. Bridgehood is preserved by one-point amalgamation. A simple Levi cycle cannot cross a one-point cut, so every Berge cycle lies in one factor. Berge cycles in \(J_s^+\) are exactly ordinary graph cycles in \(J_s\).
+\end{proof}
 
-\section{Uncountably chromatic graphs of large odd girth}\label{uncountably-chromatic-graphs-of-large-odd-girth}
+\section{A classical high-odd-girth input}\label{uncountably-chromatic-graphs-of-large-odd-girth}
 
-The shift-graph mechanism used here is classical; compare
-\citet[Section~7, especially Theorem~7.4]{erdoshajnal1966}. We include
-proofs of the precise cardinal and odd-girth bounds needed below.
+For the odd-cycle obstruction we use the following older graph theorem
+directly, rather than a shift-graph surrogate.
 
-\topic{Chromatic growth of shift graphs}\label{chromatic-growth-of-shift-graphs}
-
-For a positive integer \(r\) and an infinite cardinal \(\kappa\), define the directed shift graph \(D_r(\kappa)\) as follows:
-
-\begin{itemize}
-\tightlist
-\item
-  its vertices are increasing \(r\)-tuples \[(\alpha_0,\ldots,\alpha_{r-1}),\qquad
-    \alpha_0<\cdots<\alpha_{r-1}<\kappa;\]
-\item
-  it has an arc \[(\alpha_0,\ldots,\alpha_{r-1})
-    \longrightarrow
-    (\alpha_1,\ldots,\alpha_r)\] whenever \(\alpha_0<\cdots<\alpha_r\).
-\end{itemize}
-
-Let \(S_r(\kappa)\) be its underlying graph. Write
-
+\begin{theorem}[Erdős--Hajnal]\label{theorem-7.1-high-odd-girth}
+For every positive integer $m$ there is a graph $G$ such that
 \[
-\beth_0(\aleph_0)=\aleph_0,
-\qquad
-\beth_{j+1}(\aleph_0)=2^{\beth_j(\aleph_0)}.
+\chi(G)>\aleph_0
 \]
+and $G$ contains no odd cycle of length at most $m$.
+\end{theorem}
 
-\phantomsection
-\label{lemma-7.1-chromatic-number-of-shift-graphs}
-\begin{lemmabox}{Lemma 7.1: chromatic number of shift graphs}
+\begin{proof}[Source]
+Theorem~7.4 of \citet[p.~76]{erdoshajnal1966}, as quoted in
+\citet[Theorem~C, p.~428]{egh1975}, gives for every positive integer $i$ an
+uncountably chromatic graph containing no cycle $C_{2j+1}$ for $0<j<i$.
+Choose $i$ so that $2i-1\ge m$.
+\end{proof}
 
-If
+\section{Avoidance hosts}\label{the-avoidance-hosts}
 
-\[
-\kappa>\beth_{r-1}(\aleph_0),
-\]
-
-then
-
-\[
-\chi(S_r(\kappa))>\aleph_0.
-\]
-
-\end{lemmabox}
-\textit{Proof.} The case \(r=1\) is immediate because \(S_1(\kappa)=K_\kappa\). Assume \(r\ge2\). Suppose \(S_r(\kappa)\) has a proper colouring \(c\) with \(\lambda\) colours. For every increasing \((r-1)\)-tuple \(u\), define
-
-\[
-C(u)=\{c(u^\frown\beta):\beta>\max u\}\subseteq\lambda.
-\]
-
-If
-
-\[
-u=(\alpha_0,\ldots,\alpha_{r-2}),
-\qquad
-v=(\alpha_1,\ldots,\alpha_{r-1})
-\]
-
-are adjacent in \(S_{r-1}(\kappa)\), then
-
-\[
-c(\alpha_0,\ldots,\alpha_{r-1})\in C(u).
-\]
-
-It cannot belong to \(C(v)\), since that would give some \(\beta>\alpha_{r-1}\) for which the adjacent \(r\)-tuples
-
-\[
-(\alpha_0,\ldots,\alpha_{r-1}),
-\qquad
-(\alpha_1,\ldots,\alpha_{r-1},\beta)
-\]
-
-have the same colour. Hence \(C(u)\ne C(v)\). Thus a \(\lambda\)-colouring of \(S_r(\kappa)\) yields a \(2^\lambda\)-colouring of \(S_{r-1}(\kappa)\).
-
-Starting with a countable colouring of \(S_r(\kappa)\) and iterating \(r-1\) times would give a colouring of
-
-\[
-S_1(\kappa)=K_\kappa
-\]
-
-with at most \(\beth_{r-1}(\aleph_0)\) colours, impossible when \(\kappa\) is larger. \(\square\)
-
-\topic{Odd-girth growth}\label{odd-girth-growth}
-
-\phantomsection
-\label{lemma-7.2-odd-girth-of-shift-graphs}
-\begin{lemmabox}{Lemma 7.2: odd girth of shift graphs}
-
-The odd girth of \(S_r(\kappa)\) is at least
-
-\[
-2r+1.
-\]
-
-\end{lemmabox}
-\textit{Proof.} For a digraph \(D\), let \(\delta D\) be its arc digraph: the vertices of \(\delta D\) are the arcs of \(D\), and
-
-\[
-(u,v)\longrightarrow(v,w)
-\]
-
-is an arc of \(\delta D\). We have
-
-\[
-D_{r+1}(\kappa)\cong\delta D_r(\kappa).
-\]
-
-We use the following fact: if \(D\) is acyclic and the underlying graph of \(D\) has odd girth \(g\), then the underlying graph of \(\delta D\) has odd girth at least \(g+2\). Indeed, a directed cycle in \(\delta D\) would concatenate to a directed closed walk in \(D\), which would contain a directed cycle; hence \(\delta D\) is also acyclic.
-
-Take an odd cycle \(a_0,\ldots,a_{m-1}\) in the underlying graph of
-\(\delta D\), with indices modulo \(m\). For the adjacency of \(a_{i-1}\)
-and \(a_i\), put \(\varepsilon_i=+\) when
-\(\operatorname{head}(a_{i-1})=\operatorname{tail}(a_i)\), and put
-\(\varepsilon_i=-\) in the reverse case. Since \(\delta D\) is acyclic, the
-cyclic sign sequence is not constant. Its number \(c\) of sign changes is
-therefore a positive even integer, so \(c\ge2\).
-
-Let \(v_i\) be the common endpoint in \(D\) of the consecutive arcs
-\(a_{i-1}\) and \(a_i\). If
-\(\varepsilon_i=\varepsilon_{i+1}\), then \(v_i\) and \(v_{i+1}\) are the
-two endpoints of \(a_i\), in one order or the other. If
-\(\varepsilon_i\ne\varepsilon_{i+1}\), then \(v_i=v_{i+1}\): both are the
-tail of \(a_i\) in the \(+,-\) case and both are its head in the \(-,+\)
-case. Thus \(v_0,\ldots,v_{m-1},v_0\) is a closed walk in the underlying
-graph of \(D\) with exactly \(c\) stationary steps. Deleting those steps
-gives a closed walk of length \(m-c\). Since \(m\) is odd and \(c\) is
-even, \(c\ne m\). Together with \(c\ge2\), this gives
-\[
- 1\le m-c\le m-2,
-\]
-and \(m-c\) is odd.
-
-Every odd closed walk contains an odd cycle. Indeed, if a vertex occurs
-twice internally, split the walk at two consecutive occurrences; one of
-the two resulting closed walks has odd length. Repeating this reduction
-produces an odd closed walk with no repeated internal vertex, hence an odd
-cycle. Therefore \(m-c\ge g\), and so \(m\ge g+2\).
-
-Now \(D_1(\kappa)\) is the transitive tournament; it is acyclic and its underlying graph \(K_\kappa\) has odd girth \(3\). Iterating the preceding observation gives odd girth at least
-
-\[
-3+2(r-1)=2r+1.
-\]
-
-\(\square\)
-
-\phantomsection
-\label{corollary-7.3-zfc-graphs-with-uncountable-chromatic-number-and-prescribed-odd-girth}
-\begin{corollarybox}{Corollary 7.3: ZFC graphs with uncountable chromatic number and prescribed odd girth}
-
-For every finite \(m\) there is a graph \(G\) with \(\chi(G)>\aleph_0\) and no odd cycle of length at most \(m\).
-
-\end{corollarybox}
-\textit{Proof.} Choose \(r\) with \(2r+1>m\), and let
-
-\[
-G=S_r\bigl(\beth_{r-1}(\aleph_0)^+\bigr).
-\]
-
-Apply Lemmas 7.1 and 7.2. \(\square\)
-
-\section{The avoidance hosts}\label{the-avoidance-hosts}
+The division into nonlinear, missing-bridge, and odd-cycle hosts follows the
+negative-half architecture of \citet[Sections~2--4]{li2026}.  The first two
+hosts are written out in the present notation; for the third we invoke the
+older Erdős--Hajnal theorem from Section~7 directly.
 
 We prove
 
@@ -1153,16 +1030,15 @@ We prove
 \neg(3)\Longrightarrow\neg(1).
 \]
 
-\topic{Nonlinearity obstruction}\label{nonlinearity-obstruction}
+\paragraph{Nonlinearity obstruction.}\label{nonlinearity-obstruction}
 
-\phantomsection
-\label{proposition-8.1-avoidance-of-every-nonlinear-finite-triple-system}
-\begin{propositionbox}{Proposition 8.1: avoidance of every nonlinear finite triple system}
+\begin{proposition}[Avoidance of every nonlinear finite triple system]\label{proposition-8.1-avoidance-of-every-nonlinear-finite-triple-system}
 
 There is an uncountably chromatic linear triple system. Consequently, every finite nonlinear triple system is non-obligatory.
 
-\end{propositionbox}
-\textit{Proof.} We use the Erd\H{o}s--Rado relation
+\end{proposition}
+\begin{proof}
+We use the Erd\H{o}s--Rado relation
 \citep[Theorem~4(i), formula~(95), p.~471]{erdosrado1956}
 
 \[
@@ -1184,98 +1060,49 @@ This triple system is linear: two distinct triangles of a complete graph cannot 
 
 It is uncountably chromatic. A countable vertex-colouring of \(T_\kappa\) is a countable edge-colouring of \(K_\kappa\). By (8.1) there is a monochromatic subset of cardinality \(\aleph_1\), and in particular a monochromatic graph triangle. This is a monochromatic hyperedge of \(T_\kappa\).
 
-If a finite triple system \(F\) is nonlinear, it has two distinct edges sharing at least two vertices. No injective embedding of those edges can exist in the linear host \(T_\kappa\). Thus \(T_\kappa\) is \(F\)-free. \(\square\)
+If a finite triple system \(F\) is nonlinear, it has two distinct edges sharing at least two vertices. No injective embedding of those edges can exist in the linear host \(T_\kappa\). Thus \(T_\kappa\) is \(F\)-free.
+\end{proof}
 
-\topic{Missing-bridge obstruction}\label{missing-bridge-obstruction}
+\paragraph{Missing-bridge obstruction.}\label{missing-bridge-obstruction}
 
-\phantomsection
-\label{proposition-8.2-avoidance-when-the-bridge-condition-fails}
-\begin{propositionbox}{Proposition 8.2: avoidance when the bridge condition fails}
+\begin{proposition}[Avoidance when the bridge condition fails]\label{proposition-8.2-avoidance-when-the-bridge-condition-fails}
 
 Let \(F\) be finite and linear, and suppose some hyperedge-node of \(I(F^\circ)\) is incident with no bridge. Then \(F\) is non-obligatory.
 
-\end{propositionbox}
-\textit{Proof.} By Lemma 1.1 it is enough to avoid \(F^\circ\), so assume that \(F\) has no isolated vertices. Take \(G=K_{\omega_1}\). Then \(\chi(G)>\aleph_0\), and Lemma 6.2 gives
+\end{proposition}
+\begin{proof}
+This is the $K_{\omega_1}$ specialisation of Li's sequence-lift
+missing-bridge obstruction \citep[Section~4]{li2026}.  By Lemma 1.1 it is
+enough to avoid \(F^\circ\), so assume that \(F\) has no isolated vertices.
+Take \(G=K_{\omega_1}\). Then \(\chi(G)>\aleph_0\), and Lemma 6.2 gives
 
 \[
 \chi(\mathcal L(G))>\aleph_0.
 \]
 
-If \(F\) appeared in \(\mathcal L(G)\), retain exactly the host hyperedges corresponding to the edges of \(F\). Because the embedding is injective and \(F\) is linear, these selected host hyperedges form a finite linear subhypergraph isomorphic to \(F\). Corollary 6.4 says that every hyperedge-node of such a trace is incident with a bridge, contradicting the chosen hyperedge of \(F\). Therefore \(\mathcal L(K_{\omega_1})\) is an uncountably chromatic \(F\)-free host. \(\square\)
+If \(F\) appeared in \(\mathcal L(G)\), retain exactly the host hyperedges corresponding to the edges of \(F\). Because the embedding is injective and \(F\) is linear, these selected host hyperedges form a finite linear subhypergraph isomorphic to \(F\). Corollary 6.4 says that every hyperedge-node of such a trace is incident with a bridge, contradicting the chosen hyperedge of \(F\). Therefore \(\mathcal L(K_{\omega_1})\) is an uncountably chromatic \(F\)-free host.
+\end{proof}
 
-\topic{Odd-cycle obstruction}\label{odd-cycle-obstruction}
+\paragraph{Odd-cycle obstruction.}\label{odd-cycle-obstruction}
 
-\phantomsection
-\label{proposition-8.3-avoidance-of-an-odd-berge-cycle}
-\begin{propositionbox}{Proposition 8.3: avoidance of an odd Berge cycle}
+\begin{proposition}[Avoidance of an odd Berge cycle]\label{proposition-8.3-avoidance-of-an-odd-berge-cycle}
 
 Let \(F\) be finite and linear, and suppose \(F^\circ\) has an odd Berge cycle. Then \(F\) is non-obligatory.
 
-\end{propositionbox}
-\textit{Proof.} Again suppress isolated vertices. The following dictionary
-separates the three kinds of cycles in the argument. A \emph{Berge cycle} in
-a triple system is a simple cycle in its Levi graph, with Levi length twice
-its Berge length. A \emph{factor cycle} is the corresponding cycle inside one
-expansion atom \(J_s^+\). Its \emph{host trace} is the ordinary cycle in the
-graph \(J_s\subseteq G\) obtained by deleting the private vertices. Berge
-length and host-cycle length are equal.
+\end{proposition}
+\begin{proof}
+Suppress isolated vertices and put $m=|E(F)|$.  By Theorem~7.1 choose a graph
+$G$ with $\chi(G)>\aleph_0$ and no odd cycle of length at most $m$.  Lemma~6.2
+gives $\chi(\mathcal L(G))>\aleph_0$.
 
-Put \(m=|E(F)|\). Choose \(r\) with \(2r+1>m\), and set
-
-\[
-G=S_r\bigl(\beth_{r-1}(\aleph_0)^+\bigr).
-\]
-
-\medskip
-\noindent\textbf{Claim 8.3.1 (the chosen host is large-chromatic and has the
-required odd-girth bound).}
-By Lemmas 7.1 and 7.2, \(\chi(G)>\aleph_0\), and \(G\) has no odd cycle of
-length at most \(m\). Lemma 6.2 then gives
-
-\[
-\chi(\mathcal L(G))>\aleph_0.
-\]
-\(\square\)
-
-\medskip
-\noindent\textbf{Claim 8.3.2 (cycle localisation).}
-If \(F\) embeds in \(\mathcal L(G)\), every Berge cycle in its selected
-image is contained in a single factor \(J_s^+\).
-
-\smallskip
-\noindent\emph{Proof of Claim 8.3.2.}
-Retain exactly the host hyperedges corresponding to the hyperedges of \(F\).
-Injectivity of the embedding and linearity of \(F\) make them a finite linear
-trace isomorphic to \(F\). Theorem 6.3 assembles this trace by one-point
-amalgamations. The amalgamation point is a cut vertex of the Levi graph. A
-simple cycle cannot enter a component through that cut vertex and later leave
-through it without repeating the vertex. Hence a simple Levi cycle, and
-therefore a Berge cycle, cannot cross from one factor to another. This is
-precisely the localisation assertion in Corollary 6.4. \(\square\)
-
-\medskip
-\noindent\textbf{Claim 8.3.3 (length and parity are preserved).}
-A Berge cycle of length \(\ell\) localised in \(J_s^+\) gives an ordinary
-cycle of length \(\ell\) in \(J_s\subseteq G\).
-
-\smallskip
-\noindent\emph{Proof of Claim 8.3.3.}
-Write the local Berge cycle in alternating form as core vertices and
-hyperedges. In a private-vertex expansion, each hyperedge contains exactly
-two core vertices; consecutive hyperedges of the Berge cycle meet at their
-common core vertex, so their graph edges are consecutive in \(J_s\).
-Simplicity of the Levi cycle makes both the core vertices and the hyperedges
-distinct; consequently the resulting closed graph walk is a simple graph
-cycle. There is one graph edge for each hyperedge of the Berge cycle. Thus the
-graph cycle has length \(\ell\), not the Levi length \(2\ell\), and in
-particular has the same parity. \(\square\)
-
-Now suppose that \(F\) embeds in \(\mathcal L(G)\). Its given odd Berge
-cycle uses distinct hyperedges, so its length \(\ell\) satisfies \(\ell\le m\).
-Claims 8.3.2 and 8.3.3 produce an odd graph cycle of length \(\ell\) in
-\(G\), contradicting Claim 8.3.1. Therefore \(\mathcal L(G)\) is an
-uncountably chromatic \(F\)-free host, and \(F\) is non-obligatory.
-\(\square\)
+Suppose that $F$ embeds in $\mathcal L(G)$ and retain exactly the host
+hyperedges corresponding to the edges of $F$.  The selected trace is finite
+and linear.  Corollary~6.4 localises every Berge cycle in one expansion fibre
+and sends a Berge cycle of length $\ell$ to an ordinary cycle of the same
+length in $G$.  The given odd Berge cycle has $\ell\le m$, contradicting the
+choice of $G$.  Thus $\mathcal L(G)$ is an uncountably chromatic $F$-free
+host.
+\end{proof}
 
 The three propositions cover every failure of the intrinsic conditions, and prove
 
@@ -1283,7 +1110,7 @@ The three propositions cover every failure of the intrinsic conditions, and prov
 \neg(3)\Longrightarrow\neg(1). \tag{8.2}
 \]
 
-\section{Completion of the proof}\label{conclusion}
+\section{Proof of the classification}\label{conclusion}
 
 Sections~3 and 4 prove \((2)\Longrightarrow(1)\). Section~5 proves
 \((2)\Longleftrightarrow(3)\), and Section~8 proves the contrapositive
@@ -1308,15 +1135,18 @@ F^\circ\text{ is linear},\\[1mm]
 \]
 \endgroup
 
-All embeddings are non-induced: additional host hyperedges on the image vertices are irrelevant throughout. The proof uses only ZFC, the displayed successor cardinals, graph-colouring compactness, and the standard Erd\H{o}s--Rado relation (8.1). It assumes neither CH nor GCH, and no forcing axiom or large-cardinal hypothesis.
+All embeddings are non-induced: additional host hyperedges on the image vertices are irrelevant throughout. The proof uses only ZFC, graph-colouring compactness, the classical Erd\H{o}s--Hajnal high-odd-girth theorem, and the standard Erd\H{o}s--Rado relation (8.1). It assumes neither CH nor GCH, and no forcing axiom or large-cardinal hypothesis.
 
-\section*{Formalisation}
+\section*{Formal verification and reproducibility}
 
-The complete finite classification in Theorem~A has been machine-checked in
-Lean~4. The self-contained source closure, developed with ChatGPT-5.6 and
-Aristotle \citep{achim-et-al-2025}, is available on
-\href{https://github.com/SamPetkov/Erdos593/blob/main/formalization/Erdos593SelfContained.lean}{GitHub}.
-For every finite triple system \(F\), its final public theorems establish
+Li's preprint, posted on 23 June 2026, contains the first publicly posted
+complete proof of Theorem~A \citep[Theorem~1.1]{li2026}.  The present Lean
+development is a separate formal verification of the alternative proof
+organised in this paper; it is not a line-by-line formalisation of Li's
+manuscript and carries no priority claim.  The
+self-contained Lean~4 source is available in the public
+\href{https://github.com/SamPetkov/Erdos593/blob/main/formalization/Erdos593SelfContained.lean}{\texttt{Erdos593} repository}.
+For every finite triple system $F$, the exported theorems establish
 \[
 \begin{aligned}
 \mathtt{F.IsObligatory}
@@ -1325,24 +1155,151 @@ For every finite triple system \(F\), its final public theorems establish
 &\Longleftrightarrow \mathtt{Constructible\ F.isolatedReduction}.
 \end{aligned}
 \]
-Thus the Lean development checks both directions of the finite obligatoriness
-classification stated in this paper, including the isolated-vertex reduction.
-Here ``finite'' refers to the systems \(F\) being classified; the host triple
-systems quantified over in the definition of obligatoriness are unrestricted,
-exactly as in Theorem~A.
+Thus the development verifies both directions of the classification,
+including the isolated-vertex reduction.  Here ``finite'' refers to the
+system $F$ being classified; the host triple systems in the definition of
+obligatoriness remain unrestricted.  The formalisation supplements, rather
+than replaces, mathematical review.
 
-\section*{AI assistance}
+\section*{Acknowledgments}
 
-ChatGPT-5.6 Sol Pro and Aristotle were consulted for proof development,
-adversarial checking, and the Lean formalisation. In particular,
-ChatGPT-5.6 Sol Pro proposed the central idea of the converse in
-Sections~6--8: the one-apex sequence lift \(\mathcal L(G)\) and its exact
-finite-linear-trace decomposition.
-The author reviewed all incorporated suggestions and assumes full
-responsibility for the manuscript.
+The author thanks Tom de Groot for his advice on revising the manuscript for
+greater clarity, and Eric Li for a productive discussion that improved the
+attribution and clarified how the present proof and formalisation differ from
+Li's proof.
 
-\renewcommand{\bibsection}{\section*{References}}
-\bibliographystyle{unsrtnat}
-\bibliography{references}
+\section*{AI assistance and provenance}
+
+OpenAI's GPT-5.6 Pro through ChatGPT and Aristotle~\citep{achim-et-al-2025}
+were used for proof development, adversarial checking, editorial restructuring,
+and the Lean formalisation.  The author began developing the argument before
+becoming aware of Li's preprint.  During substantial proof and formalisation
+stages, the models were instructed to work without further internet access
+after an initial source-retrieval stage.  That instruction is not an auditable
+guarantee that every model-generated suggestion was produced without external
+retrieval, and it does not establish informational independence.  Accordingly,
+the paper makes no claim of informational independence and credits Li's
+23 June 2026 preprint as the first publicly posted complete proof.  After the
+preprint was brought to the author's attention, the manuscript was revised to
+identify the shared one-apex sequence-lift, bridge-trace, selected-incidence,
+quotient-forest, and running-intersection architecture at the points where it
+is used.  The Lean development verifies the implementation presented here;
+it is not a line-by-line formalisation of Li's manuscript.  The author reviewed
+all incorporated suggestions and assumes full responsibility for the
+arguments, citations, and final manuscript.
+
+\section*{Funding}
+The author received no funding for this work.
+
+\section*{Competing interests}
+The author declares no competing interests.
+
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Erd{\H{o}}s(1995)]{erdos1995}
+Paul Erd{\H{o}}s.
+\newblock On some problems in combinatorial set theory.
+\newblock \emph{Publikacije Instituta Matemati\v{c}kog (Beograd) (N.S.)},
+  57(71):\penalty0 61--65, 1995.
+
+\bibitem[Bloom(2026)]{bloom593}
+Thomas~F. Bloom.
+\newblock Erd{\H{o}}s problem 593.
+\newblock \url{https://www.erdosproblems.com/593}, 2026.
+\newblock Accessed 11 July 2026.
+
+\bibitem[Li(2026)]{li2026}
+Eric Li.
+\newblock A resolution of {Erd{\H{o}}s Problems 593 and 1177}: Obligatory
+  triple systems and exact spectra.
+\newblock arXiv:2606.24882, submitted 23 June 2026.
+\newblock \doi{10.48550/arXiv.2606.24882}.
+\newblock URL \url{https://arxiv.org/abs/2606.24882}.
+
+\bibitem[Erd{\H{o}}s and Hajnal(1966)]{erdoshajnal1966}
+Paul Erd{\H{o}}s and Andr{\'a}s Hajnal.
+\newblock On chromatic number of graphs and set-systems.
+\newblock \emph{Acta Mathematica Academiae Scientiarum Hungaricae}, 17\penalty0
+  (1--2):\penalty0 61--99, 1966.
+\newblock \doi{10.1007/BF02020444}.
+
+\bibitem[Erd{\H{o}}s et~al.(1973)Erd{\H{o}}s, Hajnal, and Rothschild]{ehr1973}
+Paul Erd{\H{o}}s, Andr{\'a}s Hajnal, and Bruce~L. Rothschild.
+\newblock On chromatic number of graphs and set-systems.
+\newblock In \emph{Cambridge Summer School in Mathematical Logic (Cambridge,
+  1971)}, volume 337 of \emph{Lecture Notes in Mathematics}, pages 531--538.
+  Springer, Berlin and New York, 1973.
+
+\bibitem[Erd{\H{o}}s et~al.(1975)Erd{\H{o}}s, Galvin, and Hajnal]{egh1975}
+Paul Erd{\H{o}}s, Fred Galvin, and Andr{\'a}s Hajnal.
+\newblock On set-systems having large chromatic number and not containing
+  prescribed subsystems.
+\newblock In \emph{Infinite and Finite Sets (Keszthely, 1973)}, volume~10 of
+  \emph{Colloquia Mathematica Societatis J{\'a}nos Bolyai}, pages 425--513.
+  North-Holland, 1975.
+
+\bibitem[Komj{\'a}th(2001)]{komjath2001}
+P{\'e}ter Komj{\'a}th.
+\newblock Some remarks on obligatory subsystems of uncountably chromatic triple
+  systems.
+\newblock \emph{Combinatorica}, 21\penalty0 (2):\penalty0 233--238, 2001.
+\newblock \doi{10.1007/s004930100021}.
+
+\bibitem[Hajnal and Komj{\'a}th(2008)]{hajnalkomjath2008}
+Andr{\'a}s Hajnal and P{\'e}ter Komj{\'a}th.
+\newblock Obligatory subsystems of triple systems.
+\newblock \emph{Acta Mathematica Hungarica}, 119\penalty0 (1--2):\penalty0
+  1--13, 2008.
+\newblock \doi{10.1007/s10474-007-6231-2}.
+
+\bibitem[Komj{\'a}th(2008)]{komjath2008}
+P{\'e}ter Komj{\'a}th.
+\newblock An uncountably chromatic triple system.
+\newblock \emph{Acta Mathematica Hungarica}, 121\penalty0 (1--2):\penalty0
+  79--92, 2008.
+\newblock \doi{10.1007/s10474-008-7179-6}.
+
+\bibitem[Reiher(2024)]{reiher2024}
+Christian Reiher.
+\newblock Obligatory hypergraphs.
+\newblock \emph{Proceedings of the American Mathematical Society}, 2024.
+\newblock \doi{10.1090/proc/17021}.
+\newblock URL \url{https://arxiv.org/abs/2403.11223}.
+\newblock arXiv:2403.11223.
+
+\bibitem[de~Bruijn and Erd{\H{o}}s(1951)]{debruijn1951}
+Nicolaas~Govert de~Bruijn and Paul Erd{\H{o}}s.
+\newblock A colour problem for infinite graphs and a problem in the theory of
+  relations.
+\newblock \emph{Nederl. Akad. Wetensch. Proc. Ser. A}, 54\penalty0
+  (5):\penalty0 371--373, 1951.
+\newblock \doi{10.1016/S1385-7258(51)50053-7}.
+
+\bibitem[Erd{\H{o}}s and Rado(1956)]{erdosrado1956}
+Paul Erd{\H{o}}s and Richard Rado.
+\newblock A partition calculus in set theory.
+\newblock \emph{Bulletin of the American Mathematical Society}, 62\penalty0
+  (5):\penalty0 427--489, 1956.
+\newblock \doi{10.1090/S0002-9904-1956-10036-0}.
+
+\bibitem[Achim et~al.(2025)Achim, Best, Der, F{\'e}d{\'e}rico, Gukov,
+  Halpern-Leistner, Henningsgard, Kudryashov, Meiburg, Michelsen, Patterson,
+  Rodriguez, Scharff, Shanker, Sicca, Sowrirajan, Swope, Tamas, Tenev, Thomm,
+  Williams, and Wu]{achim-et-al-2025}
+Tudor Achim, Alex Best, Kevin Der, Math{\"i}s F{\'e}d{\'e}rico, Sergei Gukov,
+  Daniel Halpern-Leistner, Kirsten Henningsgard, Yury Kudryashov, Alexander
+  Meiburg, Martin Michelsen, Riley Patterson, Eric Rodriguez, Laura Scharff,
+  Vikram Shanker, Vladimir Sicca, Hari Sowrirajan, Aidan Swope, Matyas Tamas,
+  Vlad Tenev, Jonathan Thomm, Harold Williams, and Lawrence Wu.
+\newblock {Aristotle}: {IMO}-level automated theorem proving, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.01346}.
+\newblock arXiv:2510.01346.
+
+\end{thebibliography}
 
 \end{document}

@@ -1,8 +1,8 @@
 # A Self-Contained Proof of a Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph
 
-**Authors:** Samuil Petkov & ChatGPT 5.6
+**Author:** Samuil Petkov
 
-**Date:** 12 July 2026
+**Date:** 20 July 2026
 **Status:** self-contained manuscript assembled from, and checked against, the
 component arguments in this research dossier.  This document makes no claim
 of external peer review or priority.
@@ -51,7 +51,7 @@ This is an obstruction to a uniformly small high-probability upper bound,
 not an all-\(n\) high-probability lower bound for the gap.  Heckel (2024,
 Conjecture 4) also proposed the scale
 \(\chi(G_n)-\zeta(G_n)=\Theta(n/(\log n)^3)\) with high probability.
-Independently, Steiner (2024) obtained related infinite-subsequence
+Independently, Steiner (2025) obtained related infinite-subsequence
 evidence.
 
 Heckel (2025, Theorem 1) subsequently proved that, for every fixed
@@ -1976,8 +1976,9 @@ constitute a machine-checked proof of the complete theorem stated here.
    first submitted in 2024. <https://arxiv.org/abs/2409.17614>.
 
 8. R. Steiner, "On the Difference Between the Chromatic and Cochromatic
-   Number," arXiv:2408.02400v2 [math.CO], 2024.
-   <https://arxiv.org/abs/2408.02400>.
+   Number," *SIAM Journal on Discrete Mathematics* **39**(4) (2025),
+   2268--2274. <https://doi.org/10.1137/24M1715180>.
+   Published online 17 November 2025; arXiv:2408.02400.
 
 9. C. McDiarmid, "On the Method of Bounded Differences," in J. Siemons
    (ed.), *Surveys in Combinatorics, 1989*, London Mathematical Society

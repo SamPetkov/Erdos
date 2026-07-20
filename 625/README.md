@@ -6,7 +6,7 @@
 
 **[Open the publication-layout preprint PDF](arxiv_625.pdf)**
 
-The publication-layout PDF is dated 12 July 2026 and lists Samuil Petkov as
+The publication-layout PDF is dated 20 July 2026 and lists Samuil Petkov as
 the sole author, with explicit AI-assistance, Aristotle-use, funding, and
 competing-interests disclosures.  It remains a candidate preprint while the
 full Lean target is open.
@@ -28,7 +28,7 @@ illustrative example, not statistical or asymptotic proof evidence.
 ## Lean formalization
 
 [`formalization/`](formalization/) contains the pinned Lean 4 formalization,
-authored by **Samuil Petkov & ChatGPT 5.6**.  The accepted project is checked
+authored by **Samuil Petkov** and developed with disclosed AI assistance.  The accepted project is checked
 locally with Lean/mathlib `v4.31.0`.  Raw Aristotle outputs remain quarantined;
 only manually reviewed Lean 4.31 ports or reconstructions that pass the local
 repository gates enter the accepted project.  The verified closure includes

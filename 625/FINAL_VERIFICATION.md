@@ -1,5 +1,15 @@
 # Final internal verification record
 
+## 2026-07-20 publication synchronization
+
+The sole-author TeX, Markdown, bibliography, and PDF publication artifacts were
+regenerated on 20 July 2026.  The manuscript and PDF metadata name **Samuil
+Petkov** as the sole author; AI systems remain disclosed as assistance rather
+than coauthors.  The current publication artifacts are verified by the
+`arXiv artifact synchronization` workflow.  Historical hashes and audit verdicts
+below remain scoped to the bytes and dates explicitly stated in their original
+records.
+
 Initial record: 2026-07-12.  Adversarial proof-audit update: 2026-07-13.
 Publication and Lean-checkpoint refresh: 2026-07-14.
 
@@ -137,8 +147,8 @@ the title and contents, abstract and main bound, short and long lemma boxes,
 the repaired root corridor, global high-skeleton bridge, green proposition
 box, residual attachments, amplification, final theorem, in-text citations,
 and the reference list.  The rebuilt title page
-displays `Samuil Petkov & ChatGPT 5.6`, and the embedded PDF Author field
-contains the same attribution.
+displays `Samuil Petkov`, and the embedded PDF Author field
+contains the same author metadata.
 Text extraction found no blank page, replacement
 character, or `??` marker and confirmed every lemma title, Proposition 9.2,
 the main constant, all six references, five unique external reference links

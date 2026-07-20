@@ -92,11 +92,14 @@ Annika Heckel.
 \newblock \doi{10.37236/13346}.
 \newblock URL \url{https://doi.org/10.37236/13346}.
 
-\bibitem[Steiner(2024)]{steiner-2024}
+\bibitem[Steiner(2025)]{steiner-2024}
 Raphael Steiner.
-\newblock On the difference between the chromatic and cochromatic number, 2024.
-\newblock URL \url{https://arxiv.org/abs/2408.02400}.
-\newblock Version 2, revised 20 August 2024.
+\newblock On the difference between the chromatic and cochromatic number.
+\newblock \emph{SIAM Journal on Discrete Mathematics}, 39\penalty0
+  (4):\penalty0 2268--2274, 2025.
+\newblock \doi{10.1137/24M1715180}.
+\newblock URL \url{https://doi.org/10.1137/24M1715180}.
+\newblock Published online 17 November 2025; arXiv:2408.02400.
 
 \bibitem[Heckel(2025)]{heckel-2025-difference}
 Annika Heckel.
