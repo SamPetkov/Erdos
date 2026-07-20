@@ -16402,6 +16402,1001 @@ END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
+Source: Erdos625/FourGaussianTiltCorridor.lean
+Normalized SHA-256: 93f30615405dd4b098be9b306b57c420762e7b91ab40e43f4a2740bec7d1772f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourGaussianTiltCorridor
+
+/-!
+# Uniform tilt corridor for the four-point Gaussian profile
+
+This file ports the audited finite analytic leaf of the variable-target
+tilt argument into the repository's existing four-point exponential family.
+It deliberately reuses `q`, `fourGaussianScore`, `ProfileEntropyS4.mean`, and
+`ProfileEntropyS4.strictMono_mean`; in particular, it does not introduce a
+second exponential family or repeat the derivative/variance argument.
+
+The conclusions below are only the analytic endpoint bracket needed later in
+the proof of the uniform partition-ratio estimate.  They do not themselves
+establish that finite uniform estimate or any probabilistic conclusion.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators Topology
+
+set_option autoImplicit false
+
+noncomputable section
+
+private lemma fourGaussianMean_lower_value :
+    ProfileEntropyS4.mean fourGaussianScore (2 * q) =
+      (96 + 53 * Real.sqrt 2) / (40 + 17 * Real.sqrt 2) := by
+  unfold ProfileEntropyS4.mean ProfileEntropyS4.firstNumerator
+    ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+    fourGaussianScore ProfileEntropyS4.support
+  norm_num [Fin.sum_univ_four]
+  ring
+  unfold q
+  norm_num [Real.exp_neg, Real.exp_mul, Real.exp_log]
+  ring
+  rw [show (2 : ℝ) ^ (3 / 2 : ℝ) = 2 * Real.sqrt 2 by
+        rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add'] <;> norm_num,
+      show (2 : ℝ) ^ (5 / 2 : ℝ) = 2 ^ 2 * Real.sqrt 2 by
+        rw [Real.sqrt_eq_rpow, ← Real.rpow_natCast, ← Real.rpow_add'] <;>
+          norm_num]
+  ring
+  grind
+
+private lemma fourGaussianMean_lower_endpoint :
+    ProfileEntropyS4.mean fourGaussianScore (2 * q) < 2 / q := by
+  rw [fourGaussianMean_lower_value]
+  have hqpos : 0 < q := q_pos
+  have hqlt : q < 5 / 7 := by
+    unfold q
+    linarith [Real.log_two_lt_d9]
+  have hsqrt : Real.sqrt 2 < 2 := by
+    nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2),
+      Real.sqrt_nonneg 2]
+  have hden : 0 < 40 + 17 * Real.sqrt 2 := by positivity
+  rw [div_lt_div_iff₀ hden hqpos]
+  have hmean :
+      (96 + 53 * Real.sqrt 2) * 5 <
+        14 * (40 + 17 * Real.sqrt 2) := by
+    linarith
+  nlinarith
+
+private lemma fourGaussianMean_upper_value :
+    ProfileEntropyS4.mean fourGaussianScore (9 * q / 2) = 86 / 21 := by
+  unfold ProfileEntropyS4.mean ProfileEntropyS4.firstNumerator
+    ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+    fourGaussianScore ProfileEntropyS4.support q
+  norm_num [Fin.sum_univ_four]
+  ring_nf
+  norm_num
+  norm_num [Real.exp_mul, Real.exp_log]
+
+private lemma fourGaussianMean_upper_endpoint :
+    1 + 2 / q <
+      ProfileEntropyS4.mean fourGaussianScore (9 * q / 2) := by
+  rw [fourGaussianMean_upper_value]
+  have hqpos : 0 < q := q_pos
+  have hq : 42 / 65 < q := by
+    unfold q
+    linarith [Real.log_two_gt_d9]
+  have hdiv : 2 / q < 65 / 21 := by
+    rw [div_lt_iff₀ hqpos]
+    nlinarith
+  linarith
+
+/-- **Uniform four-size tilt corridor (analytic leaf).**
+
+For every target in the full manuscript interval, any tilt whose existing
+four-point Gaussian mean equals that target lies in the displayed strict
+corridor.  The target remains variable; no selected phase value is silently
+substituted.  This is an analytic input to, not a proof of, the later finite
+uniform partition-ratio estimate.
+-/
+theorem uniform_four_size_tilt_corridor
+    (target lambda : Real)
+    (hTargetLower : 2 / q ≤ target)
+    (hTargetUpper : target ≤ 1 + 2 / q)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda = target) :
+    2 * q < lambda ∧ lambda < 9 * q / 2 := by
+  constructor <;> contrapose! hMean
+  · exact ne_of_lt
+      (lt_of_le_of_lt
+        ((ProfileEntropyS4.strictMono_mean fourGaussianScore).monotone hMean)
+        (lt_of_lt_of_le fourGaussianMean_lower_endpoint hTargetLower))
+  · refine ne_of_gt
+      (lt_of_lt_of_le ?_
+        ((ProfileEntropyS4.strictMono_mean fourGaussianScore).monotone hMean))
+    exact lt_of_le_of_lt hTargetUpper fourGaussianMean_upper_endpoint
+
+/-- The original `delta` parameterization of the same variable-target
+analytic corridor. -/
+theorem uniform_four_size_tilt_corridor_for_delta
+    (delta lambda : Real)
+    (hDeltaLower : 0 ≤ delta)
+    (hDeltaUpper : delta ≤ 1)
+    (hMean :
+      ProfileEntropyS4.mean fourGaussianScore lambda = 1 + 2 / q - delta) :
+    2 * q < lambda ∧ lambda < 9 * q / 2 := by
+  apply uniform_four_size_tilt_corridor (1 + 2 / q - delta) lambda
+  · linarith
+  · linarith
+  · exact hMean
+
+#print axioms uniform_four_size_tilt_corridor
+#print axioms uniform_four_size_tilt_corridor_for_delta
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourGaussianTiltCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.GaussianTailTools
+Source: Erdos625/GaussianTailTools.lean
+Normalized SHA-256: 760fbc526c01ba42d37885509710f288ea26351e6c22ec1ace51f096a6d9f4a3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_GaussianTailTools
+
+/-!
+# Finite tilted-Gaussian tail bounds
+
+This module turns a quadratic exponential weight on natural indices into a
+geometric majorant.  If `a > 0` and `|lambda| ≤ M`, then each term satisfies
+
+`exp (lambda * d - a / 2 * d ^ 2) ≤ exp (M ^ 2 / a) * exp (-a / 4) ^ d`.
+
+Summing this pointwise estimate gives an explicit finite `Finset.Ico` tail
+bound.  The result is purely finite and makes no claim about how a tilt bound
+`|lambda| ≤ M` is obtained, convergence of partition functions, or any
+asymptotic root location.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A bounded linear tilt of a Gaussian is dominated by a fixed wider
+Gaussian, uniformly over the real coordinate.  This is a pointwise estimate;
+it assumes the tilt bound and does not prove boundedness of an optimizer. -/
+theorem gaussian_abs_tilt_domination
+    {a M lambda x : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) :
+    Real.exp (lambda * x - a / 2 * x ^ 2) ≤
+      Real.exp (M ^ 2 / a) * Real.exp (-a / 4 * x ^ 2) := by
+  rw [← Real.exp_add]
+  have h_sq : M * |x| - a / 4 * x ^ 2 ≤ M ^ 2 / a := by
+    rw [le_div_iff₀' ha]
+    nlinarith [
+      sq_nonneg (2 * M - a * |x|),
+      abs_mul_abs_self x,
+      mul_div_cancel₀ (a ^ 2) (ne_of_gt ha)]
+  exact Real.exp_le_exp.mpr (by
+    cases abs_cases x <;> nlinarith [abs_le.mp hlambda])
+
+/-- A tilted Gaussian term on a natural index is bounded by an explicit
+geometric term.  The exponent loss `a / 4` uses both completion of the square
+and the natural-index inequality `d ≤ d ^ 2`. -/
+theorem tiltedGaussianTerm_le_geometric
+    {a M lambda : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) (d : ℕ) :
+    Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2) ≤
+      Real.exp (M ^ 2 / a) * (Real.exp (-a / 4)) ^ d := by
+  rw [← Real.exp_nat_mul, ← Real.exp_add]
+  gcongr
+  field_simp
+  nlinarith [
+    sq_nonneg (2 * lambda - (d : ℝ) * a),
+    mul_le_mul_of_nonneg_left (show (0 : ℝ) ≤ d by positivity) ha.le,
+    mul_le_mul_of_nonneg_left
+      (show (d : ℝ) ≤ (d : ℝ) ^ 2 by
+        norm_cast
+        nlinarith)
+      ha.le,
+    abs_le.mp hlambda]
+
+/-- Explicit finite upper tail for a tilted Gaussian sequence on natural
+indices.  The statement also covers `m ≤ R`, when the `Finset.Ico R m` sum is
+empty. -/
+theorem finiteTiltedGaussianTail_le
+    {a M lambda : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) (R m : ℕ) :
+    (∑ d ∈ Finset.Ico R m,
+      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ≤
+      Real.exp (M ^ 2 / a) *
+        ((Real.exp (-a / 4)) ^ R /
+          (1 - Real.exp (-a / 4))) := by
+  calc
+    (∑ d ∈ Finset.Ico R m,
+        Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ≤
+        ∑ d ∈ Finset.Ico R m,
+          Real.exp (M ^ 2 / a) * (Real.exp (-a / 4)) ^ d :=
+      Finset.sum_le_sum fun d _ ↦
+        tiltedGaussianTerm_le_geometric ha hlambda d
+    _ = Real.exp (M ^ 2 / a) *
+          ∑ d ∈ Finset.Ico R m, (Real.exp (-a / 4)) ^ d := by
+      rw [Finset.mul_sum]
+    _ ≤ Real.exp (M ^ 2 / a) *
+          ((Real.exp (-a / 4)) ^ R /
+            (1 - Real.exp (-a / 4))) :=
+      mul_le_mul_of_nonneg_left
+        (geom_sum_Ico_le_of_lt_one
+          (Real.exp_nonneg _)
+          (Real.exp_lt_one_iff.mpr (by linarith)))
+        (Real.exp_nonneg _)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_GaussianTailTools
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.GaussianTailTools
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.GeometricMomentTools
+Source: Erdos625/GeometricMomentTools.lean
+Normalized SHA-256: 0e911845f72f9c5a96494f0281f45e43da8951a339437f1d53ad85db108eba19
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_GeometricMomentTools
+
+/-!
+# Finite geometric first-moment tails
+
+This module bounds the first-moment tail of a finite geometric sequence.  For
+`0 ≤ rho < 1`, it proves the exact infinite-tail majorant
+
+`sum_{d in [R,m)} d * rho^d ≤
+  rho^R * (R / (1-rho) + rho / (1-rho)^2)`.
+
+The result includes the empty-interval case `m ≤ R`.  It is a finite analytic
+tool only: no asymptotic rate, optimizer bound, or partition-function limit is
+asserted here.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A finite first-moment geometric tail is bounded by the corresponding
+infinite tail, evaluated in closed form. -/
+theorem sum_Ico_cast_mul_pow_le_geometric_tail
+    {rho : ℝ} (hrho0 : 0 ≤ rho) (hrho1 : rho < 1) (R m : ℕ) :
+    (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) ≤
+      rho ^ R *
+        ((R : ℝ) / (1 - rho) + rho / (1 - rho) ^ 2) := by
+  have hrhoNorm : ‖rho‖ < 1 := by
+    rwa [Real.norm_of_nonneg hrho0]
+  have hgeometric : Summable (fun k : ℕ ↦ rho ^ k) :=
+    summable_geometric_of_lt_one hrho0 hrho1
+  have hfirstMoment : Summable (fun k : ℕ ↦ (k : ℝ) * rho ^ k) :=
+    (hasSum_coe_mul_geometric_of_norm_lt_one hrhoNorm).summable
+  have hshift :
+      (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) =
+        ∑ k ∈ Finset.range (m - R),
+          ((R : ℝ) + k) * rho ^ (R + k) := by
+    rw [Finset.sum_Ico_eq_sum_range]
+    norm_num [add_comm]
+  have hfactor :
+      (∑ k ∈ Finset.range (m - R),
+          ((R : ℝ) + k) * rho ^ (R + k)) =
+        rho ^ R *
+          ((∑ k ∈ Finset.range (m - R), (R : ℝ) * rho ^ k) +
+            ∑ k ∈ Finset.range (m - R), (k : ℝ) * rho ^ k) := by
+    rw [← Finset.sum_add_distrib, Finset.mul_sum]
+    congr
+    ext k
+    rw [pow_add]
+    ring
+  calc
+    (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) =
+        ∑ k ∈ Finset.range (m - R),
+          ((R : ℝ) + k) * rho ^ (R + k) := hshift
+    _ = rho ^ R *
+          ((∑ k ∈ Finset.range (m - R), (R : ℝ) * rho ^ k) +
+            ∑ k ∈ Finset.range (m - R), (k : ℝ) * rho ^ k) := hfactor
+    _ ≤ rho ^ R *
+          ((∑' k : ℕ, (R : ℝ) * rho ^ k) +
+            ∑' k : ℕ, (k : ℝ) * rho ^ k) :=
+      mul_le_mul_of_nonneg_left
+        (add_le_add
+          (Summable.sum_le_tsum
+            (Finset.range (m - R))
+            (fun _ _ ↦ by positivity)
+            (hgeometric.mul_left _))
+          (Summable.sum_le_tsum
+            (Finset.range (m - R))
+            (fun _ _ ↦ by positivity)
+            hfirstMoment))
+        (pow_nonneg hrho0 R)
+    _ = rho ^ R *
+          ((R : ℝ) / (1 - rho) + rho / (1 - rho) ^ 2) := by
+      rw [tsum_mul_left, tsum_geometric_of_lt_one hrho0 hrho1,
+        tsum_coe_mul_geometric_of_norm_lt_one hrhoNorm]
+      ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_GeometricMomentTools
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.GeometricMomentTools
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TiltedGaussianSummability
+Source: Erdos625/TiltedGaussianSummability.lean
+Normalized SHA-256: aa392f6785a9c7a30b958f8faa879c2a5edc5053d2d0e87cefa0a848374bbea9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
+
+/-!
+# Summability of tilted-Gaussian moments
+
+A fixed positive quadratic coefficient dominates every fixed linear tilt on
+the natural indices.  This module makes that comparison through the existing
+pointwise tilted-Gaussian bound and Mathlib's summability theorem for a
+polynomial times a geometric sequence.
+
+The comparison includes `d = 0` directly.  For the zeroth moment Lean's
+convention gives `0 ^ 0 = 1`, while the first and second moment factors vanish;
+no division by the index or eventual-only ratio argument is used.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- Every fixed natural power times a linearly tilted Gaussian with positive
+quadratic coefficient is summable on the natural indices. -/
+theorem summable_natPow_mul_tiltedGaussian
+    {a lambda : ℝ} (ha : 0 < a) (k : ℕ) :
+    Summable
+      (fun d : ℕ ↦
+        ((d : ℝ) ^ k) *
+          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
+  have hrho0 : 0 ≤ Real.exp (-a / 4) := Real.exp_nonneg _
+  have hrho1 : Real.exp (-a / 4) < 1 :=
+    Real.exp_lt_one_iff.mpr (by linarith)
+  have hrhoNorm : ‖Real.exp (-a / 4)‖ < 1 := by
+    rwa [Real.norm_of_nonneg hrho0]
+  have hgeometric :
+      Summable
+        (fun d : ℕ ↦
+          ((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d) :=
+    summable_pow_mul_geometric_of_norm_lt_one k hrhoNorm
+  have hmajorant :
+      Summable
+        (fun d : ℕ ↦
+          Real.exp (|lambda| ^ 2 / a) *
+            (((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d)) :=
+    hgeometric.mul_left _
+  refine hmajorant.of_nonneg_of_le (fun d ↦ ?_) (fun d ↦ ?_)
+  · exact mul_nonneg
+      (pow_nonneg (by positivity) k)
+      (Real.exp_nonneg _)
+  · have hterm := tiltedGaussianTerm_le_geometric
+      ha (show |lambda| ≤ |lambda| from le_rfl) d
+    have hscaled := mul_le_mul_of_nonneg_left hterm
+      (pow_nonneg (show (0 : ℝ) ≤ d by positivity) k)
+    simpa only [mul_assoc, mul_left_comm, mul_comm] using hscaled
+
+/-- A Gaussian with any fixed linear tilt has summable zeroth, first, and
+second natural-index moments. -/
+theorem summable_tiltedGaussian_moments
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+        (fun d : ℕ ↦
+          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
+      Summable
+        (fun d : ℕ ↦
+          (d : ℝ) *
+            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
+      Summable
+        (fun d : ℕ ↦
+          ((d : ℝ) ^ 2) *
+            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
+  refine ⟨?_, ?_, ?_⟩
+  · simpa using summable_natPow_mul_tiltedGaussian ha 0
+  · simpa using summable_natPow_mul_tiltedGaussian ha 1
+  · exact summable_natPow_mul_tiltedGaussian ha 2
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TiltedGaussianSummability
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ExtendedGaussianProfile
+Source: Erdos625/ExtendedGaussianProfile.lean
+Normalized SHA-256: c0943c6e2d41aa613dd7fa5c70d26d018279df4760ea3901ab20cd46e5b76b2e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
+
+/-!
+# The extended tilted-Gaussian deficit profile
+
+This module defines the limiting weight profile on the deficit coordinates
+`{-1, 0, 1, ...}`.  The exceptional deficit `-1` has weight
+
+`exp (-lambda - a / 2)`,
+
+while a natural deficit `d` has weight
+
+`exp (lambda * d - a / 2 * d ^ 2)`.
+
+The partition function and its first two unnormalized moments are represented
+as an exceptional atom plus a `tsum` over the natural deficits.  Only
+foundational analytic and algebraic properties are established here.  In
+particular, this module makes no differentiability, endpoint, optimizer, or
+strict-variance claim.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The unnormalized limiting weight at a natural deficit `d >= 0`. -/
+def extendedGaussianNaturalTerm (a lambda : ℝ) (d : ℕ) : ℝ :=
+  Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)
+
+/-- The exceptional limiting weight at deficit `-1`. -/
+def extendedGaussianExceptionalAtom (a lambda : ℝ) : ℝ :=
+  Real.exp (-lambda - a / 2)
+
+/-- The total mass of the extended tilted-Gaussian profile on
+`{-1, 0, 1, ...}`. -/
+def extendedGaussianPartition (a lambda : ℝ) : ℝ :=
+  extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d
+
+/-- The unnormalized first moment of the extended profile.  The exceptional
+atom contributes its coordinate `-1`. -/
+def extendedGaussianFirstNumerator (a lambda : ℝ) : ℝ :=
+  -extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, (d : ℝ) * extendedGaussianNaturalTerm a lambda d
+
+/-- The unnormalized second moment of the extended profile.  The exceptional
+atom contributes `(-1)^2 = 1`. -/
+def extendedGaussianSecondNumerator (a lambda : ℝ) : ℝ :=
+  extendedGaussianExceptionalAtom a lambda +
+    ∑' d : ℕ, ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d
+
+/-- The normalized mean deficit of the extended profile. -/
+def extendedGaussianMean (a lambda : ℝ) : ℝ :=
+  extendedGaussianFirstNumerator a lambda /
+    extendedGaussianPartition a lambda
+
+/-- The raw variance obtained from the normalized first and second moments. -/
+def extendedGaussianRawVariance (a lambda : ℝ) : ℝ :=
+  extendedGaussianSecondNumerator a lambda /
+      extendedGaussianPartition a lambda -
+    (extendedGaussianMean a lambda) ^ 2
+
+@[simp]
+theorem extendedGaussianNaturalTerm_zero (a lambda : ℝ) :
+    extendedGaussianNaturalTerm a lambda 0 = 1 := by
+  simp [extendedGaussianNaturalTerm]
+
+theorem extendedGaussianNaturalTerm_pos (a lambda : ℝ) (d : ℕ) :
+    0 < extendedGaussianNaturalTerm a lambda d := by
+  exact Real.exp_pos _
+
+theorem extendedGaussianExceptionalAtom_pos (a lambda : ℝ) :
+    0 < extendedGaussianExceptionalAtom a lambda := by
+  exact Real.exp_pos _
+
+/-- The natural-index mass is summable whenever the quadratic coefficient is
+positive. -/
+theorem summable_extendedGaussianNaturalTerm
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable (extendedGaussianNaturalTerm a lambda) := by
+  change Summable
+    (fun d : ℕ ↦
+      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2))
+  exact (summable_tiltedGaussian_moments
+    (a := a) (lambda := lambda) ha).1
+
+/-- The natural-index first-moment series is summable. -/
+theorem summable_extendedGaussianFirstMoment
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+      (fun d : ℕ ↦
+        (d : ℝ) * extendedGaussianNaturalTerm a lambda d) := by
+  simpa [extendedGaussianNaturalTerm] using
+    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.1
+
+/-- The natural-index second-moment series is summable. -/
+theorem summable_extendedGaussianSecondMoment
+    {a lambda : ℝ} (ha : 0 < a) :
+    Summable
+      (fun d : ℕ ↦
+        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d) := by
+  simpa [extendedGaussianNaturalTerm] using
+    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.2
+
+/-- The natural-index `tsum` is at least its deficit-zero atom. -/
+theorem one_le_tsum_extendedGaussianNaturalTerm
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
+  calc
+    1 = ∑ d ∈ ({0} : Finset ℕ),
+        extendedGaussianNaturalTerm a lambda d := by simp
+    _ ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d :=
+      (summable_extendedGaussianNaturalTerm ha).sum_le_tsum
+        ({0} : Finset ℕ)
+        (fun d _ ↦ (extendedGaussianNaturalTerm_pos a lambda d).le)
+
+/-- The deficit-zero atom gives the lower bound `1`, in addition to the
+strictly positive exceptional atom. -/
+theorem exceptionalAtom_add_one_le_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianExceptionalAtom a lambda + 1 ≤
+      extendedGaussianPartition a lambda := by
+  rw [extendedGaussianPartition]
+  simpa [add_comm] using
+    add_le_add_left (one_le_tsum_extendedGaussianNaturalTerm ha)
+      (extendedGaussianExceptionalAtom a lambda)
+
+theorem one_lt_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 < extendedGaussianPartition a lambda := by
+  have hatom := extendedGaussianExceptionalAtom_pos a lambda
+  have hlower :=
+    exceptionalAtom_add_one_le_extendedGaussianPartition
+      (a := a) (lambda := lambda) ha
+  linarith
+
+theorem one_le_extendedGaussianPartition
+    {a lambda : ℝ} (ha : 0 < a) :
+    1 ≤ extendedGaussianPartition a lambda :=
+  (one_lt_extendedGaussianPartition ha).le
+
+theorem extendedGaussianPartition_pos
+    {a lambda : ℝ} (ha : 0 < a) :
+    0 < extendedGaussianPartition a lambda :=
+  lt_trans zero_lt_one (one_lt_extendedGaussianPartition ha)
+
+theorem extendedGaussianPartition_ne_zero
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianPartition a lambda ≠ 0 :=
+  ne_of_gt (extendedGaussianPartition_pos ha)
+
+/-! ## Exact algebraic identities -/
+
+theorem extendedGaussianPartition_sub_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianPartition a lambda -
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianPartition]
+
+theorem extendedGaussianFirstNumerator_add_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianFirstNumerator a lambda +
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ,
+        (d : ℝ) * extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianFirstNumerator]
+
+theorem extendedGaussianSecondNumerator_sub_exceptionalAtom
+    (a lambda : ℝ) :
+    extendedGaussianSecondNumerator a lambda -
+        extendedGaussianExceptionalAtom a lambda =
+      ∑' d : ℕ,
+        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d := by
+  simp [extendedGaussianSecondNumerator]
+
+theorem extendedGaussianMean_mul_partition
+    {a lambda : ℝ} (ha : 0 < a) :
+    extendedGaussianMean a lambda * extendedGaussianPartition a lambda =
+      extendedGaussianFirstNumerator a lambda := by
+  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
+
+theorem extendedGaussianRawVariance_add_mean_sq
+    (a lambda : ℝ) :
+    extendedGaussianRawVariance a lambda +
+        (extendedGaussianMean a lambda) ^ 2 =
+      extendedGaussianSecondNumerator a lambda /
+        extendedGaussianPartition a lambda := by
+  simp [extendedGaussianRawVariance]
+
+theorem extendedGaussianRawVariance_add_mean_sq_mul_partition
+    {a lambda : ℝ} (ha : 0 < a) :
+    (extendedGaussianRawVariance a lambda +
+        (extendedGaussianMean a lambda) ^ 2) *
+        extendedGaussianPartition a lambda =
+      extendedGaussianSecondNumerator a lambda := by
+  rw [extendedGaussianRawVariance_add_mean_sq]
+  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
+
+theorem extendedGaussianRawVariance_eq_moment_quotients
+    (a lambda : ℝ) :
+    extendedGaussianRawVariance a lambda =
+      extendedGaussianSecondNumerator a lambda /
+          extendedGaussianPartition a lambda -
+        (extendedGaussianFirstNumerator a lambda /
+          extendedGaussianPartition a lambda) ^ 2 := by
+  rfl
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
+Source: Erdos625/UniformExplicitPartitionRatio.lean
+Normalized SHA-256: 25b0aa37e9e96915d120ed9c75d4d9bcbee009a4e5ec821d8d8c61631ef89b03
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformExplicitPartitionRatio
+
+/-!
+# Uniform explicit four-size partition-ratio certificate
+
+This file ports the audited numerical core of manuscript Lemma 5.1 into the
+repository's existing analytic infrastructure.  It reuses `q`,
+`fourGaussianScore`, `ProfileEntropyS4.partition`, the extended-Gaussian
+partition, and the already checked variable-target tilt corridor.  In
+particular, it introduces no duplicate exponential-family definitions and
+does not repeat the corridor proof.
+
+The conclusion closes only the strict numerical partition-ratio input
+`extended/four < 153/100`, uniformly over the full target interval.  It does
+not by itself prove the remaining asymptotic, optimization, or probabilistic
+claims of Lemma 5.1.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators Topology
+
+set_option autoImplicit false
+
+noncomputable section
+
+private lemma extendedGaussian_ratio_high_corridor (lambda : Real)
+    (hl : 5 * q / 2 ≤ lambda) (hu : lambda ≤ 9 * q / 2) :
+    extendedGaussianPartition q lambda /
+        ProfileEntropyS4.partition fourGaussianScore lambda <
+      (153 / 100 : Real) := by
+  suffices h_suff :
+      (extendedGaussianExceptionalAtom q lambda +
+          (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) +
+          (4 / 3) * extendedGaussianNaturalTerm q lambda 6) /
+        ProfileEntropyS4.partition fourGaussianScore lambda < 153 / 100 by
+    have h_tail :
+        ∑' d : ℕ, extendedGaussianNaturalTerm q lambda d ≤
+          (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) +
+            (4 / 3) * extendedGaussianNaturalTerm q lambda 6 := by
+      have h_tail : ∀ d ≥ 6,
+          extendedGaussianNaturalTerm q lambda (d + 1) ≤
+            (1 / 4) * extendedGaussianNaturalTerm q lambda d := by
+        intros d hd
+        have h_exp :
+            Real.exp (lambda - q / 2 * (2 * d + 1)) ≤ 1 / 4 := by
+          rw [← Real.log_le_log_iff (by positivity) (by positivity), Real.log_div] <;>
+            norm_num
+          rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow]
+          norm_num
+          nlinarith [show (d : ℝ) ≥ 6 by norm_cast,
+            show q = Real.log 2 by rfl, Real.log_pos one_lt_two]
+        calc
+          extendedGaussianNaturalTerm q lambda (d + 1) =
+              Real.exp (lambda - q / 2 * (2 * d + 1)) *
+                extendedGaussianNaturalTerm q lambda d := by
+            unfold extendedGaussianNaturalTerm
+            rw [← Real.exp_add]
+            push_cast
+            ring
+          _ ≤ (1 / 4) * extendedGaussianNaturalTerm q lambda d :=
+            mul_le_mul_of_nonneg_right h_exp
+              (Real.exp_nonneg (lambda * d - q / 2 * d ^ 2))
+      have h_tail_sum :
+          ∑' d : ℕ, extendedGaussianNaturalTerm q lambda (d + 6) ≤
+            (4 / 3) * extendedGaussianNaturalTerm q lambda 6 := by
+        have h_tail_sum : ∀ n : ℕ,
+            extendedGaussianNaturalTerm q lambda (n + 6) ≤
+              (1 / 4) ^ n * extendedGaussianNaturalTerm q lambda 6 := by
+          intro n
+          induction n <;> simp_all +decide [pow_succ', mul_assoc]
+          exact le_trans (h_tail _ (by linarith))
+            (mul_le_mul_of_nonneg_left ‹_› (by norm_num))
+        refine le_trans (Summable.tsum_le_tsum h_tail_sum ?_ ?_) ?_
+        · exact Summable.of_nonneg_of_le (fun n ↦ Real.exp_nonneg _)
+            h_tail_sum
+            (Summable.mul_right _ <|
+              summable_geometric_of_lt_one (by norm_num) (by norm_num))
+        · exact Summable.mul_right _
+            (summable_geometric_of_lt_one (by norm_num) (by norm_num))
+        · rw [tsum_mul_right, tsum_geometric_of_lt_one] <;> norm_num
+      have h_summable : Summable (extendedGaussianNaturalTerm q lambda) := by
+        refine summable_of_ratio_norm_eventually_le (r := (1 / 4 : ℝ)) (by norm_num) ?_
+        filter_upwards [Filter.eventually_ge_atTop (6 : ℕ)] with n hn
+        show ‖extendedGaussianNaturalTerm q lambda (n + 1)‖ ≤
+          (1 / 4 : ℝ) * ‖extendedGaussianNaturalTerm q lambda n‖
+        unfold extendedGaussianNaturalTerm
+        rw [Real.norm_of_nonneg (Real.exp_nonneg _),
+          Real.norm_of_nonneg (Real.exp_nonneg _)]
+        exact h_tail n hn
+      convert add_le_add_left h_tail_sum
+          (∑ d ∈ Finset.range 6, extendedGaussianNaturalTerm q lambda d) using 1
+      · rw [← h_summable.sum_add_tsum_nat_add]
+        exact add_comm _ _
+      · ring
+    exact lt_of_le_of_lt
+      (by
+        unfold extendedGaussianPartition
+        exact div_le_div_of_nonneg_right (by linarith)
+          (ProfileEntropyS4.partition_pos fourGaussianScore lambda).le)
+      h_suff
+  unfold extendedGaussianExceptionalAtom extendedGaussianNaturalTerm
+    ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+    fourGaussianScore ProfileEntropyS4.support
+  norm_num [Finset.sum_range_succ, Fin.sum_univ_four]
+  rw [div_lt_iff₀ (by positivity)]
+  unfold q at *
+  ring_nf at *
+  norm_num [Real.exp_add, Real.exp_sub, Real.exp_neg, Real.exp_mul,
+    Real.exp_log] at *
+  rw [show (2 : ℝ) ^ (9 / 2 : ℝ) =
+          2 ^ (4 : ℝ) * 2 ^ (1 / 2 : ℝ) by
+        rw [← Real.rpow_add] <;> norm_num,
+      show (2 : ℝ) ^ (25 / 2 : ℝ) =
+          2 ^ (12 : ℝ) * 2 ^ (1 / 2 : ℝ) by
+        rw [← Real.rpow_add] <;> norm_num]
+  norm_num [← Real.sqrt_eq_rpow]
+  ring_nf
+  norm_num
+  have h_exp_bounds :
+      2 ^ (5 / 2 : ℝ) ≤ Real.exp lambda ∧
+        Real.exp lambda ≤ 2 ^ (9 / 2 : ℝ) := by
+    norm_num [Real.rpow_def_of_pos]
+    exact ⟨hl, hu⟩
+  rw [show (2 : ℝ) ^ (5 / 2 : ℝ) =
+          2 ^ (2 : ℝ) * 2 ^ (1 / 2 : ℝ) by
+        rw [← Real.rpow_add] <;> norm_num,
+      show (2 : ℝ) ^ (9 / 2 : ℝ) =
+          2 ^ (4 : ℝ) * 2 ^ (1 / 2 : ℝ) by
+        rw [← Real.rpow_add] <;> norm_num] at h_exp_bounds
+  norm_num [← Real.sqrt_eq_rpow] at *
+  field_simp
+  nlinarith [pow_pos (Real.exp_pos lambda) 3,
+    pow_pos (Real.exp_pos lambda) 4, pow_pos (Real.exp_pos lambda) 5,
+    pow_pos (Real.exp_pos lambda) 6,
+    mul_le_mul_of_nonneg_left h_exp_bounds.1 (Real.sqrt_nonneg 2),
+    mul_le_mul_of_nonneg_left h_exp_bounds.2 (Real.sqrt_nonneg 2),
+    Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]
+
+private lemma extendedGaussian_ratio_low_corridor (lambda : Real)
+    (hl : 2 * q ≤ lambda) (hu : lambda ≤ 5 * q / 2) :
+    extendedGaussianPartition q lambda /
+        ProfileEntropyS4.partition fourGaussianScore lambda <
+      (153 / 100 : Real) := by
+  set x := Real.exp lambda
+  have hx_bounds : 4 ≤ x ∧ x ≤ 4 * Real.sqrt 2 := by
+    constructor
+    · rw [show (4 : ℝ) = Real.exp (2 * Real.log 2) by
+          rw [mul_comm, Real.exp_mul, Real.exp_log] <;> norm_num]
+      exact Real.exp_le_exp.mpr (by linarith! [show q = Real.log 2 from rfl])
+    · rw [← Real.log_le_log_iff (by positivity) (by positivity),
+        Real.log_mul (by positivity) (by positivity), Real.log_exp,
+        Real.log_sqrt] <;> norm_num
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow]
+      norm_num
+      linarith! [Real.log_pos one_lt_two]
+  have h_partition_bounds :
+      extendedGaussianPartition q lambda ≤
+          x⁻¹ + (∑ d ∈ Finset.range 6,
+            x ^ d * (2 : ℝ) ^ (-d ^ 2 / 2 : ℝ)) +
+          x ^ 6 * (2 : ℝ) ^ (-6 ^ 2 / 2 : ℝ) /
+            (1 - x / (2 ^ 6 : ℝ)) ∧
+        ProfileEntropyS4.partition fourGaussianScore lambda =
+          ∑ i ∈ Finset.range 4,
+            x ^ (i + 2) * (2 : ℝ) ^ (-(i + 2) ^ 2 / 2 : ℝ) := by
+    constructor
+    · have h_partition_bounds :
+          extendedGaussianPartition q lambda ≤
+            x⁻¹ + (∑ d ∈ Finset.range 6,
+              x ^ d * (2 : ℝ) ^ (-d ^ 2 / 2 : ℝ)) +
+            (∑' d : ℕ,
+              x ^ (d + 6) * (2 : ℝ) ^ (-(d + 6) ^ 2 / 2 : ℝ)) := by
+        have h_partition_bounds :
+            extendedGaussianPartition q lambda ≤
+              x⁻¹ + (∑' d : ℕ,
+                x ^ d * (2 : ℝ) ^ (-d ^ 2 / 2 : ℝ)) := by
+          refine add_le_add ?_ ?_
+          · rw [← Real.exp_neg]
+            exact Real.exp_le_exp.mpr
+              (by linarith [show 0 ≤ q by exact Real.log_nonneg one_le_two])
+          · unfold extendedGaussianNaturalTerm
+            norm_num [Real.rpow_def_of_pos, Real.exp_pos]
+            ring_nf
+            norm_num +zetaDelta at *
+            norm_num [← Real.exp_nat_mul, ← Real.exp_add, mul_assoc,
+              mul_comm, mul_left_comm, q]
+        convert h_partition_bounds using 1
+        rw [eq_comm, ← Summable.sum_add_tsum_nat_add 6]
+        · norm_num [add_assoc]
+        · have h_summable : Summable
+              (fun d : ℕ ↦ x ^ d * (2 : ℝ) ^ (-d ^ 2 / 2 : ℝ)) := by
+            have h_exp_decay : ∀ d : ℕ,
+                x ^ d * (2 : ℝ) ^ (-d ^ 2 / 2 : ℝ) ≤
+                  (x / 2 ^ (d / 2 : ℝ)) ^ d := by
+              intro d
+              rw [div_pow]
+              ring_nf
+              norm_num
+              rw [← Real.rpow_natCast _ d, ← Real.rpow_natCast _ d,
+                ← Real.rpow_mul (by positivity)]
+              ring_nf
+              norm_num
+              rw [Real.rpow_neg (by positivity)]
+            obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ d ≥ N,
+                x / 2 ^ (d / 2 : ℝ) < 1 / 2 := by
+              have h_exp_decay : Filter.Tendsto
+                  (fun d : ℕ ↦ x / 2 ^ (d / 2 : ℝ)) Filter.atTop (nhds 0) := by
+                norm_num [Real.rpow_def_of_pos]
+                exact tendsto_const_nhds.div_atTop
+                  (Real.tendsto_exp_atTop.comp <|
+                    Filter.Tendsto.const_mul_atTop (by positivity) <|
+                      tendsto_natCast_atTop_atTop.atTop_div_const
+                        (by positivity))
+              simpa using h_exp_decay.eventually (gt_mem_nhds <| by norm_num)
+            rw [← summable_nat_add_iff N]
+            exact Summable.of_nonneg_of_le (fun n ↦ by positivity)
+              (fun n ↦ h_exp_decay _)
+              (Summable.of_nonneg_of_le (fun n ↦ by positivity)
+                (fun n ↦ pow_le_pow_left₀ (by positivity)
+                  (le_of_lt (hN _ (by linarith))) _)
+                (summable_geometric_two.comp_injective
+                  (add_left_injective N)))
+          convert h_summable using 1
+      have h_term_bound : ∀ d : ℕ,
+          x ^ (d + 6) * (2 : ℝ) ^ (-(d + 6) ^ 2 / 2 : ℝ) ≤
+            x ^ 6 * (2 : ℝ) ^ (-6 ^ 2 / 2 : ℝ) *
+              (x / (2 ^ 6 : ℝ)) ^ d := by
+        intro d
+        ring_nf
+        norm_num [Real.rpow_add, Real.rpow_neg]
+        ring_nf
+        norm_num
+        norm_num [Real.rpow_sub, Real.rpow_mul]
+        ring_nf
+        norm_num
+        norm_num [pow_mul', ← Real.sqrt_eq_rpow]
+        exact mul_le_of_le_one_right
+          (mul_nonneg
+            (mul_nonneg (pow_nonneg (by linarith) _)
+              (pow_nonneg (by linarith) _))
+            (by positivity))
+          (inv_le_one_of_one_le₀
+            (Real.le_sqrt_of_sq_le
+              (mod_cast Nat.one_le_pow _ _ (by norm_num))))
+      refine le_trans h_partition_bounds ?_
+      gcongr
+      refine le_trans (Summable.tsum_le_tsum h_term_bound ?_ ?_) ?_
+      · exact Summable.of_nonneg_of_le (fun d ↦ by positivity)
+          (fun d ↦ h_term_bound d)
+          (Summable.mul_left _ <|
+            summable_geometric_of_lt_one (by positivity) <|
+              by nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two])
+      · exact Summable.mul_left _ <|
+          summable_geometric_of_lt_one (by positivity) <|
+            by
+              rw [div_lt_iff₀ <| by positivity]
+              nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]
+      · rw [tsum_mul_left,
+          tsum_geometric_of_lt_one (by positivity)
+            (by norm_num; nlinarith [Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num)])]
+        ring_nf
+        norm_num
+    · unfold ProfileEntropyS4.partition ProfileEntropyS4.unnormalized
+        fourGaussianScore ProfileEntropyS4.support
+      rw [Finset.sum_range]
+      norm_num [Real.rpow_def_of_pos, Real.exp_pos]
+      ring
+      norm_num +zetaDelta at *
+      norm_num [← Real.exp_nat_mul, ← Real.exp_add, q]
+      congr
+      ext
+      ring
+  rw [div_lt_iff₀] <;> norm_num [Finset.sum_range_succ] at *
+  · refine lt_of_le_of_lt h_partition_bounds.1 ?_
+    rw [h_partition_bounds.2, add_div', div_lt_iff₀] <;>
+      norm_num [Real.rpow_neg] at *
+    · rw [show (9 / 2 : ℝ) = 4 + 1 / 2 by norm_num,
+        show (25 / 2 : ℝ) = 12 + 1 / 2 by norm_num,
+        Real.rpow_add, Real.rpow_add] <;> norm_num
+      ring_nf
+      norm_num at *
+      rw [← Real.sqrt_eq_rpow] at *
+      rw [show (Real.sqrt 2) ⁻¹ = Real.sqrt 2 / 2 by
+        rw [inv_eq_one_div, Real.sqrt_div_self']] at *
+      nlinarith [pow_pos (by linarith : 0 < x) 3,
+        pow_pos (by linarith : 0 < x) 4,
+        pow_pos (by linarith : 0 < x) 5,
+        pow_pos (by linarith : 0 < x) 6,
+        mul_inv_cancel₀ (by linarith : x ≠ 0),
+        mul_le_mul_of_nonneg_left hx_bounds.2 (sq_nonneg (x - 4)),
+        mul_le_mul_of_nonneg_left hx_bounds.2 (sq_nonneg (x ^ 2 - 16)),
+        Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]
+    · nlinarith [Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num)]
+    · nlinarith [Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num)]
+  · exact h_partition_bounds.2.symm ▸ by
+      have := hx_bounds.1
+      positivity
+
+/-- **Uniform partition-ratio certificate (Lemma 5.1 numerical core).**
+
+Every target in the full manuscript interval, and every tilt representing
+that target under the repository's exact four-size mean, has total extended
+Gaussian partition ratio strictly below `153/100`.  This is the numerical
+ratio input only, not the complete statement of Lemma 5.1.
+-/
+theorem uniform_four_size_partition_ratio
+    (target lambda : Real)
+    (hTargetLower : 2 / q ≤ target)
+    (hTargetUpper : target ≤ 1 + 2 / q)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda = target) :
+    extendedGaussianPartition q lambda /
+        ProfileEntropyS4.partition fourGaussianScore lambda <
+      (153 / 100 : Real) := by
+  have hCorridor := uniform_four_size_tilt_corridor target lambda
+    hTargetLower hTargetUpper hMean
+  by_cases hsplit : lambda ≤ 5 * q / 2
+  · exact extendedGaussian_ratio_low_corridor lambda hCorridor.1.le hsplit
+  · exact extendedGaussian_ratio_high_corridor lambda
+      (le_of_not_ge hsplit) hCorridor.2.le
+
+/-- The original `delta` parameterization of the uniform ratio theorem. -/
+theorem uniform_four_size_partition_ratio_for_delta
+    (delta lambda : Real)
+    (hDeltaLower : 0 ≤ delta)
+    (hDeltaUpper : delta ≤ 1)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda =
+      1 + 2 / q - delta) :
+    extendedGaussianPartition q lambda /
+        ProfileEntropyS4.partition fourGaussianScore lambda <
+      (153 / 100 : Real) := by
+  apply uniform_four_size_partition_ratio (1 + 2 / q - delta) lambda
+  · linarith
+  · linarith
+  · exact hMean
+
+#print axioms uniform_four_size_partition_ratio
+#print axioms uniform_four_size_partition_ratio_for_delta
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformExplicitPartitionRatio
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.SignedProfileWitness
 Source: Erdos625/SignedProfileWitness.lean
 Normalized SHA-256: 802dc734cdeb0f1415fe483e62d4f2d8f4b4aa66769ad7a7a285ab7a9416fbd8
@@ -17252,510 +18247,6 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.GaussianTailTools
-Source: Erdos625/GaussianTailTools.lean
-Normalized SHA-256: 760fbc526c01ba42d37885509710f288ea26351e6c22ec1ace51f096a6d9f4a3
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_GaussianTailTools
-
-/-!
-# Finite tilted-Gaussian tail bounds
-
-This module turns a quadratic exponential weight on natural indices into a
-geometric majorant.  If `a > 0` and `|lambda| ≤ M`, then each term satisfies
-
-`exp (lambda * d - a / 2 * d ^ 2) ≤ exp (M ^ 2 / a) * exp (-a / 4) ^ d`.
-
-Summing this pointwise estimate gives an explicit finite `Finset.Ico` tail
-bound.  The result is purely finite and makes no claim about how a tilt bound
-`|lambda| ≤ M` is obtained, convergence of partition functions, or any
-asymptotic root location.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- A bounded linear tilt of a Gaussian is dominated by a fixed wider
-Gaussian, uniformly over the real coordinate.  This is a pointwise estimate;
-it assumes the tilt bound and does not prove boundedness of an optimizer. -/
-theorem gaussian_abs_tilt_domination
-    {a M lambda x : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) :
-    Real.exp (lambda * x - a / 2 * x ^ 2) ≤
-      Real.exp (M ^ 2 / a) * Real.exp (-a / 4 * x ^ 2) := by
-  rw [← Real.exp_add]
-  have h_sq : M * |x| - a / 4 * x ^ 2 ≤ M ^ 2 / a := by
-    rw [le_div_iff₀' ha]
-    nlinarith [
-      sq_nonneg (2 * M - a * |x|),
-      abs_mul_abs_self x,
-      mul_div_cancel₀ (a ^ 2) (ne_of_gt ha)]
-  exact Real.exp_le_exp.mpr (by
-    cases abs_cases x <;> nlinarith [abs_le.mp hlambda])
-
-/-- A tilted Gaussian term on a natural index is bounded by an explicit
-geometric term.  The exponent loss `a / 4` uses both completion of the square
-and the natural-index inequality `d ≤ d ^ 2`. -/
-theorem tiltedGaussianTerm_le_geometric
-    {a M lambda : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) (d : ℕ) :
-    Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2) ≤
-      Real.exp (M ^ 2 / a) * (Real.exp (-a / 4)) ^ d := by
-  rw [← Real.exp_nat_mul, ← Real.exp_add]
-  gcongr
-  field_simp
-  nlinarith [
-    sq_nonneg (2 * lambda - (d : ℝ) * a),
-    mul_le_mul_of_nonneg_left (show (0 : ℝ) ≤ d by positivity) ha.le,
-    mul_le_mul_of_nonneg_left
-      (show (d : ℝ) ≤ (d : ℝ) ^ 2 by
-        norm_cast
-        nlinarith)
-      ha.le,
-    abs_le.mp hlambda]
-
-/-- Explicit finite upper tail for a tilted Gaussian sequence on natural
-indices.  The statement also covers `m ≤ R`, when the `Finset.Ico R m` sum is
-empty. -/
-theorem finiteTiltedGaussianTail_le
-    {a M lambda : ℝ} (ha : 0 < a) (hlambda : |lambda| ≤ M) (R m : ℕ) :
-    (∑ d ∈ Finset.Ico R m,
-      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ≤
-      Real.exp (M ^ 2 / a) *
-        ((Real.exp (-a / 4)) ^ R /
-          (1 - Real.exp (-a / 4))) := by
-  calc
-    (∑ d ∈ Finset.Ico R m,
-        Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ≤
-        ∑ d ∈ Finset.Ico R m,
-          Real.exp (M ^ 2 / a) * (Real.exp (-a / 4)) ^ d :=
-      Finset.sum_le_sum fun d _ ↦
-        tiltedGaussianTerm_le_geometric ha hlambda d
-    _ = Real.exp (M ^ 2 / a) *
-          ∑ d ∈ Finset.Ico R m, (Real.exp (-a / 4)) ^ d := by
-      rw [Finset.mul_sum]
-    _ ≤ Real.exp (M ^ 2 / a) *
-          ((Real.exp (-a / 4)) ^ R /
-            (1 - Real.exp (-a / 4))) :=
-      mul_le_mul_of_nonneg_left
-        (geom_sum_Ico_le_of_lt_one
-          (Real.exp_nonneg _)
-          (Real.exp_lt_one_iff.mpr (by linarith)))
-        (Real.exp_nonneg _)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_GaussianTailTools
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.GaussianTailTools
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.GeometricMomentTools
-Source: Erdos625/GeometricMomentTools.lean
-Normalized SHA-256: 0e911845f72f9c5a96494f0281f45e43da8951a339437f1d53ad85db108eba19
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_GeometricMomentTools
-
-/-!
-# Finite geometric first-moment tails
-
-This module bounds the first-moment tail of a finite geometric sequence.  For
-`0 ≤ rho < 1`, it proves the exact infinite-tail majorant
-
-`sum_{d in [R,m)} d * rho^d ≤
-  rho^R * (R / (1-rho) + rho / (1-rho)^2)`.
-
-The result includes the empty-interval case `m ≤ R`.  It is a finite analytic
-tool only: no asymptotic rate, optimizer bound, or partition-function limit is
-asserted here.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- A finite first-moment geometric tail is bounded by the corresponding
-infinite tail, evaluated in closed form. -/
-theorem sum_Ico_cast_mul_pow_le_geometric_tail
-    {rho : ℝ} (hrho0 : 0 ≤ rho) (hrho1 : rho < 1) (R m : ℕ) :
-    (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) ≤
-      rho ^ R *
-        ((R : ℝ) / (1 - rho) + rho / (1 - rho) ^ 2) := by
-  have hrhoNorm : ‖rho‖ < 1 := by
-    rwa [Real.norm_of_nonneg hrho0]
-  have hgeometric : Summable (fun k : ℕ ↦ rho ^ k) :=
-    summable_geometric_of_lt_one hrho0 hrho1
-  have hfirstMoment : Summable (fun k : ℕ ↦ (k : ℝ) * rho ^ k) :=
-    (hasSum_coe_mul_geometric_of_norm_lt_one hrhoNorm).summable
-  have hshift :
-      (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) =
-        ∑ k ∈ Finset.range (m - R),
-          ((R : ℝ) + k) * rho ^ (R + k) := by
-    rw [Finset.sum_Ico_eq_sum_range]
-    norm_num [add_comm]
-  have hfactor :
-      (∑ k ∈ Finset.range (m - R),
-          ((R : ℝ) + k) * rho ^ (R + k)) =
-        rho ^ R *
-          ((∑ k ∈ Finset.range (m - R), (R : ℝ) * rho ^ k) +
-            ∑ k ∈ Finset.range (m - R), (k : ℝ) * rho ^ k) := by
-    rw [← Finset.sum_add_distrib, Finset.mul_sum]
-    congr
-    ext k
-    rw [pow_add]
-    ring
-  calc
-    (∑ d ∈ Finset.Ico R m, (d : ℝ) * rho ^ d) =
-        ∑ k ∈ Finset.range (m - R),
-          ((R : ℝ) + k) * rho ^ (R + k) := hshift
-    _ = rho ^ R *
-          ((∑ k ∈ Finset.range (m - R), (R : ℝ) * rho ^ k) +
-            ∑ k ∈ Finset.range (m - R), (k : ℝ) * rho ^ k) := hfactor
-    _ ≤ rho ^ R *
-          ((∑' k : ℕ, (R : ℝ) * rho ^ k) +
-            ∑' k : ℕ, (k : ℝ) * rho ^ k) :=
-      mul_le_mul_of_nonneg_left
-        (add_le_add
-          (Summable.sum_le_tsum
-            (Finset.range (m - R))
-            (fun _ _ ↦ by positivity)
-            (hgeometric.mul_left _))
-          (Summable.sum_le_tsum
-            (Finset.range (m - R))
-            (fun _ _ ↦ by positivity)
-            hfirstMoment))
-        (pow_nonneg hrho0 R)
-    _ = rho ^ R *
-          ((R : ℝ) / (1 - rho) + rho / (1 - rho) ^ 2) := by
-      rw [tsum_mul_left, tsum_geometric_of_lt_one hrho0 hrho1,
-        tsum_coe_mul_geometric_of_norm_lt_one hrhoNorm]
-      ring
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_GeometricMomentTools
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.GeometricMomentTools
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TiltedGaussianSummability
-Source: Erdos625/TiltedGaussianSummability.lean
-Normalized SHA-256: aa392f6785a9c7a30b958f8faa879c2a5edc5053d2d0e87cefa0a848374bbea9
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
-
-/-!
-# Summability of tilted-Gaussian moments
-
-A fixed positive quadratic coefficient dominates every fixed linear tilt on
-the natural indices.  This module makes that comparison through the existing
-pointwise tilted-Gaussian bound and Mathlib's summability theorem for a
-polynomial times a geometric sequence.
-
-The comparison includes `d = 0` directly.  For the zeroth moment Lean's
-convention gives `0 ^ 0 = 1`, while the first and second moment factors vanish;
-no division by the index or eventual-only ratio argument is used.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- Every fixed natural power times a linearly tilted Gaussian with positive
-quadratic coefficient is summable on the natural indices. -/
-theorem summable_natPow_mul_tiltedGaussian
-    {a lambda : ℝ} (ha : 0 < a) (k : ℕ) :
-    Summable
-      (fun d : ℕ ↦
-        ((d : ℝ) ^ k) *
-          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
-  have hrho0 : 0 ≤ Real.exp (-a / 4) := Real.exp_nonneg _
-  have hrho1 : Real.exp (-a / 4) < 1 :=
-    Real.exp_lt_one_iff.mpr (by linarith)
-  have hrhoNorm : ‖Real.exp (-a / 4)‖ < 1 := by
-    rwa [Real.norm_of_nonneg hrho0]
-  have hgeometric :
-      Summable
-        (fun d : ℕ ↦
-          ((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d) :=
-    summable_pow_mul_geometric_of_norm_lt_one k hrhoNorm
-  have hmajorant :
-      Summable
-        (fun d : ℕ ↦
-          Real.exp (|lambda| ^ 2 / a) *
-            (((d : ℝ) ^ k) * (Real.exp (-a / 4)) ^ d)) :=
-    hgeometric.mul_left _
-  refine hmajorant.of_nonneg_of_le (fun d ↦ ?_) (fun d ↦ ?_)
-  · exact mul_nonneg
-      (pow_nonneg (by positivity) k)
-      (Real.exp_nonneg _)
-  · have hterm := tiltedGaussianTerm_le_geometric
-      ha (show |lambda| ≤ |lambda| from le_rfl) d
-    have hscaled := mul_le_mul_of_nonneg_left hterm
-      (pow_nonneg (show (0 : ℝ) ≤ d by positivity) k)
-    simpa only [mul_assoc, mul_left_comm, mul_comm] using hscaled
-
-/-- A Gaussian with any fixed linear tilt has summable zeroth, first, and
-second natural-index moments. -/
-theorem summable_tiltedGaussian_moments
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-        (fun d : ℕ ↦
-          Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
-      Summable
-        (fun d : ℕ ↦
-          (d : ℝ) *
-            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) ∧
-      Summable
-        (fun d : ℕ ↦
-          ((d : ℝ) ^ 2) *
-            Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)) := by
-  refine ⟨?_, ?_, ?_⟩
-  · simpa using summable_natPow_mul_tiltedGaussian ha 0
-  · simpa using summable_natPow_mul_tiltedGaussian ha 1
-  · exact summable_natPow_mul_tiltedGaussian ha 2
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TiltedGaussianSummability
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TiltedGaussianSummability
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ExtendedGaussianProfile
-Source: Erdos625/ExtendedGaussianProfile.lean
-Normalized SHA-256: c0943c6e2d41aa613dd7fa5c70d26d018279df4760ea3901ab20cd46e5b76b2e
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
-
-/-!
-# The extended tilted-Gaussian deficit profile
-
-This module defines the limiting weight profile on the deficit coordinates
-`{-1, 0, 1, ...}`.  The exceptional deficit `-1` has weight
-
-`exp (-lambda - a / 2)`,
-
-while a natural deficit `d` has weight
-
-`exp (lambda * d - a / 2 * d ^ 2)`.
-
-The partition function and its first two unnormalized moments are represented
-as an exceptional atom plus a `tsum` over the natural deficits.  Only
-foundational analytic and algebraic properties are established here.  In
-particular, this module makes no differentiability, endpoint, optimizer, or
-strict-variance claim.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-/-- The unnormalized limiting weight at a natural deficit `d >= 0`. -/
-def extendedGaussianNaturalTerm (a lambda : ℝ) (d : ℕ) : ℝ :=
-  Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2)
-
-/-- The exceptional limiting weight at deficit `-1`. -/
-def extendedGaussianExceptionalAtom (a lambda : ℝ) : ℝ :=
-  Real.exp (-lambda - a / 2)
-
-/-- The total mass of the extended tilted-Gaussian profile on
-`{-1, 0, 1, ...}`. -/
-def extendedGaussianPartition (a lambda : ℝ) : ℝ :=
-  extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d
-
-/-- The unnormalized first moment of the extended profile.  The exceptional
-atom contributes its coordinate `-1`. -/
-def extendedGaussianFirstNumerator (a lambda : ℝ) : ℝ :=
-  -extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, (d : ℝ) * extendedGaussianNaturalTerm a lambda d
-
-/-- The unnormalized second moment of the extended profile.  The exceptional
-atom contributes `(-1)^2 = 1`. -/
-def extendedGaussianSecondNumerator (a lambda : ℝ) : ℝ :=
-  extendedGaussianExceptionalAtom a lambda +
-    ∑' d : ℕ, ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d
-
-/-- The normalized mean deficit of the extended profile. -/
-def extendedGaussianMean (a lambda : ℝ) : ℝ :=
-  extendedGaussianFirstNumerator a lambda /
-    extendedGaussianPartition a lambda
-
-/-- The raw variance obtained from the normalized first and second moments. -/
-def extendedGaussianRawVariance (a lambda : ℝ) : ℝ :=
-  extendedGaussianSecondNumerator a lambda /
-      extendedGaussianPartition a lambda -
-    (extendedGaussianMean a lambda) ^ 2
-
-@[simp]
-theorem extendedGaussianNaturalTerm_zero (a lambda : ℝ) :
-    extendedGaussianNaturalTerm a lambda 0 = 1 := by
-  simp [extendedGaussianNaturalTerm]
-
-theorem extendedGaussianNaturalTerm_pos (a lambda : ℝ) (d : ℕ) :
-    0 < extendedGaussianNaturalTerm a lambda d := by
-  exact Real.exp_pos _
-
-theorem extendedGaussianExceptionalAtom_pos (a lambda : ℝ) :
-    0 < extendedGaussianExceptionalAtom a lambda := by
-  exact Real.exp_pos _
-
-/-- The natural-index mass is summable whenever the quadratic coefficient is
-positive. -/
-theorem summable_extendedGaussianNaturalTerm
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable (extendedGaussianNaturalTerm a lambda) := by
-  change Summable
-    (fun d : ℕ ↦
-      Real.exp (lambda * (d : ℝ) - a / 2 * (d : ℝ) ^ 2))
-  exact (summable_tiltedGaussian_moments
-    (a := a) (lambda := lambda) ha).1
-
-/-- The natural-index first-moment series is summable. -/
-theorem summable_extendedGaussianFirstMoment
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-      (fun d : ℕ ↦
-        (d : ℝ) * extendedGaussianNaturalTerm a lambda d) := by
-  simpa [extendedGaussianNaturalTerm] using
-    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.1
-
-/-- The natural-index second-moment series is summable. -/
-theorem summable_extendedGaussianSecondMoment
-    {a lambda : ℝ} (ha : 0 < a) :
-    Summable
-      (fun d : ℕ ↦
-        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d) := by
-  simpa [extendedGaussianNaturalTerm] using
-    (summable_tiltedGaussian_moments (a := a) (lambda := lambda) ha).2.2
-
-/-- The natural-index `tsum` is at least its deficit-zero atom. -/
-theorem one_le_tsum_extendedGaussianNaturalTerm
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
-  calc
-    1 = ∑ d ∈ ({0} : Finset ℕ),
-        extendedGaussianNaturalTerm a lambda d := by simp
-    _ ≤ ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d :=
-      (summable_extendedGaussianNaturalTerm ha).sum_le_tsum
-        ({0} : Finset ℕ)
-        (fun d _ ↦ (extendedGaussianNaturalTerm_pos a lambda d).le)
-
-/-- The deficit-zero atom gives the lower bound `1`, in addition to the
-strictly positive exceptional atom. -/
-theorem exceptionalAtom_add_one_le_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianExceptionalAtom a lambda + 1 ≤
-      extendedGaussianPartition a lambda := by
-  rw [extendedGaussianPartition]
-  simpa [add_comm] using
-    add_le_add_left (one_le_tsum_extendedGaussianNaturalTerm ha)
-      (extendedGaussianExceptionalAtom a lambda)
-
-theorem one_lt_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 < extendedGaussianPartition a lambda := by
-  have hatom := extendedGaussianExceptionalAtom_pos a lambda
-  have hlower :=
-    exceptionalAtom_add_one_le_extendedGaussianPartition
-      (a := a) (lambda := lambda) ha
-  linarith
-
-theorem one_le_extendedGaussianPartition
-    {a lambda : ℝ} (ha : 0 < a) :
-    1 ≤ extendedGaussianPartition a lambda :=
-  (one_lt_extendedGaussianPartition ha).le
-
-theorem extendedGaussianPartition_pos
-    {a lambda : ℝ} (ha : 0 < a) :
-    0 < extendedGaussianPartition a lambda :=
-  lt_trans zero_lt_one (one_lt_extendedGaussianPartition ha)
-
-theorem extendedGaussianPartition_ne_zero
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianPartition a lambda ≠ 0 :=
-  ne_of_gt (extendedGaussianPartition_pos ha)
-
-/-! ## Exact algebraic identities -/
-
-theorem extendedGaussianPartition_sub_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianPartition a lambda -
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ, extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianPartition]
-
-theorem extendedGaussianFirstNumerator_add_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianFirstNumerator a lambda +
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ,
-        (d : ℝ) * extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianFirstNumerator]
-
-theorem extendedGaussianSecondNumerator_sub_exceptionalAtom
-    (a lambda : ℝ) :
-    extendedGaussianSecondNumerator a lambda -
-        extendedGaussianExceptionalAtom a lambda =
-      ∑' d : ℕ,
-        ((d : ℝ) ^ 2) * extendedGaussianNaturalTerm a lambda d := by
-  simp [extendedGaussianSecondNumerator]
-
-theorem extendedGaussianMean_mul_partition
-    {a lambda : ℝ} (ha : 0 < a) :
-    extendedGaussianMean a lambda * extendedGaussianPartition a lambda =
-      extendedGaussianFirstNumerator a lambda := by
-  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
-
-theorem extendedGaussianRawVariance_add_mean_sq
-    (a lambda : ℝ) :
-    extendedGaussianRawVariance a lambda +
-        (extendedGaussianMean a lambda) ^ 2 =
-      extendedGaussianSecondNumerator a lambda /
-        extendedGaussianPartition a lambda := by
-  simp [extendedGaussianRawVariance]
-
-theorem extendedGaussianRawVariance_add_mean_sq_mul_partition
-    {a lambda : ℝ} (ha : 0 < a) :
-    (extendedGaussianRawVariance a lambda +
-        (extendedGaussianMean a lambda) ^ 2) *
-        extendedGaussianPartition a lambda =
-      extendedGaussianSecondNumerator a lambda := by
-  rw [extendedGaussianRawVariance_add_mean_sq]
-  exact div_mul_cancel₀ _ (extendedGaussianPartition_ne_zero ha)
-
-theorem extendedGaussianRawVariance_eq_moment_quotients
-    (a lambda : ℝ) :
-    extendedGaussianRawVariance a lambda =
-      extendedGaussianSecondNumerator a lambda /
-          extendedGaussianPartition a lambda -
-        (extendedGaussianFirstNumerator a lambda /
-          extendedGaussianPartition a lambda) ^ 2 := by
-  rfl
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianProfile
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ExtendedGaussianProfile
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExplicitPartitionRatio
 Source: Erdos625/ExplicitPartitionRatio.lean
 Normalized SHA-256: cabba3307080bfd58350541cbd2dbaadd08f86b30b5b7b2368e192e50ba60a61
@@ -18455,6 +18946,526 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ExtendedGaussianEntropyTransport
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ExtendedGaussianEntropyTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusEntropyCandidateEmbedding
+Source: Erdos625/SPlusEntropyCandidateEmbedding.lean
+Normalized SHA-256: ccd5883b4c79b83875fa6075e99ee6d81989957d7f0e65db2701859477066540
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusEntropyCandidateEmbedding
+
+/-!
+# Finite `S₄` witness inside the limiting `S₊` entropy lane
+
+This source-only module isolates the exact finite-support inclusion used by
+the limiting-entropy comparison. It does not assert finite-cutoff convergence,
+a moving-root theorem, any random-graph statement, or the final Erdős 625
+conclusion.
+-/
+
+open Filter
+open scoped Topology BigOperators
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A concrete admissible limiting entropy witness at a prescribed target.
+The exceptional atom has deficit `-1`; the natural sequence is indexed by
+nonnegative deficits. The finite inequality is the `tilt = 0` instance of the
+existing truncation dual transport, written explicitly so the finite
+four-point embedding is a genuine candidate rather than an assumed inclusion.
+-/
+structure ExtendedGaussianEntropyWitness
+    (target value exceptional : ℝ) (p : ℕ → ℝ) : Prop where
+  exceptional_nonneg : 0 ≤ exceptional
+  natural_nonneg : ∀ d, 0 ≤ p d
+  finite_dual_bound : ∀ N,
+    extendedGaussianEntropyTruncation q exceptional p N ≤
+      extendedGaussianReferenceMassTruncation q 0 N -
+        extendedGaussianMassTruncation exceptional p N +
+        Real.log (extendedGaussianPartition q 0) *
+          extendedGaussianMassTruncation exceptional p N
+  mass_limit : Tendsto (extendedGaussianMassTruncation exceptional p)
+    atTop (nhds 1)
+  moment_limit : Tendsto (extendedGaussianMomentTruncation exceptional p)
+    atTop (nhds target)
+  entropy_limit : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+    atTop (nhds value)
+
+/-- **Finite `S₄ ⊆ S₊` witness.** The target-matching four-point optimizer is
+embedded at natural deficit coordinates `2,3,4,5`, with zero exceptional mass
+and zero mass elsewhere. This establishes only the limiting candidate
+inclusion; it does not identify a finite-cutoff entropy limit. -/
+theorem exists_s4_embedded_extendedGaussian_witness
+    {target : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    ∃ exceptional p,
+      ExtendedGaussianEntropyWitness target
+        (ProfileEntropyS4.optimizedValue fourGaussianScore target)
+        exceptional p := by
+  let w : Fin 4 → ℝ := ProfileEntropyS4.optimizer fourGaussianScore target
+  let p : ℕ → ℝ := fun d ↦
+    if d = 2 then w 0 else if d = 3 then w 1 else
+    if d = 4 then w 2 else if d = 5 then w 3 else 0
+  refine ⟨0, p, ?_⟩
+  have hw0 : ∀ i, 0 ≤ w i := ProfileEntropyS4.optimizer_nonneg _ _
+  have hwsum : ∑ i : Fin 4, w i = 1 :=
+    ProfileEntropyS4.sum_optimizer _ _
+  have hwmean : ∑ i : Fin 4, w i * ProfileEntropyS4.support i = target :=
+    ProfileEntropyS4.sum_optimizer_mul_support _ hT
+  have hwvalue :
+      -(∑ i : Fin 4, w i * Real.log (w i)) +
+          ∑ i : Fin 4, w i * fourGaussianScore i =
+        ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+    exact ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target
+      fourGaussianScore hT
+  have hp0 (d : ℕ) : 0 ≤ p d := by
+    dsimp [p]
+    split_ifs <;> first | exact hw0 _ | exact le_rfl
+  have hp_out (d : ℕ) (hd : 6 ≤ d) : p d = 0 := by
+    have h2 : d ≠ 2 := by omega
+    have h3 : d ≠ 3 := by omega
+    have h4 : d ≠ 4 := by omega
+    have h5 : d ≠ 5 := by omega
+    simp [p, h2, h3, h4, h5]
+  have hscore (i : Fin 4) :
+      extendedGaussianNaturalScore q (i.1 + 2) = fourGaussianScore i := by
+    simp [extendedGaussianNaturalScore, fourGaussianScore,
+      ProfileEntropyS4.support]
+    ring
+  have hfinite (N : ℕ) :
+      extendedGaussianEntropyTruncation q 0 p N ≤
+        extendedGaussianReferenceMassTruncation q 0 N -
+          extendedGaussianMassTruncation 0 p N +
+          Real.log (extendedGaussianPartition q 0) *
+            extendedGaussianMassTruncation 0 p N := by
+    have hZ : 0 < extendedGaussianPartition q 0 :=
+      extendedGaussianPartition_pos q_pos
+    have hterm (d : ℕ) :
+        -p d * Real.log (p d) + p d * extendedGaussianNaturalScore q d ≤
+          extendedGaussianNaturalTerm q 0 d / extendedGaussianPartition q 0 - p d +
+            Real.log (extendedGaussianPartition q 0) * p d := by
+      have hy : 0 < extendedGaussianNaturalTerm q 0 d /
+          extendedGaussianPartition q 0 :=
+        div_pos (extendedGaussianNaturalTerm_pos q 0 d) hZ
+      have hh := ProfileEntropyS4.neg_mul_log_add_mul_log_le_sub (hp0 d) hy
+      have hlog : Real.log (extendedGaussianNaturalTerm q 0 d /
+            extendedGaussianPartition q 0) =
+          extendedGaussianNaturalScore q d -
+            Real.log (extendedGaussianPartition q 0) := by
+        rw [Real.log_div (extendedGaussianNaturalTerm_pos q 0 d).ne'
+          hZ.ne', extendedGaussianNaturalTerm, Real.log_exp]
+        simp [extendedGaussianNaturalScore]
+        ring
+      rw [hlog] at hh
+      linarith
+    have hsum := Finset.sum_le_sum fun d (_hd : d ∈ Finset.range N) ↦ hterm d
+    unfold extendedGaussianEntropyTruncation extendedGaussianReferenceMassTruncation
+      extendedGaussianMassTruncation extendedGaussianExceptionalScore at *
+    simp only [zero_mul, neg_zero, Real.log_zero, zero_add, Finset.sum_add_distrib,
+      Finset.sum_sub_distrib] at hsum ⊢
+    rw [Finset.mul_sum]
+    have hex : 0 ≤ extendedGaussianExceptionalAtom q 0 /
+        extendedGaussianPartition q 0 :=
+      (div_pos (extendedGaussianExceptionalAtom_pos q 0) hZ).le
+    linarith
+  refine
+    { exceptional_nonneg := le_rfl
+      natural_nonneg := hp0
+      finite_dual_bound := hfinite
+      mass_limit := ?_
+      moment_limit := ?_
+      entropy_limit := ?_ }
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianMassTruncation 0 p N = 1 := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      unfold extendedGaussianMassTruncation
+      simp only [zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ hp_out d (by
+          simp only [Finset.mem_range] at hd6
+          omega))]
+      norm_num [Finset.sum_range_succ, p]
+      simpa [Fin.sum_univ_four] using hwsum
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianMomentTruncation 0 p N = target := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      rw [← hwmean]
+      unfold extendedGaussianMomentTruncation
+      simp only [neg_zero, zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ by
+          rw [hp_out d (by
+            simp only [Finset.mem_range] at hd6
+            omega), mul_zero])]
+      norm_num [Finset.sum_range_succ, p]
+      simp [Fin.sum_univ_four, ProfileEntropyS4.support]
+      ring
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+  · have hevent : ∀ᶠ N : ℕ in atTop,
+        extendedGaussianEntropyTruncation q 0 p N =
+          ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ hN ↦ hN⟩] with N hN
+      rw [← hwvalue]
+      unfold extendedGaussianEntropyTruncation
+      simp only [zero_mul, neg_zero, Real.log_zero, zero_add]
+      rw [← Finset.sum_subset (show Finset.range 6 ⊆ Finset.range N by
+        intro d hd
+        simp only [Finset.mem_range] at hd ⊢
+        omega) (fun d _hdN hd6 ↦ by
+          rw [hp_out d (by
+            simp only [Finset.mem_range] at hd6
+            omega)]
+          simp)]
+      have hs0 := hscore (0 : Fin 4)
+      have hs1 := hscore (1 : Fin 4)
+      have hs2 := hscore (2 : Fin 4)
+      have hs3 := hscore (3 : Fin 4)
+      norm_num [Finset.sum_range_succ, p]
+      norm_num at hs0 hs1 hs2 hs3
+      rw [hs0, hs1, hs2, hs3]
+      simp [Fin.sum_univ_four]
+      ring
+    exact Filter.Tendsto.congr' (Filter.EventuallyEq.symm hevent)
+      tendsto_const_nhds
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusEntropyCandidateEmbedding
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusEntropyCandidateEmbedding
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
+Source: Erdos625/SPlusEntropySupremumDualInterior.lean
+Normalized SHA-256: cf7d49dc414cf30588d62b80629ac0a46f1fd232489c1cd22ea9f00d63eb8600
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusEntropySupremumDualInterior
+
+/-!
+# Interior limiting `S₊` entropy supremum and dual comparison
+
+This source-only module contains the remaining limiting-entropy variational
+chain only on the domain where the four-point optimizer is defined by its
+target-matching interpretation: `T ∈ (2,5)`.  It makes no assertion at an
+endpoint or outside that interval, and makes no finite-cutoff, phase-root,
+probabilistic, or final-problem claim.
+-/
+
+open Filter
+open scoped Topology BigOperators
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A concrete extended-Gaussian witness.  Its finite truncation inequality
+is required at every test tilt, so the already formalized pointwise transport
+theorem can be applied directly to each candidate. -/
+structure ExtendedGaussianEntropyWitnessAllTilts
+    (target value exceptional : ℝ) (p : ℕ → ℝ) : Prop where
+  exceptional_nonneg : 0 ≤ exceptional
+  natural_nonneg : ∀ d, 0 ≤ p d
+  finite_dual_bound : ∀ tilt N,
+    extendedGaussianEntropyTruncation q exceptional p N ≤
+      extendedGaussianReferenceMassTruncation q tilt N -
+        extendedGaussianMassTruncation exceptional p N +
+        Real.log (extendedGaussianPartition q tilt) *
+          extendedGaussianMassTruncation exceptional p N -
+        tilt * extendedGaussianMomentTruncation exceptional p N
+  mass_limit : Tendsto (extendedGaussianMassTruncation exceptional p)
+    atTop (nhds 1)
+  moment_limit : Tendsto (extendedGaussianMomentTruncation exceptional p)
+    atTop (nhds target)
+  entropy_limit : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+    atTop (nhds value)
+
+/-- Candidate values for one fixed target. -/
+def extendedGaussianEntropyCandidateSet (target : ℝ) : Set ℝ :=
+  {value | ∃ exceptional p,
+    ExtendedGaussianEntropyWitnessAllTilts target value exceptional p}
+
+/-- The unrestricted limiting entropy value is the real supremum of its
+concrete candidate set.  All comparison theorems below are explicitly
+restricted to `target ∈ (2,5)`. -/
+noncomputable def extendedGaussianEntropyValue (target : ℝ) : ℝ :=
+  sSup (extendedGaussianEntropyCandidateSet target)
+
+/-- The entropy loss of the finite four-point value against the limiting
+unrestricted value. -/
+noncomputable def fourEntropyLoss (target : ℝ) : ℝ :=
+  extendedGaussianEntropyValue target -
+    ProfileEntropyS4.optimizedValue fourGaussianScore target
+
+/-- **Interior `S₄ ⊆ S₊` / dual / loss bundle.**  For each interior target,
+the conjunction gives: a concrete all-tilts embedding of the finite
+four-point optimizer; the pointwise extended dual upper bound obtained from
+`extendedGaussianEntropy_le_dual_of_truncations_q` and `csSup`; the induced
+four-point lower bound; and nonnegative loss. -/
+theorem splusEntropySupremumDualInterior_bundle :
+    (∀ {target : ℝ}, target ∈ Set.Ioo (2 : ℝ) 5 →
+      ∃ exceptional p,
+        ExtendedGaussianEntropyWitnessAllTilts target
+          (ProfileEntropyS4.optimizedValue fourGaussianScore target)
+          exceptional p) ∧
+    (∀ {target tilt : ℝ}, target ∈ Set.Ioo (2 : ℝ) 5 →
+      extendedGaussianEntropyValue target ≤
+        extendedGaussianDualTestValue target tilt) ∧
+    (∀ {target : ℝ}, target ∈ Set.Ioo (2 : ℝ) 5 →
+      ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
+        extendedGaussianEntropyValue target) ∧
+    (∀ {target : ℝ}, target ∈ Set.Ioo (2 : ℝ) 5 →
+      0 ≤ fourEntropyLoss target) := by
+  have hEmbed : ∀ {target : ℝ}, target ∈ Set.Ioo (2 : ℝ) 5 →
+      ∃ exceptional p,
+        ExtendedGaussianEntropyWitnessAllTilts target
+          (ProfileEntropyS4.optimizedValue fourGaussianScore target)
+          exceptional p := by
+    intro target htarget
+    let p : ℕ → ℝ := fun d =>
+      if d = 2 then ProfileEntropyS4.optimizer fourGaussianScore target 0 else
+      if d = 3 then ProfileEntropyS4.optimizer fourGaussianScore target 1 else
+      if d = 4 then ProfileEntropyS4.optimizer fourGaussianScore target 2 else
+      if d = 5 then ProfileEntropyS4.optimizer fourGaussianScore target 3 else 0
+    have hp_nonneg : ∀ d, 0 ≤ p d := by
+      intro d
+      simp only [p]
+      split
+      · exact ProfileEntropyS4.optimizer_nonneg _ _ _
+      split
+      · exact ProfileEntropyS4.optimizer_nonneg _ _ _
+      split
+      · exact ProfileEntropyS4.optimizer_nonneg _ _ _
+      split
+      · exact ProfileEntropyS4.optimizer_nonneg _ _ _
+      · exact le_rfl
+    have hp_ge (d : ℕ) (hd : 6 ≤ d) : p d = 0 := by
+      have h2 : d ≠ 2 := by omega
+      have h3 : d ≠ 3 := by omega
+      have h4 : d ≠ 4 := by omega
+      have h5 : d ≠ 5 := by omega
+      simp [p, h2, h3, h4, h5]
+    have hmass_event : ∀ N ≥ 6,
+        extendedGaussianMassTruncation 0 p N = 1 := by
+      intro N hN
+      obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hN
+      unfold extendedGaussianMassTruncation
+      rw [Finset.sum_range_add]
+      have hz : ∑ x ∈ Finset.range k, p (6 + x) = 0 := by
+        apply Finset.sum_eq_zero
+        intro x hx
+        exact hp_ge _ (by omega)
+      rw [hz, add_zero]
+      simp [p, Finset.sum_range_succ]
+      have hs := ProfileEntropyS4.sum_optimizer fourGaussianScore target
+      rw [Fin.sum_univ_four] at hs
+      exact hs
+    have hmoment_event : ∀ N ≥ 6,
+        extendedGaussianMomentTruncation 0 p N = target := by
+      intro N hN
+      obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hN
+      unfold extendedGaussianMomentTruncation
+      rw [Finset.sum_range_add]
+      have hz : ∑ x ∈ Finset.range k, ((6 + x : ℕ) : ℝ) * p (6 + x) = 0 := by
+        apply Finset.sum_eq_zero
+        intro x hx
+        rw [hp_ge _ (by omega), mul_zero]
+      rw [hz, add_zero]
+      simp [p, Finset.sum_range_succ]
+      have hs := ProfileEntropyS4.sum_optimizer_mul_support
+        fourGaussianScore htarget
+      rw [Fin.sum_univ_four] at hs
+      rw [ProfileEntropyS4.support_zero, ProfileEntropyS4.support_one,
+        ProfileEntropyS4.support_two, ProfileEntropyS4.support_three] at hs
+      linarith
+    have hentropy_event : ∀ N ≥ 6,
+        extendedGaussianEntropyTruncation q 0 p N =
+          ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+      intro N hN
+      obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hN
+      unfold extendedGaussianEntropyTruncation
+      rw [Finset.sum_range_add]
+      have hz : ∑ x ∈ Finset.range k,
+          (-p (6 + x) * Real.log (p (6 + x)) +
+            p (6 + x) * extendedGaussianNaturalScore q (6 + x)) = 0 := by
+        apply Finset.sum_eq_zero
+        intro x hx
+        rw [hp_ge _ (by omega)]
+        simp
+      rw [hz, add_zero]
+      have hs :=
+        ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target
+          fourGaussianScore htarget
+      rw [Fin.sum_univ_four, Fin.sum_univ_four] at hs
+      unfold ProfileEntropyS4.optimizedValue
+      rw [← hs]
+      simp [p, Finset.sum_range_succ, extendedGaussianExceptionalScore,
+        extendedGaussianNaturalScore, fourGaussianScore,
+        ProfileEntropyS4.support]
+      ring
+    refine ⟨0, p, ?_⟩
+    refine ⟨le_rfl, hp_nonneg, ?_, ?_, ?_, ?_⟩
+    · intro tilt N
+      have hZ : 0 < extendedGaussianPartition q tilt :=
+        extendedGaussianPartition_pos q_pos
+      have hterm : ∀ d, -p d * Real.log (p d) +
+            p d * extendedGaussianNaturalScore q d ≤
+          extendedGaussianNaturalTerm q tilt d / extendedGaussianPartition q tilt - p d +
+            Real.log (extendedGaussianPartition q tilt) * p d -
+              tilt * ((d : ℝ) * p d) := by
+        intro d
+        have href : 0 < extendedGaussianNaturalTerm q tilt d /
+            extendedGaussianPartition q tilt :=
+          div_pos (extendedGaussianNaturalTerm_pos q tilt d) hZ
+        have hrel := ProfileEntropyS4.neg_mul_log_add_mul_log_le_sub
+          (hp_nonneg d) href
+        have hlog : Real.log (extendedGaussianNaturalTerm q tilt d /
+              extendedGaussianPartition q tilt) =
+            tilt * (d : ℝ) + extendedGaussianNaturalScore q d -
+              Real.log (extendedGaussianPartition q tilt) := by
+          rw [Real.log_div (extendedGaussianNaturalTerm_pos q tilt d).ne' hZ.ne',
+            extendedGaussianNaturalTerm, Real.log_exp]
+          unfold extendedGaussianNaturalScore
+          ring
+        rw [hlog] at hrel
+        linarith
+      have hsum := Finset.sum_le_sum fun d (_hd : d ∈ Finset.range N) => hterm d
+      have hexref : 0 ≤ extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt :=
+        (div_pos (extendedGaussianExceptionalAtom_pos q tilt) hZ).le
+      unfold extendedGaussianEntropyTruncation
+      unfold extendedGaussianReferenceMassTruncation
+      unfold extendedGaussianMassTruncation
+      unfold extendedGaussianMomentTruncation
+      simp only [zero_mul, neg_zero, Real.log_zero, zero_add]
+      calc
+        ∑ d ∈ Finset.range N,
+            (-p d * Real.log (p d) + p d * extendedGaussianNaturalScore q d) ≤
+          ∑ d ∈ Finset.range N,
+            (extendedGaussianNaturalTerm q tilt d /
+                extendedGaussianPartition q tilt - p d +
+              Real.log (extendedGaussianPartition q tilt) * p d -
+                tilt * ((d : ℝ) * p d)) := hsum
+        _ ≤ extendedGaussianExceptionalAtom q tilt /
+              extendedGaussianPartition q tilt +
+            ∑ d ∈ Finset.range N,
+              (extendedGaussianNaturalTerm q tilt d /
+                  extendedGaussianPartition q tilt - p d +
+                Real.log (extendedGaussianPartition q tilt) * p d -
+                  tilt * ((d : ℝ) * p d)) := by linarith
+        _ = extendedGaussianExceptionalAtom q tilt /
+              extendedGaussianPartition q tilt +
+            ∑ d ∈ Finset.range N, extendedGaussianNaturalTerm q tilt d /
+              extendedGaussianPartition q tilt -
+            ∑ d ∈ Finset.range N, p d +
+            Real.log (extendedGaussianPartition q tilt) *
+              ∑ d ∈ Finset.range N, p d -
+            tilt * ∑ d ∈ Finset.range N, (d : ℝ) * p d := by
+          simp only [Finset.sum_sub_distrib, Finset.sum_add_distrib,
+            Finset.mul_sum]
+          ring
+    · apply tendsto_const_nhds.congr'
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ h => h⟩] with N hN
+      exact (hmass_event N hN).symm
+    · apply tendsto_const_nhds.congr'
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ h => h⟩] with N hN
+      exact (hmoment_event N hN).symm
+    · apply tendsto_const_nhds.congr'
+      filter_upwards [eventually_atTop.2 ⟨6, fun _ h => h⟩] with N hN
+      exact (hentropy_event N hN).symm
+  refine ⟨hEmbed, ?_⟩
+  have hpoint : ∀ {target value : ℝ},
+      value ∈ extendedGaussianEntropyCandidateSet target → ∀ tilt,
+        value ≤ extendedGaussianDualTestValue target tilt := by
+    intro target value hv tilt
+    rcases hv with ⟨exceptional, p, hw⟩
+    exact extendedGaussianEntropy_le_dual_of_truncations_q
+      hw.exceptional_nonneg hw.natural_nonneg
+      (fun _ _ N => hw.finite_dual_bound tilt N)
+      hw.mass_limit hw.moment_limit hw.entropy_limit
+  constructor
+  · intro target tilt htarget
+    apply csSup_le
+    · rcases hEmbed htarget with ⟨exceptional, p, hw⟩
+      exact ⟨_, exceptional, p, hw⟩
+    · intro value hv
+      exact hpoint hv tilt
+  constructor
+  · intro target htarget
+    rcases hEmbed htarget with ⟨exceptional, p, hw⟩
+    apply le_csSup
+    · refine ⟨extendedGaussianDualTestValue target 0, ?_⟩
+      intro value hv
+      exact hpoint hv 0
+    · exact ⟨exceptional, p, hw⟩
+  · intro target htarget
+    unfold fourEntropyLoss
+    have h := (show ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
+      extendedGaussianEntropyValue target from by
+        rcases hEmbed htarget with ⟨exceptional, p, hw⟩
+        apply le_csSup
+        · refine ⟨extendedGaussianDualTestValue target 0, ?_⟩
+          intro value hv
+          exact hpoint hv 0
+        · exact ⟨exceptional, p, hw⟩)
+    linarith
+
+/-- The finite four-point optimizer is an admissible all-tilts witness for
+every interior target. -/
+theorem exists_s4_embedded_extendedGaussian_witness_allTilts
+    {target : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    ∃ exceptional p,
+      ExtendedGaussianEntropyWitnessAllTilts target
+        (ProfileEntropyS4.optimizedValue fourGaussianScore target)
+        exceptional p :=
+  splusEntropySupremumDualInterior_bundle.1 hT
+
+/-- Every interior unrestricted candidate supremum obeys the extended
+Gaussian dual bound at an arbitrary test tilt. -/
+theorem extendedGaussianEntropyValue_le_dual_interior
+    {target tilt : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    extendedGaussianEntropyValue target ≤
+      extendedGaussianDualTestValue target tilt :=
+  splusEntropySupremumDualInterior_bundle.2.1 hT
+
+/-- The finite four-point optimum is bounded above by the unrestricted
+interior entropy supremum. -/
+theorem fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
+    {target : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
+      extendedGaussianEntropyValue target :=
+  splusEntropySupremumDualInterior_bundle.2.2.1 hT
+
+/-- The resulting interior four-point entropy loss is nonnegative. -/
+theorem fourEntropyLoss_nonneg_interior
+    {target : ℝ} (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    0 ≤ fourEntropyLoss target :=
+  splusEntropySupremumDualInterior_bundle.2.2.2 hT
+
+#print axioms splusEntropySupremumDualInterior_bundle
+#print axioms exists_s4_embedded_extendedGaussian_witness_allTilts
+#print axioms extendedGaussianEntropyValue_le_dual_interior
+#print axioms fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
+#print axioms fourEntropyLoss_nonneg_interior
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusEntropySupremumDualInterior
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
 ========================================================================== -/
 
 /- ==========================================================================
@@ -41790,6 +42801,64 @@ END SOURCE MODULE: Erdos625.Section9AttachmentAsymptotics
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
+Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+
+/-!
+# Section IX: phase-controlled `ENNReal` tau corridor
+
+This is only the numerical bridge needed to supply the strict tau hypothesis
+of the accepted actual-attachment large-residual envelope.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
+and the manuscript large-residual cutoff eventually give the strict
+`ENNReal` tau corridor used by the attachment envelope. -/
+theorem eventually_phaseControlled_ennreal_tau_lt_one_third
+    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
+    ∀ᶠ n : Nat in atTop,
+      ∀ (U m : Nat),
+        U ≤ phaseNat n →
+        0 < m →
+        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) := by
+  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
+    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
+      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
+    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    constructor <;> intro h;
+    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    · use 0;
+      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
+      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
+  filter_upwards [ hC ] with n hn U m hU hm hmn;
+  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
+  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
+  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
+
+#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
 Source: Erdos625/Section9RewardCompatibility.lean
 Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
@@ -47351,6 +48420,126 @@ END SOURCE MODULE: Erdos625.Section9CanonicalRawTwoRegimeSplit
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileRawTwoRegimeAssembly
+Source: Erdos625/Section9ProfileRawTwoRegimeAssembly.lean
+Normalized SHA-256: 0adeb91aec2bcc5f41d079cec6619e00f6c5520f18bb10185f0defb1a9f4a502
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileRawTwoRegimeAssembly
+
+/-!
+# Section IX: profile-level raw two-regime bookkeeping
+
+This module combines the exact zero/positive-residual decomposition with the
+literal raw split of the positive branch.  Both the zero branch and the small
+positive-residual branch retain `canonicalDemandRawAttachmentTerm`, including
+its cap/no-return event.  Only the positive large-residual branch is replaced
+by the already-proved polymer majorant.
+
+The result is conditional bookkeeping: it supplies no quantitative estimate
+for either raw branch and therefore does not close Section IX.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Profile-level raw two-regime assembly.  The threshold convention is
+literal: `0 < residualTotal < T` is small and `T ≤ residualTotal` is large.
+The raw cap/no-return numerator remains present on the zero and small branches.
+This theorem alone is not a quantitative Section IX bound. -/
+theorem uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
+    {b n : Nat} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U T : Nat)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand = 0),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U
+            (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand ∧
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand < T),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U
+            (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand :
+          canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand ∧
+            T ≤ canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand),
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant (profileBlockMargin k)
+              (profileBlockMargin k) U demand)) := by
+  classical
+  have hidentity :=
+    sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+      (row₀ := row₀) (U := U) hU
+  have htwo := sum_canonicalDemandRawAttachmentTerm_positive_le_twoRegime
+    (A := ProfileBlockIndex k) (B := ProfileBlockIndex k)
+    (row := profileBlockMargin k) (col := profileBlockMargin k)
+    (U := U) (T := T) (htotal := profileBlockMargin_total_eq_self row₀)
+    (smallTerm := canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+      (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀))
+    (largeTerm := fun demand =>
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+          (profileBlockMargin k) *
+          canonicalDemandPolymerMajorant (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+    (hsmall := by
+      intro demand _ _
+      rfl)
+    (hlarge := by
+      intro demand hpositive _
+      unfold canonicalDemandRawAttachmentTerm
+      apply mul_le_mul_right
+      apply mul_le_mul_right
+      unfold canonicalDemandPolymerMajorant
+      exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+        (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (residualColumnDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (sum_residualRowDegree_eq_sum_residualColumnDegree
+          (profileBlockMargin_total_eq_self row₀)
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))
+        (by simpa only [canonicalDemandResidualTotal] using hpositive))
+  have add_two_regime {z p s l : ENNReal} (h : p ≤ s + l) :
+      z + p ≤ z + s + l := by
+    rw [add_assoc]
+    exact add_le_add_right h z
+  exact hidentity.le.trans (add_two_regime htwo)
+
+#print axioms uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileRawTwoRegimeAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileRawTwoRegimeAssembly
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.WeightedCauchyTools
 Source: Erdos625/WeightedCauchyTools.lean
 Normalized SHA-256: 17c44eaa169b97f8ecd92badd3e29ae85c11e8715318fab8bbd07a91e0cc1017
@@ -49097,7 +50286,7 @@ END SOURCE MODULE: Erdos625.Section8TypeTableFeasibility
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8PhysicalSkeletonFibreGrouping
 Source: Erdos625/Section8PhysicalSkeletonFibreGrouping.lean
-Normalized SHA-256: c48c90682f539fe5249e8792d63f5be4ad2a2459da64f3b19e6eb5df5bffb445
+Normalized SHA-256: 2e51f10646c6d59d72c4d27941cede2bf31d24aae59a1f5c65f05a3b085ccbb0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8PhysicalSkeletonFibreGrouping
 
@@ -49230,6 +50419,41 @@ theorem sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
       (Finset.prod_ne_zero_iff.mpr fun _ _ =>
         Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _)
 
+/-- Summing the fixed-exposure factor over the physical unlabelled skeleton
+fibre has exactly one cell-factorial denominator.  `hfit` is needed only to
+make the ambient descending factorial nonzero before cancellation; no column
+feasibility, positivity, or estimate is assumed. -/
+theorem sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (hfit : totalDemand L <= Finset.univ.sum k)
+    (residualWeight : ENNReal) :
+    (∑ _ : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L},
+      residualWeight /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) : Nat) : ENNReal)) =
+      (((typeTableRowDescendingProduct k L *
+          typeTableColumnDescendingProduct ell L : Nat) : ENNReal) /
+        (((Finset.univ.sum k).descFactorial (totalDemand L) *
+          typeTableCellFactorialProduct L : Nat) : ENNReal)) * residualWeight := by
+  simp +decide [div_eq_mul_inv, mul_assoc, mul_comm]
+  have h_card :
+      (Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} : ENNReal) *
+      (typeTableCellFactorialProduct L : ENNReal) =
+      (typeTableRowDescendingProduct k L *
+        typeTableColumnDescendingProduct ell L : ENNReal) := by
+    simpa only [Nat.cast_mul] using
+      (cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
+        (R := ENNReal) k ell L)
+  simp_all +decide [mul_comm, mul_left_comm, ENNReal.mul_inv]
+  simp +decide [← mul_assoc, ← h_card]
+  by_cases h : typeTableCellFactorialProduct L = 0 <;>
+    simp_all +decide [mul_assoc, mul_comm, mul_left_comm]
+  · simp_all +decide [typeTableCellFactorialProduct, Finset.prod_eq_zero_iff,
+      Nat.factorial_ne_zero]
+  · simp +decide [← mul_assoc, ENNReal.mul_inv_cancel, h]
+
 /-- Cancellation form of the exact `W(L)` ratio: there is precisely one
 cell-factorial denominator, and multiplying it back gives the two endpoint
 descending-factorial products. -/
@@ -49253,6 +50477,7 @@ theorem typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 
 end
@@ -49949,7 +51174,7 @@ END SOURCE MODULE: Erdos625.Section8ResidualEventProbabilityNormalization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalEventProbabilityFactorization
 Source: Erdos625/Section8CanonicalEventProbabilityFactorization.lean
-Normalized SHA-256: d72c1d3805ecdca1bce9625123061a8b6d06e8c0f8539c132d1ea03e136b9fe5
+Normalized SHA-256: 5dd2501baf133dee8f9925c8be65cd81a09bbead4d47101b2e6b6c5e8a582f09
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalEventProbabilityFactorization
 
@@ -49984,6 +51209,14 @@ local instance instFintypeCanonicalResidualCellEventProbabilityFactorization
     Fintype (canonicalResidualCellEvent witness U) :=
   Fintype.ofFinite _
 
+local instance instFintypeFixedWitnessCanonicalDemandEventProbabilityFactorization
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (fixedWitnessCanonicalDemandEvent witness U) :=
+  Fintype.ofFinite _
+
 private theorem card_factorial_factorization
     (m J W R : ℕ) (hJ : J ≤ m) :
     ((W * R : ℕ) : ℝ≥0∞) / (m.factorial : ℝ≥0∞) =
@@ -50014,6 +51247,52 @@ private theorem card_factorial_factorization
         (c := (m.descFactorial J : ℝ≥0∞))
         (d := ((m - J).factorial : ℝ≥0∞))
         (Or.inl hdescZero) (Or.inl hdescTop)
+
+/-- Under the uniform ambient configuration law, one fixed labelled
+canonical witness has the exact extension incidence `1 / (m)_J` times the
+uniform residual cap/no-return event probability. The strict high-demand
+condition identifies this fixed canonical fibre with the residual event.
+
+This is only a fixed-witness probability factorization. It does not sum over
+physical skeletons or supply any quantitative residual-event estimate. -/
+theorem uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    (uniformConfigurationMatching row col htotal).toOuterMeasure
+        (fixedWitnessCanonicalDemandEvent witness U) =
+      (1 / (((∑ a, row a).descFactorial (totalDemand demand) : ℕ) : ℝ≥0∞)) *
+        ((uniformConfigurationMatching
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)).toOuterMeasure
+          (canonicalResidualCellEvent witness U)) := by
+  have hJ : totalDemand demand ≤ ∑ a, row a :=
+    totalDemand_le_rowTotal_of_witness witness
+  have hres : (∑ a, residualRowDegree witness a) =
+      ∑ b, residualColumnDegree witness b :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness
+  have hrem : (∑ a, residualRowDegree witness a) =
+      (∑ a, row a) - totalDemand demand :=
+    sum_residualRowDegree_eq_rowTotal_sub_totalDemand witness
+  rw [uniformConfigurationMatching_event_apply row col htotal
+    (Subtype.val '' fixedWitnessCanonicalDemandEvent witness U)]
+  rw [show Fintype.card (Subtype.val '' fixedWitnessCanonicalDemandEvent witness U) =
+      Fintype.card (fixedWitnessCanonicalDemandEvent witness U) from
+    Fintype.card_congr (Equiv.Set.image Subtype.val
+      (fixedWitnessCanonicalDemandEvent witness U) Subtype.val_injective).symm]
+  rw [show Fintype.card (fixedWitnessCanonicalDemandEvent witness U) =
+      Fintype.card (canonicalResidualCellEvent witness U) from
+    Fintype.card_congr
+      (fixedWitnessCanonicalDemandEventEquivResidual witness U hhigh)]
+  rw [uniformConfigurationMatching_canonicalResidualCellEvent_apply
+    witness U hres, hrem]
+  simpa only [Nat.one_mul, Nat.cast_one] using
+    (card_factorial_factorization
+      (∑ a, row a) (totalDemand demand) 1
+      (Fintype.card ↑(canonicalResidualCellEvent witness U)) hJ)
 
 /-- Exact finite factorization of the ambient canonical-demand event into its
 normalised labelled-witness incidence and the residual canonical-event
@@ -50053,6 +51332,7 @@ theorem uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_resid
     (Fintype.card ↑(canonicalResidualCellEvent witness₀ U)) hJ
 
 #print axioms uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+#print axioms uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
 
 end
 
@@ -50177,6 +51457,120 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExpansion
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8NearSkeletonExpansion
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
+Source: Erdos625/Section8NearSkeletonUniformProductBound.lean
+Normalized SHA-256: 9b211a769d3606743b38c3586daefe07f892777b907c8ccbfc4135d5a6077618
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonUniformProductBound
+
+/-!
+# Section VIII: uniform near-skeleton product bound
+
+The exact product formula sums all distinguishable near-deficit choices.
+This module gives its first quantitative consequence: if every one-cell
+deficit tail is at most `eps` and there are at most `K` cells, then the full
+choice sum is at most `(1 + eps) ^ K`.
+
+This is the finite product step used between the per-cell estimate in (8.25)
+and the later asymptotic substitution.  It neither identifies distinguishable
+choices with physical unlabelled skeletons nor proves that asymptotic bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- A uniform finite bound for the exact distinguishable near-skeleton
+expansion.  The assumptions are the literal per-cell weighted-sum bound and
+the literal cardinality bound; no probabilistic or asymptotic premise is
+introduced. -/
+theorem sum_nearSkeletonChoiceWeight_le_one_add_pow
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ENNReal) (eps : ENNReal) (K : Nat)
+    (hcell : ∀ c, (∑ e ∈ allowed c, weight c e) ≤ eps)
+    (hcard : Fintype.card Cell ≤ K) :
+    (∑ choice : NearSkeletonChoice Cell Deficit allowed,
+      nearSkeletonChoiceWeight allowed weight choice) ≤ (1 + eps) ^ K := by
+  rw [sum_nearSkeletonChoiceWeight_eq_product]
+  calc
+    (∏ c, (1 + ∑ e ∈ allowed c, weight c e)) ≤ ∏ _ : Cell, (1 + eps) := by
+      apply Finset.prod_le_prod
+      · intro c _
+        exact bot_le
+      · intro c _
+        exact add_le_add_right (hcell c) 1
+    _ = (1 + eps) ^ Fintype.card Cell := by simp
+    _ ≤ (1 + eps) ^ K := pow_le_pow_right₀ (by simp) hcard
+
+#print axioms sum_nearSkeletonChoiceWeight_le_one_add_pow
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonUniformProductBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonExponentialBound
+Source: Erdos625/Section8NearSkeletonExponentialBound.lean
+Normalized SHA-256: 2202b00a4614bb42646fd2ee0a21795f2b949791b29bc28a444bd5c5cbf5d195
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExponentialBound
+
+/-!
+# Section VIII: exponential form of the near-skeleton product bound
+
+This is the finite conversion from the already proved `(1 + ε)^K` bound to
+its exponential form.  It does not assert a concrete `ε` asymptotic or any
+physical/unlabelled skeleton estimate.
+-/
+
+namespace Erdos625
+
+/-- If every one-cell deficit tail is at most `ENNReal.ofReal eps` and there
+are at most `K` cells, then the exact distinguishable near-skeleton expansion
+is at most `exp (K * eps)`. -/
+theorem sum_nearSkeletonChoiceWeight_le_exp_of_card
+    {Cell Deficit : Type*} [Fintype Cell] [Fintype Deficit]
+    [DecidableEq Deficit] (allowed : Cell → Finset Deficit)
+    (weight : Cell → Deficit → ENNReal) (eps : ℝ) (K : ℕ)
+    (heps : 0 ≤ eps)
+    (hcell : ∀ c, (∑ e ∈ allowed c, weight c e) ≤ ENNReal.ofReal eps)
+    (hcard : Fintype.card Cell ≤ K) :
+    (∑ choice : NearSkeletonChoice Cell Deficit allowed,
+      nearSkeletonChoiceWeight allowed weight choice) ≤
+      ENNReal.ofReal (Real.exp ((K : ℝ) * eps)) := by
+  refine le_trans
+    (sum_nearSkeletonChoiceWeight_le_one_add_pow _ _ _ _ hcell hcard) ?_
+  have h_exp_bound : (1 + eps) ^ K ≤ Real.exp (K * eps) := by
+    rw [Real.exp_nat_mul]
+    exact pow_le_pow_left₀ (by positivity)
+      (by linarith [Real.add_one_le_exp eps]) _
+  calc
+    (1 + ENNReal.ofReal eps) ^ K =
+        (ENNReal.ofReal (1 + eps)) ^ K := by
+      rw [ENNReal.ofReal_add zero_le_one heps, ENNReal.ofReal_one]
+    _ = ENNReal.ofReal ((1 + eps) ^ K) := by
+      rw [ENNReal.ofReal_pow (by positivity)]
+    _ ≤ ENNReal.ofReal (Real.exp ((K : ℝ) * eps)) :=
+      ENNReal.ofReal_le_ofReal h_exp_bound
+
+end Erdos625
+
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearSkeletonExponentialBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearSkeletonExponentialBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -54773,6 +56167,267 @@ END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
+Source: Erdos625/Section9LargeResidualEnvelope.lean
+Normalized SHA-256: 4ba44abcec1c8c967e21e3eddc37ce5caa69208c3f746f0680064fdf83910cd3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
+
+/-!
+# Section IX: large-residual exponent envelope
+
+This module gives the coarse deterministic envelope used in the
+large-residual branch.  It controls both geometric denominators when the
+normalized residual scale is at most one third and substitutes those bounds
+into `residualProductExponentMajorant`.
+
+It does not choose the manuscript parameters or prove that the resulting
+envelope is asymptotically negligible.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+/-- The two geometric denominators in the residual product exponent have
+uniform coarse bounds throughout the one-third corridor. -/
+theorem residual_geometric_denominators_le
+    (tau : ENNReal) (htau : tau ≤ (1 / 3 : ENNReal)) :
+    tau ^ 4 * (1 - tau ^ 2)⁻¹ ≤ 2 * tau ^ 4 ∧
+      let beta := tau * (1 - tau)⁻¹
+      beta * (1 - beta)⁻¹ ≤ 3 * tau := by
+  rcases eq_or_ne tau 0 <;> simp_all +decide [mul_comm]
+  constructor
+  · gcongr
+    rw [← ENNReal.inv_le_inv, inv_inv]
+    refine' le_trans _
+      (tsub_le_tsub_left
+        (pow_le_pow_left'
+          (show tau ≤ 1 / 3 by
+            rw [ENNReal.le_div_iff_mul_le] <;> norm_num
+            aesop)
+          2)
+        _) ;
+      norm_num
+    rw [← ENNReal.toReal_le_toReal] <;> norm_num
+    rw [ENNReal.toReal_sub_of_le] <;> norm_num
+    rw [← ENNReal.toReal_le_toReal] <;> norm_num
+  · rcases eq_or_ne (1 - tau) 0 <;> simp_all +decide [mul_assoc]
+    · rw [tsub_eq_zero_iff_le] at *
+      exact absurd htau
+        (not_le_of_gt
+          (lt_of_lt_of_le (by norm_num) (mul_le_mul_left ‹1 ≤ tau› _)))
+    · gcongr
+      rw [← ENNReal.toReal_le_toReal] <;> norm_num
+      · rw [← mul_inv, ENNReal.toReal_sub_of_le] <;> norm_num
+        · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+          · rcases eq_or_ne tau ⊤ with rfl | htau' <;> simp_all +decide
+            rw [← mul_inv, inv_le_comm₀] <;> norm_num
+            · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                · nlinarith
+                    [inv_mul_cancel₀
+                      (show (1 - tau.toReal) ≠ 0 from
+                        sub_ne_zero_of_ne <| by linarith),
+                      show 0 ≤ tau.toReal from ENNReal.toReal_nonneg]
+                · aesop
+              · exact le_trans
+                  (le_mul_of_one_le_right bot_le (by norm_num)) htau
+            · refine' mul_pos _ _ <;> norm_num
+              · rw [← div_eq_mul_inv, div_lt_one]
+                · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+                  · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                    · linarith
+                    · aesop
+                  · exact le_trans
+                      (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
+                · exact ENNReal.toReal_pos (by aesop) (by aesop)
+              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                · linarith
+                · exact ENNReal.mul_ne_top htau' (by norm_num)
+          · rw [← ENNReal.toReal_le_toReal] <;> norm_num
+            · rw [← div_eq_mul_inv, div_le_iff₀] <;> norm_num
+              · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+                · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                  · linarith
+                  · aesop
+                · exact le_trans
+                    (le_mul_of_one_le_right bot_le (by norm_num)) htau
+              · exact ENNReal.toReal_pos (by aesop) (by aesop)
+            · rw [ENNReal.mul_eq_top]
+              aesop
+        · exact le_trans
+            (le_mul_of_one_le_right bot_le (by norm_num)) htau
+      · simp_all +decide [ENNReal.mul_eq_top]
+        rw [tsub_eq_zero_iff_le] at *
+        rw [← ENNReal.toReal_le_toReal] <;> norm_num
+        · rw [← div_eq_mul_inv, div_lt_one]
+          · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+            · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+              · linarith
+              · aesop
+              · aesop
+            · exact le_trans
+                (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
+          · exact ENNReal.toReal_pos
+              (ne_of_gt <| tsub_pos_of_lt <| lt_of_not_ge ‹_›)
+              (ne_of_lt <| lt_of_le_of_lt tsub_le_self ENNReal.one_lt_top)
+        · simp_all +decide [ENNReal.mul_eq_top]
+          exact
+            ⟨ne_of_gt (tsub_pos_of_lt ‹_›),
+              ne_of_lt (lt_of_lt_of_le ‹_› (by norm_num))⟩
+
+/-- Coarse explicit envelope for the large-residual product exponent. -/
+theorem residualProductExponentMajorant_le_largeResidualEnvelope
+    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ)
+    (htau : let tau : ENNReal :=
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+      tau ≤ (1 / 3 : ENNReal)) :
+    let tau : ENNReal :=
+      kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+    residualProductExponentMajorant kappaLambda kappaQ
+        cardA matchingCard U m ≤
+      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        2 * (cardA : ENNReal) * tau ^ 4 +
+        (((6 * matchingCard : ℕ) : ENNReal) * tau) := by
+  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta : ENNReal := tau * (1 - tau)⁻¹
+  have hgeometric := residual_geometric_denominators_le tau htau
+  change
+    kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+        (((2 * matchingCard : ℕ) : ENNReal) *
+          (beta * (1 - beta)⁻¹)) ≤
+      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        2 * (cardA : ENNReal) * tau ^ 4 +
+        (((6 * matchingCard : ℕ) : ENNReal) * tau)
+  calc
+    _ ≤ kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+          (cardA : ENNReal) * (2 * tau ^ 4) +
+          (((2 * matchingCard : ℕ) : ENNReal) * (3 * tau)) :=
+      add_le_add_three le_rfl
+        (mul_le_mul_right hgeometric.1 _)
+        (mul_le_mul_right hgeometric.2 _)
+    _ = _ := by
+      push_cast
+      ring
+
+#print axioms residual_geometric_denominators_le
+#print axioms residualProductExponentMajorant_le_largeResidualEnvelope
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
+Source: Erdos625/Section9ActualAttachmentLargeResidualEnvelope.lean
+Normalized SHA-256: a4359546e4a1c9d5d7d4d5fdeac00b81c1be360974da94592b114945d8492adf
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
+
+/-!
+# Section IX: strict large-residual envelope for the literal attachment numerator
+
+This is the finite large-residual branch before any skeleton summation or
+asymptotic scale comparison.  In particular, the cap/no-return indicator
+remains inside `residualActualAttachmentNumerator`; no conditional-event
+probability is introduced or divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One pair of absolute constants bounds the literal event-restricted
+attachment numerator by the coarse strict-regime large-residual envelope.
+The result is pointwise in the finite residual data and makes no claim about
+the later `O((log n)^8)` comparison or a global skeleton sum. -/
+theorem exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A B : Type*} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U m : Nat)
+          (row : A → Nat) (col : B → Nat)
+          (htotal : Finset.univ.sum row = Finset.univ.sum col),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        ((residualActualAttachmentNumerator M (U / 2) row col htotal :
+          ENNReal) : EReal) ≤
+          EReal.exp
+            ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+              2 * (Fintype.card A : ENNReal) *
+                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+              (((6 * M.card : Nat) : ENNReal) *
+                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
+                ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hproduct⟩ :=
+    exists_absolute_residual_product_exponential_majorant
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ M U m row col htotal hM hm hrow hcol
+    hrowCap hcolCap hpow htau
+  have hbridge :=
+    residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+      M (U / 2) row col htotal (by simpa [hrow] using hm)
+  have hmajorant := hproduct M U (U / 2) m row col hM hm hrow hcol
+    hrowCap hcolCap rfl hpow htau
+  have henvelope :=
+    residualProductExponentMajorant_le_largeResidualEnvelope
+      kappaLambda kappaQ (Fintype.card A) M.card U m (le_of_lt htau)
+  calc
+    ((residualActualAttachmentNumerator M (U / 2) row col htotal :
+        ENNReal) : EReal) ≤
+        (((∏ a : A, ∏ b : B,
+            (1 + residualLambda M (U / 2) row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN
+              (residualQ M (U / 2) row col) M C)) : ENNReal) : EReal) := by
+      exact_mod_cast hbridge
+    _ ≤ (EReal.exp
+        ((residualProductExponentMajorant kappaLambda kappaQ
+          (Fintype.card A) M.card U m : ENNReal) : EReal) : ENNReal) := by
+      exact_mod_cast hmajorant.2.2
+    _ ≤ (EReal.exp
+        ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+          2 * (Fintype.card A : ENNReal) *
+            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+          (((6 * M.card : Nat) : ENNReal) *
+            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
+            ENNReal) : EReal) : ENNReal) := by
+      rw [EReal.coe_ennreal_le_coe_ennreal_iff, EReal.exp_le_exp_iff,
+        EReal.coe_ennreal_le_coe_ennreal_iff]
+      exact henvelope
+
+#print axioms exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
 Source: Erdos625/ExpTailTransport.lean
 Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
@@ -54809,7 +56464,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 4b981f4021e41c7f9ae1b6f7aec0508c812f276d7d8caae46fef429e018ebdb7
+Normalized SHA-256: aaa9d8877d9a58db1184b6876ea5e11af166a0e654b01318c8ff1573107dad75
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -55095,6 +56750,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitScore
 #print axioms Erdos625.eventually_uniform_fourDeficitOptimizedValue
+#print axioms Erdos625.uniform_four_size_tilt_corridor
+#print axioms Erdos625.uniform_four_size_tilt_corridor_for_delta
+#print axioms Erdos625.uniform_four_size_partition_ratio
+#print axioms Erdos625.uniform_four_size_partition_ratio_for_delta
 #print axioms Erdos625.gaussian_abs_tilt_domination
 #print axioms Erdos625.finiteTiltedGaussianTail_le
 #print axioms Erdos625.finiteTiltedGaussianFirstMomentTail_le
@@ -55382,6 +57041,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cappedReward_telescoping
 #print axioms Erdos625.finiteInjectiveFamily_product_exp_bound
 #print axioms Erdos625.eventually_tau_lt_one_third
+#print axioms Erdos625.eventually_phaseControlled_ennreal_tau_lt_one_third
 #print axioms Erdos625.exists_uniform_twoRegime_error
 #print axioms Erdos625.existsAbsoluteFiniteEndpointConstant
 #print axioms Erdos625.existsAbsoluteResidualQQuadraticBound
@@ -55499,18 +57159,22 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
 #print axioms Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
 #print axioms Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials
+#print axioms Erdos625.sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient
 #print axioms Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials
 #print axioms Erdos625.uniformConfigurationMatching_event_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply
 #print axioms Erdos625.labelledWitnessIncidence_eq
 #print axioms Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply
 #print axioms Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual
+#print axioms Erdos625.uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor
 #print axioms Erdos625.totalDemand_le_rowTotal_of_witness
 #print axioms Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree
 #print axioms Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand
 #print axioms Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand
 #print axioms Erdos625.residualDegreeProfile_of_witness
 #print axioms Erdos625.sum_nearSkeletonChoiceWeight_eq_product
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow
+#print axioms Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card
 #print axioms Erdos625.supportIndexed_fullConstraints_iff_residual
 #print axioms Erdos625.sub_min_add_sub_min_eq_dist
 #print axioms Erdos625.add_eq_two_mul_min_add_dist
@@ -55607,6 +57271,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
+#print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
+#print axioms Erdos625.splusEntropySupremumDualInterior_bundle
+#print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness_allTilts
+#print axioms Erdos625.extendedGaussianEntropyValue_le_dual_interior
+#print axioms Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
+#print axioms Erdos625.fourEntropyLoss_nonneg_interior
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
@@ -55616,6 +57286,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
+#print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+#print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -55625,7 +57297,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 733c03311ddc013228dee1863ec6a81119b3eecb92755cf11dd779974dc00cf1
+Normalized SHA-256: 4cbe567e0e318687d2238d3bc0f7f8842c4da568f0ae9f9971f5d10ec40291f0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
