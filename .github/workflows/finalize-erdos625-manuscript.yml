@@ -1,16 +1,15 @@
 name: Finalize revised Problem 625 manuscript
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - agent/revise-erdos625-manuscript
 
 permissions:
   contents: write
 
 jobs:
   finalize:
-    if: github.head_ref == 'agent/revise-erdos625-manuscript'
     runs-on: ubuntu-latest
     steps:
       - name: Check out manuscript branch
@@ -46,22 +45,37 @@ jobs:
           echo '858633ad12959a93be505c2cf204d1ef3793f99cad73f1e81b5a0599b3720ac5  /tmp/erdos625-payload.tar.gz' | sha256sum -c --strict
           tar -xzf /tmp/erdos625-payload.tar.gz
 
+      - name: Install TeX and PDF verification tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-science \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            poppler-utils \
+            zip
+
       - name: Compile revised manuscript
-        uses: xu-cheng/latex-action@v3
         env:
           TZ: UTC
           SOURCE_DATE_EPOCH: 1783857600
           FORCE_SOURCE_DATE: 1
-        with:
-          root_file: main.tex
-          working_directory: arxiv_preprints/arxiv_625
-          args: -pdf -interaction=nonstopmode -halt-on-error -file-line-error
+        run: |
+          set -euo pipefail
+          cd arxiv_preprints/arxiv_625
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex || {
+            test -f main.log && tail -n 250 main.log
+            exit 1
+          }
 
       - name: Verify, synchronize mirrors, and commit
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq poppler-utils zip
 
           dir=arxiv_preprints/arxiv_625
           tex="$dir/main.tex"
