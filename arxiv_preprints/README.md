@@ -10,3 +10,13 @@ Erdős Problems 593 and 625.
 
 Both PDFs carry the fixed manuscript date 20 July 2026. arXiv supplies separate
 public submission and revision dates in its own record.
+
+Regenerate and verify every mirror with:
+
+```bash
+python scripts/sync_arxiv_artifacts.py
+```
+
+The synchronization workflow checks authorship metadata, page size, embedded
+fonts, bibliography mirrors, and byte-identical PDF copies. It does not modify
+Lean source files.
