@@ -82,6 +82,7 @@ import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SPlusEntropyCandidateEmbedding
+import Erdos625.SPlusEntropySupremumDualInterior
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -1066,6 +1067,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
 #print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
+#print axioms Erdos625.splusEntropySupremumDualInterior_bundle
+#print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness_allTilts
+#print axioms Erdos625.extendedGaussianEntropyValue_le_dual_interior
+#print axioms Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
+#print axioms Erdos625.fourEntropyLoss_nonneg_interior
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
