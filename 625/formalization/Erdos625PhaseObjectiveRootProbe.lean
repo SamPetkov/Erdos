@@ -1,0 +1,6 @@
+import Erdos625
+import Erdos625.ColoringProfilePhaseObjective
+
+#check Erdos625.profilePhaseObjective
+#check Erdos625.profilePhaseObjective_eq_selected_core
+#print axioms Erdos625.profilePhaseObjective_eq_selected_core
