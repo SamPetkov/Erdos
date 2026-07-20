@@ -1,0 +1,132 @@
+name: arXiv artifact synchronization
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.sync_erdos593_ref'
+      - 'scripts/sync_arxiv_artifacts.py'
+      - '625/**/*.tex'
+      - '625/**/*.md'
+      - '625/**/*.pdf'
+      - '625/**/*.bib'
+      - '625/**/*.bbl'
+      - 'arxiv_preprints/**'
+      - '.github/workflows/arxiv-artifact-sync.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/sync_arxiv_artifacts.py'
+      - '625/**/*.tex'
+      - '625/**/*.md'
+      - '625/**/*.pdf'
+      - '625/**/*.bib'
+      - '625/**/*.bbl'
+      - 'arxiv_preprints/**'
+      - '.github/workflows/arxiv-artifact-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+      - name: Import the reviewed Erdős 593 canonical TeX once
+        if: hashFiles('.sync_erdos593_ref') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ref=$(tr -d '\r\n' < .sync_erdos593_ref)
+          mkdir -p arxiv_preprints/arxiv_593
+          curl -fsSL \
+            -H 'Accept: application/vnd.github.raw+json' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            --get \
+            --data-urlencode "ref=$ref" \
+            'https://api.github.com/repos/SamPetkov/Erdos593/contents/erdos593_obligatory_triple_systems.tex' \
+            -o arxiv_preprints/arxiv_593/main.tex
+          git rm .sync_erdos593_ref
+      - name: Install TeX, Pandoc, and PDF verification tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            latexmk \
+            pandoc \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-science \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            poppler-utils
+      - name: Synchronize generated publication artifacts
+        run: python scripts/sync_arxiv_artifacts.py
+      - name: Commit synchronized artifacts on same-repository PRs
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          set -euo pipefail
+          if git diff --quiet --exit-code -- .; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Synchronize Erdős 593 and 625 publication artifacts'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      - name: Require committed synchronization
+        run: git diff --exit-code -- .
+      - name: Verify Erdős 593 publication PDF and mirrors
+        run: |
+          set -euo pipefail
+          pdf=arxiv_preprints/arxiv_593/main.pdf
+          pdfinfo "$pdf" > /tmp/erdos593-pdfinfo.txt
+          pdftotext "$pdf" /tmp/erdos593-paper.txt
+          pdffonts "$pdf" > /tmp/erdos593-fonts.txt
+          grep -Fq 'A4' /tmp/erdos593-pdfinfo.txt
+          grep -Fq 'Obligatory Triple Systems: An Alternative Proof' /tmp/erdos593-paper.txt
+          grep -Fq 'Samuil Petkov' /tmp/erdos593-paper.txt
+          grep -Fq 'Eric Li' /tmp/erdos593-paper.txt
+          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' /tmp/erdos593-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/erdos593-fonts.txt
+          cmp -s "$pdf" arxiv_preprints/arxiv_593.pdf
+          cmp -s arxiv_preprints/arxiv_593/main.tex arxiv_preprints/Erdos593_revised.tex
+          cmp -s arxiv_preprints/arxiv_593/main.md arxiv_preprints/Erdos593_revised.md
+      - name: Verify Erdős 625 publication PDF and mirrors
+        run: |
+          set -euo pipefail
+          pdf=625/arxiv/main.pdf
+          pdfinfo "$pdf" > /tmp/erdos625-pdfinfo.txt
+          pdftotext "$pdf" /tmp/erdos625-paper.txt
+          pdffonts "$pdf" > /tmp/erdos625-fonts.txt
+          grep -Fq 'letter' /tmp/erdos625-pdfinfo.txt
+          grep -Fq 'A Polynomial-Scale Gap Between the Chromatic and Cochromatic Numbers of a Random Graph' /tmp/erdos625-paper.txt
+          grep -Fq 'Samuil Petkov' /tmp/erdos625-paper.txt
+          ! grep -Eq 'Samuil Pekov|Samuil Petkob|Samuil Petkov (&|and) ChatGPT' /tmp/erdos625-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/erdos625-fonts.txt
+          cmp -s "$pdf" arxiv_preprints/arxiv_625/main.pdf
+          cmp -s "$pdf" arxiv_preprints/arxiv_625.pdf
+          cmp -s 625/arxiv/main.tex arxiv_preprints/arxiv_625/main.tex
+          cmp -s 625/arxiv/main.tex arxiv_preprints/Erdos625_revised.tex
+          cmp -s 625/arxiv/main.md arxiv_preprints/arxiv_625/main.md
+          cmp -s 625/arxiv/main.md arxiv_preprints/Erdos625_revised.md
+          cmp -s 625/arxiv/references.bib arxiv_preprints/arxiv_625/references.bib
+          cmp -s 625/arxiv/main.bbl arxiv_preprints/arxiv_625/main.bbl
+      - name: Verify sole-author internal proof PDF
+        run: |
+          set -euo pipefail
+          pdf=625/output/pdf/COMPLETE_PROOF_SELF_CONTAINED.pdf
+          pdfinfo "$pdf" > /tmp/internal-pdfinfo.txt
+          pdftotext "$pdf" /tmp/internal-paper.txt
+          pdffonts "$pdf" > /tmp/internal-fonts.txt
+          grep -Fq 'Samuil Petkov' /tmp/internal-paper.txt
+          ! grep -Eq 'Samuil Petkov (&|and) ChatGPT' /tmp/internal-paper.txt
+          ! grep -Eq '[[:space:]]no[[:space:]]' /tmp/internal-fonts.txt
+          cmp -s "$pdf" 625/COMPLETE_PROOF_SELF_CONTAINED.pdf
