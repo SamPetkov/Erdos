@@ -1,0 +1,133 @@
+name: Finalize revised Problem 625 manuscript
+
+on:
+  push:
+    branches:
+      - agent/revise-erdos625-manuscript
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out manuscript branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/revise-erdos625-manuscript
+
+      - name: Materialize revised manuscript sources
+        run: |
+          set -euo pipefail
+          : > /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-00 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-01 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-02 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-03 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04a >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04b >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04c >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-04d >> /tmp/erdos625-payload.b64
+          for i in $(seq 0 7); do
+            cat ".sync_erdos625/part-05x$i" >> /tmp/erdos625-payload.b64
+          done
+          cat .sync_erdos625/part-06 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-07 >> /tmp/erdos625-payload.b64
+          for i in $(seq 0 7); do
+            cat ".sync_erdos625/part-08x$i" >> /tmp/erdos625-payload.b64
+          done
+          cat .sync_erdos625/part-09 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-10 >> /tmp/erdos625-payload.b64
+          cat .sync_erdos625/part-11 >> /tmp/erdos625-payload.b64
+          base64 --decode /tmp/erdos625-payload.b64 > /tmp/erdos625-payload.tar.gz
+          echo '858633ad12959a93be505c2cf204d1ef3793f99cad73f1e81b5a0599b3720ac5  /tmp/erdos625-payload.tar.gz' | sha256sum -c --strict
+          tar -xzf /tmp/erdos625-payload.tar.gz
+
+      - name: Install TeX and PDF verification tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-science \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            poppler-utils \
+            zip
+
+      - name: Compile revised manuscript
+        env:
+          TZ: UTC
+          SOURCE_DATE_EPOCH: 1783857600
+          FORCE_SOURCE_DATE: 1
+        run: |
+          set -euo pipefail
+          cd arxiv_preprints/arxiv_625
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex || {
+            test -f main.log && tail -n 250 main.log
+            exit 1
+          }
+
+      - name: Verify, synchronize mirrors, and commit
+        run: |
+          set -euo pipefail
+
+          dir=arxiv_preprints/arxiv_625
+          tex="$dir/main.tex"
+          md="$dir/main.md"
+          pdf="$dir/main.pdf"
+          log="$dir/main.log"
+
+          grep -Fq '\documentclass[a4paper,11pt,reqno]{amsart}' "$tex"
+          grep -Fq '\usepackage[margin=1in]{geometry}' "$tex"
+          grep -Fq '\usepackage[numbers,sort&compress]{natbib}' "$tex"
+          grep -Fq '\newcommand{\secref}' "$tex"
+          grep -Fq 'bookmarksopen=true' "$tex"
+          grep -Fq 'github.com/SamPetkov/Erdos/tree/main/625' "$tex"
+          grep -Fq 'arxiv_preprints/arxiv_625/main.tex' "$tex"
+          grep -Fq '625/verification/erdos625_independent_checks.py' "$tex"
+          grep -Fq '625/formalization' "$tex"
+          grep -Fq 'Sections [2](#the-complete-independence-number-phase)' "$md"
+          grep -Fq 'github.com/SamPetkov/Erdos/tree/main/625' "$md"
+          grep -Fq '\begin{thebibliography}{17}' "$tex"
+          ! grep -Eq '\\address|\\email|École|Ecole|samuil\.petkov@ens' "$tex" "$md"
+
+          pdfinfo "$pdf" > /tmp/erdos625-pdfinfo.txt
+          pdftotext "$pdf" /tmp/erdos625-paper.txt
+          pdffonts "$pdf" > /tmp/erdos625-fonts.txt
+
+          test "$(awk '/^Pages:/ {print $2}' /tmp/erdos625-pdfinfo.txt)" = 31
+          grep -Fq 'A4' /tmp/erdos625-pdfinfo.txt
+          grep -Fq 'A Polynomial Chromatic-Cochromatic Gap in Random Graphs' /tmp/erdos625-pdfinfo.txt
+          grep -Fq 'Formal verification and reproducibility' /tmp/erdos625-paper.txt
+          ! grep -Eq 'École|Ecole|samuil\.petkov@ens|Email address' /tmp/erdos625-paper.txt
+          if grep -Eq '[[:space:]]no[[:space:]]' /tmp/erdos625-fonts.txt; then
+            exit 1
+          fi
+          if grep -E 'LaTeX Warning|Package .* Warning|Overfull \\hbox|Underfull \\hbox|Overfull \\vbox|Underfull \\vbox|undefined references|Citation.*undefined|Rerun to get' "$log"; then
+            exit 1
+          fi
+
+          cp "$tex" arxiv_preprints/Erdos625_revised.tex
+          cp "$md" arxiv_preprints/Erdos625_revised.md
+          cp "$pdf" arxiv_preprints/arxiv_625.pdf
+          rm -f arxiv_preprints/Erdos625_revised_source.zip
+          (
+            cd "$dir"
+            zip -q -j ../Erdos625_revised_source.zip README.md main.tex main.md main.bbl references.bib
+          )
+
+          rm -rf .sync_erdos625
+          rm -f .github/workflows/finalize-erdos625-manuscript.yml
+          rm -f "$dir"/main.{aux,log,out,toc,fls,fdb_latexmk}
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Synchronize revised Problem 625 manuscript'
+          git push origin HEAD:agent/revise-erdos625-manuscript
