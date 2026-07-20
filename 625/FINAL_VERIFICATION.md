@@ -1,5 +1,15 @@
 # Final internal verification record
 
+## 2026-07-20 publication synchronization
+
+The sole-author TeX, Markdown, bibliography, and PDF publication artifacts were
+regenerated on 20 July 2026.  The manuscript and PDF metadata name **Samuil
+Petkov** as the sole author; AI systems remain disclosed as assistance rather
+than coauthors.  The current publication artifacts are verified by the
+`arXiv artifact synchronization` workflow.  Historical hashes and audit verdicts
+below remain scoped to the bytes and dates explicitly stated in their original
+records.
+
 Initial record: 2026-07-12.  Adversarial proof-audit update: 2026-07-13.
 Publication and Lean-checkpoint refresh: 2026-07-14.
 

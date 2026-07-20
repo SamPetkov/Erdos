@@ -6,7 +6,7 @@
 
 **[Open the publication-layout preprint PDF](arxiv_625.pdf)**
 
-The publication-layout PDF is dated 12 July 2026 and lists Samuil Petkov as
+The publication-layout PDF is dated 20 July 2026 and lists Samuil Petkov as
 the sole author, with explicit AI-assistance, Aristotle-use, funding, and
 competing-interests disclosures.  It remains a candidate preprint while the
 full Lean target is open.
