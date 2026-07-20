@@ -6,6 +6,7 @@ on:
     paths:
       - '.sync_erdos593_ref'
       - 'scripts/sync_arxiv_artifacts.py'
+      - 'scripts/refresh_internal_proof_metadata.py'
       - '625/**/*.tex'
       - '625/**/*.md'
       - '625/**/*.pdf'
@@ -17,6 +18,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/sync_arxiv_artifacts.py'
+      - 'scripts/refresh_internal_proof_metadata.py'
       - '625/**/*.tex'
       - '625/**/*.md'
       - '625/**/*.pdf'
@@ -76,6 +78,7 @@ jobs:
             sed -i 's/no claim of full informational independence/no claim of informational independence/g' \
               arxiv_preprints/arxiv_593/main.tex
             python -u scripts/sync_arxiv_artifacts.py
+            python -u scripts/refresh_internal_proof_metadata.py
             python - <<'PY'
           from pathlib import Path
           import zipfile
@@ -188,9 +191,12 @@ jobs:
           pdftotext "$pdf" verification-artifacts/internal-paper.txt
           pdffonts "$pdf" | tee verification-artifacts/internal-fonts.txt
           grep -Fq 'Samuil Petkov' verification-artifacts/internal-paper.txt
+          grep -Fq '20 July 2026' verification-artifacts/internal-paper.txt
+          grep -Fq '10.1137/24M1715180' verification-artifacts/internal-paper.txt
           ! grep -Eq 'Samuil Petkov (&|and) ChatGPT' verification-artifacts/internal-paper.txt
           ! grep -Eq '[[:space:]]no[[:space:]]' verification-artifacts/internal-fonts.txt
           cmp -s "$pdf" 625/COMPLETE_PROOF_SELF_CONTAINED.pdf
+          grep -Fq '10.1137/24M1715180' 625/sources/ERDOS625_REFERENCES.bib
       - name: Upload publication previews and verification reports
         if: always()
         uses: actions/upload-artifact@v4
