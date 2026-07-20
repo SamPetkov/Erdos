@@ -110,7 +110,7 @@ def update_proof_tex() -> None:
         r"\\url\{https://arxiv\.org/abs/2408\.02400\}\.",
         re.DOTALL,
     )
-    text, count = pattern.subn(STEINER_TEX_REPLACEMENT, text, count=1)
+    text, count = pattern.subn(lambda _match: STEINER_TEX_REPLACEMENT, text, count=1)
     if count != 1 and "10.1137/24M1715180" not in text:
         raise RuntimeError("could not refresh the Steiner reference in the proof TeX")
     text = text.replace("Samuil Pekov", SOLE_AUTHOR).replace("Samuil Petkob", SOLE_AUTHOR)
