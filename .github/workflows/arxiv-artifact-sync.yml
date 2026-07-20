@@ -68,7 +68,22 @@ jobs:
             texlive-fonts-extra \
             poppler-utils
       - name: Synchronize generated publication artifacts
-        run: python scripts/sync_arxiv_artifacts.py
+        id: synchronize
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sed -i 's/no claim of full informational independence/no claim of informational independence/g' \
+            arxiv_preprints/arxiv_593/main.tex
+          python -u scripts/sync_arxiv_artifacts.py 2>&1 | tee arxiv-sync.log
+      - name: Upload synchronization diagnostics
+        if: steps.synchronize.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos-arxiv-sync-diagnostics
+          path: arxiv-sync.log
+      - name: Stop after synchronization failure
+        if: steps.synchronize.outcome == 'failure'
+        run: exit 1
       - name: Commit synchronized artifacts on same-repository PRs
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         run: |
