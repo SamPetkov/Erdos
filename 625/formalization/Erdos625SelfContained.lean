@@ -18368,6 +18368,139 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
+Source: Erdos625/MidpointProfileCoordinates.lean
+Normalized SHA-256: 50cc1accfd35af44b4830a3314ed16b11a8984714265a5af0f514adea4ffb26f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
+
+/-!
+# Concrete four-deficit profile coordinates
+
+The finite map below places four natural multiplicities at the class-size
+coordinates corresponding to deficits `2, 3, 4, 5`.  It is intentionally a
+plain finite sum so that image and off-image statements are genuine finite
+facts, not properties hidden in a subtype or a choice function.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Embed four multiplicities into the full profile indexed by class sizes
+`1, ..., alpha + 1`. -/
+def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
+    (m : Fin 4 -> Nat) : ColoringProfile (alpha + 1) :=
+  fun j =>
+    ∑ i : Fin 4,
+      if fourDeficitCoordinate alpha hAlpha i = j then m i else 0
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileCoordinates
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentRoundingCore
+Source: Erdos625/TangentRoundingCore.lean
+Normalized SHA-256: d0e13c53844bc245d99b5b38b43b62a23deecc95e3357cdc45aa426bf6593e2f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
+
+/-!
+# Four-coordinate tangent rounding core
+
+This source is deliberately independent of the Erdős--625 graph and
+probability development.  Indices `0,1,2,3` encode manuscript deficits
+`2,3,4,5`.  The four raw values are the floors `a_i = floor (K * p_i)`.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The manuscript deficit attached to coordinate `i = 0,1,2,3`. -/
+def tangentDeficit (i : Fin 4) : Int := (i.1 : Int) + 2
+
+/-- Natural-number version of `tangentDeficit`. -/
+def tangentDeficitNat (i : Fin 4) : Nat := i.1 + 2
+
+/-- The four preliminary floors `a_i = floor (K * p_i)`. -/
+def tangentRawFloors (K : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
+  fun i ↦ Int.floor ((K : Real) * p i)
+
+/-- Signed error in the part-count constraint, for arbitrary integral raw data. -/
+def tangentE0Raw (a : Fin 4 → Int) (K : Int) : Int :=
+  (∑ i, a i) - K
+
+/-- Signed error in the deficit constraint, for arbitrary integral raw data. -/
+def tangentE1Raw (a : Fin 4 → Int) (D : Int) : Int :=
+  (∑ i, tangentDeficit i * a i) - D
+
+/-- The correction at manuscript deficit two: `c_0 = e_1 - 3 e_0`. -/
+def tangentC0Raw (a : Fin 4 → Int) (K D : Int) : Int :=
+  tangentE1Raw a D - 3 * tangentE0Raw a K
+
+/-- The correction at manuscript deficit three: `c_1 = 2 e_0 - e_1`. -/
+def tangentC1Raw (a : Fin 4 → Int) (K D : Int) : Int :=
+  2 * tangentE0Raw a K - tangentE1Raw a D
+
+/-- The correction vector `(c_0,c_1,0,0)`. -/
+def tangentCorrectionRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
+  fun i ↦
+    if i.1 = 0 then tangentC0Raw a K D
+    else if i.1 = 1 then tangentC1Raw a K D
+    else 0
+
+/-- Correct arbitrary integral raw counts by the two tangent coordinates. -/
+def tangentCorrectedRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
+  fun i ↦ a i + tangentCorrectionRaw a K D i
+
+/-- Count error of the four raw floors. -/
+def tangentE0 (K : Nat) (p : Fin 4 → Real) : Int :=
+  tangentE0Raw (tangentRawFloors K p) (K : Int)
+
+/-- Deficit error of the four raw floors. -/
+def tangentE1 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentE1Raw (tangentRawFloors K p) (D : Int)
+
+/-- The first floor-rounding correction. -/
+def tangentC0 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentC0Raw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The second floor-rounding correction. -/
+def tangentC1 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentC1Raw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The corrected four-coordinate profile, still represented in `Int`. -/
+def tangentCorrectedInt (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
+  tangentCorrectedRaw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The corrected four-coordinate profile as natural numbers.  Its equality
+with `tangentCorrectedInt` is only used after nonnegativity is proved. -/
+def tangentCorrectedNat (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Nat :=
+  fun i ↦ (tangentCorrectedInt K D p i).toNat
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentRoundingCore
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExplicitPartitionRatio
 Source: Erdos625/ExplicitPartitionRatio.lean
 Normalized SHA-256: cabba3307080bfd58350541cbd2dbaadd08f86b30b5b7b2368e192e50ba60a61
@@ -50983,7 +51116,7 @@ END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentLargeResidualExp
 Source: Erdos625/Section9ProfileAttachmentLargeResidualExp.lean
-Normalized SHA-256: de5a496d9849350de9d6515417e1ab11d4194642a4d65fbb0d7195793458bccc
+Normalized SHA-256: ddf70cfc5f9d15e90034c57d31c1b982f38d791c6e4a22c98e81224028a4e152
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentLargeResidualExp
 
@@ -51019,7 +51152,7 @@ theorem exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp :
       0 < kappaQ ∧ kappaQ ≠ ∞ ∧
       ∀ {b n : ℕ} {k : ColoringProfile b}
           (row0 : OrderedProfilePartition n k) (U m : ℕ)
-          (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+          (_hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
           (demand : ProfileCanonicalHighSkeleton k U),
         m = canonicalDemandResidualTotal
           (profileBlockMargin k) (profileBlockMargin k) U demand →
@@ -51039,12 +51172,12 @@ theorem exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp :
   obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
     exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
   refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro b n k row0 U m hcap demand hm hmpos hpow htau
+  intro b n k row0 U m _hcap demand hm hmpos hpow htau
   let witness := canonicalDemandReferenceWitness
     (profileBlockMargin k) (profileBlockMargin k) U demand
   have hparameters := canonicalReference_residual_parameters
     (profileBlockMargin k) (profileBlockMargin k) U
-    (profileBlockMargin_total_eq_self row0) hcap hcap demand
+    (profileBlockMargin_total_eq_self row0) _hcap _hcap demand
   have hrowSum : (∑ a, residualRowDegree witness a) = m := by
     simpa only [canonicalDemandResidualTotal, witness] using hm.symm
   have hcolSum : (∑ a, residualColumnDegree witness a) = m := by
@@ -53529,7 +53662,7 @@ END SOURCE MODULE: Erdos625.Section8NearCellChoiceLink
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
 Source: Erdos625/Section8NearArithmeticFoundation.lean
-Normalized SHA-256: 80e2d43365ba4814847b974fd6ae6e67368647ee99f43daf1aa60844073d312b
+Normalized SHA-256: aae15dd80c4e3d28655e5535074f5352fd23edeb7d6ba1472f3c07e53e051cf5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearArithmeticFoundation
 
@@ -53602,9 +53735,14 @@ theorem denominatorLoss_eq_falling_and_le_pow
     · rw [Nat.sub_sub_self hQ, mul_comm]
     · omega
   have heq : denominatorLoss n J₀ Q = f := by
-    convert congr_arg (fun x : ENNReal => x / (d : ENNReal)) hmul using 1
-    rw [ENNReal.eq_div_iff] <;> norm_cast <;> norm_num
-    exact Nat.ne_of_gt <| Nat.descFactorial_pos.mpr <| by omega
+    have hd0 : (d : ENNReal) ≠ 0 := by
+      exact_mod_cast
+        (Nat.ne_of_gt (Nat.descFactorial_pos.mpr (by omega) : 0 < d))
+    have hdtop : (d : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top d
+    unfold denominatorLoss
+    rw [eq_comm]
+    apply (ENNReal.eq_div_iff hd0 hdtop).2
+    exact hmul.symm
   refine ⟨heq, ?_⟩
   rw [heq]
   exact mod_cast Nat.descFactorial_le_pow _ _ |>.trans
@@ -58902,7 +59040,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f29b2d6f3cd7f77c4a947dfa19e9f97b931cf655d22cc26c523ec1ea19c6ea6a
+Normalized SHA-256: ad50315c837f6386d8cd43bc355f831e4427f0692060ce35c5b014a9d08587a4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -59761,7 +59899,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 7af416a193af46af05347424fbb652f451c516b8bd9228ac39198aff5f15606e
+Normalized SHA-256: 99ab70653aafacd4bb46b1af29827a19ad77aa914635677ffb4e3443222a478c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

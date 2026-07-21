@@ -34,7 +34,7 @@ theorem exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp :
       0 < kappaQ ∧ kappaQ ≠ ∞ ∧
       ∀ {b n : ℕ} {k : ColoringProfile b}
           (row0 : OrderedProfilePartition n k) (U m : ℕ)
-          (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+          (_hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
           (demand : ProfileCanonicalHighSkeleton k U),
         m = canonicalDemandResidualTotal
           (profileBlockMargin k) (profileBlockMargin k) U demand →
@@ -54,12 +54,12 @@ theorem exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp :
   obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
     exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
   refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro b n k row0 U m hcap demand hm hmpos hpow htau
+  intro b n k row0 U m _hcap demand hm hmpos hpow htau
   let witness := canonicalDemandReferenceWitness
     (profileBlockMargin k) (profileBlockMargin k) U demand
   have hparameters := canonicalReference_residual_parameters
     (profileBlockMargin k) (profileBlockMargin k) U
-    (profileBlockMargin_total_eq_self row0) hcap hcap demand
+    (profileBlockMargin_total_eq_self row0) _hcap _hcap demand
   have hrowSum : (∑ a, residualRowDegree witness a) = m := by
     simpa only [canonicalDemandResidualTotal, witness] using hm.symm
   have hcolSum : (∑ a, residualColumnDegree witness a) = m := by

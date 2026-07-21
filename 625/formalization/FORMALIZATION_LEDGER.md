@@ -635,3 +635,10 @@ for the concrete midpoint profile or aggregate over all skeletons.  The
 midpoint construction, Section VII diagonal-mass limit, Section VIII skeleton
 sum, Section IX uniform two-regime aggregation, chromatic tail, root
 separation, and the final instantiation of `Erdos625Statement` remain open.
+
+The midpoint construction now also has two audited definition-only foundation
+modules: `MidpointProfileCoordinates` embeds four multiplicities at the exact
+deficit coordinates `2,3,4,5`, and `TangentRoundingCore` records the signed
+floor errors and two-coordinate correction.  These definitions do not yet
+prove conservation, nonnegativity, profile realization, target-corridor
+asymptotics, or the existence of the required concrete midpoint sequence.

@@ -86,6 +86,8 @@ import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
 import Erdos625.SPlusPrimalCoordinateBounds
 import Erdos625.SPlusPrimalRepresentation
+import Erdos625.MidpointProfileCoordinates
+import Erdos625.TangentRoundingCore
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate

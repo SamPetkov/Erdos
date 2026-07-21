@@ -70,9 +70,14 @@ theorem denominatorLoss_eq_falling_and_le_pow
     · rw [Nat.sub_sub_self hQ, mul_comm]
     · omega
   have heq : denominatorLoss n J₀ Q = f := by
-    convert congr_arg (fun x : ENNReal => x / (d : ENNReal)) hmul using 1
-    rw [ENNReal.eq_div_iff] <;> norm_cast <;> norm_num
-    exact Nat.ne_of_gt <| Nat.descFactorial_pos.mpr <| by omega
+    have hd0 : (d : ENNReal) ≠ 0 := by
+      exact_mod_cast
+        (Nat.ne_of_gt (Nat.descFactorial_pos.mpr (by omega) : 0 < d))
+    have hdtop : (d : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top d
+    unfold denominatorLoss
+    rw [eq_comm]
+    apply (ENNReal.eq_div_iff hd0 hdtop).2
+    exact hmul.symm
   refine ⟨heq, ?_⟩
   rw [heq]
   exact mod_cast Nat.descFactorial_le_pow _ _ |>.trans

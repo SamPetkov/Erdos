@@ -88,6 +88,8 @@ import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
+import Erdos625.MidpointProfileCoordinates
+import Erdos625.TangentRoundingCore
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding
