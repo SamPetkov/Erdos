@@ -84,10 +84,13 @@ theorem largeResidualEnvelope_bound
       convert mul_le_mul
         (mul_le_mul hH (pow_le_pow_left₀ (by positivity) hU 2)
           (by positivity) (by positivity))
-        h1m_le_L6n (by positivity) (by positivity) using 1 <;> ring
+        h1m_le_L6n (by positivity) (by positivity) using 1
+      · ring
+      · ring
     convert mul_le_mul_of_nonneg_left h_term3_bound
-      (show 0 ≤ 6 * kappaQ by positivity) using 1 <;>
-        field_simp [hn.ne', hm0.ne'] <;> ring
+      (show 0 ≤ 6 * kappaQ by positivity) using 1
+    · ring
+    · field_simp [hn.ne'] <;> ring
   have h_term1 : kappaLambda * U ^ 4 / m ≤
       kappaLambda * C_U ^ 4 * L ^ 8 := by
     have h_term1 : kappaLambda * U ^ 4 / m ≤
@@ -109,8 +112,8 @@ theorem largeResidualEnvelope_bound
     have h_term2' : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
         2 * n * (kappaQ * (C_U * L) ^ 3 / (n / L ^ 6)) ^ 4 := by
       gcongr
-    convert h_term2' using 1 <;>
-      field_simp [hn.ne', hL.ne', hm0.ne'] <;> ring
+    convert h_term2' using 1
+    field_simp [hn.ne', hL.ne'] <;> ring
   have h_L36_div_n3_le_L8 : L ^ 36 / n ^ 3 ≤ L ^ 8 := by
     rw [div_le_iff₀] <;>
       first | positivity | nlinarith [pow_pos hL 8, pow_pos hL 28]
