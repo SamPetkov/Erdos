@@ -90,7 +90,14 @@ theorem largeResidualEnvelope_bound
     convert mul_le_mul_of_nonneg_left h_term3_bound
       (show 0 ≤ 6 * kappaQ by positivity) using 1
     · rfl
-    · field_simp [hn.ne'] <;> ring
+    · have hn_cancel : n * (L ^ 6 / n) = L ^ 6 := by
+        field_simp [hn.ne']
+      symm
+      calc
+        6 * kappaQ * (2 * n * (C_U * L) ^ 2 * (L ^ 6 / n)) =
+            12 * kappaQ * C_U ^ 2 * L ^ 2 * (n * (L ^ 6 / n)) := by ring
+        _ = 12 * kappaQ * C_U ^ 2 * L ^ 2 * L ^ 6 := by rw [hn_cancel]
+        _ = 12 * kappaQ * C_U ^ 2 * L ^ 8 := by ring
   have h_term1 : kappaLambda * U ^ 4 / m ≤
       kappaLambda * C_U ^ 4 * L ^ 8 := by
     have h_term1 : kappaLambda * U ^ 4 / m ≤
