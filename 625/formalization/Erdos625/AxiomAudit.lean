@@ -75,6 +75,7 @@ import Erdos625.ColoringProfileDualOptimizer
 import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfilePhaseObjective
+import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
@@ -83,6 +84,7 @@ import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
+import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -265,6 +267,9 @@ import Erdos625.Section9ERealENNRealExpTransport
 import Erdos625.Section9ZeroResidualMatchingAttachment
 import Erdos625.Section9ProfileAttachmentSmallResidualScale
 import Erdos625.Section9PositiveSupportMassBound
+import Erdos625.Section9PhaseTwoPowerCorridor
+import Erdos625.ProfileBlockCardinalityBound
+import Erdos625.Section9ActualAttachmentAggregation
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -1090,6 +1095,13 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
+#print axioms Erdos625.residualLargeEnvelope_ne_top
 #print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
+#print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
+#print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
+#print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
+#print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
+#print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
+#print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer

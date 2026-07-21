@@ -80,6 +80,7 @@ import Erdos625.ColoringProfileDualOptimizer
 import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfilePhaseObjective
+import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
@@ -91,6 +92,7 @@ import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
+import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
 import Erdos625.GaussianMomentTailTools
@@ -197,6 +199,7 @@ import Erdos625.Section9ResidualAsymptoticArithmetic
 import Erdos625.Section9ResidualRegimeScaleAdapters
 import Erdos625.Section9ProfileAttachmentSmallResidualScale
 import Erdos625.Section9PositiveSupportMassBound
+import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.Section9PhaseENNRealTauCorridor
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion
@@ -286,12 +289,14 @@ import Erdos625.Section9CanonicalLambda
 import Erdos625.Section9CanonicalTwoRegimeSeed
 import Erdos625.Section9RealSecondMomentSeed
 import Erdos625.Section9CanonicalPolymerAggregation
+import Erdos625.Section9ActualAttachmentAggregation
 import Erdos625.Section9SeparatedTwoRegimeSeed
 import Erdos625.Section9CanonicalDemandProductEstimate
 import Erdos625.Section9CanonicalDemandProductSpecialization
 import Erdos625.Section9LargeResidualEnvelope
 import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 import Erdos625.Section9ERealENNRealExpTransport
+import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.ExpTailTransport
 import Erdos625.AxiomAudit
 

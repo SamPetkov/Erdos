@@ -15925,6 +15925,109 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjective
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseRootCenter
+Source: Erdos625/ColoringProfilePhaseRootCenter.lean
+Normalized SHA-256: ffe9809ed7a009c6b4006531b8fbfeda7de44b136594924b5e342437be98c4ad
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseRootCenter
+
+/-!
+# Unrestricted-profile phase center
+
+This module gives one canonical home to the manuscript reference center and
+the raw attained unrestricted-profile objective.  The reference center is
+not asserted here to be a zero of that objective, and the unrestricted
+objective is not identified with the signed four-size objective.
+
+The exact objective decomposition and eventual center corridor were returned
+by Aristotle projects `d6b5395c-0535-4eb3-b8cf-0ebcf1d4f6ba` and
+`e7c1b257-9afe-4344-9e0b-a62f9ba5065a`, tasks
+`a6e0e6c8-82e7-4d8a-b67d-641aacca5284` and
+`f8127c71-676f-41b8-84f4-48f08e32ad2b`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The manuscript reference center in the average-class-size variable:
+`s₀ = α₀ - 1 - 2 / log 2`. -/
+noncomputable def phaseRootS0 (n : ℕ) : ℝ :=
+  alphaZero n - 1 - 2 / q
+
+/-- The corresponding reference center `n / s₀` in the part-count variable.
+No root equation is asserted by this definition. -/
+noncomputable def phaseRootCenter (n : ℕ) : ℝ :=
+  (n : ℝ) / phaseRootS0 n
+
+/-- The raw attained unrestricted profile objective, before adding the
+finite profile-box multiplicity term. -/
+noncomputable def unrestrictedPhaseObjective (n : ℕ) (parts : ℝ) : ℝ :=
+  profileDualOptimalValue (phaseNat n + 1) (n : ℝ) parts
+
+/-- `profilePhaseObjective` is not the raw manuscript objective: it is the
+raw attained profile value plus the exact logarithmic profile-box term. -/
+theorem profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
+    (n : ℕ) (parts : ℝ) :
+    profilePhaseObjective n parts =
+      ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
+        unrestrictedPhaseObjective n parts := by
+  rfl
+
+/-- Eventually the phase center is defined on the genuine floor domain,
+`s₀` is positive, and its exact four-size target belongs to the full closed
+phase interval used by the uniform four-point estimates. -/
+theorem eventually_phaseRoot_domain_pos_and_target_corridor :
+    ∀ᶠ n : ℕ in atTop,
+      PhaseDomain n ∧
+      0 < phaseRootS0 n ∧
+      (phaseNat n : ℝ) - (n : ℝ) / phaseRootCenter n ∈
+        Set.Icc (2 / q) (1 + 2 / q) := by
+  have hqLower : (1 / 2 : ℝ) < q := by
+    exact (by norm_num : (1 / 2 : ℝ) < 0.6931471803).trans Real.log_two_gt_d9
+  have hqUpper : q < 2 := by
+    exact Real.log_two_lt_d9.trans (by norm_num)
+  have hTwoDivQBounds : (1 : ℝ) < 2 / q ∧ 2 / q < 4 := by
+    constructor
+    · rw [lt_div_iff₀ q_pos]
+      linarith
+    · rw [div_lt_iff₀ q_pos]
+      linarith
+  have hLogLarge : ∀ᶠ n : ℕ in atTop, 5 < logOrder n :=
+    tendsto_logOrder_atTop.eventually_gt_atTop 5
+  filter_upwards [eventually_phaseDomain,
+    eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+    hLogLarge, eventually_gt_atTop (0 : ℕ)] with n hn hphase hlog hnPos
+  have hPhaseLarge : (5 : ℝ) < phaseNat n := lt_of_lt_of_le hlog hphase.1
+  have hs0Pos : 0 < phaseRootS0 n := by
+    rw [phaseRootS0, alphaZero_eq_phaseNat_add_delta hn]
+    linarith [phaseDelta_nonneg n, hTwoDivQBounds.1, hTwoDivQBounds.2]
+  have hnNe : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hnPos.ne'
+  have hs0Ne : phaseRootS0 n ≠ 0 := hs0Pos.ne'
+  have hCenterNe : phaseRootCenter n ≠ 0 := by
+    exact div_ne_zero hnNe hs0Ne
+  have hDivide : (n : ℝ) / phaseRootCenter n = phaseRootS0 n := by
+    unfold phaseRootCenter
+    field_simp
+  refine ⟨hn, hs0Pos, ?_⟩
+  rw [hDivide, phaseRootS0, alphaZero_eq_phaseNat_add_delta hn]
+  constructor <;> linarith [phaseDelta_nonneg n, phaseDelta_lt_one n]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseRootCenter
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseRootCenter
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivative
 Source: Erdos625/ColoringProfilePhaseDerivative.lean
 Normalized SHA-256: 9a8c615e228bf906548147be2648a65e70f05184b1ee82ee59ad74226f7386fb
@@ -19466,6 +19569,87 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_SPlusEntropySupremumDualInterior
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
+Source: Erdos625/UniformLimitingEntropyCertificate.lean
+Normalized SHA-256: 5705e2ce30ed2c2f58df0a82f04aed78f6ecec4f54c68c0e155bf27ed979e314
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
+
+/-!
+# Uniform limiting entropy certificate
+
+This assembles the verified limiting entropy-dual and explicit four-size
+ratio estimates uniformly over the full phase interval.  Its scope is the
+repository's current `extendedGaussianEntropyValue` formulation; identifying
+that formulation with an independently defined manuscript primal remains a
+separate representation obligation.
+
+The proof was returned by Aristotle project
+`f916811d-4971-44ae-9c9b-c1d731298958`, task
+`d4d1264a-d9da-4673-b646-ff82a272aa71`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-- Limiting form of the Section V uniform entropy certificate. -/
+theorem uniform_limiting_entropy_certificate_for_delta
+    (delta : ℝ)
+    (hDelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    0 ≤ fourEntropyLoss (1 + 2 / q - delta) ∧
+      fourEntropyLoss (1 + 2 / q - delta) <
+        Real.log (153 / 100 : ℝ) ∧
+      Real.log (200 / 153 : ℝ) <
+        q - fourEntropyLoss (1 + 2 / q - delta) := by
+  rcases hDelta with ⟨hDeltaLower, hDeltaUpper⟩
+  have hq_lt_one : q < 1 := by
+    have h := Real.log_lt_sub_one_of_pos (by norm_num : (0 : ℝ) < 2)
+      (by norm_num : (2 : ℝ) ≠ 1)
+    norm_num [q] at h ⊢
+    exact h
+  have hq_gt_half : (1 / 2 : ℝ) < q := by
+    have h := Real.log_two_gt_d9
+    unfold q
+    norm_num at h ⊢
+    linarith
+  have htwo_div_q_lower : 2 < 2 / q := by
+    rw [lt_div_iff₀ q_pos]
+    linarith
+  have htwo_div_q_upper : 2 / q < 4 := by
+    rw [div_lt_iff₀ q_pos]
+    linarith
+  have hTarget : 1 + 2 / q - delta ∈ Set.Ioo (2 : ℝ) 5 := by
+    constructor <;> linarith
+  let lambda := ProfileEntropyS4.tilt fourGaussianScore
+    (1 + 2 / q - delta)
+  have hMean : ProfileEntropyS4.mean fourGaussianScore lambda =
+      1 + 2 / q - delta := by
+    exact ProfileEntropyS4.mean_tilt_eq fourGaussianScore hTarget
+  have hLossLt : fourEntropyLoss (1 + 2 / q - delta) <
+      Real.log (153 / 100 : ℝ) := by
+    have hDual := extendedGaussianEntropyValue_le_dual_interior
+      (tilt := lambda) hTarget
+    have hRatio := uniform_four_size_partition_ratio_for_delta delta lambda
+      hDeltaLower hDeltaUpper hMean
+    simpa [fourEntropyLoss] using
+      (entropy_loss_lt_log_153_div_100_of_dual_ratio hMean hDual hRatio)
+  exact ⟨fourEntropyLoss_nonneg_interior hTarget, hLossLt,
+    signed_margin_gt_log_200_div_153_of_entropy_loss_lt hLossLt⟩
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
 ========================================================================== -/
 
 /- ==========================================================================
@@ -49217,6 +49401,114 @@ END SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
+Source: Erdos625/Section9PhaseTwoPowerCorridor.lean
+Normalized SHA-256: 413a8e6e085d4ecb75e9b2766ef9690c665cb11afe521dd388f25c1ed72fff78
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
+
+/-!
+# Section IX: phase-controlled power bound
+
+This module supplies the eventual natural-number inequality required by the
+large-residual finite attachment estimate.
+
+The proof was returned by Aristotle project
+`0b21c723-27c0-44f3-a7d3-a52530bad0fe`, task
+`15a8d5cc-f68f-4998-a111-cc9597b58011`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A phase-sized cap and the manuscript large-residual cutoff eventually
+supply the exact natural power hypothesis used by the finite estimates. -/
+theorem eventually_phaseControlled_two_pow_le_cube :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ U m : ℕ,
+        U ≤ phaseNat n →
+        0 < m →
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m : ℝ) →
+        (2 : ℕ) ^ U ≤ m ^ 3 := by
+  have hLogPow :
+      ∀ᶠ n : ℕ in atTop, Real.log (n : ℝ) ^ 90 ≤ (n : ℝ) := by
+    have hLittleO :
+        (fun n : ℕ ↦ Real.log (n : ℝ) ^ 90) =o[atTop]
+          (fun n : ℕ ↦ (n : ℝ)) :=
+      (Real.isLittleO_pow_log_id_atTop (n := 90)).comp_tendsto
+        tendsto_natCast_atTop_atTop
+    have hBound := hLittleO.bound (by norm_num : (0 : ℝ) < 1)
+    filter_upwards [hBound] with n hn
+    simpa [Real.norm_eq_abs, abs_of_nonneg (Real.log_natCast_nonneg n),
+      abs_of_nonneg (show (0 : ℝ) ≤ (n : ℝ) by positivity)] using hn
+  have hLogBudget :
+      ∀ᶠ n : ℕ in atTop,
+        4 * Real.log (n : ℝ) * Real.log 2 ≤
+          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) := by
+    filter_upwards [hLogPow, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
+    have hLogPos : 0 < Real.log (n : ℝ) :=
+      Real.log_pos (by exact_mod_cast hnLarge)
+    have hnPos : 0 < (n : ℝ) := by positivity
+    have hAfterLog := Real.log_le_log (pow_pos hLogPos 90) hn
+    rw [Real.log_pow] at hAfterLog
+    have hLogTwo : 4 * Real.log 2 < (14 / 5 : ℝ) := by
+      have := Real.log_two_lt_d9
+      norm_num at *
+      linarith
+    have hTwoTerm :
+        4 * Real.log 2 * Real.log (n : ℝ) ≤
+          (14 / 5 : ℝ) * Real.log (n : ℝ) :=
+      mul_le_mul_of_nonneg_right hLogTwo.le hLogPos.le
+    norm_num at hAfterLog hTwoTerm ⊢
+    linarith
+  have hPower :
+      ∀ᶠ n : ℕ in atTop, ∀ U : ℕ, U ≤ phaseNat n →
+        (2 : ℝ) ^ U ≤ (n : ℝ) ^ 3 / Real.log (n : ℝ) ^ 18 := by
+    filter_upwards [hLogBudget,
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+      eventually_gt_atTop (1 : ℕ)] with n hnBudget hnPhase hnLarge
+    intro U hU
+    have hLogPos : 0 < Real.log (n : ℝ) :=
+      Real.log_pos (by exact_mod_cast hnLarge)
+    have hUReal : (U : ℝ) ≤ 4 * Real.log (n : ℝ) :=
+      (Nat.cast_le.mpr hU).trans hnPhase.2
+    have hExponent :
+        (U : ℝ) * Real.log 2 ≤
+          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) :=
+      (mul_le_mul_of_nonneg_right hUReal (Real.log_nonneg one_le_two)).trans hnBudget
+    rw [← Real.log_le_log_iff (by positivity)
+      (div_pos (by positivity) (pow_pos hLogPos 18)),
+      Real.log_div (by positivity) (pow_ne_zero 18 hLogPos.ne'),
+      Real.log_pow, Real.log_pow]
+    norm_num
+    linarith
+  filter_upwards [hPower, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
+  intro U m hU _hm hnm
+  have hLogPos : 0 < Real.log (n : ℝ) :=
+    Real.log_pos (by exact_mod_cast hnLarge)
+  have hTwo := hn U hU
+  rw [le_div_iff₀ (pow_pos hLogPos 18)] at hTwo
+  rw [div_le_iff₀ (pow_pos hLogPos 6)] at hnm
+  exact_mod_cast (by
+    nlinarith [pow_le_pow_left₀ (by positivity) hnm 3,
+      pow_pos hLogPos 18] : (2 : ℝ) ^ U ≤ m ^ 3)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
 Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
 Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
@@ -56400,6 +56692,59 @@ END SOURCE MODULE: Erdos625.Section9CanonicalPolymerAggregation
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentAggregation
+Source: Erdos625/Section9ActualAttachmentAggregation.lean
+Normalized SHA-256: 19ad2449d69c114718ed43c1f4aa81d086f95af4babc6963fe65fe0679c180af
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentAggregation
+
+/-!
+# Section IX: literal attachment aggregation
+
+This factors a uniform pointwise bound out of the exact attained-demand
+attachment sum.  The left side remains the literal event-restricted
+attachment sum, not the unrestricted polymer majorant.
+
+The proof was returned by Aristotle project
+`a4d1d2c3-582b-45bc-a5b6-14e3b2fb0040`, task
+`cc53e112-8b47-4a3d-bda9-74d2950c2913`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A uniform pointwise bound on the literal residual attachment factors out
+of the exact attained-demand attachment sum. -/
+theorem midpointCanonicalAttachmentSum_le_bare_mul
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ) (K : ENNReal)
+    (hK : ∀ demand : ProfileCanonicalHighSkeleton k U,
+      profileHighSkeletonAttachment row₀ U demand ≤ K) :
+    midpointCanonicalAttachmentSum row₀ U ≤
+      canonicalBareSkeletonSum k U * K := by
+  unfold midpointCanonicalAttachmentSum canonicalBareSkeletonSum
+  simp only [profileHighSkeletonContribution, profileHighSkeletonWeight]
+  rw [Finset.sum_mul]
+  apply Finset.sum_le_sum
+  intro demand _
+  exact mul_le_mul_right (hK demand) _
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentAggregation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentAggregation
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
 Source: Erdos625/Section9SeparatedTwoRegimeSeed.lean
 Normalized SHA-256: 01bab3d93d07503c36eb7adf499a5efbb2b75fb6557ce5997c5ffdb532ebab25
@@ -57134,7 +57479,7 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
 Source: Erdos625/Section9ERealENNRealExpTransport.lean
-Normalized SHA-256: 7ecd03ebcbcc2206787fd8cc78e1050a141d25fb50d54bd5bbeae496d841106c
+Normalized SHA-256: 7f3c86e58aad10cc731afd2b3f7d8caf9a65437d26c5b747289d09e07b8e60a7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
 
@@ -57169,6 +57514,56 @@ theorem ennreal_le_of_coe_le_ereal_exp_toReal
   rw [← EReal.coe_ennreal_toReal hy, EReal.exp_coe] at h
   exact EReal.coe_ennreal_le_coe_ennreal_iff.mp h
 
+/-- The coarse Section IX large-residual exponent is finite whenever its
+absolute constants are finite and the residual mass is positive.
+
+The proof was returned by Aristotle project
+`b887515e-44b4-4ec2-97ab-dd94cb29b641`, task
+`1df65d4f-00b0-4af2-9ca4-68c8c65ba85f`, and independently audited before
+integration. -/
+theorem residualLargeEnvelope_ne_top
+    (kappaLambda kappaQ : ENNReal)
+    (cardA matchingCard U m : ℕ)
+    (hkappaLambdaTop : kappaLambda ≠ ∞)
+    (hkappaQTop : kappaQ ≠ ∞)
+    (hm : 0 < m) :
+    (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+      2 * (cardA : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+      (((6 * matchingCard : ℕ) : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)))) ≠ ∞ := by
+  have hUTop : (U : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top U
+  have hm0 : (m : ENNReal) ≠ 0 := by
+    exact_mod_cast hm.ne'
+  have hcardATop : (cardA : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top cardA
+  have hmatchingTop : ((6 * matchingCard : ℕ) : ENNReal) ≠ ∞ :=
+    ENNReal.natCast_ne_top (6 * matchingCard)
+  have htwoTop : (2 : ENNReal) ≠ ∞ := ENNReal.ofNat_ne_top
+  have hUPow4Top : (U : ENNReal) ^ 4 ≠ ∞ := ENNReal.pow_ne_top hUTop
+  have hUPow3Top : (U : ENNReal) ^ 3 ≠ ∞ := ENNReal.pow_ne_top hUTop
+  have hlambdaMulTop : kappaLambda * (U : ENNReal) ^ 4 ≠ ∞ :=
+    ENNReal.mul_ne_top hkappaLambdaTop hUPow4Top
+  have hlambdaDivTop : kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) ≠ ∞ :=
+    ENNReal.div_ne_top hlambdaMulTop hm0
+  have hqMulTop : kappaQ * (U : ENNReal) ^ 3 ≠ ∞ :=
+    ENNReal.mul_ne_top hkappaQTop hUPow3Top
+  have hqDivTop : kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) ≠ ∞ :=
+    ENNReal.div_ne_top hqMulTop hm0
+  have hqPowTop : (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
+    ENNReal.pow_ne_top hqDivTop
+  have htwoCardTop : (2 : ENNReal) * (cardA : ENNReal) ≠ ∞ :=
+    ENNReal.mul_ne_top htwoTop hcardATop
+  have hmiddleTop :
+      2 * (cardA : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
+    ENNReal.mul_ne_top htwoCardTop hqPowTop
+  have hlastTop :
+      ((6 * matchingCard : ℕ) : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ≠ ∞ :=
+    ENNReal.mul_ne_top hmatchingTop hqDivTop
+  exact ENNReal.add_ne_top.mpr
+    ⟨ENNReal.add_ne_top.mpr ⟨hlambdaDivTop, hmiddleTop⟩, hlastTop⟩
+
 end
 
 end Erdos625
@@ -57176,6 +57571,51 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileBlockCardinalityBound
+Source: Erdos625/ProfileBlockCardinalityBound.lean
+Normalized SHA-256: dd321486d59b6d2dc5d1245ede651dd27782e4e14c84c66e4b79a9a286aadced
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileBlockCardinalityBound
+
+/-!
+# Realized-profile block cardinality
+
+The proof was returned by Aristotle project
+`2a7a3660-f15c-4904-b2d8-fa5bfed9b61b`, task
+`52cb2ed2-a586-4fca-8c97-2648faeba329`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+/-- Any actually realized ordered profile has at most one block slot per
+ambient vertex. -/
+theorem card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) :
+    Fintype.card (ProfileBlockIndex k) ≤ n := by
+  calc
+    Fintype.card (ProfileBlockIndex k) =
+        ∑ _q : ProfileBlockIndex k, 1 := by simp
+    _ ≤ ∑ q : ProfileBlockIndex k, profileBlockMargin k q := by
+      apply Finset.sum_le_sum
+      intro q _hq
+      change 1 ≤ (q.1 : ℕ)
+      exact pos_of_mem_profileSizes (Multiset.mem_toFinset.mp q.1.2)
+    _ = ColoringProfile.vertexMass k :=
+      sum_profileBlockMargin_eq_vertexMass k
+    _ = n := row₀.vertexMass_eq
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ProfileBlockCardinalityBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileBlockCardinalityBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -57215,7 +57655,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 79ba1a5df4519115bdba2b1dc0d564dc131b6eb2efc889e287c324b70c76ed60
+Normalized SHA-256: 9d8cab0e496e57fb6127c7ba2c7d622fd1322091219c5233511ea981c88afc85
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -58041,8 +58481,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
+#print axioms Erdos625.residualLargeEnvelope_ne_top
 #print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
+#print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
+#print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
+#print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
+#print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
+#print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
+#print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
@@ -58053,7 +58500,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: ad71547fcdce84cb6d41462d9fd4a8556204a49a0ba81ad0fcdf95b0386a11d0
+Normalized SHA-256: 46fa573619f4176f6db4048ee3ef2fd13d7fc5a6bb35e759a378a2c254a81659
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
