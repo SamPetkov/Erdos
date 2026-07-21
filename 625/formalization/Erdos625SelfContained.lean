@@ -15927,7 +15927,7 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseRootCenter
 Source: Erdos625/ColoringProfilePhaseRootCenter.lean
-Normalized SHA-256: ffe9809ed7a009c6b4006531b8fbfeda7de44b136594924b5e342437be98c4ad
+Normalized SHA-256: 22cabc2d42e6fd780aba718bbe8963dabb08ce8ed06745ae9b6d542b6389b594
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseRootCenter
 
@@ -15978,6 +15978,24 @@ theorem profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
       ((phaseNat n + 1 : ℕ) : ℝ) * Real.log ((n : ℝ) + 1) +
         unrestrictedPhaseObjective n parts := by
   rfl
+
+/-- Exact finite target identity at the phase center. `PhaseDomain` is used
+both to identify the natural phase with the floor and to make the graph-order
+denominator nonzero. No assumption `phaseRootS0 n ≠ 0` is needed.
+
+The proof was returned by Aristotle project
+`22c01ff7-472b-475a-90fd-445cab08eca8`, task
+`3130c2d8-4abe-43e3-bc51-754fc6836146`, and independently audited before
+integration. -/
+theorem phaseRoot_target_identity {n : ℕ} (hn : PhaseDomain n) :
+    (phaseNat n : ℝ) - (n : ℝ) / phaseRootCenter n =
+      1 + 2 / q - phaseDelta n := by
+  rw [show phaseRootCenter n =
+    (n : ℝ) / (alphaZero n - 1 - 2 / q) from rfl]
+  rw [div_div_cancel₀] <;> norm_num [phaseDelta]
+  · rw [phaseNat_cast_real hn]
+    ring
+  · linarith [hn.1]
 
 /-- Eventually the phase center is defined on the genuine floor domain,
 `s₀` is positive, and its exact four-size target belongs to the full closed
@@ -57655,7 +57673,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 9d8cab0e496e57fb6127c7ba2c7d622fd1322091219c5233511ea981c88afc85
+Normalized SHA-256: 738ecb7fbedd0db25f77923a65e95dfa76051ba82c62db28617fafae4d6cfa68
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -58488,6 +58506,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
+#print axioms Erdos625.phaseRoot_target_identity
 #print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer

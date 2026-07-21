@@ -49,6 +49,24 @@ theorem profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
         unrestrictedPhaseObjective n parts := by
   rfl
 
+/-- Exact finite target identity at the phase center. `PhaseDomain` is used
+both to identify the natural phase with the floor and to make the graph-order
+denominator nonzero. No assumption `phaseRootS0 n ≠ 0` is needed.
+
+The proof was returned by Aristotle project
+`22c01ff7-472b-475a-90fd-445cab08eca8`, task
+`3130c2d8-4abe-43e3-bc51-754fc6836146`, and independently audited before
+integration. -/
+theorem phaseRoot_target_identity {n : ℕ} (hn : PhaseDomain n) :
+    (phaseNat n : ℝ) - (n : ℝ) / phaseRootCenter n =
+      1 + 2 / q - phaseDelta n := by
+  rw [show phaseRootCenter n =
+    (n : ℝ) / (alphaZero n - 1 - 2 / q) from rfl]
+  rw [div_div_cancel₀] <;> norm_num [phaseDelta]
+  · rw [phaseNat_cast_real hn]
+    ring
+  · linarith [hn.1]
+
 /-- Eventually the phase center is defined on the genuine floor domain,
 `s₀` is positive, and its exact four-size target belongs to the full closed
 phase interval used by the uniform four-point estimates. -/
