@@ -77,11 +77,10 @@ theorem largeResidualEnvelope_bound
     rwa [div_le_iff₀ (by positivity)] at hm
   have h1m_le_L6n : 1 / m ≤ L ^ 6 / n := by
     rw [div_le_div_iff₀] <;> first | positivity | linarith
-  have h_term3 :
-      6 * H * (kappaQ * U ^ 3 / m) ≤
-        12 * kappaQ * C_U ^ 2 * L ^ 8 := by
-    have h_term3_bound :
-        H * U ^ 3 / m ≤ 2 * n * (C_U * L) ^ 2 * (L ^ 6 / n) := by
+  have h_term3 : 6 * H * (kappaQ * U ^ 3 / m) ≤
+      12 * kappaQ * C_U ^ 2 * L ^ 8 := by
+    have h_term3_bound : H * U ^ 3 / m ≤
+        2 * n * (C_U * L) ^ 2 * (L ^ 6 / n) := by
       convert mul_le_mul
         (mul_le_mul hH (pow_le_pow_left₀ (by positivity) hU 2)
           (by positivity) (by positivity))
@@ -89,37 +88,30 @@ theorem largeResidualEnvelope_bound
     convert mul_le_mul_of_nonneg_left h_term3_bound
       (show 0 ≤ 6 * kappaQ by positivity) using 1 <;> ring_nf
     norm_num [hn.ne']
-  have h_term1 :
-      kappaLambda * U ^ 4 / m ≤ kappaLambda * C_U ^ 4 * L ^ 8 := by
-    have h_term1' :
-        kappaLambda * U ^ 4 / m ≤
-          kappaLambda * C_U ^ 4 * L ^ 4 * (L ^ 6 / n) := by
-      have h_term1'' :
-          kappaLambda * U ^ 4 / m ≤
-            kappaLambda * (C_U * L) ^ 4 * (1 / m) := by
+  have h_term1 : kappaLambda * U ^ 4 / m ≤
+      kappaLambda * C_U ^ 4 * L ^ 8 := by
+    have h_term1 : kappaLambda * U ^ 4 / m ≤
+        kappaLambda * C_U ^ 4 * L ^ 4 * (L ^ 6 / n) := by
+      have h_term1 : kappaLambda * U ^ 4 / m ≤
+          kappaLambda * (C_U * L) ^ 4 * (1 / m) := by
         rw [mul_one_div]
         gcongr
-      exact h_term1''.trans (by
+      exact h_term1.trans (by
         convert mul_le_mul_of_nonneg_left h1m_le_L6n
           (show 0 ≤ kappaLambda * (C_U * L) ^ 4 by positivity) using 1
         ring)
-    refine le_trans h_term1' ?_
+    refine le_trans h_term1 ?_
     rw [mul_div, div_le_iff₀] <;>
       nlinarith [show 0 ≤ kappaLambda * C_U ^ 4 * L ^ 4 by positivity,
         show 0 ≤ kappaLambda * C_U ^ 4 * L ^ 8 by positivity]
-  have h_term2 :
-      2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
-        2 * kappaQ ^ 4 * C_U ^ 12 * L ^ 36 / n ^ 3 := by
-    have h_term2' :
-        2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
-          2 * n * (kappaQ * (C_U * L) ^ 3 / (n / L ^ 6)) ^ 4 := by
+  have h_term2 : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
+      2 * kappaQ ^ 4 * C_U ^ 12 * L ^ 36 / n ^ 3 := by
+    have h_term2 : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
+        2 * n * (kappaQ * (C_U * L) ^ 3 / (n / L ^ 6)) ^ 4 := by
       gcongr
-    convert h_term2' using 1
-    · ring_nf
-      norm_num [hn.ne', hL.ne']
-      ring_nf
-      field_simp [hn.ne']
-    · ring
+    convert h_term2 using 1 <;> ring_nf <;>
+      norm_num [hn.ne', hL.ne'] <;> ring_nf
+    field_simp [hn.ne']
   have h_L36_div_n3_le_L8 : L ^ 36 / n ^ 3 ≤ L ^ 8 := by
     rw [div_le_iff₀] <;>
       first | positivity | nlinarith [pow_pos hL 8, pow_pos hL 28]
