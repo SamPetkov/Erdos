@@ -29,18 +29,18 @@ theorem smallResidual_two_pow_le_exp_scale
     ((2 : ℝ≥0∞) ^ (U * m / 2)) ≤
       ENNReal.ofReal
         (Real.exp ((C * Real.log 2 / 2) * (n / L ^ 5))) := by
-  have hround :
-      Real.log 2 * ((U * m / 2 : ℕ) : ℝ) ≤
-        Real.log 2 * ((U : ℝ) * (m : ℝ) / 2) := by
-    apply mul_le_mul_of_nonneg_left
-    · simpa only [Nat.cast_mul, Nat.cast_ofNat] using
-        (Nat.cast_div_le (m := U * m) (n := 2) :
-          (((U * m) / 2 : ℕ) : ℝ) ≤ (U * m : ℕ) / (2 : ℕ))
-    · positivity
-  have hscale := smallResidualExponent_bound n L (U : ℝ) (m : ℝ) C
-    hn hL (Nat.cast_nonneg U) (Nat.cast_nonneg m) hC hU hm
-  exact ennreal_two_pow_nat_le_of_log_bound (U * m / 2)
-    ((C * Real.log 2 / 2) * (n / L ^ 5)) (hround.trans hscale)
+  convert @ennreal_two_pow_nat_le_of_log_bound _ _ _ using 1
+  have hlog :
+      Real.log 2 * (U * m / 2 : ℝ) ≤
+        (C * Real.log 2 / 2) * (n / L ^ 5) := by
+    convert smallResidualExponent_bound n L (U : ℝ) m C
+      (by exact hn) (by exact hL) (by positivity) (by positivity)
+      (by exact hC) (by exact hU) (by exact hm) using 1 <;> norm_num
+  exact le_trans
+    (mul_le_mul_of_nonneg_left
+      (Nat.cast_div_le .. |> le_trans <| by norm_num)
+      (Real.log_nonneg one_le_two))
+    hlog
 
 /-- The exact raw attachment term for one attained canonical demand inherits
 `exp(O(n/L^5))` in the small-residual regime.  The bare canonical reward and
