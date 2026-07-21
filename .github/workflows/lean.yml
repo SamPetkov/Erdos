@@ -1,6 +1,12 @@
 name: Finalize Aristotle Section IX leaves
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "625/formalization/**"
+      - ".github/workflows/lean.yml"
+      - ".github/workflows/aristotle-625-asymptotic-leaves.yml"
   push:
     branches: [agent/aristotle-625-asymptotic-leaves]
     paths:
