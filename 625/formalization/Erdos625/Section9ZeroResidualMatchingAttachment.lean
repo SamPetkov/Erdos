@@ -100,6 +100,46 @@ theorem residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
   simpa only [tsum_fintype] using
     (uniformConfigurationMatching row col htotal).tsum_coe
 
+/-- A zero-residual canonical raw attachment term is exactly its bare
+reward-incidence factor when the exposed positive support is a matching.
+
+The proof was returned by Aristotle project
+`0b749129-9b66-4f12-b932-6dabeb7a7c81`, task
+`cad19486-ee21-4bcf-ae17-9b123954453b`, and independently audited before
+integration. -/
+theorem canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U)
+    (hzero : canonicalDemandResidualTotal row col U demand = 0)
+    (hmatching : IsBipartiteMatching (positiveDemandSupport demand.1)) :
+    canonicalDemandRawAttachmentTerm row col U htotal demand =
+      (canonicalDemandLocalReward demand : ENNReal) *
+        labelledWitnessIncidence demand.1 row col := by
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hrowTotal : Finset.univ.sum (residualRowDegree witness) = 0 := by
+    simpa only [canonicalDemandResidualTotal, witness] using hzero
+  have hatt :
+      residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness) = 1 :=
+    residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
+      (positiveDemandSupport demand.1) (U / 2)
+      (residualRowDegree witness) (residualColumnDegree witness)
+      (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)
+      hrowTotal hmatching
+  unfold canonicalDemandRawAttachmentTerm
+  change (canonicalDemandLocalReward demand : ENNReal) *
+      (labelledWitnessIncidence demand.1 row col *
+        residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)) = _
+  rw [hatt, mul_one]
+
 /-- Every canonical polymer majorant is at least one. -/
 theorem one_le_canonicalDemandPolymerMajorant
     {A B : Type*}
@@ -195,6 +235,7 @@ theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum_uncondition
 
 #print axioms bipartiteEven_subset_matching_eq_empty
 #print axioms residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
+#print axioms canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
 #print axioms one_le_canonicalDemandPolymerMajorant
 #print axioms profileHighSkeletonAttachment_le_polymerMajorant
 #print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum_unconditional

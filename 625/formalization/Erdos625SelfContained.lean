@@ -55115,7 +55115,7 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseCenteredEnvelope
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ZeroResidualMatchingAttachment
 Source: Erdos625/Section9ZeroResidualMatchingAttachment.lean
-Normalized SHA-256: f6c2122806a78d704c384ffee4698bab5fd080f866cf41b7d36ace0b83de06d2
+Normalized SHA-256: 1267fd24e934011bb6d11e1890adb3b73b682f0e4f99cb7d8b04bc8c389df069
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualMatchingAttachment
 
@@ -55215,6 +55215,46 @@ theorem residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
   simpa only [tsum_fintype] using
     (uniformConfigurationMatching row col htotal).tsum_coe
 
+/-- A zero-residual canonical raw attachment term is exactly its bare
+reward-incidence factor when the exposed positive support is a matching.
+
+The proof was returned by Aristotle project
+`0b749129-9b66-4f12-b932-6dabeb7a7c81`, task
+`cad19486-ee21-4bcf-ae17-9b123954453b`, and independently audited before
+integration. -/
+theorem canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U)
+    (hzero : canonicalDemandResidualTotal row col U demand = 0)
+    (hmatching : IsBipartiteMatching (positiveDemandSupport demand.1)) :
+    canonicalDemandRawAttachmentTerm row col U htotal demand =
+      (canonicalDemandLocalReward demand : ENNReal) *
+        labelledWitnessIncidence demand.1 row col := by
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hrowTotal : Finset.univ.sum (residualRowDegree witness) = 0 := by
+    simpa only [canonicalDemandResidualTotal, witness] using hzero
+  have hatt :
+      residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness) = 1 :=
+    residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
+      (positiveDemandSupport demand.1) (U / 2)
+      (residualRowDegree witness) (residualColumnDegree witness)
+      (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)
+      hrowTotal hmatching
+  unfold canonicalDemandRawAttachmentTerm
+  change (canonicalDemandLocalReward demand : ENNReal) *
+      (labelledWitnessIncidence demand.1 row col *
+        residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)
+          (sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness)) = _
+  rw [hatt, mul_one]
+
 /-- Every canonical polymer majorant is at least one. -/
 theorem one_le_canonicalDemandPolymerMajorant
     {A B : Type*}
@@ -55310,6 +55350,7 @@ theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum_uncondition
 
 #print axioms bipartiteEven_subset_matching_eq_empty
 #print axioms residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
+#print axioms canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
 #print axioms one_le_canonicalDemandPolymerMajorant
 #print axioms profileHighSkeletonAttachment_le_polymerMajorant
 #print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum_unconditional
@@ -56946,6 +56987,53 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
+Source: Erdos625/Section9ERealENNRealExpTransport.lean
+Normalized SHA-256: 7ecd03ebcbcc2206787fd8cc78e1050a141d25fb50d54bd5bbeae496d841106c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
+
+/-!
+# Section IX: finite exponential transport
+
+This module supplies the coercion bridge needed after the large-residual
+attachment exponent has been proved finite.  It contains no asymptotic or
+probabilistic estimate by itself.
+
+The proof was returned by Aristotle project
+`15e91c74-dfdb-4770-a7dc-62e52b3c98b3`, task
+`34d791e3-60c3-4dec-8499-5d8a69732926`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A finite `ENNReal` exponent lets an `EReal.exp` upper bound be transported
+back to the ordinary finite `ENNReal.ofReal (Real.exp ...)` endpoint. -/
+theorem ennreal_le_of_coe_le_ereal_exp_toReal
+    (x y : ENNReal)
+    (hy : y ≠ ∞)
+    (h : (x : EReal) ≤ EReal.exp (y : EReal)) :
+    x ≤ ENNReal.ofReal (Real.exp y.toReal) := by
+  rw [← EReal.coe_ennreal_toReal hy, EReal.exp_coe] at h
+  exact EReal.coe_ennreal_le_coe_ennreal_iff.mp h
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExpTailTransport
 Source: Erdos625/ExpTailTransport.lean
 Normalized SHA-256: 3ed82f587192e837c77e66824cb85adacba5912ab6dbe6d3ff0a00bf956f8f7f
@@ -56982,7 +57070,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: adc4b121b48c34f2174d866680db71a7fae937b8aed9671ae0e9dd347cb5f084
+Normalized SHA-256: a737533919a3ea616af64fc83702c98cab30e748774239d6e9b3f1e227d7de4f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -57788,6 +57876,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
 #print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+#print axioms Erdos625.canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
 #print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
@@ -57806,6 +57895,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+#print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
@@ -57816,7 +57906,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1ab2b6274ab2a40887d3e6a2b06fec13595a15e6e82b1843d5fa8ae59caf5e86
+Normalized SHA-256: 050015d3766fd1a2807ebdf3427709ccaf4ee14345b95600c3f945b3104fa53d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

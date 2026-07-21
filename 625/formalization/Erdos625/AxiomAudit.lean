@@ -261,6 +261,7 @@ import Erdos625.ColoringProfileDualExponentRewrite
 import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
+import Erdos625.Section9ERealENNRealExpTransport
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -1066,6 +1067,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniformConfigurationMatching_sum_tagged_transport
 #print axioms Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le
 #print axioms Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+#print axioms Erdos625.canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
 #print axioms Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio
 #print axioms Erdos625.entropy_loss_le_log_partition_ratio
 #print axioms Erdos625.exists_s4_embedded_extendedGaussian_witness
@@ -1084,4 +1086,5 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+#print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
