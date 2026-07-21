@@ -76,6 +76,18 @@ with `tangentCorrectedInt` is only used after nonnegativity is proved. -/
 def tangentCorrectedNat (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Nat :=
   fun i ↦ (tangentCorrectedInt K D p i).toNat
 
+/-- The two prescribed corrections restore both affine constraints exactly.
+This is the pure integral tangent identity behind manuscript equation (5.16).
+-/
+theorem tangent_rounding_integer_conservation
+    (a : Fin 4 → Int) (K D : Int) :
+    (∑ i, tangentCorrectedRaw a K D i) = K ∧
+      (∑ i, tangentDeficit i * tangentCorrectedRaw a K D i) = D := by
+  simp [tangentCorrectedRaw, tangentCorrectionRaw, tangentC0Raw, tangentC1Raw,
+    tangentE0Raw, tangentE1Raw, tangentDeficit, Fin.sum_univ_succ]
+  ring_nf
+  simp
+
 end
 
 end Erdos625

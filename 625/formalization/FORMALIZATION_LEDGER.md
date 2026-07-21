@@ -669,6 +669,10 @@ The next audited finite layer adds the following statement-faithful ports:
 - the class-size identity for each of the four deficit coordinates;
 - the eventual fixed bound `5 < phaseNat n` derived from logarithmic phase
   growth;
+- the exact two affine conservation laws for the integral tangent correction;
+- the sharp integral floor-error and correction intervals
+  `e0 ∈ [-3,0]`, `e1 ∈ [-13,0]`, `c0 ∈ [-2,0]`, and
+  `c1 ∈ [0,5]`;
 - the uniform negative bound for the finite Section VII partial-diagonal rate;
 - the canonical physical near-cell filter, its exact type table, and the
   resulting `NearPrefix`;

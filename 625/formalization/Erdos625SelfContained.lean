@@ -18382,7 +18382,7 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: 40816b050c72c5db6cac7ad0c7f67df6b18ca25ae90e10900910acf32a3a3dba
+Normalized SHA-256: f38eb4a5288b5a0df165ad3fb8302fc0c5c64bd88091cd19f6b4f5784ad708e7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -18417,6 +18417,19 @@ theorem fourDeficitCoordinate_val_add_one_eq
     alpha - fourDeficit i
   omega
 
+/-- The natural deficit `alpha * K - n`, cast to the reals, is exactly the
+number of parts times the four-size target mean deficit. -/
+theorem deficit_cast_eq_parts_mul_fourSizeTarget
+    (n alpha K : Nat) (hK : 0 < K) (hn : n ≤ alpha * K) :
+    ((alpha * K - n : Nat) : Real) =
+      (K : Real) * fourSizeTarget n alpha (K : Real) := by
+  rw [Nat.cast_sub hn]
+  unfold fourSizeTarget
+  push_cast
+  have hK_real : (K : Real) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hK)
+  field_simp
+
 /-- Embed four multiplicities into the full profile indexed by class sizes
 `1, ..., alpha + 1`. -/
 def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
@@ -18437,7 +18450,7 @@ END SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.TangentRoundingCore
 Source: Erdos625/TangentRoundingCore.lean
-Normalized SHA-256: d0e13c53844bc245d99b5b38b43b62a23deecc95e3357cdc45aa426bf6593e2f
+Normalized SHA-256: 0115981e18aac23c12564b6d0048b7a457ff2e7751e3b8a9dff235e8b8095fc5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
 
@@ -18517,6 +18530,18 @@ with `tangentCorrectedInt` is only used after nonnegativity is proved. -/
 def tangentCorrectedNat (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Nat :=
   fun i ↦ (tangentCorrectedInt K D p i).toNat
 
+/-- The two prescribed corrections restore both affine constraints exactly.
+This is the pure integral tangent identity behind manuscript equation (5.16).
+-/
+theorem tangent_rounding_integer_conservation
+    (a : Fin 4 → Int) (K D : Int) :
+    (∑ i, tangentCorrectedRaw a K D i) = K ∧
+      (∑ i, tangentDeficit i * tangentCorrectedRaw a K D i) = D := by
+  simp [tangentCorrectedRaw, tangentCorrectionRaw, tangentC0Raw, tangentC1Raw,
+    tangentE0Raw, tangentE1Raw, tangentDeficit, Fin.sum_univ_succ]
+  ring_nf
+  simp
+
 end
 
 end Erdos625
@@ -18524,6 +18549,86 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.TangentRoundingCore
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
+Source: Erdos625/TangentFloorErrorIntervals.lean
+Normalized SHA-256: 0abc41eabcd011653aa5c730ecd719de1481ee5d34758cf056d09f19fcf2ec09
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Exact count and moment constraints force the signed floor errors into
+their finite intervals.  The conclusion also records the resulting sharp
+integral bounds on the two correction coordinates. -/
+theorem tangent_floor_error_intervals
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real)) :
+    (-3 : Int) ≤ tangentE0 K p ∧ tangentE0 K p ≤ 0 ∧
+      (-13 : Int) ≤ tangentE1 K D p ∧ tangentE1 K D p ≤ 0 ∧
+      (-2 : Int) ≤ tangentC0 K D p ∧ tangentC0 K D p ≤ 0 ∧
+      (0 : Int) ≤ tangentC1 K D p ∧ tangentC1 K D p ≤ 5 := by
+  have hle0 : ((Int.floor ((K : Real) * p 0) : Int) : Real) ≤ (K : Real) * p 0 :=
+    Int.floor_le _
+  have hle1 : ((Int.floor ((K : Real) * p 1) : Int) : Real) ≤ (K : Real) * p 1 :=
+    Int.floor_le _
+  have hle2 : ((Int.floor ((K : Real) * p 2) : Int) : Real) ≤ (K : Real) * p 2 :=
+    Int.floor_le _
+  have hle3 : ((Int.floor ((K : Real) * p 3) : Int) : Real) ≤ (K : Real) * p 3 :=
+    Int.floor_le _
+  have hlt0 : (K : Real) * p 0 < ((Int.floor ((K : Real) * p 0) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt1 : (K : Real) * p 1 < ((Int.floor ((K : Real) * p 1) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt2 : (K : Real) * p 2 < ((Int.floor ((K : Real) * p 2) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt3 : (K : Real) * p 3 < ((Int.floor ((K : Real) * p 3) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  simp [Fin.sum_univ_succ, tangentDeficit] at hCount hMoment
+  have he0le : ((tangentE0 K p : Int) : Real) ≤ 0 := by
+    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
+    linarith
+  have he0gt : (-4 : Real) < ((tangentE0 K p : Int) : Real) := by
+    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
+    linarith
+  have he1le : ((tangentE1 K D p : Int) : Real) ≤ 0 := by
+    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
+      tangentDeficit]
+    linarith
+  have he1gt : (-14 : Real) < ((tangentE1 K D p : Int) : Real) := by
+    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
+      tangentDeficit]
+    linarith
+  have hc0le : ((tangentC0 K D p : Int) : Real) < 1 := by
+    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc0gt : (-3 : Real) < ((tangentC0 K D p : Int) : Real) := by
+    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc1ge : (0 : Real) ≤ ((tangentC1 K D p : Int) : Real) := by
+    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc1lt : ((tangentC1 K D p : Int) : Real) < 6 := by
+    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  norm_cast at he0le he0gt he1le he1gt hc0le hc0gt hc1ge hc1lt
+  omega
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
 ========================================================================== -/
 
 /- ==========================================================================
@@ -54339,7 +54444,7 @@ END SOURCE MODULE: Erdos625.Section8CanonicalNearPrefix
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalNearUniqueness
 Source: Erdos625/Section8CanonicalNearUniqueness.lean
-Normalized SHA-256: cd51aa58ffcc10d9d742d08d3557f81e254c324fec1a6020c21b8927c1804a8e
+Normalized SHA-256: aee64caf65a74e561d1b955d04c11522f5ea9d566a42170b8b653b91ead57026
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearUniqueness
 
@@ -54365,8 +54470,8 @@ theorem UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq
     (S T : UnlabelledTypedSkeleton row col) (a : A) (b : B)
     (hSub : S.edges ⊆ T.edges)
     (hTable : S.typeTable a b = T.typeTable a b) :
-    S.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) =
-      T.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) := by
+    S.edges.filter (fun e => e.1.1 = a ∧ e.2.1 = b) =
+      T.edges.filter (fun e => e.1.1 = a ∧ e.2.1 = b) := by
   apply Finset.eq_of_subset_of_card_le
   · intro e he
     rw [Finset.mem_filter] at he ⊢
@@ -54422,7 +54527,7 @@ theorem NearPrefix.edges_eq_canonicalNearEdges_of_noFurtherNear
         P.physical H.physical.1 e.1.1 e.2.1 P.edge_subset hTable
     have heCell :
         e ∈ H.physical.1.edges.filter
-          (fun f ⇒ f.1.1 = e.1.1 ∧ f.2.1 = e.2.1) := by
+          (fun f => f.1.1 = e.1.1 ∧ f.2.1 = e.2.1) := by
       exact Finset.mem_filter.mpr ⟨heCanonical.1, rfl, rfl⟩
     rw [← hCellEq] at heCell
     exact (Finset.mem_filter.mp heCell).1
@@ -54454,8 +54559,13 @@ theorem CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
   refine ⟨H.canonicalNearPrefix endpoint,
     H.canonicalNearPrefix_noFurtherNear endpoint, ?_⟩
   intro P hP
-  apply NearPrefix.ext
-  exact P.physical_eq_canonicalNearSkeleton_of_noFurtherNear hP
+  have hp : P.physical = (H.canonicalNearPrefix endpoint).physical :=
+    P.physical_eq_canonicalNearSkeleton_of_noFurtherNear hP
+  cases P with
+  | mk physical edge_subset whole_cell_of_present near_of_present =>
+      dsimp only [CappedPhysicalHighFibre.canonicalNearPrefix] at hp ⊢
+      subst physical
+      rfl
 
 end
 
@@ -59893,7 +60003,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f3741709ec87bf74d278447e2dbac7022da9302f12c81fad397dac11f7598f1a
+Normalized SHA-256: b33a9ad351db3a23d5c28a52a342c43874cd7d665e22c45841bdeeb6c62038b3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -60761,6 +60871,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
 #print axioms Erdos625.eventually_five_lt_phaseNat
+#print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
+#print axioms Erdos625.tangent_rounding_integer_conservation
+#print axioms Erdos625.tangent_floor_error_intervals
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -60770,7 +60883,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 22859dfd2c2432b63d111b0c3f546977d35ba759104a6d7b0c02c615b5fbd003
+Normalized SHA-256: 3196c2d31fa7e9237c090451512da2adf5539bfe2de3a3934f75d06a6cc2d256
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

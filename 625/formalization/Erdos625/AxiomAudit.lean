@@ -88,6 +88,7 @@ import Erdos625.SPlusPrimalCoordinateBounds
 import Erdos625.SPlusPrimalRepresentation
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore
+import Erdos625.TangentFloorErrorIntervals
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
@@ -1153,3 +1154,6 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
 #print axioms Erdos625.eventually_five_lt_phaseNat
+#print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
+#print axioms Erdos625.tangent_rounding_integer_conservation
+#print axioms Erdos625.tangent_floor_error_intervals

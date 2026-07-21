@@ -22,8 +22,8 @@ theorem UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq
     (S T : UnlabelledTypedSkeleton row col) (a : A) (b : B)
     (hSub : S.edges ⊆ T.edges)
     (hTable : S.typeTable a b = T.typeTable a b) :
-    S.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) =
-      T.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) := by
+    S.edges.filter (fun e => e.1.1 = a ∧ e.2.1 = b) =
+      T.edges.filter (fun e => e.1.1 = a ∧ e.2.1 = b) := by
   apply Finset.eq_of_subset_of_card_le
   · intro e he
     rw [Finset.mem_filter] at he ⊢
@@ -79,7 +79,7 @@ theorem NearPrefix.edges_eq_canonicalNearEdges_of_noFurtherNear
         P.physical H.physical.1 e.1.1 e.2.1 P.edge_subset hTable
     have heCell :
         e ∈ H.physical.1.edges.filter
-          (fun f ⇒ f.1.1 = e.1.1 ∧ f.2.1 = e.2.1) := by
+          (fun f => f.1.1 = e.1.1 ∧ f.2.1 = e.2.1) := by
       exact Finset.mem_filter.mpr ⟨heCanonical.1, rfl, rfl⟩
     rw [← hCellEq] at heCell
     exact (Finset.mem_filter.mp heCell).1
@@ -111,8 +111,13 @@ theorem CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
   refine ⟨H.canonicalNearPrefix endpoint,
     H.canonicalNearPrefix_noFurtherNear endpoint, ?_⟩
   intro P hP
-  apply NearPrefix.ext
-  exact P.physical_eq_canonicalNearSkeleton_of_noFurtherNear hP
+  have hp : P.physical = (H.canonicalNearPrefix endpoint).physical :=
+    P.physical_eq_canonicalNearSkeleton_of_noFurtherNear hP
+  cases P with
+  | mk physical edge_subset whole_cell_of_present near_of_present =>
+      dsimp only [CappedPhysicalHighFibre.canonicalNearPrefix] at hp ⊢
+      subst physical
+      rfl
 
 end
 

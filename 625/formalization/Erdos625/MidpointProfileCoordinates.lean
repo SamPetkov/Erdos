@@ -31,6 +31,19 @@ theorem fourDeficitCoordinate_val_add_one_eq
     alpha - fourDeficit i
   omega
 
+/-- The natural deficit `alpha * K - n`, cast to the reals, is exactly the
+number of parts times the four-size target mean deficit. -/
+theorem deficit_cast_eq_parts_mul_fourSizeTarget
+    (n alpha K : Nat) (hK : 0 < K) (hn : n ≤ alpha * K) :
+    ((alpha * K - n : Nat) : Real) =
+      (K : Real) * fourSizeTarget n alpha (K : Real) := by
+  rw [Nat.cast_sub hn]
+  unfold fourSizeTarget
+  push_cast
+  have hK_real : (K : Real) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hK)
+  field_simp
+
 /-- Embed four multiplicities into the full profile indexed by class sizes
 `1, ..., alpha + 1`. -/
 def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
