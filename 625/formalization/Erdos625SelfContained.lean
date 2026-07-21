@@ -53770,7 +53770,7 @@ END SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
 Source: Erdos625/Section8NearPrefixFoundation.lean
-Normalized SHA-256: d28e28612d90a747b2dbf089a32743856d5a87593ba4938e378aa6f45ed6e236
+Normalized SHA-256: 248495759a2ec27e0d2f7f8029774504342a2a14f0f2412cf70798eabcf2b345
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearPrefixFoundation
 
@@ -53840,8 +53840,10 @@ theorem CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge
     (H : CappedPhysicalHighFibre row col U) (a : A) (b : B) :
     H.demand.1 a b ≠ 0 ↔
       ∃ e, e ∈ H.physical.1.edges ∧ e.1.1 = a ∧ e.2.1 = b := by
-  rw [← H.physical_typeTable]
-  exact H.physical.1.typeTable_ne_zero_iff_exists_physical_edge a b
+  have hcell : H.physical.1.typeTable a b = H.demand.1 a b :=
+    congrFun (congrFun H.physical_typeTable a) b
+  simpa only [hcell] using
+    (H.physical.1.typeTable_ne_zero_iff_exists_physical_edge a b)
 
 /-- The positive support read directly from the physical fibre. -/
 def CappedPhysicalHighFibre.physicalSupport
