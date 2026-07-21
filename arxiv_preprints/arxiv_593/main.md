@@ -29,9 +29,7 @@ Theorem A, including both the constructive and intrinsic formulations, was firs
 
 The graph analogue was proved by Erdős and Hajnal: the obligatory finite graphs are exactly the bipartite graphs . The classical nonlinearity obstruction for uniform hypergraphs is due to Erdős, Hajnal, and Rothschild . Obligatory triple systems were studied further by , , , and ; the expansion theorem of supplies the positive atoms used below.
 
-#### Relation to Li’s proof.
-
-The classification theorem, complete-rank one-apex lift, bridge-trace architecture, selected-incidence decomposition, quotient forest, and running-intersection assembly all appear in Li’s preprint . The present paper makes no priority claim for those ingredients. Its alternative implementation gives direct proofs of the positive expansion atoms and closure statements in the notation used here, replaces the bridge-selector derivative formalism by an explicit base-fibre and support-incidence analysis, invokes the older Erdős–Hajnal high-odd-girth theorem directly, and supplies a complete Lean formalisation of this implementation.
+Li’s proof already contains the classification theorem, complete-rank one-apex lift, bridge-trace architecture, selected-incidence decomposition, quotient forest, and running-intersection assembly . The present paper makes no priority claim for those ingredients. Its alternative implementation gives direct proofs of the positive expansion atoms and closure statements in the notation used here, replaces the bridge-selector derivative formalism by an explicit base-fibre and support-incidence analysis, invokes the older Erdős–Hajnal high-odd-girth theorem directly, and supplies a complete Lean formalisation of this implementation.
 
 The proof is best read as two stories. On the positive side, a probabilistic rainbow lemma provides the local injectivity needed to force complete bipartite expansions. A rooted-abundance lemma then proves closure under one-point amalgamation, including at singular uncountable cardinals. Deleting the bridges of the Levi graph identifies each remaining active component with the expansion of a finite bipartite graph; the quotient graph is a forest, and its running-intersection property gives the required amalgamation order.
 
@@ -93,8 +91,6 @@ Thus isolated vertices may be suppressed throughout the substantive argument and
 
 </div>
 
-#### Colouring and closure tools.
-
 <div id="lemma-1.3-two-elementary-colouring-facts" class="lemma">
 
 **Lemma 3** (Two elementary colouring facts).
@@ -111,7 +107,7 @@ Thus isolated vertices may be suppressed throughout the substantive argument and
 
 *Proof.* For the first assertion, take the product of the $r$ countable colourings.
 
-For the second, every finite subgraph has at most $d|V|$ edges and therefore a vertex of degree at most $2d$. It is $(2d+1)$-colourable by greedy deletion. The de Bruijn–Erdős compactness theorem then gives a $(2d+1)$-colouring of all of $G$. ◻
+For the second, let $K$ be a finite subgraph of $G$, with vertex set $W$, and retain the given orientation on its edges. The sum of the outdegrees in $K$ is at most $d|W|$, so $K$ has at most $d|W|$ edges and hence average degree at most $2d$. Thus $K$ has a vertex of degree at most $2d$. Repeatedly deleting such a vertex and colouring in reverse order gives a $(2d+1)$-colouring of $K$. The de Bruijn–Erdős compactness theorem then gives a $(2d+1)$-colouring of all of $G$. ◻
 
 </div>
 
@@ -184,8 +180,6 @@ Colour each $G[I_i]$ with colours in $\omega$, reusing the same palette on all l
 </div>
 
 # Bipartite expansions
-
-#### Rainbow bipartite submatrices.
 
 <div id="lemma-3.1-rainbow-bipartite-submatrices" class="lemma">
 
