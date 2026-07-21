@@ -85,11 +85,11 @@ theorem largeResidualEnvelope_bound
         (mul_le_mul hH (pow_le_pow_left₀ (by positivity) hU 2)
           (by positivity) (by positivity))
         h1m_le_L6n (by positivity) (by positivity) using 1
-      · ring
+      · rfl
       · ring
     convert mul_le_mul_of_nonneg_left h_term3_bound
       (show 0 ≤ 6 * kappaQ by positivity) using 1
-    · ring
+    · rfl
     · field_simp [hn.ne'] <;> ring
   have h_term1 : kappaLambda * U ^ 4 / m ≤
       kappaLambda * C_U ^ 4 * L ^ 8 := by
