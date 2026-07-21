@@ -17,6 +17,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Reject placeholders and project axioms in accepted source
@@ -28,21 +29,27 @@ jobs:
             625/formalization; then
             exit 1
           fi
-      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
-        with:
-          lake-package-directory: 625/formalization
-          auto-config: false
-          build: true
-          build-args: --wfail
-          use-mathlib-cache: true
-          use-github-cache: false
-          nanoda: false
+      - name: Install Lean 4.31 and fetch the pinned Mathlib cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.31.0
+          cd 625/formalization
+          "$HOME/.elan/bin/lake" update
+          "$HOME/.elan/bin/lake" exe cache get
       - name: Compile the revised Section IX arithmetic module warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
           lake env lean -DwarningAsError=true \
             Erdos625/Section9ResidualAsymptoticArithmetic.lean
+      - name: Build the accepted project warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: lake build --wfail
       - name: Check the generated self-contained proof is current
         working-directory: 625/formalization
         shell: bash
