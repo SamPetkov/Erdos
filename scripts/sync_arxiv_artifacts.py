@@ -37,6 +37,8 @@ P625_BIB = P625_DIR / "references.bib"
 P625_BBL = P625_DIR / "main.bbl"
 
 SOLE_AUTHOR = "Samuil Petkov"
+PANDOC = os.environ.get("PANDOC", "pandoc")
+EXPECTED_PANDOC_VERSION = "3.1.3"
 
 
 def run(command: list[str], *, cwd: Path | None = None, env: dict[str, str] | None = None) -> None:
@@ -147,6 +149,7 @@ def compile_latex(tex_path: Path, output_pdf: Path, *, bib_path: Path | None = N
             [
                 "latexmk",
                 "-pdf",
+                f"-outdir={build}",
                 "-interaction=nonstopmode",
                 "-halt-on-error",
                 "-file-line-error",
@@ -163,11 +166,25 @@ def compile_latex(tex_path: Path, output_pdf: Path, *, bib_path: Path | None = N
             copy_file(bbl, output_bbl)
 
 
-def generate_markdown(tex_path: Path, output_path: Path, *, title: str, date: str, bibliography: Path | None = None) -> None:
+def generate_markdown(
+    tex_path: Path,
+    output_path: Path,
+    *,
+    title: str,
+    date: str,
+    bibliography: Path | None = None,
+    extra_header: str = "",
+) -> None:
+    pandoc_version = subprocess.check_output([PANDOC, "--version"], text=True).splitlines()[0]
+    if pandoc_version.rsplit(maxsplit=1)[-1] != EXPECTED_PANDOC_VERSION:
+        raise RuntimeError(
+            f"deterministic Markdown generation requires Pandoc {EXPECTED_PANDOC_VERSION}; "
+            f"found {pandoc_version}. Set PANDOC to a compatible executable."
+        )
     with tempfile.TemporaryDirectory(prefix=f"{tex_path.stem}-pandoc-") as tmp:
         raw = Path(tmp) / "raw.md"
         command = [
-            "pandoc",
+            PANDOC,
             str(tex_path),
             "--from=latex",
             "--to=gfm+tex_math_dollars",
@@ -183,7 +200,7 @@ def generate_markdown(tex_path: Path, output_path: Path, *, title: str, date: st
 
     body = body.replace("Samuil Pekov", SOLE_AUTHOR).replace("Samuil Petkob", SOLE_AUTHOR)
     body = re.sub(rf"^#?\s*{re.escape(title)}\s*\n+", "", body, count=1)
-    header = f"# {title}\n\n**{SOLE_AUTHOR}**  \n{date}\n\n"
+    header = f"# {title}\n\n**{SOLE_AUTHOR}**  \n{date}\n\n{extra_header}"
     write_text(output_path, header + body.lstrip())
 
 
@@ -233,23 +250,32 @@ def compile_internal_625_proof() -> None:
     copy_file(pdf, ROOT / "625" / "COMPLETE_PROOF_SELF_CONTAINED.pdf")
 
 
-def make_zip(path: Path, files: list[tuple[Path, str]]) -> None:
+def make_zip(path: Path, files: list[tuple[Path, str]], *, fixed: tuple[int, int, int, int, int, int]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for source, arcname in files:
             if source.exists():
-                archive.write(source, arcname)
+                info = zipfile.ZipInfo(arcname, fixed)
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.external_attr = 0o100644 << 16
+                archive.writestr(info, source.read_bytes())
 
 
 def sync_593() -> None:
     text = normalize_593_tex(P593_TEX.read_text(encoding="utf-8"))
     write_text(P593_TEX, text)
-    compile_latex(P593_TEX, P593_PDF, epoch="1784548800")
+    compile_latex(P593_TEX, P593_PDF, epoch="1784635200")
     generate_markdown(
         P593_TEX,
         P593_MD,
         title="Obligatory Triple Systems: An Alternative Proof",
-        date="20 July 2026",
+        date="21 July 2026",
+        extra_header=(
+            "**2020 Mathematics Subject Classification.** Primary 05C65; "
+            "Secondary 05C15, 05C63, 03E05\n\n"
+            "**Keywords.** obligatory triple system; hypergraph colouring; Levi graph; "
+            "Berge cycle; uncountable chromatic number; Erdős Problem 593\n\n"
+        ),
     )
 
     tex_mirrors = [ROOT / "arxiv_preprints" / "Erdos593_revised.tex"]
@@ -264,10 +290,8 @@ def sync_593() -> None:
 
     make_zip(
         ROOT / "arxiv_preprints" / "Erdos593_revised_source.zip",
-        [
-            (P593_TEX, "main.tex"),
-            (P593_MD, "main.md"),
-        ],
+        [(P593_TEX, "main.tex")],
+        fixed=(2026, 7, 21, 12, 0, 0),
     )
 
 
@@ -305,6 +329,7 @@ def sync_625() -> None:
             (P625_BBL, "main.bbl"),
             (P625_BIB, "references.bib"),
         ],
+        fixed=(2026, 7, 20, 12, 0, 0),
     )
 
 
@@ -347,6 +372,13 @@ def validate() -> None:
 
     if "journal       = {SIAM Journal on Discrete Mathematics}" not in P625_BIB.read_text(encoding="utf-8"):
         raise RuntimeError("Steiner journal metadata was not refreshed")
+
+    source_zip = ROOT / "arxiv_preprints" / "Erdos593_revised_source.zip"
+    with zipfile.ZipFile(source_zip) as archive:
+        if archive.namelist() != ["main.tex"]:
+            raise RuntimeError(f"Erdős 593 source ZIP has unexpected members: {archive.namelist()}")
+        if archive.read("main.tex") != P593_TEX.read_bytes():
+            raise RuntimeError("Erdős 593 source ZIP main.tex differs from the canonical source")
 
 
 def synchronize() -> None:
