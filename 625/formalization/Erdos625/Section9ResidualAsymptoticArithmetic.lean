@@ -124,7 +124,7 @@ theorem largeResidualEnvelope_bound
           2 * n * (kappaQ * (C_U * L) ^ 3 * (L ^ 6 / n)) ^ 4 :=
         mul_le_mul h2A h_ratio4 (by positivity) (by positivity)
       _ = 2 * kappaQ ^ 4 * C_U ^ 12 * L ^ 36 / n ^ 3 := by
-        field_simp [hn.ne'] <;> ring
+        field_simp [hn.ne']
   have hL36_div_n3_le_L8 : L ^ 36 / n ^ 3 ≤ L ^ 8 := by
     rw [div_le_iff₀ (pow_pos hn 3)]
     calc
@@ -153,7 +153,7 @@ theorem largeResidualEnvelope_bound
       _ ≤ (2 * n * (C_U * L) ^ 2) * (L ^ 6 / n) :=
         mul_le_mul hHU3 h1m_le_L6n (by positivity) (by positivity)
       _ = 2 * C_U ^ 2 * L ^ 8 := by
-        field_simp [hn.ne'] <;> ring
+        field_simp [hn.ne']
   have h_term3 : 6 * H * (kappaQ * U ^ 3 / m) ≤
       12 * kappaQ * C_U ^ 2 * L ^ 8 := by
     calc
