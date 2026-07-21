@@ -1,6 +1,11 @@
 name: Aristotle 625 Section IX regime adapters
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'aristotle_submissions/2026-07-21-section9-regime-adapters/**'
+      - '.github/workflows/aristotle-625-section9-regime-adapters.yml'
   push:
     branches: [agent/625-section9-regime-adapters]
     paths:
@@ -65,7 +70,8 @@ jobs:
       - name: Install the official Aristotle client
         run: |
           set -euo pipefail
-          python -m pip install --disable-pip-version-check 'aristotlelib==2.1.0'
+          python -m pip install --disable-pip-check 'aristotlelib==2.1.0' || \
+            python -m pip install --disable-pip-version-check 'aristotlelib==2.1.0'
           aristotle --version
 
       - name: Submit the isolated theorem
