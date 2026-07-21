@@ -262,6 +262,9 @@ import Erdos625.ColoringProfileDualLogReduction
 import Erdos625.ColoringProfilePhaseEnvelopeTail
 import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 import Erdos625.Section9ERealENNRealExpTransport
+import Erdos625.Section9ZeroResidualMatchingAttachment
+import Erdos625.Section9ProfileAttachmentSmallResidualScale
+import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -1087,4 +1090,6 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
+#print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
+#print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer

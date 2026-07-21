@@ -47768,6 +47768,1455 @@ END SOURCE MODULE: Erdos625.Section9ResidualRegimeScaleAdapters
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8TypedPartialMatching
+Source: Erdos625/Section8TypedPartialMatching.lean
+Normalized SHA-256: 63b746a4ddfd407fcefc70090bf0659d7f666bbbe3b2e5736832195703ddde0c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8TypedPartialMatching
+
+/-!
+# Section VIII: literal typed partial matchings for one finite demand matrix
+
+This module gives a structural presentation of a finite partial
+matching between the typed row-stub space `Sigma i, Fin (k i)` and the typed
+column-stub space `Sigma j, Fin (ell j)`.  Its source and target embeddings
+are injective, its cellwise pairing preserves the two types, and the number of
+matched atoms in cell `(i,j)` is exactly `L i j`.
+
+The candidate is entirely finite.  In particular it makes no assertion about a
+random configuration matching, a canonical skeleton event, a probability, or
+an asymptotic estimate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A literal cellwise presentation of a typed partial matching.  The row and
+column allocations select disjoint stubs inside each type, while `pairing`
+matches the selected row stubs in cell `(i,j)` bijectively to selected column
+stubs in the same cell.  The global embeddings below turn these fields into a
+partial matching between `Sigma i, Fin (k i)` and `Sigma j, Fin (ell j)`.
+
+This deliberately carries no order on the edges of a cell: adding such an
+order would multiply the finite count by `prod_{i,j} (L i j)!`. -/
+structure TypedPartialMatching
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) where
+  rowAllocation : forall i, StubAllocation (k i) (L i)
+  columnAllocation : forall j, StubAllocation (ell j) (fun i => L i j)
+  pairing : forall i j,
+    ((rowAllocation i).1 j : Finset (Fin (k i))) ≃
+      ((columnAllocation j).1 i : Finset (Fin (ell j)))
+
+/-- The selected row atoms of a typed partial matching. -/
+abbrev TypedPartialMatchingSource
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :=
+  Sigma fun i => Sigma fun j =>
+    ((matching.rowAllocation i).1 j : Finset (Fin (k i)))
+
+/-- The selected column atoms of a typed partial matching.  The outer index
+is the column type and the inner index is the row type. -/
+abbrev TypedPartialMatchingTarget
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :=
+  Sigma fun j => Sigma fun i =>
+    ((matching.columnAllocation j).1 i : Finset (Fin (ell j)))
+
+/-- Inject the selected row atoms into the full typed row-stub space. -/
+def typedPartialMatchingSourceEmbedding
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    TypedPartialMatchingSource matching ↪ RowStub k where
+  toFun atom := ⟨atom.1, atom.2.2.1⟩
+  inj' := by
+    rintro ⟨i, j, stub⟩ ⟨i', j', stub'⟩ h
+    have hi : i = i' := (Sigma.mk.inj_iff.mp h).1
+    subst i'
+    have hstub : (stub : Fin (k i)) = stub' :=
+      eq_of_heq (Sigma.mk.inj_iff.mp h).2
+    by_cases hj : j = j'
+    · subst j'
+      exact Sigma.ext rfl <| heq_of_eq <|
+        Sigma.ext rfl <| heq_of_eq <| Subtype.ext hstub
+    · have hdisjoint := (matching.rowAllocation i).2.2 j j' hj
+      have hmem : (stub : Fin (k i)) ∈ (matching.rowAllocation i).1 j' := by
+        rw [hstub]
+        exact stub'.2
+      exact False.elim <|
+        (Finset.disjoint_left.mp hdisjoint) stub.2 hmem
+
+/-- Inject the selected column atoms into the full typed column-stub space. -/
+def typedPartialMatchingTargetEmbedding
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    TypedPartialMatchingTarget matching ↪ ColumnStub ell where
+  toFun atom := ⟨atom.1, atom.2.2.1⟩
+  inj' := by
+    rintro ⟨j, i, stub⟩ ⟨j', i', stub'⟩ h
+    have hj : j = j' := (Sigma.mk.inj_iff.mp h).1
+    subst j'
+    have hstub : (stub : Fin (ell j)) = stub' :=
+      eq_of_heq (Sigma.mk.inj_iff.mp h).2
+    by_cases hi : i = i'
+    · subst i'
+      exact Sigma.ext rfl <| heq_of_eq <|
+        Sigma.ext rfl <| heq_of_eq <| Subtype.ext hstub
+    · have hdisjoint := (matching.columnAllocation j).2.2 i i' hi
+      have hmem : (stub : Fin (ell j)) ∈ (matching.columnAllocation j).1 i' := by
+        rw [hstub]
+        exact stub'.2
+      exact False.elim <|
+        (Finset.disjoint_left.mp hdisjoint) stub.2 hmem
+
+/-- The cellwise bijections assemble to the literal matching between the
+selected global row and column stubs. -/
+def typedPartialMatchingPairing
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    TypedPartialMatchingSource matching ≃ TypedPartialMatchingTarget matching where
+  toFun atom :=
+    ⟨atom.2.1, atom.1,
+      matching.pairing atom.1 atom.2.1 atom.2.2⟩
+  invFun atom :=
+    ⟨atom.2.1, atom.1,
+      (matching.pairing atom.2.1 atom.1).symm atom.2.2⟩
+  left_inv atom := by
+    obtain ⟨i, j, stub⟩ := atom
+    simp
+  right_inv atom := by
+    obtain ⟨j, i, stub⟩ := atom
+    simp
+
+/-- The literal matching preserves the row and column type of every cell. -/
+theorem typedPartialMatchingPairing_cell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell)
+    (atom : TypedPartialMatchingSource matching) :
+    (typedPartialMatchingPairing matching atom).1 = atom.2.1 ∧
+      (typedPartialMatchingPairing matching atom).2.1 = atom.1 := by
+  simp [typedPartialMatchingPairing]
+
+/-- Each row-side cell of the literal matching has exactly its prescribed
+demand. -/
+theorem card_typedPartialMatching_rowCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    Fintype.card ((matching.rowAllocation i).1 j : Finset (Fin (k i))) =
+      L i j := by
+  simpa using (matching.rowAllocation i).2.1 j
+
+/-- Each column-side cell of the literal matching has exactly its prescribed
+demand. -/
+theorem card_typedPartialMatching_columnCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    Fintype.card ((matching.columnAllocation j).1 i : Finset (Fin (ell j))) =
+      L i j := by
+  simpa using (matching.columnAllocation j).2.1 i
+
+/-- The cellwise partial-matching presentation contains exactly the existing
+`PrescribedDemandWitness` data; this equivalence is structural and carries no
+probabilistic content. -/
+def typedPartialMatchingEquivPrescribedDemandWitness
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    TypedPartialMatching L k ell ≃ PrescribedDemandWitness L k ell where
+  toFun matching :=
+    ⟨matching.rowAllocation, matching.columnAllocation, matching.pairing⟩
+  invFun witness :=
+    { rowAllocation := witness.1
+      columnAllocation := witness.2.1
+      pairing := witness.2.2 }
+  left_inv matching := by
+    cases matching
+    rfl
+  right_inv witness := by
+    rcases witness with ⟨rowAllocation, columnAllocation, pairing⟩
+    rfl
+
+noncomputable instance instFintypeTypedPartialMatching
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    Fintype (TypedPartialMatching L k ell) :=
+  Fintype.ofEquiv (PrescribedDemandWitness L k ell)
+    (typedPartialMatchingEquivPrescribedDemandWitness L k ell).symm
+
+/-- The exact cross-multiplied finite count for literal typed partial
+matchings.  It is transported from the already proved prescribed-demand
+count, so it remains total even when some cell demand is infeasible. -/
+theorem card_typedPartialMatching_mul_factorials
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    Fintype.card (TypedPartialMatching L k ell) *
+        Finset.univ.prod
+          (fun i => Finset.univ.prod (fun j => (L i j).factorial)) =
+      (Finset.univ.prod
+          (fun i => (k i).descFactorial (Finset.univ.sum (L i)))) *
+      (Finset.univ.prod
+          (fun j =>
+            (ell j).descFactorial (Finset.univ.sum (fun i => L i j)))) := by
+  rw [Fintype.card_congr
+    (typedPartialMatchingEquivPrescribedDemandWitness L k ell)]
+  exact card_prescribedDemandWitness_mul_factorials L k ell
+
+#print axioms typedPartialMatchingSourceEmbedding
+#print axioms typedPartialMatchingTargetEmbedding
+#print axioms typedPartialMatchingPairing
+#print axioms typedPartialMatchingEquivPrescribedDemandWitness
+#print axioms card_typedPartialMatching_mul_factorials
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8TypedPartialMatching
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8TypedPartialMatching
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
+Source: Erdos625/Section8UnlabelledTypedSkeleton.lean
+Normalized SHA-256: ed98d24ebd5e31693d997c84242999d41f5ba3ef24117dd8969053ec47837f7d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
+
+/-!
+# Section VIII: unlabelled typed skeletons
+
+This module forgets the cellwise presentation of a `TypedPartialMatching` and
+retains only its physical row--column stub edges.  An unlabelled skeleton is a
+finite bipartite edge set in which no row stub and no column stub occurs twice.
+Its `typeTable` counts physical edges by their row and column types.
+
+The construction below is finite and deterministic.  It contains no
+probability or asymptotic assertion.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- A physical finite partial matching between typed row and column stubs. -/
+structure UnlabelledTypedSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) where
+  edges : Finset (RowStub k × ColumnStub ell)
+  leftUnique :
+    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.1 = e₂.1 -> e₁ = e₂
+  rightUnique :
+    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.2 = e₂.2 -> e₁ = e₂
+
+@[ext]
+theorem UnlabelledTypedSkeleton.ext
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    {S T : UnlabelledTypedSkeleton k ell}
+    (hEdges : S.edges = T.edges) :
+    S = T := by
+  cases S
+  cases T
+  simp_all
+
+noncomputable instance instFintypeUnlabelledTypedSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (k : I -> Nat) (ell : J -> Nat) :
+    Fintype (UnlabelledTypedSkeleton k ell) := by
+  letI : Finite (UnlabelledTypedSkeleton k ell) :=
+    Finite.of_injective
+      (fun S : UnlabelledTypedSkeleton k ell => S.edges)
+      (fun _ _ h => UnlabelledTypedSkeleton.ext h)
+  exact Fintype.ofFinite _
+
+/-- The number of physical skeleton edges in each row-type/column-type cell. -/
+def UnlabelledTypedSkeleton.typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) : Nat :=
+  (S.edges.filter (fun e => e.1.1 = i ∧ e.2.1 = j)).card
+
+/-- The physical edges in one fixed type cell, with the type indices removed
+from their endpoints. -/
+def UnlabelledTypedSkeleton.cellEdges
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (k i) × Fin (ell j)) :=
+  Finset.univ.filter
+    (fun p => ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+      RowStub k × ColumnStub ell) ∈ S.edges)
+
+/-- Row stubs used by one type cell. -/
+def UnlabelledTypedSkeleton.rowCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (k i)) :=
+  (S.cellEdges i j).image Prod.fst
+
+/-- Column stubs used by one type cell. -/
+def UnlabelledTypedSkeleton.columnCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    Finset (Fin (ell j)) :=
+  (S.cellEdges i j).image Prod.snd
+
+private theorem cellEdges_card_eq_typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.cellEdges i j).card = S.typeTable i j := by
+  unfold UnlabelledTypedSkeleton.cellEdges
+    UnlabelledTypedSkeleton.typeTable
+  refine Finset.card_bij
+    (fun p _ =>
+      ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+        RowStub k × ColumnStub ell)) ?_ ?_ ?_
+  · intro p hp
+    rw [Finset.mem_filter] at hp ⊢
+    exact ⟨hp.2, rfl, rfl⟩
+  · intro p₁ hp₁ p₂ hp₂ hEq
+    exact Prod.ext
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hEq)).2)
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEq)).2)
+  · intro e he
+    rw [Finset.mem_filter] at he
+    obtain ⟨hEdge, hI, hJ⟩ := he
+    obtain ⟨⟨i', r⟩, ⟨j', c⟩⟩ := e
+    simp only at hI hJ
+    subst i'
+    subst j'
+    exact ⟨(r, c), by simp [hEdge], rfl⟩
+
+private theorem rowCell_card
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.rowCell i j).card = S.typeTable i j := by
+  rw [UnlabelledTypedSkeleton.rowCell,
+    Finset.card_image_of_injOn]
+  · exact cellEdges_card_eq_typeTable S i j
+  · intro p₁ hp₁ p₂ hp₂ hFirst
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.leftUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    exact Prod.ext hFirst
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2)
+
+private theorem columnCell_card
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    (S.columnCell i j).card = S.typeTable i j := by
+  rw [UnlabelledTypedSkeleton.columnCell,
+    Finset.card_image_of_injOn]
+  · exact cellEdges_card_eq_typeTable S i j
+  · intro p₁ hp₁ p₂ hp₂ hSecond
+    have hEdge₁ :
+        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+    have hEdge₂ :
+        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hSecond))
+    exact Prod.ext
+      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2)
+      hSecond
+
+private theorem rowCell_disjoint
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I)
+    (j₁ j₂ : J) (hNe : j₁ ≠ j₂) :
+    Disjoint (S.rowCell i j₁) (S.rowCell i j₂) := by
+  rw [Finset.disjoint_left]
+  intro r hr₁ hr₂
+  rw [UnlabelledTypedSkeleton.rowCell, Finset.mem_image] at hr₁ hr₂
+  obtain ⟨p₁, hp₁, hFirst₁⟩ := hr₁
+  obtain ⟨p₂, hp₂, hFirst₂⟩ := hr₂
+  have hEdge₁ :
+      ((⟨i, p₁.1⟩, ⟨j₁, p₁.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+  have hEdge₂ :
+      ((⟨i, p₂.1⟩, ⟨j₂, p₂.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+  have hLeft : (⟨i, p₁.1⟩ : RowStub k) = ⟨i, p₂.1⟩ := by
+    exact Sigma.ext rfl (heq_of_eq (hFirst₁.trans hFirst₂.symm))
+  have hEdges := S.leftUnique _ hEdge₁ _ hEdge₂ hLeft
+  exact hNe (congrArg (fun e => e.2.1) hEdges)
+
+private theorem columnCell_disjoint
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (j : J)
+    (i₁ i₂ : I) (hNe : i₁ ≠ i₂) :
+    Disjoint (S.columnCell i₁ j) (S.columnCell i₂ j) := by
+  rw [Finset.disjoint_left]
+  intro c hc₁ hc₂
+  rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc₁ hc₂
+  obtain ⟨p₁, hp₁, hSecond₁⟩ := hc₁
+  obtain ⟨p₂, hp₂, hSecond₂⟩ := hc₂
+  have hEdge₁ :
+      ((⟨i₁, p₁.1⟩, ⟨j, p₁.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
+  have hEdge₂ :
+      ((⟨i₂, p₂.1⟩, ⟨j, p₂.2⟩) :
+        RowStub k × ColumnStub ell) ∈ S.edges := by
+    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
+  have hRight : (⟨j, p₁.2⟩ : ColumnStub ell) = ⟨j, p₂.2⟩ := by
+    exact Sigma.ext rfl (heq_of_eq (hSecond₁.trans hSecond₂.symm))
+  have hEdges := S.rightUnique _ hEdge₁ _ hEdge₂ hRight
+  exact hNe (congrArg (fun e => e.1.1) hEdges)
+
+private def skeletonRowAllocation
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
+    (i : I) :
+    StubAllocation (k i) (L i) :=
+  ⟨S.rowCell i, by
+    constructor
+    · intro j
+      rw [rowCell_card]
+      exact congrFun (congrFun hTable i) j
+    · intro j₁ j₂ hNe
+      exact rowCell_disjoint S i j₁ j₂ hNe⟩
+
+private def skeletonColumnAllocation
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
+    (j : J) :
+    StubAllocation (ell j) (fun i => L i j) :=
+  ⟨fun i => S.columnCell i j, by
+    constructor
+    · intro i
+      rw [columnCell_card]
+      exact congrFun (congrFun hTable i) j
+    · intro i₁ i₂ hNe
+      exact columnCell_disjoint S j i₁ i₂ hNe⟩
+
+private noncomputable def skeletonCellEdgeOfRow
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    Fin (k i) × Fin (ell j) :=
+  Classical.choose (Finset.mem_image.mp r.2)
+
+private theorem skeletonCellEdgeOfRow_mem
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    skeletonCellEdgeOfRow S i j r ∈ S.cellEdges i j :=
+  (Classical.choose_spec (Finset.mem_image.mp r.2)).1
+
+private theorem skeletonCellEdgeOfRow_fst
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    (skeletonCellEdgeOfRow S i j r).1 = r.1 :=
+  (Classical.choose_spec (Finset.mem_image.mp r.2)).2
+
+private noncomputable def skeletonCellPairing
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
+    ↑(S.rowCell i j) ≃ ↑(S.columnCell i j) := by
+  let toColumn :
+      ↑(S.rowCell i j) -> ↑(S.columnCell i j) :=
+    fun r =>
+      ⟨(skeletonCellEdgeOfRow S i j r).2,
+        Finset.mem_image.mpr
+          ⟨skeletonCellEdgeOfRow S i j r,
+            skeletonCellEdgeOfRow_mem S i j r, rfl⟩⟩
+  refine Equiv.ofBijective toColumn ⟨?_, ?_⟩
+  · intro r₁ r₂ hColumn
+    have hEdge₁ :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r₁).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r₁).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r₁
+    have hEdge₂ :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r₂).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r₂).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r₂
+    have hSecond :
+        (skeletonCellEdgeOfRow S i j r₁).2 =
+          (skeletonCellEdgeOfRow S i j r₂).2 :=
+      congrArg Subtype.val hColumn
+    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
+      exact Sigma.ext rfl (heq_of_eq hSecond))
+    apply Subtype.ext
+    rw [← skeletonCellEdgeOfRow_fst S i j r₁,
+      ← skeletonCellEdgeOfRow_fst S i j r₂]
+    exact eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2
+  · intro c
+    have hc := c.2
+    change c.1 ∈ (S.cellEdges i j).image Prod.snd at hc
+    rw [Finset.mem_image] at hc
+    obtain ⟨p, hp, hSecond⟩ := hc
+    let r : ↑(S.rowCell i j) :=
+      ⟨p.1, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
+    refine ⟨r, ?_⟩
+    apply Subtype.ext
+    have hChosen :
+        ((⟨i, (skeletonCellEdgeOfRow S i j r).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S i j r).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S i j r
+    have hGiven :
+        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hp
+    have hFirst :
+        (skeletonCellEdgeOfRow S i j r).1 = p.1 := by
+      simpa [r] using skeletonCellEdgeOfRow_fst S i j r
+    have hGlobal := S.leftUnique _ hChosen _ hGiven (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    exact (eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2).trans hSecond
+
+@[simp]
+private theorem skeletonCellPairing_apply
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {k : I -> Nat} {ell : J -> Nat}
+    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
+    (r : ↑(S.rowCell i j)) :
+    ((skeletonCellPairing S i j r : ↑(S.columnCell i j)) :
+      Fin (ell j)) =
+      (skeletonCellEdgeOfRow S i j r).2 := by
+  rfl
+
+/-- The graph edge associated with every selected row atom of a typed partial
+matching.  Injectivity follows already from injectivity on row stubs. -/
+def typedPartialMatchingEdgeEmbedding
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    TypedPartialMatchingSource matching ↪
+      (RowStub k × ColumnStub ell) where
+  toFun atom :=
+    (typedPartialMatchingSourceEmbedding matching atom,
+      typedPartialMatchingTargetEmbedding matching
+        (typedPartialMatchingPairing matching atom))
+  inj' := by
+    intro atom₁ atom₂ h
+    apply (typedPartialMatchingSourceEmbedding matching).injective
+    exact congrArg Prod.fst h
+
+/-- Forget the cellwise presentation of a typed partial matching and retain
+only its physical edge set. -/
+def typedPartialMatchingUnlabelledSkeleton
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    UnlabelledTypedSkeleton k ell where
+  edges := Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)
+  leftUnique := by
+    intro e₁ he₁ e₂ he₂ hLeft
+    rw [Finset.mem_map] at he₁ he₂
+    obtain ⟨atom₁, _, rfl⟩ := he₁
+    obtain ⟨atom₂, _, rfl⟩ := he₂
+    have hAtom :
+        atom₁ = atom₂ :=
+      (typedPartialMatchingSourceEmbedding matching).injective hLeft
+    subst atom₂
+    rfl
+  rightUnique := by
+    intro e₁ he₁ e₂ he₂ hRight
+    rw [Finset.mem_map] at he₁ he₂
+    obtain ⟨atom₁, _, rfl⟩ := he₁
+    obtain ⟨atom₂, _, rfl⟩ := he₂
+    have hPaired :
+        typedPartialMatchingPairing matching atom₁ =
+          typedPartialMatchingPairing matching atom₂ :=
+      (typedPartialMatchingTargetEmbedding matching).injective hRight
+    have hAtom :
+        atom₁ = atom₂ :=
+      (typedPartialMatchingPairing matching).injective hPaired
+    subst atom₂
+    rfl
+
+private theorem card_source_cell_filter
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (Finset.univ.filter
+        (fun atom : TypedPartialMatchingSource matching =>
+          atom.1 = i ∧ atom.2.1 = j)).card =
+      ((matching.rowAllocation i).1 j).card := by
+  symm
+  refine Finset.card_bij
+    (fun stub hStub =>
+      (⟨i, j, ⟨stub, hStub⟩⟩ :
+        TypedPartialMatchingSource matching)) ?_ ?_ ?_
+  · intro stub hStub
+    simp
+  · intro stub₁ hStub₁ stub₂ hStub₂ hEq
+    have hUnderlying :
+        (⟨stub₁, hStub₁⟩ :
+          ((matching.rowAllocation i).1 j : Finset (Fin (k i)))) =
+        ⟨stub₂, hStub₂⟩ := by
+      exact eq_of_heq (Sigma.mk.inj_iff.mp
+        (eq_of_heq (Sigma.mk.inj_iff.mp hEq).2)).2
+    exact congrArg Subtype.val hUnderlying
+  · intro atom hAtom
+    rw [Finset.mem_filter] at hAtom
+    obtain ⟨_, hI, hJ⟩ := hAtom
+    obtain ⟨i', j', stub⟩ := atom
+    simp only at hI hJ
+    subst i'
+    subst j'
+    exact ⟨stub.1, stub.2, rfl⟩
+
+/-- Forgetting cell labels does not change the prescribed type table. -/
+theorem typedPartialMatchingUnlabelledSkeleton_typeTable
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) :
+    (typedPartialMatchingUnlabelledSkeleton matching).typeTable = L := by
+  funext i j
+  unfold UnlabelledTypedSkeleton.typeTable
+  change
+    ((Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)).filter
+      (fun e => e.1.1 = i ∧ e.2.1 = j)).card = L i j
+  rw [Finset.filter_map, Finset.card_map]
+  change
+    (Finset.univ.filter
+      (fun atom : TypedPartialMatchingSource matching =>
+        atom.1 = i ∧ atom.2.1 = j)).card = L i j
+  rw [card_source_cell_filter matching i j]
+  simpa using (matching.rowAllocation i).2.1 j
+
+/-- The forward map from cellwise typed partial matchings to physical
+unlabelled skeletons with the prescribed type table. -/
+def typedPartialMatchingToUnlabelledSkeletonFibre
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    TypedPartialMatching L k ell ->
+      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
+  fun matching =>
+    ⟨typedPartialMatchingUnlabelledSkeleton matching,
+      typedPartialMatchingUnlabelledSkeleton_typeTable matching⟩
+
+/-- Reconstruct the cellwise presentation from a physical skeleton.  The
+within-cell equivalence is the unique pairing encoded by the physical edges;
+the use of classical choice only selects that already unique endpoint. -/
+noncomputable def unlabelledSkeletonFibreToTypedPartialMatching
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} ->
+      TypedPartialMatching L k ell :=
+  fun S =>
+    { rowAllocation := skeletonRowAllocation S.1 S.2
+      columnAllocation := skeletonColumnAllocation S.1 S.2
+      pairing := fun i j => skeletonCellPairing S.1 i j }
+
+private theorem reconstructed_edgeEmbedding_apply
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L})
+    (i : I) (j : J) (r : ↑(S.1.rowCell i j)) :
+    typedPartialMatchingEdgeEmbedding
+        (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
+        ⟨i, j, r⟩ =
+      ((⟨i, r.1⟩,
+          ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
+        RowStub k × ColumnStub ell) := by
+  apply Prod.ext
+  · rfl
+  · apply Sigma.ext rfl
+    exact heq_of_eq (skeletonCellPairing_apply S.1 i j r)
+
+private theorem unlabelledSkeleton_roundTrip_edges
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}) :
+    (typedPartialMatchingUnlabelledSkeleton
+      (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)).edges =
+      S.1.edges := by
+  ext e
+  constructor
+  · intro he
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at he
+    obtain ⟨atom, _, rfl⟩ := he
+    obtain ⟨i, j, r⟩ := atom
+    change ↑(S.1.rowCell i j) at r
+    have hCell :=
+      skeletonCellEdgeOfRow_mem S.1 i j r
+    have hEdge :
+        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r).1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using hCell
+    have hFirst :
+        (skeletonCellEdgeOfRow S.1 i j r).1 = r.1 :=
+      skeletonCellEdgeOfRow_fst S.1 i j r
+    rw [reconstructed_edgeEmbedding_apply L k ell S i j r]
+    simpa [hFirst] using hEdge
+  · intro he
+    obtain ⟨⟨i, r⟩, ⟨j, c⟩⟩ := e
+    let p : Fin (k i) × Fin (ell j) := (r, c)
+    have hp : p ∈ S.1.cellEdges i j := by
+      simp [p, UnlabelledTypedSkeleton.cellEdges, he]
+    let r' : ↑(S.1.rowCell i j) :=
+      ⟨r, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
+    let atom :
+        TypedPartialMatchingSource
+          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S) :=
+      ⟨i, j, r'⟩
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
+    refine ⟨atom, Finset.mem_univ _, ?_⟩
+    have hChosen :
+        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r').1⟩,
+            ⟨j, (skeletonCellEdgeOfRow S.1 i j r').2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [UnlabelledTypedSkeleton.cellEdges] using
+        skeletonCellEdgeOfRow_mem S.1 i j r'
+    have hGiven :
+        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
+          RowStub k × ColumnStub ell) ∈ S.1.edges := by
+      simpa [p] using he
+    have hFirst :
+        (skeletonCellEdgeOfRow S.1 i j r').1 = p.1 := by
+      simpa [r', p] using skeletonCellEdgeOfRow_fst S.1 i j r'
+    have hEdges := S.1.leftUnique _ hChosen _ hGiven (by
+      exact Sigma.ext rfl (heq_of_eq hFirst))
+    have hSecond :
+        (skeletonCellEdgeOfRow S.1 i j r').2 = p.2 :=
+      eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
+    change
+      typedPartialMatchingEdgeEmbedding
+          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
+          ⟨i, j, r'⟩ =
+        ((⟨i, r⟩, ⟨j, c⟩) :
+          RowStub k × ColumnStub ell)
+    rw [reconstructed_edgeEmbedding_apply L k ell S i j r']
+    apply Prod.ext
+    · exact Sigma.ext rfl (heq_of_eq rfl)
+    · exact Sigma.ext rfl (heq_of_eq (by simpa [p] using hSecond))
+
+private theorem typedPartialMatching_roundTrip_rowCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (typedPartialMatchingUnlabelledSkeleton matching).rowCell i j =
+      (matching.rowAllocation i).1 j := by
+  ext r
+  simp [UnlabelledTypedSkeleton.rowCell,
+    UnlabelledTypedSkeleton.cellEdges,
+    typedPartialMatchingUnlabelledSkeleton,
+    typedPartialMatchingEdgeEmbedding,
+    typedPartialMatchingSourceEmbedding,
+    typedPartialMatchingTargetEmbedding,
+    typedPartialMatchingPairing]
+
+private theorem typedPartialMatching_roundTrip_columnCell
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
+    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
+    (typedPartialMatchingUnlabelledSkeleton matching).columnCell i j =
+      (matching.columnAllocation j).1 i := by
+  ext c
+  constructor
+  · intro hc
+    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc
+    obtain ⟨p, hp, rfl⟩ := hc
+    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter] at hp
+    obtain ⟨_, hp⟩ := hp
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at hp
+    obtain ⟨atom, _, hAtom⟩ := hp
+    have hRow := congrArg Prod.fst hAtom
+    have hColumn := congrArg Prod.snd hAtom
+    obtain ⟨i', j', r⟩ := atom
+    simp [typedPartialMatchingEdgeEmbedding,
+      typedPartialMatchingSourceEmbedding,
+      typedPartialMatchingTargetEmbedding,
+      typedPartialMatchingPairing] at hRow hColumn
+    obtain ⟨hI, _⟩ := hRow
+    obtain ⟨hJ, hC⟩ := hColumn
+    subst i'
+    subst j'
+    rw [← eq_of_heq hC]
+    exact (matching.pairing i j r).2
+  · intro hc
+    let c' :
+        ((matching.columnAllocation j).1 i :
+          Finset (Fin (ell j))) := ⟨c, hc⟩
+    let r' := (matching.pairing i j).symm c'
+    let p : Fin (k i) × Fin (ell j) := (r'.1, c)
+    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image]
+    refine ⟨p, ?_, rfl⟩
+    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter]
+    refine ⟨Finset.mem_univ _, ?_⟩
+    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
+    refine ⟨(⟨i, j, r'⟩ :
+      TypedPartialMatchingSource matching), Finset.mem_univ _, ?_⟩
+    apply Prod.ext
+    · exact Sigma.ext rfl (heq_of_eq rfl)
+    · change
+        (typedPartialMatchingEdgeEmbedding matching
+          (⟨i, j, r'⟩ : TypedPartialMatchingSource matching)).2 =
+          (⟨j, c⟩ : ColumnStub ell)
+      change
+        (⟨j, ((matching.pairing i j) r' : Fin (ell j))⟩ :
+          ColumnStub ell) =
+          ⟨j, c⟩
+      exact Sigma.ext rfl (heq_of_eq (by
+        change ((matching.pairing i j) r' : Fin (ell j)) = c
+        simp [r', c']))
+
+private theorem typedPartialMatchingUnlabelledSkeleton_injective
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat} :
+    Function.Injective
+      (typedPartialMatchingUnlabelledSkeleton :
+        TypedPartialMatching L k ell ->
+          UnlabelledTypedSkeleton k ell) := by
+  intro matching₁ matching₂ hSkeleton
+  have hRows :
+      matching₁.rowAllocation = matching₂.rowAllocation := by
+    funext i
+    apply Subtype.ext
+    funext j
+    rw [← typedPartialMatching_roundTrip_rowCell matching₁ i j,
+      hSkeleton,
+      typedPartialMatching_roundTrip_rowCell matching₂ i j]
+  have hColumns :
+      matching₁.columnAllocation = matching₂.columnAllocation := by
+    funext j
+    apply Subtype.ext
+    funext i
+    rw [← typedPartialMatching_roundTrip_columnCell matching₁ i j,
+      hSkeleton,
+      typedPartialMatching_roundTrip_columnCell matching₂ i j]
+  obtain ⟨rowAllocation₁, columnAllocation₁, pairing₁⟩ := matching₁
+  obtain ⟨rowAllocation₂, columnAllocation₂, pairing₂⟩ := matching₂
+  simp only at hRows hColumns
+  subst rowAllocation₂
+  subst columnAllocation₂
+  have hPairing : pairing₁ = pairing₂ := by
+    funext i j
+    apply Equiv.ext
+    intro r
+    let matching₁ : TypedPartialMatching L k ell :=
+      { rowAllocation := rowAllocation₁
+        columnAllocation := columnAllocation₁
+        pairing := pairing₁ }
+    let matching₂ : TypedPartialMatching L k ell :=
+      { rowAllocation := rowAllocation₁
+        columnAllocation := columnAllocation₁
+        pairing := pairing₂ }
+    let atom₁ : TypedPartialMatchingSource matching₁ := ⟨i, j, r⟩
+    let atom₂ : TypedPartialMatchingSource matching₂ := ⟨i, j, r⟩
+    let edge₁ := typedPartialMatchingEdgeEmbedding matching₁ atom₁
+    let edge₂ := typedPartialMatchingEdgeEmbedding matching₂ atom₂
+    have hEdge₁ :
+        edge₁ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₁).edges := by
+      simp [edge₁, atom₁, typedPartialMatchingUnlabelledSkeleton]
+    have hEdge₂ :
+        edge₂ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
+      simp [edge₂, atom₂, typedPartialMatchingUnlabelledSkeleton]
+    have hSkeleton' :
+        typedPartialMatchingUnlabelledSkeleton matching₁ =
+          typedPartialMatchingUnlabelledSkeleton matching₂ := by
+      simpa [matching₁, matching₂] using hSkeleton
+    have hEdge₁' :
+        edge₁ ∈
+          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
+      rw [← hSkeleton']
+      exact hEdge₁
+    have hLeft : edge₁.1 = edge₂.1 := by
+      rfl
+    have hEdges :=
+      (typedPartialMatchingUnlabelledSkeleton matching₂).leftUnique
+        edge₁ hEdge₁' edge₂ hEdge₂ hLeft
+    apply Subtype.ext
+    exact eq_of_heq
+      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
+  subst pairing₂
+  rfl
+
+/-- Cellwise typed partial matchings are exactly physical unlabelled skeletons
+whose type table is the prescribed matrix.  No ordering is introduced inside
+a cell on either side of this equivalence. -/
+noncomputable def typedPartialMatchingEquivUnlabelledSkeletonFibre
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    TypedPartialMatching L k ell ≃
+      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
+  Equiv.ofBijective
+    (typedPartialMatchingToUnlabelledSkeletonFibre L k ell)
+    ⟨by
+      intro matching₁ matching₂ h
+      apply typedPartialMatchingUnlabelledSkeleton_injective
+      exact congrArg Subtype.val h,
+    by
+      intro S
+      refine ⟨unlabelledSkeletonFibreToTypedPartialMatching L k ell S, ?_⟩
+      apply Subtype.ext
+      apply UnlabelledTypedSkeleton.ext
+      exact unlabelledSkeleton_roundTrip_edges L k ell S⟩
+
+/-- Exact finite cardinality of the physical unlabelled-skeleton fibre.  The
+single cell-factorial product is inherited directly from the literal
+typed-partial-matching count; there is no additional quotient or factorial
+division. -/
+theorem card_unlabelledTypedSkeleton_typeTable_mul_factorials
+    {I J : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
+    Fintype.card
+          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} *
+        Finset.univ.prod
+          (fun i => Finset.univ.prod (fun j => (L i j).factorial)) =
+      (Finset.univ.prod
+          (fun i => (k i).descFactorial (Finset.univ.sum (L i)))) *
+      (Finset.univ.prod
+          (fun j =>
+            (ell j).descFactorial
+              (Finset.univ.sum (fun i => L i j)))) := by
+  rw [← Fintype.card_congr
+    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell)]
+  exact card_typedPartialMatching_mul_factorials L k ell
+
+#print axioms UnlabelledTypedSkeleton.ext
+#print axioms typedPartialMatchingUnlabelledSkeleton
+#print axioms typedPartialMatchingUnlabelledSkeleton_typeTable
+#print axioms unlabelledSkeletonFibreToTypedPartialMatching
+#print axioms typedPartialMatchingEquivUnlabelledSkeletonFibre
+#print axioms card_unlabelledTypedSkeleton_typeTable_mul_factorials
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
+Source: Erdos625/Section8WeightedSkeletonQuotient.lean
+Normalized SHA-256: 21b0a3ed00b3909bbc3edda415ccbc80b0e17e8efd44be6b9089a266340d1f55
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
+
+/-!
+# Section VIII: weighted reindexing through the physical skeleton fibre
+
+This is only a finite-equivalence reindexing statement. It makes no probability
+claim and introduces no quotient multiplicity beyond the already constructed
+equivalence.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- Reindex a physical-skeleton weight from literal typed partial matchings
+through the exact equivalence with the prescribed type-table fibre. -/
+theorem sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+    {I J R : Type*}
+    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
+    [AddCommMonoid R]
+    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
+    (w : UnlabelledTypedSkeleton k ell -> R) :
+    (∑ matching : TypedPartialMatching L k ell,
+      w (typedPartialMatchingToUnlabelledSkeletonFibre L k ell matching).1) =
+      ∑ S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}, w S.1 := by
+  simpa [typedPartialMatchingEquivUnlabelledSkeletonFibre] using
+    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell).sum_comp
+      (fun S => w S.1)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
+Source: Erdos625/Section8ProfileSkeletonWeight.lean
+Normalized SHA-256: 1483b580393dfd2f5f7988580af1bdd1d8651965d69813160efdfbfa473f91da
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
+
+/-!
+# Section VIII: exact profile high-skeleton weights
+
+For one fixed ordered profile, this module packages the bare high-skeleton
+factor from manuscript (8.3): the product of the exposed local rewards times
+the normalized incidence of its labelled prescribed-demand witnesses.  It
+then reindexes that finite weight through literal typed partial matchings and
+through the physical unlabelled-skeleton fibre of its type table.
+
+The last two theorems compose this reindexing with the exact canonical
+decomposition from Section IX.  They retain the residual attachment as an
+explicit finite factor.  In particular, this file proves no near/middle
+estimate, no attachment bound, and no asymptotic form of Lemma 8.3.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The finite family of high-demand tables that are actually attained by a
+configuration matching with the fixed profile margins.  This is deliberately
+an attained family: no unsupported feasibility relaxation is made here. -/
+abbrev ProfileCanonicalHighSkeleton
+    {b : Nat} (k : ColoringProfile b) (U : Nat) :=
+  canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U
+
+/-- The bare high-skeleton weight for one attained profile demand.  The first
+factor is the exposed local signed reward; the second is the normalized count
+of labelled physical realizations.  This is the exact finite counterpart of
+the weight `w_hi` in (8.3), with no residual attachment included. -/
+noncomputable def profileHighSkeletonWeight
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) *
+    labelledWitnessIncidence demand.1 (profileBlockMargin k)
+      (profileBlockMargin k)
+
+/-- The contribution of one labelled physical realization of an attained
+profile high skeleton.  Summing this constant over all labelled witnesses
+recovers `profileHighSkeletonWeight`. -/
+noncomputable def profileHighSkeletonWitnessWeight
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) /
+    (((Finset.univ.sum (profileBlockMargin k)).descFactorial
+      (totalDemand demand.1) : Nat) : ENNReal)
+
+/-- An attained profile high-demand table has total demand at most the total
+profile vertex mass.  The conclusion is obtained from an actual labelled
+witness; it is not assumed as a separate numerical feasibility condition. -/
+theorem profileHighSkeleton_totalDemand_le
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    totalDemand demand.1 <= Finset.univ.sum (profileBlockMargin k) := by
+  exact totalDemand_le_rowTotal_of_witness
+    (canonicalDemandReferenceWitness (profileBlockMargin k)
+      (profileBlockMargin k) U demand)
+
+/-- The completely expanded falling-factorial form of the bare profile
+high-skeleton weight.  The feasibility premise needed by the incidence
+identity is discharged by `profileHighSkeleton_totalDemand_le`. -/
+theorem profileHighSkeletonWeight_eq_descendingFactorials
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (((rowDescendingProduct demand.1 (profileBlockMargin k) *
+          columnDescendingProduct demand.1 (profileBlockMargin k) : Nat) :
+            ENNReal) /
+          (((Finset.univ.sum (profileBlockMargin k)).descFactorial
+            (totalDemand demand.1) * demandFactorialProduct demand.1 : Nat) :
+              ENNReal)) := by
+  unfold profileHighSkeletonWeight
+  rw [labelledWitnessIncidence_eq demand.1 (profileBlockMargin k)
+    (profileBlockMargin k) (profileHighSkeleton_totalDemand_le k U demand)]
+
+/-- Reindex one bare profile high-skeleton weight over its literal typed
+partial matchings.  The equivalence with prescribed-demand witnesses is used
+only to identify the finite cardinality; no probability law is invoked. -/
+theorem profileHighSkeletonWeight_eq_sum_typedPartialMatching
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
+        (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand := by
+  unfold profileHighSkeletonWeight profileHighSkeletonWitnessWeight
+    labelledWitnessIncidence
+  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  rw [Fintype.card_congr
+    (typedPartialMatchingEquivPrescribedDemandWitness demand.1
+      (profileBlockMargin k) (profileBlockMargin k))]
+  rw [div_eq_mul_inv, div_eq_mul_inv]
+  simp only [mul_left_comm]
+
+/-- Reindex one bare profile high-skeleton weight through the exact fibre of
+the physical unlabelled skeleton map.  This is the finite quotient seam that
+keeps the labelled-witness multiplicity honest. -/
+theorem profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    profileHighSkeletonWeight k U demand =
+      ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+        (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand := by
+  calc
+    profileHighSkeletonWeight k U demand =
+        ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
+          (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand :=
+      profileHighSkeletonWeight_eq_sum_typedPartialMatching k U demand
+    _ = ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand := by
+      simpa using
+        (sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
+          demand.1 (profileBlockMargin k) (profileBlockMargin k)
+          (fun _ => profileHighSkeletonWitnessWeight k U demand))
+
+/-- With an explicit profile degree cap, the positive support of every
+attained high skeleton is a bipartite matching.  This is the exact structural
+hypothesis used by the later Section VIII near/middle split. -/
+theorem profileHighSkeleton_positiveSupport_isBipartiteMatching
+    {b : Nat} (k : ColoringProfile b) (U : Nat)
+    (hcap : forall a : ProfileBlockIndex k, profileBlockMargin k a <= U)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    IsBipartiteMatching (positiveDemandSupport demand.1) := by
+  exact positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    U hcap hcap demand
+
+/-- The exact residual attachment belonging to one attained profile high
+skeleton.  The fixed row is retained to make the equal-total-degree proof
+term explicit, even though the value depends only on the profile margins. -/
+noncomputable def profileHighSkeletonAttachment
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  residualActualAttachmentNumerator
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row0)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+
+/-- One exact canonical high-skeleton contribution: its bare Section VIII
+weight times its Section IX residual attachment. -/
+noncomputable def profileHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat)
+    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
+  profileHighSkeletonWeight k U demand *
+    profileHighSkeletonAttachment row0 U demand
+
+/-- The profile signed-overlap expectation reindexed exactly by attained
+canonical high skeletons.  `hU` is explicit because the underlying reward/
+support split uses it to identify positive demands with multiplicity-two
+support edges. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        profileHighSkeletonContribution row0 U demand := by
+  simpa only [profileHighSkeletonContribution, profileHighSkeletonWeight,
+    profileHighSkeletonAttachment, mul_assoc] using
+    (sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row0 U hU)
+
+/-- Reindex the exact canonical skeleton/attachment sum through the physical
+unlabelled-skeleton fibre of each attained demand table.  The attachment is
+kept unchanged across a fibre because the canonical decomposition already
+standardizes it by a reference witness. -/
+theorem sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) :
+    (∑ demand : ProfileCanonicalHighSkeleton k U,
+      profileHighSkeletonContribution row0 U demand) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand *
+            profileHighSkeletonAttachment row0 U demand := by
+  apply Finset.sum_congr rfl
+  intro demand _
+  unfold profileHighSkeletonContribution
+  rw [profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre k U demand]
+  rw [Finset.sum_mul]
+
+/-- The strongest finite profile-facing reindexing supplied here: the exact
+signed-overlap expectation is a double finite sum over attained demand tables
+and their physical unlabelled high-skeleton fibres.  No bound on this sum is
+asserted. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
+    {b n : Nat} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+      ∑ demand : ProfileCanonicalHighSkeleton k U,
+        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
+          (profileBlockMargin k) // S.typeTable = demand.1},
+          profileHighSkeletonWitnessWeight k U demand *
+            profileHighSkeletonAttachment row0 U demand := by
+  calc
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row0 column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
+        ∑ demand : ProfileCanonicalHighSkeleton k U,
+          profileHighSkeletonContribution row0 U demand :=
+      sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+        row0 U hU
+    _ = _ :=
+      sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre row0 U
+
+#print axioms profileHighSkeleton_totalDemand_le
+#print axioms profileHighSkeletonWeight_eq_descendingFactorials
+#print axioms profileHighSkeletonWeight_eq_sum_typedPartialMatching
+#print axioms profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
+#print axioms profileHighSkeleton_positiveSupport_isBipartiteMatching
+#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
+#print axioms sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
+#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentSmallResidualScale
+Source: Erdos625/Section9ProfileAttachmentSmallResidualScale.lean
+Normalized SHA-256: 16b1a2999fecd4a13c44f308375e108e92f9a815b853eb0d95790e4385c9d4fc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentSmallResidualScale
+
+/-!
+# Section IX: attained-profile small-residual attachment scale
+
+This module applies the deterministic small-mass numerator estimate directly
+to the literal capped/no-return attachment of one attained profile skeleton.
+It deliberately does not replace that attachment by the unrestricted polymer
+majorant and does not cancel any skeleton prefactor.
+
+The proof was returned by Aristotle project
+`0bbb4854-fb14-46ef-bb74-ae248f1e371f`, task
+`0b4f1097-24f9-4024-932e-44491d77da1c`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- For one attained profile high skeleton, the literal capped/no-return
+attachment is at most the manuscript small-residual exponential scale. -/
+theorem profileHighSkeletonAttachment_le_smallResidualExpScale
+    {b n : ℕ} {k : ColoringProfile b}
+    (row0 : OrderedProfilePartition n k)
+    (U : ℕ)
+    (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+    (demand : ProfileCanonicalHighSkeleton k U)
+    (L C : ℝ)
+    (hL : 0 < L)
+    (hC : 0 ≤ C)
+    (hU : (U : ℝ) ≤ C * L)
+    (hm :
+      (canonicalDemandResidualTotal
+        (profileBlockMargin k) (profileBlockMargin k) U demand : ℝ) ≤
+        (n : ℝ) / L ^ 6) :
+    profileHighSkeletonAttachment row0 U demand ≤
+      ENNReal.ofReal
+        (Real.exp ((C * Real.log 2 / 2) * ((n : ℝ) / L ^ 5))) := by
+  let witness := canonicalDemandReferenceWitness
+    (profileBlockMargin k) (profileBlockMargin k) U demand
+  have hmatching :
+      IsBipartiteMatching (positiveDemandSupport demand.1) :=
+    profileHighSkeleton_positiveSupport_isBipartiteMatching k U hcap demand
+  have htotal :
+      (∑ a, residualRowDegree witness a) =
+        ∑ a, residualColumnDegree witness a :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row0) witness
+  have hsmall :
+      residualActualAttachmentNumerator
+          (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness) htotal ≤
+        (2 : ENNReal) ^
+          (U * canonicalDemandResidualTotal
+            (profileBlockMargin k) (profileBlockMargin k) U demand / 2) :=
+    residualActualAttachmentNumerator_le_two_pow_of_small_mass
+      (positiveDemandSupport demand.1) (U / 2) U
+      (canonicalDemandResidualTotal
+        (profileBlockMargin k) (profileBlockMargin k) U demand)
+      (residualRowDegree witness) (residualColumnDegree witness)
+      htotal hmatching rfl (by
+        simp only [canonicalDemandResidualTotal, witness])
+  have hscale := smallResidual_two_pow_le_exp_scale
+    (n : ℝ) L C U
+    (canonicalDemandResidualTotal
+      (profileBlockMargin k) (profileBlockMargin k) U demand)
+    (Nat.cast_nonneg n) hL hC hU hm
+  unfold profileHighSkeletonAttachment
+  exact hsmall.trans hscale
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentSmallResidualScale
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentSmallResidualScale
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
+Source: Erdos625/Section9PositiveSupportMassBound.lean
+Normalized SHA-256: fa01917b6d56d0ccd9ee1d600f9a4d9726625afe2dc1ece29432a09b16117e57
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
+
+/-!
+# Section IX: positive-support mass bound
+
+This deterministic lemma converts the strict half-cap condition on every
+positive demand cell into a support-cardinality bound. It keeps the literal
+natural-number floor `U / 2`, including odd `U` and `U = 0`.
+
+The proof was returned by Aristotle project
+`87d795da-d6da-4927-8304-72b93c103dd7`, task
+`ec2ec257-3c4a-42d6-a69d-790f13dcc42d`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+set_option autoImplicit false
+
+/-- Strict half-cap support forces the support-cardinality/cap product below
+twice the literal total demand. -/
+theorem positiveDemandSupport_card_mul_cap_le_two_total
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    (positiveDemandSupport demand).card * U ≤ 2 * totalDemand demand := by
+  have h_sum : ∑ p ∈ positiveDemandSupport demand, U ≤
+      ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := by
+    exact Finset.sum_le_sum fun p hp => by
+      linarith [Nat.div_add_mod U 2, Nat.mod_lt U two_pos,
+        hhigh p.1 p.2 (Finset.mem_filter.mp hp).2]
+  calc
+    (positiveDemandSupport demand).card * U =
+        ∑ p ∈ positiveDemandSupport demand, U := by
+      rw [Finset.sum_const, smul_eq_mul, mul_comm]
+    _ ≤ ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := h_sum
+    _ ≤ 2 * totalDemand demand := by
+      simp only [totalDemand, Finset.mul_sum]
+      rw [← Finset.sum_product']
+      exact Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
 Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
 Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
@@ -49419,1016 +50868,6 @@ END SOURCE MODULE: Erdos625.Section8CanonicalDemandMixture
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8TypedPartialMatching
-Source: Erdos625/Section8TypedPartialMatching.lean
-Normalized SHA-256: 63b746a4ddfd407fcefc70090bf0659d7f666bbbe3b2e5736832195703ddde0c
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8TypedPartialMatching
-
-/-!
-# Section VIII: literal typed partial matchings for one finite demand matrix
-
-This module gives a structural presentation of a finite partial
-matching between the typed row-stub space `Sigma i, Fin (k i)` and the typed
-column-stub space `Sigma j, Fin (ell j)`.  Its source and target embeddings
-are injective, its cellwise pairing preserves the two types, and the number of
-matched atoms in cell `(i,j)` is exactly `L i j`.
-
-The candidate is entirely finite.  In particular it makes no assertion about a
-random configuration matching, a canonical skeleton event, a probability, or
-an asymptotic estimate.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- A literal cellwise presentation of a typed partial matching.  The row and
-column allocations select disjoint stubs inside each type, while `pairing`
-matches the selected row stubs in cell `(i,j)` bijectively to selected column
-stubs in the same cell.  The global embeddings below turn these fields into a
-partial matching between `Sigma i, Fin (k i)` and `Sigma j, Fin (ell j)`.
-
-This deliberately carries no order on the edges of a cell: adding such an
-order would multiply the finite count by `prod_{i,j} (L i j)!`. -/
-structure TypedPartialMatching
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) where
-  rowAllocation : forall i, StubAllocation (k i) (L i)
-  columnAllocation : forall j, StubAllocation (ell j) (fun i => L i j)
-  pairing : forall i j,
-    ((rowAllocation i).1 j : Finset (Fin (k i))) ≃
-      ((columnAllocation j).1 i : Finset (Fin (ell j)))
-
-/-- The selected row atoms of a typed partial matching. -/
-abbrev TypedPartialMatchingSource
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :=
-  Sigma fun i => Sigma fun j =>
-    ((matching.rowAllocation i).1 j : Finset (Fin (k i)))
-
-/-- The selected column atoms of a typed partial matching.  The outer index
-is the column type and the inner index is the row type. -/
-abbrev TypedPartialMatchingTarget
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :=
-  Sigma fun j => Sigma fun i =>
-    ((matching.columnAllocation j).1 i : Finset (Fin (ell j)))
-
-/-- Inject the selected row atoms into the full typed row-stub space. -/
-def typedPartialMatchingSourceEmbedding
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    TypedPartialMatchingSource matching ↪ RowStub k where
-  toFun atom := ⟨atom.1, atom.2.2.1⟩
-  inj' := by
-    rintro ⟨i, j, stub⟩ ⟨i', j', stub'⟩ h
-    have hi : i = i' := (Sigma.mk.inj_iff.mp h).1
-    subst i'
-    have hstub : (stub : Fin (k i)) = stub' :=
-      eq_of_heq (Sigma.mk.inj_iff.mp h).2
-    by_cases hj : j = j'
-    · subst j'
-      exact Sigma.ext rfl <| heq_of_eq <|
-        Sigma.ext rfl <| heq_of_eq <| Subtype.ext hstub
-    · have hdisjoint := (matching.rowAllocation i).2.2 j j' hj
-      have hmem : (stub : Fin (k i)) ∈ (matching.rowAllocation i).1 j' := by
-        rw [hstub]
-        exact stub'.2
-      exact False.elim <|
-        (Finset.disjoint_left.mp hdisjoint) stub.2 hmem
-
-/-- Inject the selected column atoms into the full typed column-stub space. -/
-def typedPartialMatchingTargetEmbedding
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    TypedPartialMatchingTarget matching ↪ ColumnStub ell where
-  toFun atom := ⟨atom.1, atom.2.2.1⟩
-  inj' := by
-    rintro ⟨j, i, stub⟩ ⟨j', i', stub'⟩ h
-    have hj : j = j' := (Sigma.mk.inj_iff.mp h).1
-    subst j'
-    have hstub : (stub : Fin (ell j)) = stub' :=
-      eq_of_heq (Sigma.mk.inj_iff.mp h).2
-    by_cases hi : i = i'
-    · subst i'
-      exact Sigma.ext rfl <| heq_of_eq <|
-        Sigma.ext rfl <| heq_of_eq <| Subtype.ext hstub
-    · have hdisjoint := (matching.columnAllocation j).2.2 i i' hi
-      have hmem : (stub : Fin (ell j)) ∈ (matching.columnAllocation j).1 i' := by
-        rw [hstub]
-        exact stub'.2
-      exact False.elim <|
-        (Finset.disjoint_left.mp hdisjoint) stub.2 hmem
-
-/-- The cellwise bijections assemble to the literal matching between the
-selected global row and column stubs. -/
-def typedPartialMatchingPairing
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    TypedPartialMatchingSource matching ≃ TypedPartialMatchingTarget matching where
-  toFun atom :=
-    ⟨atom.2.1, atom.1,
-      matching.pairing atom.1 atom.2.1 atom.2.2⟩
-  invFun atom :=
-    ⟨atom.2.1, atom.1,
-      (matching.pairing atom.2.1 atom.1).symm atom.2.2⟩
-  left_inv atom := by
-    obtain ⟨i, j, stub⟩ := atom
-    simp
-  right_inv atom := by
-    obtain ⟨j, i, stub⟩ := atom
-    simp
-
-/-- The literal matching preserves the row and column type of every cell. -/
-theorem typedPartialMatchingPairing_cell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell)
-    (atom : TypedPartialMatchingSource matching) :
-    (typedPartialMatchingPairing matching atom).1 = atom.2.1 ∧
-      (typedPartialMatchingPairing matching atom).2.1 = atom.1 := by
-  simp [typedPartialMatchingPairing]
-
-/-- Each row-side cell of the literal matching has exactly its prescribed
-demand. -/
-theorem card_typedPartialMatching_rowCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
-    Fintype.card ((matching.rowAllocation i).1 j : Finset (Fin (k i))) =
-      L i j := by
-  simpa using (matching.rowAllocation i).2.1 j
-
-/-- Each column-side cell of the literal matching has exactly its prescribed
-demand. -/
-theorem card_typedPartialMatching_columnCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
-    Fintype.card ((matching.columnAllocation j).1 i : Finset (Fin (ell j))) =
-      L i j := by
-  simpa using (matching.columnAllocation j).2.1 i
-
-/-- The cellwise partial-matching presentation contains exactly the existing
-`PrescribedDemandWitness` data; this equivalence is structural and carries no
-probabilistic content. -/
-def typedPartialMatchingEquivPrescribedDemandWitness
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    TypedPartialMatching L k ell ≃ PrescribedDemandWitness L k ell where
-  toFun matching :=
-    ⟨matching.rowAllocation, matching.columnAllocation, matching.pairing⟩
-  invFun witness :=
-    { rowAllocation := witness.1
-      columnAllocation := witness.2.1
-      pairing := witness.2.2 }
-  left_inv matching := by
-    cases matching
-    rfl
-  right_inv witness := by
-    rcases witness with ⟨rowAllocation, columnAllocation, pairing⟩
-    rfl
-
-noncomputable instance instFintypeTypedPartialMatching
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    Fintype (TypedPartialMatching L k ell) :=
-  Fintype.ofEquiv (PrescribedDemandWitness L k ell)
-    (typedPartialMatchingEquivPrescribedDemandWitness L k ell).symm
-
-/-- The exact cross-multiplied finite count for literal typed partial
-matchings.  It is transported from the already proved prescribed-demand
-count, so it remains total even when some cell demand is infeasible. -/
-theorem card_typedPartialMatching_mul_factorials
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    Fintype.card (TypedPartialMatching L k ell) *
-        Finset.univ.prod
-          (fun i => Finset.univ.prod (fun j => (L i j).factorial)) =
-      (Finset.univ.prod
-          (fun i => (k i).descFactorial (Finset.univ.sum (L i)))) *
-      (Finset.univ.prod
-          (fun j =>
-            (ell j).descFactorial (Finset.univ.sum (fun i => L i j)))) := by
-  rw [Fintype.card_congr
-    (typedPartialMatchingEquivPrescribedDemandWitness L k ell)]
-  exact card_prescribedDemandWitness_mul_factorials L k ell
-
-#print axioms typedPartialMatchingSourceEmbedding
-#print axioms typedPartialMatchingTargetEmbedding
-#print axioms typedPartialMatchingPairing
-#print axioms typedPartialMatchingEquivPrescribedDemandWitness
-#print axioms card_typedPartialMatching_mul_factorials
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8TypedPartialMatching
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8TypedPartialMatching
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
-Source: Erdos625/Section8UnlabelledTypedSkeleton.lean
-Normalized SHA-256: ed98d24ebd5e31693d997c84242999d41f5ba3ef24117dd8969053ec47837f7d
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
-
-/-!
-# Section VIII: unlabelled typed skeletons
-
-This module forgets the cellwise presentation of a `TypedPartialMatching` and
-retains only its physical row--column stub edges.  An unlabelled skeleton is a
-finite bipartite edge set in which no row stub and no column stub occurs twice.
-Its `typeTable` counts physical edges by their row and column types.
-
-The construction below is finite and deterministic.  It contains no
-probability or asymptotic assertion.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- A physical finite partial matching between typed row and column stubs. -/
-structure UnlabelledTypedSkeleton
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (k : I -> Nat) (ell : J -> Nat) where
-  edges : Finset (RowStub k × ColumnStub ell)
-  leftUnique :
-    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.1 = e₂.1 -> e₁ = e₂
-  rightUnique :
-    ∀ e₁ ∈ edges, ∀ e₂ ∈ edges, e₁.2 = e₂.2 -> e₁ = e₂
-
-@[ext]
-theorem UnlabelledTypedSkeleton.ext
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    {S T : UnlabelledTypedSkeleton k ell}
-    (hEdges : S.edges = T.edges) :
-    S = T := by
-  cases S
-  cases T
-  simp_all
-
-noncomputable instance instFintypeUnlabelledTypedSkeleton
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (k : I -> Nat) (ell : J -> Nat) :
-    Fintype (UnlabelledTypedSkeleton k ell) := by
-  letI : Finite (UnlabelledTypedSkeleton k ell) :=
-    Finite.of_injective
-      (fun S : UnlabelledTypedSkeleton k ell => S.edges)
-      (fun _ _ h => UnlabelledTypedSkeleton.ext h)
-  exact Fintype.ofFinite _
-
-/-- The number of physical skeleton edges in each row-type/column-type cell. -/
-def UnlabelledTypedSkeleton.typeTable
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) : Nat :=
-  (S.edges.filter (fun e => e.1.1 = i ∧ e.2.1 = j)).card
-
-/-- The physical edges in one fixed type cell, with the type indices removed
-from their endpoints. -/
-def UnlabelledTypedSkeleton.cellEdges
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    Finset (Fin (k i) × Fin (ell j)) :=
-  Finset.univ.filter
-    (fun p => ((⟨i, p.1⟩, ⟨j, p.2⟩) :
-      RowStub k × ColumnStub ell) ∈ S.edges)
-
-/-- Row stubs used by one type cell. -/
-def UnlabelledTypedSkeleton.rowCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    Finset (Fin (k i)) :=
-  (S.cellEdges i j).image Prod.fst
-
-/-- Column stubs used by one type cell. -/
-def UnlabelledTypedSkeleton.columnCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    Finset (Fin (ell j)) :=
-  (S.cellEdges i j).image Prod.snd
-
-private theorem cellEdges_card_eq_typeTable
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    (S.cellEdges i j).card = S.typeTable i j := by
-  unfold UnlabelledTypedSkeleton.cellEdges
-    UnlabelledTypedSkeleton.typeTable
-  refine Finset.card_bij
-    (fun p _ =>
-      ((⟨i, p.1⟩, ⟨j, p.2⟩) :
-        RowStub k × ColumnStub ell)) ?_ ?_ ?_
-  · intro p hp
-    rw [Finset.mem_filter] at hp ⊢
-    exact ⟨hp.2, rfl, rfl⟩
-  · intro p₁ hp₁ p₂ hp₂ hEq
-    exact Prod.ext
-      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hEq)).2)
-      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEq)).2)
-  · intro e he
-    rw [Finset.mem_filter] at he
-    obtain ⟨hEdge, hI, hJ⟩ := he
-    obtain ⟨⟨i', r⟩, ⟨j', c⟩⟩ := e
-    simp only at hI hJ
-    subst i'
-    subst j'
-    exact ⟨(r, c), by simp [hEdge], rfl⟩
-
-private theorem rowCell_card
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    (S.rowCell i j).card = S.typeTable i j := by
-  rw [UnlabelledTypedSkeleton.rowCell,
-    Finset.card_image_of_injOn]
-  · exact cellEdges_card_eq_typeTable S i j
-  · intro p₁ hp₁ p₂ hp₂ hFirst
-    have hEdge₁ :
-        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
-    have hEdge₂ :
-        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
-    have hGlobal := S.leftUnique _ hEdge₁ _ hEdge₂ (by
-      exact Sigma.ext rfl (heq_of_eq hFirst))
-    exact Prod.ext hFirst
-      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2)
-
-private theorem columnCell_card
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    (S.columnCell i j).card = S.typeTable i j := by
-  rw [UnlabelledTypedSkeleton.columnCell,
-    Finset.card_image_of_injOn]
-  · exact cellEdges_card_eq_typeTable S i j
-  · intro p₁ hp₁ p₂ hp₂ hSecond
-    have hEdge₁ :
-        ((⟨i, p₁.1⟩, ⟨j, p₁.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
-    have hEdge₂ :
-        ((⟨i, p₂.1⟩, ⟨j, p₂.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
-    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
-      exact Sigma.ext rfl (heq_of_eq hSecond))
-    exact Prod.ext
-      (eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2)
-      hSecond
-
-private theorem rowCell_disjoint
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I)
-    (j₁ j₂ : J) (hNe : j₁ ≠ j₂) :
-    Disjoint (S.rowCell i j₁) (S.rowCell i j₂) := by
-  rw [Finset.disjoint_left]
-  intro r hr₁ hr₂
-  rw [UnlabelledTypedSkeleton.rowCell, Finset.mem_image] at hr₁ hr₂
-  obtain ⟨p₁, hp₁, hFirst₁⟩ := hr₁
-  obtain ⟨p₂, hp₂, hFirst₂⟩ := hr₂
-  have hEdge₁ :
-      ((⟨i, p₁.1⟩, ⟨j₁, p₁.2⟩) :
-        RowStub k × ColumnStub ell) ∈ S.edges := by
-    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
-  have hEdge₂ :
-      ((⟨i, p₂.1⟩, ⟨j₂, p₂.2⟩) :
-        RowStub k × ColumnStub ell) ∈ S.edges := by
-    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
-  have hLeft : (⟨i, p₁.1⟩ : RowStub k) = ⟨i, p₂.1⟩ := by
-    exact Sigma.ext rfl (heq_of_eq (hFirst₁.trans hFirst₂.symm))
-  have hEdges := S.leftUnique _ hEdge₁ _ hEdge₂ hLeft
-  exact hNe (congrArg (fun e => e.2.1) hEdges)
-
-private theorem columnCell_disjoint
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (j : J)
-    (i₁ i₂ : I) (hNe : i₁ ≠ i₂) :
-    Disjoint (S.columnCell i₁ j) (S.columnCell i₂ j) := by
-  rw [Finset.disjoint_left]
-  intro c hc₁ hc₂
-  rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc₁ hc₂
-  obtain ⟨p₁, hp₁, hSecond₁⟩ := hc₁
-  obtain ⟨p₂, hp₂, hSecond₂⟩ := hc₂
-  have hEdge₁ :
-      ((⟨i₁, p₁.1⟩, ⟨j, p₁.2⟩) :
-        RowStub k × ColumnStub ell) ∈ S.edges := by
-    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₁
-  have hEdge₂ :
-      ((⟨i₂, p₂.1⟩, ⟨j, p₂.2⟩) :
-        RowStub k × ColumnStub ell) ∈ S.edges := by
-    simpa [UnlabelledTypedSkeleton.cellEdges] using hp₂
-  have hRight : (⟨j, p₁.2⟩ : ColumnStub ell) = ⟨j, p₂.2⟩ := by
-    exact Sigma.ext rfl (heq_of_eq (hSecond₁.trans hSecond₂.symm))
-  have hEdges := S.rightUnique _ hEdge₁ _ hEdge₂ hRight
-  exact hNe (congrArg (fun e => e.1.1) hEdges)
-
-private def skeletonRowAllocation
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
-    (i : I) :
-    StubAllocation (k i) (L i) :=
-  ⟨S.rowCell i, by
-    constructor
-    · intro j
-      rw [rowCell_card]
-      exact congrFun (congrFun hTable i) j
-    · intro j₁ j₂ hNe
-      exact rowCell_disjoint S i j₁ j₂ hNe⟩
-
-private def skeletonColumnAllocation
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (hTable : S.typeTable = L)
-    (j : J) :
-    StubAllocation (ell j) (fun i => L i j) :=
-  ⟨fun i => S.columnCell i j, by
-    constructor
-    · intro i
-      rw [columnCell_card]
-      exact congrFun (congrFun hTable i) j
-    · intro i₁ i₂ hNe
-      exact columnCell_disjoint S j i₁ i₂ hNe⟩
-
-private noncomputable def skeletonCellEdgeOfRow
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
-    (r : ↑(S.rowCell i j)) :
-    Fin (k i) × Fin (ell j) :=
-  Classical.choose (Finset.mem_image.mp r.2)
-
-private theorem skeletonCellEdgeOfRow_mem
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
-    (r : ↑(S.rowCell i j)) :
-    skeletonCellEdgeOfRow S i j r ∈ S.cellEdges i j :=
-  (Classical.choose_spec (Finset.mem_image.mp r.2)).1
-
-private theorem skeletonCellEdgeOfRow_fst
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
-    (r : ↑(S.rowCell i j)) :
-    (skeletonCellEdgeOfRow S i j r).1 = r.1 :=
-  (Classical.choose_spec (Finset.mem_image.mp r.2)).2
-
-private noncomputable def skeletonCellPairing
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) :
-    ↑(S.rowCell i j) ≃ ↑(S.columnCell i j) := by
-  let toColumn :
-      ↑(S.rowCell i j) -> ↑(S.columnCell i j) :=
-    fun r =>
-      ⟨(skeletonCellEdgeOfRow S i j r).2,
-        Finset.mem_image.mpr
-          ⟨skeletonCellEdgeOfRow S i j r,
-            skeletonCellEdgeOfRow_mem S i j r, rfl⟩⟩
-  refine Equiv.ofBijective toColumn ⟨?_, ?_⟩
-  · intro r₁ r₂ hColumn
-    have hEdge₁ :
-        ((⟨i, (skeletonCellEdgeOfRow S i j r₁).1⟩,
-            ⟨j, (skeletonCellEdgeOfRow S i j r₁).2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using
-        skeletonCellEdgeOfRow_mem S i j r₁
-    have hEdge₂ :
-        ((⟨i, (skeletonCellEdgeOfRow S i j r₂).1⟩,
-            ⟨j, (skeletonCellEdgeOfRow S i j r₂).2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using
-        skeletonCellEdgeOfRow_mem S i j r₂
-    have hSecond :
-        (skeletonCellEdgeOfRow S i j r₁).2 =
-          (skeletonCellEdgeOfRow S i j r₂).2 :=
-      congrArg Subtype.val hColumn
-    have hGlobal := S.rightUnique _ hEdge₁ _ hEdge₂ (by
-      exact Sigma.ext rfl (heq_of_eq hSecond))
-    apply Subtype.ext
-    rw [← skeletonCellEdgeOfRow_fst S i j r₁,
-      ← skeletonCellEdgeOfRow_fst S i j r₂]
-    exact eq_of_heq
-      (Sigma.mk.inj_iff.mp (congrArg Prod.fst hGlobal)).2
-  · intro c
-    have hc := c.2
-    change c.1 ∈ (S.cellEdges i j).image Prod.snd at hc
-    rw [Finset.mem_image] at hc
-    obtain ⟨p, hp, hSecond⟩ := hc
-    let r : ↑(S.rowCell i j) :=
-      ⟨p.1, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
-    refine ⟨r, ?_⟩
-    apply Subtype.ext
-    have hChosen :
-        ((⟨i, (skeletonCellEdgeOfRow S i j r).1⟩,
-            ⟨j, (skeletonCellEdgeOfRow S i j r).2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using
-        skeletonCellEdgeOfRow_mem S i j r
-    have hGiven :
-        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hp
-    have hFirst :
-        (skeletonCellEdgeOfRow S i j r).1 = p.1 := by
-      simpa [r] using skeletonCellEdgeOfRow_fst S i j r
-    have hGlobal := S.leftUnique _ hChosen _ hGiven (by
-      exact Sigma.ext rfl (heq_of_eq hFirst))
-    exact (eq_of_heq
-      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hGlobal)).2).trans hSecond
-
-@[simp]
-private theorem skeletonCellPairing_apply
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {k : I -> Nat} {ell : J -> Nat}
-    (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J)
-    (r : ↑(S.rowCell i j)) :
-    ((skeletonCellPairing S i j r : ↑(S.columnCell i j)) :
-      Fin (ell j)) =
-      (skeletonCellEdgeOfRow S i j r).2 := by
-  rfl
-
-/-- The graph edge associated with every selected row atom of a typed partial
-matching.  Injectivity follows already from injectivity on row stubs. -/
-def typedPartialMatchingEdgeEmbedding
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    TypedPartialMatchingSource matching ↪
-      (RowStub k × ColumnStub ell) where
-  toFun atom :=
-    (typedPartialMatchingSourceEmbedding matching atom,
-      typedPartialMatchingTargetEmbedding matching
-        (typedPartialMatchingPairing matching atom))
-  inj' := by
-    intro atom₁ atom₂ h
-    apply (typedPartialMatchingSourceEmbedding matching).injective
-    exact congrArg Prod.fst h
-
-/-- Forget the cellwise presentation of a typed partial matching and retain
-only its physical edge set. -/
-def typedPartialMatchingUnlabelledSkeleton
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    UnlabelledTypedSkeleton k ell where
-  edges := Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)
-  leftUnique := by
-    intro e₁ he₁ e₂ he₂ hLeft
-    rw [Finset.mem_map] at he₁ he₂
-    obtain ⟨atom₁, _, rfl⟩ := he₁
-    obtain ⟨atom₂, _, rfl⟩ := he₂
-    have hAtom :
-        atom₁ = atom₂ :=
-      (typedPartialMatchingSourceEmbedding matching).injective hLeft
-    subst atom₂
-    rfl
-  rightUnique := by
-    intro e₁ he₁ e₂ he₂ hRight
-    rw [Finset.mem_map] at he₁ he₂
-    obtain ⟨atom₁, _, rfl⟩ := he₁
-    obtain ⟨atom₂, _, rfl⟩ := he₂
-    have hPaired :
-        typedPartialMatchingPairing matching atom₁ =
-          typedPartialMatchingPairing matching atom₂ :=
-      (typedPartialMatchingTargetEmbedding matching).injective hRight
-    have hAtom :
-        atom₁ = atom₂ :=
-      (typedPartialMatchingPairing matching).injective hPaired
-    subst atom₂
-    rfl
-
-private theorem card_source_cell_filter
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
-    (Finset.univ.filter
-        (fun atom : TypedPartialMatchingSource matching =>
-          atom.1 = i ∧ atom.2.1 = j)).card =
-      ((matching.rowAllocation i).1 j).card := by
-  symm
-  refine Finset.card_bij
-    (fun stub hStub =>
-      (⟨i, j, ⟨stub, hStub⟩⟩ :
-        TypedPartialMatchingSource matching)) ?_ ?_ ?_
-  · intro stub hStub
-    simp
-  · intro stub₁ hStub₁ stub₂ hStub₂ hEq
-    have hUnderlying :
-        (⟨stub₁, hStub₁⟩ :
-          ((matching.rowAllocation i).1 j : Finset (Fin (k i)))) =
-        ⟨stub₂, hStub₂⟩ := by
-      exact eq_of_heq (Sigma.mk.inj_iff.mp
-        (eq_of_heq (Sigma.mk.inj_iff.mp hEq).2)).2
-    exact congrArg Subtype.val hUnderlying
-  · intro atom hAtom
-    rw [Finset.mem_filter] at hAtom
-    obtain ⟨_, hI, hJ⟩ := hAtom
-    obtain ⟨i', j', stub⟩ := atom
-    simp only at hI hJ
-    subst i'
-    subst j'
-    exact ⟨stub.1, stub.2, rfl⟩
-
-/-- Forgetting cell labels does not change the prescribed type table. -/
-theorem typedPartialMatchingUnlabelledSkeleton_typeTable
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) :
-    (typedPartialMatchingUnlabelledSkeleton matching).typeTable = L := by
-  funext i j
-  unfold UnlabelledTypedSkeleton.typeTable
-  change
-    ((Finset.univ.map (typedPartialMatchingEdgeEmbedding matching)).filter
-      (fun e => e.1.1 = i ∧ e.2.1 = j)).card = L i j
-  rw [Finset.filter_map, Finset.card_map]
-  change
-    (Finset.univ.filter
-      (fun atom : TypedPartialMatchingSource matching =>
-        atom.1 = i ∧ atom.2.1 = j)).card = L i j
-  rw [card_source_cell_filter matching i j]
-  simpa using (matching.rowAllocation i).2.1 j
-
-/-- The forward map from cellwise typed partial matchings to physical
-unlabelled skeletons with the prescribed type table. -/
-def typedPartialMatchingToUnlabelledSkeletonFibre
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    TypedPartialMatching L k ell ->
-      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
-  fun matching =>
-    ⟨typedPartialMatchingUnlabelledSkeleton matching,
-      typedPartialMatchingUnlabelledSkeleton_typeTable matching⟩
-
-/-- Reconstruct the cellwise presentation from a physical skeleton.  The
-within-cell equivalence is the unique pairing encoded by the physical edges;
-the use of classical choice only selects that already unique endpoint. -/
-noncomputable def unlabelledSkeletonFibreToTypedPartialMatching
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} ->
-      TypedPartialMatching L k ell :=
-  fun S =>
-    { rowAllocation := skeletonRowAllocation S.1 S.2
-      columnAllocation := skeletonColumnAllocation S.1 S.2
-      pairing := fun i j => skeletonCellPairing S.1 i j }
-
-private theorem reconstructed_edgeEmbedding_apply
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
-    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L})
-    (i : I) (j : J) (r : ↑(S.1.rowCell i j)) :
-    typedPartialMatchingEdgeEmbedding
-        (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
-        ⟨i, j, r⟩ =
-      ((⟨i, r.1⟩,
-          ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
-        RowStub k × ColumnStub ell) := by
-  apply Prod.ext
-  · rfl
-  · apply Sigma.ext rfl
-    exact heq_of_eq (skeletonCellPairing_apply S.1 i j r)
-
-private theorem unlabelledSkeleton_roundTrip_edges
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
-    (S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}) :
-    (typedPartialMatchingUnlabelledSkeleton
-      (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)).edges =
-      S.1.edges := by
-  ext e
-  constructor
-  · intro he
-    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at he
-    obtain ⟨atom, _, rfl⟩ := he
-    obtain ⟨i, j, r⟩ := atom
-    change ↑(S.1.rowCell i j) at r
-    have hCell :=
-      skeletonCellEdgeOfRow_mem S.1 i j r
-    have hEdge :
-        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r).1⟩,
-            ⟨j, (skeletonCellEdgeOfRow S.1 i j r).2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.1.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using hCell
-    have hFirst :
-        (skeletonCellEdgeOfRow S.1 i j r).1 = r.1 :=
-      skeletonCellEdgeOfRow_fst S.1 i j r
-    rw [reconstructed_edgeEmbedding_apply L k ell S i j r]
-    simpa [hFirst] using hEdge
-  · intro he
-    obtain ⟨⟨i, r⟩, ⟨j, c⟩⟩ := e
-    let p : Fin (k i) × Fin (ell j) := (r, c)
-    have hp : p ∈ S.1.cellEdges i j := by
-      simp [p, UnlabelledTypedSkeleton.cellEdges, he]
-    let r' : ↑(S.1.rowCell i j) :=
-      ⟨r, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
-    let atom :
-        TypedPartialMatchingSource
-          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S) :=
-      ⟨i, j, r'⟩
-    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
-    refine ⟨atom, Finset.mem_univ _, ?_⟩
-    have hChosen :
-        ((⟨i, (skeletonCellEdgeOfRow S.1 i j r').1⟩,
-            ⟨j, (skeletonCellEdgeOfRow S.1 i j r').2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.1.edges := by
-      simpa [UnlabelledTypedSkeleton.cellEdges] using
-        skeletonCellEdgeOfRow_mem S.1 i j r'
-    have hGiven :
-        ((⟨i, p.1⟩, ⟨j, p.2⟩) :
-          RowStub k × ColumnStub ell) ∈ S.1.edges := by
-      simpa [p] using he
-    have hFirst :
-        (skeletonCellEdgeOfRow S.1 i j r').1 = p.1 := by
-      simpa [r', p] using skeletonCellEdgeOfRow_fst S.1 i j r'
-    have hEdges := S.1.leftUnique _ hChosen _ hGiven (by
-      exact Sigma.ext rfl (heq_of_eq hFirst))
-    have hSecond :
-        (skeletonCellEdgeOfRow S.1 i j r').2 = p.2 :=
-      eq_of_heq (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
-    change
-      typedPartialMatchingEdgeEmbedding
-          (unlabelledSkeletonFibreToTypedPartialMatching L k ell S)
-          ⟨i, j, r'⟩ =
-        ((⟨i, r⟩, ⟨j, c⟩) :
-          RowStub k × ColumnStub ell)
-    rw [reconstructed_edgeEmbedding_apply L k ell S i j r']
-    apply Prod.ext
-    · exact Sigma.ext rfl (heq_of_eq rfl)
-    · exact Sigma.ext rfl (heq_of_eq (by simpa [p] using hSecond))
-
-private theorem typedPartialMatching_roundTrip_rowCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
-    (typedPartialMatchingUnlabelledSkeleton matching).rowCell i j =
-      (matching.rowAllocation i).1 j := by
-  ext r
-  simp [UnlabelledTypedSkeleton.rowCell,
-    UnlabelledTypedSkeleton.cellEdges,
-    typedPartialMatchingUnlabelledSkeleton,
-    typedPartialMatchingEdgeEmbedding,
-    typedPartialMatchingSourceEmbedding,
-    typedPartialMatchingTargetEmbedding,
-    typedPartialMatchingPairing]
-
-private theorem typedPartialMatching_roundTrip_columnCell
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat}
-    (matching : TypedPartialMatching L k ell) (i : I) (j : J) :
-    (typedPartialMatchingUnlabelledSkeleton matching).columnCell i j =
-      (matching.columnAllocation j).1 i := by
-  ext c
-  constructor
-  · intro hc
-    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image] at hc
-    obtain ⟨p, hp, rfl⟩ := hc
-    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter] at hp
-    obtain ⟨_, hp⟩ := hp
-    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map] at hp
-    obtain ⟨atom, _, hAtom⟩ := hp
-    have hRow := congrArg Prod.fst hAtom
-    have hColumn := congrArg Prod.snd hAtom
-    obtain ⟨i', j', r⟩ := atom
-    simp [typedPartialMatchingEdgeEmbedding,
-      typedPartialMatchingSourceEmbedding,
-      typedPartialMatchingTargetEmbedding,
-      typedPartialMatchingPairing] at hRow hColumn
-    obtain ⟨hI, _⟩ := hRow
-    obtain ⟨hJ, hC⟩ := hColumn
-    subst i'
-    subst j'
-    rw [← eq_of_heq hC]
-    exact (matching.pairing i j r).2
-  · intro hc
-    let c' :
-        ((matching.columnAllocation j).1 i :
-          Finset (Fin (ell j))) := ⟨c, hc⟩
-    let r' := (matching.pairing i j).symm c'
-    let p : Fin (k i) × Fin (ell j) := (r'.1, c)
-    rw [UnlabelledTypedSkeleton.columnCell, Finset.mem_image]
-    refine ⟨p, ?_, rfl⟩
-    rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter]
-    refine ⟨Finset.mem_univ _, ?_⟩
-    rw [typedPartialMatchingUnlabelledSkeleton, Finset.mem_map]
-    refine ⟨(⟨i, j, r'⟩ :
-      TypedPartialMatchingSource matching), Finset.mem_univ _, ?_⟩
-    apply Prod.ext
-    · exact Sigma.ext rfl (heq_of_eq rfl)
-    · change
-        (typedPartialMatchingEdgeEmbedding matching
-          (⟨i, j, r'⟩ : TypedPartialMatchingSource matching)).2 =
-          (⟨j, c⟩ : ColumnStub ell)
-      change
-        (⟨j, ((matching.pairing i j) r' : Fin (ell j))⟩ :
-          ColumnStub ell) =
-          ⟨j, c⟩
-      exact Sigma.ext rfl (heq_of_eq (by
-        change ((matching.pairing i j) r' : Fin (ell j)) = c
-        simp [r', c']))
-
-private theorem typedPartialMatchingUnlabelledSkeleton_injective
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    {L : I -> J -> Nat} {k : I -> Nat} {ell : J -> Nat} :
-    Function.Injective
-      (typedPartialMatchingUnlabelledSkeleton :
-        TypedPartialMatching L k ell ->
-          UnlabelledTypedSkeleton k ell) := by
-  intro matching₁ matching₂ hSkeleton
-  have hRows :
-      matching₁.rowAllocation = matching₂.rowAllocation := by
-    funext i
-    apply Subtype.ext
-    funext j
-    rw [← typedPartialMatching_roundTrip_rowCell matching₁ i j,
-      hSkeleton,
-      typedPartialMatching_roundTrip_rowCell matching₂ i j]
-  have hColumns :
-      matching₁.columnAllocation = matching₂.columnAllocation := by
-    funext j
-    apply Subtype.ext
-    funext i
-    rw [← typedPartialMatching_roundTrip_columnCell matching₁ i j,
-      hSkeleton,
-      typedPartialMatching_roundTrip_columnCell matching₂ i j]
-  obtain ⟨rowAllocation₁, columnAllocation₁, pairing₁⟩ := matching₁
-  obtain ⟨rowAllocation₂, columnAllocation₂, pairing₂⟩ := matching₂
-  simp only at hRows hColumns
-  subst rowAllocation₂
-  subst columnAllocation₂
-  have hPairing : pairing₁ = pairing₂ := by
-    funext i j
-    apply Equiv.ext
-    intro r
-    let matching₁ : TypedPartialMatching L k ell :=
-      { rowAllocation := rowAllocation₁
-        columnAllocation := columnAllocation₁
-        pairing := pairing₁ }
-    let matching₂ : TypedPartialMatching L k ell :=
-      { rowAllocation := rowAllocation₁
-        columnAllocation := columnAllocation₁
-        pairing := pairing₂ }
-    let atom₁ : TypedPartialMatchingSource matching₁ := ⟨i, j, r⟩
-    let atom₂ : TypedPartialMatchingSource matching₂ := ⟨i, j, r⟩
-    let edge₁ := typedPartialMatchingEdgeEmbedding matching₁ atom₁
-    let edge₂ := typedPartialMatchingEdgeEmbedding matching₂ atom₂
-    have hEdge₁ :
-        edge₁ ∈
-          (typedPartialMatchingUnlabelledSkeleton matching₁).edges := by
-      simp [edge₁, atom₁, typedPartialMatchingUnlabelledSkeleton]
-    have hEdge₂ :
-        edge₂ ∈
-          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
-      simp [edge₂, atom₂, typedPartialMatchingUnlabelledSkeleton]
-    have hSkeleton' :
-        typedPartialMatchingUnlabelledSkeleton matching₁ =
-          typedPartialMatchingUnlabelledSkeleton matching₂ := by
-      simpa [matching₁, matching₂] using hSkeleton
-    have hEdge₁' :
-        edge₁ ∈
-          (typedPartialMatchingUnlabelledSkeleton matching₂).edges := by
-      rw [← hSkeleton']
-      exact hEdge₁
-    have hLeft : edge₁.1 = edge₂.1 := by
-      rfl
-    have hEdges :=
-      (typedPartialMatchingUnlabelledSkeleton matching₂).leftUnique
-        edge₁ hEdge₁' edge₂ hEdge₂ hLeft
-    apply Subtype.ext
-    exact eq_of_heq
-      (Sigma.mk.inj_iff.mp (congrArg Prod.snd hEdges)).2
-  subst pairing₂
-  rfl
-
-/-- Cellwise typed partial matchings are exactly physical unlabelled skeletons
-whose type table is the prescribed matrix.  No ordering is introduced inside
-a cell on either side of this equivalence. -/
-noncomputable def typedPartialMatchingEquivUnlabelledSkeletonFibre
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    TypedPartialMatching L k ell ≃
-      {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} :=
-  Equiv.ofBijective
-    (typedPartialMatchingToUnlabelledSkeletonFibre L k ell)
-    ⟨by
-      intro matching₁ matching₂ h
-      apply typedPartialMatchingUnlabelledSkeleton_injective
-      exact congrArg Subtype.val h,
-    by
-      intro S
-      refine ⟨unlabelledSkeletonFibreToTypedPartialMatching L k ell S, ?_⟩
-      apply Subtype.ext
-      apply UnlabelledTypedSkeleton.ext
-      exact unlabelledSkeleton_roundTrip_edges L k ell S⟩
-
-/-- Exact finite cardinality of the physical unlabelled-skeleton fibre.  The
-single cell-factorial product is inherited directly from the literal
-typed-partial-matching count; there is no additional quotient or factorial
-division. -/
-theorem card_unlabelledTypedSkeleton_typeTable_mul_factorials
-    {I J : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat) :
-    Fintype.card
-          {S : UnlabelledTypedSkeleton k ell // S.typeTable = L} *
-        Finset.univ.prod
-          (fun i => Finset.univ.prod (fun j => (L i j).factorial)) =
-      (Finset.univ.prod
-          (fun i => (k i).descFactorial (Finset.univ.sum (L i)))) *
-      (Finset.univ.prod
-          (fun j =>
-            (ell j).descFactorial
-              (Finset.univ.sum (fun i => L i j)))) := by
-  rw [← Fintype.card_congr
-    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell)]
-  exact card_typedPartialMatching_mul_factorials L k ell
-
-#print axioms UnlabelledTypedSkeleton.ext
-#print axioms typedPartialMatchingUnlabelledSkeleton
-#print axioms typedPartialMatchingUnlabelledSkeleton_typeTable
-#print axioms unlabelledSkeletonFibreToTypedPartialMatching
-#print axioms typedPartialMatchingEquivUnlabelledSkeletonFibre
-#print axioms card_unlabelledTypedSkeleton_typeTable_mul_factorials
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8TypeTableFeasibility
 Source: Erdos625/Section8TypeTableFeasibility.lean
 Normalized SHA-256: 4ce9692cd41dc85480472284e58bd7d81100f6edc7ed36fc896516ec9b29a03e
@@ -50916,300 +51355,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8AttainedWeightedQuotient
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8AttainedWeightedQuotient
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
-Source: Erdos625/Section8WeightedSkeletonQuotient.lean
-Normalized SHA-256: 21b0a3ed00b3909bbc3edda415ccbc80b0e17e8efd44be6b9089a266340d1f55
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
-
-/-!
-# Section VIII: weighted reindexing through the physical skeleton fibre
-
-This is only a finite-equivalence reindexing statement. It makes no probability
-claim and introduces no quotient multiplicity beyond the already constructed
-equivalence.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- Reindex a physical-skeleton weight from literal typed partial matchings
-through the exact equivalence with the prescribed type-table fibre. -/
-theorem sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
-    {I J R : Type*}
-    [Fintype I] [Fintype J] [DecidableEq I] [DecidableEq J]
-    [AddCommMonoid R]
-    (L : I -> J -> Nat) (k : I -> Nat) (ell : J -> Nat)
-    (w : UnlabelledTypedSkeleton k ell -> R) :
-    (∑ matching : TypedPartialMatching L k ell,
-      w (typedPartialMatchingToUnlabelledSkeletonFibre L k ell matching).1) =
-      ∑ S : {S : UnlabelledTypedSkeleton k ell // S.typeTable = L}, w S.1 := by
-  simpa [typedPartialMatchingEquivUnlabelledSkeletonFibre] using
-    (typedPartialMatchingEquivUnlabelledSkeletonFibre L k ell).sum_comp
-      (fun S => w S.1)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8WeightedSkeletonQuotient
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8WeightedSkeletonQuotient
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
-Source: Erdos625/Section8ProfileSkeletonWeight.lean
-Normalized SHA-256: 1483b580393dfd2f5f7988580af1bdd1d8651965d69813160efdfbfa473f91da
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
-
-/-!
-# Section VIII: exact profile high-skeleton weights
-
-For one fixed ordered profile, this module packages the bare high-skeleton
-factor from manuscript (8.3): the product of the exposed local rewards times
-the normalized incidence of its labelled prescribed-demand witnesses.  It
-then reindexes that finite weight through literal typed partial matchings and
-through the physical unlabelled-skeleton fibre of its type table.
-
-The last two theorems compose this reindexing with the exact canonical
-decomposition from Section IX.  They retain the residual attachment as an
-explicit finite factor.  In particular, this file proves no near/middle
-estimate, no attachment bound, and no asymptotic form of Lemma 8.3.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The finite family of high-demand tables that are actually attained by a
-configuration matching with the fixed profile margins.  This is deliberately
-an attained family: no unsupported feasibility relaxation is made here. -/
-abbrev ProfileCanonicalHighSkeleton
-    {b : Nat} (k : ColoringProfile b) (U : Nat) :=
-  canonicalDemandImage (profileBlockMargin k) (profileBlockMargin k) U
-
-/-- The bare high-skeleton weight for one attained profile demand.  The first
-factor is the exposed local signed reward; the second is the normalized count
-of labelled physical realizations.  This is the exact finite counterpart of
-the weight `w_hi` in (8.3), with no residual attachment included. -/
-noncomputable def profileHighSkeletonWeight
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
-  (canonicalDemandLocalReward demand : ENNReal) *
-    labelledWitnessIncidence demand.1 (profileBlockMargin k)
-      (profileBlockMargin k)
-
-/-- The contribution of one labelled physical realization of an attained
-profile high skeleton.  Summing this constant over all labelled witnesses
-recovers `profileHighSkeletonWeight`. -/
-noncomputable def profileHighSkeletonWitnessWeight
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
-  (canonicalDemandLocalReward demand : ENNReal) /
-    (((Finset.univ.sum (profileBlockMargin k)).descFactorial
-      (totalDemand demand.1) : Nat) : ENNReal)
-
-/-- An attained profile high-demand table has total demand at most the total
-profile vertex mass.  The conclusion is obtained from an actual labelled
-witness; it is not assumed as a separate numerical feasibility condition. -/
-theorem profileHighSkeleton_totalDemand_le
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    totalDemand demand.1 <= Finset.univ.sum (profileBlockMargin k) := by
-  exact totalDemand_le_rowTotal_of_witness
-    (canonicalDemandReferenceWitness (profileBlockMargin k)
-      (profileBlockMargin k) U demand)
-
-/-- The completely expanded falling-factorial form of the bare profile
-high-skeleton weight.  The feasibility premise needed by the incidence
-identity is discharged by `profileHighSkeleton_totalDemand_le`. -/
-theorem profileHighSkeletonWeight_eq_descendingFactorials
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    profileHighSkeletonWeight k U demand =
-      (canonicalDemandLocalReward demand : ENNReal) *
-        (((rowDescendingProduct demand.1 (profileBlockMargin k) *
-          columnDescendingProduct demand.1 (profileBlockMargin k) : Nat) :
-            ENNReal) /
-          (((Finset.univ.sum (profileBlockMargin k)).descFactorial
-            (totalDemand demand.1) * demandFactorialProduct demand.1 : Nat) :
-              ENNReal)) := by
-  unfold profileHighSkeletonWeight
-  rw [labelledWitnessIncidence_eq demand.1 (profileBlockMargin k)
-    (profileBlockMargin k) (profileHighSkeleton_totalDemand_le k U demand)]
-
-/-- Reindex one bare profile high-skeleton weight over its literal typed
-partial matchings.  The equivalence with prescribed-demand witnesses is used
-only to identify the finite cardinality; no probability law is invoked. -/
-theorem profileHighSkeletonWeight_eq_sum_typedPartialMatching
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    profileHighSkeletonWeight k U demand =
-      ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
-        (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand := by
-  unfold profileHighSkeletonWeight profileHighSkeletonWitnessWeight
-    labelledWitnessIncidence
-  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
-  rw [Fintype.card_congr
-    (typedPartialMatchingEquivPrescribedDemandWitness demand.1
-      (profileBlockMargin k) (profileBlockMargin k))]
-  rw [div_eq_mul_inv, div_eq_mul_inv]
-  simp only [mul_left_comm]
-
-/-- Reindex one bare profile high-skeleton weight through the exact fibre of
-the physical unlabelled skeleton map.  This is the finite quotient seam that
-keeps the labelled-witness multiplicity honest. -/
-theorem profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    profileHighSkeletonWeight k U demand =
-      ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
-        (profileBlockMargin k) // S.typeTable = demand.1},
-          profileHighSkeletonWitnessWeight k U demand := by
-  calc
-    profileHighSkeletonWeight k U demand =
-        ∑ _ : TypedPartialMatching demand.1 (profileBlockMargin k)
-          (profileBlockMargin k), profileHighSkeletonWitnessWeight k U demand :=
-      profileHighSkeletonWeight_eq_sum_typedPartialMatching k U demand
-    _ = ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
-          (profileBlockMargin k) // S.typeTable = demand.1},
-          profileHighSkeletonWitnessWeight k U demand := by
-      simpa using
-        (sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre
-          demand.1 (profileBlockMargin k) (profileBlockMargin k)
-          (fun _ => profileHighSkeletonWitnessWeight k U demand))
-
-/-- With an explicit profile degree cap, the positive support of every
-attained high skeleton is a bipartite matching.  This is the exact structural
-hypothesis used by the later Section VIII near/middle split. -/
-theorem profileHighSkeleton_positiveSupport_isBipartiteMatching
-    {b : Nat} (k : ColoringProfile b) (U : Nat)
-    (hcap : forall a : ProfileBlockIndex k, profileBlockMargin k a <= U)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    IsBipartiteMatching (positiveDemandSupport demand.1) := by
-  exact positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-    U hcap hcap demand
-
-/-- The exact residual attachment belonging to one attained profile high
-skeleton.  The fixed row is retained to make the equal-total-degree proof
-term explicit, even though the value depends only on the profile margins. -/
-noncomputable def profileHighSkeletonAttachment
-    {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
-  residualActualAttachmentNumerator
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree
-      (profileBlockMargin_total_eq_self row0)
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-
-/-- One exact canonical high-skeleton contribution: its bare Section VIII
-weight times its Section IX residual attachment. -/
-noncomputable def profileHighSkeletonContribution
-    {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat)
-    (demand : ProfileCanonicalHighSkeleton k U) : ENNReal :=
-  profileHighSkeletonWeight k U demand *
-    profileHighSkeletonAttachment row0 U demand
-
-/-- The profile signed-overlap expectation reindexed exactly by attained
-canonical high skeletons.  `hU` is explicit because the underlying reward/
-support split uses it to identify positive demands with multiplicity-two
-support edges. -/
-theorem sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
-    {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row0 column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
-      ∑ demand : ProfileCanonicalHighSkeleton k U,
-        profileHighSkeletonContribution row0 U demand := by
-  simpa only [profileHighSkeletonContribution, profileHighSkeletonWeight,
-    profileHighSkeletonAttachment, mul_assoc] using
-    (sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row0 U hU)
-
-/-- Reindex the exact canonical skeleton/attachment sum through the physical
-unlabelled-skeleton fibre of each attained demand table.  The attachment is
-kept unchanged across a fibre because the canonical decomposition already
-standardizes it by a reference witness. -/
-theorem sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
-    {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) :
-    (∑ demand : ProfileCanonicalHighSkeleton k U,
-      profileHighSkeletonContribution row0 U demand) =
-      ∑ demand : ProfileCanonicalHighSkeleton k U,
-        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
-          (profileBlockMargin k) // S.typeTable = demand.1},
-          profileHighSkeletonWitnessWeight k U demand *
-            profileHighSkeletonAttachment row0 U demand := by
-  apply Finset.sum_congr rfl
-  intro demand _
-  unfold profileHighSkeletonContribution
-  rw [profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre k U demand]
-  rw [Finset.sum_mul]
-
-/-- The strongest finite profile-facing reindexing supplied here: the exact
-signed-overlap expectation is a double finite sum over attained demand tables
-and their physical unlabelled high-skeleton fibres.  No bound on this sum is
-asserted. -/
-theorem sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
-    {b n : Nat} {k : ColoringProfile b}
-    (row0 : OrderedProfilePartition n k) (U : Nat) (hU : 2 <= U) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row0 column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
-      ∑ demand : ProfileCanonicalHighSkeleton k U,
-        ∑ _ : {S : UnlabelledTypedSkeleton (profileBlockMargin k)
-          (profileBlockMargin k) // S.typeTable = demand.1},
-          profileHighSkeletonWitnessWeight k U demand *
-            profileHighSkeletonAttachment row0 U demand := by
-  calc
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row0 column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row0 column).tableNat : ENNReal)) =
-        ∑ demand : ProfileCanonicalHighSkeleton k U,
-          profileHighSkeletonContribution row0 U demand :=
-      sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
-        row0 U hU
-    _ = _ :=
-      sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre row0 U
-
-#print axioms profileHighSkeleton_totalDemand_le
-#print axioms profileHighSkeletonWeight_eq_descendingFactorials
-#print axioms profileHighSkeletonWeight_eq_sum_typedPartialMatching
-#print axioms profileHighSkeletonWeight_eq_sum_unlabelledSkeletonFibre
-#print axioms profileHighSkeleton_positiveSupport_isBipartiteMatching
-#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profileHighSkeletonContribution
-#print axioms sum_profileHighSkeletonContribution_eq_sum_unlabelledSkeletonFibre
-#print axioms sum_uniformProfile_signedOverlapReward_eq_sum_profilePhysicalHighSkeletonContribution
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section8ProfileSkeletonWeight
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section8ProfileSkeletonWeight
 ========================================================================== -/
 
 /- ==========================================================================
@@ -57070,7 +57215,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: a737533919a3ea616af64fc83702c98cab30e748774239d6e9b3f1e227d7de4f
+Normalized SHA-256: 79ba1a5df4519115bdba2b1dc0d564dc131b6eb2efc889e287c324b70c76ed60
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -57896,6 +58041,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
+#print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
+#print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
@@ -57906,7 +58053,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 050015d3766fd1a2807ebdf3427709ccaf4ee14345b95600c3f945b3104fa53d
+Normalized SHA-256: ad71547fcdce84cb6d41462d9fd4a8556204a49a0ba81ad0fcdf95b0386a11d0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
