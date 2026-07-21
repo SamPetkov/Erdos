@@ -194,6 +194,7 @@ import Erdos625.Section9RewardTelescoping
 import Erdos625.Section9FiniteFamilyAlgebra
 import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9ResidualAsymptoticArithmetic
+import Erdos625.Section9ResidualRegimeScaleAdapters
 import Erdos625.Section9PhaseENNRealTauCorridor
 import Erdos625.Section9FiniteAnalyticEndpoint
 import Erdos625.Section9CappedFixedFExpansion

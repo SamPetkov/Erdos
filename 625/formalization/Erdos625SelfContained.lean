@@ -42994,107 +42994,6 @@ END SOURCE MODULE: Erdos625.Section9ResidualAsymptoticArithmetic
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
-Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
-Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
-
-/-!
-# Section IX: phase-controlled `ENNReal` tau corridor
-
-This is only the numerical bridge needed to supply the strict tau hypothesis
-of the accepted actual-attachment large-residual envelope.
--/
-
-namespace Erdos625
-
-open Filter
-open scoped ENNReal Topology
-
-noncomputable section
-
-/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
-and the manuscript large-residual cutoff eventually give the strict
-`ENNReal` tau corridor used by the attachment envelope. -/
-theorem eventually_phaseControlled_ennreal_tau_lt_one_third
-    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
-    ∀ᶠ n : Nat in atTop,
-      ∀ (U m : Nat),
-        U ≤ phaseNat n →
-        0 < m →
-        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
-          (1 / 3 : ENNReal) := by
-  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
-    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
-      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
-    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
-    constructor <;> intro h;
-    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
-    · use 0;
-      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
-      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
-  filter_upwards [ hC ] with n hn U m hU hm hmn;
-  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
-  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
-  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
-
-#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
-Source: Erdos625/Section9RewardCompatibility.lean
-Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
-
-/-!
-# Section IX: compatibility of the two local reward presentations
-
-The fixed-`F` threshold expansion and the small-residual deterministic bound
-were developed from two syntactically different presentations of the same
-local reward.  This module records their exact equality.
--/
-
-namespace Erdos625
-
-/-- The fixed-`F` residual reward is exactly the local sign reward. -/
-theorem residualReward_eq_localSignRewardNat (x : ℕ) :
-    residualReward x = localSignRewardNat x := by
-  by_cases h : x ≤ 2
-  · have hnot : ¬ 3 ≤ x := by omega
-    simp [residualReward, localSignRewardNat, h, hnot]
-  · have hthree : 3 ≤ x := by omega
-    simp [residualReward, localSignRewardNat, h, hthree]
-
-/-- Consequently, the threshold increment is the discrete increment of the
-local sign reward. -/
-theorem residualRewardIncrement_eq_localSignRewardNat_sub (x : ℕ) :
-    residualRewardIncrement x =
-      localSignRewardNat x - localSignRewardNat (x - 1) := by
-  simp only [residualRewardIncrement, residualReward_eq_localSignRewardNat]
-
-#print axioms residualReward_eq_localSignRewardNat
-#print axioms residualRewardIncrement_eq_localSignRewardNat_sub
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9RewardCompatibility
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9FixedFFactorization
 Source: Erdos625/Section9FixedFFactorization.lean
 Normalized SHA-256: 48f83507cc24ce3f2df248ed5a97c59ed85e02e46b23286493fa4e9c50ac3938
@@ -43439,22 +43338,18 @@ END SOURCE MODULE: Erdos625.Section9FixedFFubiniBridge
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
-Source: Erdos625/Section9ZeroResidualActualAttachment.lean
-Normalized SHA-256: fd9b444b4aa4b1d2da273ad77f0f53ca99745c61634b9275d22d24bad93acc52
+BEGIN SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
+Source: Erdos625/Section9AttachmentExpectationBound.lean
+Normalized SHA-256: a5606d63f1eaad8bc9aafd11dc1cccc43c2bd73316f95c631567746c2dc5b8bd
 ========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+section Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
 
 /-!
-# Section IX: zero-residual actual attachment
+# Section IX: raw attachment numerator from a pointwise event bound
 
-When the total row-stub mass is zero there are no realised residual pairs.
-With an empty exposed skeleton, the literal even-edge family therefore consists
-only of the empty edge set, and the exact Section IX numerator is one.
-
-The empty-skeleton hypothesis is essential: in the present definition,
-`actualResidualEvenEdgeSets` retains every even subset of the exposed skeleton
-`M`, even if no residual pair is present.
+This target is deliberately only the elementary finite-PMF step.  It keeps
+the cap/no-return indicator inside the numerator and never divides by the
+event probability.
 -/
 
 namespace Erdos625
@@ -43463,70 +43358,48 @@ open scoped BigOperators ENNReal
 
 noncomputable section
 
-/-- In the zero-total branch, and with no exposed skeleton edges, the literal
-Section IX actual attachment numerator is exactly one. -/
-theorem residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+/-- A pointwise upper bound for the literal actual attachment integrand on
+the cap/no-return event bounds the raw (not conditional) residual numerator. -/
+theorem residualActualAttachmentNumerator_le_of_forall_event_integrand_le
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hrowTotal : Finset.univ.sum row = 0) :
-    residualActualAttachmentNumerator (∅ : Finset (A × B)) R row col htotal = 1 := by
+    (M : Finset (A × B)) (R : Nat) (row : A → Nat) (col : B → Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col) (K : ENNReal)
+    (hK : ∀ matching : ConfigurationMatching row col,
+      matching ∈ ResidualCapNoReturnEvent M R row col →
+        (∏ a : A, ∏ b : B,
+          (residualReward (configurationCellCount matching a b) : ENNReal)) *
+          ((actualResidualEvenEdgeSets M matching).card : ENNReal) ≤ K) :
+    residualActualAttachmentNumerator M R row col htotal ≤ K := by
   classical
-  have hrowzero : ∀ a : A, row a = 0 := by
-    intro a
-    exact (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
-  have hcellzero : ∀ (matching : ConfigurationMatching row col) (a : A) (b : B),
-      configurationCellCount matching a b = 0 := by
-    intro matching a b
-    have hsum : (∑ b', configurationCellCount matching a b') = 0 := by
-      rw [sum_configurationCellCount_row, hrowzero a]
-    exact (Finset.sum_eq_zero_iff.mp hsum) b (Finset.mem_univ b)
-  have hevent : ∀ matching : ConfigurationMatching row col,
-      matching ∈ ResidualCapNoReturnEvent (∅ : Finset (A × B)) R row col := by
-    intro matching
-    constructor
-    · intro a b
-      simp [hcellzero matching a b]
-    · simp
-  have hfamily : ∀ matching : ConfigurationMatching row col,
-      actualResidualEvenEdgeSets (∅ : Finset (A × B)) matching = {∅} := by
-    intro matching
-    ext F
-    constructor
-    · intro hF
-      simp only [actualResidualEvenEdgeSets, Finset.mem_filter,
-        bipartiteEvenEdgeSets, Finset.mem_univ, true_and] at hF
-      have hFempty : F = ∅ := by
-        by_contra hne
-        obtain ⟨e, he⟩ := Finset.nonempty_iff_ne_empty.mpr hne
-        have hcondition := hF.2 e he
-        simp [hcellzero matching e.1 e.2] at hcondition
-      simp [hFempty]
-    · intro hF
-      have hFempty : F = ∅ := by
-        simpa only [Finset.mem_singleton] using hF
-      subst F
-      simp only [actualResidualEvenEdgeSets, Finset.mem_filter]
-      constructor
-      · simp only [bipartiteEvenEdgeSets, Finset.mem_filter, Finset.mem_univ, true_and]
-        constructor <;> intro x <;> simp
-      · simp
   unfold residualActualAttachmentNumerator
-  simp_rw [hevent, if_pos, hfamily, hcellzero]
-  simp [residualReward]
-  simpa only [tsum_fintype] using
-    (uniformConfigurationMatching row col htotal).tsum_coe
-
-#print axioms residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+  calc
+    _ ≤ ∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching * K := by
+      apply Finset.sum_le_sum
+      intro matching _
+      by_cases hevent : matching ∈ ResidualCapNoReturnEvent M R row col
+      · simp only [hevent, if_pos, mul_one]
+        rw [mul_assoc]
+        exact mul_le_mul_right (hK matching hevent) _
+      · simp [hevent]
+    _ = (∑ matching : ConfigurationMatching row col,
+        uniformConfigurationMatching row col htotal matching) * K := by
+      rw [Finset.sum_mul]
+    _ = K := by
+      rw [show (∑ matching : ConfigurationMatching row col,
+          uniformConfigurationMatching row col htotal matching) = 1 by
+        rw [← tsum_fintype (L := SummationFilter.unconditional _)]
+        exact (uniformConfigurationMatching row col htotal).tsum_coe,
+        one_mul]
 
 end
 
 end Erdos625
 
-end Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+end Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
 /- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
+END SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -43662,6 +43535,246 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ActualResidualCycleRankAssembly
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ActualResidualCycleRankAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
+Source: Erdos625/Section9SmallResidualDeterministic.lean
+Normalized SHA-256: 00df3c8b05783178642675c392d8424f303cd74e7a177a7833b52ee04507865a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
+
+/-!
+# Deterministic small-residual attachment bound
+
+This module proves the finite arithmetic seam behind manuscript
+(9.20)--(9.22).  It retains the literal full-table cap/no-return event and
+keeps the residual-mass and cycle-rank inputs explicit.  It does not identify
+the random residual table or prove the preceding probabilistic estimates.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Literal full-table cap/no-return event.  On the exposed support the full
+cell equals its exposed demand, and every cell obeys its cap. -/
+def FullCapNoReturnEvent
+    {A B : Type*}
+    (full demand cap : A → B → ℕ) (support : A → B → Prop) : Prop :=
+  ∀ a b,
+    full a b ≤ cap a b ∧
+      (support a b → full a b = demand a b)
+
+/-- The exact deterministic small-residual integrand bound from
+manuscript (9.20)--(9.22). -/
+theorem smallResidualDeterministicBound
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (full demand residual cap : A → B → ℕ)
+    (support : A → B → Prop)
+    (U m cycleRank : ℕ)
+    (hsplit : ∀ a b, full a b = demand a b + residual a b)
+    (hEvent : FullCapNoReturnEvent full demand cap support)
+    (hcap : ∀ a b, cap a b ≤ U)
+    (hmass : ∑ a, ∑ b, residual a b = m)
+    (hcycle : cycleRank ≤ m / 2) :
+    2 ^ cycleRank *
+        (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
+      2 ^ (U * m / 2) := by
+  have hres : ∀ a b, residual a b ≤ U := by
+    exact fun a b => by
+      linarith [hsplit a b, hEvent a b, hcap a b]
+  have hprod :
+      (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
+        2 ^ (∑ a, ∑ b, ((U - 1) * residual a b) / 2) := by
+    have hpoint : ∀ a b,
+        localSignRewardNat (residual a b) ≤
+          2 ^ ((U - 1) * residual a b / 2) := by
+      intro a b
+      unfold localSignRewardNat
+      split_ifs <;> simp_all +decide [Nat.choose_two_right]
+      · gcongr <;> try omega
+        rw [Nat.le_div_iff_mul_le zero_lt_two]
+        nlinarith only
+          [ Nat.sub_add_cancel (by linarith : 1 ≤ residual a b),
+            Nat.sub_add_cancel
+              (show 1 ≤ U from
+                Nat.one_le_iff_ne_zero.mpr <| by linarith [hres a b]),
+            hres a b,
+            Nat.div_mul_le_self (residual a b * (residual a b - 1)) 2,
+            Nat.sub_add_cancel
+              (show 1 ≤ residual a b * (residual a b - 1) / 2 from
+                Nat.div_pos
+                  (by
+                    nlinarith only
+                      [ ‹3 ≤ residual a b›,
+                        Nat.sub_add_cancel (by linarith : 1 ≤ residual a b) ])
+                  zero_lt_two) ]
+      · exact Nat.one_le_pow _ _ (by decide)
+    exact le_trans
+      (Finset.prod_le_prod' fun a _ =>
+        Finset.prod_le_prod' fun b _ => hpoint a b)
+      (by simp +decide [Finset.prod_pow_eq_pow_sum])
+  have hcombine :
+      cycleRank + (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
+        U * m / 2 := by
+    have hlocal :
+        (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
+          (U - 1) * m / 2 := by
+      rw [← hmass, Nat.le_div_iff_mul_le zero_lt_two]
+      simp +decide only [Finset.mul_sum _ _ _]
+      rw [Finset.sum_mul _ _ _]
+      exact Finset.sum_le_sum fun a _ => by
+        rw [Finset.sum_mul _ _ _]
+        exact Finset.sum_le_sum fun b _ => Nat.div_mul_le_self _ _
+    rcases U with (_ | _ | U) <;> simp_all +decide
+    all_goals grind
+  exact le_trans (Nat.mul_le_mul_left _ hprod) (by
+    rw [← pow_add]
+    exact pow_le_pow_right₀ (by decide) hcombine)
+
+#print axioms smallResidualDeterministicBound
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RewardCompatibility
+Source: Erdos625/Section9RewardCompatibility.lean
+Normalized SHA-256: beb8ce63dd8732320cc8df4eb183a974db43c6fe253ab9fc61877488ababb73b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+
+/-!
+# Section IX: compatibility of the two local reward presentations
+
+The fixed-`F` threshold expansion and the small-residual deterministic bound
+were developed from two syntactically different presentations of the same
+local reward.  This module records their exact equality.
+-/
+
+namespace Erdos625
+
+/-- The fixed-`F` residual reward is exactly the local sign reward. -/
+theorem residualReward_eq_localSignRewardNat (x : ℕ) :
+    residualReward x = localSignRewardNat x := by
+  by_cases h : x ≤ 2
+  · have hnot : ¬ 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hnot]
+  · have hthree : 3 ≤ x := by omega
+    simp [residualReward, localSignRewardNat, h, hthree]
+
+/-- Consequently, the threshold increment is the discrete increment of the
+local sign reward. -/
+theorem residualRewardIncrement_eq_localSignRewardNat_sub (x : ℕ) :
+    residualRewardIncrement x =
+      localSignRewardNat x - localSignRewardNat (x - 1) := by
+  simp only [residualRewardIncrement, residualReward_eq_localSignRewardNat]
+
+#print axioms residualReward_eq_localSignRewardNat
+#print axioms residualRewardIncrement_eq_localSignRewardNat_sub
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RewardCompatibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RewardCompatibility
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
+Source: Erdos625/Section9SmallResidualAttachmentBound.lean
+Normalized SHA-256: 99b135c2e8d946ca0ac66ca50e58b304f4d34511479f25764cde5b219216962b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
+
+/-!
+# Section IX: faithful small-residual attachment bound
+
+This module bounds the actual event-restricted attachment numerator, rather
+than the larger unrestricted polymer majorant.  The row and column functions
+are the residual degrees supplied to that numerator; their common total is
+the residual mass `m`.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The literal capped/no-return attachment numerator is bounded by the
+deterministic small-residual exponent from manuscript (9.20)--(9.22). -/
+theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R U m : ℕ)
+    (row : A → ℕ) (col : B → ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hM : IsBipartiteMatching M)
+    (hR : R = U / 2)
+    (hm : (∑ a, row a) = m) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      ((2 : ENNReal) ^ (U * m / 2)) := by
+  classical
+  apply residualActualAttachmentNumerator_le_of_forall_event_integrand_le
+  intro matching hevent
+  let rank := cycleRank
+    (bipartiteGraph fun a b =>
+      (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b)
+  have hdet :
+      2 ^ rank *
+          (∏ a : A, ∏ b : B,
+            localSignRewardNat (configurationCellCount matching a b)) ≤
+        2 ^ (U * m / 2) := by
+    apply smallResidualDeterministicBound
+      (configurationCellCount matching) (fun _ _ => 0)
+      (configurationCellCount matching) (fun _ _ => R)
+      (fun a b => (a, b) ∈ M) U m rank
+    · intro a b
+      simp
+    · intro a b
+      constructor
+      · exact hevent.1 a b
+      · intro hab
+        simpa using hevent.2 (a, b) hab
+    · intro _ _
+      rw [hR]
+      omega
+    · calc
+        (∑ a, ∑ b, configurationCellCount matching a b) =
+            ∑ p : A × B,
+              configurationCellCount matching p.1 p.2 := by
+          exact (Fintype.sum_prod_type fun p : A × B ↦
+            configurationCellCount matching p.1 p.2).symm
+        _ = ∑ a, row a := sum_configurationCellCount_all matching
+        _ = m := hm
+    · dsimp only [rank]
+      exact
+        cycleRank_matching_union_configurationResidualSupport_le_half_m₀
+          matching (fun a b => (a, b) ∈ M) m hm hM.1 hM.2
+  rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
+  simp_rw [residualReward_eq_localSignRewardNat]
+  exact_mod_cast (show
+    (∏ a : A, ∏ b : B,
+      localSignRewardNat (configurationCellCount matching a b)) * 2 ^ rank ≤
+        2 ^ (U * m / 2) by
+      simpa only [mul_comm] using hdet)
+
+#print axioms residualActualAttachmentNumerator_le_two_pow_of_small_mass
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -47069,6 +47182,650 @@ END SOURCE MODULE: Erdos625.Section9SignedOverlapCanonicalDecomposition
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
+Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+
+/-!
+# Section IX: polymer bound for the actual attachment numerator
+
+The exact finite Fubini identity identifies the literal actual-family
+numerator with the capped fixed-`F` sum.  This module composes that identity
+with the previously proved even-family and polymer bounds.
+
+Both conclusions concern the **event-restricted expectation** in manuscript
+(9.1): the cap/no-return indicator remains inside the uniform residual
+matching expectation.  No division by its event probability belongs in the
+(9.1)--(9.2) route.  The cycle-space cardinality, full-table reward/support
+split, tagged incidence integration, and final Lemma 9.1 estimate remain
+separate.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
+product times the unrestricted finite even-family weight sum.
+
+This is the fixed-residual-fibre form, before tagged incidence integration. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∑ F ∈ bipartiteEvenEdgeSets A B,
+          edgeWeightOutsideENN (residualQ M R row col) M F) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
+    M R row col htotal hm
+
+/-- The event-restricted attachment numerator is bounded by the common local-threshold
+product times the simple-cycle polymer product.
+
+It does not yet identify the even-family cardinality with the manuscript
+cycle-space factor or integrate the demand-dependent residual estimate over
+the global tagged law. -/
+theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hm : 0 < Finset.univ.sum row) :
+    residualActualAttachmentNumerator M R row col htotal ≤
+      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+        (∏ C ∈ simpleBipartiteCycles A B,
+          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
+  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
+  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
+    M R row col htotal hm
+
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
+#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
+Source: Erdos625/Section9ZeroResidualActualAttachment.lean
+Normalized SHA-256: fd9b444b4aa4b1d2da273ad77f0f53ca99745c61634b9275d22d24bad93acc52
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+
+/-!
+# Section IX: zero-residual actual attachment
+
+When the total row-stub mass is zero there are no realised residual pairs.
+With an empty exposed skeleton, the literal even-edge family therefore consists
+only of the empty edge set, and the exact Section IX numerator is one.
+
+The empty-skeleton hypothesis is essential: in the present definition,
+`actualResidualEvenEdgeSets` retains every even subset of the exposed skeleton
+`M`, even if no residual pair is present.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- In the zero-total branch, and with no exposed skeleton edges, the literal
+Section IX actual attachment numerator is exactly one. -/
+theorem residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (R : ℕ) (row : A → ℕ) (col : B → ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hrowTotal : Finset.univ.sum row = 0) :
+    residualActualAttachmentNumerator (∅ : Finset (A × B)) R row col htotal = 1 := by
+  classical
+  have hrowzero : ∀ a : A, row a = 0 := by
+    intro a
+    exact (Finset.sum_eq_zero_iff.mp hrowTotal) a (Finset.mem_univ a)
+  have hcellzero : ∀ (matching : ConfigurationMatching row col) (a : A) (b : B),
+      configurationCellCount matching a b = 0 := by
+    intro matching a b
+    have hsum : (∑ b', configurationCellCount matching a b') = 0 := by
+      rw [sum_configurationCellCount_row, hrowzero a]
+    exact (Finset.sum_eq_zero_iff.mp hsum) b (Finset.mem_univ b)
+  have hevent : ∀ matching : ConfigurationMatching row col,
+      matching ∈ ResidualCapNoReturnEvent (∅ : Finset (A × B)) R row col := by
+    intro matching
+    constructor
+    · intro a b
+      simp [hcellzero matching a b]
+    · simp
+  have hfamily : ∀ matching : ConfigurationMatching row col,
+      actualResidualEvenEdgeSets (∅ : Finset (A × B)) matching = {∅} := by
+    intro matching
+    ext F
+    constructor
+    · intro hF
+      simp only [actualResidualEvenEdgeSets, Finset.mem_filter,
+        bipartiteEvenEdgeSets, Finset.mem_univ, true_and] at hF
+      have hFempty : F = ∅ := by
+        by_contra hne
+        obtain ⟨e, he⟩ := Finset.nonempty_iff_ne_empty.mpr hne
+        have hcondition := hF.2 e he
+        simp [hcellzero matching e.1 e.2] at hcondition
+      simp [hFempty]
+    · intro hF
+      have hFempty : F = ∅ := by
+        simpa only [Finset.mem_singleton] using hF
+      subst F
+      simp only [actualResidualEvenEdgeSets, Finset.mem_filter]
+      constructor
+      · simp only [bipartiteEvenEdgeSets, Finset.mem_filter, Finset.mem_univ, true_and]
+        constructor <;> intro x <;> simp
+      · simp
+  unfold residualActualAttachmentNumerator
+  simp_rw [hevent, if_pos, hfamily, hcellzero]
+  simp [residualReward]
+  simpa only [tsum_fintype] using
+    (uniformConfigurationMatching row col htotal).tsum_coe
+
+#print axioms residualActualAttachmentNumerator_empty_eq_one_of_total_zero
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ZeroResidualActualAttachment
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ZeroResidualActualAttachment
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
+Normalized SHA-256: bd9688440743399a9bc9cdc25618e36aa9b3c707fc21c91ff9974e59931ebaf4
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+
+/-!
+# Section IX: profile attachment polymer assembly
+
+This transports the fixed-residual-fibre polymer estimate through the actual
+dependent canonical-demand family. The cap/no-return indicator remains inside
+`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance instFintypeCanonicalResidualCellEventProfilePolymer
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
+    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+/-- The finite polymer majorant attached to one attained canonical demand. -/
+noncomputable def canonicalDemandPolymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  let witness := canonicalDemandReferenceWitness row col U demand
+  (∏ a : A, ∏ b : B,
+      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
+    (∏ C ∈ simpleBipartiteCycles A B,
+      (1 + edgeWeightOutsideENN
+        (residualQ (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness))
+        (positiveDemandSupport demand.1) C))
+
+/-- Strict-regime transport over the full dependent tagged residual family. -/
+theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (hpositive : ∀ demand : canonicalDemandImage row col U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))) :
+    (Finset.univ.sum fun z :
+      Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          canonicalResidualCellEvent witness U =>
+      uniformSigmaCanonicalDemandResidual row col U htotal z *
+        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
+      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
+        labelledWitnessIncidence demand.1 row col *
+          canonicalDemandPolymerMajorant row col U demand := by
+  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
+    row col U htotal]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness row col U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+      (canonicalDemandReferenceWitness row col U demand))
+    (hpositive demand)
+
+/-- Ordered-profile specialization in the uniform strict residual regime. -/
+theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U)
+    (hpositive : ∀ demand : canonicalDemandImage
+        (profileBlockMargin k) (profileBlockMargin k) U,
+      0 < Finset.univ.sum
+        (residualRowDegree
+          (canonicalDemandReferenceWitness (profileBlockMargin k)
+            (profileBlockMargin k) U demand))) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
+      ∑ demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U,
+        (canonicalDemandLocalReward demand : ENNReal) *
+          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
+            (profileBlockMargin k) *
+            canonicalDemandPolymerMajorant
+              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
+    row₀ U hU]
+  apply Finset.sum_le_sum
+  intro demand _
+  apply mul_le_mul_right
+  apply mul_le_mul_right
+  unfold canonicalDemandPolymerMajorant
+  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+    (positiveDemandSupport demand.1) (U / 2)
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (residualColumnDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row₀)
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+    (hpositive demand)
+
+/-- Residual stub mass attached to an attained canonical demand. -/
+noncomputable def canonicalDemandResidualTotal
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (demand : canonicalDemandImage row col U) : ℕ :=
+  ∑ a, residualRowDegree
+    (canonicalDemandReferenceWitness row col U demand) a
+
+/-- The raw attachment summand in the exact canonical decomposition. The
+cap/no-return indicator remains inside the numerator. -/
+noncomputable def canonicalDemandRawAttachmentTerm
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (demand : canonicalDemandImage row col U) : ENNReal :=
+  (canonicalDemandLocalReward demand : ENNReal) *
+    (labelledWitnessIncidence demand.1 row col *
+      residualActualAttachmentNumerator
+        (positiveDemandSupport demand.1) (U / 2)
+        (residualRowDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (residualColumnDegree
+          (canonicalDemandReferenceWitness row col U demand))
+        (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
+          (canonicalDemandReferenceWitness row col U demand)))
+
+/-- Exact two-regime reindexing of the attained canonical-demand family. The
+zero-residual and positive-residual sums retain the literal raw attachment
+numerator; no event probability is divided out. -/
+theorem sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+    {b n : ℕ} {k : ColoringProfile b}
+    (row₀ : OrderedProfilePartition n k) (U : ℕ)
+    (hU : 2 ≤ U) :
+    (∑ column : OrderedProfilePartition n k,
+      uniformOrderedProfilePartition row₀ column *
+        (signedOverlapReward
+          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand = 0),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) +
+      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
+          (profileBlockMargin k) (profileBlockMargin k) U =>
+            0 < canonicalDemandResidualTotal (profileBlockMargin k)
+              (profileBlockMargin k) U demand),
+        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
+          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) := by
+  classical
+  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
+  unfold canonicalDemandRawAttachmentTerm
+  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ
+    (fun demand : canonicalDemandImage (profileBlockMargin k)
+      (profileBlockMargin k) U =>
+        canonicalDemandResidualTotal (profileBlockMargin k)
+          (profileBlockMargin k) U demand = 0)]
+  simp only [Nat.pos_iff_ne_zero]
+
+#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
+#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
+#print axioms sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
+Source: Erdos625/Section9CanonicalDemandSmallResidualBound.lean
+Normalized SHA-256: ce5f7dfa30c833d113c648c8eab95f7dd28228bb290beb88eea2aa98fa5a0b44
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
+
+/-!
+# Section IX: canonical small-residual attachment specialization
+
+The deterministic small-mass estimate is applied to the residual degrees of
+one attained canonical demand.  The conclusion keeps the exact bare skeleton
+weight outside the raw attachment bound, as required by the two-regime sum.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One canonical raw attachment term is at most its exact bare skeleton
+factor times the deterministic small-residual exponential. -/
+theorem canonicalDemandRawAttachmentTerm_le_smallResidualBound
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    canonicalDemandRawAttachmentTerm row col U htotal demand ≤
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 row col *
+          (2 : ENNReal) ^
+            (U * canonicalDemandResidualTotal row col U demand / 2)) := by
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hmatching :
+      IsBipartiteMatching (positiveDemandSupport demand.1) :=
+    positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+      U hrowCap hcolCap demand
+  have hresidualTotal :
+      (∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b :=
+    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness
+  have hsmall := residualActualAttachmentNumerator_le_two_pow_of_small_mass
+    (positiveDemandSupport demand.1) (U / 2) U
+    (canonicalDemandResidualTotal row col U demand)
+    (residualRowDegree witness) (residualColumnDegree witness)
+    hresidualTotal hmatching rfl (by
+      simp only [canonicalDemandResidualTotal, witness])
+  unfold canonicalDemandRawAttachmentTerm
+  exact mul_le_mul_right (mul_le_mul_right hsmall _) _
+
+#print axioms canonicalDemandRawAttachmentTerm_le_smallResidualBound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ResidualRegimeScaleAdapters
+Source: Erdos625/Section9ResidualRegimeScaleAdapters.lean
+Normalized SHA-256: 0b550fb409c7d94c39162eb69f3ad9bcc2839459e4c040a761d89f8da8e6878b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ResidualRegimeScaleAdapters
+
+/-!
+# Section IX: residual-regime scale adapters
+
+This module converts the exact finite small-residual power bound into the
+manuscript exponential scale and transports it to one attained canonical
+demand.  It also supplies the elementary eventual logarithmic inequalities
+needed to instantiate the accepted large-residual arithmetic envelope.
+
+It does not estimate the skeleton/incidence sum or prove Lemma 9.1.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+set_option autoImplicit false
+
+/-- The literal natural exponent `U*m/2` from the small-residual branch is
+bounded by the manuscript-scale exponential whenever `U = O(L)` and
+`m ≤ n/L^6`. -/
+theorem smallResidual_two_pow_le_exp_scale
+    (n L C : ℝ) (U m : ℕ)
+    (hn : 0 ≤ n)
+    (hL : 0 < L)
+    (hC : 0 ≤ C)
+    (hU : (U : ℝ) ≤ C * L)
+    (hm : (m : ℝ) ≤ n / L ^ 6) :
+    ((2 : ℝ≥0∞) ^ (U * m / 2)) ≤
+      ENNReal.ofReal
+        (Real.exp ((C * Real.log 2 / 2) * (n / L ^ 5))) := by
+  have hcast :
+      ((U * m / 2 : ℕ) : ℝ) ≤ (U : ℝ) * (m : ℝ) / 2 := by
+    simpa only [Nat.cast_mul, Nat.cast_ofNat] using
+      (Nat.cast_div_le (m := U * m) (n := 2) :
+        (((U * m) / 2 : ℕ) : ℝ) ≤ ((U * m : ℕ) : ℝ) / (2 : ℝ))
+  have hround :
+      Real.log 2 * ((U * m / 2 : ℕ) : ℝ) ≤
+        Real.log 2 * ((U : ℝ) * (m : ℝ) / 2) :=
+    mul_le_mul_of_nonneg_left hcast (Real.log_nonneg one_le_two)
+  have hscale := smallResidualExponent_bound n L (U : ℝ) (m : ℝ) C
+    hn hL (Nat.cast_nonneg U) (Nat.cast_nonneg m) hC hU hm
+  exact ennreal_two_pow_nat_le_of_log_bound (U * m / 2)
+    ((C * Real.log 2 / 2) * (n / L ^ 5)) (hround.trans hscale)
+
+/-- The exact raw attachment term for one attained canonical demand inherits
+`exp(O(n/L^5))` in the small-residual regime.  The bare canonical reward and
+labelled-witness incidence remain explicit for the later skeleton sum. -/
+theorem canonicalDemandRawAttachmentTerm_le_smallResidualExpScale
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U)
+    (n L C : ℝ)
+    (hn : 0 ≤ n)
+    (hL : 0 < L)
+    (hC : 0 ≤ C)
+    (hU : (U : ℝ) ≤ C * L)
+    (hm : (canonicalDemandResidualTotal row col U demand : ℝ) ≤
+      n / L ^ 6) :
+    canonicalDemandRawAttachmentTerm row col U htotal demand ≤
+      (canonicalDemandLocalReward demand : ENNReal) *
+        (labelledWitnessIncidence demand.1 row col *
+          ENNReal.ofReal
+            (Real.exp ((C * Real.log 2 / 2) * (n / L ^ 5)))) := by
+  have hsmall := canonicalDemandRawAttachmentTerm_le_smallResidualBound
+    row col U htotal hrowCap hcolCap demand
+  have hpow := smallResidual_two_pow_le_exp_scale n L C U
+    (canonicalDemandResidualTotal row col U demand)
+    hn hL hC hU hm
+  exact hsmall.trans (mul_le_mul_right (mul_le_mul_right hpow _) _)
+
+/-- Eventually `log n` is positive, `(log n)^2 ≤ n`, and
+`(log n)^28 ≤ n^3`. -/
+theorem eventually_log_growth_bounds :
+    ∀ᶠ n : ℕ in atTop,
+      0 < Real.log (n : ℝ) ∧
+      Real.log (n : ℝ) ^ 2 ≤ (n : ℝ) ∧
+      Real.log (n : ℝ) ^ 28 ≤ (n : ℝ) ^ 3 := by
+  have h_pos : ∀ᶠ n : ℕ in atTop, 0 < Real.log n := by
+    exact eventually_atTop.mpr
+      ⟨2, fun n hn => Real.log_pos (Nat.one_lt_cast.mpr hn)⟩
+  have h_sq : ∀ᶠ n : ℕ in atTop, (Real.log n) ^ 2 ≤ n := by
+    have h_lim : Tendsto (fun n : ℕ => (Real.log n) ^ 2 / (n : ℝ)) atTop (nhds 0) :=
+      Real.isLittleO_pow_log_id_atTop.tendsto_div_nhds_zero.comp
+        tendsto_natCast_atTop_atTop
+    filter_upwards [h_lim.eventually (gt_mem_nhds zero_lt_one),
+      eventually_gt_atTop 0] with n hn hn0
+    rw [div_lt_one (by positivity)] at hn
+    linarith
+  have h_28 : ∀ᶠ n : ℕ in atTop, (Real.log n) ^ 28 ≤ n := by
+    have h_lim : Tendsto (fun n : ℕ => (Real.log n) ^ 28 / (n : ℝ)) atTop (nhds 0) :=
+      Real.isLittleO_pow_log_id_atTop.tendsto_div_nhds_zero.comp
+        tendsto_natCast_atTop_atTop
+    filter_upwards [h_lim.eventually (gt_mem_nhds zero_lt_one),
+      eventually_gt_atTop 0] with n hn hn0
+    rw [div_lt_one (by positivity)] at hn
+    linarith
+  filter_upwards [h_pos, h_sq, h_28, eventually_ge_atTop 1] with n hpos hsq h28 hn
+  exact ⟨hpos, hsq, h28.trans (by
+    exact_mod_cast Nat.le_self_pow (by norm_num) n)⟩
+
+/-- The accepted finite large-residual arithmetic envelope specializes
+uniformly to `O((log n)^8)` once `L = log n`. -/
+theorem eventually_largeResidualEnvelope_logScale
+    (kappaLambda kappaQ C_U : ℝ)
+    (hkappaLambda0 : 0 ≤ kappaLambda)
+    (hkappaQ0 : 0 ≤ kappaQ)
+    (hCU0 : 0 ≤ C_U) :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ U m A H : ℝ,
+        0 ≤ U →
+        0 < m →
+        0 ≤ A →
+        0 ≤ H →
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ m →
+        U ≤ C_U * Real.log (n : ℝ) →
+        A ≤ (n : ℝ) →
+        H * U ≤ 2 * (n : ℝ) →
+        kappaLambda * U ^ 4 / m +
+              2 * A * (kappaQ * U ^ 3 / m) ^ 4 +
+              6 * H * (kappaQ * U ^ 3 / m) ≤
+          (kappaLambda * C_U ^ 4 +
+              2 * kappaQ ^ 4 * C_U ^ 12 +
+              12 * kappaQ * C_U ^ 2) *
+            Real.log (n : ℝ) ^ 8 := by
+  filter_upwards [eventually_log_growth_bounds, eventually_gt_atTop 0] with n hlog hn
+  intro U m A H hU0 hm0 hA0 hH0 hmass hU hA hH
+  exact largeResidualEnvelope_bound
+    (n := (n : ℝ)) (L := Real.log (n : ℝ))
+    (U := U) (m := m) (A := A) (H := H)
+    (kappaLambda := kappaLambda) (kappaQ := kappaQ) (C_U := C_U)
+    (by exact_mod_cast hn) hlog.1 hU0 hm0 hA0 hH0
+    hkappaLambda0 hkappaQ0 hCU0 hmass hU hA hH hlog.2.1 hlog.2.2
+
+#print axioms smallResidual_two_pow_le_exp_scale
+#print axioms canonicalDemandRawAttachmentTerm_le_smallResidualExpScale
+#print axioms eventually_log_growth_bounds
+#print axioms eventually_largeResidualEnvelope_logScale
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ResidualRegimeScaleAdapters
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ResidualRegimeScaleAdapters
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
+Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+
+/-!
+# Section IX: phase-controlled `ENNReal` tau corridor
+
+This is only the numerical bridge needed to supply the strict tau hypothesis
+of the accepted actual-attachment large-residual envelope.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
+and the manuscript large-residual cutoff eventually give the strict
+`ENNReal` tau corridor used by the attachment envelope. -/
+theorem eventually_phaseControlled_ennreal_tau_lt_one_third
+    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
+    ∀ᶠ n : Nat in atTop,
+      ∀ (U m : Nat),
+        U ≤ phaseNat n →
+        0 < m →
+        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) := by
+  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
+    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
+      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
+    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    constructor <;> intro h;
+    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    · use 0;
+      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
+      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
+  filter_upwards [ hC ] with n hn U m hU hm hmn;
+  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
+  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
+  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
+
+#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
 Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
 Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
@@ -47281,149 +48038,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
-Source: Erdos625/Section9ActualAttachmentPolymerBridge.lean
-Normalized SHA-256: 60296f3945f059f185f64bc74898c57e8cfd96e102a39546ef101efe97c9100d
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
-
-/-!
-# Section IX: polymer bound for the actual attachment numerator
-
-The exact finite Fubini identity identifies the literal actual-family
-numerator with the capped fixed-`F` sum.  This module composes that identity
-with the previously proved even-family and polymer bounds.
-
-Both conclusions concern the **event-restricted expectation** in manuscript
-(9.1): the cap/no-return indicator remains inside the uniform residual
-matching expectation.  No division by its event probability belongs in the
-(9.1)--(9.2) route.  The cycle-space cardinality, full-table reward/support
-split, tagged incidence integration, and final Lemma 9.1 estimate remain
-separate.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The event-restricted attachment numerator is bounded by the common local-threshold
-product times the unrestricted finite even-family weight sum.
-
-This is the fixed-residual-fibre form, before tagged incidence integration. -/
-theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hm : 0 < Finset.univ.sum row) :
-    residualActualAttachmentNumerator M R row col htotal ≤
-      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
-        (∑ F ∈ bipartiteEvenEdgeSets A B,
-          edgeWeightOutsideENN (residualQ M R row col) M F) := by
-  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
-  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum
-    M R row col htotal hm
-
-/-- The event-restricted attachment numerator is bounded by the common local-threshold
-product times the simple-cycle polymer product.
-
-It does not yet identify the even-family cardinality with the manuscript
-cycle-space factor or integrate the demand-dependent residual estimate over
-the global tagged law. -/
-theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : ℕ) (row : A → ℕ) (col : B → ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hm : 0 < Finset.univ.sum row) :
-    residualActualAttachmentNumerator M R row col htotal ≤
-      (∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
-        (∏ C ∈ simpleBipartiteCycles A B,
-          (1 + edgeWeightOutsideENN (residualQ M R row col) M C)) := by
-  rw [residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum]
-  exact residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct
-    M R row col htotal hm
-
-#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
-#print axioms residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentPolymerBridge
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ActualAttachmentPolymerBridge
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
-Source: Erdos625/Section9AttachmentExpectationBound.lean
-Normalized SHA-256: a5606d63f1eaad8bc9aafd11dc1cccc43c2bd73316f95c631567746c2dc5b8bd
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
-
-/-!
-# Section IX: raw attachment numerator from a pointwise event bound
-
-This target is deliberately only the elementary finite-PMF step.  It keeps
-the cap/no-return indicator inside the numerator and never divides by the
-event probability.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- A pointwise upper bound for the literal actual attachment integrand on
-the cap/no-return event bounds the raw (not conditional) residual numerator. -/
-theorem residualActualAttachmentNumerator_le_of_forall_event_integrand_le
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A → Nat) (col : B → Nat)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col) (K : ENNReal)
-    (hK : ∀ matching : ConfigurationMatching row col,
-      matching ∈ ResidualCapNoReturnEvent M R row col →
-        (∏ a : A, ∏ b : B,
-          (residualReward (configurationCellCount matching a b) : ENNReal)) *
-          ((actualResidualEvenEdgeSets M matching).card : ENNReal) ≤ K) :
-    residualActualAttachmentNumerator M R row col htotal ≤ K := by
-  classical
-  unfold residualActualAttachmentNumerator
-  calc
-    _ ≤ ∑ matching : ConfigurationMatching row col,
-        uniformConfigurationMatching row col htotal matching * K := by
-      apply Finset.sum_le_sum
-      intro matching _
-      by_cases hevent : matching ∈ ResidualCapNoReturnEvent M R row col
-      · simp only [hevent, if_pos, mul_one]
-        rw [mul_assoc]
-        exact mul_le_mul_right (hK matching hevent) _
-      · simp [hevent]
-    _ = (∑ matching : ConfigurationMatching row col,
-        uniformConfigurationMatching row col htotal matching) * K := by
-      rw [Finset.sum_mul]
-    _ = K := by
-      rw [show (∑ matching : ConfigurationMatching row col,
-          uniformConfigurationMatching row col htotal matching) = 1 by
-        rw [← tsum_fintype (L := SummationFilter.unconditional _)]
-        exact (uniformConfigurationMatching row col htotal).tsum_coe,
-        one_mul]
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9AttachmentExpectationBound
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9AttachmentExpectationBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -48046,464 +48660,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
-Source: Erdos625/Section9SmallResidualDeterministic.lean
-Normalized SHA-256: 00df3c8b05783178642675c392d8424f303cd74e7a177a7833b52ee04507865a
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
-
-/-!
-# Deterministic small-residual attachment bound
-
-This module proves the finite arithmetic seam behind manuscript
-(9.20)--(9.22).  It retains the literal full-table cap/no-return event and
-keeps the residual-mass and cycle-rank inputs explicit.  It does not identify
-the random residual table or prove the preceding probabilistic estimates.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Literal full-table cap/no-return event.  On the exposed support the full
-cell equals its exposed demand, and every cell obeys its cap. -/
-def FullCapNoReturnEvent
-    {A B : Type*}
-    (full demand cap : A → B → ℕ) (support : A → B → Prop) : Prop :=
-  ∀ a b,
-    full a b ≤ cap a b ∧
-      (support a b → full a b = demand a b)
-
-/-- The exact deterministic small-residual integrand bound from
-manuscript (9.20)--(9.22). -/
-theorem smallResidualDeterministicBound
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (full demand residual cap : A → B → ℕ)
-    (support : A → B → Prop)
-    (U m cycleRank : ℕ)
-    (hsplit : ∀ a b, full a b = demand a b + residual a b)
-    (hEvent : FullCapNoReturnEvent full demand cap support)
-    (hcap : ∀ a b, cap a b ≤ U)
-    (hmass : ∑ a, ∑ b, residual a b = m)
-    (hcycle : cycleRank ≤ m / 2) :
-    2 ^ cycleRank *
-        (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
-      2 ^ (U * m / 2) := by
-  have hres : ∀ a b, residual a b ≤ U := by
-    exact fun a b => by
-      linarith [hsplit a b, hEvent a b, hcap a b]
-  have hprod :
-      (∏ a, ∏ b, localSignRewardNat (residual a b)) ≤
-        2 ^ (∑ a, ∑ b, ((U - 1) * residual a b) / 2) := by
-    have hpoint : ∀ a b,
-        localSignRewardNat (residual a b) ≤
-          2 ^ ((U - 1) * residual a b / 2) := by
-      intro a b
-      unfold localSignRewardNat
-      split_ifs <;> simp_all +decide [Nat.choose_two_right]
-      · gcongr <;> try omega
-        rw [Nat.le_div_iff_mul_le zero_lt_two]
-        nlinarith only
-          [ Nat.sub_add_cancel (by linarith : 1 ≤ residual a b),
-            Nat.sub_add_cancel
-              (show 1 ≤ U from
-                Nat.one_le_iff_ne_zero.mpr <| by linarith [hres a b]),
-            hres a b,
-            Nat.div_mul_le_self (residual a b * (residual a b - 1)) 2,
-            Nat.sub_add_cancel
-              (show 1 ≤ residual a b * (residual a b - 1) / 2 from
-                Nat.div_pos
-                  (by
-                    nlinarith only
-                      [ ‹3 ≤ residual a b›,
-                        Nat.sub_add_cancel (by linarith : 1 ≤ residual a b) ])
-                  zero_lt_two) ]
-      · exact Nat.one_le_pow _ _ (by decide)
-    exact le_trans
-      (Finset.prod_le_prod' fun a _ =>
-        Finset.prod_le_prod' fun b _ => hpoint a b)
-      (by simp +decide [Finset.prod_pow_eq_pow_sum])
-  have hcombine :
-      cycleRank + (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
-        U * m / 2 := by
-    have hlocal :
-        (∑ a, ∑ b, ((U - 1) * residual a b) / 2) ≤
-          (U - 1) * m / 2 := by
-      rw [← hmass, Nat.le_div_iff_mul_le zero_lt_two]
-      simp +decide only [Finset.mul_sum _ _ _]
-      rw [Finset.sum_mul _ _ _]
-      exact Finset.sum_le_sum fun a _ => by
-        rw [Finset.sum_mul _ _ _]
-        exact Finset.sum_le_sum fun b _ => Nat.div_mul_le_self _ _
-    rcases U with (_ | _ | U) <;> simp_all +decide
-    all_goals grind
-  exact le_trans (Nat.mul_le_mul_left _ hprod) (by
-    rw [← pow_add]
-    exact pow_le_pow_right₀ (by decide) hcombine)
-
-#print axioms smallResidualDeterministicBound
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9SmallResidualDeterministic
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9SmallResidualDeterministic
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
-Source: Erdos625/Section9SmallResidualAttachmentBound.lean
-Normalized SHA-256: 99b135c2e8d946ca0ac66ca50e58b304f4d34511479f25764cde5b219216962b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
-
-/-!
-# Section IX: faithful small-residual attachment bound
-
-This module bounds the actual event-restricted attachment numerator, rather
-than the larger unrestricted polymer majorant.  The row and column functions
-are the residual degrees supplied to that numerator; their common total is
-the residual mass `m`.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The literal capped/no-return attachment numerator is bounded by the
-deterministic small-residual exponent from manuscript (9.20)--(9.22). -/
-theorem residualActualAttachmentNumerator_le_two_pow_of_small_mass
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R U m : ℕ)
-    (row : A → ℕ) (col : B → ℕ)
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (hM : IsBipartiteMatching M)
-    (hR : R = U / 2)
-    (hm : (∑ a, row a) = m) :
-    residualActualAttachmentNumerator M R row col htotal ≤
-      ((2 : ENNReal) ^ (U * m / 2)) := by
-  classical
-  apply residualActualAttachmentNumerator_le_of_forall_event_integrand_le
-  intro matching hevent
-  let rank := cycleRank
-    (bipartiteGraph fun a b =>
-      (a, b) ∈ M ∨ 2 ≤ configurationCellCount matching a b)
-  have hdet :
-      2 ^ rank *
-          (∏ a : A, ∏ b : B,
-            localSignRewardNat (configurationCellCount matching a b)) ≤
-        2 ^ (U * m / 2) := by
-    apply smallResidualDeterministicBound
-      (configurationCellCount matching) (fun _ _ => 0)
-      (configurationCellCount matching) (fun _ _ => R)
-      (fun a b => (a, b) ∈ M) U m rank
-    · intro a b
-      simp
-    · intro a b
-      constructor
-      · exact hevent.1 a b
-      · intro hab
-        simpa using hevent.2 (a, b) hab
-    · intro _ _
-      rw [hR]
-      omega
-    · calc
-        (∑ a, ∑ b, configurationCellCount matching a b) =
-            ∑ p : A × B,
-              configurationCellCount matching p.1 p.2 := by
-          exact (Fintype.sum_prod_type fun p : A × B ↦
-            configurationCellCount matching p.1 p.2).symm
-        _ = ∑ a, row a := sum_configurationCellCount_all matching
-        _ = m := hm
-    · dsimp only [rank]
-      exact
-        cycleRank_matching_union_configurationResidualSupport_le_half_m₀
-          matching (fun a b => (a, b) ∈ M) m hm hM.1 hM.2
-  rw [coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank]
-  simp_rw [residualReward_eq_localSignRewardNat]
-  exact_mod_cast (show
-    (∏ a : A, ∏ b : B,
-      localSignRewardNat (configurationCellCount matching a b)) * 2 ^ rank ≤
-        2 ^ (U * m / 2) by
-      simpa only [mul_comm] using hdet)
-
-#print axioms residualActualAttachmentNumerator_le_two_pow_of_small_mass
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9SmallResidualAttachmentBound
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9SmallResidualAttachmentBound
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
-Source: Erdos625/Section9ProfileAttachmentPolymerAssembly.lean
-Normalized SHA-256: bd9688440743399a9bc9cdc25618e36aa9b3c707fc21c91ff9974e59931ebaf4
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
-
-/-!
-# Section IX: profile attachment polymer assembly
-
-This transports the fixed-residual-fibre polymer estimate through the actual
-dependent canonical-demand family. The cap/no-return indicator remains inside
-`residualActualAttachmentNumerator`; no conditioned event mass is divided out.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-local instance instFintypeCanonicalResidualCellEventProfilePolymer
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A → B → ℕ} {row : A → ℕ} {col : B → ℕ}
-    (witness : PrescribedDemandWitness demand row col) (U : ℕ) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-/-- The finite polymer majorant attached to one attained canonical demand. -/
-noncomputable def canonicalDemandPolymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) : ENNReal :=
-  let witness := canonicalDemandReferenceWitness row col U demand
-  (∏ a : A, ∏ b : B,
-      (1 + residualLambda (positiveDemandSupport demand.1) (U / 2)
-        (residualRowDegree witness) (residualColumnDegree witness) a b)) *
-    (∏ C ∈ simpleBipartiteCycles A B,
-      (1 + edgeWeightOutsideENN
-        (residualQ (positiveDemandSupport demand.1) (U / 2)
-          (residualRowDegree witness) (residualColumnDegree witness))
-        (positiveDemandSupport demand.1) C))
-
-/-- Strict-regime transport over the full dependent tagged residual family. -/
-theorem sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (hpositive : ∀ demand : canonicalDemandImage row col U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness row col U demand))) :
-    (Finset.univ.sum fun z :
-      Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          canonicalResidualCellEvent witness U =>
-      uniformSigmaCanonicalDemandResidual row col U htotal z *
-        taggedResidualAttachmentValue z.1.1 U z.2.1 z.2.2) ≤
-      Finset.univ.sum fun demand : canonicalDemandImage row col U =>
-        labelledWitnessIncidence demand.1 row col *
-          canonicalDemandPolymerMajorant row col U demand := by
-  rw [sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator
-    row col U htotal]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness row col U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-      (canonicalDemandReferenceWitness row col U demand))
-    (hpositive demand)
-
-/-- Ordered-profile specialization in the uniform strict residual regime. -/
-theorem sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
-    {b n : ℕ} {k : ColoringProfile b}
-    (row₀ : OrderedProfilePartition n k) (U : ℕ)
-    (hU : 2 ≤ U)
-    (hpositive : ∀ demand : canonicalDemandImage
-        (profileBlockMargin k) (profileBlockMargin k) U,
-      0 < Finset.univ.sum
-        (residualRowDegree
-          (canonicalDemandReferenceWitness (profileBlockMargin k)
-            (profileBlockMargin k) U demand))) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row₀ column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) ≤
-      ∑ demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U,
-        (canonicalDemandLocalReward demand : ENNReal) *
-          (labelledWitnessIncidence demand.1 (profileBlockMargin k)
-            (profileBlockMargin k) *
-            canonicalDemandPolymerMajorant
-              (profileBlockMargin k) (profileBlockMargin k) U demand) := by
-  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum
-    row₀ U hU]
-  apply Finset.sum_le_sum
-  intro demand _
-  apply mul_le_mul_right
-  apply mul_le_mul_right
-  unfold canonicalDemandPolymerMajorant
-  exact residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-    (positiveDemandSupport demand.1) (U / 2)
-    (residualRowDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (residualColumnDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (sum_residualRowDegree_eq_sum_residualColumnDegree
-      (profileBlockMargin_total_eq_self row₀)
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-    (hpositive demand)
-
-/-- Residual stub mass attached to an attained canonical demand. -/
-noncomputable def canonicalDemandResidualTotal
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (demand : canonicalDemandImage row col U) : ℕ :=
-  ∑ a, residualRowDegree
-    (canonicalDemandReferenceWitness row col U demand) a
-
-/-- The raw attachment summand in the exact canonical decomposition. The
-cap/no-return indicator remains inside the numerator. -/
-noncomputable def canonicalDemandRawAttachmentTerm
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (demand : canonicalDemandImage row col U) : ENNReal :=
-  (canonicalDemandLocalReward demand : ENNReal) *
-    (labelledWitnessIncidence demand.1 row col *
-      residualActualAttachmentNumerator
-        (positiveDemandSupport demand.1) (U / 2)
-        (residualRowDegree
-          (canonicalDemandReferenceWitness row col U demand))
-        (residualColumnDegree
-          (canonicalDemandReferenceWitness row col U demand))
-        (sum_residualRowDegree_eq_sum_residualColumnDegree htotal
-          (canonicalDemandReferenceWitness row col U demand)))
-
-/-- Exact two-regime reindexing of the attained canonical-demand family. The
-zero-residual and positive-residual sums retain the literal raw attachment
-numerator; no event probability is divided out. -/
-theorem sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
-    {b n : ℕ} {k : ColoringProfile b}
-    (row₀ : OrderedProfilePartition n k) (U : ℕ)
-    (hU : 2 ≤ U) :
-    (∑ column : OrderedProfilePartition n k,
-      uniformOrderedProfilePartition row₀ column *
-        (signedOverlapReward
-          (profileOverlapTableOfOrderedPair row₀ column).tableNat : ENNReal)) =
-      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U =>
-            canonicalDemandResidualTotal (profileBlockMargin k)
-              (profileBlockMargin k) U demand = 0),
-        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
-          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) +
-      (∑ demand ∈ (Finset.univ.filter fun demand : canonicalDemandImage
-          (profileBlockMargin k) (profileBlockMargin k) U =>
-            0 < canonicalDemandResidualTotal (profileBlockMargin k)
-              (profileBlockMargin k) U demand),
-        canonicalDemandRawAttachmentTerm (profileBlockMargin k)
-          (profileBlockMargin k) U (profileBlockMargin_total_eq_self row₀) demand) := by
-  classical
-  rw [sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum row₀ U hU]
-  unfold canonicalDemandRawAttachmentTerm
-  rw [← Finset.sum_filter_add_sum_filter_not Finset.univ
-    (fun demand : canonicalDemandImage (profileBlockMargin k)
-      (profileBlockMargin k) U =>
-        canonicalDemandResidualTotal (profileBlockMargin k)
-          (profileBlockMargin k) U demand = 0)]
-  simp only [Nat.pos_iff_ne_zero]
-
-#print axioms sum_global_taggedResidualAttachmentValue_le_sum_incidence_mul_polymerMajorant
-#print axioms sum_uniformProfile_signedOverlapReward_le_skeletonPolymerSum
-#print axioms sum_uniformProfile_signedOverlapReward_eq_zeroResidual_add_positiveResidual
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentPolymerAssembly
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ProfileAttachmentPolymerAssembly
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
-Source: Erdos625/Section9CanonicalDemandSmallResidualBound.lean
-Normalized SHA-256: ce5f7dfa30c833d113c648c8eab95f7dd28228bb290beb88eea2aa98fa5a0b44
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
-
-/-!
-# Section IX: canonical small-residual attachment specialization
-
-The deterministic small-mass estimate is applied to the residual degrees of
-one attained canonical demand.  The conclusion keeps the exact bare skeleton
-weight outside the raw attachment bound, as required by the two-regime sum.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- One canonical raw attachment term is at most its exact bare skeleton
-factor times the deterministic small-residual exponential. -/
-theorem canonicalDemandRawAttachmentTerm_le_smallResidualBound
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (demand : canonicalDemandImage row col U) :
-    canonicalDemandRawAttachmentTerm row col U htotal demand ≤
-      (canonicalDemandLocalReward demand : ENNReal) *
-        (labelledWitnessIncidence demand.1 row col *
-          (2 : ENNReal) ^
-            (U * canonicalDemandResidualTotal row col U demand / 2)) := by
-  let witness := canonicalDemandReferenceWitness row col U demand
-  have hmatching :
-      IsBipartiteMatching (positiveDemandSupport demand.1) :=
-    positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-      U hrowCap hcolCap demand
-  have hresidualTotal :
-      (∑ a, residualRowDegree witness a) =
-        ∑ b, residualColumnDegree witness b :=
-    sum_residualRowDegree_eq_sum_residualColumnDegree htotal witness
-  have hsmall := residualActualAttachmentNumerator_le_two_pow_of_small_mass
-    (positiveDemandSupport demand.1) (U / 2) U
-    (canonicalDemandResidualTotal row col U demand)
-    (residualRowDegree witness) (residualColumnDegree witness)
-    hresidualTotal hmatching rfl (by
-      simp only [canonicalDemandResidualTotal, witness])
-  unfold canonicalDemandRawAttachmentTerm
-  exact mul_le_mul_right (mul_le_mul_right hsmall _) _
-
-#print axioms canonicalDemandRawAttachmentTerm_le_smallResidualBound
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandSmallResidualBound
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalDemandSmallResidualBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -57490,7 +57646,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 937abce1e7b51c4e81d52b4d14132f3511abf04d73221e8de3300f35244a9754
+Normalized SHA-256: fbb54a46b0fddf72248a38cbc83f14bbb0f5028bb6fcb0ebb80546d6c60eff29
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
