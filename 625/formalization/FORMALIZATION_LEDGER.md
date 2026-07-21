@@ -608,3 +608,30 @@ Mathlib axiom audit. They provide the small-residual `O(n / L^5)` exponent, the
 finite `ENNReal` two-power transport, and the strict large-residual `O(L^8)`
 envelope. They do not establish the eventual concrete parameter hypotheses, the
 full Section IX attachment estimate, Proposition 9.2, or `Erdos625Statement`.
+
+## Direct primal and finite Section VIII/IX endpoints — 2026-07-22
+
+The limiting `S₊` value is now identified with the direct manuscript primal:
+the older all-tilts finite inequality follows from coordinatewise Gibbs
+inequalities and nonnegativity, the two witness predicates are equivalent,
+and their candidate sets and suprema are equal.  Thus this representation
+issue is no longer an open proof obligation.
+
+The current finite endpoint batch adds:
+
+- the exact natural near-window equivalence
+  `nearCut_le_iff_four_mul_lt`;
+- the exact denominator-loss factorization and `n ^ Q` bound
+  `denominatorLoss_eq_falling_and_le_pow`;
+- a typed four-coordinate endpoint vocabulary that keeps physical stub counts
+  distinct from full block-pair counts; and
+- the literal attained-profile large-residual attachment endpoint
+  `exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp`.
+
+The endpoint vocabulary is definitional infrastructure, not (8.8)–(8.10).
+The large-residual theorem is a finite specialization under explicit cap,
+mass, power, and strict-tau hypotheses; it does not establish those hypotheses
+for the concrete midpoint profile or aggregate over all skeletons.  The
+midpoint construction, Section VII diagonal-mass limit, Section VIII skeleton
+sum, Section IX uniform two-regime aggregation, chromatic tail, root
+separation, and the final instantiation of `Erdos625Statement` remain open.

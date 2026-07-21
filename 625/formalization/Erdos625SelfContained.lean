@@ -19908,7 +19908,7 @@ END SOURCE MODULE: Erdos625.SPlusPrimalRepresentation
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
 Source: Erdos625/UniformLimitingEntropyCertificate.lean
-Normalized SHA-256: 5705e2ce30ed2c2f58df0a82f04aed78f6ecec4f54c68c0e155bf27ed979e314
+Normalized SHA-256: b1edb7e9877257e9985e3820ae967af745af28738df244edf55b450b50626ddc
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
 
@@ -19916,10 +19916,10 @@ section Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
 # Uniform limiting entropy certificate
 
 This assembles the verified limiting entropy-dual and explicit four-size
-ratio estimates uniformly over the full phase interval.  Its scope is the
-repository's current `extendedGaussianEntropyValue` formulation; identifying
-that formulation with an independently defined manuscript primal remains a
-separate representation obligation.
+ratio estimates uniformly over the full phase interval.  The separate module
+`SPlusPrimalRepresentation` proves that the entropy value used here is exactly
+the direct manuscript primal supremum: its older finite all-tilts field follows
+automatically from coordinatewise Gibbs inequalities and nonnegativity.
 
 The proof was returned by Aristotle project
 `f916811d-4971-44ae-9c9b-c1d731298958`, task
@@ -49679,443 +49679,6 @@ END SOURCE MODULE: Erdos625.Section9ProfileAttachmentSmallResidualScale
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
-Source: Erdos625/Section9PositiveSupportMassBound.lean
-Normalized SHA-256: fa01917b6d56d0ccd9ee1d600f9a4d9726625afe2dc1ece29432a09b16117e57
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
-
-/-!
-# Section IX: positive-support mass bound
-
-This deterministic lemma converts the strict half-cap condition on every
-positive demand cell into a support-cardinality bound. It keeps the literal
-natural-number floor `U / 2`, including odd `U` and `U = 0`.
-
-The proof was returned by Aristotle project
-`87d795da-d6da-4927-8304-72b93c103dd7`, task
-`ec2ec257-3c4a-42d6-a69d-790f13dcc42d`, and independently audited before
-integration.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-set_option autoImplicit false
-
-/-- Strict half-cap support forces the support-cardinality/cap product below
-twice the literal total demand. -/
-theorem positiveDemandSupport_card_mul_cap_le_two_total
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (demand : A → B → ℕ) (U : ℕ)
-    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
-    (positiveDemandSupport demand).card * U ≤ 2 * totalDemand demand := by
-  have h_sum : ∑ p ∈ positiveDemandSupport demand, U ≤
-      ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := by
-    exact Finset.sum_le_sum fun p hp => by
-      linarith [Nat.div_add_mod U 2, Nat.mod_lt U two_pos,
-        hhigh p.1 p.2 (Finset.mem_filter.mp hp).2]
-  calc
-    (positiveDemandSupport demand).card * U =
-        ∑ p ∈ positiveDemandSupport demand, U := by
-      rw [Finset.sum_const, smul_eq_mul, mul_comm]
-    _ ≤ ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := h_sum
-    _ ≤ 2 * totalDemand demand := by
-      simp only [totalDemand, Finset.mul_sum]
-      rw [← Finset.sum_product']
-      exact Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
-Source: Erdos625/Section9PhaseTwoPowerCorridor.lean
-Normalized SHA-256: 413a8e6e085d4ecb75e9b2766ef9690c665cb11afe521dd388f25c1ed72fff78
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
-
-/-!
-# Section IX: phase-controlled power bound
-
-This module supplies the eventual natural-number inequality required by the
-large-residual finite attachment estimate.
-
-The proof was returned by Aristotle project
-`0b21c723-27c0-44f3-a7d3-a52530bad0fe`, task
-`15a8d5cc-f68f-4998-a111-cc9597b58011`, and independently audited before
-integration.
--/
-
-namespace Erdos625
-
-open Filter
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- A phase-sized cap and the manuscript large-residual cutoff eventually
-supply the exact natural power hypothesis used by the finite estimates. -/
-theorem eventually_phaseControlled_two_pow_le_cube :
-    ∀ᶠ n : ℕ in atTop,
-      ∀ U m : ℕ,
-        U ≤ phaseNat n →
-        0 < m →
-        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m : ℝ) →
-        (2 : ℕ) ^ U ≤ m ^ 3 := by
-  have hLogPow :
-      ∀ᶠ n : ℕ in atTop, Real.log (n : ℝ) ^ 90 ≤ (n : ℝ) := by
-    have hLittleO :
-        (fun n : ℕ ↦ Real.log (n : ℝ) ^ 90) =o[atTop]
-          (fun n : ℕ ↦ (n : ℝ)) :=
-      (Real.isLittleO_pow_log_id_atTop (n := 90)).comp_tendsto
-        tendsto_natCast_atTop_atTop
-    have hBound := hLittleO.bound (by norm_num : (0 : ℝ) < 1)
-    filter_upwards [hBound] with n hn
-    simpa [Real.norm_eq_abs, abs_of_nonneg (Real.log_natCast_nonneg n),
-      abs_of_nonneg (show (0 : ℝ) ≤ (n : ℝ) by positivity)] using hn
-  have hLogBudget :
-      ∀ᶠ n : ℕ in atTop,
-        4 * Real.log (n : ℝ) * Real.log 2 ≤
-          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) := by
-    filter_upwards [hLogPow, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
-    have hLogPos : 0 < Real.log (n : ℝ) :=
-      Real.log_pos (by exact_mod_cast hnLarge)
-    have hnPos : 0 < (n : ℝ) := by positivity
-    have hAfterLog := Real.log_le_log (pow_pos hLogPos 90) hn
-    rw [Real.log_pow] at hAfterLog
-    have hLogTwo : 4 * Real.log 2 < (14 / 5 : ℝ) := by
-      have := Real.log_two_lt_d9
-      norm_num at *
-      linarith
-    have hTwoTerm :
-        4 * Real.log 2 * Real.log (n : ℝ) ≤
-          (14 / 5 : ℝ) * Real.log (n : ℝ) :=
-      mul_le_mul_of_nonneg_right hLogTwo.le hLogPos.le
-    norm_num at hAfterLog hTwoTerm ⊢
-    linarith
-  have hPower :
-      ∀ᶠ n : ℕ in atTop, ∀ U : ℕ, U ≤ phaseNat n →
-        (2 : ℝ) ^ U ≤ (n : ℝ) ^ 3 / Real.log (n : ℝ) ^ 18 := by
-    filter_upwards [hLogBudget,
-      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
-      eventually_gt_atTop (1 : ℕ)] with n hnBudget hnPhase hnLarge
-    intro U hU
-    have hLogPos : 0 < Real.log (n : ℝ) :=
-      Real.log_pos (by exact_mod_cast hnLarge)
-    have hUReal : (U : ℝ) ≤ 4 * Real.log (n : ℝ) :=
-      (Nat.cast_le.mpr hU).trans hnPhase.2
-    have hExponent :
-        (U : ℝ) * Real.log 2 ≤
-          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) :=
-      (mul_le_mul_of_nonneg_right hUReal (Real.log_nonneg one_le_two)).trans hnBudget
-    rw [← Real.log_le_log_iff (by positivity)
-      (div_pos (by positivity) (pow_pos hLogPos 18)),
-      Real.log_div (by positivity) (pow_ne_zero 18 hLogPos.ne'),
-      Real.log_pow, Real.log_pow]
-    norm_num
-    linarith
-  filter_upwards [hPower, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
-  intro U m hU _hm hnm
-  have hLogPos : 0 < Real.log (n : ℝ) :=
-    Real.log_pos (by exact_mod_cast hnLarge)
-  have hTwo := hn U hU
-  rw [le_div_iff₀ (pow_pos hLogPos 18)] at hTwo
-  rw [div_le_iff₀ (pow_pos hLogPos 6)] at hnm
-  exact_mod_cast (by
-    nlinarith [pow_le_pow_left₀ (by positivity) hnm 3,
-      pow_pos hLogPos 18] : (2 : ℝ) ^ U ≤ m ^ 3)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
-Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
-Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
-
-/-!
-# Section IX: phase-controlled `ENNReal` tau corridor
-
-This is only the numerical bridge needed to supply the strict tau hypothesis
-of the accepted actual-attachment large-residual envelope.
--/
-
-namespace Erdos625
-
-open Filter
-open scoped ENNReal Topology
-
-noncomputable section
-
-/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
-and the manuscript large-residual cutoff eventually give the strict
-`ENNReal` tau corridor used by the attachment envelope. -/
-theorem eventually_phaseControlled_ennreal_tau_lt_one_third
-    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
-    ∀ᶠ n : Nat in atTop,
-      ∀ (U m : Nat),
-        U ≤ phaseNat n →
-        0 < m →
-        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
-          (1 / 3 : ENNReal) := by
-  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
-    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
-      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
-    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
-    constructor <;> intro h;
-    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
-    · use 0;
-      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
-      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
-  filter_upwards [ hC ] with n hn U m hU hm hmn;
-  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
-  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
-  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
-
-#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
-Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
-Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
-
-/-!
-# Section VIII--IX: tagged global canonical residuals
-
-Every state of the global dependent canonical-demand/witness/residual sigma
-space carries a residual configuration satisfying the literal Section IX
-cap/no-return event for that state's own demand support and residual degrees.
-This is a pointwise membership bridge only: it does not construct an untagged
-residual PMF, condition a law, take an expectation, or assert an asymptotic
-bound.
--/
-
-namespace Erdos625
-
-noncomputable section
-
-local instance fintypeCanonicalResidualCellEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
-    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
-    Fintype (canonicalResidualCellEvent witness U) :=
-  Fintype.ofFinite _
-
-local instance fintypeResidualCapNoReturnEvent
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
-    Fintype (ResidualCapNoReturnEvent M R row col) :=
-  Fintype.ofFinite _
-
-/-- A tagged state in the global canonical residual disintegration supplies
-the exact cap/no-return hypothesis used by the Section IX fixed-family
-machinery. -/
-theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    {row : A -> Nat} {col : B -> Nat} (U : Nat)
-    (z : Sigma fun demand : canonicalDemandImage row col U =>
-      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-        canonicalResidualCellEvent witness U) :
-    z.2.2.1 ∈ ResidualCapNoReturnEvent
-      (positiveDemandSupport z.1.1) (U / 2)
-      (residualRowDegree z.2.1) (residualColumnDegree z.2.1) := by
-  simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
-    using z.2.2.2
-
-/-- Fibrewise retyping of the global canonical residual sigma family by its
-literal Section IX cap/no-return events.  The attained demand and labelled
-witness remain part of the state, so this is not an identification of a
-single residual space across demands. -/
-noncomputable def sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    (Sigma fun demand : canonicalDemandImage row col U =>
-      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-        canonicalResidualCellEvent witness U) ≃
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) := by
-  refine Equiv.sigmaCongrRight fun demand => ?_
-  refine Equiv.sigmaCongrRight fun witness => ?_
-  exact Equiv.setCongr
-    (canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U)
-
-/-- The matching-space equivalence followed by fibrewise Section IX
-retyping. -/
-noncomputable def configurationMatchingEquivSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
-    ConfigurationMatching row col ≃
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).trans
-    (sigmaCanonicalDemandResidualEquivSigmaCapNoReturn row col U)
-
-/-- The uniform law on the tagged global Section IX cap/no-return family.
-Its nonemptiness is supplied by the ambient matching equivalence. -/
-noncomputable def uniformSigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    PMF
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
-  letI : Nonempty
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  exact PMF.uniformOfFintype _
-
-/-- Exact global finite-law transport to the tagged Section IX cap/no-return
-family.  It retains demand and witness tags, and therefore asserts neither an
-untagged residual law, conditioning statement, expectation, nor asymptotic
-bound. -/
-theorem uniformConfigurationMatching_map_sigmaCapNoReturn
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : ∑ a, row a = ∑ b, col b) :
-    (uniformConfigurationMatching row col htotal).map
-        (configurationMatchingEquivSigmaCapNoReturn row col U) =
-      uniformSigmaCapNoReturn row col U htotal := by
-  letI : Nonempty (ConfigurationMatching row col) :=
-    ⟨configurationMatchingEquiv row col htotal⟩
-  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
-  letI : Nonempty
-      (Sigma fun demand : canonicalDemandImage row col U =>
-        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-            (residualRowDegree witness) (residualColumnDegree witness)) :=
-    ⟨equivalence (Classical.choice inferInstance)⟩
-  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
-  simpa only [uniformSigmaCapNoReturn] using
-    (uniformOfFintype_map_equiv equivalence)
-
-#print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
-#print axioms sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
-#print axioms configurationMatchingEquivSigmaCapNoReturn
-#print axioms uniformSigmaCapNoReturn
-#print axioms uniformConfigurationMatching_map_sigmaCapNoReturn
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
-Source: Erdos625/Section9TaggedTransportGeneric.lean
-Normalized SHA-256: 0fad127abbdd414215a33db86b0a49a35a17192c0c9a6e3e2aeef68f1eb6d8be
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
-
-/-!
-# Section VIII--IX: generic tagged finite-sum transport
-
-This isolated target transports an arbitrary nonnegative observable through the
-exact configuration-matching equivalence to the *dependent* tagged
-`demand/witness/residual` Section IX family.  It deliberately retains both
-tags.  In particular, it neither identifies a common residual PMF nor
-conditions or divides by any event probability.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-local instance fintypeResidualCapNoReturnEventTaggedTransport
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
-    Fintype (ResidualCapNoReturnEvent M R row col) :=
-  Fintype.ofFinite _
-
-/-- Exact finite expectation/sum transport through the configuration matching
-equivalence.  The observable is evaluated on the full dependent tagged state,
-so demand and witness labels are never discarded. -/
-theorem uniformConfigurationMatching_sum_tagged_transport
-    {A B : Type*}
-    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
-    (row : A -> Nat) (col : B -> Nat) (U : Nat)
-    (htotal : Finset.univ.sum row = Finset.univ.sum col)
-    (f : (Sigma fun demand : canonicalDemandImage row col U =>
-      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-        ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-          (residualRowDegree witness) (residualColumnDegree witness)) -> ENNReal) :
-    (Finset.univ.sum fun matching : ConfigurationMatching row col =>
-      uniformConfigurationMatching row col htotal matching *
-        f (configurationMatchingEquivSigmaCapNoReturn row col U matching)) =
-      Finset.univ.sum fun z :
-        Sigma fun demand : canonicalDemandImage row col U =>
-          Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
-            ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
-              (residualRowDegree witness) (residualColumnDegree witness) =>
-        uniformSigmaCapNoReturn row col U htotal z * f z := by
-  convert Equiv.sum_comp
-    (configurationMatchingEquivSigmaCapNoReturn row col U)
-    (fun z => uniformSigmaCapNoReturn row col U htotal z * f z) using 1
-  simp [← uniformConfigurationMatching_map_sigmaCapNoReturn]
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ResidualLambdaCubic
 Source: Erdos625/Section9ResidualLambdaCubic.lean
 Normalized SHA-256: 0b3b378f9aa012e584451fbd2d9c1c17a91e4a82830a05b17ab246bcd169f307
@@ -50735,6 +50298,1221 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9ResidualLambdaTotalBound
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9ResidualLambdaTotalBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
+Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
+Normalized SHA-256: b3d1d68b1e3871483a9abed71c3f46ed2854a38c22e9f8c9b6bb19ff0e66ce13
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
+
+/-!
+# Section IX: finite product estimate, algebraic prefix
+
+This module isolates two finite algebraic leaves used by the positive-residual
+canonical-demand estimate. It does not assert the residual-q cycle bounds or
+the eventual midpoint asymptotics.
+-/
+
+universe u v
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The explicit exponent controlling the lambda and simple-cycle products. -/
+noncomputable def residualProductExponentMajorant
+    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ) : ENNReal :=
+  let tau := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta := tau * (1 - tau)⁻¹
+  kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+    (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+    (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹))
+
+/-- Every displayed exponent is finite under the strict small-parameter
+hypotheses and finite absolute constants. -/
+theorem residualProductExponentMajorant_ne_top
+    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ)
+    (hkLtop : kappaLambda ≠ ∞) (_hkQtop : kappaQ ≠ ∞) (hm : 0 < m)
+    (htau : kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) < 1)
+    (hbeta : let tau := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+      tau * (1 - tau)⁻¹ < 1) :
+    residualProductExponentMajorant kappaLambda kappaQ cardA matchingCard U m ≠ ∞ := by
+  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta : ENNReal := tau * (1 - tau)⁻¹
+  have htau_lt : tau < 1 := by simpa [tau] using htau
+  have hbeta_lt : beta < 1 := by simpa [beta, tau] using hbeta
+  have htau_top : tau ≠ ∞ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top htau_lt.le
+  have hbeta_top : beta ≠ ∞ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top hbeta_lt.le
+  have htau_sq_lt : tau ^ 2 < 1 := by
+    exact pow_lt_one₀ bot_le htau_lt (by norm_num : (2 : ℕ) ≠ 0)
+  have hone_sub_tau_sq : 1 - tau ^ 2 ≠ 0 :=
+    (tsub_pos_iff_lt.mpr htau_sq_lt).ne'
+  have hone_sub_beta : 1 - beta ≠ 0 :=
+    (tsub_pos_iff_lt.mpr hbeta_lt).ne'
+  have hm0 : (m : ENNReal) ≠ 0 := by exact_mod_cast hm.ne'
+  have hfirst :
+      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) ≠ ∞ :=
+    ENNReal.div_ne_top
+      (ENNReal.mul_ne_top hkLtop
+        (ENNReal.pow_ne_top (ENNReal.natCast_ne_top U))) hm0
+  have hsecond :
+      (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) ≠ ∞ :=
+    ENNReal.mul_ne_top (ENNReal.natCast_ne_top cardA)
+      (ENNReal.mul_ne_top (ENNReal.pow_ne_top htau_top)
+        (ENNReal.inv_ne_top.mpr hone_sub_tau_sq))
+  have hthird :
+      (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)) ≠ ∞ :=
+    ENNReal.mul_ne_top (ENNReal.natCast_ne_top (2 * matchingCard))
+      (ENNReal.mul_ne_top hbeta_top
+        (ENNReal.inv_ne_top.mpr hone_sub_beta))
+  change
+    kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+      (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+      (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)) ≠ ∞
+  exact ENNReal.add_ne_top.mpr ⟨ENNReal.add_ne_top.mpr ⟨hfirst, hsecond⟩, hthird⟩
+
+/-- Generic finite-product algebra used after the lambda and split cycle-sum
+estimates have been proved. -/
+theorem lambda_cycle_products_le_exp_of_sum_bounds
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (lambda : A → B → ENNReal) (cycles : Finset (Finset (A × B)))
+    (weight : Finset (A × B) → ENNReal) (lambdaBound cycleBound : ENNReal)
+    (hlambda : (∑ a, ∑ b, lambda a b) ≤ lambdaBound)
+    (hcycle : (∑ C ∈ cycles, weight C) ≤ cycleBound) :
+    ((∏ a, ∏ b, (1 + lambda a b)) *
+      (∏ C ∈ cycles, (1 + weight C))) ≤
+      EReal.exp (((lambdaBound + cycleBound : ENNReal) : EReal)) := by
+  have hlambdaProduct :
+      (∏ a, ∏ b, (1 + lambda a b)) ≤
+        EReal.exp (((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) := by
+    rw [← Fintype.prod_prod_type', ← Fintype.sum_prod_type']
+    exact ennreal_polymer_product_le_ereal_exp_sum
+      (Finset.univ : Finset (A × B)) (fun x => lambda x.1 x.2)
+  have hcycleProduct :
+      (∏ C ∈ cycles, (1 + weight C)) ≤
+        EReal.exp (((∑ C ∈ cycles, weight C : ENNReal) : EReal)) :=
+    ennreal_polymer_product_le_ereal_exp_sum cycles weight
+  calc
+    ((∏ a, ∏ b, (1 + lambda a b)) *
+        (∏ C ∈ cycles, (1 + weight C))) ≤
+      EReal.exp (((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) *
+        EReal.exp (((∑ C ∈ cycles, weight C : ENNReal) : EReal)) :=
+      mul_le_mul' hlambdaProduct hcycleProduct
+    _ = EReal.exp
+        ((((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) +
+          (((∑ C ∈ cycles, weight C : ENNReal) : EReal))) := by
+      rw [EReal.exp_add]
+    _ = EReal.exp
+        ((((∑ a, ∑ b, lambda a b : ENNReal) +
+          ∑ C ∈ cycles, weight C : ENNReal) : EReal)) := by
+      rw [EReal.coe_ennreal_add]
+    _ ≤ EReal.exp (((lambdaBound + cycleBound : ENNReal) : EReal)) := by
+      rw [EReal.exp_le_exp_iff, EReal.coe_ennreal_le_coe_ennreal_iff]
+      exact add_le_add hlambda hcycle
+
+/-- Residual-only and mixed-cycle bounds combine into a bound for the complete
+simple-cycle sum. This is the exact finite split used by the later product
+assembly. -/
+theorem simpleCycle_sum_le_of_residual_mixed_bounds
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (q : A → B → ENNReal) (M : Finset (A × B))
+    (residualBound mixedBound : ENNReal)
+    (hresidual :
+      (∑ C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M),
+        edgeWeightOutsideENN q M C) ≤ residualBound)
+    (hmixed :
+      (∑ C : MixedSimpleCycle A B M,
+        edgeWeightOutsideENN q M C.1) ≤ mixedBound) :
+    (∑ C ∈ simpleBipartiteCycles A B,
+      edgeWeightOutsideENN q M C) ≤ residualBound + mixedBound := by
+  rw [sum_simpleBipartiteCycles_edgeWeight_split]
+  exact add_le_add hresidual hmixed
+
+/-- The literal positive-residual lambda and simple-cycle products have one
+explicit exponential majorant, with absolute constants chosen before all
+finite types and residual data. -/
+theorem exists_absolute_residual_product_exponential_majorant :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U R m : ℕ)
+          (row : A → ℕ) (col : B → ℕ),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        R = U / 2 →
+        2 ^ U ≤ m ^ 3 →
+        let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+        tau < (1 / 3 : ENNReal) →
+        let beta : ENNReal := tau * (1 - tau)⁻¹
+        beta < 1 ∧
+        residualProductExponentMajorant kappaLambda kappaQ
+          (Fintype.card A) M.card U m ≠ ∞ ∧
+        ((∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN (residualQ M R row col) M C))) ≤
+          EReal.exp
+            ((residualProductExponentMajorant kappaLambda kappaQ
+              (Fintype.card A) M.card U m : ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, hkLpos, hkLtop, hkL⟩ :=
+    existsAbsoluteResidualLambdaTotalBound
+  obtain ⟨kappaQ, hkQpos, hkQtop, hkQ⟩ :=
+    existsAbsoluteResidualQRowColumnBound_of_degreeCaps
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ M U R m row col hM hm hrow hcol hrowCap hcolCap hR hpow
+  dsimp only
+  intro htau
+  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta : ENNReal := tau * (1 - tau)⁻¹
+  have hnorm := hkQ M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
+  have hmixed := mixedSimpleCycle_weighted_walk_enumeration
+    (residualQ M R row col) M hM tau (by simpa [tau] using htau)
+    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
+  have htauThird : tau < (1 / 3 : ENNReal) := by
+    simpa [tau] using htau
+  have htau1 : tau < 1 := htauThird.trans (by norm_num)
+  have hresidual := residualOnlySimpleCycle_weighted_walk_enumeration
+    (residualQ M R row col) M tau htau1
+    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
+  have hlambda := hkL M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
+  have hbeta : beta < 1 := by simpa [beta] using hmixed.1
+  refine ⟨hbeta, ?_, ?_⟩
+  · exact residualProductExponentMajorant_ne_top
+      kappaLambda kappaQ (Fintype.card A) M.card U m hkLtop hkQtop hm
+      (by simpa [tau] using htau1)
+      (by simpa [tau, beta] using hbeta)
+  · have hcycles := simpleCycle_sum_le_of_residual_mixed_bounds
+      (residualQ M R row col) M
+      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹))
+      (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹))
+      hresidual (by simpa [beta] using hmixed.2)
+    have hproduct := lambda_cycle_products_le_exp_of_sum_bounds
+      (residualLambda M R row col) (simpleBipartiteCycles A B)
+      (edgeWeightOutsideENN (residualQ M R row col) M)
+      (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal))
+      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+        (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)))
+      hlambda hcycles
+    simpa [residualProductExponentMajorant, tau, beta, add_assoc] using hproduct
+
+#print axioms residualProductExponentMajorant_ne_top
+#print axioms lambda_cycle_products_le_exp_of_sum_bounds
+#print axioms simpleCycle_sum_le_of_residual_mixed_bounds
+#print axioms exists_absolute_residual_product_exponential_majorant
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
+Source: Erdos625/Section9LargeResidualEnvelope.lean
+Normalized SHA-256: 4ba44abcec1c8c967e21e3eddc37ce5caa69208c3f746f0680064fdf83910cd3
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
+
+/-!
+# Section IX: large-residual exponent envelope
+
+This module gives the coarse deterministic envelope used in the
+large-residual branch.  It controls both geometric denominators when the
+normalized residual scale is at most one third and substitutes those bounds
+into `residualProductExponentMajorant`.
+
+It does not choose the manuscript parameters or prove that the resulting
+envelope is asymptotically negligible.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+/-- The two geometric denominators in the residual product exponent have
+uniform coarse bounds throughout the one-third corridor. -/
+theorem residual_geometric_denominators_le
+    (tau : ENNReal) (htau : tau ≤ (1 / 3 : ENNReal)) :
+    tau ^ 4 * (1 - tau ^ 2)⁻¹ ≤ 2 * tau ^ 4 ∧
+      let beta := tau * (1 - tau)⁻¹
+      beta * (1 - beta)⁻¹ ≤ 3 * tau := by
+  rcases eq_or_ne tau 0 <;> simp_all +decide [mul_comm]
+  constructor
+  · gcongr
+    rw [← ENNReal.inv_le_inv, inv_inv]
+    refine' le_trans _
+      (tsub_le_tsub_left
+        (pow_le_pow_left'
+          (show tau ≤ 1 / 3 by
+            rw [ENNReal.le_div_iff_mul_le] <;> norm_num
+            aesop)
+          2)
+        _) ;
+      norm_num
+    rw [← ENNReal.toReal_le_toReal] <;> norm_num
+    rw [ENNReal.toReal_sub_of_le] <;> norm_num
+    rw [← ENNReal.toReal_le_toReal] <;> norm_num
+  · rcases eq_or_ne (1 - tau) 0 <;> simp_all +decide [mul_assoc]
+    · rw [tsub_eq_zero_iff_le] at *
+      exact absurd htau
+        (not_le_of_gt
+          (lt_of_lt_of_le (by norm_num) (mul_le_mul_left ‹1 ≤ tau› _)))
+    · gcongr
+      rw [← ENNReal.toReal_le_toReal] <;> norm_num
+      · rw [← mul_inv, ENNReal.toReal_sub_of_le] <;> norm_num
+        · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+          · rcases eq_or_ne tau ⊤ with rfl | htau' <;> simp_all +decide
+            rw [← mul_inv, inv_le_comm₀] <;> norm_num
+            · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                · nlinarith
+                    [inv_mul_cancel₀
+                      (show (1 - tau.toReal) ≠ 0 from
+                        sub_ne_zero_of_ne <| by linarith),
+                      show 0 ≤ tau.toReal from ENNReal.toReal_nonneg]
+                · aesop
+              · exact le_trans
+                  (le_mul_of_one_le_right bot_le (by norm_num)) htau
+            · refine' mul_pos _ _ <;> norm_num
+              · rw [← div_eq_mul_inv, div_lt_one]
+                · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+                  · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                    · linarith
+                    · aesop
+                  · exact le_trans
+                      (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
+                · exact ENNReal.toReal_pos (by aesop) (by aesop)
+              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                · linarith
+                · exact ENNReal.mul_ne_top htau' (by norm_num)
+          · rw [← ENNReal.toReal_le_toReal] <;> norm_num
+            · rw [← div_eq_mul_inv, div_le_iff₀] <;> norm_num
+              · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+                · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+                  · linarith
+                  · aesop
+                · exact le_trans
+                    (le_mul_of_one_le_right bot_le (by norm_num)) htau
+              · exact ENNReal.toReal_pos (by aesop) (by aesop)
+            · rw [ENNReal.mul_eq_top]
+              aesop
+        · exact le_trans
+            (le_mul_of_one_le_right bot_le (by norm_num)) htau
+      · simp_all +decide [ENNReal.mul_eq_top]
+        rw [tsub_eq_zero_iff_le] at *
+        rw [← ENNReal.toReal_le_toReal] <;> norm_num
+        · rw [← div_eq_mul_inv, div_lt_one]
+          · rw [ENNReal.toReal_sub_of_le] <;> norm_num
+            · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
+              · linarith
+              · aesop
+              · aesop
+            · exact le_trans
+                (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
+          · exact ENNReal.toReal_pos
+              (ne_of_gt <| tsub_pos_of_lt <| lt_of_not_ge ‹_›)
+              (ne_of_lt <| lt_of_le_of_lt tsub_le_self ENNReal.one_lt_top)
+        · simp_all +decide [ENNReal.mul_eq_top]
+          exact
+            ⟨ne_of_gt (tsub_pos_of_lt ‹_›),
+              ne_of_lt (lt_of_lt_of_le ‹_› (by norm_num))⟩
+
+/-- Coarse explicit envelope for the large-residual product exponent. -/
+theorem residualProductExponentMajorant_le_largeResidualEnvelope
+    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ)
+    (htau : let tau : ENNReal :=
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+      tau ≤ (1 / 3 : ENNReal)) :
+    let tau : ENNReal :=
+      kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+    residualProductExponentMajorant kappaLambda kappaQ
+        cardA matchingCard U m ≤
+      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        2 * (cardA : ENNReal) * tau ^ 4 +
+        (((6 * matchingCard : ℕ) : ENNReal) * tau) := by
+  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
+  let beta : ENNReal := tau * (1 - tau)⁻¹
+  have hgeometric := residual_geometric_denominators_le tau htau
+  change
+    kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
+        (((2 * matchingCard : ℕ) : ENNReal) *
+          (beta * (1 - beta)⁻¹)) ≤
+      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        2 * (cardA : ENNReal) * tau ^ 4 +
+        (((6 * matchingCard : ℕ) : ENNReal) * tau)
+  calc
+    _ ≤ kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+          (cardA : ENNReal) * (2 * tau ^ 4) +
+          (((2 * matchingCard : ℕ) : ENNReal) * (3 * tau)) :=
+      add_le_add_three le_rfl
+        (mul_le_mul_right hgeometric.1 _)
+        (mul_le_mul_right hgeometric.2 _)
+    _ = _ := by
+      push_cast
+      ring
+
+#print axioms residual_geometric_denominators_le
+#print axioms residualProductExponentMajorant_le_largeResidualEnvelope
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
+Source: Erdos625/Section9ActualAttachmentLargeResidualEnvelope.lean
+Normalized SHA-256: a4359546e4a1c9d5d7d4d5fdeac00b81c1be360974da94592b114945d8492adf
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
+
+/-!
+# Section IX: strict large-residual envelope for the literal attachment numerator
+
+This is the finite large-residual branch before any skeleton summation or
+asymptotic scale comparison.  In particular, the cap/no-return indicator
+remains inside `residualActualAttachmentNumerator`; no conditional-event
+probability is introduced or divided out.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One pair of absolute constants bounds the literal event-restricted
+attachment numerator by the coarse strict-regime large-residual envelope.
+The result is pointwise in the finite residual data and makes no claim about
+the later `O((log n)^8)` comparison or a global skeleton sum. -/
+theorem exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A B : Type*} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U m : Nat)
+          (row : A → Nat) (col : B → Nat)
+          (htotal : Finset.univ.sum row = Finset.univ.sum col),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        ((residualActualAttachmentNumerator M (U / 2) row col htotal :
+          ENNReal) : EReal) ≤
+          EReal.exp
+            ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+              2 * (Fintype.card A : ENNReal) *
+                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+              (((6 * M.card : Nat) : ENNReal) *
+                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
+                ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hproduct⟩ :=
+    exists_absolute_residual_product_exponential_majorant
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ M U m row col htotal hM hm hrow hcol
+    hrowCap hcolCap hpow htau
+  have hbridge :=
+    residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
+      M (U / 2) row col htotal (by simpa [hrow] using hm)
+  have hmajorant := hproduct M U (U / 2) m row col hM hm hrow hcol
+    hrowCap hcolCap rfl hpow htau
+  have henvelope :=
+    residualProductExponentMajorant_le_largeResidualEnvelope
+      kappaLambda kappaQ (Fintype.card A) M.card U m (le_of_lt htau)
+  calc
+    ((residualActualAttachmentNumerator M (U / 2) row col htotal :
+        ENNReal) : EReal) ≤
+        (((∏ a : A, ∏ b : B,
+            (1 + residualLambda M (U / 2) row col a b)) *
+          (∏ C ∈ simpleBipartiteCycles A B,
+            (1 + edgeWeightOutsideENN
+              (residualQ M (U / 2) row col) M C)) : ENNReal) : EReal) := by
+      exact_mod_cast hbridge
+    _ ≤ (EReal.exp
+        ((residualProductExponentMajorant kappaLambda kappaQ
+          (Fintype.card A) M.card U m : ENNReal) : EReal) : ENNReal) := by
+      exact_mod_cast hmajorant.2.2
+    _ ≤ (EReal.exp
+        ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+          2 * (Fintype.card A : ENNReal) *
+            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+          (((6 * M.card : Nat) : ENNReal) *
+            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
+            ENNReal) : EReal) : ENNReal) := by
+      rw [EReal.coe_ennreal_le_coe_ennreal_iff, EReal.exp_le_exp_iff,
+        EReal.coe_ennreal_le_coe_ennreal_iff]
+      exact henvelope
+
+#print axioms exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
+Source: Erdos625/Section9ERealENNRealExpTransport.lean
+Normalized SHA-256: 7f3c86e58aad10cc731afd2b3f7d8caf9a65437d26c5b747289d09e07b8e60a7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
+
+/-!
+# Section IX: finite exponential transport
+
+This module supplies the coercion bridge needed after the large-residual
+attachment exponent has been proved finite.  It contains no asymptotic or
+probabilistic estimate by itself.
+
+The proof was returned by Aristotle project
+`15e91c74-dfdb-4770-a7dc-62e52b3c98b3`, task
+`34d791e3-60c3-4dec-8499-5d8a69732926`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A finite `ENNReal` exponent lets an `EReal.exp` upper bound be transported
+back to the ordinary finite `ENNReal.ofReal (Real.exp ...)` endpoint. -/
+theorem ennreal_le_of_coe_le_ereal_exp_toReal
+    (x y : ENNReal)
+    (hy : y ≠ ∞)
+    (h : (x : EReal) ≤ EReal.exp (y : EReal)) :
+    x ≤ ENNReal.ofReal (Real.exp y.toReal) := by
+  rw [← EReal.coe_ennreal_toReal hy, EReal.exp_coe] at h
+  exact EReal.coe_ennreal_le_coe_ennreal_iff.mp h
+
+/-- The coarse Section IX large-residual exponent is finite whenever its
+absolute constants are finite and the residual mass is positive.
+
+The proof was returned by Aristotle project
+`b887515e-44b4-4ec2-97ab-dd94cb29b641`, task
+`1df65d4f-00b0-4af2-9ca4-68c8c65ba85f`, and independently audited before
+integration. -/
+theorem residualLargeEnvelope_ne_top
+    (kappaLambda kappaQ : ENNReal)
+    (cardA matchingCard U m : ℕ)
+    (hkappaLambdaTop : kappaLambda ≠ ∞)
+    (hkappaQTop : kappaQ ≠ ∞)
+    (hm : 0 < m) :
+    (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+      2 * (cardA : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+      (((6 * matchingCard : ℕ) : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)))) ≠ ∞ := by
+  have hUTop : (U : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top U
+  have hm0 : (m : ENNReal) ≠ 0 := by
+    exact_mod_cast hm.ne'
+  have hcardATop : (cardA : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top cardA
+  have hmatchingTop : ((6 * matchingCard : ℕ) : ENNReal) ≠ ∞ :=
+    ENNReal.natCast_ne_top (6 * matchingCard)
+  have htwoTop : (2 : ENNReal) ≠ ∞ := ENNReal.ofNat_ne_top
+  have hUPow4Top : (U : ENNReal) ^ 4 ≠ ∞ := ENNReal.pow_ne_top hUTop
+  have hUPow3Top : (U : ENNReal) ^ 3 ≠ ∞ := ENNReal.pow_ne_top hUTop
+  have hlambdaMulTop : kappaLambda * (U : ENNReal) ^ 4 ≠ ∞ :=
+    ENNReal.mul_ne_top hkappaLambdaTop hUPow4Top
+  have hlambdaDivTop : kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) ≠ ∞ :=
+    ENNReal.div_ne_top hlambdaMulTop hm0
+  have hqMulTop : kappaQ * (U : ENNReal) ^ 3 ≠ ∞ :=
+    ENNReal.mul_ne_top hkappaQTop hUPow3Top
+  have hqDivTop : kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) ≠ ∞ :=
+    ENNReal.div_ne_top hqMulTop hm0
+  have hqPowTop : (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
+    ENNReal.pow_ne_top hqDivTop
+  have htwoCardTop : (2 : ENNReal) * (cardA : ENNReal) ≠ ∞ :=
+    ENNReal.mul_ne_top htwoTop hcardATop
+  have hmiddleTop :
+      2 * (cardA : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
+    ENNReal.mul_ne_top htwoCardTop hqPowTop
+  have hlastTop :
+      ((6 * matchingCard : ℕ) : ENNReal) *
+        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ≠ ∞ :=
+    ENNReal.mul_ne_top hmatchingTop hqDivTop
+  exact ENNReal.add_ne_top.mpr
+    ⟨ENNReal.add_ne_top.mpr ⟨hlambdaDivTop, hmiddleTop⟩, hlastTop⟩
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
+Source: Erdos625/Section9CanonicalDemandProductSpecialization.lean
+Normalized SHA-256: eb609b580105a919ee382839a2bb1c72d187dfe57e641c0910b08127b2a1c336
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
+
+/-!
+# Section IX: canonical-demand specialization of the residual product bound
+
+This module transports the generic positive-residual product estimate to the
+reference residual profile of one attained canonical demand.  It remains a
+finite strict-regime theorem: the eventual large-residual corridor and its
+comparison with the Section IX asymptotic scale are separate obligations.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The reference witness of an attained canonical demand supplies exactly
+the matching, degree-cap, and balance data required by the residual product
+estimate. -/
+theorem canonicalReference_residual_parameters
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    let witness := canonicalDemandReferenceWitness row col U demand
+    IsBipartiteMatching (positiveDemandSupport demand.1) ∧
+      (∀ a, residualRowDegree witness a ≤ U) ∧
+      (∀ b, residualColumnDegree witness b ≤ U) ∧
+      ((∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b) := by
+  dsimp only
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hprofile := residualDegreeProfile_of_witness htotal witness
+  exact ⟨positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+      U hrowCap hcolCap demand,
+    fun a => (hprofile.1 a).trans (hrowCap a),
+    fun b => (hprofile.2.1 b).trans (hcolCap b),
+    hprofile.2.2⟩
+
+/-- Absolute constants from the generic product theorem bound the literal
+canonical-demand polymer majorant throughout the strict residual corridor. -/
+theorem exists_absolute_canonicalDemandPolymer_strict_bound :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A B : Type*} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (row : A → ℕ) (col : B → ℕ) (U m : ℕ)
+          (demand : canonicalDemandImage row col U),
+        (∑ a, row a) = ∑ b, col b →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        m = canonicalDemandResidualTotal row col U demand →
+        0 < m →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        canonicalDemandPolymerMajorant row col U demand ≤
+          EReal.exp
+            ((residualProductExponentMajorant kappaLambda kappaQ
+              (Fintype.card A) (positiveDemandSupport demand.1).card U m :
+                ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
+    exists_absolute_residual_product_exponential_majorant
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ row col U m demand htotal hrowCap hcolCap
+    hm hmpos hpow htau
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hparameters := canonicalReference_residual_parameters
+    row col U htotal hrowCap hcolCap demand
+  have hrowSum : (∑ a, residualRowDegree witness a) = m := by
+    simpa only [canonicalDemandResidualTotal, witness] using hm.symm
+  have hcolSum : (∑ b, residualColumnDegree witness b) = m := by
+    exact hparameters.2.2.2.symm.trans hrowSum
+  have h := hbound (positiveDemandSupport demand.1) U (U / 2) m
+    (residualRowDegree witness) (residualColumnDegree witness)
+    hparameters.1 hmpos hrowSum hcolSum hparameters.2.1 hparameters.2.2.1
+    rfl hpow htau
+  simpa only [canonicalDemandPolymerMajorant, witness] using h.2.2
+
+#print axioms canonicalReference_residual_parameters
+#print axioms exists_absolute_canonicalDemandPolymer_strict_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentLargeResidualExp
+Source: Erdos625/Section9ProfileAttachmentLargeResidualExp.lean
+Normalized SHA-256: de5a496d9849350de9d6515417e1ab11d4194642a4d65fbb0d7195793458bccc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentLargeResidualExp
+
+/-!
+# Attained-profile large-residual attachment endpoint
+
+This module specializes the finite large-residual attachment endpoint to the
+canonical reference witness of an attained profile high skeleton.  The bound
+retains the literal cap/no-return numerator and does not substitute a polymer
+majorant.
+
+The proof was returned by Aristotle project
+`1905d738-1618-4c53-9677-b32ad19fdc8d`, task
+`5aefcfe9-65cc-44ad-bcc2-043872f7a980`, and independently audited before
+integration.  Only its proof body and a necessary closing parenthesis were
+ported.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- One pair of absolute constants bounds the literal cap/no-return attachment
+of every attained profile high skeleton at the finite large-residual
+exponential endpoint. -/
+theorem exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {b n : ℕ} {k : ColoringProfile b}
+          (row0 : OrderedProfilePartition n k) (U m : ℕ)
+          (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+          (demand : ProfileCanonicalHighSkeleton k U),
+        m = canonicalDemandResidualTotal
+          (profileBlockMargin k) (profileBlockMargin k) U demand →
+        0 < m →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        profileHighSkeletonAttachment row0 U demand ≤
+          ENNReal.ofReal
+            (Real.exp
+              ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+                2 * (Fintype.card (ProfileBlockIndex k) : ENNReal) *
+                  (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+                (((6 * (positiveDemandSupport demand.1).card : ℕ) : ENNReal) *
+                  (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) :
+                  ENNReal)).toReal)) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
+    exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro b n k row0 U m hcap demand hm hmpos hpow htau
+  let witness := canonicalDemandReferenceWitness
+    (profileBlockMargin k) (profileBlockMargin k) U demand
+  have hparameters := canonicalReference_residual_parameters
+    (profileBlockMargin k) (profileBlockMargin k) U
+    (profileBlockMargin_total_eq_self row0) hcap hcap demand
+  have hrowSum : (∑ a, residualRowDegree witness a) = m := by
+    simpa only [canonicalDemandResidualTotal, witness] using hm.symm
+  have hcolSum : (∑ a, residualColumnDegree witness a) = m := by
+    exact hparameters.2.2.2.symm.trans hrowSum
+  have hactual := hbound (positiveDemandSupport demand.1) U m
+    (residualRowDegree witness) (residualColumnDegree witness)
+    (sum_residualRowDegree_eq_sum_residualColumnDegree
+      (profileBlockMargin_total_eq_self row0) witness)
+    hparameters.1 hmpos hrowSum hcolSum hparameters.2.1 hparameters.2.2.1
+    hpow htau
+  have hexponent :
+      (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+        2 * (Fintype.card (ProfileBlockIndex k) : ENNReal) *
+          (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+        (((6 * (positiveDemandSupport demand.1).card : ℕ) : ENNReal) *
+          (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)))) ≠ ∞ :=
+    residualLargeEnvelope_ne_top kappaLambda kappaQ
+      (Fintype.card (ProfileBlockIndex k))
+      (positiveDemandSupport demand.1).card U m hkLtop hkQtop hmpos
+  unfold profileHighSkeletonAttachment
+  apply ennreal_le_of_coe_le_ereal_exp_toReal _ _ hexponent
+  simpa only [witness] using hactual
+
+end
+
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentLargeResidualExp
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentLargeResidualExp
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
+Source: Erdos625/Section9PositiveSupportMassBound.lean
+Normalized SHA-256: fa01917b6d56d0ccd9ee1d600f9a4d9726625afe2dc1ece29432a09b16117e57
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
+
+/-!
+# Section IX: positive-support mass bound
+
+This deterministic lemma converts the strict half-cap condition on every
+positive demand cell into a support-cardinality bound. It keeps the literal
+natural-number floor `U / 2`, including odd `U` and `U = 0`.
+
+The proof was returned by Aristotle project
+`87d795da-d6da-4927-8304-72b93c103dd7`, task
+`ec2ec257-3c4a-42d6-a69d-790f13dcc42d`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+set_option autoImplicit false
+
+/-- Strict half-cap support forces the support-cardinality/cap product below
+twice the literal total demand. -/
+theorem positiveDemandSupport_card_mul_cap_le_two_total
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (demand : A → B → ℕ) (U : ℕ)
+    (hhigh : ∀ a b, demand a b ≠ 0 → U / 2 < demand a b) :
+    (positiveDemandSupport demand).card * U ≤ 2 * totalDemand demand := by
+  have h_sum : ∑ p ∈ positiveDemandSupport demand, U ≤
+      ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := by
+    exact Finset.sum_le_sum fun p hp => by
+      linarith [Nat.div_add_mod U 2, Nat.mod_lt U two_pos,
+        hhigh p.1 p.2 (Finset.mem_filter.mp hp).2]
+  calc
+    (positiveDemandSupport demand).card * U =
+        ∑ p ∈ positiveDemandSupport demand, U := by
+      rw [Finset.sum_const, smul_eq_mul, mul_comm]
+    _ ≤ ∑ p ∈ positiveDemandSupport demand, 2 * demand p.1 p.2 := h_sum
+    _ ≤ 2 * totalDemand demand := by
+      simp only [totalDemand, Finset.mul_sum]
+      rw [← Finset.sum_product']
+      exact Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PositiveSupportMassBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PositiveSupportMassBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
+Source: Erdos625/Section9PhaseTwoPowerCorridor.lean
+Normalized SHA-256: 413a8e6e085d4ecb75e9b2766ef9690c665cb11afe521dd388f25c1ed72fff78
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
+
+/-!
+# Section IX: phase-controlled power bound
+
+This module supplies the eventual natural-number inequality required by the
+large-residual finite attachment estimate.
+
+The proof was returned by Aristotle project
+`0b21c723-27c0-44f3-a7d3-a52530bad0fe`, task
+`15a8d5cc-f68f-4998-a111-cc9597b58011`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A phase-sized cap and the manuscript large-residual cutoff eventually
+supply the exact natural power hypothesis used by the finite estimates. -/
+theorem eventually_phaseControlled_two_pow_le_cube :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ U m : ℕ,
+        U ≤ phaseNat n →
+        0 < m →
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤ (m : ℝ) →
+        (2 : ℕ) ^ U ≤ m ^ 3 := by
+  have hLogPow :
+      ∀ᶠ n : ℕ in atTop, Real.log (n : ℝ) ^ 90 ≤ (n : ℝ) := by
+    have hLittleO :
+        (fun n : ℕ ↦ Real.log (n : ℝ) ^ 90) =o[atTop]
+          (fun n : ℕ ↦ (n : ℝ)) :=
+      (Real.isLittleO_pow_log_id_atTop (n := 90)).comp_tendsto
+        tendsto_natCast_atTop_atTop
+    have hBound := hLittleO.bound (by norm_num : (0 : ℝ) < 1)
+    filter_upwards [hBound] with n hn
+    simpa [Real.norm_eq_abs, abs_of_nonneg (Real.log_natCast_nonneg n),
+      abs_of_nonneg (show (0 : ℝ) ≤ (n : ℝ) by positivity)] using hn
+  have hLogBudget :
+      ∀ᶠ n : ℕ in atTop,
+        4 * Real.log (n : ℝ) * Real.log 2 ≤
+          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) := by
+    filter_upwards [hLogPow, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
+    have hLogPos : 0 < Real.log (n : ℝ) :=
+      Real.log_pos (by exact_mod_cast hnLarge)
+    have hnPos : 0 < (n : ℝ) := by positivity
+    have hAfterLog := Real.log_le_log (pow_pos hLogPos 90) hn
+    rw [Real.log_pow] at hAfterLog
+    have hLogTwo : 4 * Real.log 2 < (14 / 5 : ℝ) := by
+      have := Real.log_two_lt_d9
+      norm_num at *
+      linarith
+    have hTwoTerm :
+        4 * Real.log 2 * Real.log (n : ℝ) ≤
+          (14 / 5 : ℝ) * Real.log (n : ℝ) :=
+      mul_le_mul_of_nonneg_right hLogTwo.le hLogPos.le
+    norm_num at hAfterLog hTwoTerm ⊢
+    linarith
+  have hPower :
+      ∀ᶠ n : ℕ in atTop, ∀ U : ℕ, U ≤ phaseNat n →
+        (2 : ℝ) ^ U ≤ (n : ℝ) ^ 3 / Real.log (n : ℝ) ^ 18 := by
+    filter_upwards [hLogBudget,
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+      eventually_gt_atTop (1 : ℕ)] with n hnBudget hnPhase hnLarge
+    intro U hU
+    have hLogPos : 0 < Real.log (n : ℝ) :=
+      Real.log_pos (by exact_mod_cast hnLarge)
+    have hUReal : (U : ℝ) ≤ 4 * Real.log (n : ℝ) :=
+      (Nat.cast_le.mpr hU).trans hnPhase.2
+    have hExponent :
+        (U : ℝ) * Real.log 2 ≤
+          3 * Real.log (n : ℝ) - 18 * Real.log (Real.log (n : ℝ)) :=
+      (mul_le_mul_of_nonneg_right hUReal (Real.log_nonneg one_le_two)).trans hnBudget
+    rw [← Real.log_le_log_iff (by positivity)
+      (div_pos (by positivity) (pow_pos hLogPos 18)),
+      Real.log_div (by positivity) (pow_ne_zero 18 hLogPos.ne'),
+      Real.log_pow, Real.log_pow]
+    norm_num
+    linarith
+  filter_upwards [hPower, eventually_gt_atTop (1 : ℕ)] with n hn hnLarge
+  intro U m hU _hm hnm
+  have hLogPos : 0 < Real.log (n : ℝ) :=
+    Real.log_pos (by exact_mod_cast hnLarge)
+  have hTwo := hn U hU
+  rw [le_div_iff₀ (pow_pos hLogPos 18)] at hTwo
+  rw [div_le_iff₀ (pow_pos hLogPos 6)] at hnm
+  exact_mod_cast (by
+    nlinarith [pow_le_pow_left₀ (by positivity) hnm 3,
+      pow_pos hLogPos 18] : (2 : ℝ) ^ U ≤ m ^ 3)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseTwoPowerCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseTwoPowerCorridor
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+Source: Erdos625/Section9PhaseENNRealTauCorridor.lean
+Normalized SHA-256: e5bf78f429ab8db4090f12a7c10e8e0c17a630db844acd8b66dc8a509a1d4c8d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+
+/-!
+# Section IX: phase-controlled `ENNReal` tau corridor
+
+This is only the numerical bridge needed to supply the strict tau hypothesis
+of the accepted actual-attachment large-residual envelope.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Any finite `ENNReal` coefficient, a cap bounded by the concrete phase,
+and the manuscript large-residual cutoff eventually give the strict
+`ENNReal` tau corridor used by the attachment envelope. -/
+theorem eventually_phaseControlled_ennreal_tau_lt_one_third
+    (kappaQ : ENNReal) (hkappaQ : kappaQ ≠ ∞) :
+    ∀ᶠ n : Nat in atTop,
+      ∀ (U m : Nat),
+        U ≤ phaseNat n →
+        0 < m →
+        (n : Real) / Real.log (n : Real) ^ 6 ≤ (m : Real) →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) := by
+  obtain ⟨C, hC⟩ : ∃ C : ℝ, ∀ᶠ n in atTop, ∀ U m : ℕ, U ≤ phaseNat n → 0 < m → (n : ℝ) /Real.log n ^ 6 ≤ m → (kappaQ.toReal * U ^ 3 : ℝ) / m < 1 / 3 := by
+    have h_logOrder : ∀ᶠ n in atTop, ∀ U : ℕ, U ≤ phaseNat n → U ≤ 4 * Real.log n := by
+      filter_upwards [ eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder ] with n hn U hU using le_trans ( Nat.cast_le.mpr hU ) hn.2
+    convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    constructor <;> intro h;
+    · convert eventually_tau_lt_one_third ( kappaQ.toReal ) ( ENNReal.toReal_nonneg ) using 1;
+    · use 0;
+      filter_upwards [ h_logOrder, h, Filter.eventually_gt_atTop 1 ] with n hn hn' hn'' U m hU hm hn'''; specialize hn' U m hm hn'''; simp_all +decide [ mul_div_assoc ] ;
+      exact hn' ( by have := hn U hU; rw [ mul_div, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nlinarith [ Real.log_le_sub_one_of_pos zero_lt_two, Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( n : ℝ ) ≥ 2 by norm_cast ) ] );
+  filter_upwards [ hC ] with n hn U m hU hm hmn;
+  convert ENNReal.ofReal_lt_ofReal_iff ( show ( 0 : ℝ ) < 1 / 3 by norm_num ) |>.2 ( hn U m hU hm hmn ) using 1;
+  · rw [ ENNReal.ofReal_div_of_pos ( by positivity ), ENNReal.ofReal_mul ( by positivity ), ENNReal.ofReal_pow ( by positivity ) ] ; aesop;
+  · rw [ ENNReal.ofReal_div_of_pos ] <;> norm_num
+
+#print axioms eventually_phaseControlled_ennreal_tau_lt_one_third
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9PhaseENNRealTauCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9PhaseENNRealTauCorridor
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+Source: Erdos625/Section9GlobalCanonicalResidualBridge.lean
+Normalized SHA-256: 202dcd8ff808e2d225bfb66f148486066a23cea7b41bb6d68f1daeaa4b05107b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+
+/-!
+# Section VIII--IX: tagged global canonical residuals
+
+Every state of the global dependent canonical-demand/witness/residual sigma
+space carries a residual configuration satisfying the literal Section IX
+cap/no-return event for that state's own demand support and residual degrees.
+This is a pointwise membership bridge only: it does not construct an untagged
+residual PMF, condition a law, take an expectation, or assert an asymptotic
+bound.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+local instance fintypeCanonicalResidualCellEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A -> B -> Nat} {row : A -> Nat} {col : B -> Nat}
+    (witness : PrescribedDemandWitness demand row col) (U : Nat) :
+    Fintype (canonicalResidualCellEvent witness U) :=
+  Fintype.ofFinite _
+
+local instance fintypeResidualCapNoReturnEvent
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
+    Fintype (ResidualCapNoReturnEvent M R row col) :=
+  Fintype.ofFinite _
+
+/-- A tagged state in the global canonical residual disintegration supplies
+the exact cap/no-return hypothesis used by the Section IX fixed-family
+machinery. -/
+theorem sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} (U : Nat)
+    (z : Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) :
+    z.2.2.1 ∈ ResidualCapNoReturnEvent
+      (positiveDemandSupport z.1.1) (U / 2)
+      (residualRowDegree z.2.1) (residualColumnDegree z.2.1) := by
+  simpa only [canonicalResidualCellEvent_eq_residualCapNoReturnEvent]
+    using z.2.2.2
+
+/-- Fibrewise retyping of the global canonical residual sigma family by its
+literal Section IX cap/no-return events.  The attained demand and labelled
+witness remain part of the state, so this is not an identification of a
+single residual space across demands. -/
+noncomputable def sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    (Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        canonicalResidualCellEvent witness U) ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  refine Equiv.sigmaCongrRight fun demand => ?_
+  refine Equiv.sigmaCongrRight fun witness => ?_
+  exact Equiv.setCongr
+    (canonicalResidualCellEvent_eq_residualCapNoReturnEvent witness U)
+
+/-- The matching-space equivalence followed by fibrewise Section IX
+retyping. -/
+noncomputable def configurationMatchingEquivSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) :
+    ConfigurationMatching row col ≃
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+  (configurationMatchingEquivSigmaCanonicalDemandResidual row col U).trans
+    (sigmaCanonicalDemandResidualEquivSigmaCapNoReturn row col U)
+
+/-- The uniform law on the tagged global Section IX cap/no-return family.
+Its nonemptiness is supplied by the ambient matching equivalence. -/
+noncomputable def uniformSigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    PMF
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  exact PMF.uniformOfFintype _
+
+/-- Exact global finite-law transport to the tagged Section IX cap/no-return
+family.  It retains demand and witness tags, and therefore asserts neither an
+untagged residual law, conditioning statement, expectation, nor asymptotic
+bound. -/
+theorem uniformConfigurationMatching_map_sigmaCapNoReturn
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : ∑ a, row a = ∑ b, col b) :
+    (uniformConfigurationMatching row col htotal).map
+        (configurationMatchingEquivSigmaCapNoReturn row col U) =
+      uniformSigmaCapNoReturn row col U htotal := by
+  letI : Nonempty (ConfigurationMatching row col) :=
+    ⟨configurationMatchingEquiv row col htotal⟩
+  let equivalence := configurationMatchingEquivSigmaCapNoReturn row col U
+  letI : Nonempty
+      (Sigma fun demand : canonicalDemandImage row col U =>
+        Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+          ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+            (residualRowDegree witness) (residualColumnDegree witness)) :=
+    ⟨equivalence (Classical.choice inferInstance)⟩
+  change (PMF.uniformOfFintype (ConfigurationMatching row col)).map equivalence = _
+  simpa only [uniformSigmaCapNoReturn] using
+    (uniformOfFintype_map_equiv equivalence)
+
+#print axioms sigmaCanonicalDemandResidual_mem_residualCapNoReturn
+#print axioms sigmaCanonicalDemandResidualEquivSigmaCapNoReturn
+#print axioms configurationMatchingEquivSigmaCapNoReturn
+#print axioms uniformSigmaCapNoReturn
+#print axioms uniformConfigurationMatching_map_sigmaCapNoReturn
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9GlobalCanonicalResidualBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9GlobalCanonicalResidualBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
+Source: Erdos625/Section9TaggedTransportGeneric.lean
+Normalized SHA-256: 0fad127abbdd414215a33db86b0a49a35a17192c0c9a6e3e2aeef68f1eb6d8be
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
+
+/-!
+# Section VIII--IX: generic tagged finite-sum transport
+
+This isolated target transports an arbitrary nonnegative observable through the
+exact configuration-matching equivalence to the *dependent* tagged
+`demand/witness/residual` Section IX family.  It deliberately retains both
+tags.  In particular, it neither identifies a common residual PMF nor
+conditions or divides by any event probability.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+local instance fintypeResidualCapNoReturnEventTaggedTransport
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (M : Finset (A × B)) (R : Nat) (row : A -> Nat) (col : B -> Nat) :
+    Fintype (ResidualCapNoReturnEvent M R row col) :=
+  Fintype.ofFinite _
+
+/-- Exact finite expectation/sum transport through the configuration matching
+equivalence.  The observable is evaluated on the full dependent tagged state,
+so demand and witness labels are never discarded. -/
+theorem uniformConfigurationMatching_sum_tagged_transport
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (htotal : Finset.univ.sum row = Finset.univ.sum col)
+    (f : (Sigma fun demand : canonicalDemandImage row col U =>
+      Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+        ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+          (residualRowDegree witness) (residualColumnDegree witness)) -> ENNReal) :
+    (Finset.univ.sum fun matching : ConfigurationMatching row col =>
+      uniformConfigurationMatching row col htotal matching *
+        f (configurationMatchingEquivSigmaCapNoReturn row col U matching)) =
+      Finset.univ.sum fun z :
+        Sigma fun demand : canonicalDemandImage row col U =>
+          Sigma fun witness : PrescribedDemandWitness demand.1 row col =>
+            ResidualCapNoReturnEvent (positiveDemandSupport demand.1) (U / 2)
+              (residualRowDegree witness) (residualColumnDegree witness) =>
+        uniformSigmaCapNoReturn row col U htotal z * f z := by
+  convert Equiv.sum_comp
+    (configurationMatchingEquivSigmaCapNoReturn row col U)
+    (fun z => uniformSigmaCapNoReturn row col U htotal z * f z) using 1
+  simp [← uniformConfigurationMatching_map_sigmaCapNoReturn]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9TaggedTransportGeneric
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9TaggedTransportGeneric
 ========================================================================== -/
 
 /- ==========================================================================
@@ -52751,7 +53529,7 @@ END SOURCE MODULE: Erdos625.Section8NearCellChoiceLink
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
 Source: Erdos625/Section8NearArithmeticFoundation.lean
-Normalized SHA-256: 21e3857ecac4759e5755f3ba5edb70b5060ebb14ba8e13819dc101ff3f9a1262
+Normalized SHA-256: 80e2d43365ba4814847b974fd6ae6e67368647ee99f43daf1aa60844073d312b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearArithmeticFoundation
 
@@ -52762,6 +53540,14 @@ This module records only the transparent finite definitions used in the
 near-containment part of Lemma 8.3.  It deliberately does not define a
 completion law, a middle expectation, or an encoding of physical skeletons;
 those require additional canonical-fibre structure.
+
+The two finite arithmetic proofs were returned by Aristotle tasks
+`b9426255-b07b-4fdb-bfc1-ef0928e797a4` and
+`9d38c74a-460e-4188-8f49-5a9d9a29a7e6`, then independently audited before
+integration.  The second task's service-level `COMPLETE_WITH_ERRORS` status
+did not alter its exact theorem: all recorded Lean builds and theorem checks
+succeeded, so the proof is accepted only through the repository's own Lean
+4.31 replay.
 -/
 
 namespace Erdos625
@@ -52772,6 +53558,13 @@ open scoped ENNReal
 a positive natural endpoint size `m`. -/
 def nearCut (m : ℕ) : ℕ :=
   (m - 1) / 4
+
+/-- Exact natural-number form of the strict rational inequality `e < m / 4`.
+The positivity hypothesis is necessary at `m = 0`. -/
+theorem nearCut_le_iff_four_mul_lt (m e : ℕ) (hm : 0 < m) :
+    e ≤ nearCut m ↔ 4 * e < m := by
+  unfold nearCut
+  omega
 
 /-- The smaller endpoint size of a row/column cell. -/
 def smallerSlotSize
@@ -52792,6 +53585,30 @@ from `J₀` to `J₀ - Q`. -/
 noncomputable def denominatorLoss (n J₀ Q : ℕ) : ENNReal :=
   (n.descFactorial J₀ : ENNReal) /
     (n.descFactorial (J₀ - Q) : ENNReal)
+
+/-- The denominator loss is exactly the final `Q` falling-factorial factors
+and is bounded by `n ^ Q`.  The feasibility assumptions make the cancelled
+denominator positive, including the boundary case `Q = 0`. -/
+theorem denominatorLoss_eq_falling_and_le_pow
+    (n J₀ Q : ℕ) (hQ : Q ≤ J₀) (hJ₀ : J₀ ≤ n) :
+    denominatorLoss n J₀ Q =
+        ((n - J₀ + Q).descFactorial Q : ENNReal) ∧
+      denominatorLoss n J₀ Q ≤ (n : ENNReal) ^ Q := by
+  set d := n.descFactorial (J₀ - Q)
+  set f := (n - J₀ + Q).descFactorial Q
+  have hmul : (n.descFactorial J₀ : ENNReal) = (d * f : ENNReal) := by
+    rw_mod_cast [← Nat.descFactorial_mul_descFactorial]
+    rw [show n - (J₀ - Q) = n - J₀ + Q by omega]
+    · rw [Nat.sub_sub_self hQ, mul_comm]
+    · omega
+  have heq : denominatorLoss n J₀ Q = f := by
+    convert congr_arg (fun x : ENNReal => x / (d : ENNReal)) hmul using 1
+    rw [ENNReal.eq_div_iff] <;> norm_cast <;> norm_num
+    exact Nat.ne_of_gt <| Nat.descFactorial_pos.mpr <| by omega
+  refine ⟨heq, ?_⟩
+  rw [heq]
+  exact mod_cast Nat.descFactorial_le_pow _ _ |>.trans
+    (Nat.pow_le_pow_left (by omega) _)
 
 end Erdos625
 
@@ -53339,6 +54156,355 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_EndpointTransportBounds
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.EndpointTransportBounds
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointFoundation
+Source: Erdos625/Section8EndpointFoundation.lean
+Normalized SHA-256: 53f7eeb457409579b299672d3db0472634fc92fcdf4b23e3e33ef18bbcef2622
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointFoundation
+
+/-!
+# Section VIII: four-type endpoint foundation
+
+This module keeps two incompatible notions of endpoint table apart:
+
+* `FourEndpointStubTable` records sums of literal physical stub incidences;
+* `FourEndpointFullTable` records counts of block-slot pairs whose physical
+  cell has full-containment multiplicity `min u_i u_j`.
+
+The manuscript table `ell_ij` in (8.5)--(8.6) is the second object. There is
+no coercion between the newtypes and no equality between them is assumed.
+The module defines finite data only; it does not assert the remaining
+canonical-demand, transportation comparison, or asymptotic endpoint bounds.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- Raw endpoint-type incidences measured in *stub pairs*. -/
+structure FourEndpointStubTable where
+  toFun : Fin 4 -> Fin 4 -> Nat
+
+namespace FourEndpointStubTable
+
+/-- Equality of raw tables is extensional equality of their entries. -/
+@[ext] theorem ext {table table' : FourEndpointStubTable}
+    (h : table.toFun = table'.toFun) : table = table' := by
+  cases table
+  cases table'
+  cases h
+  rfl
+
+end FourEndpointStubTable
+
+/-- Manuscript endpoint table `ell_ij`, measured in full-containment
+*block-slot pairs*. -/
+structure FourEndpointFullTable where
+  toFun : Fin 4 -> Fin 4 -> Nat
+
+namespace FourEndpointFullTable
+
+/-- Equality of full-cell tables is extensional equality of their entries. -/
+@[ext] theorem ext {table table' : FourEndpointFullTable}
+    (h : table.toFun = table'.toFun) : table = table' := by
+  cases table
+  cases table'
+  cases h
+  rfl
+
+end FourEndpointFullTable
+
+/-- The profile coordinate carrying deficit `2 + i`. -/
+def fourEndpointCoordinate (alpha : Nat) (hAlpha : 5 < alpha) (i : Fin 4) :
+    Fin (alpha + 1) :=
+  fourDeficitCoordinate alpha hAlpha i
+
+/-- Endpoint size `u_i`. -/
+def fourEndpointSize (alpha : Nat) (hAlpha : 5 < alpha) (i : Fin 4) : Nat :=
+  (fourEndpointCoordinate alpha hAlpha i).val + 1
+
+/-- Endpoint multiplicity `k_i` at the actual four-size coordinate. -/
+def fourEndpointMultiplicity (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (i : Fin 4) : Nat :=
+  k (fourEndpointCoordinate alpha hAlpha i)
+
+/-- The profile block slots whose block size is `u_i`. -/
+noncomputable def fourEndpointBlockSlots (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (i : Fin 4) :
+    Finset (ProfileBlockIndex k) := by
+  classical
+  exact Finset.univ.filter (fun q =>
+    profileBlockMargin k q = fourEndpointSize alpha hAlpha i)
+
+/-- Number of stub pairs in one full-containment endpoint cell. -/
+def fourEndpointOverlapSize (alpha : Nat) (hAlpha : 5 < alpha)
+    (i j : Fin 4) : Nat :=
+  min (fourEndpointSize alpha hAlpha i) (fourEndpointSize alpha hAlpha j)
+
+/-- Aggregate a literal block-slot table by endpoint type as raw stub totals. -/
+noncomputable def fourEndpointStubTableOfBlockTypeTable
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (T : ProfileBlockIndex k -> ProfileBlockIndex k -> Nat) :
+    FourEndpointStubTable where
+  toFun i j :=
+    (fourEndpointBlockSlots alpha hAlpha k i).sum fun a =>
+      (fourEndpointBlockSlots alpha hAlpha k j).sum fun b => T a b
+
+/-- Aggregate a literal block-slot table to the manuscript full-cell table. -/
+noncomputable def fourEndpointFullTableOfBlockTypeTable
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (T : ProfileBlockIndex k -> ProfileBlockIndex k -> Nat) :
+    FourEndpointFullTable where
+  toFun i j :=
+    (((fourEndpointBlockSlots alpha hAlpha k i).product
+      (fourEndpointBlockSlots alpha hAlpha k j)).filter
+        (fun ab => T ab.1 ab.2 = fourEndpointOverlapSize alpha hAlpha i j)).card
+
+/-- Row margin `r_i` of a manuscript full-cell table. -/
+def fourEndpointRowMargin (L : FourEndpointFullTable) (i : Fin 4) : Nat :=
+  Finset.univ.sum fun j => L.toFun i j
+
+/-- Column margin `c_j` of a manuscript full-cell table. -/
+def fourEndpointColumnMargin (L : FourEndpointFullTable) (j : Fin 4) : Nat :=
+  Finset.univ.sum fun i => L.toFun i j
+
+/-- Feasibility for the endpoint transportation table. -/
+def FourEndpointFeasible (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) : Prop :=
+  (forall i, fourEndpointRowMargin L i <=
+      fourEndpointMultiplicity alpha hAlpha k i) /\
+    (forall j, fourEndpointColumnMargin L j <=
+      fourEndpointMultiplicity alpha hAlpha k j)
+
+/-- `J(L)` in (8.5). -/
+def fourEndpointJ (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Nat :=
+  Finset.univ.sum fun i =>
+    Finset.univ.sum fun j =>
+      fourEndpointOverlapSize alpha hAlpha i j * L.toFun i j
+
+/-- The exact `|i-j|` displacement in (8.11). -/
+def fourEndpointDisplacement (L : FourEndpointFullTable) : Nat :=
+  Finset.univ.sum fun i =>
+    Finset.univ.sum fun j => Nat.dist i.val j.val * L.toFun i j
+
+/-- Vertex/stub mass carried by a one-sided endpoint margin. -/
+def fourEndpointMarginMass (alpha : Nat) (hAlpha : 5 < alpha)
+    (r : Fin 4 -> Nat) : Nat :=
+  Finset.univ.sum fun i => fourEndpointSize alpha hAlpha i * r i
+
+def fourEndpointRowMass (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Nat :=
+  fourEndpointMarginMass alpha hAlpha (fun i => fourEndpointRowMargin L i)
+
+def fourEndpointColumnMass (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Nat :=
+  fourEndpointMarginMass alpha hAlpha (fun j => fourEndpointColumnMargin L j)
+
+/-- The arithmetic facts needed to turn (8.11) into global transport. -/
+def FourEndpointMassFacts (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Prop :=
+  fourEndpointJ alpha hAlpha L <= fourEndpointRowMass alpha hAlpha L /\
+    fourEndpointJ alpha hAlpha L <= fourEndpointColumnMass alpha hAlpha L /\
+      fourEndpointRowMass alpha hAlpha L +
+          fourEndpointColumnMass alpha hAlpha L =
+        2 * fourEndpointJ alpha hAlpha L + fourEndpointDisplacement L
+
+/-- The sole `prod ell_ij!` denominator in (8.6). -/
+def fourEndpointCellFactorialProduct (L : FourEndpointFullTable) : Nat :=
+  Finset.univ.prod fun i =>
+    Finset.univ.prod fun j => (L.toFun i j).factorial
+
+/-- `prod_i r_i!` in the manuscript `D(r)`. -/
+def fourEndpointMarginFactorialProduct (r : Fin 4 -> Nat) : Nat :=
+  Finset.univ.prod fun i => (r i).factorial
+
+/-- `prod_i (k_i)_(r_i)`. -/
+def fourEndpointMarginSelectionProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (r : Fin 4 -> Nat) : Nat :=
+  Finset.univ.prod fun i =>
+    (fourEndpointMultiplicity alpha hAlpha k i).descFactorial (r i)
+
+def fourEndpointRowSelectionProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) : Nat :=
+  fourEndpointMarginSelectionProduct alpha hAlpha k
+    (fun i => fourEndpointRowMargin L i)
+
+def fourEndpointColumnSelectionProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) : Nat :=
+  fourEndpointMarginSelectionProduct alpha hAlpha k
+    (fun j => fourEndpointColumnMargin L j)
+
+/-- The diagonal local term `u_i! g(u_i)` in (8.7). -/
+noncomputable def fourEndpointDiagonalLocalFactor (alpha : Nat)
+    (hAlpha : 5 < alpha) (i : Fin 4) : ENNReal :=
+  ((fourEndpointSize alpha hAlpha i).factorial : ENNReal) *
+    (localSignRewardNat (fourEndpointSize alpha hAlpha i) : ENNReal)
+
+noncomputable def fourEndpointDiagonalLocalProduct (alpha : Nat)
+    (hAlpha : 5 < alpha) (r : Fin 4 -> Nat) : ENNReal :=
+  Finset.univ.prod fun i =>
+    (fourEndpointDiagonalLocalFactor alpha hAlpha i) ^ r i
+
+/-- The manuscript common-subprofile weight `D(r)` from (8.7). -/
+noncomputable def fourEndpointD (n alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (r : Fin 4 -> Nat) : ENNReal :=
+  ((((fourEndpointMarginSelectionProduct alpha hAlpha k r : Nat) : ENNReal) ^ 2 /
+      (fourEndpointMarginFactorialProduct r : ENNReal)) *
+    (fourEndpointDiagonalLocalProduct alpha hAlpha r /
+      ((n.descFactorial (fourEndpointMarginMass alpha hAlpha r) : Nat) :
+        ENNReal)))
+
+/-- One local full-cell factor in `W(L)`. -/
+noncomputable def fourEndpointLocalCellFactor (alpha : Nat)
+    (hAlpha : 5 < alpha) (i j : Fin 4) : ENNReal :=
+  let x := fourEndpointOverlapSize alpha hAlpha i j
+  (((fourEndpointSize alpha hAlpha i).descFactorial x : ENNReal) *
+      ((fourEndpointSize alpha hAlpha j).descFactorial x : ENNReal) /
+        (x.factorial : ENNReal)) *
+    (localSignRewardNat x : ENNReal)
+
+noncomputable def fourEndpointLocalProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : ENNReal :=
+  Finset.univ.prod fun i => Finset.univ.prod fun j =>
+    (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j
+
+/-- The exact endpoint weight `W(L)` from (8.6), excluding residual
+attachments. Its ENNReal form is total; feasibility remains separate. -/
+noncomputable def fourEndpointW (n alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) : ENNReal :=
+  ((((fourEndpointRowSelectionProduct alpha hAlpha k L : Nat) : ENNReal) *
+      ((fourEndpointColumnSelectionProduct alpha hAlpha k L : Nat) : ENNReal) /
+        (fourEndpointCellFactorialProduct L : ENNReal) /
+          ((n.descFactorial (fourEndpointJ alpha hAlpha L) : Nat) : ENNReal)) *
+    fourEndpointLocalProduct alpha hAlpha L)
+
+/-- Endpoint type distance `d = |i-j|`. -/
+def fourEndpointDistance (i j : Fin 4) : Nat := Nat.dist i.val j.val
+
+def fourEndpointLowerSize (alpha : Nat) (hAlpha : 5 < alpha)
+    (i j : Fin 4) : Nat :=
+  min (fourEndpointSize alpha hAlpha i) (fourEndpointSize alpha hAlpha j)
+
+def fourEndpointUpperSize (alpha : Nat) (hAlpha : 5 < alpha)
+    (i j : Fin 4) : Nat :=
+  max (fourEndpointSize alpha hAlpha i) (fourEndpointSize alpha hAlpha j)
+
+/-- The finite `Q_ij` expression in (8.9), defined before any inequality. -/
+noncomputable def fourEndpointQ (n alpha : Nat) (hAlpha : 5 < alpha)
+    (i j : Fin 4) : Real :=
+  Real.rpow ((n + 1 : Nat) : Real) ((fourEndpointDistance i j : Real) / 2) *
+    Real.sqrt ((fourEndpointUpperSize alpha hAlpha i j).descFactorial
+      (fourEndpointDistance i j) : Real) /
+      (fourEndpointDistance i j).factorial *
+        Real.rpow 2
+          (-((fourEndpointDistance i j * fourEndpointLowerSize alpha hAlpha i j +
+            (fourEndpointDistance i j).choose 2 : Nat) : Real) / 2)
+
+/-- Full endpoint block pairs in a literal physical skeleton. -/
+noncomputable def fourEndpointFullPairs (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k)) :
+    Finset (Prod (ProfileBlockIndex k) (ProfileBlockIndex k)) := by
+  classical
+  exact (Finset.univ.product Finset.univ).filter fun ab =>
+    exists i j, ab.1 ∈ fourEndpointBlockSlots alpha hAlpha k i /\
+      ab.2 ∈ fourEndpointBlockSlots alpha hAlpha k j /\
+        S.typeTable ab.1 ab.2 = fourEndpointOverlapSize alpha hAlpha i j
+
+/-- Every physical edge is in a full endpoint cell. -/
+def IsFourEndpointOnlyPhysicalSkeleton (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k)) :
+    Prop :=
+  forall e, e ∈ S.edges ->
+    exists i j, e.1.1 ∈ fourEndpointBlockSlots alpha hAlpha k i /\
+      e.2.1 ∈ fourEndpointBlockSlots alpha hAlpha k j /\
+        S.typeTable e.1.1 e.2.1 = fourEndpointOverlapSize alpha hAlpha i j
+
+/-- The endpoint high-cell threshold `floor(u_max / 2)`. -/
+def fourEndpointHighCutoff (alpha : Nat) (hAlpha : 5 < alpha) : Nat :=
+  fourEndpointSize alpha hAlpha (0 : Fin 4) / 2
+
+/-- Canonical-high form of an endpoint-only physical skeleton. -/
+def IsCanonicalHighFourEndpointSkeleton (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k)) :
+    Prop :=
+  IsFourEndpointOnlyPhysicalSkeleton alpha hAlpha k S /\
+    (forall ab, ab ∈ fourEndpointFullPairs alpha hAlpha k S ->
+      fourEndpointHighCutoff alpha hAlpha < S.typeTable ab.1 ab.2)
+
+/-- Block-level matching for full endpoint pairs. -/
+def FourEndpointFullPairsAreMatching (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k)) :
+    Prop :=
+  (forall a b1 b2,
+      (a, b1) ∈ fourEndpointFullPairs alpha hAlpha k S ->
+      (a, b2) ∈ fourEndpointFullPairs alpha hAlpha k S -> b1 = b2) /\
+    (forall a1 a2 b,
+      (a1, b) ∈ fourEndpointFullPairs alpha hAlpha k S ->
+      (a2, b) ∈ fourEndpointFullPairs alpha hAlpha k S -> a1 = a2)
+
+/-- Endpoint-only and block-matching physical skeletons. -/
+def IsFourEndpointPhysicalSkeleton (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k)) :
+    Prop :=
+  IsFourEndpointOnlyPhysicalSkeleton alpha hAlpha k S /\
+    FourEndpointFullPairsAreMatching alpha hAlpha k S
+
+abbrev FourEndpointPhysicalSkeleton (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) :=
+  {S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k) //
+    IsFourEndpointPhysicalSkeleton alpha hAlpha k S}
+
+/-- Fibre over a specified full-cell table; generic image/fibre partitioning is
+intentionally not promoted to a theorem. -/
+abbrev FourEndpointPhysicalFibre (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) :=
+  {S : FourEndpointPhysicalSkeleton alpha hAlpha k //
+    fourEndpointFullTableOfBlockTypeTable alpha hAlpha k S.1.typeTable = L}
+
+noncomputable instance instFintypeFourEndpointPhysicalFibre
+    (alpha : Nat) (hAlpha : 5 < alpha) (k : ColoringProfile (alpha + 1))
+    (L : FourEndpointFullTable) :
+    Fintype (FourEndpointPhysicalFibre alpha hAlpha k L) := by
+  classical
+  exact Fintype.ofFinite _
+
+/-- Local reward read from literal full cells of a physical fibre member. -/
+noncomputable def fourEndpointPhysicalLocalReward (alpha : Nat)
+    (hAlpha : 5 < alpha) (k : ColoringProfile (alpha + 1))
+    (L : FourEndpointFullTable)
+    (S : FourEndpointPhysicalFibre alpha hAlpha k L) : ENNReal :=
+  (fourEndpointFullPairs alpha hAlpha k S.1.1).prod fun ab =>
+    (localSignRewardNat (S.1.1.typeTable ab.1 ab.2) : ENNReal)
+
+/-- Per-physical-skeleton contribution whose fibre sum is the exact (8.6)
+target. -/
+noncomputable def fourEndpointPhysicalWitnessWeight (n alpha : Nat)
+    (hAlpha : 5 < alpha) (k : ColoringProfile (alpha + 1))
+    (L : FourEndpointFullTable)
+    (S : FourEndpointPhysicalFibre alpha hAlpha k L) : ENNReal :=
+  fourEndpointPhysicalLocalReward alpha hAlpha k L S /
+    ((n.descFactorial (fourEndpointJ alpha hAlpha L) : Nat) : ENNReal)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointFoundation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointFoundation
 ========================================================================== -/
 
 /- ==========================================================================
@@ -57433,586 +58599,6 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentAggregation
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
-Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
-Normalized SHA-256: b3d1d68b1e3871483a9abed71c3f46ed2854a38c22e9f8c9b6bb19ff0e66ce13
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
-
-/-!
-# Section IX: finite product estimate, algebraic prefix
-
-This module isolates two finite algebraic leaves used by the positive-residual
-canonical-demand estimate. It does not assert the residual-q cycle bounds or
-the eventual midpoint asymptotics.
--/
-
-universe u v
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The explicit exponent controlling the lambda and simple-cycle products. -/
-noncomputable def residualProductExponentMajorant
-    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ) : ENNReal :=
-  let tau := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-  let beta := tau * (1 - tau)⁻¹
-  kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-    (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
-    (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹))
-
-/-- Every displayed exponent is finite under the strict small-parameter
-hypotheses and finite absolute constants. -/
-theorem residualProductExponentMajorant_ne_top
-    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ)
-    (hkLtop : kappaLambda ≠ ∞) (_hkQtop : kappaQ ≠ ∞) (hm : 0 < m)
-    (htau : kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) < 1)
-    (hbeta : let tau := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-      tau * (1 - tau)⁻¹ < 1) :
-    residualProductExponentMajorant kappaLambda kappaQ cardA matchingCard U m ≠ ∞ := by
-  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-  let beta : ENNReal := tau * (1 - tau)⁻¹
-  have htau_lt : tau < 1 := by simpa [tau] using htau
-  have hbeta_lt : beta < 1 := by simpa [beta, tau] using hbeta
-  have htau_top : tau ≠ ∞ :=
-    ne_top_of_le_ne_top ENNReal.one_ne_top htau_lt.le
-  have hbeta_top : beta ≠ ∞ :=
-    ne_top_of_le_ne_top ENNReal.one_ne_top hbeta_lt.le
-  have htau_sq_lt : tau ^ 2 < 1 := by
-    exact pow_lt_one₀ bot_le htau_lt (by norm_num : (2 : ℕ) ≠ 0)
-  have hone_sub_tau_sq : 1 - tau ^ 2 ≠ 0 :=
-    (tsub_pos_iff_lt.mpr htau_sq_lt).ne'
-  have hone_sub_beta : 1 - beta ≠ 0 :=
-    (tsub_pos_iff_lt.mpr hbeta_lt).ne'
-  have hm0 : (m : ENNReal) ≠ 0 := by exact_mod_cast hm.ne'
-  have hfirst :
-      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) ≠ ∞ :=
-    ENNReal.div_ne_top
-      (ENNReal.mul_ne_top hkLtop
-        (ENNReal.pow_ne_top (ENNReal.natCast_ne_top U))) hm0
-  have hsecond :
-      (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) ≠ ∞ :=
-    ENNReal.mul_ne_top (ENNReal.natCast_ne_top cardA)
-      (ENNReal.mul_ne_top (ENNReal.pow_ne_top htau_top)
-        (ENNReal.inv_ne_top.mpr hone_sub_tau_sq))
-  have hthird :
-      (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)) ≠ ∞ :=
-    ENNReal.mul_ne_top (ENNReal.natCast_ne_top (2 * matchingCard))
-      (ENNReal.mul_ne_top hbeta_top
-        (ENNReal.inv_ne_top.mpr hone_sub_beta))
-  change
-    kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-      (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
-      (((2 * matchingCard : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)) ≠ ∞
-  exact ENNReal.add_ne_top.mpr ⟨ENNReal.add_ne_top.mpr ⟨hfirst, hsecond⟩, hthird⟩
-
-/-- Generic finite-product algebra used after the lambda and split cycle-sum
-estimates have been proved. -/
-theorem lambda_cycle_products_le_exp_of_sum_bounds
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (lambda : A → B → ENNReal) (cycles : Finset (Finset (A × B)))
-    (weight : Finset (A × B) → ENNReal) (lambdaBound cycleBound : ENNReal)
-    (hlambda : (∑ a, ∑ b, lambda a b) ≤ lambdaBound)
-    (hcycle : (∑ C ∈ cycles, weight C) ≤ cycleBound) :
-    ((∏ a, ∏ b, (1 + lambda a b)) *
-      (∏ C ∈ cycles, (1 + weight C))) ≤
-      EReal.exp (((lambdaBound + cycleBound : ENNReal) : EReal)) := by
-  have hlambdaProduct :
-      (∏ a, ∏ b, (1 + lambda a b)) ≤
-        EReal.exp (((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) := by
-    rw [← Fintype.prod_prod_type', ← Fintype.sum_prod_type']
-    exact ennreal_polymer_product_le_ereal_exp_sum
-      (Finset.univ : Finset (A × B)) (fun x => lambda x.1 x.2)
-  have hcycleProduct :
-      (∏ C ∈ cycles, (1 + weight C)) ≤
-        EReal.exp (((∑ C ∈ cycles, weight C : ENNReal) : EReal)) :=
-    ennreal_polymer_product_le_ereal_exp_sum cycles weight
-  calc
-    ((∏ a, ∏ b, (1 + lambda a b)) *
-        (∏ C ∈ cycles, (1 + weight C))) ≤
-      EReal.exp (((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) *
-        EReal.exp (((∑ C ∈ cycles, weight C : ENNReal) : EReal)) :=
-      mul_le_mul' hlambdaProduct hcycleProduct
-    _ = EReal.exp
-        ((((∑ a, ∑ b, lambda a b : ENNReal) : EReal)) +
-          (((∑ C ∈ cycles, weight C : ENNReal) : EReal))) := by
-      rw [EReal.exp_add]
-    _ = EReal.exp
-        ((((∑ a, ∑ b, lambda a b : ENNReal) +
-          ∑ C ∈ cycles, weight C : ENNReal) : EReal)) := by
-      rw [EReal.coe_ennreal_add]
-    _ ≤ EReal.exp (((lambdaBound + cycleBound : ENNReal) : EReal)) := by
-      rw [EReal.exp_le_exp_iff, EReal.coe_ennreal_le_coe_ennreal_iff]
-      exact add_le_add hlambda hcycle
-
-/-- Residual-only and mixed-cycle bounds combine into a bound for the complete
-simple-cycle sum. This is the exact finite split used by the later product
-assembly. -/
-theorem simpleCycle_sum_le_of_residual_mixed_bounds
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (q : A → B → ENNReal) (M : Finset (A × B))
-    (residualBound mixedBound : ENNReal)
-    (hresidual :
-      (∑ C ∈ (simpleBipartiteCycles A B).filter (fun C => Disjoint C M),
-        edgeWeightOutsideENN q M C) ≤ residualBound)
-    (hmixed :
-      (∑ C : MixedSimpleCycle A B M,
-        edgeWeightOutsideENN q M C.1) ≤ mixedBound) :
-    (∑ C ∈ simpleBipartiteCycles A B,
-      edgeWeightOutsideENN q M C) ≤ residualBound + mixedBound := by
-  rw [sum_simpleBipartiteCycles_edgeWeight_split]
-  exact add_le_add hresidual hmixed
-
-/-- The literal positive-residual lambda and simple-cycle products have one
-explicit exponential majorant, with absolute constants chosen before all
-finite types and residual data. -/
-theorem exists_absolute_residual_product_exponential_majorant :
-    ∃ kappaLambda kappaQ : ENNReal,
-      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
-      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
-      ∀ {A : Type u} {B : Type v} [Fintype A] [Fintype B]
-          [DecidableEq A] [DecidableEq B]
-          (M : Finset (A × B)) (U R m : ℕ)
-          (row : A → ℕ) (col : B → ℕ),
-        IsBipartiteMatching M →
-        0 < m →
-        (∑ a, row a) = m →
-        (∑ b, col b) = m →
-        (∀ a, row a ≤ U) →
-        (∀ b, col b ≤ U) →
-        R = U / 2 →
-        2 ^ U ≤ m ^ 3 →
-        let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-        tau < (1 / 3 : ENNReal) →
-        let beta : ENNReal := tau * (1 - tau)⁻¹
-        beta < 1 ∧
-        residualProductExponentMajorant kappaLambda kappaQ
-          (Fintype.card A) M.card U m ≠ ∞ ∧
-        ((∏ a : A, ∏ b : B, (1 + residualLambda M R row col a b)) *
-          (∏ C ∈ simpleBipartiteCycles A B,
-            (1 + edgeWeightOutsideENN (residualQ M R row col) M C))) ≤
-          EReal.exp
-            ((residualProductExponentMajorant kappaLambda kappaQ
-              (Fintype.card A) M.card U m : ENNReal) : EReal) := by
-  obtain ⟨kappaLambda, hkLpos, hkLtop, hkL⟩ :=
-    existsAbsoluteResidualLambdaTotalBound
-  obtain ⟨kappaQ, hkQpos, hkQtop, hkQ⟩ :=
-    existsAbsoluteResidualQRowColumnBound_of_degreeCaps
-  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro A B _ _ _ _ M U R m row col hM hm hrow hcol hrowCap hcolCap hR hpow
-  dsimp only
-  intro htau
-  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-  let beta : ENNReal := tau * (1 - tau)⁻¹
-  have hnorm := hkQ M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
-  have hmixed := mixedSimpleCycle_weighted_walk_enumeration
-    (residualQ M R row col) M hM tau (by simpa [tau] using htau)
-    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
-  have htauThird : tau < (1 / 3 : ENNReal) := by
-    simpa [tau] using htau
-  have htau1 : tau < 1 := htauThird.trans (by norm_num)
-  have hresidual := residualOnlySimpleCycle_weighted_walk_enumeration
-    (residualQ M R row col) M tau htau1
-    (by simpa [tau] using hnorm.1) (by simpa [tau] using hnorm.2)
-  have hlambda := hkL M U R m row col hm hrow hcol hrowCap hcolCap hR hpow
-  have hbeta : beta < 1 := by simpa [beta] using hmixed.1
-  refine ⟨hbeta, ?_, ?_⟩
-  · exact residualProductExponentMajorant_ne_top
-      kappaLambda kappaQ (Fintype.card A) M.card U m hkLtop hkQtop hm
-      (by simpa [tau] using htau1)
-      (by simpa [tau, beta] using hbeta)
-  · have hcycles := simpleCycle_sum_le_of_residual_mixed_bounds
-      (residualQ M R row col) M
-      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹))
-      (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹))
-      hresidual (by simpa [beta] using hmixed.2)
-    have hproduct := lambda_cycle_products_le_exp_of_sum_bounds
-      (residualLambda M R row col) (simpleBipartiteCycles A B)
-      (edgeWeightOutsideENN (residualQ M R row col) M)
-      (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal))
-      ((Fintype.card A : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
-        (((2 * M.card : ℕ) : ENNReal) * (beta * (1 - beta)⁻¹)))
-      hlambda hcycles
-    simpa [residualProductExponentMajorant, tau, beta, add_assoc] using hproduct
-
-#print axioms residualProductExponentMajorant_ne_top
-#print axioms lambda_cycle_products_le_exp_of_sum_bounds
-#print axioms simpleCycle_sum_le_of_residual_mixed_bounds
-#print axioms exists_absolute_residual_product_exponential_majorant
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
-Source: Erdos625/Section9LargeResidualEnvelope.lean
-Normalized SHA-256: 4ba44abcec1c8c967e21e3eddc37ce5caa69208c3f746f0680064fdf83910cd3
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
-
-/-!
-# Section IX: large-residual exponent envelope
-
-This module gives the coarse deterministic envelope used in the
-large-residual branch.  It controls both geometric denominators when the
-normalized residual scale is at most one third and substitutes those bounds
-into `residualProductExponentMajorant`.
-
-It does not choose the manuscript parameters or prove that the resulting
-envelope is asymptotically negligible.
--/
-
-namespace Erdos625
-
-open scoped ENNReal
-
-noncomputable section
-
-/-- The two geometric denominators in the residual product exponent have
-uniform coarse bounds throughout the one-third corridor. -/
-theorem residual_geometric_denominators_le
-    (tau : ENNReal) (htau : tau ≤ (1 / 3 : ENNReal)) :
-    tau ^ 4 * (1 - tau ^ 2)⁻¹ ≤ 2 * tau ^ 4 ∧
-      let beta := tau * (1 - tau)⁻¹
-      beta * (1 - beta)⁻¹ ≤ 3 * tau := by
-  rcases eq_or_ne tau 0 <;> simp_all +decide [mul_comm]
-  constructor
-  · gcongr
-    rw [← ENNReal.inv_le_inv, inv_inv]
-    refine' le_trans _
-      (tsub_le_tsub_left
-        (pow_le_pow_left'
-          (show tau ≤ 1 / 3 by
-            rw [ENNReal.le_div_iff_mul_le] <;> norm_num
-            aesop)
-          2)
-        _) ;
-      norm_num
-    rw [← ENNReal.toReal_le_toReal] <;> norm_num
-    rw [ENNReal.toReal_sub_of_le] <;> norm_num
-    rw [← ENNReal.toReal_le_toReal] <;> norm_num
-  · rcases eq_or_ne (1 - tau) 0 <;> simp_all +decide [mul_assoc]
-    · rw [tsub_eq_zero_iff_le] at *
-      exact absurd htau
-        (not_le_of_gt
-          (lt_of_lt_of_le (by norm_num) (mul_le_mul_left ‹1 ≤ tau› _)))
-    · gcongr
-      rw [← ENNReal.toReal_le_toReal] <;> norm_num
-      · rw [← mul_inv, ENNReal.toReal_sub_of_le] <;> norm_num
-        · rw [ENNReal.toReal_sub_of_le] <;> norm_num
-          · rcases eq_or_ne tau ⊤ with rfl | htau' <;> simp_all +decide
-            rw [← mul_inv, inv_le_comm₀] <;> norm_num
-            · rw [ENNReal.toReal_sub_of_le] <;> norm_num
-              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
-                · nlinarith
-                    [inv_mul_cancel₀
-                      (show (1 - tau.toReal) ≠ 0 from
-                        sub_ne_zero_of_ne <| by linarith),
-                      show 0 ≤ tau.toReal from ENNReal.toReal_nonneg]
-                · aesop
-              · exact le_trans
-                  (le_mul_of_one_le_right bot_le (by norm_num)) htau
-            · refine' mul_pos _ _ <;> norm_num
-              · rw [← div_eq_mul_inv, div_lt_one]
-                · rw [ENNReal.toReal_sub_of_le] <;> norm_num
-                  · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
-                    · linarith
-                    · aesop
-                  · exact le_trans
-                      (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
-                · exact ENNReal.toReal_pos (by aesop) (by aesop)
-              · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
-                · linarith
-                · exact ENNReal.mul_ne_top htau' (by norm_num)
-          · rw [← ENNReal.toReal_le_toReal] <;> norm_num
-            · rw [← div_eq_mul_inv, div_le_iff₀] <;> norm_num
-              · rw [ENNReal.toReal_sub_of_le] <;> norm_num
-                · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
-                  · linarith
-                  · aesop
-                · exact le_trans
-                    (le_mul_of_one_le_right bot_le (by norm_num)) htau
-              · exact ENNReal.toReal_pos (by aesop) (by aesop)
-            · rw [ENNReal.mul_eq_top]
-              aesop
-        · exact le_trans
-            (le_mul_of_one_le_right bot_le (by norm_num)) htau
-      · simp_all +decide [ENNReal.mul_eq_top]
-        rw [tsub_eq_zero_iff_le] at *
-        rw [← ENNReal.toReal_le_toReal] <;> norm_num
-        · rw [← div_eq_mul_inv, div_lt_one]
-          · rw [ENNReal.toReal_sub_of_le] <;> norm_num
-            · rw [← ENNReal.toReal_le_toReal] at * <;> norm_num at *
-              · linarith
-              · aesop
-              · aesop
-            · exact le_trans
-                (le_mul_of_one_le_right (by positivity) (by norm_num)) htau
-          · exact ENNReal.toReal_pos
-              (ne_of_gt <| tsub_pos_of_lt <| lt_of_not_ge ‹_›)
-              (ne_of_lt <| lt_of_le_of_lt tsub_le_self ENNReal.one_lt_top)
-        · simp_all +decide [ENNReal.mul_eq_top]
-          exact
-            ⟨ne_of_gt (tsub_pos_of_lt ‹_›),
-              ne_of_lt (lt_of_lt_of_le ‹_› (by norm_num))⟩
-
-/-- Coarse explicit envelope for the large-residual product exponent. -/
-theorem residualProductExponentMajorant_le_largeResidualEnvelope
-    (kappaLambda kappaQ : ENNReal) (cardA matchingCard U m : ℕ)
-    (htau : let tau : ENNReal :=
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-      tau ≤ (1 / 3 : ENNReal)) :
-    let tau : ENNReal :=
-      kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-    residualProductExponentMajorant kappaLambda kappaQ
-        cardA matchingCard U m ≤
-      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-        2 * (cardA : ENNReal) * tau ^ 4 +
-        (((6 * matchingCard : ℕ) : ENNReal) * tau) := by
-  let tau : ENNReal := kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)
-  let beta : ENNReal := tau * (1 - tau)⁻¹
-  have hgeometric := residual_geometric_denominators_le tau htau
-  change
-    kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-        (cardA : ENNReal) * (tau ^ 4 * (1 - tau ^ 2)⁻¹) +
-        (((2 * matchingCard : ℕ) : ENNReal) *
-          (beta * (1 - beta)⁻¹)) ≤
-      kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-        2 * (cardA : ENNReal) * tau ^ 4 +
-        (((6 * matchingCard : ℕ) : ENNReal) * tau)
-  calc
-    _ ≤ kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-          (cardA : ENNReal) * (2 * tau ^ 4) +
-          (((2 * matchingCard : ℕ) : ENNReal) * (3 * tau)) :=
-      add_le_add_three le_rfl
-        (mul_le_mul_right hgeometric.1 _)
-        (mul_le_mul_right hgeometric.2 _)
-    _ = _ := by
-      push_cast
-      ring
-
-#print axioms residual_geometric_denominators_le
-#print axioms residualProductExponentMajorant_le_largeResidualEnvelope
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9LargeResidualEnvelope
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9LargeResidualEnvelope
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
-Source: Erdos625/Section9ActualAttachmentLargeResidualEnvelope.lean
-Normalized SHA-256: a4359546e4a1c9d5d7d4d5fdeac00b81c1be360974da94592b114945d8492adf
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
-
-/-!
-# Section IX: strict large-residual envelope for the literal attachment numerator
-
-This is the finite large-residual branch before any skeleton summation or
-asymptotic scale comparison.  In particular, the cap/no-return indicator
-remains inside `residualActualAttachmentNumerator`; no conditional-event
-probability is introduced or divided out.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- One pair of absolute constants bounds the literal event-restricted
-attachment numerator by the coarse strict-regime large-residual envelope.
-The result is pointwise in the finite residual data and makes no claim about
-the later `O((log n)^8)` comparison or a global skeleton sum. -/
-theorem exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope :
-    ∃ kappaLambda kappaQ : ENNReal,
-      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
-      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
-      ∀ {A B : Type*} [Fintype A] [Fintype B]
-          [DecidableEq A] [DecidableEq B]
-          (M : Finset (A × B)) (U m : Nat)
-          (row : A → Nat) (col : B → Nat)
-          (htotal : Finset.univ.sum row = Finset.univ.sum col),
-        IsBipartiteMatching M →
-        0 < m →
-        (∑ a, row a) = m →
-        (∑ b, col b) = m →
-        (∀ a, row a ≤ U) →
-        (∀ b, col b ≤ U) →
-        2 ^ U ≤ m ^ 3 →
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
-          (1 / 3 : ENNReal) →
-        ((residualActualAttachmentNumerator M (U / 2) row col htotal :
-          ENNReal) : EReal) ≤
-          EReal.exp
-            ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-              2 * (Fintype.card A : ENNReal) *
-                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
-              (((6 * M.card : Nat) : ENNReal) *
-                (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
-                ENNReal) : EReal) := by
-  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hproduct⟩ :=
-    exists_absolute_residual_product_exponential_majorant
-  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro A B _ _ _ _ M U m row col htotal hM hm hrow hcol
-    hrowCap hcolCap hpow htau
-  have hbridge :=
-    residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct
-      M (U / 2) row col htotal (by simpa [hrow] using hm)
-  have hmajorant := hproduct M U (U / 2) m row col hM hm hrow hcol
-    hrowCap hcolCap rfl hpow htau
-  have henvelope :=
-    residualProductExponentMajorant_le_largeResidualEnvelope
-      kappaLambda kappaQ (Fintype.card A) M.card U m (le_of_lt htau)
-  calc
-    ((residualActualAttachmentNumerator M (U / 2) row col htotal :
-        ENNReal) : EReal) ≤
-        (((∏ a : A, ∏ b : B,
-            (1 + residualLambda M (U / 2) row col a b)) *
-          (∏ C ∈ simpleBipartiteCycles A B,
-            (1 + edgeWeightOutsideENN
-              (residualQ M (U / 2) row col) M C)) : ENNReal) : EReal) := by
-      exact_mod_cast hbridge
-    _ ≤ (EReal.exp
-        ((residualProductExponentMajorant kappaLambda kappaQ
-          (Fintype.card A) M.card U m : ENNReal) : EReal) : ENNReal) := by
-      exact_mod_cast hmajorant.2.2
-    _ ≤ (EReal.exp
-        ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-          2 * (Fintype.card A : ENNReal) *
-            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
-          (((6 * M.card : Nat) : ENNReal) *
-            (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal))) :
-            ENNReal) : EReal) : ENNReal) := by
-      rw [EReal.coe_ennreal_le_coe_ennreal_iff, EReal.exp_le_exp_iff,
-        EReal.coe_ennreal_le_coe_ennreal_iff]
-      exact henvelope
-
-#print axioms exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualEnvelope
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualEnvelope
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
-Source: Erdos625/Section9ERealENNRealExpTransport.lean
-Normalized SHA-256: 7f3c86e58aad10cc731afd2b3f7d8caf9a65437d26c5b747289d09e07b8e60a7
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
-
-/-!
-# Section IX: finite exponential transport
-
-This module supplies the coercion bridge needed after the large-residual
-attachment exponent has been proved finite.  It contains no asymptotic or
-probabilistic estimate by itself.
-
-The proof was returned by Aristotle project
-`15e91c74-dfdb-4770-a7dc-62e52b3c98b3`, task
-`34d791e3-60c3-4dec-8499-5d8a69732926`, and independently audited before
-integration.
--/
-
-namespace Erdos625
-
-open scoped ENNReal
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- A finite `ENNReal` exponent lets an `EReal.exp` upper bound be transported
-back to the ordinary finite `ENNReal.ofReal (Real.exp ...)` endpoint. -/
-theorem ennreal_le_of_coe_le_ereal_exp_toReal
-    (x y : ENNReal)
-    (hy : y ≠ ∞)
-    (h : (x : EReal) ≤ EReal.exp (y : EReal)) :
-    x ≤ ENNReal.ofReal (Real.exp y.toReal) := by
-  rw [← EReal.coe_ennreal_toReal hy, EReal.exp_coe] at h
-  exact EReal.coe_ennreal_le_coe_ennreal_iff.mp h
-
-/-- The coarse Section IX large-residual exponent is finite whenever its
-absolute constants are finite and the residual mass is positive.
-
-The proof was returned by Aristotle project
-`b887515e-44b4-4ec2-97ab-dd94cb29b641`, task
-`1df65d4f-00b0-4af2-9ca4-68c8c65ba85f`, and independently audited before
-integration. -/
-theorem residualLargeEnvelope_ne_top
-    (kappaLambda kappaQ : ENNReal)
-    (cardA matchingCard U m : ℕ)
-    (hkappaLambdaTop : kappaLambda ≠ ∞)
-    (hkappaQTop : kappaQ ≠ ∞)
-    (hm : 0 < m) :
-    (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
-      2 * (cardA : ENNReal) *
-        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
-      (((6 * matchingCard : ℕ) : ENNReal) *
-        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)))) ≠ ∞ := by
-  have hUTop : (U : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top U
-  have hm0 : (m : ENNReal) ≠ 0 := by
-    exact_mod_cast hm.ne'
-  have hcardATop : (cardA : ENNReal) ≠ ∞ := ENNReal.natCast_ne_top cardA
-  have hmatchingTop : ((6 * matchingCard : ℕ) : ENNReal) ≠ ∞ :=
-    ENNReal.natCast_ne_top (6 * matchingCard)
-  have htwoTop : (2 : ENNReal) ≠ ∞ := ENNReal.ofNat_ne_top
-  have hUPow4Top : (U : ENNReal) ^ 4 ≠ ∞ := ENNReal.pow_ne_top hUTop
-  have hUPow3Top : (U : ENNReal) ^ 3 ≠ ∞ := ENNReal.pow_ne_top hUTop
-  have hlambdaMulTop : kappaLambda * (U : ENNReal) ^ 4 ≠ ∞ :=
-    ENNReal.mul_ne_top hkappaLambdaTop hUPow4Top
-  have hlambdaDivTop : kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) ≠ ∞ :=
-    ENNReal.div_ne_top hlambdaMulTop hm0
-  have hqMulTop : kappaQ * (U : ENNReal) ^ 3 ≠ ∞ :=
-    ENNReal.mul_ne_top hkappaQTop hUPow3Top
-  have hqDivTop : kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) ≠ ∞ :=
-    ENNReal.div_ne_top hqMulTop hm0
-  have hqPowTop : (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
-    ENNReal.pow_ne_top hqDivTop
-  have htwoCardTop : (2 : ENNReal) * (cardA : ENNReal) ≠ ∞ :=
-    ENNReal.mul_ne_top htwoTop hcardATop
-  have hmiddleTop :
-      2 * (cardA : ENNReal) *
-        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 ≠ ∞ :=
-    ENNReal.mul_ne_top htwoCardTop hqPowTop
-  have hlastTop :
-      ((6 * matchingCard : ℕ) : ENNReal) *
-        (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ≠ ∞ :=
-    ENNReal.mul_ne_top hmatchingTop hqDivTop
-  exact ENNReal.add_ne_top.mpr
-    ⟨ENNReal.add_ne_top.mpr ⟨hlambdaDivTop, hmiddleTop⟩, hlastTop⟩
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9ERealENNRealExpTransport
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualExp
 Source: Erdos625/Section9ActualAttachmentLargeResidualExp.lean
 Normalized SHA-256: f296a6f926fb23481b13d52af94e2bc0994db26a6d919dff7c8027b3663c6682
@@ -58235,106 +58821,6 @@ END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
-Source: Erdos625/Section9CanonicalDemandProductSpecialization.lean
-Normalized SHA-256: eb609b580105a919ee382839a2bb1c72d187dfe57e641c0910b08127b2a1c336
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
-
-/-!
-# Section IX: canonical-demand specialization of the residual product bound
-
-This module transports the generic positive-residual product estimate to the
-reference residual profile of one attained canonical demand.  It remains a
-finite strict-regime theorem: the eventual large-residual corridor and its
-comparison with the Section IX asymptotic scale are separate obligations.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The reference witness of an attained canonical demand supplies exactly
-the matching, degree-cap, and balance data required by the residual product
-estimate. -/
-theorem canonicalReference_residual_parameters
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (demand : canonicalDemandImage row col U) :
-    let witness := canonicalDemandReferenceWitness row col U demand
-    IsBipartiteMatching (positiveDemandSupport demand.1) ∧
-      (∀ a, residualRowDegree witness a ≤ U) ∧
-      (∀ b, residualColumnDegree witness b ≤ U) ∧
-      ((∑ a, residualRowDegree witness a) =
-        ∑ b, residualColumnDegree witness b) := by
-  dsimp only
-  let witness := canonicalDemandReferenceWitness row col U demand
-  have hprofile := residualDegreeProfile_of_witness htotal witness
-  exact ⟨positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-      U hrowCap hcolCap demand,
-    fun a => (hprofile.1 a).trans (hrowCap a),
-    fun b => (hprofile.2.1 b).trans (hcolCap b),
-    hprofile.2.2⟩
-
-/-- Absolute constants from the generic product theorem bound the literal
-canonical-demand polymer majorant throughout the strict residual corridor. -/
-theorem exists_absolute_canonicalDemandPolymer_strict_bound :
-    ∃ kappaLambda kappaQ : ENNReal,
-      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
-      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
-      ∀ {A B : Type*} [Fintype A] [Fintype B]
-          [DecidableEq A] [DecidableEq B]
-          (row : A → ℕ) (col : B → ℕ) (U m : ℕ)
-          (demand : canonicalDemandImage row col U),
-        (∑ a, row a) = ∑ b, col b →
-        (∀ a, row a ≤ U) →
-        (∀ b, col b ≤ U) →
-        m = canonicalDemandResidualTotal row col U demand →
-        0 < m →
-        2 ^ U ≤ m ^ 3 →
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
-          (1 / 3 : ENNReal) →
-        canonicalDemandPolymerMajorant row col U demand ≤
-          EReal.exp
-            ((residualProductExponentMajorant kappaLambda kappaQ
-              (Fintype.card A) (positiveDemandSupport demand.1).card U m :
-                ENNReal) : EReal) := by
-  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
-    exists_absolute_residual_product_exponential_majorant
-  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro A B _ _ _ _ row col U m demand htotal hrowCap hcolCap
-    hm hmpos hpow htau
-  let witness := canonicalDemandReferenceWitness row col U demand
-  have hparameters := canonicalReference_residual_parameters
-    row col U htotal hrowCap hcolCap demand
-  have hrowSum : (∑ a, residualRowDegree witness a) = m := by
-    simpa only [canonicalDemandResidualTotal, witness] using hm.symm
-  have hcolSum : (∑ b, residualColumnDegree witness b) = m := by
-    exact hparameters.2.2.2.symm.trans hrowSum
-  have h := hbound (positiveDemandSupport demand.1) U (U / 2) m
-    (residualRowDegree witness) (residualColumnDegree witness)
-    hparameters.1 hmpos hrowSum hcolSum hparameters.2.1 hparameters.2.2.1
-    rfl hpow htau
-  simpa only [canonicalDemandPolymerMajorant, witness] using h.2.2
-
-#print axioms canonicalReference_residual_parameters
-#print axioms exists_absolute_canonicalDemandPolymer_strict_bound
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ProfileBlockCardinalityBound
 Source: Erdos625/ProfileBlockCardinalityBound.lean
 Normalized SHA-256: dd321486d59b6d2dc5d1245ede651dd27782e4e14c84c66e4b79a9a286aadced
@@ -58416,7 +58902,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f75d3a6a6d2817f5d2ccca803584c413509050b7c814c07b111989d8e9892cd7
+Normalized SHA-256: f29b2d6f3cd7f77c4a947dfa19e9f97b931cf655d22cc26c523ec1ea19c6ea6a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -59253,6 +59739,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
 #print axioms Erdos625.residualLargeEnvelope_ne_top
 #print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
+#print axioms Erdos625.exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp
+#print axioms Erdos625.nearCut_le_iff_four_mul_lt
+#print axioms Erdos625.denominatorLoss_eq_falling_and_le_pow
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
@@ -59272,7 +59761,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: cd6976fc81ebe5f047d55bdac369efe8e3e164cb89cac22c4c3fa48ced68d226
+Normalized SHA-256: 7af416a193af46af05347424fbb652f451c516b8bd9228ac39198aff5f15606e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

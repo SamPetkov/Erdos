@@ -268,6 +268,8 @@ import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 import Erdos625.Section9ERealENNRealExpTransport
 import Erdos625.Section9ZeroResidualMatchingAttachment
 import Erdos625.Section9ProfileAttachmentSmallResidualScale
+import Erdos625.Section9ProfileAttachmentLargeResidualExp
+import Erdos625.Section8NearArithmeticFoundation
 import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.ProfileBlockCardinalityBound
@@ -1109,6 +1111,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal
 #print axioms Erdos625.residualLargeEnvelope_ne_top
 #print axioms Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale
+#print axioms Erdos625.exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp
+#print axioms Erdos625.nearCut_le_iff_four_mul_lt
+#print axioms Erdos625.denominatorLoss_eq_falling_and_le_pow
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition

@@ -201,6 +201,7 @@ import Erdos625.Section9AttachmentAsymptotics
 import Erdos625.Section9ResidualAsymptoticArithmetic
 import Erdos625.Section9ResidualRegimeScaleAdapters
 import Erdos625.Section9ProfileAttachmentSmallResidualScale
+import Erdos625.Section9ProfileAttachmentLargeResidualExp
 import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.Section9PhaseENNRealTauCorridor
@@ -270,6 +271,7 @@ import Erdos625.Section8NearPrefixFoundation
 import Erdos625.Section8NearSkeletonUniformProductBound
 import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
+import Erdos625.Section8EndpointFoundation
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing

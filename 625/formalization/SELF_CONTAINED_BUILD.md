@@ -112,16 +112,16 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean `
   -o .lake/build/lib/lean/Erdos625SelfContained.olean
 ```
 
-The source checkpoint generated on 2026-07-18 has the following reproducible
+The source checkpoint generated on 2026-07-22 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 220;
-- external Mathlib imports: 82;
-- central `#print axioms` commands included: 961;
-- newline count: 43,047;
+- local source modules included: 312;
+- external Mathlib imports: 85;
+- central `#print axioms` commands included: 1,316;
+- newline count: 60,013;
 - generated source SHA-256:
-  `D03BC13F7F6AAFE15D129BDB2391A4077AEEA99E37705284E7C0753B0BFD89E6`.
+  `AE30BD9E53AA2CFC750F9B55D2F01E6D91326D01733B50D995AD806997050FB8`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
@@ -136,7 +136,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 220
+The ordered module manifest is embedded in the generated file as 312
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

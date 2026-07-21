@@ -5,10 +5,10 @@ import Erdos625.UniformExplicitPartitionRatio
 # Uniform limiting entropy certificate
 
 This assembles the verified limiting entropy-dual and explicit four-size
-ratio estimates uniformly over the full phase interval.  Its scope is the
-repository's current `extendedGaussianEntropyValue` formulation; identifying
-that formulation with an independently defined manuscript primal remains a
-separate representation obligation.
+ratio estimates uniformly over the full phase interval.  The separate module
+`SPlusPrimalRepresentation` proves that the entropy value used here is exactly
+the direct manuscript primal supremum: its older finite all-tilts field follows
+automatically from coordinatewise Gibbs inequalities and nonnegativity.
 
 The proof was returned by Aristotle project
 `f916811d-4971-44ae-9c9b-c1d731298958`, task
