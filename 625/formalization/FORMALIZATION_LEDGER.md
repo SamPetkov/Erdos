@@ -642,3 +642,13 @@ deficit coordinates `2,3,4,5`, and `TangentRoundingCore` records the signed
 floor errors and two-coordinate correction.  These definitions do not yet
 prove conservation, nonnegativity, profile realization, target-corridor
 asymptotics, or the existence of the required concrete midpoint sequence.
+
+Three additional exact finite Section VII steps are now represented:
+
+- `mu_div_mu_sub_le_pow`, the falling-factorial ratio behind the empty corner;
+- `fullCornerWeight_le_one_of_local_ratio`, the prefix-local finite induction;
+- `sum_partialDiagonalWeight_fullCorner_eq`, the exact complement-profile sum
+  reindexing under the essential full-mass hypothesis.
+
+These do not prove the midpoint activity limit, the required local ratio
+premise, the central-range rate estimate, or the final diagonal-mass limit.

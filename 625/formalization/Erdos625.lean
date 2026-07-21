@@ -279,6 +279,9 @@ import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing
 import Erdos625.PartialDiagonalMidpointActivityBridge
 import Erdos625.FullCornerWeights
+import Erdos625.FullCornerLocalRatioBound
+import Erdos625.FullCornerSumReindexing
+import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
 import Erdos625.ColoringPartitionBridge

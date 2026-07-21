@@ -56084,6 +56084,248 @@ END SOURCE MODULE: Erdos625.FullCornerWeights
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FullCornerLocalRatioBound
+Source: Erdos625/FullCornerLocalRatioBound.lean
+Normalized SHA-256: 2df6ab277dc5fa5895a2624b07f7027d64c5ee2126b5eea3dbf601293a49e282
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FullCornerLocalRatioBound
+
+/-!
+# Finite full-corner local-ratio bound
+
+This is the exact finite induction used at the full corner of Section VII.
+It assumes the ratio bound only along coordinate prefixes of the particular
+residual profile; it does not assume or prove the later midpoint asymptotics.
+
+The proof was returned by Aristotle project
+`48c50b13-4409-4141-8c8f-ecf2d88249b9`, task
+`b2eec47e-ff64-4d64-bbb7-d94b558ba392`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+variable {I : Type*} [Fintype I] [DecidableEq I]
+
+/-- Finite full-corner induction.  It is enough to check the exact ratio
+from (7.6) along the coordinate prefixes of the particular residual profile
+`h`; a global ratio bound on every subprofile of `k` would be unnecessarily
+strong and is not what the full-corner argument establishes. -/
+theorem fullCornerWeight_le_one_of_local_ratio
+    (u k h : I → ℕ)
+    (hprofile : IsPartialSubprofile k h)
+    (hlocal : ∀ g i, IsPartialSubprofile h g → g i < h i →
+      fullCornerWeight u k (incrementProfile g i) /
+          fullCornerWeight u k g ≤ 1) :
+    fullCornerWeight u k h ≤ 1 := by
+  induction' m : ∑ i, h i using Nat.strong_induction_on with m ih generalizing h
+  by_cases h_zero : ∀ i, h i = 0
+  · simp +decide [show h = fun _ ↦ 0 from funext h_zero,
+      fullCornerWeight, residualMarkingCount, completeSignedFirstMoment,
+      partialSignedFirstMoment, selectedVertexMass, selectedBlockCount,
+      selectedInternalEdgeCount, partialProfileFactorialProduct]
+    exact div_self_le_one _
+  · obtain ⟨i, hi⟩ : ∃ i, h i > 0 := by
+      push Not at h_zero
+      exact h_zero.imp fun i hi ↦ Nat.pos_of_ne_zero hi
+    obtain ⟨g, hg⟩ : ∃ g : I → ℕ,
+        IsPartialSubprofile h g ∧ g i < h i ∧ incrementProfile g i = h := by
+      refine ⟨fun j ↦ if j = i then h i - 1 else h j, ?_, ?_, ?_⟩ <;>
+        simp +decide [IsPartialSubprofile, incrementProfile]
+      · grind
+      · exact hi
+      · grind
+    have h_ind : fullCornerWeight u k g ≤ 1 := by
+      apply ih (∑ i, g i)
+      · rw [← m]
+        refine Finset.sum_lt_sum (fun i _ ↦ hg.1 i) ?_
+        exact ⟨i, Finset.mem_univ _, hg.2.1⟩
+      · exact fun j ↦ le_trans (hg.1 j) (hprofile j)
+      · exact fun g' i hg' hg'' ↦
+          hlocal g' i (fun j ↦ le_trans (hg' j) (hg.1 j))
+            (lt_of_lt_of_le hg'' (hg.1 i))
+      · rfl
+    have h_pos : 0 < fullCornerWeight u k g := by
+      apply fullCornerWeight_pos
+      exact fun j ↦ le_trans (hg.1 j) (hprofile j)
+    have hstep := hlocal g i hg.1 hg.2.1
+    rw [hg.2.2, div_le_iff₀ h_pos] at hstep
+    linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FullCornerLocalRatioBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FullCornerLocalRatioBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FullCornerSumReindexing
+Source: Erdos625/FullCornerSumReindexing.lean
+Normalized SHA-256: 33365ca93649d8e4ae9a9ffb9a91940ff107c23ffd130e5dced58d067bd96032
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FullCornerSumReindexing
+
+/-!
+# Exact full-corner sum reindexing
+
+The proof was returned by Aristotle project
+`9f3a54c9-cd58-454e-bb37-cc7f2e3c675d`, task
+`f681a971-0623-4c77-8411-e95f0e15e717`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+variable {I : Type*} [Fintype I] [DecidableEq I]
+
+/-- Exact finite reindexing of all partial-diagonal weights by complementary
+residual profiles.  The full-mass hypothesis is essential: without it,
+`partialDiagonalWeight n` uses a different ambient factorial expression than
+the complete moment in `fullCornerWeight`. -/
+theorem sum_partialDiagonalWeight_fullCorner_eq
+    (n : ℕ) (u k : I → ℕ)
+    (hfullMass : selectedVertexMass u k = n) :
+    ∑ ell ∈ partialSubprofileBox k,
+      partialDiagonalWeight n u k ell =
+    ∑ h ∈ partialSubprofileBox k,
+      fullCornerWeight u k h / completeSignedFirstMoment u k := by
+  apply Finset.sum_bij'
+    (fun ell _ ↦ complementaryProfile k ell)
+    (fun h _ ↦ complementaryProfile k h)
+  · intro ell _
+    exact mem_partialSubprofileBox.mpr (fun i ↦ Nat.sub_le _ _)
+  · intro h _
+    exact mem_partialSubprofileBox.mpr (fun i ↦ Nat.sub_le _ _)
+  · intro ell hell
+    funext i
+    exact Nat.sub_sub_self (mem_partialSubprofileBox.mp hell i)
+  · intro h hh
+    funext i
+    exact Nat.sub_sub_self (mem_partialSubprofileBox.mp hh i)
+  · intro ell hell
+    have hinvolution :
+        complementaryProfile k (complementaryProfile k ell) = ell := by
+      funext i
+      exact Nat.sub_sub_self (mem_partialSubprofileBox.mp hell i)
+    simpa only [hinvolution] using
+      (partialDiagonalWeight_complement_eq_fullCorner_div
+        n u k (complementaryProfile k ell) (fun i ↦ Nat.sub_le _ _) hfullMass)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FullCornerSumReindexing
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FullCornerSumReindexing
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PartialDiagonalMuRatioBound
+Source: Erdos625/PartialDiagonalMuRatioBound.lean
+Normalized SHA-256: c8e7e99cf6fc6d1ba5621ff26ff721b5d704132fa99745153e1ada8c664de4b2
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PartialDiagonalMuRatioBound
+
+/-!
+# Finite falling-factorial ratio for the empty corner
+
+The proof was returned by Aristotle project
+`3d5fd715-841c-45b3-a097-94c185287192`, task
+`953bd883-0ad0-4c48-9c08-00f8bc575106`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+/-- Finite falling-factorial comparison behind the empty-corner estimate
+(7.10). The sole hypothesis makes the denominator's binomial coefficient
+positive; it also keeps the explicit lower factor positive, including the
+edge case `s = 0`. -/
+theorem mu_div_mu_sub_le_pow {v s m : Nat}
+    (hsm : s + m <= v) :
+    mu v s / mu (v - m) s <=
+      ((v : Real) / ((v - m - s + 1 : Nat) : Real)) ^ s := by
+  by_cases hs : s = 0 <;> simp_all +decide [mu]
+  rw [mul_div_mul_right _ _ (by positivity)]
+  have h_binom :
+      (Nat.choose v s : ℝ) / (Nat.choose (v - m) s : ℝ) =
+        (∏ i ∈ Finset.range s, (v - i : ℝ)) /
+          (∏ i ∈ Finset.range s, (v - m - i : ℝ)) := by
+    have h_prod :
+        (∏ i ∈ Finset.range s, (v - i : ℝ)) =
+            (Nat.descFactorial v s : ℝ) ∧
+          (∏ i ∈ Finset.range s, (v - m - i : ℝ)) =
+            (Nat.descFactorial (v - m) s : ℝ) := by
+      constructor <;> rw [Nat.descFactorial_eq_prod_range] <;> norm_num
+      · exact Finset.prod_congr rfl fun x hx => by
+          rw [Nat.cast_sub (by linarith [Finset.mem_range.mp hx])]
+      · exact Finset.prod_congr rfl fun x hx => by
+          rw [Nat.cast_sub <| Nat.le_sub_of_add_le <| by
+            linarith [Finset.mem_range.mp hx]]
+          rw [Nat.cast_sub <| by linarith [Finset.mem_range.mp hx]]
+    rw [h_prod.1, h_prod.2, Nat.descFactorial_eq_factorial_mul_choose,
+      Nat.descFactorial_eq_factorial_mul_choose]
+    ring_nf
+    simp +decide [mul_comm, mul_left_comm, Nat.factorial_ne_zero]
+  have hden : ((v - m - s + 1 : ℕ) : ℝ) = (v : ℝ) - m - s + 1 := by
+    rw [Nat.cast_add, Nat.cast_one, Nat.cast_sub (by omega : s ≤ v - m),
+      Nat.cast_sub (by omega : m ≤ v)]
+  have h_term_le :
+      ∀ i ∈ Finset.range s, (v - i : ℝ) / (v - m - i : ℝ) ≤
+        v / (((v - m - s : ℕ) : ℝ) + 1) := by
+    have hden' :
+        ((v - m - s : ℕ) : ℝ) + 1 = ((v - m - s + 1 : ℕ) : ℝ) := by
+      norm_num
+    rw [hden', hden]
+    intro i hi
+    rw [div_le_div_iff₀] <;>
+      nlinarith only [
+        show (i : ℝ) + 1 ≤ s by
+          norm_cast
+          linarith [Finset.mem_range.mp hi],
+        show (s : ℝ) + m ≤ v by norm_cast]
+  have h_nonneg :
+      ∀ i ∈ Finset.range s, 0 ≤ (v - i : ℝ) / (v - m - i : ℝ) := by
+    intro i hi
+    exact div_nonneg
+      (sub_nonneg.2 <| Nat.cast_le.2 <| by omega)
+      (sub_nonneg.2 <| by
+        have hi' : (i : ℝ) + 1 ≤ s := by norm_cast
+        have hsm' : (s : ℝ) + m ≤ v := by norm_cast
+        linarith)
+  rw [h_binom, ← Finset.prod_div_distrib]
+  calc
+    ∏ i ∈ Finset.range s, (v - i : ℝ) / (v - m - i : ℝ) ≤
+        ∏ _i ∈ Finset.range s,
+          (v : ℝ) / (((v - m - s : ℕ) : ℝ) + 1) :=
+      Finset.prod_le_prod h_nonneg h_term_le
+    _ = ((v : ℝ) / (((v - m - s : ℕ) : ℝ) + 1)) ^ s := by
+      rw [Finset.prod_const, Finset.card_range]
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PartialDiagonalMuRatioBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PartialDiagonalMuRatioBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FinpartitionRefinement
 Source: Erdos625/FinpartitionRefinement.lean
 Normalized SHA-256: e97b1d96d371163030945dd5c3f54ed2e376b16520a075fd37f7a0e27893b3a6
@@ -59040,7 +59282,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: ad50315c837f6386d8cd43bc355f831e4427f0692060ce35c5b014a9d08587a4
+Normalized SHA-256: 1f89f1a46a3ada8e7fb25c361002485ced4252d9f17c33575c922ed517fde026
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -59880,6 +60122,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp
 #print axioms Erdos625.nearCut_le_iff_four_mul_lt
 #print axioms Erdos625.denominatorLoss_eq_falling_and_le_pow
+#print axioms Erdos625.fullCornerWeight_le_one_of_local_ratio
+#print axioms Erdos625.sum_partialDiagonalWeight_fullCorner_eq
+#print axioms Erdos625.mu_div_mu_sub_le_pow
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
@@ -59899,7 +60144,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 99ab70653aafacd4bb46b1af29827a19ad77aa914635677ffb4e3443222a478c
+Normalized SHA-256: 760ff09cb0ac0ddf794178a11a2c93d0e25ecf592588885746d88bdd810c6a5f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

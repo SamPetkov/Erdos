@@ -88,6 +88,9 @@ import Erdos625.SPlusPrimalCoordinateBounds
 import Erdos625.SPlusPrimalRepresentation
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore
+import Erdos625.FullCornerLocalRatioBound
+import Erdos625.FullCornerSumReindexing
+import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
@@ -1116,6 +1119,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp
 #print axioms Erdos625.nearCut_le_iff_four_mul_lt
 #print axioms Erdos625.denominatorLoss_eq_falling_and_le_pow
+#print axioms Erdos625.fullCornerWeight_le_one_of_local_ratio
+#print axioms Erdos625.sum_partialDiagonalWeight_fullCorner_eq
+#print axioms Erdos625.mu_div_mu_sub_le_pow
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
