@@ -1122,6 +1122,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fullCornerWeight_le_one_of_local_ratio
 #print axioms Erdos625.sum_partialDiagonalWeight_fullCorner_eq
 #print axioms Erdos625.mu_div_mu_sub_le_pow
+#print axioms Erdos625.UnlabelledTypedSkeleton.typeTable_ne_zero_iff_exists_physical_edge
+#print axioms Erdos625.CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge
+#print axioms Erdos625.encodeRawNearMiddle_reconstructs_and_is_disjoint
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition

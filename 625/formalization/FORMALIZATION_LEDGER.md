@@ -652,3 +652,10 @@ Three additional exact finite Section VII steps are now represented:
 
 These do not prove the midpoint activity limit, the required local ratio
 premise, the central-range rate estimate, or the final diagonal-mass limit.
+
+The physical near-prefix layer now contains the exact nonzero-cell witness
+bridge for both an unlabelled skeleton and an attained demand fibre.  Its raw
+near/middle encoding also has a proved disjoint-union reconstruction of the
+source physical high edge set.  These finite facts do not yet prove uniqueness
+of near completion, encoding injectivity, weighted no-extra-multiplicity,
+the conditional residual law, or the Section VIII exponential estimate.

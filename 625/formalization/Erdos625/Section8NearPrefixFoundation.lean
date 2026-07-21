@@ -60,6 +60,18 @@ theorem CappedPhysicalHighFibre.physical_typeTable
     H.physical.1.typeTable = H.demand.1 :=
   H.physical.2
 
+/-- A nonzero attained demand cell contains a physical edge of the represented
+high skeleton. -/
+theorem CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) (a : A) (b : B) :
+    H.demand.1 a b ≠ 0 ↔
+      ∃ e, e ∈ H.physical.1.edges ∧ e.1.1 = a ∧ e.2.1 = b := by
+  rw [← H.physical_typeTable]
+  exact H.physical.1.typeTable_ne_zero_iff_exists_physical_edge a b
+
 /-- The positive support read directly from the physical fibre. -/
 def CappedPhysicalHighFibre.physicalSupport
     {A B : Type*}
@@ -276,6 +288,23 @@ def RawNearMiddleData.reconstructedHighEdges
     (D : RawNearMiddleData row col) :
     Finset (RowStub row × ColumnStub col) :=
   D.nearEdges ∪ D.middleHighEdges
+
+/-- The raw near and middle edge sets are disjoint and reconstruct the exact
+physical high skeleton.  This is only a lossless finite decomposition; it
+does not assert injectivity of the complete encoding or any weighted law. -/
+theorem encodeRawNearMiddle_reconstructs_and_is_disjoint
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat) (C : NearCompletion row col U endpoint) :
+    let D := encodeRawNearMiddle endpoint C
+    D.nearEdges ∩ D.middleHighEdges = ∅ ∧
+      D.reconstructedHighEdges = C.high.physical.1.edges := by
+  dsimp [encodeRawNearMiddle, RawNearMiddleData.reconstructedHighEdges,
+    NearCompletion.middleHighEdges]
+  constructor
+  · exact Finset.inter_sdiff_self _ _
+  · exact Finset.union_sdiff_of_subset C.nearPrefix.edge_subset
 
 /-- The finite image used only after the raw encoding has been established.
 It has no weight or cardinality assertion built into it. -/

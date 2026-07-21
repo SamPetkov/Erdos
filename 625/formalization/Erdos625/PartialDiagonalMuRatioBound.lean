@@ -62,6 +62,7 @@ theorem mu_div_mu_sub_le_pow {v s m : Nat}
   have h_nonneg :
       ∀ i ∈ Finset.range s, 0 ≤ (v - i : ℝ) / (v - m - i : ℝ) := by
     intro i hi
+    have hiNat := Finset.mem_range.mp hi
     exact div_nonneg
       (sub_nonneg.2 <| Nat.cast_le.2 <| by omega)
       (sub_nonneg.2 <| by

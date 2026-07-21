@@ -48652,7 +48652,7 @@ END SOURCE MODULE: Erdos625.Section8TypedPartialMatching
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8UnlabelledTypedSkeleton
 Source: Erdos625/Section8UnlabelledTypedSkeleton.lean
-Normalized SHA-256: ed98d24ebd5e31693d997c84242999d41f5ba3ef24117dd8969053ec47837f7d
+Normalized SHA-256: affcfda771aa1ae6acc025e5d41151d14934cace6f01fbca4ac8e72c71c185a6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8UnlabelledTypedSkeleton
 
@@ -48715,6 +48715,18 @@ def UnlabelledTypedSkeleton.typeTable
     {k : I -> Nat} {ell : J -> Nat}
     (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) : Nat :=
   (S.edges.filter (fun e => e.1.1 = i ∧ e.2.1 = j)).card
+
+/-- A physical type-table cell is nonzero exactly when the skeleton contains
+an edge in that cell.  This is the tracked specialization of the independently
+audited Aristotle N0 return. -/
+theorem UnlabelledTypedSkeleton.typeTable_ne_zero_iff_exists_physical_edge
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat}
+    (S : UnlabelledTypedSkeleton row col) (a : A) (b : B) :
+    S.typeTable a b ≠ 0 ↔
+      ∃ e, e ∈ S.edges ∧ e.1.1 = a ∧ e.2.1 = b := by
+  simp [UnlabelledTypedSkeleton.typeTable]
 
 /-- The physical edges in one fixed type cell, with the type indices removed
 from their endpoints. -/
@@ -53758,7 +53770,7 @@ END SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
 Source: Erdos625/Section8NearPrefixFoundation.lean
-Normalized SHA-256: 66f99d8042cc453579db9d3a23592a3cfe49611e0fdbca1430786d079989f424
+Normalized SHA-256: d28e28612d90a747b2dbf089a32743856d5a87593ba4938e378aa6f45ed6e236
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearPrefixFoundation
 
@@ -53818,6 +53830,18 @@ theorem CappedPhysicalHighFibre.physical_typeTable
     (H : CappedPhysicalHighFibre row col U) :
     H.physical.1.typeTable = H.demand.1 :=
   H.physical.2
+
+/-- A nonzero attained demand cell contains a physical edge of the represented
+high skeleton. -/
+theorem CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) (a : A) (b : B) :
+    H.demand.1 a b ≠ 0 ↔
+      ∃ e, e ∈ H.physical.1.edges ∧ e.1.1 = a ∧ e.2.1 = b := by
+  rw [← H.physical_typeTable]
+  exact H.physical.1.typeTable_ne_zero_iff_exists_physical_edge a b
 
 /-- The positive support read directly from the physical fibre. -/
 def CappedPhysicalHighFibre.physicalSupport
@@ -54035,6 +54059,23 @@ def RawNearMiddleData.reconstructedHighEdges
     (D : RawNearMiddleData row col) :
     Finset (RowStub row × ColumnStub col) :=
   D.nearEdges ∪ D.middleHighEdges
+
+/-- The raw near and middle edge sets are disjoint and reconstruct the exact
+physical high skeleton.  This is only a lossless finite decomposition; it
+does not assert injectivity of the complete encoding or any weighted law. -/
+theorem encodeRawNearMiddle_reconstructs_and_is_disjoint
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat) (C : NearCompletion row col U endpoint) :
+    let D := encodeRawNearMiddle endpoint C
+    D.nearEdges ∩ D.middleHighEdges = ∅ ∧
+      D.reconstructedHighEdges = C.high.physical.1.edges := by
+  dsimp [encodeRawNearMiddle, RawNearMiddleData.reconstructedHighEdges,
+    NearCompletion.middleHighEdges]
+  constructor
+  · exact Finset.inter_sdiff_self _ _
+  · exact Finset.union_sdiff_of_subset C.nearPrefix.edge_subset
 
 /-- The finite image used only after the raw encoding has been established.
 It has no weight or cardinality assertion built into it. -/
@@ -56238,7 +56279,7 @@ END SOURCE MODULE: Erdos625.FullCornerSumReindexing
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalMuRatioBound
 Source: Erdos625/PartialDiagonalMuRatioBound.lean
-Normalized SHA-256: c8e7e99cf6fc6d1ba5621ff26ff721b5d704132fa99745153e1ada8c664de4b2
+Normalized SHA-256: 62564333adc7834549af52a9c9ac618e75a2bf4c9b34cc76dfdf0cfb6ef82e0e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PartialDiagonalMuRatioBound
 
@@ -56303,6 +56344,7 @@ theorem mu_div_mu_sub_le_pow {v s m : Nat}
   have h_nonneg :
       ∀ i ∈ Finset.range s, 0 ≤ (v - i : ℝ) / (v - m - i : ℝ) := by
     intro i hi
+    have hiNat := Finset.mem_range.mp hi
     exact div_nonneg
       (sub_nonneg.2 <| Nat.cast_le.2 <| by omega)
       (sub_nonneg.2 <| by
@@ -59282,7 +59324,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 1f89f1a46a3ada8e7fb25c361002485ced4252d9f17c33575c922ed517fde026
+Normalized SHA-256: a82c62d5498ef0d1dc3c1e3ffc143aee62ab317ef2f57e73446c0bced58b70d5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -60125,6 +60167,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fullCornerWeight_le_one_of_local_ratio
 #print axioms Erdos625.sum_partialDiagonalWeight_fullCorner_eq
 #print axioms Erdos625.mu_div_mu_sub_le_pow
+#print axioms Erdos625.UnlabelledTypedSkeleton.typeTable_ne_zero_iff_exists_physical_edge
+#print axioms Erdos625.CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge
+#print axioms Erdos625.encodeRawNearMiddle_reconstructs_and_is_disjoint
 #print axioms Erdos625.positiveDemandSupport_card_mul_cap_le_two_total
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition

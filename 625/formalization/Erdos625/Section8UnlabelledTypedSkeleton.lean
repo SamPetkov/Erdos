@@ -61,6 +61,18 @@ def UnlabelledTypedSkeleton.typeTable
     (S : UnlabelledTypedSkeleton k ell) (i : I) (j : J) : Nat :=
   (S.edges.filter (fun e => e.1.1 = i ∧ e.2.1 = j)).card
 
+/-- A physical type-table cell is nonzero exactly when the skeleton contains
+an edge in that cell.  This is the tracked specialization of the independently
+audited Aristotle N0 return. -/
+theorem UnlabelledTypedSkeleton.typeTable_ne_zero_iff_exists_physical_edge
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat}
+    (S : UnlabelledTypedSkeleton row col) (a : A) (b : B) :
+    S.typeTable a b ≠ 0 ↔
+      ∃ e, e ∈ S.edges ∧ e.1.1 = a ∧ e.2.1 = b := by
+  simp [UnlabelledTypedSkeleton.typeTable]
+
 /-- The physical edges in one fixed type cell, with the type indices removed
 from their endpoints. -/
 def UnlabelledTypedSkeleton.cellEdges
