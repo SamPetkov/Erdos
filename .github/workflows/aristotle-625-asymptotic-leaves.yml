@@ -1,8 +1,8 @@
 name: Aristotle 625 large-residual retry
 
 on:
-  push:
-    branches: [agent/aristotle-625-asymptotic-leaves]
+  pull_request:
+    branches: [main]
     paths:
       - '625/formalization/aristotle_submissions/2026-07-21/large_residual_envelope/**'
       - '.github/workflows/aristotle-625-asymptotic-leaves.yml'
