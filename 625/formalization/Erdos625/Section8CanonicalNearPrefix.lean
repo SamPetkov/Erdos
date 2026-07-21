@@ -23,8 +23,9 @@ def CappedPhysicalHighFibre.canonicalNearEdges
     {row : A → Nat} {col : B → Nat} {U : Nat}
     (endpoint : A → B → Nat)
     (H : CappedPhysicalHighFibre row col U) :
-    Finset (RowStub row × ColumnStub col) :=
-  H.physical.1.edges.filter fun e =>
+    Finset (RowStub row × ColumnStub col) := by
+  classical
+  exact H.physical.1.edges.filter fun e =>
     NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1)
 
 /-- Literal membership in the canonical physical near-edge filter. -/
@@ -39,6 +40,7 @@ theorem CappedPhysicalHighFibre.mem_canonicalNearEdges
     e ∈ H.canonicalNearEdges endpoint ↔
       e ∈ H.physical.1.edges ∧
         NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1) := by
+  classical
   simp [CappedPhysicalHighFibre.canonicalNearEdges]
 
 /-- The unlabelled physical skeleton carried by the canonical near edges.

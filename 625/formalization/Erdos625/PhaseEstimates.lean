@@ -163,6 +163,17 @@ theorem eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder :
   · simpa only [one_mul] using (le_div_iff₀ hnLog).mp hnRatio.1
   · exact (div_le_iff₀ hnLog).mp hnRatio.2
 
+/-- Since the phase is eventually at least `log n` and `log n → ∞`, its
+natural-number phase eventually exceeds the fixed threshold five. -/
+theorem eventually_five_lt_phaseNat :
+    ∀ᶠ n : ℕ in atTop, 5 < phaseNat n := by
+  have hLog : ∀ᶠ n : ℕ in atTop, (5 : ℝ) < logOrder n :=
+    tendsto_logOrder_atTop.eventually (eventually_gt_atTop 5)
+  filter_upwards
+    [hLog, eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder]
+      with n hnLog hnPhase
+  exact_mod_cast (hnLog.trans_le hnPhase.1)
+
 /-- The phase is eventually small enough that two phase-sized vertex blocks
 fit inside an `n`-vertex graph. -/
 theorem eventually_two_mul_phaseNat_le :

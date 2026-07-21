@@ -1152,3 +1152,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
+#print axioms Erdos625.eventually_five_lt_phaseNat

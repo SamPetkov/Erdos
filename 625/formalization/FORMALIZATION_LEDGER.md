@@ -667,6 +667,8 @@ The next audited finite layer adds the following statement-faithful ports:
 - exact realization of an ordered profile partition from its vertex-mass
   identity;
 - the class-size identity for each of the four deficit coordinates;
+- the eventual fixed bound `5 < phaseNat n` derived from logarithmic phase
+  growth;
 - the uniform negative bound for the finite Section VII partial-diagonal rate;
 - the canonical physical near-cell filter, its exact type table, and the
   resulting `NearPrefix`;

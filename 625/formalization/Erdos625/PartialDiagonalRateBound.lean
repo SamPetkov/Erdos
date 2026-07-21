@@ -64,8 +64,11 @@ theorem partialDiagonalRate_uniform_negative
           2 * (1 - R) / (1 + R) := by
         (field_simp; ring)
       rw [hone, Real.log_inv, htwo] at h
-      have := neg_le_neg h
-      convert this using 1 <;> ring
+      have hneg := neg_le_neg h
+      calc
+        Real.log R ≤ -(2 * (1 - R) / (1 + R)) := by
+          simpa only [neg_neg] using hneg
+        _ = 2 * (R - 1) / (R + 1) := by ring
     have hlogmul := mul_le_mul_of_nonneg_left hlog hRnonneg
     have hdq : q / 2 * (Ir - T * R) ≤ q / 2 * (3 * R * (1 - R)) :=
       mul_le_mul_of_nonneg_left hd (div_nonneg hqnonneg (by norm_num))

@@ -44,6 +44,12 @@ inside the explicit quarter-window. -/
 def NearEntry (m j : ℕ) : Prop :=
   j ≤ m ∧ m - j ≤ nearCut m
 
+/-- Near-window membership is decidable by its two natural-number
+inequalities. -/
+instance instDecidableNearEntry (m j : ℕ) : Decidable (NearEntry m j) := by
+  unfold NearEntry
+  infer_instance
+
 /-- A nonzero high entry outside the near window. -/
 def MiddleEntry (m j : ℕ) : Prop :=
   j ≠ 0 ∧ ¬ NearEntry m j

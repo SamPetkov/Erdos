@@ -936,7 +936,7 @@ END SOURCE MODULE: Erdos625.PhaseExpansion
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseEstimates
 Source: Erdos625/PhaseEstimates.lean
-Normalized SHA-256: 6acf24b080a1dce14cbffbe1ca92f4e3fe7c17398630d7b2583d4268c67f40ab
+Normalized SHA-256: 11e6eb390066daf4ebaa7e6044c56142b269cfc58dda3a9168d421ad8faab2a7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseEstimates
 
@@ -1099,6 +1099,17 @@ theorem eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder :
   constructor
   · simpa only [one_mul] using (le_div_iff₀ hnLog).mp hnRatio.1
   · exact (div_le_iff₀ hnLog).mp hnRatio.2
+
+/-- Since the phase is eventually at least `log n` and `log n → ∞`, its
+natural-number phase eventually exceeds the fixed threshold five. -/
+theorem eventually_five_lt_phaseNat :
+    ∀ᶠ n : ℕ in atTop, 5 < phaseNat n := by
+  have hLog : ∀ᶠ n : ℕ in atTop, (5 : ℝ) < logOrder n :=
+    tendsto_logOrder_atTop.eventually (eventually_gt_atTop 5)
+  filter_upwards
+    [hLog, eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder]
+      with n hnLog hnPhase
+  exact_mod_cast (hnLog.trans_le hnPhase.1)
 
 /-- The phase is eventually small enough that two phase-sized vertex blocks
 fit inside an `n`-vertex graph. -/
@@ -53734,7 +53745,7 @@ END SOURCE MODULE: Erdos625.Section8NearCellChoiceLink
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
 Source: Erdos625/Section8NearArithmeticFoundation.lean
-Normalized SHA-256: aae15dd80c4e3d28655e5535074f5352fd23edeb7d6ba1472f3c07e53e051cf5
+Normalized SHA-256: a800517e8cde310129641e3dce20882e314316efae9b7a32d167dd06b8ea1131
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8NearArithmeticFoundation
 
@@ -53780,6 +53791,12 @@ def smallerSlotSize
 inside the explicit quarter-window. -/
 def NearEntry (m j : ℕ) : Prop :=
   j ≤ m ∧ m - j ≤ nearCut m
+
+/-- Near-window membership is decidable by its two natural-number
+inequalities. -/
+instance instDecidableNearEntry (m j : ℕ) : Decidable (NearEntry m j) := by
+  unfold NearEntry
+  infer_instance
 
 /-- A nonzero high entry outside the near window. -/
 def MiddleEntry (m j : ℕ) : Prop :=
@@ -54163,7 +54180,7 @@ END SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8CanonicalNearPrefix
 Source: Erdos625/Section8CanonicalNearPrefix.lean
-Normalized SHA-256: d19673cb058e2eb616f9067d0e70faef78707f04c9d0c54cff5f8f2c46609c8c
+Normalized SHA-256: be9b05dc70e75be1f1e64706183637481373ce50d14a60c650d89d7715c55e54
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearPrefix
 
@@ -54190,8 +54207,9 @@ def CappedPhysicalHighFibre.canonicalNearEdges
     {row : A → Nat} {col : B → Nat} {U : Nat}
     (endpoint : A → B → Nat)
     (H : CappedPhysicalHighFibre row col U) :
-    Finset (RowStub row × ColumnStub col) :=
-  H.physical.1.edges.filter fun e =>
+    Finset (RowStub row × ColumnStub col) := by
+  classical
+  exact H.physical.1.edges.filter fun e =>
     NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1)
 
 /-- Literal membership in the canonical physical near-edge filter. -/
@@ -54206,6 +54224,7 @@ theorem CappedPhysicalHighFibre.mem_canonicalNearEdges
     e ∈ H.canonicalNearEdges endpoint ↔
       e ∈ H.physical.1.edges ∧
         NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1) := by
+  classical
   simp [CappedPhysicalHighFibre.canonicalNearEdges]
 
 /-- The unlabelled physical skeleton carried by the canonical near edges.
@@ -56145,7 +56164,7 @@ END SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalRateBound
 Source: Erdos625/PartialDiagonalRateBound.lean
-Normalized SHA-256: 0c40d3fd6fc0745fa5ba0ff0a4962d9305d66e96224dbcab3bf1aee2dba796ef
+Normalized SHA-256: 8ae110406a9bb8665841c0119bb795b645af963bf166680154322bf1757b6075
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PartialDiagonalRateBound
 
@@ -56211,8 +56230,11 @@ theorem partialDiagonalRate_uniform_negative
           2 * (1 - R) / (1 + R) := by
         (field_simp; ring)
       rw [hone, Real.log_inv, htwo] at h
-      have := neg_le_neg h
-      convert this using 1 <;> ring
+      have hneg := neg_le_neg h
+      calc
+        Real.log R ≤ -(2 * (1 - R) / (1 + R)) := by
+          simpa only [neg_neg] using hneg
+        _ = 2 * (R - 1) / (R + 1) := by ring
     have hlogmul := mul_le_mul_of_nonneg_left hlog hRnonneg
     have hdq : q / 2 * (Ir - T * R) ≤ q / 2 * (3 * R * (1 - R)) :=
       mul_le_mul_of_nonneg_left hd (div_nonneg hqnonneg (by norm_num))
@@ -59871,7 +59893,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 0258cc07a35275ef933e22140638189381540e3bae10cd015f958ff3b359dd2e
+Normalized SHA-256: f3741709ec87bf74d278447e2dbac7022da9302f12c81fad397dac11f7598f1a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -60738,6 +60760,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
+#print axioms Erdos625.eventually_five_lt_phaseNat
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
