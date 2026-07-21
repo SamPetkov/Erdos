@@ -37,6 +37,12 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
+      - name: Compile the revised Section IX arithmetic module warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          lake env lean -DwarningAsError=true \
+            Erdos625/Section9ResidualAsymptoticArithmetic.lean
       - name: Check the generated self-contained proof is current
         working-directory: 625/formalization
         shell: bash
