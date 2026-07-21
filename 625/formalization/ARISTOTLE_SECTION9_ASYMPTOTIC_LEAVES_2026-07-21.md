@@ -47,8 +47,8 @@ those hypotheses; that eventual specialization remains a separate obligation.
 
 ## Acceptance gates
 
-The candidate Lean 4.31 port is
-`Erdos625/Section9ResidualAsymptoticArithmetic.lean`.  Acceptance requires:
+The accepted Lean 4.31 port is
+`Erdos625/Section9ResidualAsymptoticArithmetic.lean`.  Acceptance required:
 
 1. exact theorem-statement comparison with the request sources;
 2. warning-fatal Lean 4.31 compilation;
@@ -57,8 +57,9 @@ The candidate Lean 4.31 port is
 5. a standard-axiom `#print axioms` report;
 6. integration into the root import graph and formalization ledger.
 
-All six acceptance gates passed on the integrated Lean 4.31 branch: exact
-statement review, warning-fatal module replay, source and trust scans, the
-full modular build, regenerated self-contained compilation, standard-axiom
-output, and root-import integration. The tracked Lean 4.31 module is the
-proof authority; raw Aristotle archives remain provenance only.
+All six acceptance gates passed in GitHub Actions run `29846918064`.  The run
+replayed the revised theorem warning-fatally, checked its axiom report, completed
+`lake build --wfail`, regenerated and compiled `Erdos625SelfContained.lean`,
+and committed the integrated source as `c5e3d6a218e58fd1df3dae89de85efcec57db744`.
+The tracked Lean 4.31 module is the proof authority; raw Aristotle archives
+remain provenance only.
