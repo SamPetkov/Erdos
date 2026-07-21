@@ -53,3 +53,7 @@ Aristotle archives are provenance only.
 
 <!-- ACCEPTANCE_STATUS -->
 All acceptance gates passed in GitHub Actions run `29853057094`: exact statement review, source/trust scan, warning-fatal Lean 4.31 module replay, full `lake build --wfail`, root-import and ledger integration, deterministic self-contained regeneration, warning-fatal self-contained compilation, and standard-axiom output.
+
+The authoritative integrated source commit is
+`6b931bb5cff73010b19b5b01e3580f65968a0a3a`; this audit-only follow-up commit
+exists to trigger the ordinary repository checks on the clean integrated tree.
