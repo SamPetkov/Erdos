@@ -659,3 +659,27 @@ near/middle encoding also has a proved disjoint-union reconstruction of the
 source physical high edge set.  These finite facts do not yet prove uniqueness
 of near completion, encoding injectivity, weighted no-extra-multiplicity,
 the conditional residual law, or the Section VIII exponential estimate.
+
+## Midpoint and canonical-near tracked ports — 2026-07-22
+
+The next audited finite layer adds the following statement-faithful ports:
+
+- exact realization of an ordered profile partition from its vertex-mass
+  identity;
+- the class-size identity for each of the four deficit coordinates;
+- the uniform negative bound for the finite Section VII partial-diagonal rate;
+- the canonical physical near-cell filter, its exact type table, and the
+  resulting `NearPrefix`;
+- `NoFurtherNear` and uniqueness of that near prefix for one fixed attained
+  physical high fibre, using subset plus equal finite cell cardinality rather
+  than an untracked edgewise-closure assumption; and
+- the four endpoint size, slot-cardinality, and pairwise-disjointness facts.
+
+The near-prefix uniqueness is deliberately fibrewise: the repository's
+`NearCompletion` structure allows its high fibre to vary, so a global
+uniqueness statement would be false.  None of these results proves encoding
+injectivity, a weighted quotient identity, the conditional residual law, the
+Section VIII skeleton estimate, or `Erdos625Statement`.  Acceptance of this
+checkpoint requires the repository's GitHub Lean 4.31 placeholder scan,
+warning-fatal modular build, generated-source freshness check, and
+warning-fatal self-contained compilation.

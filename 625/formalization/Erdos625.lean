@@ -132,6 +132,7 @@ import Erdos625.OrderedOverlapLaw
 import Erdos625.ProfileOverlapTables
 import Erdos625.SignedProfileWitness
 import Erdos625.OrderedSignedProfileBridge
+import Erdos625.OrderedProfileRealization
 import Erdos625.OrderedSignedProfileSemantics
 import Erdos625.RandomGraphMixedEdgePrescription
 import Erdos625.ProfileOverlapDuplicateEdges
@@ -270,14 +271,18 @@ import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.Section8NearCellChoiceLink
 import Erdos625.Section8NearArithmeticFoundation
 import Erdos625.Section8NearPrefixFoundation
+import Erdos625.Section8CanonicalNearPrefix
+import Erdos625.Section8CanonicalNearUniqueness
 import Erdos625.Section8NearSkeletonUniformProductBound
 import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.Section8EndpointFoundation
+import Erdos625.Section8EndpointProfileIndexing
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing
 import Erdos625.PartialDiagonalMidpointActivityBridge
+import Erdos625.PartialDiagonalRateBound
 import Erdos625.FullCornerWeights
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerSumReindexing

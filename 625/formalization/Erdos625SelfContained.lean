@@ -21,6 +21,7 @@ import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.SpecialFunctions.Exponential
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -18370,7 +18371,7 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: 50cc1accfd35af44b4830a3314ed16b11a8984714265a5af0f514adea4ffb26f
+Normalized SHA-256: 40816b050c72c5db6cac7ad0c7f67df6b18ca25ae90e10900910acf32a3a3dba
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -18390,6 +18391,20 @@ open scoped BigOperators
 noncomputable section
 
 set_option autoImplicit false
+
+/-- The stored profile coordinate represents the class size obtained by
+subtracting the corresponding deficit from `alpha`. -/
+theorem fourDeficitCoordinate_val_add_one_eq
+    (alpha : Nat) (hAlpha : 5 < alpha) (i : Fin 4) :
+    (fourDeficitCoordinate alpha hAlpha i).val + 1 =
+      alpha - fourDeficit i := by
+  unfold fourDeficitCoordinate
+  rw [Fin.val_rev, Fin.val_succ]
+  have hle : fourDeficit i ≤ 5 := by
+    fin_cases i <;> norm_num [fourDeficit]
+  change alpha + 1 - (fourDeficit i + 1 + 1) + 1 =
+    alpha - fourDeficit i
+  omega
 
 /-- Embed four multiplicities into the full profile indexed by class sizes
 `1, ..., alpha + 1`. -/
@@ -26263,6 +26278,51 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_OrderedSignedProfileBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.OrderedSignedProfileBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.OrderedProfileRealization
+Source: Erdos625/OrderedProfileRealization.lean
+Normalized SHA-256: 74032c4b929287f4619d4e2a2182a06ea5717f42f33e423ef841dfd3b7e55930
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_OrderedProfileRealization
+
+/-!
+# Ordered realization of a finite coloring profile
+
+This module supplies the deterministic feasibility direction for an ordered
+profile partition.  It includes the empty vertex set and profiles with no
+block slots: the sigma type may be empty, and the finite-cardinality
+equivalence still gives the required realization exactly when the displayed
+mass identity holds.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A profile whose vertex mass is exactly `n` admits an ordered partition of
+`Fin n` with the prescribed block-slot margins. -/
+theorem nonempty_orderedProfilePartition_of_vertexMass
+    {b n : Nat} (k : ColoringProfile b)
+    (hmass : ColoringProfile.vertexMass k = n) :
+    Nonempty (OrderedProfilePartition n k) := by
+  refine ⟨(fixedFiberLabelingWithOrdersEquiv (profileBlockMargin k)
+    (Fintype.equivOfCardEq ?_)).1⟩
+  rw [Fintype.card_fin, Fintype.card_sigma]
+  simpa using (hmass.symm.trans (sum_profileBlockMargin_eq_vertexMass k).symm)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_OrderedProfileRealization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.OrderedProfileRealization
 ========================================================================== -/
 
 /- ==========================================================================
@@ -54101,6 +54161,293 @@ END SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalNearPrefix
+Source: Erdos625/Section8CanonicalNearPrefix.lean
+Normalized SHA-256: d19673cb058e2eb616f9067d0e70faef78707f04c9d0c54cff5f8f2c46609c8c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearPrefix
+
+/-!
+# Section VIII canonical physical near prefix
+
+This module specializes the deterministic canonical near-cell filter to an
+attained physical high-skeleton fibre.  It records only the literal filtered
+edge set, its exact type table, and the resulting `NearPrefix`.  In particular,
+it contains no no-further-near assertion, weight identity, residual law, or
+probability estimate.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The physical high edges whose attained type-table cell lies in the near
+window.  The predicate is constant on each type cell, so this filter selects
+whole physical cells. -/
+def CappedPhysicalHighFibre.canonicalNearEdges
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U) :
+    Finset (RowStub row × ColumnStub col) :=
+  H.physical.1.edges.filter fun e =>
+    NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1)
+
+/-- Literal membership in the canonical physical near-edge filter. -/
+@[simp]
+theorem CappedPhysicalHighFibre.mem_canonicalNearEdges
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U)
+    (e : RowStub row × ColumnStub col) :
+    e ∈ H.canonicalNearEdges endpoint ↔
+      e ∈ H.physical.1.edges ∧
+        NearEntry (endpoint e.1.1 e.2.1) (H.demand.1 e.1.1 e.2.1) := by
+  simp [CappedPhysicalHighFibre.canonicalNearEdges]
+
+/-- The unlabelled physical skeleton carried by the canonical near edges.
+Uniqueness of row and column stubs is inherited from the source high
+skeleton. -/
+def CappedPhysicalHighFibre.canonicalNearSkeleton
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U) :
+    UnlabelledTypedSkeleton row col where
+  edges := H.canonicalNearEdges endpoint
+  leftUnique := by
+    intro e₁ he₁ e₂ he₂ hLeft
+    exact H.physical.1.leftUnique e₁
+      ((H.mem_canonicalNearEdges endpoint e₁).mp he₁).1 e₂
+      ((H.mem_canonicalNearEdges endpoint e₂).mp he₂).1 hLeft
+  rightUnique := by
+    intro e₁ he₁ e₂ he₂ hRight
+    exact H.physical.1.rightUnique e₁
+      ((H.mem_canonicalNearEdges endpoint e₁).mp he₁).1 e₂
+      ((H.mem_canonicalNearEdges endpoint e₂).mp he₂).1 hRight
+
+/-- Exact cell table of the canonical physical near skeleton: an attained
+cell is retained with its full multiplicity precisely when it lies in the
+near window. -/
+theorem CappedPhysicalHighFibre.canonicalNearSkeleton_typeTable
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U)
+    (a : A) (b : B) :
+    (H.canonicalNearSkeleton endpoint).typeTable a b =
+      if NearEntry (endpoint a b) (H.demand.1 a b)
+      then H.demand.1 a b else 0 := by
+  classical
+  by_cases hNear : NearEntry (endpoint a b) (H.demand.1 a b)
+  · have hFilter :
+        (H.canonicalNearEdges endpoint).filter
+            (fun e => e.1.1 = a ∧ e.2.1 = b) =
+          H.physical.1.edges.filter
+            (fun e => e.1.1 = a ∧ e.2.1 = b) := by
+      ext e
+      simp only [Finset.mem_filter]
+      constructor
+      · rintro ⟨he, ha, hb⟩
+        exact ⟨((H.mem_canonicalNearEdges endpoint e).mp he).1, ha, hb⟩
+      · rintro ⟨he, ha, hb⟩
+        refine ⟨(H.mem_canonicalNearEdges endpoint e).mpr ⟨he, ?_⟩, ha, hb⟩
+        simpa [ha, hb] using hNear
+    rw [if_pos hNear]
+    change
+      ((H.canonicalNearEdges endpoint).filter
+        (fun e => e.1.1 = a ∧ e.2.1 = b)).card = H.demand.1 a b
+    rw [hFilter]
+    exact congrFun (congrFun H.physical_typeTable a) b
+  · have hFilter :
+        (H.canonicalNearEdges endpoint).filter
+            (fun e => e.1.1 = a ∧ e.2.1 = b) = ∅ := by
+      ext e
+      simp only [Finset.mem_filter, Finset.notMem_empty, iff_false, not_and]
+      intro he ha hb
+      apply hNear
+      have heNear := ((H.mem_canonicalNearEdges endpoint e).mp he).2
+      simpa [ha, hb] using heNear
+    rw [if_neg hNear]
+    change
+      ((H.canonicalNearEdges endpoint).filter
+        (fun e => e.1.1 = a ∧ e.2.1 = b)).card = 0
+    rw [hFilter, Finset.card_empty]
+
+/-- The canonical whole-cell filter is a genuine physical `NearPrefix` of the
+attained capped high fibre. -/
+def CappedPhysicalHighFibre.canonicalNearPrefix
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U) :
+    NearPrefix endpoint H where
+  physical := H.canonicalNearSkeleton endpoint
+  edge_subset := by
+    intro e he
+    exact ((H.mem_canonicalNearEdges endpoint e).mp he).1
+  whole_cell_of_present := by
+    intro a b hPresent
+    have hNear : NearEntry (endpoint a b) (H.demand.1 a b) := by
+      by_contra hNotNear
+      rw [H.canonicalNearSkeleton_typeTable endpoint a b,
+        if_neg hNotNear] at hPresent
+      exact hPresent rfl
+    rw [H.canonicalNearSkeleton_typeTable endpoint a b, if_pos hNear]
+    exact (congrFun (congrFun H.physical_typeTable a) b).symm
+  near_of_present := by
+    intro a b hPresent
+    by_contra hNotNear
+    rw [H.canonicalNearSkeleton_typeTable endpoint a b,
+      if_neg hNotNear] at hPresent
+    exact hPresent rfl
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearPrefix
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalNearPrefix
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8CanonicalNearUniqueness
+Source: Erdos625/Section8CanonicalNearUniqueness.lean
+Normalized SHA-256: cd51aa58ffcc10d9d742d08d3557f81e254c324fec1a6020c21b8927c1804a8e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearUniqueness
+
+/-!
+# Section VIII canonical near-prefix uniqueness
+
+This module records the deterministic no-further-near property of the
+canonical prefix and its uniqueness among physical whole-cell near prefixes.
+The reverse inclusion uses finite cell cardinalities explicitly; it does not
+assume edgewise whole-cell closure as an extra premise.
+-/
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A physical subset with the same cell cardinality as its ambient skeleton
+contains exactly the same physical edges in that cell. -/
+theorem UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat}
+    (S T : UnlabelledTypedSkeleton row col) (a : A) (b : B)
+    (hSub : S.edges ⊆ T.edges)
+    (hTable : S.typeTable a b = T.typeTable a b) :
+    S.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) =
+      T.edges.filter (fun e ⇒ e.1.1 = a ∧ e.2.1 = b) := by
+  apply Finset.eq_of_subset_of_card_le
+  · intro e he
+    rw [Finset.mem_filter] at he ⊢
+    exact ⟨hSub he.1, he.2⟩
+  · change T.typeTable a b ≤ S.typeTable a b
+    rw [hTable]
+
+/-- The canonical near prefix leaves no attained near cell unselected. -/
+theorem CappedPhysicalHighFibre.canonicalNearPrefix_noFurtherNear
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U) :
+    NoFurtherNear endpoint H (H.canonicalNearPrefix endpoint) := by
+  intro a b hDemand hNear
+  change (H.canonicalNearSkeleton endpoint).typeTable a b ≠ 0
+  rw [H.canonicalNearSkeleton_typeTable endpoint a b, if_pos hNear]
+  exact hDemand
+
+/-- Every physical whole-cell near prefix satisfying `NoFurtherNear` has the
+canonical filtered edge set. -/
+theorem NearPrefix.edges_eq_canonicalNearEdges_of_noFurtherNear
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    {endpoint : A → B → Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H)
+    (hNoFurther : NoFurtherNear endpoint H P) :
+    P.physical.edges = H.canonicalNearEdges endpoint := by
+  apply Finset.Subset.antisymm
+  · intro e he
+    apply (H.mem_canonicalNearEdges endpoint e).mpr
+    refine ⟨P.edge_subset he, ?_⟩
+    have hPresent : P.physical.typeTable e.1.1 e.2.1 ≠ 0 :=
+      (P.physical.typeTable_ne_zero_iff_exists_physical_edge
+        e.1.1 e.2.1).mpr ⟨e, he, rfl, rfl⟩
+    exact P.near_of_present e.1.1 e.2.1 hPresent
+  · intro e he
+    have heCanonical := (H.mem_canonicalNearEdges endpoint e).mp he
+    have hDemand : H.demand.1 e.1.1 e.2.1 ≠ 0 :=
+      (H.demand_ne_zero_iff_exists_physical_edge
+        e.1.1 e.2.1).mpr ⟨e, heCanonical.1, rfl, rfl⟩
+    have hPresent : P.physical.typeTable e.1.1 e.2.1 ≠ 0 :=
+      hNoFurther e.1.1 e.2.1 hDemand heCanonical.2
+    have hTable :
+        P.physical.typeTable e.1.1 e.2.1 =
+          H.physical.1.typeTable e.1.1 e.2.1 :=
+      P.whole_cell_of_present e.1.1 e.2.1 hPresent
+    have hCellEq :=
+      UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq
+        P.physical H.physical.1 e.1.1 e.2.1 P.edge_subset hTable
+    have heCell :
+        e ∈ H.physical.1.edges.filter
+          (fun f ⇒ f.1.1 = e.1.1 ∧ f.2.1 = e.2.1) := by
+      exact Finset.mem_filter.mpr ⟨heCanonical.1, rfl, rfl⟩
+    rw [← hCellEq] at heCell
+    exact (Finset.mem_filter.mp heCell).1
+
+/-- Every physical whole-cell near prefix satisfying `NoFurtherNear` is the
+canonical filtered skeleton. -/
+theorem NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    {endpoint : A → B → Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H)
+    (hNoFurther : NoFurtherNear endpoint H P) :
+    P.physical = H.canonicalNearSkeleton endpoint := by
+  apply UnlabelledTypedSkeleton.ext
+  change P.physical.edges = H.canonicalNearEdges endpoint
+  exact P.edges_eq_canonicalNearEdges_of_noFurtherNear hNoFurther
+
+/-- For fixed `H`, the canonical physical whole-cell near prefix is the unique
+near prefix satisfying `NoFurtherNear`. -/
+theorem CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A → Nat} {col : B → Nat} {U : Nat}
+    (endpoint : A → B → Nat)
+    (H : CappedPhysicalHighFibre row col U) :
+    ∃! P : NearPrefix endpoint H, NoFurtherNear endpoint H P := by
+  refine ⟨H.canonicalNearPrefix endpoint,
+    H.canonicalNearPrefix_noFurtherNear endpoint, ?_⟩
+  intro P hP
+  apply NearPrefix.ext
+  exact P.physical_eq_canonicalNearSkeleton_of_noFurtherNear hP
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8CanonicalNearUniqueness
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8CanonicalNearUniqueness
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
 Source: Erdos625/Section8NearSkeletonUniformProductBound.lean
 Normalized SHA-256: 9b211a769d3606743b38c3586daefe07f892777b907c8ccbfc4135d5a6077618
@@ -54686,6 +55033,79 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section8EndpointFoundation
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section8EndpointFoundation
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointProfileIndexing
+Source: Erdos625/Section8EndpointProfileIndexing.lean
+Normalized SHA-256: e8ffd6c4858d9f8de07e24f88efb4abbe81d58b80dfe1b71a782a9e0a3115c9f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointProfileIndexing
+
+/-!
+# Target A: four-endpoint profile indexing
+
+This is the exact finite bridge from `fourDeficitCoordinate` to the endpoint
+labels used by the Section VIII table. It contains no canonical-demand or
+probability assertion.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+def FourEndpointProfileIndexingFacts (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) : Prop :=
+  (forall i, fourEndpointSize alpha hAlpha i = alpha - 2 - i.val) /\
+    (forall i,
+      (fourEndpointBlockSlots alpha hAlpha k i).card =
+        fourEndpointMultiplicity alpha hAlpha k i) /\
+      (forall i j, i != j ->
+        Disjoint (fourEndpointBlockSlots alpha hAlpha k i)
+          (fourEndpointBlockSlots alpha hAlpha k j))
+
+theorem fourEndpoint_profile_indexing_facts
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) :
+    FourEndpointProfileIndexingFacts alpha hAlpha k := by
+  have hsize : ∀ i, fourEndpointSize alpha hAlpha i = alpha - 2 - i.val := by
+    intro i
+    unfold fourEndpointSize fourEndpointCoordinate fourDeficitCoordinate
+    simp [fourDeficit]
+    omega
+  refine ⟨hsize, ?_, ?_⟩
+  · intro i
+    rw [show (fourEndpointBlockSlots alpha hAlpha k i).card =
+        Fintype.card {q : ProfileBlockIndex k //
+          profileBlockMargin k q = fourEndpointSize alpha hAlpha i} by
+      rw [Fintype.card_subtype]
+      rfl]
+    change Fintype.card {q : ShapeBlockIndex (ColoringProfile.sizes k) //
+      (q.1 : Nat) = fourEndpointSize alpha hAlpha i} = _
+    rw [card_shapeBlockIndexOfSize]
+    rw [show fourEndpointSize alpha hAlpha i =
+        (fourEndpointCoordinate alpha hAlpha i).val + 1 by rfl]
+    rw [ColoringProfile.count_sizes_at]
+    rfl
+  · intro i j hij
+    rw [Finset.disjoint_left]
+    intro q hqi hqj
+    simp only [fourEndpointBlockSlots, Finset.mem_filter, Finset.mem_univ,
+      true_and] at hqi hqj
+    have hs : fourEndpointSize alpha hAlpha i = fourEndpointSize alpha hAlpha j :=
+      hqi.symm.trans hqj
+    have heq : i = j := by
+      apply Fin.ext
+      rw [hsize i, hsize j] at hs
+      omega
+    subst j
+    simp at hij
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointProfileIndexing
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointProfileIndexing
 ========================================================================== -/
 
 /- ==========================================================================
@@ -55720,6 +56140,131 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_PartialDiagonalMidpointActivityBridge
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PartialDiagonalRateBound
+Source: Erdos625/PartialDiagonalRateBound.lean
+Normalized SHA-256: 0c40d3fd6fc0745fa5ba0ff0a4962d9305d66e96224dbcab3bf1aee2dba796ef
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PartialDiagonalRateBound
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The Section VII central partial-diagonal rate from equation (7.21). -/
+noncomputable def partialDiagonalRate (T R Ir : ℝ) : ℝ :=
+  R * Real.log R + q / 2 * (Ir - T * R)
+
+/-- Robust scalar core of the Section VII numerical rate bound.  The two
+hypotheses `hLeft` and `hRight` are exactly the two structural estimates in
+(7.22), and are both retained rather than replacing the rate by an assumed
+surrogate.  The only target restriction is the actual-midpoint-compatible
+upper bound `T ≤ 4`; a later bridge must establish that application-specific
+fact.  The endpoint `R = 1` is deliberately included, where both sides are
+zero.
+
+For `0 ≤ R ≤ 1`, take the `(1 - R), R` weighted combination of `hLeft` and
+`hRight`.  It gives the universal bound
+`Ir - T * R ≤ 3 * R * (1 - R)`, without a lower restriction on `T`.
+For `R ≤ 7 / 10`, combine it with
+`log R ≤ 2 * (R - 1) / (R + 1)`.  For `7 / 10 ≤ R`, instead use `hRight`,
+`T ≤ 4`, and `log R ≤ R - 1`.  These are the two valid scalar routes to the
+displayed bound. -/
+theorem partialDiagonalRate_uniform_negative
+    (T R Ir : ℝ)
+    (hTupper : T ≤ 4)
+    (hRlower : (1 : ℝ) / 64 ≤ R)
+    (hRupper : R ≤ 1)
+    (hLeft : Ir - T * R ≤ (5 - T) * R)
+    (hRight : Ir - T * R ≤ (T - 2) * (1 - R)) :
+    partialDiagonalRate T R Ir ≤ -(1 - R) / 5000 := by
+  have hRpos : 0 < R := by linarith
+  have hRnonneg : 0 ≤ R := hRpos.le
+  have hOneR : 0 ≤ 1 - R := by linarith
+  have hqnonneg : 0 ≤ q := by
+    rw [q]
+    exact Real.log_nonneg (by norm_num)
+  have hd : Ir - T * R ≤ 3 * R * (1 - R) := by
+    have hL := mul_le_mul_of_nonneg_left hLeft hOneR
+    have hRt := mul_le_mul_of_nonneg_left hRight hRnonneg
+    nlinarith
+  have hq7 : q ≤ (7 : ℝ) / 10 := by
+    rw [q]
+    have hs := Real.sum_le_exp_of_nonneg (by norm_num : (0 : ℝ) ≤ 7 / 10) 7
+    have hexp : (2 : ℝ) < Real.exp (7 / 10) := by
+      norm_num [Finset.sum_range_succ] at hs ⊢
+      linarith
+    rw [← Real.exp_log (by norm_num : (0 : ℝ) < 2)] at hexp
+    exact (Real.exp_lt_exp.mp hexp).le
+  by_cases hRsmall : R ≤ (7 : ℝ) / 10
+  · have hlog : Real.log R ≤ 2 * (R - 1) / (R + 1) := by
+      have hx : 0 ≤ (1 - R) / R := div_nonneg hOneR hRnonneg
+      have h := Real.le_log_one_add_of_nonneg hx
+      have hone : 1 + (1 - R) / R = R⁻¹ := by
+        field_simp
+        ring
+      have htwo : 2 * ((1 - R) / R) / ((1 - R) / R + 2) =
+          2 * (1 - R) / (1 + R) := by
+        (field_simp; ring)
+      rw [hone, Real.log_inv, htwo] at h
+      have := neg_le_neg h
+      convert this using 1 <;> ring
+    have hlogmul := mul_le_mul_of_nonneg_left hlog hRnonneg
+    have hdq : q / 2 * (Ir - T * R) ≤ q / 2 * (3 * R * (1 - R)) :=
+      mul_le_mul_of_nonneg_left hd (div_nonneg hqnonneg (by norm_num))
+    have hqmul := mul_le_mul_of_nonneg_left hq7
+      (mul_nonneg (by positivity : (0 : ℝ) ≤ 3 / 2 * R) hOneR)
+    have hden : 0 < R + 1 := by linarith
+    have hcoef :
+        -2 * R / (R + 1) + 21 * R / 20 + 1 / 5000 ≤ 0 := by
+      have hc : 21 * R / 20 + 1 / 5000 ≤ 2 * R / (R + 1) := by
+        apply (le_div_iff₀ hden).2
+        nlinarith
+      calc
+        _ = (21 * R / 20 + 1 / 5000) - 2 * R / (R + 1) := by ring
+        _ ≤ 0 := sub_nonpos.mpr hc
+    have hcoefmul := mul_nonpos_of_nonneg_of_nonpos hOneR hcoef
+    unfold partialDiagonalRate
+    calc
+      R * Real.log R + q / 2 * (Ir - T * R)
+          ≤ R * (2 * (R - 1) / (R + 1)) + q / 2 * (3 * R * (1 - R)) :=
+            add_le_add hlogmul hdq
+      _ ≤ R * (2 * (R - 1) / (R + 1)) + (7 / 10) / 2 * (3 * R * (1 - R)) := by
+            nlinarith
+      _ ≤ -(1 - R) / 5000 := by
+            field_simp at hcoefmul ⊢
+            nlinarith
+  · have hRlarge : (7 : ℝ) / 10 ≤ R := by linarith
+    have hlog := Real.log_le_sub_one_of_pos hRpos
+    have hdright : Ir - T * R ≤ 2 * (1 - R) := by
+      have := mul_le_mul_of_nonneg_right hTupper hOneR
+      nlinarith [hRight]
+    have hlogmul := mul_le_mul_of_nonneg_left hlog hRnonneg
+    have hdq : q / 2 * (Ir - T * R) ≤ q / 2 * (2 * (1 - R)) :=
+      mul_le_mul_of_nonneg_left hdright (div_nonneg hqnonneg (by norm_num))
+    have hqsharp : q ≤ (6932 : ℝ) / 10000 := by
+      rw [q]
+      have hs := Real.sum_le_exp_of_nonneg (by norm_num : (0 : ℝ) ≤ 6932 / 10000) 9
+      have hexp : (2 : ℝ) < Real.exp (6932 / 10000) := by
+        norm_num [Finset.sum_range_succ] at hs ⊢
+        linarith
+      rw [← Real.exp_log (by norm_num : (0 : ℝ) < 2)] at hexp
+      exact (Real.exp_lt_exp.mp hexp).le
+    have hqmul := mul_le_mul_of_nonneg_right hqsharp hOneR
+    unfold partialDiagonalRate
+    nlinarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PartialDiagonalRateBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PartialDiagonalRateBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -59326,7 +59871,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b078395ca2039dc20a59bec8517286b189fcf8dcbd3267896cfe4f12152f63a4
+Normalized SHA-256: 0258cc07a35275ef933e22140638189381540e3bae10cd015f958ff3b359dd2e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -60182,6 +60727,17 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
+#print axioms Erdos625.fourDeficitCoordinate_val_add_one_eq
+#print axioms Erdos625.nonempty_orderedProfilePartition_of_vertexMass
+#print axioms Erdos625.partialDiagonalRate_uniform_negative
+#print axioms Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges
+#print axioms Erdos625.CappedPhysicalHighFibre.canonicalNearSkeleton_typeTable
+#print axioms Erdos625.UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq
+#print axioms Erdos625.CappedPhysicalHighFibre.canonicalNearPrefix_noFurtherNear
+#print axioms Erdos625.NearPrefix.edges_eq_canonicalNearEdges_of_noFurtherNear
+#print axioms Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
+#print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
+#print axioms Erdos625.fourEndpoint_profile_indexing_facts
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -60191,7 +60747,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 760ff09cb0ac0ddf794178a11a2c93d0e25ecf592588885746d88bdd810c6a5f
+Normalized SHA-256: 22859dfd2c2432b63d111b0c3f546977d35ba759104a6d7b0c02c615b5fbd003
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
