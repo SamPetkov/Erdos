@@ -52,6 +52,4 @@ Aristotle archives are provenance only.
 ## Acceptance status
 
 <!-- ACCEPTANCE_STATUS -->
-Pending complete Lean 4.31 integration: warning-fatal module replay, full
-`lake build --wfail`, source/trust scan, root-import insertion, formalization
-ledger update, and regenerated self-contained compilation.
+All acceptance gates passed in GitHub Actions run `29853057094`: exact statement review, source/trust scan, warning-fatal Lean 4.31 module replay, full `lake build --wfail`, root-import and ledger integration, deterministic self-contained regeneration, warning-fatal self-contained compilation, and standard-axiom output.
