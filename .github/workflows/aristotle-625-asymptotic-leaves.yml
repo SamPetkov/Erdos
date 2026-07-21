@@ -1,103 +1,91 @@
-name: Aristotle 625 asymptotic leaves
+name: Finalize Aristotle 625 asymptotic leaves
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - '625/formalization/aristotle_submissions/2026-07-21/**'
-      - '.github/workflows/aristotle-625-asymptotic-leaves.yml'
   push:
     branches: [agent/aristotle-625-asymptotic-leaves]
     paths:
-      - '625/formalization/aristotle_submissions/2026-07-21/**'
+      - '625/formalization/Erdos625/Section9ResidualAsymptoticArithmetic.lean'
+      - '625/formalization/ARISTOTLE_SECTION9_ASYMPTOTIC_LEAVES_2026-07-21.md'
       - '.github/workflows/aristotle-625-asymptotic-leaves.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  submit:
-    name: ${{ matrix.id }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - id: small-residual-exponent
-            project: 625/formalization/aristotle_submissions/2026-07-21/small_residual_exponent
-            source: AristotleSmallResidualExponent/Main.lean
-            target: smallResidualExponent_bound
-          - id: ennreal-two-pow-bridge
-            project: 625/formalization/aristotle_submissions/2026-07-21/ennreal_two_pow_bridge
-            source: AristotleENNRealTwoPowBridge/Main.lean
-            target: ennreal_two_pow_nat_le_of_log_bound
-          - id: large-residual-envelope
-            project: 625/formalization/aristotle_submissions/2026-07-21/large_residual_envelope
-            source: AristotleLargeResidualEnvelope/Main.lean
-            target: largeResidualEnvelope_bound
-    env:
-      ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-
-      - name: Reject malformed or overpowered task skeletons
-        working-directory: ${{ matrix.project }}
-        run: |
-          set -euo pipefail
-          test "$(grep -R --include='*.lean' -Ec '^[[:space:]]*sorry[[:space:]]*$' . | awk -F: '{s += $2} END {print s + 0}')" = 1
-          ! grep -REn --include='*.lean' \
-            '(^|[[:space:]])(admit|axiom|unsafe|native_decide)([[:space:]]|$)|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' .
-
-      - name: Install the pinned Aristotle Lean toolchain
-        run: |
-          set -euo pipefail
-          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.28.0
-
-      - name: Elaborate the one-hole project locally
-        working-directory: ${{ matrix.project }}
-        run: |
-          set -euo pipefail
-          lake update
-          lake exe cache get
-          lake env lean "${{ matrix.source }}"
-
-      - name: Require a securely configured Aristotle key
-        run: |
-          set -euo pipefail
-          if [ -z "${ARISTOTLE_API_KEY:-}" ]; then
-            echo '::error::Repository secret ARISTOTLE_API_KEY is not configured. Add a temporary Aristotle key as a GitHub Actions secret; do not put it in the repository or PR.'
-            exit 3
-          fi
-
-      - name: Install the official Aristotle client
-        run: |
-          set -euo pipefail
-          python -m pip install --disable-pip-version-check 'aristotlelib==2.1.0'
-          aristotle --version
-
-      - name: Submit the isolated theorem
-        env:
-          PROJECT: ${{ matrix.project }}
-          TARGET: ${{ matrix.target }}
-          OUTPUT: ${{ runner.temp }}/aristotle-${{ matrix.id }}.tar.gz
-        run: |
-          set -euo pipefail
-          prompt="Prove the named Lean theorem ${TARGET} without changing its statement, hypotheses, conclusion, or quantifier order. Do not weaken the conclusion or add assumptions. Do not use sorry, admit, new axioms, unsafe declarations, native_decide, set_option maxHeartbeats 0, or grind +suggestions. Preserve the pinned project dependencies. Private helper lemmas are allowed only when logically necessary. Return the smallest checked patch."
-          aristotle submit "$prompt" \
-            --project-dir "$PROJECT" \
-            --wait \
-            --destination "$OUTPUT"
-
-      - name: Upload quarantined Aristotle return
-        if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: aristotle-${{ matrix.id }}
-          path: ${{ runner.temp }}/aristotle-${{ matrix.id }}.tar.gz
-          if-no-files-found: warn
-          retention-days: 30
+          ref: agent/aristotle-625-asymptotic-leaves
+          fetch-depth: 0
+
+      - name: Remove one-hole submission projects and integrate the accepted module
+        run: |
+          set -euo pipefail
+          git rm -r 625/formalization/aristotle_submissions/2026-07-21
+          git rm .github/workflows/aristotle-625-asymptotic-leaves.yml
+          python3 - <<'PY'
+          from pathlib import Path
+
+          root = Path('625/formalization/Erdos625.lean')
+          text = root.read_text(encoding='utf-8')
+          line = 'import Erdos625.Section9ResidualAsymptoticArithmetic\n'
+          anchor = 'import Erdos625.Section9AttachmentAsymptotics\n'
+          if line not in text:
+              if anchor not in text:
+                  raise SystemExit('Section IX import anchor not found')
+              text = text.replace(anchor, anchor + line, 1)
+              root.write_text(text, encoding='utf-8', newline='\n')
+          PY
+
+      - name: Reject placeholders, project axioms, and unsafe source
+        run: |
+          set -euo pipefail
+          if grep -RInE --include='*.lean' \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization; then
+            exit 1
+          fi
+          ! grep -RInE --include='*.lean' \
+            'native_decide|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' \
+            625/formalization/Erdos625/Section9ResidualAsymptoticArithmetic.lean
+
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+
+      - name: Compile the accepted module warning-fatally
+        working-directory: 625/formalization
+        run: |
+          set -euo pipefail
+          lake env lean -DwarningAsError=true \
+            Erdos625/Section9ResidualAsymptoticArithmetic.lean
+
+      - name: Regenerate and compile the self-contained proof
+        working-directory: 625/formalization
+        run: |
+          set -euo pipefail
+          python3 scripts/generate_self_contained.py
+          mkdir -p .lake/build/lib/lean
+          lake env lean -DwarningAsError=true Erdos625SelfContained.lean \
+            -o .lake/build/lib/lean/Erdos625SelfContained.olean
+          python3 scripts/generate_self_contained.py --check
+
+      - name: Commit the validated integration
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Accept three Aristotle-checked Section IX arithmetic leaves'
+          git push origin HEAD:agent/aristotle-625-asymptotic-leaves
