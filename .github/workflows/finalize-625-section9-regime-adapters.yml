@@ -1,6 +1,12 @@
 name: Finalize 625 Section IX regime adapters
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/finalize-625-section9-regime-adapters.yml'
+      - '625/formalization/Erdos625/Section9ResidualRegimeScaleAdapters.lean'
+      - '625/formalization/ARISTOTLE_SECTION9_REGIME_ADAPTERS_2026-07-21.md'
   push:
     branches: [agent/625-section9-regime-adapters]
     paths:
