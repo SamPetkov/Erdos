@@ -92,6 +92,7 @@ import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
+import Erdos625.SPlusPrimalDirect
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools

@@ -19590,6 +19590,62 @@ END SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusPrimalDirect
+Source: Erdos625/SPlusPrimalDirect.lean
+Normalized SHA-256: e311a3b6f6afa66dca9e633bc3d25d715f2bdc2461545051200b8b95f1f0360c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusPrimalDirect
+
+/-!
+# Direct `S₊` entropy primal
+
+This module states the manuscript's limiting `S₊` variational problem using
+prefix limits on the deficit coordinates `{-1, 0, 1, ...}`.  Admissibility
+contains only nonnegativity, unit-mass, target-moment, and entropy-limit
+conditions.  In particular, it does not build a dual inequality, a selected
+tilt, or an optimizer into the definition.
+-/
+
+open Filter
+open scoped Topology
+
+namespace Erdos625
+
+noncomputable section
+
+/-- A directly admissible limiting `S₊` profile with exceptional mass at
+deficit `-1` and natural-coordinate masses `p d`. -/
+structure SPlusPrimalProfile
+    (target value exceptional : ℝ) (p : ℕ → ℝ) : Prop where
+  exceptional_nonneg : 0 ≤ exceptional
+  natural_nonneg : ∀ d, 0 ≤ p d
+  mass_limit : Tendsto (extendedGaussianMassTruncation exceptional p)
+    atTop (nhds 1)
+  moment_limit : Tendsto (extendedGaussianMomentTruncation exceptional p)
+    atTop (nhds target)
+  entropy_limit : Tendsto (extendedGaussianEntropyTruncation q exceptional p)
+    atTop (nhds value)
+
+/-- Entropy values realized by direct manuscript `S₊` profiles at a fixed
+target moment. -/
+def sPlusPrimalCandidateSet (target : ℝ) : Set ℝ :=
+  {value | ∃ exceptional p,
+    SPlusPrimalProfile target value exceptional p}
+
+/-- The direct limiting `S₊` primal entropy supremum. -/
+noncomputable def sPlusPrimalEntropyValue (target : ℝ) : ℝ :=
+  sSup (sPlusPrimalCandidateSet target)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusPrimalDirect
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusPrimalDirect
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
 Source: Erdos625/UniformLimitingEntropyCertificate.lean
 Normalized SHA-256: 5705e2ce30ed2c2f58df0a82f04aed78f6ecec4f54c68c0e155bf27ed979e314
@@ -58519,7 +58575,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 46fa573619f4176f6db4048ee3ef2fd13d7fc5a6bb35e759a378a2c254a81659
+Normalized SHA-256: 6d6fd32417b5ddd9b306af270e47c66957db4269c99a6a678df62e14235f1e29
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
