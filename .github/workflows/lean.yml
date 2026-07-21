@@ -41,11 +41,25 @@ jobs:
           "$HOME/.elan/bin/lake" update
           "$HOME/.elan/bin/lake" exe cache get
       - name: Compile the revised Section IX arithmetic module warning-fatally
+        id: candidate
+        continue-on-error: true
         working-directory: 625/formalization
         shell: bash
         run: |
+          set -o pipefail
           lake env lean -DwarningAsError=true \
-            Erdos625/Section9ResidualAsymptoticArithmetic.lean
+            Erdos625/Section9ResidualAsymptoticArithmetic.lean \
+            2>&1 | tee section9-arithmetic-candidate.log
+      - name: Upload Section IX candidate diagnostics
+        if: steps.candidate.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: section9-arithmetic-candidate-diagnostics
+          path: 625/formalization/section9-arithmetic-candidate.log
+          retention-days: 30
+      - name: Stop after candidate failure
+        if: steps.candidate.outcome == 'failure'
+        run: exit 1
       - name: Build the accepted project warning-fatally
         working-directory: 625/formalization
         shell: bash
