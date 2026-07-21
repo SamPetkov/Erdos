@@ -50,12 +50,13 @@ jobs:
           ! grep -REn --include='*.lean' \
             '(^|[[:space:]])(admit|axiom|unsafe|native_decide)([[:space:]]|$)|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' .
 
-      - name: Set up the pinned Aristotle Lean toolchain
-        uses: leanprover/lean-action@v1
-        with:
-          lake-package-directory: ${{ matrix.project }}
-          auto-config: false
-          use-mathlib-cache: false
+      - name: Install the pinned Aristotle Lean toolchain
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.28.0
 
       - name: Elaborate the one-hole project locally
         working-directory: ${{ matrix.project }}
