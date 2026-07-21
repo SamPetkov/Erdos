@@ -19646,6 +19646,266 @@ END SOURCE MODULE: Erdos625.SPlusPrimalDirect
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusPrimalCoordinateBounds
+Source: Erdos625/SPlusPrimalCoordinateBounds.lean
+Normalized SHA-256: a520e97c52aa83f751b2e28ae730b97f5d84e0b2a56acaddbc93ae8dd23244a6
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusPrimalCoordinateBounds
+
+/-!
+# Coordinate bounds for the direct `S₊` primal
+
+These are finite, zero-safe coordinate identities and inequalities.  They do
+not use the mass, moment, or entropy limits from `SPlusPrimalProfile`.
+-/
+
+namespace Erdos625
+
+/-- Logarithm of one normalized natural-coordinate Gaussian weight. -/
+theorem log_normalized_extendedGaussianNaturalTerm (tilt : ℝ) (d : ℕ) :
+    Real.log
+      (extendedGaussianNaturalTerm q tilt d /
+        extendedGaussianPartition q tilt) =
+    tilt * (d : ℝ) + extendedGaussianNaturalScore q d -
+      Real.log (extendedGaussianPartition q tilt) := by
+  have hNatural : extendedGaussianNaturalTerm q tilt d ≠ 0 :=
+    (extendedGaussianNaturalTerm_pos q tilt d).ne'
+  have hPartition : extendedGaussianPartition q tilt ≠ 0 :=
+    extendedGaussianPartition_ne_zero q_pos
+  rw [Real.log_div hNatural hPartition]
+  simp only [extendedGaussianNaturalTerm, Real.log_exp,
+    extendedGaussianNaturalScore]
+  ring
+
+/-- Logarithm of the normalized exceptional Gaussian atom. -/
+theorem log_normalized_extendedGaussianExceptionalAtom (tilt : ℝ) :
+    Real.log
+      (extendedGaussianExceptionalAtom q tilt /
+        extendedGaussianPartition q tilt) =
+    -tilt + extendedGaussianExceptionalScore q -
+      Real.log (extendedGaussianPartition q tilt) := by
+  rw [Real.log_div (extendedGaussianExceptionalAtom_pos q tilt).ne'
+    (extendedGaussianPartition_ne_zero q_pos)]
+  rw [extendedGaussianExceptionalAtom, Real.log_exp]
+  simp only [extendedGaussianExceptionalScore]
+  ring
+
+/-- Zero-safe Gibbs inequality at a natural deficit coordinate. -/
+theorem extendedGaussianNaturalEntropyTerm_le_normalized
+    (tilt : ℝ) (d : ℕ) {x : ℝ} (hx : 0 ≤ x) :
+    -x * Real.log x + x * extendedGaussianNaturalScore q d ≤
+      extendedGaussianNaturalTerm q tilt d /
+          extendedGaussianPartition q tilt - x +
+        Real.log (extendedGaussianPartition q tilt) * x -
+          tilt * ((d : ℝ) * x) := by
+  have hPartition : 0 < extendedGaussianPartition q tilt :=
+    extendedGaussianPartition_pos q_pos
+  have hTerm : 0 < extendedGaussianNaturalTerm q tilt d :=
+    extendedGaussianNaturalTerm_pos q tilt d
+  have hNormalized :
+      0 < extendedGaussianNaturalTerm q tilt d /
+        extendedGaussianPartition q tilt :=
+    div_pos hTerm hPartition
+  have hLogNormalized :
+      Real.log (extendedGaussianNaturalTerm q tilt d /
+          extendedGaussianPartition q tilt) =
+        tilt * (d : ℝ) + extendedGaussianNaturalScore q d -
+          Real.log (extendedGaussianPartition q tilt) := by
+    rw [Real.log_div hTerm.ne' hPartition.ne']
+    simp only [extendedGaussianNaturalTerm, extendedGaussianNaturalScore,
+      Real.log_exp]
+    ring
+  have hGibbs :=
+    ProfileEntropyS4.neg_mul_log_add_mul_log_le_sub hx hNormalized
+  rw [hLogNormalized] at hGibbs
+  linarith
+
+/-- Zero-safe Gibbs inequality at the exceptional deficit coordinate. -/
+theorem extendedGaussianExceptionalEntropyTerm_le_normalized
+    (tilt : ℝ) {x : ℝ} (hx : 0 ≤ x) :
+    -x * Real.log x + x * extendedGaussianExceptionalScore q ≤
+      extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt - x +
+        Real.log (extendedGaussianPartition q tilt) * x + tilt * x := by
+  have hpartition : 0 < extendedGaussianPartition q tilt :=
+    extendedGaussianPartition_pos q_pos
+  have hatom : 0 < extendedGaussianExceptionalAtom q tilt :=
+    extendedGaussianExceptionalAtom_pos q tilt
+  have hnormalized :
+      Real.log (extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt) =
+        extendedGaussianExceptionalScore q - tilt -
+          Real.log (extendedGaussianPartition q tilt) := by
+    rw [Real.log_div hatom.ne' hpartition.ne']
+    simp [extendedGaussianExceptionalAtom, extendedGaussianExceptionalScore]
+    ring
+  have hgibbs := ProfileEntropyS4.neg_mul_log_add_mul_log_le_sub hx
+    (div_pos hatom hpartition)
+  rw [hnormalized] at hgibbs
+  linarith
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusPrimalCoordinateBounds
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusPrimalCoordinateBounds
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SPlusPrimalRepresentation
+Source: Erdos625/SPlusPrimalRepresentation.lean
+Normalized SHA-256: 4f4c61a6e2bf57c670fceccf5e16dd9794f53f5e3c6879b1208583b1bae9cd83
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SPlusPrimalRepresentation
+
+/-!
+# Representation of the limiting `S₊` entropy value
+
+The finite dual inequality stored in the older witness structure follows
+automatically from coordinatewise Gibbs inequalities and nonnegativity.  It
+therefore imposes no extra admissibility condition: the older candidate set
+is exactly the direct manuscript primal candidate set.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- Nonnegativity alone implies the all-tilts finite truncation inequality.
+No convergence, summability, target restriction, or optimizer is used. -/
+theorem extendedGaussian_finite_dual_bound_of_nonneg
+    {exceptional : ℝ} {p : ℕ → ℝ}
+    (hexceptional : 0 ≤ exceptional)
+    (hp : ∀ d, 0 ≤ p d) :
+    ∀ tilt N,
+      extendedGaussianEntropyTruncation q exceptional p N ≤
+        extendedGaussianReferenceMassTruncation q tilt N -
+          extendedGaussianMassTruncation exceptional p N +
+          Real.log (extendedGaussianPartition q tilt) *
+            extendedGaussianMassTruncation exceptional p N -
+          tilt * extendedGaussianMomentTruncation exceptional p N := by
+  intro tilt N
+  have hex :=
+    extendedGaussianExceptionalEntropyTerm_le_normalized
+      tilt (x := exceptional) hexceptional
+  have hnat :
+      (∑ d ∈ Finset.range N,
+        (-p d * Real.log (p d) +
+          p d * extendedGaussianNaturalScore q d)) ≤
+      ∑ d ∈ Finset.range N,
+        (extendedGaussianNaturalTerm q tilt d /
+              extendedGaussianPartition q tilt - p d +
+            Real.log (extendedGaussianPartition q tilt) * p d -
+            tilt * ((d : ℝ) * p d)) := by
+    exact Finset.sum_le_sum fun d _ =>
+      extendedGaussianNaturalEntropyTerm_le_normalized
+        tilt d (hp d)
+  unfold extendedGaussianEntropyTruncation
+  calc
+    (-exceptional * Real.log exceptional +
+          exceptional * extendedGaussianExceptionalScore q) +
+        ∑ d ∈ Finset.range N,
+          (-p d * Real.log (p d) +
+            p d * extendedGaussianNaturalScore q d)
+        ≤
+      (extendedGaussianExceptionalAtom q tilt /
+            extendedGaussianPartition q tilt - exceptional +
+          Real.log (extendedGaussianPartition q tilt) * exceptional +
+          tilt * exceptional) +
+        ∑ d ∈ Finset.range N,
+          (extendedGaussianNaturalTerm q tilt d /
+                extendedGaussianPartition q tilt - p d +
+            Real.log (extendedGaussianPartition q tilt) * p d -
+            tilt * ((d : ℝ) * p d)) :=
+      add_le_add hex hnat
+    _ =
+      extendedGaussianReferenceMassTruncation q tilt N -
+        extendedGaussianMassTruncation exceptional p N +
+        Real.log (extendedGaussianPartition q tilt) *
+          extendedGaussianMassTruncation exceptional p N -
+        tilt * extendedGaussianMomentTruncation exceptional p N := by
+      unfold extendedGaussianReferenceMassTruncation
+        extendedGaussianMassTruncation
+        extendedGaussianMomentTruncation
+      simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib,
+        ← Finset.mul_sum]
+      ring
+
+/-- The all-tilts witness structure and the direct manuscript primal profile
+have exactly the same inhabitants. -/
+theorem extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile
+    {target value exceptional : ℝ} {p : ℕ → ℝ} :
+    ExtendedGaussianEntropyWitnessAllTilts
+        target value exceptional p ↔
+      SPlusPrimalProfile target value exceptional p := by
+  constructor
+  · intro h
+    exact
+      { exceptional_nonneg := h.exceptional_nonneg
+        natural_nonneg := h.natural_nonneg
+        mass_limit := h.mass_limit
+        moment_limit := h.moment_limit
+        entropy_limit := h.entropy_limit }
+  · intro h
+    exact
+      { exceptional_nonneg := h.exceptional_nonneg
+        natural_nonneg := h.natural_nonneg
+        finite_dual_bound :=
+          extendedGaussian_finite_dual_bound_of_nonneg
+            h.exceptional_nonneg h.natural_nonneg
+        mass_limit := h.mass_limit
+        moment_limit := h.moment_limit
+        entropy_limit := h.entropy_limit }
+
+/-- The older witness-based candidate set is exactly the direct manuscript
+primal candidate set. -/
+theorem extendedGaussianEntropyCandidateSet_eq_sPlusPrimalCandidateSet
+    (target : ℝ) :
+    extendedGaussianEntropyCandidateSet target =
+      sPlusPrimalCandidateSet target := by
+  apply Set.ext
+  intro value
+  simp only [extendedGaussianEntropyCandidateSet,
+    sPlusPrimalCandidateSet, Set.mem_setOf_eq]
+  constructor
+  · rintro ⟨exceptional, p, h⟩
+    exact ⟨exceptional, p,
+      extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile.mp h⟩
+  · rintro ⟨exceptional, p, h⟩
+    exact ⟨exceptional, p,
+      extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile.mpr h⟩
+
+/-- The entropy value used by the existing dual comparison is unconditionally
+equal to the direct manuscript primal supremum. -/
+theorem extendedGaussianEntropyValue_eq_sPlusPrimalEntropyValue
+    (target : ℝ) :
+    extendedGaussianEntropyValue target =
+      sPlusPrimalEntropyValue target := by
+  unfold extendedGaussianEntropyValue sPlusPrimalEntropyValue
+  rw [extendedGaussianEntropyCandidateSet_eq_sPlusPrimalCandidateSet]
+
+/-- Rewrite the existing four-point loss using the direct manuscript primal. -/
+theorem fourEntropyLoss_eq_sPlusPrimalEntropyValue_sub
+    (target : ℝ) :
+    fourEntropyLoss target =
+      sPlusPrimalEntropyValue target -
+        ProfileEntropyS4.optimizedValue fourGaussianScore target := by
+  simp [fourEntropyLoss,
+    extendedGaussianEntropyValue_eq_sPlusPrimalEntropyValue]
+
+end
+
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SPlusPrimalRepresentation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SPlusPrimalRepresentation
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
 Source: Erdos625/UniformLimitingEntropyCertificate.lean
 Normalized SHA-256: 5705e2ce30ed2c2f58df0a82f04aed78f6ecec4f54c68c0e155bf27ed979e314
@@ -52489,6 +52749,359 @@ END SOURCE MODULE: Erdos625.Section8NearCellChoiceLink
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
+Source: Erdos625/Section8NearArithmeticFoundation.lean
+Normalized SHA-256: 21e3857ecac4759e5755f3ba5edb70b5060ebb14ba8e13819dc101ff3f9a1262
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearArithmeticFoundation
+
+/-!
+# Section VIII near-window arithmetic
+
+This module records only the transparent finite definitions used in the
+near-containment part of Lemma 8.3.  It deliberately does not define a
+completion law, a middle expectation, or an encoding of physical skeletons;
+those require additional canonical-fibre structure.
+-/
+
+namespace Erdos625
+
+open scoped ENNReal
+
+/-- The integer cutoff equivalent to the strict inequality `e < m / 4` for
+a positive natural endpoint size `m`. -/
+def nearCut (m : ℕ) : ℕ :=
+  (m - 1) / 4
+
+/-- The smaller endpoint size of a row/column cell. -/
+def smallerSlotSize
+    {A B : Type*} (row : A → ℕ) (col : B → ℕ) : A → B → ℕ :=
+  fun a b => min (row a) (col b)
+
+/-- A feasible multiplicity is near its smaller endpoint when its deficit is
+inside the explicit quarter-window. -/
+def NearEntry (m j : ℕ) : Prop :=
+  j ≤ m ∧ m - j ≤ nearCut m
+
+/-- A nonzero high entry outside the near window. -/
+def MiddleEntry (m j : ℕ) : Prop :=
+  j ≠ 0 ∧ ¬ NearEntry m j
+
+/-- The exact global denominator ratio obtained when total demand is lowered
+from `J₀` to `J₀ - Q`. -/
+noncomputable def denominatorLoss (n J₀ Q : ℕ) : ENNReal :=
+  (n.descFactorial J₀ : ENNReal) /
+    (n.descFactorial (J₀ - Q) : ENNReal)
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearArithmeticFoundation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearArithmeticFoundation
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
+Source: Erdos625/Section8NearPrefixFoundation.lean
+Normalized SHA-256: 5c86a7090990df6ea2a7bafdf830a798cbe289ae7ce3cba1ca4d9a5fc3664f52
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8NearPrefixFoundation
+
+/-!
+# Section VIII physical near-prefix / middle-completion foundation
+
+This is the lossless physical layer behind the near--middle split in Lemma
+8.3. Its source is the repository's existing fibre
+
+`{S : UnlabelledTypedSkeleton row col // S.typeTable = demand.1}`
+
+over an *attained* canonical high-demand table, rather than an arbitrary pair
+of a completion and a high skeleton. The row and column cap certificates are
+explicit and are used to derive matchingness of the high support.
+
+This module deliberately does **not** prove that every physical high-skeleton
+fibre has an exhaustive near/middle presentation, that the resulting raw split
+has the weighted no-extra-multiplicity formula of (8.25a), or that a raw middle
+factor has a residual conditional law or conditional expectation. Those are
+separate obligations. No field, definition, or theorem below asserts a tail
+estimate or the desired final Section VIII bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- One existing physical high-skeleton fibre together with the explicit
+ambient caps that make its attained canonical support a bipartite matching.
+The `demand` field is in `canonicalDemandImage`, while `physical` is exactly
+the existing physical unlabelled-skeleton fibre over that table. -/
+structure CappedPhysicalHighFibre
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat) where
+  rowCap : ∀ a, row a <= U
+  colCap : ∀ b, col b <= U
+  demand : canonicalDemandImage row col U
+  physical :
+    {S : UnlabelledTypedSkeleton row col // S.typeTable = demand.1}
+
+/-- The positive type support of the attained high table. -/
+def CappedPhysicalHighFibre.support
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) : Finset (A × B) :=
+  positiveDemandSupport H.demand.1
+
+/-- The physical fibre has exactly its attained demand table. -/
+theorem CappedPhysicalHighFibre.physical_typeTable
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) :
+    H.physical.1.typeTable = H.demand.1 :=
+  H.physical.2
+
+/-- The positive support read directly from the physical fibre. -/
+def CappedPhysicalHighFibre.physicalSupport
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) : Finset (A × B) :=
+  positiveDemandSupport H.physical.1.typeTable
+
+/-- The explicit row and column caps derive the high-support matching fact;
+it is not stored as an unverified premise on a near prefix. -/
+theorem CappedPhysicalHighFibre.support_isBipartiteMatching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) :
+    IsBipartiteMatching H.support := by
+  exact positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+    U H.rowCap H.colCap H.demand
+
+/-- The matching conclusion applies equally to the positive support of the
+actual physical high-skeleton fibre, by its exact type-table equation. -/
+theorem CappedPhysicalHighFibre.physicalSupport_isBipartiteMatching
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (H : CappedPhysicalHighFibre row col U) :
+    IsBipartiteMatching H.physicalSupport := by
+  change IsBipartiteMatching (positiveDemandSupport H.physical.1.typeTable)
+  rw [H.physical_typeTable]
+  exact H.support_isBipartiteMatching
+
+/-- A physical near prefix of one capped physical high-skeleton fibre. It
+uses genuine physical edges of that fibre; whenever it enters a cell, it takes
+the whole cell, and that cell is in the explicit near window. -/
+structure NearPrefix
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (endpoint : A -> B -> Nat)
+    (H : CappedPhysicalHighFibre row col U) where
+  physical : UnlabelledTypedSkeleton row col
+  edge_subset : physical.edges ⊆ H.physical.1.edges
+  whole_cell_of_present : ∀ a b,
+    physical.typeTable a b ≠ 0 ->
+      physical.typeTable a b = H.physical.1.typeTable a b
+  near_of_present : ∀ a b,
+    physical.typeTable a b ≠ 0 ->
+      NearEntry (endpoint a b) (H.demand.1 a b)
+
+/-- Restore each selected near cell to its endpoint multiplicity. This is a
+raw table annotation, not an endpoint-table probability weight. -/
+def NearPrefix.endpointTable
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H) : A -> B -> Nat :=
+  fun a b => if P.physical.typeTable a b = 0 then 0 else endpoint a b
+
+/-- The literal cellwise deficit of a near prefix. -/
+def NearPrefix.deficit
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H) : A -> B -> Nat :=
+  fun a b => P.endpointTable a b - P.physical.typeTable a b
+
+/-- The total finite near deficit; this is only an integer statistic. -/
+def NearPrefix.totalDeficit
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H) : Nat :=
+  Finset.univ.sum fun a =>
+    Finset.univ.sum fun b => P.deficit a b
+
+/-- The literal remaining row-stub mass after exposing physical near edges.
+It is not an asserted large- or small-residual regime. -/
+def NearPrefix.residualMass
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    {H : CappedPhysicalHighFibre row col U}
+    (P : NearPrefix endpoint H) : Nat :=
+  Finset.univ.sum row - P.physical.edges.card
+
+/-- Every near nonzero cell of the attained high table has already been put
+in the physical prefix. This is the exact no-further-near condition before
+one later constructs a residual configuration-model bridge. -/
+def NoFurtherNear
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (endpoint : A -> B -> Nat)
+    (H : CappedPhysicalHighFibre row col U)
+    (P : NearPrefix endpoint H) : Prop :=
+  ∀ a b,
+    H.demand.1 a b ≠ 0 ->
+      NearEntry (endpoint a b) (H.demand.1 a b) ->
+        P.physical.typeTable a b ≠ 0
+
+/-- A completed raw near--middle split of a capped physical high-skeleton
+fibre. The complement below is determined by the source high skeleton, so a
+second freely chosen middle skeleton cannot introduce multiplicity. -/
+structure NearCompletion
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) (U : Nat)
+    (endpoint : A -> B -> Nat) where
+  high : CappedPhysicalHighFibre row col U
+  prefix : NearPrefix endpoint high
+  no_further_near : NoFurtherNear endpoint high prefix
+
+/-- The physical middle-high complement of a completed raw split. -/
+def NearCompletion.middleHighEdges
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    (C : NearCompletion row col U endpoint) :
+    Finset (RowStub row × ColumnStub col) :=
+  C.high.physical.1.edges \ C.prefix.physical.edges
+
+/-- The middle multiplicity table, formed by removing the whole-cell near
+prefix from the existing physical high-skeleton fibre. -/
+def NearCompletion.middleTable
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    (C : NearCompletion row col U endpoint) : A -> B -> Nat :=
+  fun a b => C.high.demand.1 a b - C.prefix.physical.typeTable a b
+
+/-- The raw finite indicator of the no-further-near condition. It is an
+integrand component only: it is not a conditional probability. -/
+noncomputable def noFurtherNearIndicator
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    (H : CappedPhysicalHighFibre row col U)
+    (P : NearPrefix endpoint H) : ENNReal := by
+  classical
+  exact if NoFurtherNear endpoint H P then 1 else 0
+
+/-- The raw product of supplied cell factors over actual middle cells of an
+attained high table. This is deliberately neither named nor typed as a
+conditional expectation. -/
+noncomputable def rawMiddleCellProduct
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    (g : Nat -> ENNReal)
+    (H : CappedPhysicalHighFibre row col U) : ENNReal := by
+  classical
+  exact Finset.univ.prod (fun a =>
+    Finset.univ.prod (fun b =>
+      if MiddleEntry (endpoint a b) (H.demand.1 a b)
+      then g (H.demand.1 a b) else 1))
+
+/-- The literal raw factor available before any residual probability law is
+constructed. Later work may integrate this factor against a proved law, but
+this definition itself performs no conditioning or expectation. -/
+noncomputable def rawMiddleIntegrand
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    {endpoint : A -> B -> Nat}
+    (g : Nat -> ENNReal)
+    (H : CappedPhysicalHighFibre row col U)
+    (P : NearPrefix endpoint H) : ENNReal :=
+  noFurtherNearIndicator H P * rawMiddleCellProduct g H
+
+/-- Raw lossless endpoint--near--middle data. The source high skeleton is
+not copied: its physical edge set must be reconstructed from the disjoint
+near/middle edge decomposition. -/
+structure RawNearMiddleData
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    (row : A -> Nat) (col : B -> Nat) where
+  endpointTable : A -> B -> Nat
+  nearDeficit : A -> B -> Nat
+  nearEdges : Finset (RowStub row × ColumnStub col)
+  middleHighEdges : Finset (RowStub row × ColumnStub col)
+
+/-- Encode a completed physical near split as raw endpoint, near, and middle
+data. The intended injectivity proof reconstructs the physical high fibre by
+`nearEdges ∪ middleHighEdges`; no weighted factor occurs here. -/
+def encodeRawNearMiddle
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (endpoint : A -> B -> Nat)
+    (C : NearCompletion row col U endpoint) :
+    RawNearMiddleData row col where
+  endpointTable := C.prefix.endpointTable
+  nearDeficit := C.prefix.deficit
+  nearEdges := C.prefix.physical.edges
+  middleHighEdges := C.middleHighEdges
+
+/-- Reconstruct the physical high edge set from a raw encoding. -/
+def RawNearMiddleData.reconstructedHighEdges
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat}
+    (D : RawNearMiddleData row col) :
+    Finset (RowStub row × ColumnStub col) :=
+  D.nearEdges ∪ D.middleHighEdges
+
+/-- The finite image used only after the raw encoding has been established.
+It has no weight or cardinality assertion built into it. -/
+noncomputable def rawNearMiddleImage
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {row : A -> Nat} {col : B -> Nat} {U : Nat}
+    (endpoint : A -> B -> Nat)
+    (s : Finset (NearCompletion row col U endpoint)) :
+    Finset (RawNearMiddleData row col) := by
+  classical
+  exact s.image (encodeRawNearMiddle endpoint)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8NearPrefixFoundation
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8NearPrefixFoundation
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8NearSkeletonUniformProductBound
 Source: Erdos625/Section8NearSkeletonUniformProductBound.lean
 Normalized SHA-256: 9b211a769d3606743b38c3586daefe07f892777b907c8ccbfc4135d5a6077618
@@ -56819,155 +57432,6 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentAggregation
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
-Source: Erdos625/Section9SeparatedTwoRegimeSeed.lean
-Normalized SHA-256: 01bab3d93d07503c36eb7adf499a5efbb2b75fb6557ce5997c5ffdb532ebab25
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
-
-/-!
-# Section IX: separated two-regime attachment assembly
-
-This module applies the existing two-regime argument uniformly over the actual
-dependent family of attained canonical demands.  It then combines that result
-with a separate Section VIII skeleton estimate.  No common residual law is
-introduced: the residual mass and polymer majorant are evaluated demand by
-demand using the canonical reference witness.
--/
-
-namespace Erdos625
-
-open Filter
-open scoped ENNReal Topology
-
-noncomputable section
-
-/-- Residual row-stub mass of an attained canonical demand. -/
-def canonicalDemandResidualMass
-    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
-    (demand : ProfileCanonicalHighSkeleton k U) : ℕ :=
-  Finset.univ.sum
-    (residualRowDegree
-      (canonicalDemandReferenceWitness (profileBlockMargin k)
-        (profileBlockMargin k) U demand))
-
-/-- Finite real value of one attained demand's polymer majorant. -/
-noncomputable def canonicalDemandPolymerReal
-    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
-    (demand : ProfileCanonicalHighSkeleton k U) : ℝ :=
-  (canonicalDemandPolymerMajorant
-    (profileBlockMargin k) (profileBlockMargin k) U demand).toReal
-
-/-- Exact recovery of one finite canonical polymer majorant from its real
-value. -/
-theorem ofReal_canonicalDemandPolymerReal
-    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
-    (demand : ProfileCanonicalHighSkeleton k U) :
-    ENNReal.ofReal (canonicalDemandPolymerReal k U demand) =
-      canonicalDemandPolymerMajorant
-        (profileBlockMargin k) (profileBlockMargin k) U demand := by
-  exact ENNReal.ofReal_toReal
-    (canonicalDemandPolymerMajorant_ne_top
-      (profileBlockMargin k) (profileBlockMargin k) U demand)
-
-/-- Uniform large- and small-residual bounds over the literal attained-demand
-family produce one nonnegative vanishing attachment coefficient. -/
-theorem exists_canonicalDemandAttachment_twoRegime_error
-    (b U : ℕ → ℕ)
-    (k : (n : ℕ) → ColoringProfile (b n))
-    (C : ℝ) (hC : 0 ≤ C)
-    (hlarge : ∀ᶠ n : ℕ in atTop,
-      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
-        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
-            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
-        canonicalDemandPolymerReal (k n) (U n) demand ≤
-          Real.exp (C * Real.log (n : ℝ) ^ 8))
-    (hsmall : ∀ᶠ n : ℕ in atTop,
-      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
-        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
-            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
-        canonicalDemandPolymerReal (k n) (U n) demand ≤
-          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
-    ∃ epsilonAttachment : ℕ → ℝ,
-      Tendsto epsilonAttachment atTop (nhds 0) ∧
-      (∀ᶠ n in atTop, 0 ≤ epsilonAttachment n) ∧
-      ∀ᶠ n in atTop,
-        ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
-          canonicalDemandPolymerMajorant
-            (profileBlockMargin (k n)) (profileBlockMargin (k n))
-              (U n) demand ≤
-            ENNReal.ofReal
-              (Real.exp (epsilonAttachment n * amplificationBase n)) := by
-  obtain ⟨epsilonAttachment, hepsilon, hevent⟩ :=
-    exists_uniform_twoRegime_error
-      (fun n => ProfileCanonicalHighSkeleton (k n) (U n))
-      (fun n demand => canonicalDemandPolymerReal (k n) (U n) demand)
-      (fun n demand => canonicalDemandResidualMass (k n) (U n) demand)
-      C hC hlarge hsmall
-  refine ⟨epsilonAttachment, hepsilon, hevent.mono fun n hn => hn.1, ?_⟩
-  filter_upwards [hevent] with n hn
-  intro demand
-  rw [← ofReal_canonicalDemandPolymerReal (k n) (U n) demand]
-  apply ENNReal.ofReal_le_ofReal
-  simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
-
-/-- Complete real seed from a Section VIII skeleton estimate and the concrete
-Section IX large- and small-residual estimates, all over the attained canonical
-demand family. -/
-theorem real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
-    (b U : ℕ → ℕ)
-    (k : (n : ℕ) → ColoringProfile (b n))
-    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
-    (epsilonSkeleton : ℕ → ℝ)
-    (C : ℝ) (hC : 0 ≤ C)
-    (hU : ∀ n, 2 ≤ U n)
-    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
-      profileBlockMargin (k n) a ≤ U n)
-    (hSkeletonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilonSkeleton n)
-    (hSkeletonTendsto : Tendsto epsilonSkeleton atTop (nhds 0))
-    (hSkeleton : ∀ᶠ n in atTop,
-      canonicalBareSkeletonSum (k n) (U n) ≤
-        ENNReal.ofReal
-          (Real.exp (epsilonSkeleton n * amplificationBase n)))
-    (hlarge : ∀ᶠ n : ℕ in atTop,
-      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
-        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
-            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
-        canonicalDemandPolymerReal (k n) (U n) demand ≤
-          Real.exp (C * Real.log (n : ℝ) ^ 8))
-    (hsmall : ∀ᶠ n : ℕ in atTop,
-      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
-        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
-            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
-        canonicalDemandPolymerReal (k n) (U n) demand ≤
-          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
-    (∀ n, signedProfileNormalizedSecondMomentReal n (k n) ≤
-      Real.exp (canonicalMidpointLambda (row₀ n) (U n))) ∧
-    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
-    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
-      amplificationBase := by
-  obtain ⟨epsilonAttachment, hAttachmentTendsto,
-      hAttachmentNonneg, hAttachment⟩ :=
-    exists_canonicalDemandAttachment_twoRegime_error
-      b U k C hC hlarge hsmall
-  exact real_canonicalMidpoint_secondMoment_seed_of_separate_bounds
-    b U k row₀ epsilonSkeleton epsilonAttachment hU hcap
-    hSkeletonNonneg hAttachmentNonneg hSkeletonTendsto
-    hAttachmentTendsto hSkeleton hAttachment
-
-#print axioms exists_canonicalDemandAttachment_twoRegime_error
-#print axioms real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
 Source: Erdos625/Section9CanonicalDemandProductEstimate.lean
 Normalized SHA-256: b3d1d68b1e3871483a9abed71c3f46ed2854a38c22e9f8c9b6bb19ff0e66ce13
@@ -57187,106 +57651,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductEstimate
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductEstimate
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
-Source: Erdos625/Section9CanonicalDemandProductSpecialization.lean
-Normalized SHA-256: eb609b580105a919ee382839a2bb1c72d187dfe57e641c0910b08127b2a1c336
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
-
-/-!
-# Section IX: canonical-demand specialization of the residual product bound
-
-This module transports the generic positive-residual product estimate to the
-reference residual profile of one attained canonical demand.  It remains a
-finite strict-regime theorem: the eventual large-residual corridor and its
-comparison with the Section IX asymptotic scale are separate obligations.
--/
-
-namespace Erdos625
-
-open scoped BigOperators ENNReal
-
-noncomputable section
-
-/-- The reference witness of an attained canonical demand supplies exactly
-the matching, degree-cap, and balance data required by the residual product
-estimate. -/
-theorem canonicalReference_residual_parameters
-    {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B]
-    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
-    (htotal : (∑ a, row a) = ∑ b, col b)
-    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
-    (demand : canonicalDemandImage row col U) :
-    let witness := canonicalDemandReferenceWitness row col U demand
-    IsBipartiteMatching (positiveDemandSupport demand.1) ∧
-      (∀ a, residualRowDegree witness a ≤ U) ∧
-      (∀ b, residualColumnDegree witness b ≤ U) ∧
-      ((∑ a, residualRowDegree witness a) =
-        ∑ b, residualColumnDegree witness b) := by
-  dsimp only
-  let witness := canonicalDemandReferenceWitness row col U demand
-  have hprofile := residualDegreeProfile_of_witness htotal witness
-  exact ⟨positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
-      U hrowCap hcolCap demand,
-    fun a => (hprofile.1 a).trans (hrowCap a),
-    fun b => (hprofile.2.1 b).trans (hcolCap b),
-    hprofile.2.2⟩
-
-/-- Absolute constants from the generic product theorem bound the literal
-canonical-demand polymer majorant throughout the strict residual corridor. -/
-theorem exists_absolute_canonicalDemandPolymer_strict_bound :
-    ∃ kappaLambda kappaQ : ENNReal,
-      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
-      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
-      ∀ {A B : Type*} [Fintype A] [Fintype B]
-          [DecidableEq A] [DecidableEq B]
-          (row : A → ℕ) (col : B → ℕ) (U m : ℕ)
-          (demand : canonicalDemandImage row col U),
-        (∑ a, row a) = ∑ b, col b →
-        (∀ a, row a ≤ U) →
-        (∀ b, col b ≤ U) →
-        m = canonicalDemandResidualTotal row col U demand →
-        0 < m →
-        2 ^ U ≤ m ^ 3 →
-        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
-          (1 / 3 : ENNReal) →
-        canonicalDemandPolymerMajorant row col U demand ≤
-          EReal.exp
-            ((residualProductExponentMajorant kappaLambda kappaQ
-              (Fintype.card A) (positiveDemandSupport demand.1).card U m :
-                ENNReal) : EReal) := by
-  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
-    exists_absolute_residual_product_exponential_majorant
-  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
-  intro A B _ _ _ _ row col U m demand htotal hrowCap hcolCap
-    hm hmpos hpow htau
-  let witness := canonicalDemandReferenceWitness row col U demand
-  have hparameters := canonicalReference_residual_parameters
-    row col U htotal hrowCap hcolCap demand
-  have hrowSum : (∑ a, residualRowDegree witness a) = m := by
-    simpa only [canonicalDemandResidualTotal, witness] using hm.symm
-  have hcolSum : (∑ b, residualColumnDegree witness b) = m := by
-    exact hparameters.2.2.2.symm.trans hrowSum
-  have h := hbound (positiveDemandSupport demand.1) U (U / 2) m
-    (residualRowDegree witness) (residualColumnDegree witness)
-    hparameters.1 hmpos hrowSum hcolSum hparameters.2.1 hparameters.2.2.1
-    rfl hpow htau
-  simpa only [canonicalDemandPolymerMajorant, witness] using h.2.2
-
-#print axioms canonicalReference_residual_parameters
-#print axioms exists_absolute_canonicalDemandPolymer_strict_bound
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
 ========================================================================== -/
 
 /- ==========================================================================
@@ -57648,6 +58012,328 @@ END SOURCE MODULE: Erdos625.Section9ERealENNRealExpTransport
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualExp
+Source: Erdos625/Section9ActualAttachmentLargeResidualExp.lean
+Normalized SHA-256: f296a6f926fb23481b13d52af94e2bc0994db26a6d919dff7c8027b3663c6682
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualExp
+
+/-!
+# Section IX finite large-residual attachment endpoint
+
+This module transports the established `EReal.exp` large-residual envelope to
+a finite `ENNReal.ofReal (Real.exp ...)` bound while retaining the literal
+cap/no-return residual attachment numerator.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- One pair of absolute constants bounds the literal cap/no-return residual
+attachment numerator by the finite large-residual exponential endpoint. -/
+theorem exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A B : Type*} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (M : Finset (A × B)) (U m : ℕ)
+          (row : A → ℕ) (col : B → ℕ)
+          (htotal : Finset.univ.sum row = Finset.univ.sum col),
+        IsBipartiteMatching M →
+        0 < m →
+        (∑ a, row a) = m →
+        (∑ b, col b) = m →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        residualActualAttachmentNumerator M (U / 2) row col htotal ≤
+          ENNReal.ofReal
+            (Real.exp
+              ((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
+                2 * (Fintype.card A : ENNReal) *
+                  (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) ^ 4 +
+                (((6 * M.card : ℕ) : ENNReal) *
+                  (kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal)) :
+                  ENNReal)).toReal)) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, henvelope⟩ :=
+    exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ M U m row col htotal hM hm hrow hcol
+    hrowCap hcolCap hpow htau
+  apply ennreal_le_of_coe_le_ereal_exp_toReal
+  · exact residualLargeEnvelope_ne_top kappaLambda kappaQ
+      (Fintype.card A) M.card U m hkLtop hkQtop hm
+  · exact henvelope M U m row col htotal hM hm hrow hcol
+      hrowCap hcolCap hpow htau
+
+end
+
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ActualAttachmentLargeResidualExp
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualExp
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
+Source: Erdos625/Section9SeparatedTwoRegimeSeed.lean
+Normalized SHA-256: 01bab3d93d07503c36eb7adf499a5efbb2b75fb6557ce5997c5ffdb532ebab25
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
+
+/-!
+# Section IX: separated two-regime attachment assembly
+
+This module applies the existing two-regime argument uniformly over the actual
+dependent family of attained canonical demands.  It then combines that result
+with a separate Section VIII skeleton estimate.  No common residual law is
+introduced: the residual mass and polymer majorant are evaluated demand by
+demand using the canonical reference witness.
+-/
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+/-- Residual row-stub mass of an attained canonical demand. -/
+def canonicalDemandResidualMass
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) : ℕ :=
+  Finset.univ.sum
+    (residualRowDegree
+      (canonicalDemandReferenceWitness (profileBlockMargin k)
+        (profileBlockMargin k) U demand))
+
+/-- Finite real value of one attained demand's polymer majorant. -/
+noncomputable def canonicalDemandPolymerReal
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) : ℝ :=
+  (canonicalDemandPolymerMajorant
+    (profileBlockMargin k) (profileBlockMargin k) U demand).toReal
+
+/-- Exact recovery of one finite canonical polymer majorant from its real
+value. -/
+theorem ofReal_canonicalDemandPolymerReal
+    {b : ℕ} (k : ColoringProfile b) (U : ℕ)
+    (demand : ProfileCanonicalHighSkeleton k U) :
+    ENNReal.ofReal (canonicalDemandPolymerReal k U demand) =
+      canonicalDemandPolymerMajorant
+        (profileBlockMargin k) (profileBlockMargin k) U demand := by
+  exact ENNReal.ofReal_toReal
+    (canonicalDemandPolymerMajorant_ne_top
+      (profileBlockMargin k) (profileBlockMargin k) U demand)
+
+/-- Uniform large- and small-residual bounds over the literal attained-demand
+family produce one nonnegative vanishing attachment coefficient. -/
+theorem exists_canonicalDemandAttachment_twoRegime_error
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (C : ℝ) (hC : 0 ≤ C)
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
+            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
+            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    ∃ epsilonAttachment : ℕ → ℝ,
+      Tendsto epsilonAttachment atTop (nhds 0) ∧
+      (∀ᶠ n in atTop, 0 ≤ epsilonAttachment n) ∧
+      ∀ᶠ n in atTop,
+        ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+          canonicalDemandPolymerMajorant
+            (profileBlockMargin (k n)) (profileBlockMargin (k n))
+              (U n) demand ≤
+            ENNReal.ofReal
+              (Real.exp (epsilonAttachment n * amplificationBase n)) := by
+  obtain ⟨epsilonAttachment, hepsilon, hevent⟩ :=
+    exists_uniform_twoRegime_error
+      (fun n => ProfileCanonicalHighSkeleton (k n) (U n))
+      (fun n demand => canonicalDemandPolymerReal (k n) (U n) demand)
+      (fun n demand => canonicalDemandResidualMass (k n) (U n) demand)
+      C hC hlarge hsmall
+  refine ⟨epsilonAttachment, hepsilon, hevent.mono fun n hn => hn.1, ?_⟩
+  filter_upwards [hevent] with n hn
+  intro demand
+  rw [← ofReal_canonicalDemandPolymerReal (k n) (U n) demand]
+  apply ENNReal.ofReal_le_ofReal
+  simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
+
+/-- Complete real seed from a Section VIII skeleton estimate and the concrete
+Section IX large- and small-residual estimates, all over the attained canonical
+demand family. -/
+theorem real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
+    (b U : ℕ → ℕ)
+    (k : (n : ℕ) → ColoringProfile (b n))
+    (row₀ : (n : ℕ) → OrderedProfilePartition n (k n))
+    (epsilonSkeleton : ℕ → ℝ)
+    (C : ℝ) (hC : 0 ≤ C)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hSkeletonNonneg : ∀ᶠ n in atTop, 0 ≤ epsilonSkeleton n)
+    (hSkeletonTendsto : Tendsto epsilonSkeleton atTop (nhds 0))
+    (hSkeleton : ∀ᶠ n in atTop,
+      canonicalBareSkeletonSum (k n) (U n) ≤
+        ENNReal.ofReal
+          (Real.exp (epsilonSkeleton n * amplificationBase n)))
+    (hlarge : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (n : ℝ) / Real.log (n : ℝ) ^ 6 ≤
+            (canonicalDemandResidualMass (k n) (U n) demand : ℝ) →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * Real.log (n : ℝ) ^ 8))
+    (hsmall : ∀ᶠ n : ℕ in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (canonicalDemandResidualMass (k n) (U n) demand : ℝ) <
+            (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+        canonicalDemandPolymerReal (k n) (U n) demand ≤
+          Real.exp (C * (n : ℝ) / Real.log (n : ℝ) ^ 5)) :
+    (∀ n, signedProfileNormalizedSecondMomentReal n (k n) ≤
+      Real.exp (canonicalMidpointLambda (row₀ n) (U n))) ∧
+    (∀ n, 0 ≤ canonicalMidpointLambda (row₀ n) (U n)) ∧
+    (fun n => canonicalMidpointLambda (row₀ n) (U n)) =o[atTop]
+      amplificationBase := by
+  obtain ⟨epsilonAttachment, hAttachmentTendsto,
+      hAttachmentNonneg, hAttachment⟩ :=
+    exists_canonicalDemandAttachment_twoRegime_error
+      b U k C hC hlarge hsmall
+  exact real_canonicalMidpoint_secondMoment_seed_of_separate_bounds
+    b U k row₀ epsilonSkeleton epsilonAttachment hU hcap
+    hSkeletonNonneg hAttachmentNonneg hSkeletonTendsto
+    hAttachmentTendsto hSkeleton hAttachment
+
+#print axioms exists_canonicalDemandAttachment_twoRegime_error
+#print axioms real_canonicalMidpoint_secondMoment_seed_of_skeleton_and_twoRegime
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9SeparatedTwoRegimeSeed
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9SeparatedTwoRegimeSeed
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
+Source: Erdos625/Section9CanonicalDemandProductSpecialization.lean
+Normalized SHA-256: eb609b580105a919ee382839a2bb1c72d187dfe57e641c0910b08127b2a1c336
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
+
+/-!
+# Section IX: canonical-demand specialization of the residual product bound
+
+This module transports the generic positive-residual product estimate to the
+reference residual profile of one attained canonical demand.  It remains a
+finite strict-regime theorem: the eventual large-residual corridor and its
+comparison with the Section IX asymptotic scale are separate obligations.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators ENNReal
+
+noncomputable section
+
+/-- The reference witness of an attained canonical demand supplies exactly
+the matching, degree-cap, and balance data required by the residual product
+estimate. -/
+theorem canonicalReference_residual_parameters
+    {A B : Type*} [Fintype A] [Fintype B]
+    [DecidableEq A] [DecidableEq B]
+    (row : A → ℕ) (col : B → ℕ) (U : ℕ)
+    (htotal : (∑ a, row a) = ∑ b, col b)
+    (hrowCap : ∀ a, row a ≤ U) (hcolCap : ∀ b, col b ≤ U)
+    (demand : canonicalDemandImage row col U) :
+    let witness := canonicalDemandReferenceWitness row col U demand
+    IsBipartiteMatching (positiveDemandSupport demand.1) ∧
+      (∀ a, residualRowDegree witness a ≤ U) ∧
+      (∀ b, residualColumnDegree witness b ≤ U) ∧
+      ((∑ a, residualRowDegree witness a) =
+        ∑ b, residualColumnDegree witness b) := by
+  dsimp only
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hprofile := residualDegreeProfile_of_witness htotal witness
+  exact ⟨positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage
+      U hrowCap hcolCap demand,
+    fun a => (hprofile.1 a).trans (hrowCap a),
+    fun b => (hprofile.2.1 b).trans (hcolCap b),
+    hprofile.2.2⟩
+
+/-- Absolute constants from the generic product theorem bound the literal
+canonical-demand polymer majorant throughout the strict residual corridor. -/
+theorem exists_absolute_canonicalDemandPolymer_strict_bound :
+    ∃ kappaLambda kappaQ : ENNReal,
+      0 < kappaLambda ∧ kappaLambda ≠ ∞ ∧
+      0 < kappaQ ∧ kappaQ ≠ ∞ ∧
+      ∀ {A B : Type*} [Fintype A] [Fintype B]
+          [DecidableEq A] [DecidableEq B]
+          (row : A → ℕ) (col : B → ℕ) (U m : ℕ)
+          (demand : canonicalDemandImage row col U),
+        (∑ a, row a) = ∑ b, col b →
+        (∀ a, row a ≤ U) →
+        (∀ b, col b ≤ U) →
+        m = canonicalDemandResidualTotal row col U demand →
+        0 < m →
+        2 ^ U ≤ m ^ 3 →
+        kappaQ * (U : ENNReal) ^ 3 / (m : ENNReal) <
+          (1 / 3 : ENNReal) →
+        canonicalDemandPolymerMajorant row col U demand ≤
+          EReal.exp
+            ((residualProductExponentMajorant kappaLambda kappaQ
+              (Fintype.card A) (positiveDemandSupport demand.1).card U m :
+                ENNReal) : EReal) := by
+  obtain ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, hbound⟩ :=
+    exists_absolute_residual_product_exponential_majorant
+  refine ⟨kappaLambda, kappaQ, hkLpos, hkLtop, hkQpos, hkQtop, ?_⟩
+  intro A B _ _ _ _ row col U m demand htotal hrowCap hcolCap
+    hm hmpos hpow htau
+  let witness := canonicalDemandReferenceWitness row col U demand
+  have hparameters := canonicalReference_residual_parameters
+    row col U htotal hrowCap hcolCap demand
+  have hrowSum : (∑ a, residualRowDegree witness a) = m := by
+    simpa only [canonicalDemandResidualTotal, witness] using hm.symm
+  have hcolSum : (∑ b, residualColumnDegree witness b) = m := by
+    exact hparameters.2.2.2.symm.trans hrowSum
+  have h := hbound (positiveDemandSupport demand.1) U (U / 2) m
+    (residualRowDegree witness) (residualColumnDegree witness)
+    hparameters.1 hmpos hrowSum hcolSum hparameters.2.1 hparameters.2.2.1
+    rfl hpow htau
+  simpa only [canonicalDemandPolymerMajorant, witness] using h.2.2
+
+#print axioms canonicalReference_residual_parameters
+#print axioms exists_absolute_canonicalDemandPolymer_strict_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9CanonicalDemandProductSpecialization
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9CanonicalDemandProductSpecialization
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ProfileBlockCardinalityBound
 Source: Erdos625/ProfileBlockCardinalityBound.lean
 Normalized SHA-256: dd321486d59b6d2dc5d1245ede651dd27782e4e14c84c66e4b79a9a286aadced
@@ -57729,7 +58415,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 738ecb7fbedd0db25f77923a65e95dfa76051ba82c62db28617fafae4d6cfa68
+Normalized SHA-256: f75d3a6a6d2817f5d2ccca803584c413509050b7c814c07b111989d8e9892cd7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -58544,6 +59230,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.extendedGaussianEntropyValue_le_dual_interior
 #print axioms Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
 #print axioms Erdos625.fourEntropyLoss_nonneg_interior
+#print axioms Erdos625.log_normalized_extendedGaussianNaturalTerm
+#print axioms Erdos625.log_normalized_extendedGaussianExceptionalAtom
+#print axioms Erdos625.extendedGaussianNaturalEntropyTerm_le_normalized
+#print axioms Erdos625.extendedGaussianExceptionalEntropyTerm_le_normalized
+#print axioms Erdos625.extendedGaussian_finite_dual_bound_of_nonneg
+#print axioms Erdos625.extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile
+#print axioms Erdos625.extendedGaussianEntropyCandidateSet_eq_sPlusPrimalCandidateSet
+#print axioms Erdos625.extendedGaussianEntropyValue_eq_sPlusPrimalEntropyValue
+#print axioms Erdos625.fourEntropyLoss_eq_sPlusPrimalEntropyValue_sub
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
@@ -58561,6 +59256,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
+#print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
 #print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
@@ -58575,7 +59271,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 6d6fd32417b5ddd9b306af270e47c66957db4269c99a6a678df62e14235f1e29
+Normalized SHA-256: cd6976fc81ebe5f047d55bdac369efe8e3e164cb89cac22c4c3fa48ced68d226
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

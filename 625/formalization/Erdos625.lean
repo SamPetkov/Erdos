@@ -93,6 +93,8 @@ import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
 import Erdos625.SPlusPrimalDirect
+import Erdos625.SPlusPrimalCoordinateBounds
+import Erdos625.SPlusPrimalRepresentation
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.GaussianTailTools
 import Erdos625.GeometricMomentTools
@@ -263,6 +265,8 @@ import Erdos625.Section8LabelledIncidence
 import Erdos625.Section8WitnessDemandFeasibility
 import Erdos625.Section8NearSkeletonExpansion
 import Erdos625.Section8NearCellChoiceLink
+import Erdos625.Section8NearArithmeticFoundation
+import Erdos625.Section8NearPrefixFoundation
 import Erdos625.Section8NearSkeletonUniformProductBound
 import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
@@ -291,6 +295,7 @@ import Erdos625.Section9CanonicalTwoRegimeSeed
 import Erdos625.Section9RealSecondMomentSeed
 import Erdos625.Section9CanonicalPolymerAggregation
 import Erdos625.Section9ActualAttachmentAggregation
+import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.Section9SeparatedTwoRegimeSeed
 import Erdos625.Section9CanonicalDemandProductEstimate
 import Erdos625.Section9CanonicalDemandProductSpecialization

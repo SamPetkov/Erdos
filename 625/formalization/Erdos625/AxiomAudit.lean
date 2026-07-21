@@ -84,6 +84,8 @@ import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SPlusEntropyCandidateEmbedding
 import Erdos625.SPlusEntropySupremumDualInterior
+import Erdos625.SPlusPrimalCoordinateBounds
+import Erdos625.SPlusPrimalRepresentation
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
 import Erdos625.SignedFourEntropyCertificate
@@ -270,6 +272,7 @@ import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.Section9ActualAttachmentAggregation
+import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
 
@@ -1084,6 +1087,15 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.extendedGaussianEntropyValue_le_dual_interior
 #print axioms Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue
 #print axioms Erdos625.fourEntropyLoss_nonneg_interior
+#print axioms Erdos625.log_normalized_extendedGaussianNaturalTerm
+#print axioms Erdos625.log_normalized_extendedGaussianExceptionalAtom
+#print axioms Erdos625.extendedGaussianNaturalEntropyTerm_le_normalized
+#print axioms Erdos625.extendedGaussianExceptionalEntropyTerm_le_normalized
+#print axioms Erdos625.extendedGaussian_finite_dual_bound_of_nonneg
+#print axioms Erdos625.extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile
+#print axioms Erdos625.extendedGaussianEntropyCandidateSet_eq_sPlusPrimalCandidateSet
+#print axioms Erdos625.extendedGaussianEntropyValue_eq_sPlusPrimalEntropyValue
+#print axioms Erdos625.fourEntropyLoss_eq_sPlusPrimalEntropyValue_sub
 #print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
 #print axioms Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp
 #print axioms Erdos625.mu_le_of_le_vertex_count
@@ -1101,6 +1113,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
+#print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
 #print axioms Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor
