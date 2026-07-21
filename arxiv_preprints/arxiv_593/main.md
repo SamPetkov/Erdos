@@ -1,11 +1,15 @@
 # Obligatory Triple Systems: An Alternative Proof
 
 **Samuil Petkov**  
-20 July 2026
+21 July 2026
+
+**2020 Mathematics Subject Classification.** Primary 05C65; Secondary 05C15, 05C63, 03E05
+
+**Keywords.** obligatory triple system; hypergraph colouring; Levi graph; Berge cycle; uncountable chromatic number; Erdős Problem 593
 
 # Introduction
 
-A finite triple system is *obligatory* if it occurs in every triple system of uncountable chromatic number. Erdős asked for a characterization of these finite systems ; the question is catalogued as Erdős Problem 593 . The answer has both a constructive form and an intrinsic form.
+The hosts in this problem are infinite, but the answer is decided by a small piece of finite geometry. A finite triple system is *obligatory* if it occurs in every triple system of uncountable chromatic number. Erdős asked for a characterization of these finite systems ; the question is catalogued as Erdős Problem 593 . The answer has both a constructive form and an intrinsic form.
 
 For a finite graph $J$, write $J^+$ for its private-vertex expansion. Let $\mathcal B$ be the smallest class containing $J^+$ for every finite bipartite graph $J$ and every finite edgeless triple system, and closed under finite disjoint unions and one-point amalgamations. If $F$ is a triple system, let $F^\circ$ denote the system obtained by deleting its isolated vertices.
 
@@ -29,9 +33,9 @@ The graph analogue was proved by Erdős and Hajnal: the obligatory finite graphs
 
 The classification theorem, complete-rank one-apex lift, bridge-trace architecture, selected-incidence decomposition, quotient forest, and running-intersection assembly all appear in Li’s preprint . The present paper makes no priority claim for those ingredients. Its alternative implementation gives direct proofs of the positive expansion atoms and closure statements in the notation used here, replaces the bridge-selector derivative formalism by an explicit base-fibre and support-incidence analysis, invokes the older Erdős–Hajnal high-odd-girth theorem directly, and supplies a complete Lean formalisation of this implementation.
 
-The proof separates the positive and negative directions. First, a probabilistic rainbow lemma provides the local injectivity needed to force complete bipartite expansions. A rooted-abundance lemma then proves closure under one-point amalgamation, including at singular uncountable cardinals. Deleting the bridges of the Levi graph identifies each remaining active component with the expansion of a finite bipartite graph; the quotient graph is a forest, and its running-intersection property gives the required amalgamation order.
+The proof is best read as two stories. On the positive side, a probabilistic rainbow lemma provides the local injectivity needed to force complete bipartite expansions. A rooted-abundance lemma then proves closure under one-point amalgamation, including at singular uncountable cardinals. Deleting the bridges of the Levi graph identifies each remaining active component with the expansion of a finite bipartite graph; the quotient graph is a forest, and its running-intersection property gives the required amalgamation order.
 
-For the converse, we use Li’s one-apex sequence-lift strategy . The lift transfers uncountable chromatic number from a graph to a triple system while controlling every finite linear trace. We prove the required trace statement through expansion fibres and a support-incidence forest, so that the fibres are joined only at cut points. This prevents a bridge-free hyperedge-node or a Berge cycle from being assembled across different fibres. The three failures of the intrinsic conditions are excluded respectively by an Erdős–Rado linear host, the lift of $K_{\omega_1}$, and a classical Erdős–Hajnal graph of uncountable chromatic number and prescribed odd girth.
+On the negative side, we use Li’s one-apex sequence-lift strategy . The lift transfers uncountable chromatic number from a graph to a triple system while controlling every finite linear trace. We prove the required trace statement through expansion fibres and a support-incidence forest, so that the fibres are joined only at cut points. This prevents a bridge-free hyperedge-node or a Berge cycle from being assembled across different fibres. There are exactly three ways to fail the intrinsic test, and each has its own host: an Erdős–Rado linear host excludes nonlinearity, the lift of $K_{\omega_1}$ excludes a missing bridge, and a classical Erdős–Hajnal graph of uncountable chromatic number and prescribed odd girth excludes an odd Berge cycle.
 
 All embeddings are injective and non-induced. The argument is carried out in ZFC. The imported results used as black boxes are the de Bruijn–Erdős compactness theorem , the Erdős–Hajnal high-odd-girth theorem , and the pair case of the Erdős–Rado partition theorem .
 
@@ -789,7 +793,7 @@ Li’s preprint, posted on 23 June 2026, contains the first publicly posted comp
 &\Longleftrightarrow \mathtt{F.isolatedReduction.Intrinsic},\\
 \mathtt{F.IsObligatory}
 &\Longleftrightarrow \mathtt{Constructible\ F.isolatedReduction}.
-\end{aligned}$$ Thus the development verifies both directions of the classification, including the isolated-vertex reduction. Here “finite” refers to the system $F$ being classified; the host triple systems in the definition of obligatoriness remain unrestricted. The formalisation supplements, rather than replaces, mathematical review.
+\end{aligned}$$ Thus the development verifies both directions of the classification, including the isolated-vertex reduction. Here “finite” refers to the system $F$ being classified; host triple systems are not assumed finite and are quantified within the formalisation’s documented ambient-universe convention. The formalisation supplements, rather than replaces, mathematical review.
 
 # Acknowledgments
 

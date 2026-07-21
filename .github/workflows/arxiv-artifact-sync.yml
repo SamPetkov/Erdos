@@ -83,14 +83,15 @@ jobs:
           from pathlib import Path
           import zipfile
 
-          FIXED = (2026, 7, 20, 12, 0, 0)
+          FIXED_593 = (2026, 7, 21, 12, 0, 0)
+          FIXED_625 = (2026, 7, 20, 12, 0, 0)
 
-          def write_zip(target: Path, members: list[tuple[Path, str]]) -> None:
+          def write_zip(target: Path, members: list[tuple[Path, str]], fixed: tuple[int, int, int, int, int, int]) -> None:
               with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
                   for source, name in members:
                       if not source.exists():
                           continue
-                      info = zipfile.ZipInfo(name, FIXED)
+                      info = zipfile.ZipInfo(name, fixed)
                       info.compress_type = zipfile.ZIP_DEFLATED
                       info.external_attr = 0o100644 << 16
                       archive.writestr(info, source.read_bytes())
@@ -100,8 +101,8 @@ jobs:
               root / 'arxiv_preprints' / 'Erdos593_revised_source.zip',
               [
                   (root / 'arxiv_preprints' / 'arxiv_593' / 'main.tex', 'main.tex'),
-                  (root / 'arxiv_preprints' / 'arxiv_593' / 'main.md', 'main.md'),
               ],
+              FIXED_593,
           )
           write_zip(
               root / 'arxiv_preprints' / 'Erdos625_revised_source.zip',
@@ -112,6 +113,7 @@ jobs:
                   (root / '625' / 'arxiv' / 'main.bbl', 'main.bbl'),
                   (root / '625' / 'arxiv' / 'references.bib', 'references.bib'),
               ],
+              FIXED_625,
           )
           PY
           } 2>&1 | tee arxiv-sync.log
