@@ -1,143 +1,49 @@
-name: Finalize Aristotle Section IX arithmetic leaves
+name: Lean
 
 on:
-  pull_request:
-    branches: [main]
+  push:
     paths:
       - "625/formalization/**"
       - ".github/workflows/lean.yml"
-      - ".github/workflows/aristotle-625-asymptotic-leaves.yml"
+  pull_request:
+    paths:
+      - "625/formalization/**"
+      - ".github/workflows/lean.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  finalize:
-    if: github.actor != 'github-actions[bot]'
+  build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref || 'agent/aristotle-625-asymptotic-leaves' }}
-          fetch-depth: 0
-
-      - name: Integrate only the reviewed Aristotle ports
+      - name: Reject proof placeholders and project axioms
         shell: bash
         run: |
-          set -euo pipefail
-          git rm -r 625/formalization/aristotle_submissions/2026-07-21
-          git rm .github/workflows/aristotle-625-asymptotic-leaves.yml
-          python3 - <<'PY'
-          from pathlib import Path
-
-          root = Path('625/formalization/Erdos625.lean')
-          text = root.read_text(encoding='utf-8')
-          line = 'import Erdos625.Section9ResidualAsymptoticArithmetic\n'
-          anchor = 'import Erdos625.Section9AttachmentAsymptotics\n'
-          if line not in text:
-              if anchor not in text:
-                  raise SystemExit('Section IX import anchor not found')
-              text = text.replace(anchor, anchor + line, 1)
-              root.write_text(text, encoding='utf-8', newline='\n')
-          PY
-
-      - name: Reject placeholders, project axioms, and unsafe source
-        shell: bash
-        run: |
-          set -euo pipefail
           if grep -RInE --include='*.lean' \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization; then
             exit 1
           fi
-          ! grep -RInE --include='*.lean' \
-            'native_decide|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' \
-            625/formalization/Erdos625/Section9ResidualAsymptoticArithmetic.lean
-
-      - name: Install Lean 4.31 and fetch the pinned Mathlib cache
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Check the generated self-contained proof is current
+        working-directory: 625/formalization
         shell: bash
-        run: |
-          set -euo pipefail
-          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.31.0
-          cd 625/formalization
-          "$HOME/.elan/bin/lake" update
-          "$HOME/.elan/bin/lake" exe cache get
-
-      - name: Replay the revised theorem and audit its axioms
+        run: python3 scripts/generate_self_contained.py --check
+      - name: Compile the self-contained proof warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
-          set -euo pipefail
-          lake env lean -DwarningAsError=true \
-            Erdos625/Section9ResidualAsymptoticArithmetic.lean \
-            2>&1 | tee section9-arithmetic-axioms.log
-          ! grep -Eq 'sorryAx|declaration uses.*sorry' section9-arithmetic-axioms.log
-          grep -Fq "'Erdos625.largeResidualEnvelope_bound' depends on axioms:" \
-            section9-arithmetic-axioms.log
-
-      - name: Build the integrated project warning-fatally
-        working-directory: 625/formalization
-        shell: bash
-        run: lake build --wfail
-
-      - name: Regenerate and compile the self-contained checkpoint
-        working-directory: 625/formalization
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/generate_self_contained.py
           mkdir -p .lake/build/lib/lean
           lake env lean -DwarningAsError=true Erdos625SelfContained.lean \
             -o .lake/build/lib/lean/Erdos625SelfContained.olean
-          python3 scripts/generate_self_contained.py --check
-
-      - name: Record the completed acceptance gates
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-
-          audit = Path('625/formalization/ARISTOTLE_SECTION9_ASYMPTOTIC_LEAVES_2026-07-21.md')
-          text = audit.read_text(encoding='utf-8')
-          old = (
-              'Until all six gates pass, the Aristotle archives remain quarantined evidence,\n'
-              'not repository proof authority.\n'
-          )
-          new = (
-              'All six acceptance gates passed on the integrated Lean 4.31 branch: exact\n'
-              'statement review, warning-fatal module replay, source and trust scans, the\n'
-              'full modular build, regenerated self-contained compilation, standard-axiom\n'
-              'output, and root-import integration. The tracked Lean 4.31 module is the\n'
-              'proof authority; raw Aristotle archives remain provenance only.\n'
-          )
-          if old in text:
-              text = text.replace(old, new, 1)
-          elif new not in text:
-              raise SystemExit('audit status paragraph not found')
-          audit.write_text(text, encoding='utf-8', newline='\n')
-
-          ledger = Path('625/formalization/FORMALIZATION_LEDGER.md')
-          ledger_text = ledger.read_text(encoding='utf-8')
-          marker = '## Aristotle Section IX asymptotic arithmetic — 2026-07-21'
-          if marker not in ledger_text:
-              ledger_text += f'''\n\n{marker}\n\nThe following exact finite arithmetic leaves are now proved and imported:\n\n- `smallResidualExponent_bound`;\n- `ennreal_two_pow_nat_le_of_log_bound`;\n- `largeResidualEnvelope_bound`.\n\nThey passed warning-fatal Lean 4.31 replay, the complete modular build,\nself-contained regeneration and compilation, source scanning, and the standard\nMathlib axiom audit. They provide the small-residual `O(n / L^5)` exponent, the\nfinite `ENNReal` two-power transport, and the strict large-residual `O(L^8)`\nenvelope. They do not establish the eventual concrete parameter hypotheses, the\nfull Section IX attachment estimate, Proposition 9.2, or `Erdos625Statement`.\n'''
-              ledger.write_text(ledger_text, encoding='utf-8', newline='\n')
-          PY
-
-      - name: Restore normal CI and commit the validated integration
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f 625/formalization/section9-arithmetic-axioms.log
-          git show origin/main:.github/workflows/lean.yml > .github/workflows/lean.yml
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Accept three Aristotle-checked Section IX arithmetic leaves'
-          git push origin HEAD:agent/aristotle-625-asymptotic-leaves

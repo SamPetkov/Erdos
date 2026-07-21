@@ -57,5 +57,8 @@ The candidate Lean 4.31 port is
 5. a standard-axiom `#print axioms` report;
 6. integration into the root import graph and formalization ledger.
 
-Until all six gates pass, the Aristotle archives remain quarantined evidence,
-not repository proof authority.
+All six acceptance gates passed on the integrated Lean 4.31 branch: exact
+statement review, warning-fatal module replay, source and trust scans, the
+full modular build, regenerated self-contained compilation, standard-axiom
+output, and root-import integration. The tracked Lean 4.31 module is the
+proof authority; raw Aristotle archives remain provenance only.
