@@ -591,3 +591,19 @@ concrete root separation.  None of the adapters proves those inputs or
 the user's direction, a private arXiv-style
 layout is being prepared in parallel; it is not evidence that
 `Erdos625Statement` has been kernel-checked.
+
+
+## Aristotle Section IX asymptotic arithmetic — 2026-07-21
+
+The following exact finite arithmetic leaves are now proved and imported:
+
+- `smallResidualExponent_bound`;
+- `ennreal_two_pow_nat_le_of_log_bound`;
+- `largeResidualEnvelope_bound`.
+
+They passed warning-fatal Lean 4.31 replay, the complete modular build,
+self-contained regeneration and compilation, source scanning, and the standard
+Mathlib axiom audit. They provide the small-residual `O(n / L^5)` exponent, the
+finite `ENNReal` two-power transport, and the strict large-residual `O(L^8)`
+envelope. They do not establish the eventual concrete parameter hypotheses, the
+full Section IX attachment estimate, Proposition 9.2, or `Erdos625Statement`.
