@@ -1,91 +1,80 @@
-name: Finalize Aristotle 625 asymptotic leaves
+name: Aristotle 625 large-residual retry
 
 on:
   push:
     branches: [agent/aristotle-625-asymptotic-leaves]
     paths:
-      - '625/formalization/Erdos625/Section9ResidualAsymptoticArithmetic.lean'
-      - '625/formalization/ARISTOTLE_SECTION9_ASYMPTOTIC_LEAVES_2026-07-21.md'
+      - '625/formalization/aristotle_submissions/2026-07-21/large_residual_envelope/**'
       - '.github/workflows/aristotle-625-asymptotic-leaves.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  finalize:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
+  retry-large-residual-envelope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
+      PROJECT: 625/formalization/aristotle_submissions/2026-07-21/large_residual_envelope
+      SOURCE: AristotleLargeResidualEnvelope/Main.lean
+      OUTPUT: ${{ runner.temp }}/aristotle-large-residual-envelope-retry.tar.gz
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: agent/aristotle-625-asymptotic-leaves
-          fetch-depth: 0
 
-      - name: Remove one-hole submission projects and integrate the accepted module
+      - name: Validate the revised one-hole request
+        working-directory: ${{ env.PROJECT }}
         run: |
           set -euo pipefail
-          git rm -r 625/formalization/aristotle_submissions/2026-07-21
-          git rm .github/workflows/aristotle-625-asymptotic-leaves.yml
-          python3 - <<'PY'
-          from pathlib import Path
+          test "$(grep -R --include='*.lean' -Ec '^[[:space:]]*sorry[[:space:]]*$' . | awk -F: '{s += $2} END {print s + 0}')" = 1
+          ! grep -REn --include='*.lean' \
+            '(^|[[:space:]])(admit|axiom|unsafe|native_decide)([[:space:]]|$)|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' .
 
-          root = Path('625/formalization/Erdos625.lean')
-          text = root.read_text(encoding='utf-8')
-          line = 'import Erdos625.Section9ResidualAsymptoticArithmetic\n'
-          anchor = 'import Erdos625.Section9AttachmentAsymptotics\n'
-          if line not in text:
-              if anchor not in text:
-                  raise SystemExit('Section IX import anchor not found')
-              text = text.replace(anchor, anchor + line, 1)
-              root.write_text(text, encoding='utf-8', newline='\n')
-          PY
-
-      - name: Reject placeholders, project axioms, and unsafe source
+      - name: Install the pinned Aristotle Lean toolchain
         run: |
           set -euo pipefail
-          if grep -RInE --include='*.lean' \
-            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
-            625/formalization; then
-            exit 1
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.28.0
+
+      - name: Elaborate the revised request locally
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+          lake env lean "$SOURCE"
+
+      - name: Require the encrypted Aristotle key
+        run: |
+          set -euo pipefail
+          if [ -z "${ARISTOTLE_API_KEY:-}" ]; then
+            echo '::error::ARISTOTLE_API_KEY is not configured.'
+            exit 3
           fi
-          ! grep -RInE --include='*.lean' \
-            'native_decide|set_option[[:space:]]+maxHeartbeats[[:space:]]+0|grind[[:space:]]+\+suggestions' \
-            625/formalization/Erdos625/Section9ResidualAsymptoticArithmetic.lean
 
-      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+      - name: Install the official Aristotle client
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'aristotlelib==2.1.0'
+          aristotle --version
+
+      - name: Ask Aristotle for a Lean-4.31-portable replacement proof
+        run: |
+          set -euo pipefail
+          prompt='Prove the named theorem largeResidualEnvelope_bound without changing any binder, hypothesis, conclusion, or quantifier order. This is a retry after a previous service proof compiled on Lean 4.28 but failed when ported to Lean 4.31. The failed proof used convert/calc around the third term and produced mismatched goals between 6*kappaQ*(H*U^3/m), 6*H*(kappaQ*U^3/m), and 12*kappaQ*C_U^2*L^8. Return a robust proof that avoids orientation-sensitive convert steps. Prefer explicit transitivity, ring normalization, field cancellation using hn.ne and hm0.ne, and termwise inequalities. Check every intermediate expression against the exact target. Do not use sorry, admit, new axioms, unsafe, native_decide, set_option maxHeartbeats 0, or grind +suggestions. Do not add assumptions or helper axioms. Return the smallest checked patch and include no change outside the target project.'
+          aristotle submit "$prompt" \
+            --project-dir "$PROJECT" \
+            --wait \
+            --destination "$OUTPUT"
+
+      - name: Upload quarantined retry return
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          lake-package-directory: 625/formalization
-          auto-config: false
-          build: true
-          build-args: --wfail
-          use-mathlib-cache: true
-          use-github-cache: false
-          nanoda: false
-
-      - name: Compile the accepted module warning-fatally
-        working-directory: 625/formalization
-        run: |
-          set -euo pipefail
-          lake env lean -DwarningAsError=true \
-            Erdos625/Section9ResidualAsymptoticArithmetic.lean
-
-      - name: Regenerate and compile the self-contained proof
-        working-directory: 625/formalization
-        run: |
-          set -euo pipefail
-          python3 scripts/generate_self_contained.py
-          mkdir -p .lake/build/lib/lean
-          lake env lean -DwarningAsError=true Erdos625SelfContained.lean \
-            -o .lake/build/lib/lean/Erdos625SelfContained.olean
-          python3 scripts/generate_self_contained.py --check
-
-      - name: Commit the validated integration
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Accept three Aristotle-checked Section IX arithmetic leaves'
-          git push origin HEAD:agent/aristotle-625-asymptotic-leaves
+          name: aristotle-large-residual-envelope-retry
+          path: ${{ env.OUTPUT }}
+          if-no-files-found: warn
+          retention-days: 30
