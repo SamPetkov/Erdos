@@ -176,8 +176,8 @@ structure NearCompletion
     (row : A -> Nat) (col : B -> Nat) (U : Nat)
     (endpoint : A -> B -> Nat) where
   high : CappedPhysicalHighFibre row col U
-  prefix : NearPrefix endpoint high
-  no_further_near : NoFurtherNear endpoint high prefix
+  nearPrefix : NearPrefix endpoint high
+  no_further_near : NoFurtherNear endpoint high nearPrefix
 
 /-- The physical middle-high complement of a completed raw split. -/
 def NearCompletion.middleHighEdges
@@ -187,7 +187,7 @@ def NearCompletion.middleHighEdges
     {endpoint : A -> B -> Nat}
     (C : NearCompletion row col U endpoint) :
     Finset (RowStub row × ColumnStub col) :=
-  C.high.physical.1.edges \ C.prefix.physical.edges
+  C.high.physical.1.edges \ C.nearPrefix.physical.edges
 
 /-- The middle multiplicity table, formed by removing the whole-cell near
 prefix from the existing physical high-skeleton fibre. -/
@@ -197,7 +197,7 @@ def NearCompletion.middleTable
     {row : A -> Nat} {col : B -> Nat} {U : Nat}
     {endpoint : A -> B -> Nat}
     (C : NearCompletion row col U endpoint) : A -> B -> Nat :=
-  fun a b => C.high.demand.1 a b - C.prefix.physical.typeTable a b
+  fun a b => C.high.demand.1 a b - C.nearPrefix.physical.typeTable a b
 
 /-- The raw finite indicator of the no-further-near condition. It is an
 integrand component only: it is not a conditional probability. -/
@@ -238,7 +238,8 @@ noncomputable def rawMiddleIntegrand
     (g : Nat -> ENNReal)
     (H : CappedPhysicalHighFibre row col U)
     (P : NearPrefix endpoint H) : ENNReal :=
-  noFurtherNearIndicator H P * rawMiddleCellProduct g H
+  noFurtherNearIndicator (endpoint := endpoint) H P *
+    rawMiddleCellProduct (endpoint := endpoint) g H
 
 /-- Raw lossless endpoint--near--middle data. The source high skeleton is
 not copied: its physical edge set must be reconstructed from the disjoint
@@ -262,9 +263,9 @@ def encodeRawNearMiddle
     (endpoint : A -> B -> Nat)
     (C : NearCompletion row col U endpoint) :
     RawNearMiddleData row col where
-  endpointTable := C.prefix.endpointTable
-  nearDeficit := C.prefix.deficit
-  nearEdges := C.prefix.physical.edges
+  endpointTable := C.nearPrefix.endpointTable
+  nearDeficit := C.nearPrefix.deficit
+  nearEdges := C.nearPrefix.physical.edges
   middleHighEdges := C.middleHighEdges
 
 /-- Reconstruct the physical high edge set from a raw encoding. -/
