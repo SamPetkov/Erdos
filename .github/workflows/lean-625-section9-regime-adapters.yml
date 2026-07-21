@@ -37,14 +37,13 @@ jobs:
           cd 625/formalization
           "$HOME/.elan/bin/lake" update
           "$HOME/.elan/bin/lake" exe cache get
-      - name: Compile adapter warning-fatally
+      - name: Compile adapter and dependency closure warning-fatally
         id: compile
         continue-on-error: true
         working-directory: 625/formalization
         run: |
           set -o pipefail
-          lake env lean -DwarningAsError=true \
-            Erdos625/Section9ResidualRegimeScaleAdapters.lean \
+          lake build --wfail Erdos625.Section9ResidualRegimeScaleAdapters \
             2>&1 | tee section9-regime-adapters.log
       - name: Upload replay diagnostics
         if: steps.compile.outcome == 'failure'
