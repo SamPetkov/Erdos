@@ -1,6 +1,11 @@
 name: Aristotle 625 asymptotic leaves
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '625/formalization/aristotle_submissions/2026-07-21/**'
+      - '.github/workflows/aristotle-625-asymptotic-leaves.yml'
   push:
     branches: [agent/aristotle-625-asymptotic-leaves]
     paths:
