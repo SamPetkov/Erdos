@@ -55,7 +55,7 @@ jobs:
         with:
           lake-package-directory: ${{ matrix.project }}
           auto-config: false
-          use-mathlib-cache: true
+          use-mathlib-cache: false
 
       - name: Elaborate the one-hole project locally
         working-directory: ${{ matrix.project }}
