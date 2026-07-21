@@ -1,0 +1,45 @@
+name: Lean 625 Section IX regime adapters
+
+on:
+  push:
+    branches: [agent/625-section9-regime-adapters]
+    paths:
+      - '625/formalization/Erdos625/Section9ResidualRegimeScaleAdapters.lean'
+      - '.github/workflows/lean-625-section9-regime-adapters.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '625/formalization/Erdos625/Section9ResidualRegimeScaleAdapters.lean'
+      - '.github/workflows/lean-625-section9-regime-adapters.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      - name: Reject unsafe accepted source
+        run: |
+          set -euo pipefail
+          ! grep -En '(^|[[:space:]])(sorry|admit|sorryAx|axiom|unsafe|native_decide)([[:space:][:punct:]]|$)|set_option[[:space:]]+maxHeartbeats[[:space:]]+0' \
+            625/formalization/Erdos625/Section9ResidualRegimeScaleAdapters.lean
+      - name: Install Lean 4.31 and fetch Mathlib cache
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.31.0
+          cd 625/formalization
+          "$HOME/.elan/bin/lake" update
+          "$HOME/.elan/bin/lake" exe cache get
+      - name: Compile adapter warning-fatally
+        working-directory: 625/formalization
+        run: |
+          set -euo pipefail
+          lake env lean -DwarningAsError=true \
+            Erdos625/Section9ResidualRegimeScaleAdapters.lean
