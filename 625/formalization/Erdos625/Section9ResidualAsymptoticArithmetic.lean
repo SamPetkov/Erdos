@@ -26,16 +26,16 @@ theorem smallResidualExponent_bound
     (hn : 0 ≤ n)
     (hL : 0 < L)
     (hU0 : 0 ≤ U)
-    (hm0 : 0 ≤ m)
-    (hC : 0 ≤ C)
+    (_hm0 : 0 ≤ m)
+    (_hC : 0 ≤ C)
     (hU : U ≤ C * L)
     (hm : m ≤ n / L ^ 6) :
     Real.log 2 * (U * m / 2) ≤
       (C * Real.log 2 / 2) * (n / L ^ 5) := by
   rw [le_div_iff₀ (by positivity)] at hm
   field_simp
-  nlinarith [mul_le_mul_of_nonneg_left hU hm0,
-    mul_le_mul_of_nonneg_left hm hC, pow_pos hL 5, pow_pos hL 6]
+  nlinarith [mul_le_mul_of_nonneg_left hU _hm0,
+    mul_le_mul_of_nonneg_left hm _hC, pow_pos hL 5, pow_pos hL 6]
 
 /-- A real upper bound on `log 2 * N` bounds the corresponding finite
 `ENNReal` power by `ofReal (exp x)`. -/
@@ -86,8 +86,8 @@ theorem largeResidualEnvelope_bound
           (by positivity) (by positivity))
         h1m_le_L6n (by positivity) (by positivity) using 1 <;> ring
     convert mul_le_mul_of_nonneg_left h_term3_bound
-      (show 0 ≤ 6 * kappaQ by positivity) using 1 <;> ring_nf
-    norm_num [hn.ne']
+      (show 0 ≤ 6 * kappaQ by positivity) using 1 <;>
+        field_simp [hn.ne', hm0.ne'] <;> ring
   have h_term1 : kappaLambda * U ^ 4 / m ≤
       kappaLambda * C_U ^ 4 * L ^ 8 := by
     have h_term1 : kappaLambda * U ^ 4 / m ≤
@@ -106,12 +106,11 @@ theorem largeResidualEnvelope_bound
         show 0 ≤ kappaLambda * C_U ^ 4 * L ^ 8 by positivity]
   have h_term2 : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
       2 * kappaQ ^ 4 * C_U ^ 12 * L ^ 36 / n ^ 3 := by
-    have h_term2 : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
+    have h_term2' : 2 * A * (kappaQ * U ^ 3 / m) ^ 4 ≤
         2 * n * (kappaQ * (C_U * L) ^ 3 / (n / L ^ 6)) ^ 4 := by
       gcongr
-    convert h_term2 using 1 <;> ring_nf <;>
-      norm_num [hn.ne', hL.ne'] <;> ring_nf
-    field_simp [hn.ne']
+    convert h_term2' using 1 <;>
+      field_simp [hn.ne', hL.ne', hm0.ne'] <;> ring
   have h_L36_div_n3_le_L8 : L ^ 36 / n ^ 3 ≤ L ^ 8 := by
     rw [div_le_iff₀] <;>
       first | positivity | nlinarith [pow_pos hL 8, pow_pos hL 28]
