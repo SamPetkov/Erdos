@@ -18382,7 +18382,7 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: c434d7c721fdf7f32a7022c6c5feac8f63b254cdbd4f79293e40938f31d13911
+Normalized SHA-256: 7908f89a168543409738b41ca7fe317a289120dc973ee686c2b31c730dac867b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -18470,6 +18470,39 @@ theorem fourDeficitEmbedding_profile_invariants
       rw [fourDeficitEmbedding]
       simp [hc]
     exact hj hz
+
+/-- The four-deficit embedding has the prescribed value at each distinguished
+coordinate and vanishes away from the four distinguished coordinates. -/
+theorem fourDeficitEmbedding_eval_and_off_image
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 → Nat) :
+    (∀ i : Fin 4,
+      fourDeficitEmbedding alpha hAlpha m
+        (fourDeficitCoordinate alpha hAlpha i) = m i) ∧
+    (∀ j : Fin (alpha + 1),
+      (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
+        fourDeficitEmbedding alpha hAlpha m j = 0) := by
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+    intro i k hik
+    have h := congrArg (profileDeficit alpha) hik
+    rw [profileDeficit_fourDeficitCoordinate,
+      profileDeficit_fourDeficitCoordinate] at h
+    simp [fourDeficit] at h
+    exact Fin.ext h
+  constructor
+  · intro i
+    unfold fourDeficitEmbedding
+    rw [Finset.sum_eq_single i]
+    · simp
+    · intro k _ hki
+      simp [hcoord.ne hki]
+    · simp
+  · intro j hj
+    unfold fourDeficitEmbedding
+    apply Finset.sum_eq_zero
+    intro i _
+    simp [hj i]
+
+#print axioms fourDeficitEmbedding_eval_and_off_image
 
 end
 
@@ -60867,7 +60900,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 21cbd4f373bfd6656e4e7ae3ec3a35f1b9704cae57f9f009d3b80c9ff307229a
+Normalized SHA-256: a794e619a60c363f6d388989d8f09e1953523a5d70903c2cc1f9a307e7cbd6ad
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61747,6 +61780,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
+#print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
 #print axioms Erdos625.fourEndpoint_global_transport
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement

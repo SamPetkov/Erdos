@@ -1176,6 +1176,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
+#print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
 #print axioms Erdos625.fourEndpoint_global_transport
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement

@@ -85,6 +85,39 @@ theorem fourDeficitEmbedding_profile_invariants
       simp [hc]
     exact hj hz
 
+/-- The four-deficit embedding has the prescribed value at each distinguished
+coordinate and vanishes away from the four distinguished coordinates. -/
+theorem fourDeficitEmbedding_eval_and_off_image
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 → Nat) :
+    (∀ i : Fin 4,
+      fourDeficitEmbedding alpha hAlpha m
+        (fourDeficitCoordinate alpha hAlpha i) = m i) ∧
+    (∀ j : Fin (alpha + 1),
+      (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
+        fourDeficitEmbedding alpha hAlpha m j = 0) := by
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+    intro i k hik
+    have h := congrArg (profileDeficit alpha) hik
+    rw [profileDeficit_fourDeficitCoordinate,
+      profileDeficit_fourDeficitCoordinate] at h
+    simp [fourDeficit] at h
+    exact Fin.ext h
+  constructor
+  · intro i
+    unfold fourDeficitEmbedding
+    rw [Finset.sum_eq_single i]
+    · simp
+    · intro k _ hki
+      simp [hcoord.ne hki]
+    · simp
+  · intro j hj
+    unfold fourDeficitEmbedding
+    apply Finset.sum_eq_zero
+    intro i _
+    simp [hj i]
+
+#print axioms fourDeficitEmbedding_eval_and_off_image
+
 end
 
 end Erdos625
