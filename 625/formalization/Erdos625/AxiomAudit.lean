@@ -80,6 +80,7 @@ import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
 import Erdos625.PhaseRootAlgebraicNoLogBound
 import Erdos625.PhaseRootCenterLogBound
+import Erdos625.PhaseRootAlgebraicCoreBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
 import Erdos625.PhaseRootSelectedDeficitBound
@@ -91,6 +92,7 @@ import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourDeficitGaussianBound
+import Erdos625.FiniteFourVsExtendedEntropyLoss
 import Erdos625.Section9RealSeedMidpointCanonicalPolymer
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
@@ -1178,12 +1180,14 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
 #print axioms Erdos625.phaseRootAlgebraicNoLog_sub_logOrder_isBigO
 #print axioms Erdos625.logOrder_sub_log_phaseRootCenter_isBigO
+#print axioms Erdos625.phaseRootAlgebraicCore_isBigO
 #print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
+#print axioms Erdos625.finiteFourVsExtendedEntropyLoss_nonneg
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_largeResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp

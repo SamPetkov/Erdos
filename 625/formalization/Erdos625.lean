@@ -85,6 +85,7 @@ import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
 import Erdos625.PhaseRootAlgebraicNoLogBound
 import Erdos625.PhaseRootCenterLogBound
+import Erdos625.PhaseRootAlgebraicCoreBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
 import Erdos625.PhaseRootSelectedDeficitBound
@@ -96,6 +97,7 @@ import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
 import Erdos625.FourDeficitGaussianBound
+import Erdos625.FiniteFourVsExtendedEntropyLoss
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
