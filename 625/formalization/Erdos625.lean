@@ -84,6 +84,8 @@ import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
 import Erdos625.PhaseRootCenterLogBound
+import Erdos625.PhaseRootScalarCore
+import Erdos625.PhaseRootSelectedDeficitBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope

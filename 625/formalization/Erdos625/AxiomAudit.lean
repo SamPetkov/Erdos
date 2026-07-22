@@ -79,6 +79,8 @@ import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
 import Erdos625.PhaseRootCenterLogBound
+import Erdos625.PhaseRootScalarCore
+import Erdos625.PhaseRootSelectedDeficitBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -1169,6 +1171,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootDeficitTarget_eq
 #print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
 #print axioms Erdos625.logOrder_sub_log_phaseRootCenter_isBigO
+#print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
+#print axioms Erdos625.phaseRootScalarTerm_eq_core
+#print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted

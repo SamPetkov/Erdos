@@ -19660,6 +19660,165 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterLogBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarCore
+Source: Erdos625/PhaseRootScalarCore.lean
+Normalized SHA-256: 2754237f2c9033f995ad4e999b8d1d63a47243576907138be09ee0d74f4af1e8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarCore
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
+    (hn : PhaseDomain n) (hs0 : 0 < phaseRootS0 n)
+    (ha : 0 < phaseNat n) :
+    phaseRootScalarTerm n =
+      phaseStirlingMain n (phaseNat n) +
+        phaseRootDeficitTarget n *
+          (profileDeficitAffineB (phaseNat n) - logOrder n) -
+        phaseRootS0 n + 1 - Real.log (phaseRootCenter n) -
+        stirlingLogRemainder (phaseNat n) := by
+  have hnPos : (0 : ℝ) < n := by exact_mod_cast hn.1
+  have hnNe : (n : ℝ) ≠ 0 := hnPos.ne'
+  have hs0Ne : phaseRootS0 n ≠ 0 := ne_of_gt hs0
+  have hdiv : (n : ℝ) / phaseRootCenter n = phaseRootS0 n := by
+    unfold phaseRootCenter
+    field_simp [hnNe, hs0Ne]
+  have hquot :
+      ((n : ℝ) * Real.log (n : ℝ) - n) / phaseRootCenter n =
+        phaseRootS0 n * (Real.log (n : ℝ) - 1) := by
+    calc
+      ((n : ℝ) * Real.log (n : ℝ) - n) / phaseRootCenter n =
+          ((n : ℝ) / phaseRootCenter n) * Real.log (n : ℝ) -
+            (n : ℝ) / phaseRootCenter n := by ring
+      _ = phaseRootS0 n * (Real.log (n : ℝ) - 1) := by rw [hdiv]; ring
+  have haReal : (0 : ℝ) < phaseNat n := by exact_mod_cast ha
+  have hChoose :
+      ((phaseNat n).choose 2 : ℝ) =
+        (phaseNat n : ℝ) * ((phaseNat n : ℝ) - 1) / 2 := by
+    simpa using (Nat.cast_choose_two ℝ (phaseNat n) :
+      ((phaseNat n).choose 2 : ℝ) =
+        (phaseNat n : ℝ) * ((phaseNat n : ℝ) - 1) / 2)
+  have hLogProduct :
+      Real.log (2 * Real.pi * (phaseNat n : ℝ)) =
+        Real.log (2 * Real.pi) + Real.log (phaseNat n : ℝ) := by
+    rw [Real.log_mul (by positivity : (2 * Real.pi : ℝ) ≠ 0) haReal.ne']
+  simp only [phaseRootScalarTerm, profileDeficitAffineA,
+    coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
+  rw [hquot, hLogProduct, hChoose]
+  ring
+
+theorem phaseRootScalarTerm_eq_core {n : ℕ}
+    (hn : PhaseDomain n) (hs0 : 0 < phaseRootS0 n)
+    (ha : 0 < phaseNat n) :
+    phaseRootScalarTerm n =
+      phaseRootAlgebraicCore n + phaseExpansionResidual n -
+        phaseStirlingResidual n - stirlingLogRemainder (phaseNat n) := by
+  rw [phaseRootScalarTerm_eq_stirlingForm hn hs0 ha]
+  simp only [phaseRootAlgebraicCore, phaseExpansionResidual,
+    phaseStirlingResidual]
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootScalarCore
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootScalarCore
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
+Source: Erdos625/PhaseRootSelectedDeficitBound.lean
+Normalized SHA-256: 54577f50c65c5873da05d559940f1ff91bc2e16f0ee76732d65f3fa67ba8baad
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootSelectedDeficitBound
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseRootSelectedDeficitTerm_isBigO_one :
+    phaseRootSelectedDeficitTerm =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+  have hA : (-1 : ℝ) < 2 / q := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  have hAB : (2 / q : ℝ) ≤ 1 + 2 / q := by linarith
+  obtain ⟨M, hM, huniform⟩ :=
+    exists_eventually_forall_mem_Icc_abs_profileDeficitTilt_le hA hAB
+  rw [isBigO_iff]
+  refine ⟨M * max |2 / q| |1 + 2 / q| +
+      (Real.exp M + Real.exp (M ^ 2 / q) *
+        (1 / (1 - Real.exp (-q / 4)))), ?_⟩
+  obtain ⟨N, hN⟩ := (eventually_atTop.1 huniform)
+  have hphaseLarge : ∀ᶠ n : ℕ in atTop, N ≤ phaseNat n := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact_mod_cast hn.trans hphase.1
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      hphaseLarge, eventually_two_le_phaseNat] with n hn hlarge hphasePos
+  have htilt := (hN (phaseNat n) hlarge
+    (phaseRootDeficitTarget n) (by
+      simpa [phaseRootDeficitTarget] using hn.2.2)).2
+  have hpartLower := one_le_profileDeficitPartition
+    (phaseNat n) (by omega)
+    (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))
+  have hpartUpper := profileDeficitPartition_le_gaussianEnvelope
+    (phaseNat n) (by omega) htilt
+  have htargetAbs :
+      |phaseRootDeficitTarget n| ≤ max |2 / q| |1 + 2 / q| :=
+    abs_le_max_abs_abs
+      (by simpa [phaseRootDeficitTarget] using hn.2.2.1)
+      (by simpa [phaseRootDeficitTarget] using hn.2.2.2)
+  rw [Real.norm_eq_abs, phaseRootSelectedDeficitTerm]
+  calc
+    |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+        profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          phaseRootDeficitTarget n| ≤
+        |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)))| +
+        |profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          phaseRootDeficitTarget n| := abs_sub _ _
+    _ ≤ (Real.exp M + Real.exp (M ^ 2 / q) *
+          (1 / (1 - Real.exp (-q / 4)))) +
+        M * max |2 / q| |1 + 2 / q| := by
+      rw [abs_mul]
+      gcongr
+      · rw [abs_of_nonneg (Real.log_nonneg hpartLower)]
+        exact (Real.log_le_sub_one_of_pos
+          (profileDeficitPartition_pos _ _)).trans
+            (by linarith)
+    _ = (M * max |2 / q| |1 + 2 / q| +
+        (Real.exp M + Real.exp (M ^ 2 / q) *
+          (1 / (1 - Real.exp (-q / 4))))) * ‖(1 : ℝ)‖ := by
+      norm_num
+      ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootSelectedDeficitBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -61871,7 +62030,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2d26d15a656eabe0d382886d46736e80f964222d987d5889f946cd30b034d38f
+Normalized SHA-256: bb84d3ced95781aaa5bc4eb4571c729c87674d22b0c988c2f8c52d5f3bf3c964
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -62730,6 +62889,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootDeficitTarget_eq
 #print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
 #print axioms Erdos625.logOrder_sub_log_phaseRootCenter_isBigO
+#print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
+#print axioms Erdos625.phaseRootScalarTerm_eq_core
+#print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
@@ -62780,7 +62942,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 4ae1edbec85c3e3fa1ea62fef0f95e03fae4581a92b554bd6c2e31b09f8bbc50
+Normalized SHA-256: 4c792eec6e183e346dad66ab05d8b07a6933342dc08dbca6b6e8572a5f0c2331
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
