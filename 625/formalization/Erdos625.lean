@@ -281,6 +281,8 @@ import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.Section8EndpointFoundation
 import Erdos625.Section8EndpointProfileIndexing
+import Erdos625.Section8EndpointMassFacts
+import Erdos625.Section8EndpointLocalCellFactor
 import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
 import Erdos625.Section8RowAssignmentExpansion

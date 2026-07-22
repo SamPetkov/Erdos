@@ -55510,6 +55510,220 @@ END SOURCE MODULE: Erdos625.Section8EndpointProfileIndexing
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointMassFacts
+Source: Erdos625/Section8EndpointMassFacts.lean
+Normalized SHA-256: 0808e7d42a6515664bd35b3d25ec4767517c7f0d7055760e3dcd3570459f8be9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointMassFacts
+
+/-!
+# Target B: exact endpoint mass identities
+
+The conclusion combines the two monotonicity facts and the exact identity
+equivalent to manuscript (8.11). No `Q_ij` inequality is asserted.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+theorem fourEndpoint_mass_facts
+    (alpha : Nat) (hAlpha : 5 < alpha) (L : FourEndpointFullTable) :
+    FourEndpointMassFacts alpha hAlpha L := by
+  have hs (i : Fin 4) :
+      fourEndpointSize alpha hAlpha i = alpha - (i.val + 2) := by
+    fin_cases i <;>
+      simp [fourEndpointSize, fourEndpointCoordinate, fourDeficitCoordinate,
+        fourDeficit, Fin.rev, Fin.succ] <;> omega
+  have hleRow (i j : Fin 4) :
+      fourEndpointOverlapSize alpha hAlpha i j ≤
+        fourEndpointSize alpha hAlpha i := Nat.min_le_left _ _
+  have hleCol (i j : Fin 4) :
+      fourEndpointOverlapSize alpha hAlpha i j ≤
+        fourEndpointSize alpha hAlpha j := Nat.min_le_right _ _
+  have hcell (i j : Fin 4) :
+      fourEndpointSize alpha hAlpha i + fourEndpointSize alpha hAlpha j =
+        2 * fourEndpointOverlapSize alpha hAlpha i j + Nat.dist i.val j.val := by
+    fin_cases i <;> fin_cases j <;>
+      simp [hs, fourEndpointOverlapSize, Nat.dist] <;> omega
+  constructor
+  · unfold fourEndpointJ fourEndpointRowMass fourEndpointMarginMass
+      fourEndpointRowMargin
+    simp_rw [Finset.mul_sum]
+    exact Finset.sum_le_sum fun i _ =>
+      Finset.sum_le_sum fun j _ => Nat.mul_le_mul_right _ (hleRow i j)
+  constructor
+  · unfold fourEndpointJ fourEndpointColumnMass fourEndpointMarginMass
+      fourEndpointColumnMargin
+    simp_rw [Finset.mul_sum]
+    rw [Finset.sum_comm]
+    exact Finset.sum_le_sum fun j _ =>
+      Finset.sum_le_sum fun i _ => Nat.mul_le_mul_right _ (hleCol i j)
+  · unfold fourEndpointJ fourEndpointRowMass fourEndpointColumnMass
+      fourEndpointMarginMass fourEndpointRowMargin fourEndpointColumnMargin
+      fourEndpointDisplacement
+    simp_rw [Finset.mul_sum]
+    rw [← Finset.sum_comm (f := fun i j => fourEndpointSize alpha hAlpha j * L.toFun i j)]
+    rw [← Finset.sum_add_distrib]
+    simp_rw [← Finset.sum_add_distrib, ← add_mul, hcell, add_mul]
+    simp only [Finset.sum_add_distrib]
+    simp [mul_assoc]
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointMassFacts
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointMassFacts
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointLocalCellFactor
+Source: Erdos625/Section8EndpointLocalCellFactor.lean
+Normalized SHA-256: 7d20b74c28fe2295e49cf6d0b4f225db58263bd471e15bc4dc57150d75a3dd22
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointLocalCellFactor
+
+namespace Erdos625
+
+open scoped ENNReal
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The diagonal local factor at a cell of lower endpoint size `u`. -/
+noncomputable def fourEndpointSizeDiagonalFactor (u : Nat) : ENNReal :=
+  (u.factorial : ENNReal) * (localSignRewardNat u : ENNReal)
+
+/-- A local endpoint factor reduces to its lower diagonal factor times the
+binomial choice of the distance coordinates. -/
+theorem fourEndpointLocalCellFactor_eq_lowerDiagonal_mul_choose
+    (alpha : Nat) (hAlpha : 5 < alpha) (i j : Fin 4) :
+    fourEndpointLocalCellFactor alpha hAlpha i j =
+      fourEndpointSizeDiagonalFactor
+        (fourEndpointLowerSize alpha hAlpha i j) *
+      (Nat.choose
+        (fourEndpointUpperSize alpha hAlpha i j)
+        (fourEndpointDistance i j) : ENNReal) := by
+  have hfactor (a b : Nat) :
+      ((a.descFactorial (min a b) : ENNReal) *
+          (b.descFactorial (min a b) : ENNReal) /
+            ((min a b).factorial : ENNReal)) =
+        ((min a b).factorial : ENNReal) *
+          (Nat.choose (max a b) (max a b - min a b) : ENNReal) := by
+    wlog h : a ≤ b generalizing a b
+    · rw [min_comm, max_comm, mul_comm]
+      exact this b a (le_of_not_ge h)
+    rw [min_eq_left h, max_eq_right h, Nat.descFactorial_self,
+      Nat.descFactorial_eq_factorial_mul_choose]
+    push_cast
+    rw [mul_div_assoc, ENNReal.mul_div_cancel]
+    · rw [Nat.choose_symm h]
+    · exact_mod_cast Nat.factorial_ne_zero a
+    · exact ENNReal.coe_ne_top
+  have hsize (k : Fin 4) :
+      fourEndpointSize alpha hAlpha k = alpha - 2 - k.val := by
+    unfold fourEndpointSize fourEndpointCoordinate fourDeficitCoordinate
+    simp [fourDeficit]
+    omega
+  have hdist :
+      max (fourEndpointSize alpha hAlpha i) (fourEndpointSize alpha hAlpha j) -
+          min (fourEndpointSize alpha hAlpha i) (fourEndpointSize alpha hAlpha j) =
+        fourEndpointDistance i j := by
+    rw [hsize, hsize, fourEndpointDistance, Nat.dist_eq_max_sub_min]
+    by_cases hij : i.val ≤ j.val
+    · have hs : alpha - 2 - j.val ≤ alpha - 2 - i.val := by omega
+      rw [max_eq_left hs, min_eq_right hs, max_eq_right hij, min_eq_left hij]
+      omega
+    · have hji : j.val ≤ i.val := by omega
+      have hs : alpha - 2 - i.val ≤ alpha - 2 - j.val := by omega
+      rw [max_eq_right hs, min_eq_left hs, max_eq_left hji, min_eq_right hji]
+      omega
+  simp only [fourEndpointLocalCellFactor]
+  unfold fourEndpointOverlapSize fourEndpointSizeDiagonalFactor
+    fourEndpointLowerSize fourEndpointUpperSize
+  rw [hfactor, hdist]
+  ac_rfl
+
+/-- Exact diagonal-factor transport between two ordered four-endpoint sizes. -/
+theorem fourEndpointSizeDiagonalFactor_ratio
+    (alpha : Nat) (hAlpha : 5 < alpha) (hHigh : 8 < alpha)
+    (i j : Fin 4)
+    (hij : fourEndpointSize alpha hAlpha i ≤ fourEndpointSize alpha hAlpha j) :
+    fourEndpointSizeDiagonalFactor (fourEndpointSize alpha hAlpha j) =
+      fourEndpointSizeDiagonalFactor (fourEndpointSize alpha hAlpha i) *
+        ((fourEndpointSize alpha hAlpha j).descFactorial
+          (fourEndpointDistance i j) : ENNReal) *
+        (2 : ENNReal) ^
+          (fourEndpointDistance i j * fourEndpointSize alpha hAlpha i +
+            (fourEndpointDistance i j).choose 2) := by
+  have choose_add_two (u d : Nat) :
+      (u + d).choose 2 = u.choose 2 + d * u + d.choose 2 := by
+    induction d with
+    | zero => simp
+    | succ d ih =>
+        rw [Nat.add_succ, Nat.choose_succ_succ]
+        simp only [Nat.choose_one_right]
+        rw [ih]
+        have hd : (d + 1).choose 2 = d + d.choose 2 := by
+          rw [Nat.choose_succ_succ]
+          simp
+        rw [hd]
+        simp only [Nat.add_mul, one_mul]
+        omega
+  have diagonal_add (u d : Nat) (hu : 3 ≤ u) :
+      fourEndpointSizeDiagonalFactor (u + d) =
+        fourEndpointSizeDiagonalFactor u * ((u + d).descFactorial d : ENNReal) *
+          (2 : ENNReal) ^ (d * u + d.choose 2) := by
+    have hud : d ≤ u + d := by omega
+    have hfacNat : u.factorial * (u + d).descFactorial d = (u + d).factorial := by
+      simpa using Nat.factorial_mul_descFactorial hud
+    have hfac : (u.factorial : ENNReal) * ((u + d).descFactorial d : ENNReal) =
+        ((u + d).factorial : ENNReal) := by
+      exact_mod_cast hfacNat
+    have hexp : (u + d).choose 2 - 1 =
+        (u.choose 2 - 1) + (d * u + d.choose 2) := by
+      rw [choose_add_two]
+      have hchoose : 1 ≤ u.choose 2 := by
+        have hh := Nat.choose_le_choose 2 hu
+        norm_num at hh
+        omega
+      omega
+    simp only [fourEndpointSizeDiagonalFactor, localSignRewardNat,
+      if_pos hu, if_pos (by omega : 3 ≤ u + d)]
+    rw [hexp, pow_add, ← hfac]
+    norm_num [ENNReal.coe_pow]
+    simp only [mul_assoc, mul_comm]
+  have hsize (k : Fin 4) :
+      fourEndpointSize alpha hAlpha k = alpha - 2 - k.val := by
+    unfold fourEndpointSize fourEndpointCoordinate fourDeficitCoordinate
+    simp [fourDeficit]
+    omega
+  have hji : j.val ≤ i.val := by
+    rw [hsize i, hsize j] at hij
+    omega
+  have hdist : fourEndpointDistance i j = i.val - j.val := by
+    simp [fourEndpointDistance, Nat.dist_eq_sub_of_le_right hji]
+  have htransport :
+      fourEndpointSize alpha hAlpha j =
+        fourEndpointSize alpha hAlpha i + fourEndpointDistance i j := by
+    rw [hsize i, hsize j, hdist]
+    omega
+  rw [htransport]
+  apply diagonal_add
+  rw [hsize i]
+  omega
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointLocalCellFactor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointLocalCellFactor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8EndpointCanonicalHigh
 Source: Erdos625/Section8EndpointCanonicalHigh.lean
 Normalized SHA-256: 4c9c22cc6ec37c2ac7e6213f287a49586798522a0f905aa28350225d7c15ba53
@@ -60900,7 +61114,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: a794e619a60c363f6d388989d8f09e1953523a5d70903c2cc1f9a307e7cbd6ad
+Normalized SHA-256: e3e263e29d23eac07931882254431bbb187bccbd5b70fe6c96d3c562db94d33d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61781,6 +61995,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
+#print axioms Erdos625.fourEndpoint_mass_facts
+#print axioms Erdos625.fourEndpointLocalCellFactor_eq_lowerDiagonal_mul_choose
+#print axioms Erdos625.fourEndpointSizeDiagonalFactor_ratio
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
 #print axioms Erdos625.fourEndpoint_global_transport
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
@@ -61793,7 +62010,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 5f8cf9a9b77e39d3a3609ce8e7a4b6bf46370b741ab6740e328cb2f7e63f2c1f
+Normalized SHA-256: de6340e40e287d4d1c9bb74631a4556808516eeab79f8651616bce6e782caae8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
