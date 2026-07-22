@@ -689,6 +689,9 @@ The next audited finite layer adds the following statement-faithful ports:
 - the canonical-high threshold bridge for an endpoint-only physical skeleton,
   under the explicit endpoint cutoff hypotheses; this is only a narrow
   threshold fact and supplies no matching, enumeration, or asymptotic bound.
+- the endpoint full-table row and column feasibility inequalities under the
+  explicit hypothesis that the full-pair support is a matching; this does not
+  prove that matching hypothesis for a physical skeleton.
 - the exact endpoint unlabelled typed-skeleton fibre count after multiplying
   by the cell factorials.
 - the exact one-cell physical-stub matching count and the finite global

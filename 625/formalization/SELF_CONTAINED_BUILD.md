@@ -116,12 +116,12 @@ The source checkpoint generated on 2026-07-22 has the following reproducible
 metrics:
 
 - regeneration check: success, exit code 0;
-- local source modules included: 329;
+- local source modules included: 330;
 - external Mathlib imports: 86;
-- central `#print axioms` commands included: 1,346;
-- newline count: 61,617;
+- central `#print axioms` commands included: 1,347;
+- newline count: 61,777;
 - generated source SHA-256:
-  `30EC8BCE7F60D0C144EF714D5E281A0F5C3C511B799FCA6DE9102127010CBAB5`.
+  `55F0AFBA3496B14668918AA1E0770A2E1CA8740E1C38F40D320BF2D21D322AFE`.
 
 The warning-fatal compilation of this exact checkpoint is performed by the
 repository's GitHub Actions workflow, after the modular `lake build --wfail`
@@ -136,7 +136,7 @@ these, and no axioms for some declarations). Text scans found no `sorry`,
 `native_decide`, `run_tac`, `exact?`, suggestion-enabled `grind`, or
 `maxHeartbeats`/`maxRecDepth` override.
 
-The ordered module manifest is embedded in the generated file as 329
+The ordered module manifest is embedded in the generated file as 330
 `BEGIN SOURCE MODULE` records. It can be displayed with:
 
 ```powershell

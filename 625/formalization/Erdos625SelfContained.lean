@@ -55518,6 +55518,165 @@ END SOURCE MODULE: Erdos625.Section8EndpointCanonicalHigh
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointMatchingFeasibility
+Source: Erdos625/Section8EndpointMatchingFeasibility.lean
+Normalized SHA-256: 28d8c580dcd04ab6ab62bcfed6bd6c9e13fcb5351ca095f443995c9b74b0ffc8
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointMatchingFeasibility
+
+/-!
+# Target D: full-table feasibility from block matching
+
+The block matching is an explicit input. This target must not identify the
+full-cell table with a raw stub aggregate or infer matching from stub
+uniqueness without the canonical-high bridge.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+theorem fourEndpoint_fullTable_feasible_of_matching
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k))
+    (hMatching : FourEndpointFullPairsAreMatching alpha hAlpha k S) :
+    FourEndpointFeasible alpha hAlpha k
+      (fourEndpointFullTableOfBlockTypeTable alpha hAlpha k S.typeTable) := by
+  classical
+  have hslots (i : Fin 4) :
+      (fourEndpointBlockSlots alpha hAlpha k i).card =
+        fourEndpointMultiplicity alpha hAlpha k i := by
+    have hcount := ColoringProfile.count_sizes_at k
+      (fourEndpointCoordinate alpha hAlpha i)
+    change (fourEndpointBlockSlots alpha hAlpha k i).card =
+      k (fourEndpointCoordinate alpha hAlpha i)
+    rw [← hcount]
+    calc
+      _ = Fintype.card {q : ProfileBlockIndex k //
+          (q.1 : Nat) = (fourEndpointCoordinate alpha hAlpha i).val + 1} := by
+        symm
+        apply Fintype.card_ofFinset
+      _ = _ := card_shapeBlockIndexOfSize (ColoringProfile.sizes k)
+        ((fourEndpointCoordinate alpha hAlpha i).val + 1)
+  have hsize_injective : Function.Injective (fourEndpointSize alpha hAlpha) := by
+    intro i j hij
+    fin_cases i <;> fin_cases j <;>
+      simp [fourEndpointSize, fourEndpointCoordinate, fourDeficitCoordinate,
+        fourDeficit] at hij ⊢ <;> omega
+  constructor
+  · intro i
+    let C : Fin 4 → Finset (ProfileBlockIndex k × ProfileBlockIndex k) := fun j =>
+      ((fourEndpointBlockSlots alpha hAlpha k i).product
+        (fourEndpointBlockSlots alpha hAlpha k j)).filter
+          (fun ab => S.typeTable ab.1 ab.2 =
+            fourEndpointOverlapSize alpha hAlpha i j)
+    have hdisj : (↑(Finset.univ : Finset (Fin 4)) : Set (Fin 4)).PairwiseDisjoint C := by
+      intro j₁ _ j₂ _ hj
+      change Disjoint (C j₁) (C j₂)
+      rw [Finset.disjoint_left]
+      intro ab hab₁ hab₂
+      dsimp [C] at hab₁ hab₂
+      simp only [Finset.mem_filter, Finset.mem_product] at hab₁ hab₂
+      have hb₁ : ab.2 ∈ fourEndpointBlockSlots alpha hAlpha k j₁ :=
+        hab₁.1.2
+      have hb₂ : ab.2 ∈ fourEndpointBlockSlots alpha hAlpha k j₂ :=
+        hab₂.1.2
+      have hs₁ : profileBlockMargin k ab.2 = fourEndpointSize alpha hAlpha j₁ :=
+        (Finset.mem_filter.mp hb₁).2
+      have hs₂ : profileBlockMargin k ab.2 = fourEndpointSize alpha hAlpha j₂ :=
+        (Finset.mem_filter.mp hb₂).2
+      exact hj (hsize_injective (hs₁.symm.trans hs₂))
+    have hcard : (Finset.univ.sum fun j => (C j).card) =
+        (Finset.univ.biUnion C).card := by
+      rw [Finset.card_biUnion hdisj]
+    have hle : (Finset.univ.biUnion C).card ≤
+        (fourEndpointBlockSlots alpha hAlpha k i).card := by
+      apply Finset.card_le_card_of_injOn Prod.fst
+      · intro ab hab
+        have hab' : ab ∈ Finset.univ.biUnion C := hab
+        rw [Finset.mem_biUnion] at hab'
+        obtain ⟨j, -, hj⟩ := hab'
+        dsimp [C] at hj
+        simp only [Finset.mem_filter, Finset.mem_product] at hj
+        exact hj.1.1
+      · intro ab₁ hab₁ ab₂ hab₂ heq
+        have hab₁' : ab₁ ∈ Finset.univ.biUnion C := hab₁
+        have hab₂' : ab₂ ∈ Finset.univ.biUnion C := hab₂
+        rw [Finset.mem_biUnion] at hab₁' hab₂'
+        obtain ⟨j₁, -, hj₁⟩ := hab₁'
+        obtain ⟨j₂, -, hj₂⟩ := hab₂'
+        dsimp [C] at hj₁ hj₂
+        simp only [Finset.mem_filter, Finset.mem_product] at hj₁ hj₂
+        apply Prod.ext heq
+        apply hMatching.1 ab₁.1 ab₁.2 ab₂.2
+        · rw [fourEndpointFullPairs, Finset.mem_filter]
+          exact ⟨by simp, i, j₁, hj₁.1.1, hj₁.1.2, hj₁.2⟩
+        · rw [fourEndpointFullPairs, Finset.mem_filter]
+          refine ⟨by simp, i, j₂, ?_⟩
+          simpa [heq] using ⟨hj₂.1.1, hj₂.1.2, hj₂.2⟩
+    rw [fourEndpointRowMargin, fourEndpointFullTableOfBlockTypeTable]
+    change (Finset.univ.sum fun j => (C j).card) ≤ _
+    rw [hcard]
+    simpa [hslots i] using hle
+  · intro j
+    let C : Fin 4 → Finset (ProfileBlockIndex k × ProfileBlockIndex k) := fun i =>
+      ((fourEndpointBlockSlots alpha hAlpha k i).product
+        (fourEndpointBlockSlots alpha hAlpha k j)).filter
+          (fun ab => S.typeTable ab.1 ab.2 =
+            fourEndpointOverlapSize alpha hAlpha i j)
+    have hdisj : (↑(Finset.univ : Finset (Fin 4)) : Set (Fin 4)).PairwiseDisjoint C := by
+      intro i₁ _ i₂ _ hi
+      change Disjoint (C i₁) (C i₂)
+      rw [Finset.disjoint_left]
+      intro ab hab₁ hab₂
+      dsimp [C] at hab₁ hab₂
+      simp only [Finset.mem_filter, Finset.mem_product] at hab₁ hab₂
+      have ha₁ := (Finset.mem_filter.mp hab₁.1.1).2
+      have ha₂ := (Finset.mem_filter.mp hab₂.1.1).2
+      exact hi (hsize_injective (ha₁.symm.trans ha₂))
+    have hcard : (Finset.univ.sum fun i => (C i).card) =
+        (Finset.univ.biUnion C).card := by
+      rw [Finset.card_biUnion hdisj]
+    have hle : (Finset.univ.biUnion C).card ≤
+        (fourEndpointBlockSlots alpha hAlpha k j).card := by
+      apply Finset.card_le_card_of_injOn Prod.snd
+      · intro ab hab
+        have hab' : ab ∈ Finset.univ.biUnion C := hab
+        rw [Finset.mem_biUnion] at hab'
+        obtain ⟨i, -, hi⟩ := hab'
+        dsimp [C] at hi
+        simp only [Finset.mem_filter, Finset.mem_product] at hi
+        exact hi.1.2
+      · intro ab₁ hab₁ ab₂ hab₂ heq
+        have hab₁' : ab₁ ∈ Finset.univ.biUnion C := hab₁
+        have hab₂' : ab₂ ∈ Finset.univ.biUnion C := hab₂
+        rw [Finset.mem_biUnion] at hab₁' hab₂'
+        obtain ⟨i₁, -, hi₁⟩ := hab₁'
+        obtain ⟨i₂, -, hi₂⟩ := hab₂'
+        dsimp [C] at hi₁ hi₂
+        simp only [Finset.mem_filter, Finset.mem_product] at hi₁ hi₂
+        apply Prod.ext
+        · apply hMatching.2 ab₁.1 ab₂.1 ab₁.2
+          · rw [fourEndpointFullPairs, Finset.mem_filter]
+            exact ⟨by simp, i₁, j, hi₁.1.1, hi₁.1.2, hi₁.2⟩
+          · rw [fourEndpointFullPairs, Finset.mem_filter]
+            refine ⟨by simp, i₂, j, ?_⟩
+            simpa [heq] using ⟨hi₂.1.1, hi₂.1.2, hi₂.2⟩
+        · exact heq
+    rw [fourEndpointColumnMargin, fourEndpointFullTableOfBlockTypeTable]
+    change (Finset.univ.sum fun i => (C i).card) ≤ _
+    rw [hcard]
+    simpa [hslots j] using hle
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointMatchingFeasibility
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointMatchingFeasibility
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8EndpointBlockPairings
 Source: Erdos625/Section8EndpointBlockPairings.lean
 Normalized SHA-256: c9bb509683758cf1bf9715f815b3be70accaec9a06c3b5ff44b7a1cc31d86dae
@@ -60478,7 +60637,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f132a9c618ddb0b0e05edf2c4b5fbbe401ca12a4fe7bf66f1ecc30f679abe3ed
+Normalized SHA-256: f4f7faa052e590aee784d470c29f793d35cf05a34ec24fa15f133eb736062176
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61346,6 +61505,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
 #print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
+#print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
@@ -61365,7 +61525,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 489079a2ed5d921eaeb289384172fd9263ac892bcc4de30ea434837da2a0b1d1
+Normalized SHA-256: a5a04d7f5496913ed4af123061b3c6efe64f2b70a21c09e52fceaf82e98b7497
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
