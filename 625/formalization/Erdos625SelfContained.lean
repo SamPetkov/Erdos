@@ -60811,6 +60811,106 @@ END SOURCE MODULE: Erdos625.Section9ActualAttachmentAggregation
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
+Source: Erdos625/Section9MidpointCanonicalAttachmentTwoRegime.lean
+Normalized SHA-256: 3b39dd3ca68e576af42fa93e7f635591addb940bb0a189a5d880a243051d6d50
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9MidpointCanonicalAttachmentTwoRegime
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+theorem exists_midpointCanonicalAttachment_twoRegime_error
+    (b U : Nat → Nat)
+    (k : (n : Nat) → ColoringProfile (b n))
+    (row0 : (n : Nat) → OrderedProfilePartition n (k n))
+    (C : Real) (hC : 0 ≤ C)
+    (hlarge : ∀ᶠ n : Nat in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (n : Real) / Real.log (n : Real) ^ 6 ≤
+            (canonicalDemandResidualTotal
+              (profileBlockMargin (k n)) (profileBlockMargin (k n))
+              (U n) demand : Real) →
+        profileHighSkeletonAttachment (row0 n) (U n) demand ≤
+          ENNReal.ofReal (Real.exp (C * Real.log (n : Real) ^ 8)))
+    (hsmall : ∀ᶠ n : Nat in atTop,
+      ∀ demand : ProfileCanonicalHighSkeleton (k n) (U n),
+        (canonicalDemandResidualTotal
+          (profileBlockMargin (k n)) (profileBlockMargin (k n))
+          (U n) demand : Real) <
+            (n : Real) / Real.log (n : Real) ^ 6 →
+        profileHighSkeletonAttachment (row0 n) (U n) demand ≤
+          ENNReal.ofReal
+            (Real.exp (C * (n : Real) / Real.log (n : Real) ^ 5))) :
+    ∃ epsilon : Nat → Real,
+      Tendsto epsilon atTop (nhds 0) ∧
+      (∀ᶠ n in atTop, 0 ≤ epsilon n) ∧
+      ∀ᶠ n in atTop,
+        midpointCanonicalAttachmentSum (row0 n) (U n) ≤
+          canonicalBareSkeletonSum (k n) (U n) *
+            ENNReal.ofReal
+              (Real.exp (epsilon n * amplificationBase n)) := by
+  obtain ⟨epsilon, hepsilon, hevent⟩ :=
+    exists_uniform_twoRegime_error
+      (fun n => ProfileCanonicalHighSkeleton (k n) (U n))
+      (fun n demand =>
+        (profileHighSkeletonAttachment (row0 n) (U n) demand).toReal)
+      (fun n demand =>
+        canonicalDemandResidualTotal
+          (profileBlockMargin (k n)) (profileBlockMargin (k n))
+          (U n) demand)
+      C hC
+      (by
+        filter_upwards [hlarge] with n hn
+        intro demand hmass
+        have hbound := hn demand hmass
+        exact (ENNReal.toReal_mono ENNReal.ofReal_ne_top hbound).trans_eq (by
+          rw [ENNReal.toReal_ofReal (Real.exp_nonneg _) ]))
+      (by
+        filter_upwards [hsmall] with n hn
+        intro demand hmass
+        have hbound := hn demand hmass
+        exact (ENNReal.toReal_mono ENNReal.ofReal_ne_top hbound).trans_eq (by
+          rw [ENNReal.toReal_ofReal (Real.exp_nonneg _) ]))
+  refine ⟨epsilon, hepsilon, hevent.mono fun n hn => hn.1, ?_⟩
+  filter_upwards [hevent, hlarge, hsmall] with n hn hnlarge hnsmall
+  apply midpointCanonicalAttachmentSum_le_bare_mul
+  intro demand
+  have hfinite :
+      profileHighSkeletonAttachment (row0 n) (U n) demand ≠ ⊤ := by
+    by_cases hmass :
+        (canonicalDemandResidualTotal
+          (profileBlockMargin (k n)) (profileBlockMargin (k n))
+          (U n) demand : Real) <
+            (n : Real) / Real.log (n : Real) ^ 6
+    · have hbound := hnsmall demand hmass
+      intro htop
+      rw [htop] at hbound
+      exact ENNReal.ofReal_ne_top (top_le_iff.mp hbound)
+    · have hbound := hnlarge demand (le_of_not_gt hmass)
+      intro htop
+      rw [htop] at hbound
+      exact ENNReal.ofReal_ne_top (top_le_iff.mp hbound)
+  rw [← ENNReal.ofReal_toReal hfinite]
+  apply ENNReal.ofReal_le_ofReal
+  simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
+
+#print axioms exists_midpointCanonicalAttachment_twoRegime_error
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9MidpointCanonicalAttachmentTwoRegime
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualExp
 Source: Erdos625/Section9ActualAttachmentLargeResidualExp.lean
 Normalized SHA-256: f296a6f926fb23481b13d52af94e2bc0994db26a6d919dff7c8027b3663c6682
@@ -61114,7 +61214,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e3e263e29d23eac07931882254431bbb187bccbd5b70fe6c96d3c562db94d33d
+Normalized SHA-256: 2ac625f174e3e9b0982f335c6a8f2e0c324fc43196a45d28ed70d68fe0aa679c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61964,6 +62064,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseControlled_two_pow_le_cube
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
+#print axioms Erdos625.exists_midpointCanonicalAttachment_twoRegime_error
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
@@ -62010,7 +62111,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: de6340e40e287d4d1c9bb74631a4556808516eeab79f8651616bce6e782caae8
+Normalized SHA-256: b314bbfa01ed05097ce6e5047f16edfb03e08d184deacf53f3e1856b16f03094
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
