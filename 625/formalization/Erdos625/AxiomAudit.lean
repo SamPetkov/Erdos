@@ -83,6 +83,7 @@ import Erdos625.PhaseRootCenterLogBound
 import Erdos625.PhaseRootAlgebraicCoreBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
+import Erdos625.PhaseRootExpansionResidualBound
 import Erdos625.PhaseRootScalarResidualRemainderBound
 import Erdos625.PhaseRootSelectedDeficitBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
@@ -1186,6 +1187,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootAlgebraicCore_isBigO
 #print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
+#print axioms Erdos625.phaseExpansionResidual_isBigO_logLogOrder
 #print axioms Erdos625.phaseNat_stirlingLogRemainder_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder

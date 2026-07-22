@@ -88,6 +88,7 @@ import Erdos625.PhaseRootCenterLogBound
 import Erdos625.PhaseRootAlgebraicCoreBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
+import Erdos625.PhaseRootExpansionResidualBound
 import Erdos625.PhaseRootScalarResidualRemainderBound
 import Erdos625.PhaseRootSelectedDeficitBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
