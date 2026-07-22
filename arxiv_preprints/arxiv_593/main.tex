@@ -68,7 +68,7 @@
 
 \title[Obligatory triple systems]{Obligatory Triple Systems: An Alternative Proof}
 \author{Samuil Petkov}
-\date{20 July 2026}
+\date{21 July 2026}
 \subjclass[2020]{Primary 05C65; Secondary 05C15, 05C63, 03E05}
 \keywords{obligatory triple system, hypergraph colouring, Levi graph, Berge cycle, uncountable chromatic number, Erdős Problem 593}
 
@@ -98,8 +98,9 @@ classical Erdős--Hajnal high-odd-girth theorem, all in ZFC.
 
 \section*{Introduction}\label{introduction}
 
-A finite triple system is \emph{obligatory} if it occurs in every triple
-system of uncountable chromatic number.  Erdős asked for a characterization
+The hosts in this problem are infinite, but the answer is decided by a small
+piece of finite geometry.  A finite triple system is \emph{obligatory} if it
+occurs in every triple system of uncountable chromatic number.  Erdős asked for a characterization
 of these finite systems \citep{erdos1995}; the question is catalogued as
 Erdős Problem~593 \citep{bloom593}.  The answer has both a constructive form
 and an intrinsic form.
@@ -155,7 +156,7 @@ base-fibre and support-incidence analysis, invokes the older Erdős--Hajnal
 high-odd-girth theorem directly, and supplies a complete Lean formalisation of
 this implementation.
 
-The proof separates the positive and negative directions.  First, a
+The proof is best read as two stories.  On the positive side, a
 probabilistic rainbow lemma provides the local injectivity needed to force
 complete bipartite expansions.  A rooted-abundance lemma then proves closure
 under one-point amalgamation, including at singular uncountable cardinals.
@@ -164,16 +165,17 @@ component with the expansion of a finite bipartite graph; the quotient graph
 is a forest, and its running-intersection property gives the required
 amalgamation order.
 
-For the converse, we use Li's one-apex sequence-lift strategy
+On the negative side, we use Li's one-apex sequence-lift strategy
 \citep[Sections~3--4]{li2026}.  The lift transfers uncountable chromatic
 number from a graph to a triple system while controlling every finite linear
 trace.  We prove the required trace statement through expansion fibres and a
 support-incidence forest, so that the fibres are joined only at cut points.
 This prevents a bridge-free hyperedge-node or a Berge cycle from being
-assembled across different fibres.  The three failures of the intrinsic
-conditions are excluded respectively by an Erdős--Rado linear host, the lift
-of $K_{\omega_1}$, and a classical Erdős--Hajnal graph of uncountable
-chromatic number and prescribed odd girth.
+assembled across different fibres.  There are exactly three ways to fail the
+intrinsic test, and each has its own host: an Erdős--Rado linear host excludes
+nonlinearity, the lift of $K_{\omega_1}$ excludes a missing bridge, and a
+classical Erdős--Hajnal graph of uncountable chromatic number and prescribed
+odd girth excludes an odd Berge cycle.
 
 All embeddings are injective and non-induced.  The argument is carried out
 in ZFC.  The imported results used as black boxes are the de Bruijn--Erdős
@@ -1157,9 +1159,10 @@ For every finite triple system $F$, the exported theorems establish
 \]
 Thus the development verifies both directions of the classification,
 including the isolated-vertex reduction.  Here ``finite'' refers to the
-system $F$ being classified; the host triple systems in the definition of
-obligatoriness remain unrestricted.  The formalisation supplements, rather
-than replaces, mathematical review.
+system $F$ being classified; host triple systems are not assumed finite and
+are quantified within the formalisation's documented ambient-universe
+convention.  The formalisation supplements, rather than replaces,
+mathematical review.
 
 \section*{Acknowledgments}
 

@@ -8,8 +8,9 @@ Erdős Problems 593 and 625.
   and PDF.
 - `arxiv_593.pdf` and `arxiv_625.pdf`: convenient top-level copies.
 
-Both PDFs carry the fixed manuscript date 20 July 2026. arXiv supplies separate
-public submission and revision dates in its own record.
+The Problem 593 PDF carries the fixed manuscript date 21 July 2026; the Problem
+625 PDF remains dated 20 July 2026. arXiv supplies separate public submission
+and revision dates in its own record.
 
 Regenerate and verify every mirror with:
 
@@ -20,4 +21,5 @@ python scripts/refresh_internal_proof_metadata.py
 
 The synchronization workflow checks authorship metadata, page size, embedded
 fonts, bibliography mirrors, current publication citations, and byte-identical
-PDF copies. It does not modify Lean source files.
+PDF copies. Markdown generation is pinned to Pandoc 3.1.3. It does not modify
+Lean source files.
