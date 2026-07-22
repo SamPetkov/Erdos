@@ -77,6 +77,7 @@ import Erdos625.ColoringProfileDeficitDual
 import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ColoringProfilePhaseRootCenter
+import Erdos625.PhaseRootFiniteCommon
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -516,7 +517,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
-#print axioms Erdos625.optimizedValue_mono_scores
+#print axioms Erdos625.ProfileEntropyS4.optimizedValue_mono_scores
 #print axioms Erdos625.signedFourDeficitProfileExpectation_eq
 #print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
 #print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
@@ -1164,6 +1165,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.profileHighSkeleton_cardinality_and_support_mass_bounds
 #print axioms Erdos625.unrestrictedPhaseObjective_div_eq_deficitCentered
 #print axioms Erdos625.log_profileDeficitPartition_mem_Icc_gaussianEnvelope
+#print axioms Erdos625.phaseRootDeficitTarget_eq
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted

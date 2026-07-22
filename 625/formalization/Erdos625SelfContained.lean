@@ -19504,6 +19504,78 @@ END SOURCE MODULE: Erdos625.ColoringProfileDeficitTilt
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootFiniteCommon
+Source: Erdos625/PhaseRootFiniteCommon.lean
+Normalized SHA-256: cf7b972dd05ad5aacaf25e805512735b50636725b62f1663712145ccac137636
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootFiniteCommon
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+noncomputable def phaseRootDeficitTarget (n : ℕ) : ℝ :=
+  (phaseNat n : ℝ) - (n : ℝ) / phaseRootCenter n
+
+noncomputable def phaseRootScalarTerm (n : ℕ) : ℝ :=
+  ((n : ℝ) * Real.log (n : ℝ) - n) / phaseRootCenter n + 1 -
+    Real.log (phaseRootCenter n) +
+    profileDeficitAffineA (phaseNat n) +
+    profileDeficitAffineB (phaseNat n) * phaseRootDeficitTarget n
+
+noncomputable def phaseRootSelectedDeficitTerm (n : ℕ) : ℝ :=
+  Real.log
+      (profileDeficitPartition (phaseNat n)
+        (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+    profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+      phaseRootDeficitTarget n
+
+noncomputable def phaseRootAlgebraicCore (n : ℕ) : ℝ :=
+  phaseExpansionMain n +
+    phaseRootDeficitTarget n *
+      (profileDeficitAffineB (phaseNat n) - logOrder n) -
+    phaseRootS0 n + 1 - Real.log (phaseRootCenter n)
+
+theorem phaseRootDeficitTarget_eq {n : ℕ} (hn : PhaseDomain n) :
+    phaseRootDeficitTarget n = 1 + 2 / q - phaseDelta n := by
+  simpa [phaseRootDeficitTarget] using phaseRoot_target_identity hn
+
+theorem unrestrictedPhaseObjective_center_div_decomposition {n : ℕ}
+    (hn : PhaseDomain n) (hs0 : 0 < phaseRootS0 n) :
+    unrestrictedPhaseObjective n (phaseRootCenter n) / phaseRootCenter n =
+      phaseRootScalarTerm n + phaseRootSelectedDeficitTerm n := by
+  have hnPos : 0 < n := lt_trans Nat.zero_lt_one hn.1
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast hnPos.ne'
+  have hc : phaseRootCenter n ≠ 0 :=
+    div_ne_zero hn0 hs0.ne'
+  rw [unrestrictedPhaseObjective, profileDualOptimalValue]
+  unfold profileDualEntropyValue
+  have ht :
+      profileDualTilt (phaseNat n + 1)
+          ((n : ℝ) / phaseRootCenter n) =
+        profileDeficitAffineB (phaseNat n) -
+          profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) := by
+    simp [profileDeficitTilt, phaseRootDeficitTarget]
+  rw [ht, log_profileDualPartition_eq_deficitCentered]
+  unfold phaseRootScalarTerm phaseRootSelectedDeficitTerm
+  unfold phaseRootDeficitTarget
+  field_simp [hc]
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootFiniteCommon
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootFiniteCommon
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -61715,7 +61787,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 9ee0aff41c18ffcc2aa4a99d1aaa7970fa35077a047b1842d8d816fe381d4e05
+Normalized SHA-256: da90f90bff93c5ce373bdded4e008152f330bc60c80ab303a00553d86e2b8710
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61923,7 +61995,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
-#print axioms Erdos625.optimizedValue_mono_scores
+#print axioms Erdos625.ProfileEntropyS4.optimizedValue_mono_scores
 #print axioms Erdos625.signedFourDeficitProfileExpectation_eq
 #print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
 #print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
@@ -62571,6 +62643,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.profileHighSkeleton_cardinality_and_support_mass_bounds
 #print axioms Erdos625.unrestrictedPhaseObjective_div_eq_deficitCentered
 #print axioms Erdos625.log_profileDeficitPartition_mem_Icc_gaussianEnvelope
+#print axioms Erdos625.phaseRootDeficitTarget_eq
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
@@ -62621,7 +62695,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 770b3c38718ee4dbbe562c876bcfdcd4de2f5781d194d952175cb4902a5fbab6
+Normalized SHA-256: 040ade83ce25fb8263fd3aefd993a2d9243f78c20a5113b3e09276fbc2adc1a9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
