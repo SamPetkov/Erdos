@@ -19823,7 +19823,7 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterLogBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootAlgebraicCoreBound
 Source: Erdos625/PhaseRootAlgebraicCoreBound.lean
-Normalized SHA-256: a8f2141d7083d4de0b09c2d8c69e8b8f0e8c2ca9416ac8ae284fd3a2ef4dff4c
+Normalized SHA-256: 51b9f5c4675ce10282fe424d8b07bd18cbe1317d9ecb7d19b07437566fcfded0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootAlgebraicCoreBound
 
@@ -19848,8 +19848,7 @@ theorem phaseRootAlgebraicCore_isBigO :
   have h := phaseRootAlgebraicNoLog_sub_logOrder_isBigO.add
     logOrder_sub_log_phaseRootCenter_isBigO
   exact h.congr_left
-    (Filter.Eventually.of_forall fun n ↦
-      (phaseRootAlgebraicCore_eq n).symm)
+    (fun n ↦ (phaseRootAlgebraicCore_eq n).symm)
 
 end
 

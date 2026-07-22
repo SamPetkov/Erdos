@@ -22,8 +22,7 @@ theorem phaseRootAlgebraicCore_isBigO :
   have h := phaseRootAlgebraicNoLog_sub_logOrder_isBigO.add
     logOrder_sub_log_phaseRootCenter_isBigO
   exact h.congr_left
-    (Filter.Eventually.of_forall fun n ↦
-      (phaseRootAlgebraicCore_eq n).symm)
+    (fun n ↦ (phaseRootAlgebraicCore_eq n).symm)
 
 end
 
