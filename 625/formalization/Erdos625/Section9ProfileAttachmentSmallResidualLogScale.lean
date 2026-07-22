@@ -35,7 +35,7 @@ theorem eventually_profileHighSkeletonAttachment_le_smallResidual_logScale :
     (Nat.cast_le.mpr hU).trans hphase.2
   have h := profileHighSkeletonAttachment_le_smallResidualExpScale
     row₀ U hcap demand (Real.log (n : ℝ)) 4 hlog.1 (by norm_num) hUreal hm.le
-  convert h using 1 <;> ring
+  convert h using 1 ; ring
 
 end
 
