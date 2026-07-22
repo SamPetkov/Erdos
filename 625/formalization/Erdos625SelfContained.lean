@@ -18382,7 +18382,7 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: f38eb4a5288b5a0df165ad3fb8302fc0c5c64bd88091cd19f6b4f5784ad708e7
+Normalized SHA-256: c434d7c721fdf7f32a7022c6c5feac8f63b254cdbd4f79293e40938f31d13911
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -18437,6 +18437,39 @@ def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
   fun j =>
     ∑ i : Fin 4,
       if fourDeficitCoordinate alpha hAlpha i = j then m i else 0
+
+theorem fourDeficitEmbedding_profile_invariants
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 -> Nat) :
+    ColoringProfile.partCount (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, m i) ∧
+    ColoringProfile.vertexMass (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, (alpha - fourDeficit i) * m i) ∧
+    IsFourDeficitSupported alpha (fourDeficitEmbedding alpha hAlpha m) := by
+  constructor
+  · rw [ColoringProfile.partCount_eq_sum]
+    simp [fourDeficitEmbedding, Finset.sum_comm]
+  constructor
+  · rw [ColoringProfile.vertexMass_eq_sum]
+    simp only [fourDeficitEmbedding, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro i hi
+    simp only [mul_ite, mul_zero, Fintype.sum_ite_eq]
+    congr 1
+    unfold fourDeficitCoordinate
+    rw [Fin.val_rev, Fin.val_succ]
+    fin_cases i <;> simp [fourDeficit] <;> omega
+  · intro j hj
+    by_contra h
+    simp only [not_exists] at h
+    have hc : ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
+      intro i hij
+      apply h i
+      rw [← hij, profileDeficit_fourDeficitCoordinate]
+    have hz : fourDeficitEmbedding alpha hAlpha m j = 0 := by
+      rw [fourDeficitEmbedding]
+      simp [hc]
+    exact hj hz
 
 end
 
@@ -18629,6 +18662,212 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
+Source: Erdos625/TangentCorrectedCountNonnegativity.lean
+Normalized SHA-256: 2361131bb7b8d4c5c3b30abedcb1c12d62662ccaccfee0328bbac8c89022f916
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- The manuscript's explicit lower scale `14 ≤ K p_i` keeps every corrected
+integer count nonnegative.  This deliberately asserts nonnegativity of the
+*corrected counts*: the first correction `c_0` itself can be negative. -/
+theorem tangent_corrected_counts_nonnegative_of_fourteen
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real))
+    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
+    ∀ i, (0 : Int) ≤ tangentCorrectedInt K D p i := by
+  have hf_le (i : Fin 4) :
+      ((Int.floor ((K : Real) * p i) : Int) : Real) ≤ (K : Real) * p i :=
+    Int.floor_le _
+  have hf_lt (i : Fin 4) :
+      (K : Real) * p i < ((Int.floor ((K : Real) * p i) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlo0 := hLower (0 : Fin 4)
+  have hlo1 := hLower (1 : Fin 4)
+  have hlo2 := hLower (2 : Fin 4)
+  have hlo3 := hLower (3 : Fin 4)
+  have hle0 := hf_le (0 : Fin 4)
+  have hle1 := hf_le (1 : Fin 4)
+  have hle2 := hf_le (2 : Fin 4)
+  have hle3 := hf_le (3 : Fin 4)
+  have hlt0 := hf_lt (0 : Fin 4)
+  have hlt1 := hf_lt (1 : Fin 4)
+  have hlt2 := hf_lt (2 : Fin 4)
+  have hlt3 := hf_lt (3 : Fin 4)
+  simp only [Fin.sum_univ_four] at hCount hMoment
+  simp [tangentDeficit] at hMoment
+  intro i
+  have hi : (0 : Real) ≤ (tangentCorrectedInt K D p i : Real) := by
+    fin_cases i
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentC0Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
+        tangentDeficit, Fin.sum_univ_four]
+      linarith
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentC1Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
+        tangentDeficit, Fin.sum_univ_four]
+      linarith
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentRawFloors]
+      exact_mod_cast Int.floor_nonneg.mpr
+        (show (0 : Real) ≤ (K : Real) * p (2 : Fin 4) by linarith)
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentRawFloors]
+      exact_mod_cast Int.floor_nonneg.mpr
+        (show (0 : Real) ≤ (K : Real) * p (3 : Fin 4) by linarith)
+  exact_mod_cast hi
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
+Source: Erdos625/TangentNatConservationDisplacement.lean
+Normalized SHA-256: 51aa90c54088099de4305497ff35d62869330283e23e0c333454364690a6f560
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- After the explicit positivity condition, conversion to naturals preserves
+the exact count and deficit constraints.  Each corrected coordinate stays
+within `5` of its real tangent value; this is stronger than the coarse fixed
+lower bound `14` used to guarantee positivity. -/
+theorem tangent_rounding_nat_conservation_and_uniform_displacement
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real))
+    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
+    (∑ i, tangentCorrectedNat K D p i) = K ∧
+      (∑ i, tangentDeficitNat i * tangentCorrectedNat K D p i) = D ∧
+      (∀ i,
+        |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤
+          (5 : Real)) := by
+  have hFloorLower : ∀ i, ((tangentRawFloors K p i : Int) : Real) ≤ (K : Real) * p i := by
+    intro i
+    exact Int.floor_le ((K : Real) * p i)
+  have hFloorUpper : ∀ i, (K : Real) * p i < ((tangentRawFloors K p i : Int) : Real) + 1 := by
+    intro i
+    exact Int.lt_floor_add_one ((K : Real) * p i)
+  have hl0 := hFloorLower (0 : Fin 4)
+  have hl1 := hFloorLower (1 : Fin 4)
+  have hl2 := hFloorLower (2 : Fin 4)
+  have hl3 := hFloorLower (3 : Fin 4)
+  have hu0 := hFloorUpper (0 : Fin 4)
+  have hu1 := hFloorUpper (1 : Fin 4)
+  have hu2 := hFloorUpper (2 : Fin 4)
+  have hu3 := hFloorUpper (3 : Fin 4)
+  simp only [Fin.sum_univ_four, tangentDeficit] at hCount hMoment
+  norm_num at hCount hMoment hl0 hl1 hl2 hl3 hu0 hu1 hu2 hu3
+  have hC0eq : ((tangentC0 K D p : Int) : Real) =
+      -(↑(tangentRawFloors K p 0) - (K : Real) * p 0) +
+        (↑(tangentRawFloors K p 2) - (K : Real) * p 2) +
+        2 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
+    simp only [tangentC0, tangentC0Raw, tangentE1Raw, tangentE0Raw,
+      Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    linarith
+  have hC1eq : ((tangentC1 K D p : Int) : Real) =
+      -(↑(tangentRawFloors K p 1) - (K : Real) * p 1) -
+        2 * (↑(tangentRawFloors K p 2) - (K : Real) * p 2) -
+        3 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
+    simp only [tangentC1, tangentC1Raw, tangentE1Raw, tangentE0Raw,
+      Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    linarith
+  have hC0lowerR : (-3 : Real) < (tangentC0 K D p : Int) := by rw [hC0eq]; linarith
+  have hC0upperR : ((tangentC0 K D p : Int) : Real) < 1 := by rw [hC0eq]; linarith
+  have hC1lowerR : (0 : Real) ≤ (tangentC1 K D p : Int) := by rw [hC1eq]; linarith
+  have hC1upperR : ((tangentC1 K D p : Int) : Real) < 6 := by rw [hC1eq]; linarith
+  have hC0lower : (-2 : Int) ≤ tangentC0 K D p := by
+    have : (-3 : Int) < tangentC0 K D p := by exact_mod_cast hC0lowerR
+    omega
+  have hC0upper : tangentC0 K D p ≤ 0 := by
+    have : tangentC0 K D p < (1 : Int) := by exact_mod_cast hC0upperR
+    omega
+  have hC1lower : (0 : Int) ≤ tangentC1 K D p := by exact_mod_cast hC1lowerR
+  have hC1upper : tangentC1 K D p ≤ 5 := by
+    have : tangentC1 K D p < (6 : Int) := by exact_mod_cast hC1upperR
+    omega
+  simp only [tangentC0] at hC0lower hC0upper hC0lowerR hC0upperR
+  simp only [tangentC1] at hC1lower hC1upper hC1lowerR hC1upperR
+  have hC0lowerCast : (-2 : Real) ≤ (tangentC0Raw (tangentRawFloors K p) K D : Int) := by
+    exact_mod_cast hC0lower
+  have hC0upperCast : ((tangentC0Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 0 := by
+    exact_mod_cast hC0upper
+  have hC1lowerCast : (0 : Real) ≤ (tangentC1Raw (tangentRawFloors K p) K D : Int) := by
+    exact_mod_cast hC1lower
+  have hC1upperCast : ((tangentC1Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 5 := by
+    exact_mod_cast hC1upper
+  have hDisp : ∀ i,
+      |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤ 5 := by
+    intro i
+    have hl := hFloorLower i
+    have hu := hFloorUpper i
+    fin_cases i
+    all_goals simp only [tangentCorrectedInt, tangentCorrectedRaw,
+      tangentCorrectionRaw]
+    all_goals norm_num at hl hu ⊢
+    all_goals rw [abs_le]
+    all_goals constructor <;> linarith
+  have hNonneg : ∀ i, 0 ≤ tangentCorrectedInt K D p i := by
+    intro i
+    have hd := hDisp i
+    have hl := hLower i
+    rw [abs_le] at hd
+    have hr : (0 : Real) ≤ ((tangentCorrectedInt K D p i : Int) : Real) := by linarith
+    exact_mod_cast hr
+  have hNatInt : ∀ i, (tangentCorrectedNat K D p i : Int) = tangentCorrectedInt K D p i := by
+    intro i
+    simp [tangentCorrectedNat, Int.toNat_of_nonneg (hNonneg i)]
+  have hSumInt : ∑ i, tangentCorrectedInt K D p i = (K : Int) := by
+    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
+    simp only [Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    ring
+  have hMomentInt : ∑ i, tangentDeficit i * tangentCorrectedInt K D p i = (D : Int) := by
+    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
+    simp only [Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    ring
+  constructor
+  · apply Nat.cast_injective (R := Int)
+    simp only [Nat.cast_sum]
+    rw [Finset.sum_congr rfl (fun i _ ↦ hNatInt i)]
+    exact hSumInt
+  constructor
+  · apply Nat.cast_injective (R := Int)
+    simp only [Nat.cast_sum, Nat.cast_mul]
+    rw [Finset.sum_congr rfl (fun i _ ↦ ?_)]
+    · exact hMomentInt
+    simp only [tangentDeficit, tangentDeficitNat]
+    rw [hNatInt]
+    norm_num
+  · exact hDisp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
 ========================================================================== -/
 
 /- ==========================================================================
@@ -55238,6 +55477,201 @@ END SOURCE MODULE: Erdos625.Section8EndpointProfileIndexing
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointBlockPairings
+Source: Erdos625/Section8EndpointBlockPairings.lean
+Normalized SHA-256: c9bb509683758cf1bf9715f815b3be70accaec9a06c3b5ff44b7a1cc31d86dae
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointBlockPairings
+
+/-!
+# Target F1: block-pairing factorial identity
+
+This packages the selection and pairing of endpoint blocks only. It does not
+choose any stubs inside a selected block pair.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+set_option autoImplicit false
+
+abbrev FourEndpointBlockPairing (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) :=
+  {S : UnlabelledTypedSkeleton
+      (fun i : Fin 4 => fourEndpointMultiplicity alpha hAlpha k i)
+      (fun j : Fin 4 => fourEndpointMultiplicity alpha hAlpha k j) //
+    S.typeTable = L.toFun}
+
+theorem card_fourEndpointBlockPairing_mul_cellFactorials
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) :
+    Fintype.card (FourEndpointBlockPairing alpha hAlpha k L) *
+        fourEndpointCellFactorialProduct L =
+      fourEndpointRowSelectionProduct alpha hAlpha k L *
+        fourEndpointColumnSelectionProduct alpha hAlpha k L := by
+  simpa [FourEndpointBlockPairing, fourEndpointCellFactorialProduct,
+    fourEndpointRowSelectionProduct, fourEndpointColumnSelectionProduct,
+    fourEndpointMarginSelectionProduct, fourEndpointRowMargin,
+    fourEndpointColumnMargin] using
+    (card_unlabelledTypedSkeleton_typeTable_mul_factorials
+      L.toFun
+      (fun i : Fin 4 => fourEndpointMultiplicity alpha hAlpha k i)
+      (fun j : Fin 4 => fourEndpointMultiplicity alpha hAlpha k j))
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointBlockPairings
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointBlockPairings
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointSingleCellStubs
+Source: Erdos625/Section8EndpointSingleCellStubs.lean
+Normalized SHA-256: 3bd8a8c5938e56a7b15918ccf8355b1b2c1bb809841272f82dc7d0564d91eb91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointSingleCellStubs
+
+/-!
+# Target F2: one full-cell stub-matching count
+
+This is the literal single-cell factor
+`(u)_x (v)_x / x!`; it makes no claim about selecting or pairing profile
+blocks.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+abbrev SingleCellStubMatching (u v x : Nat) :=
+  {S : UnlabelledTypedSkeleton (fun _ : Unit => u) (fun _ : Unit => v) //
+    S.typeTable () () = x}
+
+theorem card_singleCellStubMatching_mul_factorial
+    (u v x : Nat) :
+    Fintype.card (SingleCellStubMatching u v x) * x.factorial =
+      u.descFactorial x * v.descFactorial x := by
+  let L : Unit → Unit → Nat := fun _ _ => x
+  have hPred (S : UnlabelledTypedSkeleton
+      (fun _ : Unit => u) (fun _ : Unit => v)) :
+      S.typeTable () () = x ↔ S.typeTable = L := by
+    constructor
+    · intro h
+      funext i j
+      cases i
+      cases j
+      exact h
+    · intro h
+      exact congrFun (congrFun h ()) ()
+  have hCard :
+      Fintype.card (SingleCellStubMatching u v x) =
+        Fintype.card
+          {S : UnlabelledTypedSkeleton
+              (fun _ : Unit => u) (fun _ : Unit => v) //
+            S.typeTable = L} := by
+    exact Fintype.card_congr
+      (Equiv.subtypeEquiv (Equiv.refl _) hPred)
+  rw [hCard]
+  simpa [L] using
+    (card_unlabelledTypedSkeleton_typeTable_mul_factorials
+      L (fun _ : Unit => u) (fun _ : Unit => v))
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointSingleCellStubs
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointSingleCellStubs
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointGlobalTransport
+Source: Erdos625/Section8EndpointGlobalTransport.lean
+Normalized SHA-256: 20a0a7eb7cfcfd07c0764026a26b74b6fd9af4ea61bb7b7251e5b31cead09bc2
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointGlobalTransport
+
+/-!
+# Target C: global falling-factorial transport
+
+This is only the finite natural-number transport factor. It does not assert
+the ENNReal geometric-mean comparison (8.8) or the local bound (8.9).
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+theorem fourEndpoint_global_transport
+    (n alpha : Nat) (hAlpha : 5 < alpha) (L : FourEndpointFullTable) :
+    n.descFactorial (fourEndpointRowMass alpha hAlpha L) *
+      n.descFactorial (fourEndpointColumnMass alpha hAlpha L) <=
+        (n.descFactorial (fourEndpointJ alpha hAlpha L)) ^ 2 *
+          (n + 1) ^ fourEndpointDisplacement L := by
+  apply descFactorial_endpoint_transport_succ
+  · unfold fourEndpointJ fourEndpointRowMass fourEndpointMarginMass
+      fourEndpointRowMargin fourEndpointOverlapSize
+    simp only [Finset.mul_sum]
+    exact Finset.sum_le_sum fun i _ =>
+      Finset.sum_le_sum fun j _ =>
+        Nat.mul_le_mul_right (L.toFun i j) (min_le_left _ _)
+  · unfold fourEndpointJ fourEndpointColumnMass fourEndpointMarginMass
+      fourEndpointColumnMargin fourEndpointOverlapSize
+    simp only [Finset.mul_sum]
+    rw [Finset.sum_comm]
+    exact Finset.sum_le_sum fun j _ =>
+      Finset.sum_le_sum fun i _ =>
+        Nat.mul_le_mul_right (L.toFun i j) (min_le_right _ _)
+  · have hcell (i j : Fin 4) :
+        fourEndpointSize alpha hAlpha i + fourEndpointSize alpha hAlpha j =
+          2 * fourEndpointOverlapSize alpha hAlpha i j +
+            Nat.dist i.val j.val := by
+      fin_cases i <;> fin_cases j <;>
+        simp [fourEndpointOverlapSize, fourEndpointSize,
+          fourEndpointCoordinate, fourDeficitCoordinate, fourDeficit,
+          Nat.dist] <;> omega
+    unfold fourEndpointRowMass fourEndpointColumnMass fourEndpointMarginMass
+      fourEndpointRowMargin fourEndpointColumnMargin fourEndpointJ
+      fourEndpointDisplacement
+    simp only [Finset.mul_sum]
+    calc
+      (∑ i, ∑ j, fourEndpointSize alpha hAlpha i * L.toFun i j) +
+          ∑ j, ∑ i, fourEndpointSize alpha hAlpha j * L.toFun i j =
+        ∑ i, ∑ j,
+          (fourEndpointSize alpha hAlpha i +
+            fourEndpointSize alpha hAlpha j) * L.toFun i j := by
+              conv_lhs =>
+                rhs
+                rw [Finset.sum_comm]
+              rw [← Finset.sum_add_distrib]
+              apply Finset.sum_congr rfl
+              intro i _
+              rw [← Finset.sum_add_distrib]
+              apply Finset.sum_congr rfl
+              intro j _
+              rw [add_mul]
+      _ = ∑ i, ∑ j,
+          (2 * fourEndpointOverlapSize alpha hAlpha i j +
+            Nat.dist i.val j.val) * L.toFun i j := by
+              apply Finset.sum_congr rfl
+              intro i _
+              apply Finset.sum_congr rfl
+              intro j _
+              rw [hcell]
+      _ = (∑ i, ∑ j,
+            2 * (fourEndpointOverlapSize alpha hAlpha i j * L.toFun i j)) +
+          ∑ i, ∑ j, Nat.dist i.val j.val * L.toFun i j := by
+              simp only [add_mul, mul_assoc, Finset.sum_add_distrib]
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointGlobalTransport
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointGlobalTransport
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalWeights
 Source: Erdos625/PartialDiagonalWeights.lean
 Normalized SHA-256: e19963d6c102e921280769122399697ac1ad7c2a4b5487f3f734e956a15ce0a8
@@ -60003,7 +60437,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b33a9ad351db3a23d5c28a52a342c43874cd7d665e22c45841bdeeb6c62038b3
+Normalized SHA-256: 51a07a01b02b5106cb00dc381ba7690970ba95a7d906f678a2513c9794b5c86f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -60874,6 +61308,12 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
 #print axioms Erdos625.tangent_floor_error_intervals
+#print axioms Erdos625.tangent_correctedInt_nonnegative
+#print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
+#print axioms Erdos625.fourDeficitEmbedding_profile_invariants
+#print axioms Erdos625.card_singleCellStubMatching_mul_factorial
+#print axioms Erdos625.fourEndpoint_global_transport
+#print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -60883,7 +61323,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 3196c2d31fa7e9237c090451512da2adf5539bfe2de3a3934f75d06a6cc2d256
+Normalized SHA-256: ce0b9910615103545a13a1830ab65290cca16d3b33d309e47573f124ee77ed4c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

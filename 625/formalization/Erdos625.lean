@@ -91,6 +91,8 @@ import Erdos625.SignedFourSizeObjective
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore
 import Erdos625.TangentFloorErrorIntervals
+import Erdos625.TangentCorrectedCountNonnegativity
+import Erdos625.TangentNatConservationDisplacement
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding
@@ -279,6 +281,9 @@ import Erdos625.Section8NearSkeletonExponentialBound
 import Erdos625.EndpointTransportBounds
 import Erdos625.Section8EndpointFoundation
 import Erdos625.Section8EndpointProfileIndexing
+import Erdos625.Section8EndpointBlockPairings
+import Erdos625.Section8EndpointSingleCellStubs
+import Erdos625.Section8EndpointGlobalTransport
 import Erdos625.ConfigurationThetaMoments
 import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing

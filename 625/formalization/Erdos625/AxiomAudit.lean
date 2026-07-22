@@ -89,6 +89,8 @@ import Erdos625.SPlusPrimalRepresentation
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore
 import Erdos625.TangentFloorErrorIntervals
+import Erdos625.TangentCorrectedCountNonnegativity
+import Erdos625.TangentNatConservationDisplacement
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
@@ -282,6 +284,9 @@ import Erdos625.Section8NearPrefixFoundation
 import Erdos625.Section8CanonicalNearPrefix
 import Erdos625.Section8CanonicalNearUniqueness
 import Erdos625.Section8EndpointProfileIndexing
+import Erdos625.Section8EndpointBlockPairings
+import Erdos625.Section8EndpointSingleCellStubs
+import Erdos625.Section8EndpointGlobalTransport
 import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.ProfileBlockCardinalityBound
@@ -1157,3 +1162,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
 #print axioms Erdos625.tangent_floor_error_intervals
+#print axioms Erdos625.tangent_correctedInt_nonnegative
+#print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
+#print axioms Erdos625.fourDeficitEmbedding_profile_invariants
+#print axioms Erdos625.card_singleCellStubMatching_mul_factorial
+#print axioms Erdos625.fourEndpoint_global_transport
+#print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement

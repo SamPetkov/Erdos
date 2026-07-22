@@ -52,6 +52,39 @@ def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
     ∑ i : Fin 4,
       if fourDeficitCoordinate alpha hAlpha i = j then m i else 0
 
+theorem fourDeficitEmbedding_profile_invariants
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 -> Nat) :
+    ColoringProfile.partCount (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, m i) ∧
+    ColoringProfile.vertexMass (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, (alpha - fourDeficit i) * m i) ∧
+    IsFourDeficitSupported alpha (fourDeficitEmbedding alpha hAlpha m) := by
+  constructor
+  · rw [ColoringProfile.partCount_eq_sum]
+    simp [fourDeficitEmbedding, Finset.sum_comm]
+  constructor
+  · rw [ColoringProfile.vertexMass_eq_sum]
+    simp only [fourDeficitEmbedding, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro i hi
+    simp only [mul_ite, mul_zero, Fintype.sum_ite_eq]
+    congr 1
+    unfold fourDeficitCoordinate
+    rw [Fin.val_rev, Fin.val_succ]
+    fin_cases i <;> simp [fourDeficit] <;> omega
+  · intro j hj
+    by_contra h
+    simp only [not_exists] at h
+    have hc : ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
+      intro i hij
+      apply h i
+      rw [← hij, profileDeficit_fourDeficitCoordinate]
+    have hz : fourDeficitEmbedding alpha hAlpha m j = 0 := by
+      rw [fourDeficitEmbedding]
+      simp [hc]
+    exact hj hz
+
 end
 
 end Erdos625

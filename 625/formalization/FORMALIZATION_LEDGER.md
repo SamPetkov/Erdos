@@ -673,6 +673,12 @@ The next audited finite layer adds the following statement-faithful ports:
 - the sharp integral floor-error and correction intervals
   `e0 ∈ [-3,0]`, `e1 ∈ [-13,0]`, `c0 ∈ [-2,0]`, and
   `c1 ∈ [0,5]`;
+- nonnegativity of every corrected integral coordinate under the explicit
+  lower bound `14 ≤ K * p i`, without asserting the false claim `c0 ≥ 0`;
+- the corresponding natural-number affine conservation laws and uniform
+  coordinate displacement bound `≤ 5`;
+- exact part count, vertex mass, and four-deficit support for the concrete
+  four-coordinate embedding;
 - the uniform negative bound for the finite Section VII partial-diagonal rate;
 - the canonical physical near-cell filter, its exact type table, and the
   resulting `NearPrefix`;
@@ -680,6 +686,10 @@ The next audited finite layer adds the following statement-faithful ports:
   physical high fibre, using subset plus equal finite cell cardinality rather
   than an untracked edgewise-closure assumption; and
 - the four endpoint size, slot-cardinality, and pairwise-disjointness facts.
+- the exact endpoint unlabelled typed-skeleton fibre count after multiplying
+  by the cell factorials.
+- the exact one-cell physical-stub matching count and the finite global
+  falling-factorial endpoint transport identity.
 
 The near-prefix uniqueness is deliberately fibrewise: the repository's
 `NearCompletion` structure allows its high fibre to vary, so a global
