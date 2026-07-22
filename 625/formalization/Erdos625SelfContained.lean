@@ -23972,6 +23972,78 @@ END SOURCE MODULE: Erdos625.MidpointProfileRoundingCast
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileRoundingIntDisplacement
+Source: Erdos625/MidpointProfileRoundingIntDisplacement.lean
+Normalized SHA-256: 7d3dfc1b7de395b2a436ca8ff7cf84ff1a2d202ef025499a3e431510e6403801
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingIntDisplacement
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Exact natural count and deficit conservation, together with the uniform
+displacement estimate at the corrected-integer level.  The final conjunct is
+intentionally stated before any `Int.toNat` cast, so the later nonnegativity
+and cast transport remain explicit proof obligations. -/
+theorem midpointMultiplicity_count_deficit_intDisplacement
+    (n alpha K : Nat)
+    (h : MidpointRoundingAdmissible n alpha K) :
+    (∑ i : Fin 4, midpointMultiplicity n alpha K i) = K ∧
+    (∑ i : Fin 4,
+        tangentDeficitNat i * midpointMultiplicity n alpha K i) =
+          midpointDeficit n alpha K ∧
+    (∀ i : Fin 4,
+      |((tangentCorrectedInt K (midpointDeficit n alpha K)
+            (midpointOptimizer n alpha K) i : Int) : Real) -
+          (K : Real) * midpointOptimizer n alpha K i| ≤
+        (5 : Real)) := by
+  rcases h with ⟨_hAlpha, hK, hn, hTarget, hLower⟩
+  have hCount :
+      ∑ i : Fin 4, (K : Real) * midpointOptimizer n alpha K i =
+        (K : Real) := by
+    rw [← Finset.mul_sum, midpointOptimizer,
+      ProfileEntropyS4.sum_optimizer, mul_one]
+  have hMoment :
+      ∑ i : Fin 4, (tangentDeficit i : Real) *
+          ((K : Real) * midpointOptimizer n alpha K i) =
+        ((midpointDeficit n alpha K : Nat) : Real) := by
+    calc
+      _ = (K : Real) * ∑ i : Fin 4,
+          midpointOptimizer n alpha K i * ProfileEntropyS4.support i := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        have hDeficit : (tangentDeficit i : Real) =
+            ProfileEntropyS4.support i := by
+          simp [tangentDeficit, ProfileEntropyS4.support]
+        rw [hDeficit]
+        ring
+      _ = (K : Real) * fourSizeTarget n alpha (K : Real) := by
+        rw [midpointOptimizer,
+          ProfileEntropyS4.sum_optimizer_mul_support
+            (fourDeficitScore alpha) hTarget]
+      _ = ((midpointDeficit n alpha K : Nat) : Real) := by
+        rw [midpointDeficit,
+          deficit_cast_eq_parts_mul_fourSizeTarget n alpha K hK hn]
+  exact tangent_rounding_nat_conservation_and_uniform_displacement
+    K (midpointDeficit n alpha K) (midpointOptimizer n alpha K)
+      hCount hMoment hLower
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingIntDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileRoundingIntDisplacement
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.SPlusPrimalDirect
 Source: Erdos625/SPlusPrimalDirect.lean
 Normalized SHA-256: e311a3b6f6afa66dca9e633bc3d25d715f2bdc2461545051200b8b95f1f0360c
@@ -63348,7 +63420,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: fd4277cac1ed04c99ecb44d3b59e3e55b171aeb5576bf6fe961d822f42464966
+Normalized SHA-256: 2989d4bfd8e72bc145863169d87a98bd8aea91d0c964b8ed28886c638b633c24
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64267,6 +64339,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
 #print axioms Erdos625.midpointOptimizer_count_and_moment
 #print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
+#print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64276,7 +64349,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 59e59a22b68e539c704aa7a3416c0cfb782fd699715028fe275b5b9de0b1e85b
+Normalized SHA-256: d3c86b7cfce948315d1a1e44005d78afa83c76be7f50b96be231fed81c8386e3
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

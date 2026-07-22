@@ -717,3 +717,11 @@ Section VIII skeleton estimate, or `Erdos625Statement`.  Acceptance of this
 checkpoint requires the repository's GitHub Lean 4.31 placeholder scan,
 warning-fatal modular build, generated-source freshness check, and
 warning-fatal self-contained compilation.
+
+The midpoint rounding layer also now records the exact theorem
+`midpointMultiplicity_count_deficit_intDisplacement`: under
+`MidpointRoundingAdmissible`, the rounded multiplicities have total count
+`K`, total four-deficit moment `midpointDeficit n alpha K`, and corrected-Int
+coordinate displacement at most `5`. This deliberately precedes the separate
+nonnegative `Int.toNat` transport and does not claim the final natural-coordinate
+displacement theorem or all-`n` admissibility.
