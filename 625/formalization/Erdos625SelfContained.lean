@@ -56842,7 +56842,7 @@ END SOURCE MODULE: Erdos625.PartialDiagonalDecayReindexing
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
 Source: Erdos625/PartialDiagonalMidpointActivityBridge.lean
-Normalized SHA-256: cbfb763ebb75b0ff624df5c95f0e9af1e842eac7f8335bb039421a3c2ecbbd94
+Normalized SHA-256: 7653c3f5f604291ddc6d31418739fbd700d7cecd65e6712fbf68bfe854c658ba
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PartialDiagonalMidpointActivityBridge
 
@@ -56929,42 +56929,42 @@ theorem partialDiagonalWeight_increment_le_of_mu_cutoff_activity
 /-- The finite partial-diagonal mass below the selected-vertex cutoff is
 controlled by the exponential of its exact cutoff activity. -/
 theorem sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
-    (n massCap : Nat) (u k : I -> Nat)
-    (hmassCap : massCap <= n)
-    (hu : forall i, u i <= n - massCap) :
-    sum ell in (partialSubprofileBox k).filter
-        (fun ell => selectedVertexMass u ell <= massCap),
+    (n massCap : Nat) (u k : I → Nat)
+    (hmassCap : massCap ≤ n)
+    (hu : ∀ i, u i ≤ n - massCap) :
+    ∑ ell ∈ (partialSubprofileBox k).filter
+        (fun ell => selectedVertexMass u ell ≤ massCap),
       partialDiagonalWeight n u k ell
-      <= Real.exp (sum i, muCutoffActivity n massCap u k i) := by
+      ≤ Real.exp (∑ i, muCutoffActivity n massCap u k i) := by
   apply sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
   · intro i
     unfold muCutoffActivity
     exact div_nonneg (sq_nonneg _) (mul_nonneg (by positivity) (mu_pos (hu i)).le)
   · exact hmassCap
   · intro ell i hprofile hi hcut
-    have hsub : ((k i - ell i : Nat) : Real) <= k i := by
+    have hsub : ((k i - ell i : Nat) : Real) ≤ k i := by
       exact_mod_cast Nat.sub_le (k i) (ell i)
-    have hnum : ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := by
+    have hnum : ((k i - ell i : Nat) : Real) ^ 2 ≤ (k i : Real) ^ 2 := by
       nlinarith
     unfold muCutoffActivity
     rw [selectedVertexMass_increment] at hcut
-    have hselected : selectedVertexMass u ell <= massCap := by omega
-    have hremLe : n - massCap <= n - selectedVertexMass u ell :=
+    have hselected : selectedVertexMass u ell ≤ massCap := by omega
+    have hremLe : n - massCap ≤ n - selectedVertexMass u ell :=
       Nat.sub_le_sub_left hselected n
     have hmuMono :
-        mu (n - massCap) (u i) <=
+        mu (n - massCap) (u i) ≤
           mu (n - selectedVertexMass u ell) (u i) :=
       mu_le_of_le_vertex_count (hu i) hremLe
     have hmuCut : 0 < mu (n - massCap) (u i) := mu_pos (hu i)
     have hratio :
-        1 <= mu (n - selectedVertexMass u ell) (u i) /
+        1 ≤ mu (n - selectedVertexMass u ell) (u i) /
           mu (n - massCap) (u i) := by
       apply (le_div_iff₀ hmuCut).2
       simpa using hmuMono
     calc
-      ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := hnum
+      ((k i - ell i : Nat) : Real) ^ 2 ≤ (k i : Real) ^ 2 := hnum
       _ = (k i : Real) ^ 2 * 1 := by ring
-      _ <= (k i : Real) ^ 2 *
+      _ ≤ (k i : Real) ^ 2 *
           (mu (n - selectedVertexMass u ell) (u i) /
             mu (n - massCap) (u i)) := by
         exact mul_le_mul_of_nonneg_left hratio (sq_nonneg _)
