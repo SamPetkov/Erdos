@@ -19660,9 +19660,61 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterLogBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootPartGeometry
+Source: Erdos625/PhaseRootPartGeometry.lean
+Normalized SHA-256: 9e0c0519f829ea7e48ba2a4f4cacc111d1e439d3729fef50585d4eb38bf07fcb
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootPartGeometry
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseRootS0_isEquivalent_scaled_logOrder :
+    phaseRootS0 ~[atTop] (fun n : ℕ ↦ (2 / q) * logOrder n) := by
+  have hScaleNe : (2 / q : ℝ) ≠ 0 :=
+    div_ne_zero (by norm_num) q_ne_zero
+  have hScaled :
+      (fun n : ℕ ↦ (2 / q) * phaseS n) ~[atTop]
+        (fun n : ℕ ↦ (2 / q) * logOrder n) :=
+    (IsEquivalent.refl : (fun _n : ℕ ↦ (2 / q : ℝ)) ~[atTop]
+      (fun _n : ℕ ↦ (2 / q : ℝ))).mul phaseS_isEquivalent_logOrder
+  have hConstant :
+      (fun _n : ℕ ↦ (-2 / q : ℝ)) =o[atTop]
+        (fun n : ℕ ↦ (2 / q) * logOrder n) := by
+    have h :
+        (fun _n : ℕ ↦ (-2 / q : ℝ)) =o[atTop]
+          (fun n : ℕ ↦ logOrder n) := by
+      simpa only [Function.comp_def, id_eq] using
+        (isLittleO_const_id_atTop (-2 / q : ℝ)).comp_tendsto
+          tendsto_logOrder_atTop
+    exact h.const_mul_right hScaleNe
+  have hSum := hScaled.add_isLittleO hConstant
+  apply hSum.congr'
+  · filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
+    change (2 / q * phaseS n + (-2 / q) - 2 / q * logOrder n) =
+      phaseRootS0 n - 2 / q * logOrder n
+    rw [phaseRootS0, alphaZero_eq_two_phaseS_div_q_add_one hn]
+    ring
+  · exact EventuallyEq.rfl
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootPartGeometry
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootPartGeometry
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarCore
 Source: Erdos625/PhaseRootScalarCore.lean
-Normalized SHA-256: 14ac8c128ee9d36dfd3947cf9ea7f48e0d9d8fdb400fdc51240d67b1583c992e
+Normalized SHA-256: 6bdff4243ed59fa51ccacacd3f91f537372c40e45fb2d4e37d8107b063d00ca1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarCore
 
@@ -19711,7 +19763,7 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
     rw [Real.log_mul (by positivity : (2 * Real.pi : ℝ) ≠ 0) haReal.ne']
   simp only [phaseRootScalarTerm, profileDeficitAffineA,
     coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
-  rw [hquot, hLogProduct, hChoose]
+  rw [hquot, hLogProduct, hChoose, phaseRootDeficitTarget_eq hn]
   ring_nf
 
 theorem phaseRootScalarTerm_eq_core {n : ℕ}
@@ -19980,6 +20032,52 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
+Source: Erdos625/ColoringProfilePhaseDerivativeAffineCore.lean
+Normalized SHA-256: 57f0aec853efb5449e14a982efe93cb6de22f77f8fcb457bd4dffab6764a30ee
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem abs_profileDeficitAffineCore_sub_quadratic_le
+    (alpha : ℕ) (halpha : 0 < alpha) :
+    |profileDeficitAffineA alpha +
+          profileDeficitAffineB alpha * (alpha : ℝ) -
+        (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ))| ≤
+      factorialLogErrorBound alpha := by
+  have hchoose : ((alpha.choose 2 : ℕ) : ℝ) =
+      (alpha : ℝ) * ((alpha : ℝ) - 1) / 2 := by
+    exact Nat.cast_choose_two ℝ alpha
+  have hmain := abs_log_factorial_sub_factorialEntropyMain_le alpha
+  rw [factorialEntropyMain_of_pos halpha] at hmain
+  unfold profileDeficitAffineA profileDeficitAffineB coloringClassLogCost
+  rw [show Real.log 2 = q from rfl, hchoose]
+  rw [show
+      -(Real.log (alpha.factorial : ℝ) +
+          ((alpha : ℝ) * ((alpha : ℝ) - 1) / 2) * q) +
+          (q * (alpha : ℝ) - q / 2 + Real.log (alpha : ℝ)) * (alpha : ℝ) -
+          (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ)) =
+        - (Real.log (alpha.factorial : ℝ) -
+          ((alpha : ℝ) * Real.log (alpha : ℝ) - (alpha : ℝ))) by ring]
+  simpa only [abs_neg] using hmain
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
 ========================================================================== -/
 
 /- ==========================================================================
@@ -21500,530 +21598,6 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
-Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: 7908f89a168543409738b41ca7fe317a289120dc973ee686c2b31c730dac867b
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
-
-/-!
-# Concrete four-deficit profile coordinates
-
-The finite map below places four natural multiplicities at the class-size
-coordinates corresponding to deficits `2, 3, 4, 5`.  It is intentionally a
-plain finite sum so that image and off-image statements are genuine finite
-facts, not properties hidden in a subtype or a choice function.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- The stored profile coordinate represents the class size obtained by
-subtracting the corresponding deficit from `alpha`. -/
-theorem fourDeficitCoordinate_val_add_one_eq
-    (alpha : Nat) (hAlpha : 5 < alpha) (i : Fin 4) :
-    (fourDeficitCoordinate alpha hAlpha i).val + 1 =
-      alpha - fourDeficit i := by
-  unfold fourDeficitCoordinate
-  rw [Fin.val_rev, Fin.val_succ]
-  have hle : fourDeficit i ≤ 5 := by
-    fin_cases i <;> norm_num [fourDeficit]
-  change alpha + 1 - (fourDeficit i + 1 + 1) + 1 =
-    alpha - fourDeficit i
-  omega
-
-/-- The natural deficit `alpha * K - n`, cast to the reals, is exactly the
-number of parts times the four-size target mean deficit. -/
-theorem deficit_cast_eq_parts_mul_fourSizeTarget
-    (n alpha K : Nat) (hK : 0 < K) (hn : n ≤ alpha * K) :
-    ((alpha * K - n : Nat) : Real) =
-      (K : Real) * fourSizeTarget n alpha (K : Real) := by
-  rw [Nat.cast_sub hn]
-  unfold fourSizeTarget
-  push_cast
-  have hK_real : (K : Real) ≠ 0 := by
-    exact_mod_cast (Nat.ne_of_gt hK)
-  field_simp
-
-/-- Embed four multiplicities into the full profile indexed by class sizes
-`1, ..., alpha + 1`. -/
-def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
-    (m : Fin 4 -> Nat) : ColoringProfile (alpha + 1) :=
-  fun j =>
-    ∑ i : Fin 4,
-      if fourDeficitCoordinate alpha hAlpha i = j then m i else 0
-
-theorem fourDeficitEmbedding_profile_invariants
-    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 -> Nat) :
-    ColoringProfile.partCount (fourDeficitEmbedding alpha hAlpha m) =
-      (∑ i : Fin 4, m i) ∧
-    ColoringProfile.vertexMass (fourDeficitEmbedding alpha hAlpha m) =
-      (∑ i : Fin 4, (alpha - fourDeficit i) * m i) ∧
-    IsFourDeficitSupported alpha (fourDeficitEmbedding alpha hAlpha m) := by
-  constructor
-  · rw [ColoringProfile.partCount_eq_sum]
-    simp [fourDeficitEmbedding, Finset.sum_comm]
-  constructor
-  · rw [ColoringProfile.vertexMass_eq_sum]
-    simp only [fourDeficitEmbedding, Finset.mul_sum]
-    rw [Finset.sum_comm]
-    apply Finset.sum_congr rfl
-    intro i hi
-    simp only [mul_ite, mul_zero, Fintype.sum_ite_eq]
-    congr 1
-    unfold fourDeficitCoordinate
-    rw [Fin.val_rev, Fin.val_succ]
-    fin_cases i <;> simp [fourDeficit] <;> omega
-  · intro j hj
-    by_contra h
-    simp only [not_exists] at h
-    have hc : ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
-      intro i hij
-      apply h i
-      rw [← hij, profileDeficit_fourDeficitCoordinate]
-    have hz : fourDeficitEmbedding alpha hAlpha m j = 0 := by
-      rw [fourDeficitEmbedding]
-      simp [hc]
-    exact hj hz
-
-/-- The four-deficit embedding has the prescribed value at each distinguished
-coordinate and vanishes away from the four distinguished coordinates. -/
-theorem fourDeficitEmbedding_eval_and_off_image
-    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 → Nat) :
-    (∀ i : Fin 4,
-      fourDeficitEmbedding alpha hAlpha m
-        (fourDeficitCoordinate alpha hAlpha i) = m i) ∧
-    (∀ j : Fin (alpha + 1),
-      (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
-        fourDeficitEmbedding alpha hAlpha m j = 0) := by
-  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
-    intro i k hik
-    have h := congrArg (profileDeficit alpha) hik
-    rw [profileDeficit_fourDeficitCoordinate,
-      profileDeficit_fourDeficitCoordinate] at h
-    simp [fourDeficit] at h
-    exact Fin.ext h
-  constructor
-  · intro i
-    unfold fourDeficitEmbedding
-    rw [Finset.sum_eq_single i]
-    · simp
-    · intro k _ hki
-      simp [hcoord.ne hki]
-    · simp
-  · intro j hj
-    unfold fourDeficitEmbedding
-    apply Finset.sum_eq_zero
-    intro i _
-    simp [hj i]
-
-#print axioms fourDeficitEmbedding_eval_and_off_image
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.MidpointProfileCoordinates
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TangentRoundingCore
-Source: Erdos625/TangentRoundingCore.lean
-Normalized SHA-256: 0115981e18aac23c12564b6d0048b7a457ff2e7751e3b8a9dff235e8b8095fc5
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
-
-/-!
-# Four-coordinate tangent rounding core
-
-This source is deliberately independent of the Erdős--625 graph and
-probability development.  Indices `0,1,2,3` encode manuscript deficits
-`2,3,4,5`.  The four raw values are the floors `a_i = floor (K * p_i)`.
--/
-
-namespace Erdos625
-
-open scoped BigOperators
-
-noncomputable section
-
-/-- The manuscript deficit attached to coordinate `i = 0,1,2,3`. -/
-def tangentDeficit (i : Fin 4) : Int := (i.1 : Int) + 2
-
-/-- Natural-number version of `tangentDeficit`. -/
-def tangentDeficitNat (i : Fin 4) : Nat := i.1 + 2
-
-/-- The four preliminary floors `a_i = floor (K * p_i)`. -/
-def tangentRawFloors (K : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
-  fun i ↦ Int.floor ((K : Real) * p i)
-
-/-- Signed error in the part-count constraint, for arbitrary integral raw data. -/
-def tangentE0Raw (a : Fin 4 → Int) (K : Int) : Int :=
-  (∑ i, a i) - K
-
-/-- Signed error in the deficit constraint, for arbitrary integral raw data. -/
-def tangentE1Raw (a : Fin 4 → Int) (D : Int) : Int :=
-  (∑ i, tangentDeficit i * a i) - D
-
-/-- The correction at manuscript deficit two: `c_0 = e_1 - 3 e_0`. -/
-def tangentC0Raw (a : Fin 4 → Int) (K D : Int) : Int :=
-  tangentE1Raw a D - 3 * tangentE0Raw a K
-
-/-- The correction at manuscript deficit three: `c_1 = 2 e_0 - e_1`. -/
-def tangentC1Raw (a : Fin 4 → Int) (K D : Int) : Int :=
-  2 * tangentE0Raw a K - tangentE1Raw a D
-
-/-- The correction vector `(c_0,c_1,0,0)`. -/
-def tangentCorrectionRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
-  fun i ↦
-    if i.1 = 0 then tangentC0Raw a K D
-    else if i.1 = 1 then tangentC1Raw a K D
-    else 0
-
-/-- Correct arbitrary integral raw counts by the two tangent coordinates. -/
-def tangentCorrectedRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
-  fun i ↦ a i + tangentCorrectionRaw a K D i
-
-/-- Count error of the four raw floors. -/
-def tangentE0 (K : Nat) (p : Fin 4 → Real) : Int :=
-  tangentE0Raw (tangentRawFloors K p) (K : Int)
-
-/-- Deficit error of the four raw floors. -/
-def tangentE1 (K D : Nat) (p : Fin 4 → Real) : Int :=
-  tangentE1Raw (tangentRawFloors K p) (D : Int)
-
-/-- The first floor-rounding correction. -/
-def tangentC0 (K D : Nat) (p : Fin 4 → Real) : Int :=
-  tangentC0Raw (tangentRawFloors K p) (K : Int) (D : Int)
-
-/-- The second floor-rounding correction. -/
-def tangentC1 (K D : Nat) (p : Fin 4 → Real) : Int :=
-  tangentC1Raw (tangentRawFloors K p) (K : Int) (D : Int)
-
-/-- The corrected four-coordinate profile, still represented in `Int`. -/
-def tangentCorrectedInt (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
-  tangentCorrectedRaw (tangentRawFloors K p) (K : Int) (D : Int)
-
-/-- The corrected four-coordinate profile as natural numbers.  Its equality
-with `tangentCorrectedInt` is only used after nonnegativity is proved. -/
-def tangentCorrectedNat (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Nat :=
-  fun i ↦ (tangentCorrectedInt K D p i).toNat
-
-/-- The two prescribed corrections restore both affine constraints exactly.
-This is the pure integral tangent identity behind manuscript equation (5.16).
--/
-theorem tangent_rounding_integer_conservation
-    (a : Fin 4 → Int) (K D : Int) :
-    (∑ i, tangentCorrectedRaw a K D i) = K ∧
-      (∑ i, tangentDeficit i * tangentCorrectedRaw a K D i) = D := by
-  simp [tangentCorrectedRaw, tangentCorrectionRaw, tangentC0Raw, tangentC1Raw,
-    tangentE0Raw, tangentE1Raw, tangentDeficit, Fin.sum_univ_succ]
-  ring_nf
-  simp
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TangentRoundingCore
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
-Source: Erdos625/TangentFloorErrorIntervals.lean
-Normalized SHA-256: 0abc41eabcd011653aa5c730ecd719de1481ee5d34758cf056d09f19fcf2ec09
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- Exact count and moment constraints force the signed floor errors into
-their finite intervals.  The conclusion also records the resulting sharp
-integral bounds on the two correction coordinates. -/
-theorem tangent_floor_error_intervals
-    (K D : Nat) (p : Fin 4 → Real)
-    (hCount : ∑ i, (K : Real) * p i = (K : Real))
-    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
-      (D : Real)) :
-    (-3 : Int) ≤ tangentE0 K p ∧ tangentE0 K p ≤ 0 ∧
-      (-13 : Int) ≤ tangentE1 K D p ∧ tangentE1 K D p ≤ 0 ∧
-      (-2 : Int) ≤ tangentC0 K D p ∧ tangentC0 K D p ≤ 0 ∧
-      (0 : Int) ≤ tangentC1 K D p ∧ tangentC1 K D p ≤ 5 := by
-  have hle0 : ((Int.floor ((K : Real) * p 0) : Int) : Real) ≤ (K : Real) * p 0 :=
-    Int.floor_le _
-  have hle1 : ((Int.floor ((K : Real) * p 1) : Int) : Real) ≤ (K : Real) * p 1 :=
-    Int.floor_le _
-  have hle2 : ((Int.floor ((K : Real) * p 2) : Int) : Real) ≤ (K : Real) * p 2 :=
-    Int.floor_le _
-  have hle3 : ((Int.floor ((K : Real) * p 3) : Int) : Real) ≤ (K : Real) * p 3 :=
-    Int.floor_le _
-  have hlt0 : (K : Real) * p 0 < ((Int.floor ((K : Real) * p 0) : Int) : Real) + 1 :=
-    Int.lt_floor_add_one _
-  have hlt1 : (K : Real) * p 1 < ((Int.floor ((K : Real) * p 1) : Int) : Real) + 1 :=
-    Int.lt_floor_add_one _
-  have hlt2 : (K : Real) * p 2 < ((Int.floor ((K : Real) * p 2) : Int) : Real) + 1 :=
-    Int.lt_floor_add_one _
-  have hlt3 : (K : Real) * p 3 < ((Int.floor ((K : Real) * p 3) : Int) : Real) + 1 :=
-    Int.lt_floor_add_one _
-  simp [Fin.sum_univ_succ, tangentDeficit] at hCount hMoment
-  have he0le : ((tangentE0 K p : Int) : Real) ≤ 0 := by
-    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
-    linarith
-  have he0gt : (-4 : Real) < ((tangentE0 K p : Int) : Real) := by
-    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
-    linarith
-  have he1le : ((tangentE1 K D p : Int) : Real) ≤ 0 := by
-    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
-      tangentDeficit]
-    linarith
-  have he1gt : (-14 : Real) < ((tangentE1 K D p : Int) : Real) := by
-    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
-      tangentDeficit]
-    linarith
-  have hc0le : ((tangentC0 K D p : Int) : Real) < 1 := by
-    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
-      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
-    linarith
-  have hc0gt : (-3 : Real) < ((tangentC0 K D p : Int) : Real) := by
-    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
-      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
-    linarith
-  have hc1ge : (0 : Real) ≤ ((tangentC1 K D p : Int) : Real) := by
-    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
-      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
-    linarith
-  have hc1lt : ((tangentC1 K D p : Int) : Real) < 6 := by
-    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
-      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
-    linarith
-  norm_cast at he0le he0gt he1le he1gt hc0le hc0gt hc1ge hc1lt
-  omega
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
-Source: Erdos625/TangentCorrectedCountNonnegativity.lean
-Normalized SHA-256: 2361131bb7b8d4c5c3b30abedcb1c12d62662ccaccfee0328bbac8c89022f916
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- The manuscript's explicit lower scale `14 ≤ K p_i` keeps every corrected
-integer count nonnegative.  This deliberately asserts nonnegativity of the
-*corrected counts*: the first correction `c_0` itself can be negative. -/
-theorem tangent_corrected_counts_nonnegative_of_fourteen
-    (K D : Nat) (p : Fin 4 → Real)
-    (hCount : ∑ i, (K : Real) * p i = (K : Real))
-    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
-      (D : Real))
-    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
-    ∀ i, (0 : Int) ≤ tangentCorrectedInt K D p i := by
-  have hf_le (i : Fin 4) :
-      ((Int.floor ((K : Real) * p i) : Int) : Real) ≤ (K : Real) * p i :=
-    Int.floor_le _
-  have hf_lt (i : Fin 4) :
-      (K : Real) * p i < ((Int.floor ((K : Real) * p i) : Int) : Real) + 1 :=
-    Int.lt_floor_add_one _
-  have hlo0 := hLower (0 : Fin 4)
-  have hlo1 := hLower (1 : Fin 4)
-  have hlo2 := hLower (2 : Fin 4)
-  have hlo3 := hLower (3 : Fin 4)
-  have hle0 := hf_le (0 : Fin 4)
-  have hle1 := hf_le (1 : Fin 4)
-  have hle2 := hf_le (2 : Fin 4)
-  have hle3 := hf_le (3 : Fin 4)
-  have hlt0 := hf_lt (0 : Fin 4)
-  have hlt1 := hf_lt (1 : Fin 4)
-  have hlt2 := hf_lt (2 : Fin 4)
-  have hlt3 := hf_lt (3 : Fin 4)
-  simp only [Fin.sum_univ_four] at hCount hMoment
-  simp [tangentDeficit] at hMoment
-  intro i
-  have hi : (0 : Real) ≤ (tangentCorrectedInt K D p i : Real) := by
-    fin_cases i
-    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-        tangentC0Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
-        tangentDeficit, Fin.sum_univ_four]
-      linarith
-    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-        tangentC1Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
-        tangentDeficit, Fin.sum_univ_four]
-      linarith
-    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-        tangentRawFloors]
-      exact_mod_cast Int.floor_nonneg.mpr
-        (show (0 : Real) ≤ (K : Real) * p (2 : Fin 4) by linarith)
-    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-        tangentRawFloors]
-      exact_mod_cast Int.floor_nonneg.mpr
-        (show (0 : Real) ≤ (K : Real) * p (3 : Fin 4) by linarith)
-  exact_mod_cast hi
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
-Source: Erdos625/TangentNatConservationDisplacement.lean
-Normalized SHA-256: 51aa90c54088099de4305497ff35d62869330283e23e0c333454364690a6f560
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
-
-namespace Erdos625
-
-open scoped BigOperators
-
-/-- After the explicit positivity condition, conversion to naturals preserves
-the exact count and deficit constraints.  Each corrected coordinate stays
-within `5` of its real tangent value; this is stronger than the coarse fixed
-lower bound `14` used to guarantee positivity. -/
-theorem tangent_rounding_nat_conservation_and_uniform_displacement
-    (K D : Nat) (p : Fin 4 → Real)
-    (hCount : ∑ i, (K : Real) * p i = (K : Real))
-    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
-      (D : Real))
-    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
-    (∑ i, tangentCorrectedNat K D p i) = K ∧
-      (∑ i, tangentDeficitNat i * tangentCorrectedNat K D p i) = D ∧
-      (∀ i,
-        |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤
-          (5 : Real)) := by
-  have hFloorLower : ∀ i, ((tangentRawFloors K p i : Int) : Real) ≤ (K : Real) * p i := by
-    intro i
-    exact Int.floor_le ((K : Real) * p i)
-  have hFloorUpper : ∀ i, (K : Real) * p i < ((tangentRawFloors K p i : Int) : Real) + 1 := by
-    intro i
-    exact Int.lt_floor_add_one ((K : Real) * p i)
-  have hl0 := hFloorLower (0 : Fin 4)
-  have hl1 := hFloorLower (1 : Fin 4)
-  have hl2 := hFloorLower (2 : Fin 4)
-  have hl3 := hFloorLower (3 : Fin 4)
-  have hu0 := hFloorUpper (0 : Fin 4)
-  have hu1 := hFloorUpper (1 : Fin 4)
-  have hu2 := hFloorUpper (2 : Fin 4)
-  have hu3 := hFloorUpper (3 : Fin 4)
-  simp only [Fin.sum_univ_four, tangentDeficit] at hCount hMoment
-  norm_num at hCount hMoment hl0 hl1 hl2 hl3 hu0 hu1 hu2 hu3
-  have hC0eq : ((tangentC0 K D p : Int) : Real) =
-      -(↑(tangentRawFloors K p 0) - (K : Real) * p 0) +
-        (↑(tangentRawFloors K p 2) - (K : Real) * p 2) +
-        2 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
-    simp only [tangentC0, tangentC0Raw, tangentE1Raw, tangentE0Raw,
-      Fin.sum_univ_four, tangentDeficit]
-    norm_num
-    linarith
-  have hC1eq : ((tangentC1 K D p : Int) : Real) =
-      -(↑(tangentRawFloors K p 1) - (K : Real) * p 1) -
-        2 * (↑(tangentRawFloors K p 2) - (K : Real) * p 2) -
-        3 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
-    simp only [tangentC1, tangentC1Raw, tangentE1Raw, tangentE0Raw,
-      Fin.sum_univ_four, tangentDeficit]
-    norm_num
-    linarith
-  have hC0lowerR : (-3 : Real) < (tangentC0 K D p : Int) := by rw [hC0eq]; linarith
-  have hC0upperR : ((tangentC0 K D p : Int) : Real) < 1 := by rw [hC0eq]; linarith
-  have hC1lowerR : (0 : Real) ≤ (tangentC1 K D p : Int) := by rw [hC1eq]; linarith
-  have hC1upperR : ((tangentC1 K D p : Int) : Real) < 6 := by rw [hC1eq]; linarith
-  have hC0lower : (-2 : Int) ≤ tangentC0 K D p := by
-    have : (-3 : Int) < tangentC0 K D p := by exact_mod_cast hC0lowerR
-    omega
-  have hC0upper : tangentC0 K D p ≤ 0 := by
-    have : tangentC0 K D p < (1 : Int) := by exact_mod_cast hC0upperR
-    omega
-  have hC1lower : (0 : Int) ≤ tangentC1 K D p := by exact_mod_cast hC1lowerR
-  have hC1upper : tangentC1 K D p ≤ 5 := by
-    have : tangentC1 K D p < (6 : Int) := by exact_mod_cast hC1upperR
-    omega
-  simp only [tangentC0] at hC0lower hC0upper hC0lowerR hC0upperR
-  simp only [tangentC1] at hC1lower hC1upper hC1lowerR hC1upperR
-  have hC0lowerCast : (-2 : Real) ≤ (tangentC0Raw (tangentRawFloors K p) K D : Int) := by
-    exact_mod_cast hC0lower
-  have hC0upperCast : ((tangentC0Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 0 := by
-    exact_mod_cast hC0upper
-  have hC1lowerCast : (0 : Real) ≤ (tangentC1Raw (tangentRawFloors K p) K D : Int) := by
-    exact_mod_cast hC1lower
-  have hC1upperCast : ((tangentC1Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 5 := by
-    exact_mod_cast hC1upper
-  have hDisp : ∀ i,
-      |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤ 5 := by
-    intro i
-    have hl := hFloorLower i
-    have hu := hFloorUpper i
-    fin_cases i
-    all_goals simp only [tangentCorrectedInt, tangentCorrectedRaw,
-      tangentCorrectionRaw]
-    all_goals norm_num at hl hu ⊢
-    all_goals rw [abs_le]
-    all_goals constructor <;> linarith
-  have hNonneg : ∀ i, 0 ≤ tangentCorrectedInt K D p i := by
-    intro i
-    have hd := hDisp i
-    have hl := hLower i
-    rw [abs_le] at hd
-    have hr : (0 : Real) ≤ ((tangentCorrectedInt K D p i : Int) : Real) := by linarith
-    exact_mod_cast hr
-  have hNatInt : ∀ i, (tangentCorrectedNat K D p i : Int) = tangentCorrectedInt K D p i := by
-    intro i
-    simp [tangentCorrectedNat, Int.toNat_of_nonneg (hNonneg i)]
-  have hSumInt : ∑ i, tangentCorrectedInt K D p i = (K : Int) := by
-    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
-    simp only [Fin.sum_univ_four, tangentDeficit]
-    norm_num
-    ring
-  have hMomentInt : ∑ i, tangentDeficit i * tangentCorrectedInt K D p i = (D : Int) := by
-    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
-      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
-    simp only [Fin.sum_univ_four, tangentDeficit]
-    norm_num
-    ring
-  constructor
-  · apply Nat.cast_injective (R := Int)
-    simp only [Nat.cast_sum]
-    rw [Finset.sum_congr rfl (fun i _ ↦ hNatInt i)]
-    exact hSumInt
-  constructor
-  · apply Nat.cast_injective (R := Int)
-    simp only [Nat.cast_sum, Nat.cast_mul]
-    rw [Finset.sum_congr rfl (fun i _ ↦ ?_)]
-    · exact hMomentInt
-    simp only [tangentDeficit, tangentDeficitNat]
-    rw [hNatInt]
-    norm_num
-  · exact hDisp
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExplicitPartitionRatio
 Source: Erdos625/ExplicitPartitionRatio.lean
 Normalized SHA-256: cabba3307080bfd58350541cbd2dbaadd08f86b30b5b7b2368e192e50ba60a61
@@ -23186,6 +22760,561 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_SPlusEntropySupremumDualInterior
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
+Source: Erdos625/SignedFourEntropyLossDecomposition.lean
+Normalized SHA-256: ab68aa6ec20eff11673e9243b5d6e7e4dae2e9fbb3a259b42c64927ab304f983
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The finite four-size loss is the limiting four-size loss plus the exact
+finite-score approximation error. -/
+theorem finite_four_entropy_loss_eq_limiting_add_error
+    (alpha : ℕ) (T : ℝ) :
+    extendedGaussianEntropyValue T - fourSizeFiniteEntropy alpha T =
+      fourEntropyLoss T +
+        (ProfileEntropyS4.optimizedValue fourGaussianScore T -
+          ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) T) := by
+  unfold fourSizeFiniteEntropy fourEntropyLoss
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
+Source: Erdos625/MidpointProfileCoordinates.lean
+Normalized SHA-256: 7908f89a168543409738b41ca7fe317a289120dc973ee686c2b31c730dac867b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
+
+/-!
+# Concrete four-deficit profile coordinates
+
+The finite map below places four natural multiplicities at the class-size
+coordinates corresponding to deficits `2, 3, 4, 5`.  It is intentionally a
+plain finite sum so that image and off-image statements are genuine finite
+facts, not properties hidden in a subtype or a choice function.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The stored profile coordinate represents the class size obtained by
+subtracting the corresponding deficit from `alpha`. -/
+theorem fourDeficitCoordinate_val_add_one_eq
+    (alpha : Nat) (hAlpha : 5 < alpha) (i : Fin 4) :
+    (fourDeficitCoordinate alpha hAlpha i).val + 1 =
+      alpha - fourDeficit i := by
+  unfold fourDeficitCoordinate
+  rw [Fin.val_rev, Fin.val_succ]
+  have hle : fourDeficit i ≤ 5 := by
+    fin_cases i <;> norm_num [fourDeficit]
+  change alpha + 1 - (fourDeficit i + 1 + 1) + 1 =
+    alpha - fourDeficit i
+  omega
+
+/-- The natural deficit `alpha * K - n`, cast to the reals, is exactly the
+number of parts times the four-size target mean deficit. -/
+theorem deficit_cast_eq_parts_mul_fourSizeTarget
+    (n alpha K : Nat) (hK : 0 < K) (hn : n ≤ alpha * K) :
+    ((alpha * K - n : Nat) : Real) =
+      (K : Real) * fourSizeTarget n alpha (K : Real) := by
+  rw [Nat.cast_sub hn]
+  unfold fourSizeTarget
+  push_cast
+  have hK_real : (K : Real) ≠ 0 := by
+    exact_mod_cast (Nat.ne_of_gt hK)
+  field_simp
+
+/-- Embed four multiplicities into the full profile indexed by class sizes
+`1, ..., alpha + 1`. -/
+def fourDeficitEmbedding (alpha : Nat) (hAlpha : 5 < alpha)
+    (m : Fin 4 -> Nat) : ColoringProfile (alpha + 1) :=
+  fun j =>
+    ∑ i : Fin 4,
+      if fourDeficitCoordinate alpha hAlpha i = j then m i else 0
+
+theorem fourDeficitEmbedding_profile_invariants
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 -> Nat) :
+    ColoringProfile.partCount (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, m i) ∧
+    ColoringProfile.vertexMass (fourDeficitEmbedding alpha hAlpha m) =
+      (∑ i : Fin 4, (alpha - fourDeficit i) * m i) ∧
+    IsFourDeficitSupported alpha (fourDeficitEmbedding alpha hAlpha m) := by
+  constructor
+  · rw [ColoringProfile.partCount_eq_sum]
+    simp [fourDeficitEmbedding, Finset.sum_comm]
+  constructor
+  · rw [ColoringProfile.vertexMass_eq_sum]
+    simp only [fourDeficitEmbedding, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro i hi
+    simp only [mul_ite, mul_zero, Fintype.sum_ite_eq]
+    congr 1
+    unfold fourDeficitCoordinate
+    rw [Fin.val_rev, Fin.val_succ]
+    fin_cases i <;> simp [fourDeficit] <;> omega
+  · intro j hj
+    by_contra h
+    simp only [not_exists] at h
+    have hc : ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
+      intro i hij
+      apply h i
+      rw [← hij, profileDeficit_fourDeficitCoordinate]
+    have hz : fourDeficitEmbedding alpha hAlpha m j = 0 := by
+      rw [fourDeficitEmbedding]
+      simp [hc]
+    exact hj hz
+
+/-- The four-deficit embedding has the prescribed value at each distinguished
+coordinate and vanishes away from the four distinguished coordinates. -/
+theorem fourDeficitEmbedding_eval_and_off_image
+    (alpha : Nat) (hAlpha : 5 < alpha) (m : Fin 4 → Nat) :
+    (∀ i : Fin 4,
+      fourDeficitEmbedding alpha hAlpha m
+        (fourDeficitCoordinate alpha hAlpha i) = m i) ∧
+    (∀ j : Fin (alpha + 1),
+      (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
+        fourDeficitEmbedding alpha hAlpha m j = 0) := by
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+    intro i k hik
+    have h := congrArg (profileDeficit alpha) hik
+    rw [profileDeficit_fourDeficitCoordinate,
+      profileDeficit_fourDeficitCoordinate] at h
+    simp [fourDeficit] at h
+    exact Fin.ext h
+  constructor
+  · intro i
+    unfold fourDeficitEmbedding
+    rw [Finset.sum_eq_single i]
+    · simp
+    · intro k _ hki
+      simp [hcoord.ne hki]
+    · simp
+  · intro j hj
+    unfold fourDeficitEmbedding
+    apply Finset.sum_eq_zero
+    intro i _
+    simp [hj i]
+
+#print axioms fourDeficitEmbedding_eval_and_off_image
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileCoordinates
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentRoundingCore
+Source: Erdos625/TangentRoundingCore.lean
+Normalized SHA-256: 0115981e18aac23c12564b6d0048b7a457ff2e7751e3b8a9dff235e8b8095fc5
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
+
+/-!
+# Four-coordinate tangent rounding core
+
+This source is deliberately independent of the Erdős--625 graph and
+probability development.  Indices `0,1,2,3` encode manuscript deficits
+`2,3,4,5`.  The four raw values are the floors `a_i = floor (K * p_i)`.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+/-- The manuscript deficit attached to coordinate `i = 0,1,2,3`. -/
+def tangentDeficit (i : Fin 4) : Int := (i.1 : Int) + 2
+
+/-- Natural-number version of `tangentDeficit`. -/
+def tangentDeficitNat (i : Fin 4) : Nat := i.1 + 2
+
+/-- The four preliminary floors `a_i = floor (K * p_i)`. -/
+def tangentRawFloors (K : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
+  fun i ↦ Int.floor ((K : Real) * p i)
+
+/-- Signed error in the part-count constraint, for arbitrary integral raw data. -/
+def tangentE0Raw (a : Fin 4 → Int) (K : Int) : Int :=
+  (∑ i, a i) - K
+
+/-- Signed error in the deficit constraint, for arbitrary integral raw data. -/
+def tangentE1Raw (a : Fin 4 → Int) (D : Int) : Int :=
+  (∑ i, tangentDeficit i * a i) - D
+
+/-- The correction at manuscript deficit two: `c_0 = e_1 - 3 e_0`. -/
+def tangentC0Raw (a : Fin 4 → Int) (K D : Int) : Int :=
+  tangentE1Raw a D - 3 * tangentE0Raw a K
+
+/-- The correction at manuscript deficit three: `c_1 = 2 e_0 - e_1`. -/
+def tangentC1Raw (a : Fin 4 → Int) (K D : Int) : Int :=
+  2 * tangentE0Raw a K - tangentE1Raw a D
+
+/-- The correction vector `(c_0,c_1,0,0)`. -/
+def tangentCorrectionRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
+  fun i ↦
+    if i.1 = 0 then tangentC0Raw a K D
+    else if i.1 = 1 then tangentC1Raw a K D
+    else 0
+
+/-- Correct arbitrary integral raw counts by the two tangent coordinates. -/
+def tangentCorrectedRaw (a : Fin 4 → Int) (K D : Int) : Fin 4 → Int :=
+  fun i ↦ a i + tangentCorrectionRaw a K D i
+
+/-- Count error of the four raw floors. -/
+def tangentE0 (K : Nat) (p : Fin 4 → Real) : Int :=
+  tangentE0Raw (tangentRawFloors K p) (K : Int)
+
+/-- Deficit error of the four raw floors. -/
+def tangentE1 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentE1Raw (tangentRawFloors K p) (D : Int)
+
+/-- The first floor-rounding correction. -/
+def tangentC0 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentC0Raw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The second floor-rounding correction. -/
+def tangentC1 (K D : Nat) (p : Fin 4 → Real) : Int :=
+  tangentC1Raw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The corrected four-coordinate profile, still represented in `Int`. -/
+def tangentCorrectedInt (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Int :=
+  tangentCorrectedRaw (tangentRawFloors K p) (K : Int) (D : Int)
+
+/-- The corrected four-coordinate profile as natural numbers.  Its equality
+with `tangentCorrectedInt` is only used after nonnegativity is proved. -/
+def tangentCorrectedNat (K D : Nat) (p : Fin 4 → Real) : Fin 4 → Nat :=
+  fun i ↦ (tangentCorrectedInt K D p i).toNat
+
+/-- The two prescribed corrections restore both affine constraints exactly.
+This is the pure integral tangent identity behind manuscript equation (5.16).
+-/
+theorem tangent_rounding_integer_conservation
+    (a : Fin 4 → Int) (K D : Int) :
+    (∑ i, tangentCorrectedRaw a K D i) = K ∧
+      (∑ i, tangentDeficit i * tangentCorrectedRaw a K D i) = D := by
+  simp [tangentCorrectedRaw, tangentCorrectionRaw, tangentC0Raw, tangentC1Raw,
+    tangentE0Raw, tangentE1Raw, tangentDeficit, Fin.sum_univ_succ]
+  ring_nf
+  simp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentRoundingCore
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentRoundingCore
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
+Source: Erdos625/TangentFloorErrorIntervals.lean
+Normalized SHA-256: 0abc41eabcd011653aa5c730ecd719de1481ee5d34758cf056d09f19fcf2ec09
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- Exact count and moment constraints force the signed floor errors into
+their finite intervals.  The conclusion also records the resulting sharp
+integral bounds on the two correction coordinates. -/
+theorem tangent_floor_error_intervals
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real)) :
+    (-3 : Int) ≤ tangentE0 K p ∧ tangentE0 K p ≤ 0 ∧
+      (-13 : Int) ≤ tangentE1 K D p ∧ tangentE1 K D p ≤ 0 ∧
+      (-2 : Int) ≤ tangentC0 K D p ∧ tangentC0 K D p ≤ 0 ∧
+      (0 : Int) ≤ tangentC1 K D p ∧ tangentC1 K D p ≤ 5 := by
+  have hle0 : ((Int.floor ((K : Real) * p 0) : Int) : Real) ≤ (K : Real) * p 0 :=
+    Int.floor_le _
+  have hle1 : ((Int.floor ((K : Real) * p 1) : Int) : Real) ≤ (K : Real) * p 1 :=
+    Int.floor_le _
+  have hle2 : ((Int.floor ((K : Real) * p 2) : Int) : Real) ≤ (K : Real) * p 2 :=
+    Int.floor_le _
+  have hle3 : ((Int.floor ((K : Real) * p 3) : Int) : Real) ≤ (K : Real) * p 3 :=
+    Int.floor_le _
+  have hlt0 : (K : Real) * p 0 < ((Int.floor ((K : Real) * p 0) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt1 : (K : Real) * p 1 < ((Int.floor ((K : Real) * p 1) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt2 : (K : Real) * p 2 < ((Int.floor ((K : Real) * p 2) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlt3 : (K : Real) * p 3 < ((Int.floor ((K : Real) * p 3) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  simp [Fin.sum_univ_succ, tangentDeficit] at hCount hMoment
+  have he0le : ((tangentE0 K p : Int) : Real) ≤ 0 := by
+    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
+    linarith
+  have he0gt : (-4 : Real) < ((tangentE0 K p : Int) : Real) := by
+    simp [tangentE0, tangentE0Raw, tangentRawFloors, Fin.sum_univ_succ]
+    linarith
+  have he1le : ((tangentE1 K D p : Int) : Real) ≤ 0 := by
+    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
+      tangentDeficit]
+    linarith
+  have he1gt : (-14 : Real) < ((tangentE1 K D p : Int) : Real) := by
+    simp [tangentE1, tangentE1Raw, tangentRawFloors, Fin.sum_univ_succ,
+      tangentDeficit]
+    linarith
+  have hc0le : ((tangentC0 K D p : Int) : Real) < 1 := by
+    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc0gt : (-3 : Real) < ((tangentC0 K D p : Int) : Real) := by
+    simp [tangentC0, tangentC0Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc1ge : (0 : Real) ≤ ((tangentC1 K D p : Int) : Real) := by
+    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  have hc1lt : ((tangentC1 K D p : Int) : Real) < 6 := by
+    simp [tangentC1, tangentC1Raw, tangentE0Raw, tangentE1Raw,
+      tangentRawFloors, Fin.sum_univ_succ, tangentDeficit]
+    linarith
+  norm_cast at he0le he0gt he1le he1gt hc0le hc0gt hc1ge hc1lt
+  omega
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentFloorErrorIntervals
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentFloorErrorIntervals
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
+Source: Erdos625/TangentCorrectedCountNonnegativity.lean
+Normalized SHA-256: 2361131bb7b8d4c5c3b30abedcb1c12d62662ccaccfee0328bbac8c89022f916
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- The manuscript's explicit lower scale `14 ≤ K p_i` keeps every corrected
+integer count nonnegative.  This deliberately asserts nonnegativity of the
+*corrected counts*: the first correction `c_0` itself can be negative. -/
+theorem tangent_corrected_counts_nonnegative_of_fourteen
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real))
+    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
+    ∀ i, (0 : Int) ≤ tangentCorrectedInt K D p i := by
+  have hf_le (i : Fin 4) :
+      ((Int.floor ((K : Real) * p i) : Int) : Real) ≤ (K : Real) * p i :=
+    Int.floor_le _
+  have hf_lt (i : Fin 4) :
+      (K : Real) * p i < ((Int.floor ((K : Real) * p i) : Int) : Real) + 1 :=
+    Int.lt_floor_add_one _
+  have hlo0 := hLower (0 : Fin 4)
+  have hlo1 := hLower (1 : Fin 4)
+  have hlo2 := hLower (2 : Fin 4)
+  have hlo3 := hLower (3 : Fin 4)
+  have hle0 := hf_le (0 : Fin 4)
+  have hle1 := hf_le (1 : Fin 4)
+  have hle2 := hf_le (2 : Fin 4)
+  have hle3 := hf_le (3 : Fin 4)
+  have hlt0 := hf_lt (0 : Fin 4)
+  have hlt1 := hf_lt (1 : Fin 4)
+  have hlt2 := hf_lt (2 : Fin 4)
+  have hlt3 := hf_lt (3 : Fin 4)
+  simp only [Fin.sum_univ_four] at hCount hMoment
+  simp [tangentDeficit] at hMoment
+  intro i
+  have hi : (0 : Real) ≤ (tangentCorrectedInt K D p i : Real) := by
+    fin_cases i
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentC0Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
+        tangentDeficit, Fin.sum_univ_four]
+      linarith
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentC1Raw, tangentE0Raw, tangentE1Raw, tangentRawFloors,
+        tangentDeficit, Fin.sum_univ_four]
+      linarith
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentRawFloors]
+      exact_mod_cast Int.floor_nonneg.mpr
+        (show (0 : Real) ≤ (K : Real) * p (2 : Fin 4) by linarith)
+    · simp [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+        tangentRawFloors]
+      exact_mod_cast Int.floor_nonneg.mpr
+        (show (0 : Real) ≤ (K : Real) * p (3 : Fin 4) by linarith)
+  exact_mod_cast hi
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentCorrectedCountNonnegativity
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentCorrectedCountNonnegativity
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
+Source: Erdos625/TangentNatConservationDisplacement.lean
+Normalized SHA-256: 51aa90c54088099de4305497ff35d62869330283e23e0c333454364690a6f560
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
+
+namespace Erdos625
+
+open scoped BigOperators
+
+/-- After the explicit positivity condition, conversion to naturals preserves
+the exact count and deficit constraints.  Each corrected coordinate stays
+within `5` of its real tangent value; this is stronger than the coarse fixed
+lower bound `14` used to guarantee positivity. -/
+theorem tangent_rounding_nat_conservation_and_uniform_displacement
+    (K D : Nat) (p : Fin 4 → Real)
+    (hCount : ∑ i, (K : Real) * p i = (K : Real))
+    (hMoment : ∑ i, (tangentDeficit i : Real) * ((K : Real) * p i) =
+      (D : Real))
+    (hLower : ∀ i, (14 : Real) ≤ (K : Real) * p i) :
+    (∑ i, tangentCorrectedNat K D p i) = K ∧
+      (∑ i, tangentDeficitNat i * tangentCorrectedNat K D p i) = D ∧
+      (∀ i,
+        |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤
+          (5 : Real)) := by
+  have hFloorLower : ∀ i, ((tangentRawFloors K p i : Int) : Real) ≤ (K : Real) * p i := by
+    intro i
+    exact Int.floor_le ((K : Real) * p i)
+  have hFloorUpper : ∀ i, (K : Real) * p i < ((tangentRawFloors K p i : Int) : Real) + 1 := by
+    intro i
+    exact Int.lt_floor_add_one ((K : Real) * p i)
+  have hl0 := hFloorLower (0 : Fin 4)
+  have hl1 := hFloorLower (1 : Fin 4)
+  have hl2 := hFloorLower (2 : Fin 4)
+  have hl3 := hFloorLower (3 : Fin 4)
+  have hu0 := hFloorUpper (0 : Fin 4)
+  have hu1 := hFloorUpper (1 : Fin 4)
+  have hu2 := hFloorUpper (2 : Fin 4)
+  have hu3 := hFloorUpper (3 : Fin 4)
+  simp only [Fin.sum_univ_four, tangentDeficit] at hCount hMoment
+  norm_num at hCount hMoment hl0 hl1 hl2 hl3 hu0 hu1 hu2 hu3
+  have hC0eq : ((tangentC0 K D p : Int) : Real) =
+      -(↑(tangentRawFloors K p 0) - (K : Real) * p 0) +
+        (↑(tangentRawFloors K p 2) - (K : Real) * p 2) +
+        2 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
+    simp only [tangentC0, tangentC0Raw, tangentE1Raw, tangentE0Raw,
+      Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    linarith
+  have hC1eq : ((tangentC1 K D p : Int) : Real) =
+      -(↑(tangentRawFloors K p 1) - (K : Real) * p 1) -
+        2 * (↑(tangentRawFloors K p 2) - (K : Real) * p 2) -
+        3 * (↑(tangentRawFloors K p 3) - (K : Real) * p 3) := by
+    simp only [tangentC1, tangentC1Raw, tangentE1Raw, tangentE0Raw,
+      Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    linarith
+  have hC0lowerR : (-3 : Real) < (tangentC0 K D p : Int) := by rw [hC0eq]; linarith
+  have hC0upperR : ((tangentC0 K D p : Int) : Real) < 1 := by rw [hC0eq]; linarith
+  have hC1lowerR : (0 : Real) ≤ (tangentC1 K D p : Int) := by rw [hC1eq]; linarith
+  have hC1upperR : ((tangentC1 K D p : Int) : Real) < 6 := by rw [hC1eq]; linarith
+  have hC0lower : (-2 : Int) ≤ tangentC0 K D p := by
+    have : (-3 : Int) < tangentC0 K D p := by exact_mod_cast hC0lowerR
+    omega
+  have hC0upper : tangentC0 K D p ≤ 0 := by
+    have : tangentC0 K D p < (1 : Int) := by exact_mod_cast hC0upperR
+    omega
+  have hC1lower : (0 : Int) ≤ tangentC1 K D p := by exact_mod_cast hC1lowerR
+  have hC1upper : tangentC1 K D p ≤ 5 := by
+    have : tangentC1 K D p < (6 : Int) := by exact_mod_cast hC1upperR
+    omega
+  simp only [tangentC0] at hC0lower hC0upper hC0lowerR hC0upperR
+  simp only [tangentC1] at hC1lower hC1upper hC1lowerR hC1upperR
+  have hC0lowerCast : (-2 : Real) ≤ (tangentC0Raw (tangentRawFloors K p) K D : Int) := by
+    exact_mod_cast hC0lower
+  have hC0upperCast : ((tangentC0Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 0 := by
+    exact_mod_cast hC0upper
+  have hC1lowerCast : (0 : Real) ≤ (tangentC1Raw (tangentRawFloors K p) K D : Int) := by
+    exact_mod_cast hC1lower
+  have hC1upperCast : ((tangentC1Raw (tangentRawFloors K p) K D : Int) : Real) ≤ 5 := by
+    exact_mod_cast hC1upper
+  have hDisp : ∀ i,
+      |((tangentCorrectedInt K D p i : Int) : Real) - (K : Real) * p i| ≤ 5 := by
+    intro i
+    have hl := hFloorLower i
+    have hu := hFloorUpper i
+    fin_cases i
+    all_goals simp only [tangentCorrectedInt, tangentCorrectedRaw,
+      tangentCorrectionRaw]
+    all_goals norm_num at hl hu ⊢
+    all_goals rw [abs_le]
+    all_goals constructor <;> linarith
+  have hNonneg : ∀ i, 0 ≤ tangentCorrectedInt K D p i := by
+    intro i
+    have hd := hDisp i
+    have hl := hLower i
+    rw [abs_le] at hd
+    have hr : (0 : Real) ≤ ((tangentCorrectedInt K D p i : Int) : Real) := by linarith
+    exact_mod_cast hr
+  have hNatInt : ∀ i, (tangentCorrectedNat K D p i : Int) = tangentCorrectedInt K D p i := by
+    intro i
+    simp [tangentCorrectedNat, Int.toNat_of_nonneg (hNonneg i)]
+  have hSumInt : ∑ i, tangentCorrectedInt K D p i = (K : Int) := by
+    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
+    simp only [Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    ring
+  have hMomentInt : ∑ i, tangentDeficit i * tangentCorrectedInt K D p i = (D : Int) := by
+    simp only [tangentCorrectedInt, tangentCorrectedRaw, tangentCorrectionRaw,
+      tangentC0Raw, tangentC1Raw, tangentE0Raw, tangentE1Raw]
+    simp only [Fin.sum_univ_four, tangentDeficit]
+    norm_num
+    ring
+  constructor
+  · apply Nat.cast_injective (R := Int)
+    simp only [Nat.cast_sum]
+    rw [Finset.sum_congr rfl (fun i _ ↦ hNatInt i)]
+    exact hSumInt
+  constructor
+  · apply Nat.cast_injective (R := Int)
+    simp only [Nat.cast_sum, Nat.cast_mul]
+    rw [Finset.sum_congr rfl (fun i _ ↦ ?_)]
+    · exact hMomentInt
+    simp only [tangentDeficit, tangentDeficitNat]
+    rw [hNatInt]
+    norm_num
+  · exact hDisp
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
 ========================================================================== -/
 
 /- ==========================================================================
@@ -62031,7 +62160,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: bb84d3ced95781aaa5bc4eb4571c729c87674d22b0c988c2f8c52d5f3bf3c964
+Normalized SHA-256: e4c5ddefcdfd9e91f09608bcae4ea32516ee0948090f5f468f87c7d03677266d
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -62893,6 +63022,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
+#print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
+#print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
+#print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
@@ -62943,7 +63075,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 4c792eec6e183e346dad66ab05d8b07a6933342dc08dbca6b6e8572a5f0c2331
+Normalized SHA-256: 147a4c93bd5be7c167ca67f94a21f22c81a31c84803a47ddf2f14b305946a3a5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

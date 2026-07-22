@@ -45,7 +45,7 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
     rw [Real.log_mul (by positivity : (2 * Real.pi : ℝ) ≠ 0) haReal.ne']
   simp only [phaseRootScalarTerm, profileDeficitAffineA,
     coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
-  rw [hquot, hLogProduct, hChoose]
+  rw [hquot, hLogProduct, hChoose, phaseRootDeficitTarget_eq hn]
   ring_nf
 
 theorem phaseRootScalarTerm_eq_core {n : ℕ}
