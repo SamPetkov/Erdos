@@ -17,7 +17,8 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
           (profileDeficitAffineB (phaseNat n) - logOrder n) -
         phaseRootS0 n + 1 - Real.log (phaseRootCenter n) -
         stirlingLogRemainder (phaseNat n) := by
-  have hnPos : (0 : ℝ) < n := by exact_mod_cast hn.1
+  have hnPos : (0 : ℝ) < n := by
+    exact_mod_cast (Nat.zero_lt_of_lt hn.1)
   have hnNe : (n : ℝ) ≠ 0 := hnPos.ne'
   have hs0Ne : phaseRootS0 n ≠ 0 := ne_of_gt hs0
   have hdiv : (n : ℝ) / phaseRootCenter n = phaseRootS0 n := by
@@ -45,7 +46,7 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
   simp only [phaseRootScalarTerm, profileDeficitAffineA,
     coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
   rw [hquot, hLogProduct, hChoose]
-  ring
+  ring_nf
 
 theorem phaseRootScalarTerm_eq_core {n : ℕ}
     (hn : PhaseDomain n) (hs0 : 0 < phaseRootS0 n)
