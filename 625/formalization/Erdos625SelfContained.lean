@@ -56842,7 +56842,7 @@ END SOURCE MODULE: Erdos625.PartialDiagonalDecayReindexing
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PartialDiagonalMidpointActivityBridge
 Source: Erdos625/PartialDiagonalMidpointActivityBridge.lean
-Normalized SHA-256: f818351c969520b86e98570c2b5d1f31222e3f0298de5103e38f9cc00d7f6b85
+Normalized SHA-256: cbfb763ebb75b0ff624df5c95f0e9af1e842eac7f8335bb039421a3c2ecbbd94
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PartialDiagonalMidpointActivityBridge
 
@@ -56926,8 +56926,56 @@ theorem partialDiagonalWeight_increment_le_of_mu_cutoff_activity
           mu (n - selectedVertexMass u ell) (u i) := by
         field_simp [hmuCut.ne']
 
+/-- The finite partial-diagonal mass below the selected-vertex cutoff is
+controlled by the exponential of its exact cutoff activity. -/
+theorem sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
+    (n massCap : Nat) (u k : I -> Nat)
+    (hmassCap : massCap <= n)
+    (hu : forall i, u i <= n - massCap) :
+    sum ell in (partialSubprofileBox k).filter
+        (fun ell => selectedVertexMass u ell <= massCap),
+      partialDiagonalWeight n u k ell
+      <= Real.exp (sum i, muCutoffActivity n massCap u k i) := by
+  apply sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
+  · intro i
+    unfold muCutoffActivity
+    exact div_nonneg (sq_nonneg _) (mul_nonneg (by positivity) (mu_pos (hu i)).le)
+  · exact hmassCap
+  · intro ell i hprofile hi hcut
+    have hsub : ((k i - ell i : Nat) : Real) <= k i := by
+      exact_mod_cast Nat.sub_le (k i) (ell i)
+    have hnum : ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := by
+      nlinarith
+    unfold muCutoffActivity
+    rw [selectedVertexMass_increment] at hcut
+    have hselected : selectedVertexMass u ell <= massCap := by omega
+    have hremLe : n - massCap <= n - selectedVertexMass u ell :=
+      Nat.sub_le_sub_left hselected n
+    have hmuMono :
+        mu (n - massCap) (u i) <=
+          mu (n - selectedVertexMass u ell) (u i) :=
+      mu_le_of_le_vertex_count (hu i) hremLe
+    have hmuCut : 0 < mu (n - massCap) (u i) := mu_pos (hu i)
+    have hratio :
+        1 <= mu (n - selectedVertexMass u ell) (u i) /
+          mu (n - massCap) (u i) := by
+      apply (le_div_iff₀ hmuCut).2
+      simpa using hmuMono
+    calc
+      ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := hnum
+      _ = (k i : Real) ^ 2 * 1 := by ring
+      _ <= (k i : Real) ^ 2 *
+          (mu (n - selectedVertexMass u ell) (u i) /
+            mu (n - massCap) (u i)) := by
+        exact mul_le_mul_of_nonneg_left hratio (sq_nonneg _)
+      _ = 2 * ((k i : Real) ^ 2 /
+            (2 * mu (n - massCap) (u i))) *
+          mu (n - selectedVertexMass u ell) (u i) := by
+        field_simp [hmuCut.ne']
+
 #print axioms mu_le_of_le_vertex_count
 #print axioms partialDiagonalWeight_increment_le_of_mu_cutoff_activity
+#print axioms sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
 
 end
 
@@ -57064,6 +57112,77 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_PartialDiagonalRateBound
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.PartialDiagonalRateBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PartialDiagonalFourDeficitRateBridge
+Source: Erdos625/PartialDiagonalFourDeficitRateBridge.lean
+Normalized SHA-256: e0befd93a1ec21cc07a79c1d729c5663336f95c4b1aca076a3e11c0013c54a0d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PartialDiagonalFourDeficitRateBridge
+
+/-!
+# Section VII four-deficit partial-diagonal rate bridge
+
+The sole proof obligation derives the two scalar structural inequalities from
+the actual four-deficit profile geometry and invokes the already checked scalar
+rate bound.  It is a finite deterministic bridge only; it does not assert a
+Stirling estimate, a midpoint construction, or an asymptotic diagonal-mass
+limit.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+theorem partialDiagonalRate_uniform_negative_fourDeficit
+    (T : Real) (p y : Fin 4 → Real)
+    (hTupper : T ≤ 4)
+    (hyNonneg : ∀ i, 0 ≤ y i)
+    (hyLe : ∀ i, y i ≤ p i)
+    (hpSum : ∑ i, p i = 1)
+    (hpMean : ∑ i, (fourDeficit i : Real) * p i = T)
+    (hRlower : (1 : Real) / 64 ≤ ∑ i, (p i - y i)) :
+    partialDiagonalRate T
+        (∑ i, (p i - y i))
+        (∑ i, (fourDeficit i : Real) * (p i - y i))
+      ≤ -(1 - ∑ i, (p i - y i)) / 5000 := by
+  have hRupper : ∑ i, (p i - y i) ≤ 1 := by
+    rw [Finset.sum_sub_distrib, hpSum]
+    exact sub_le_self _ (Finset.sum_nonneg (fun i _ ↦ hyNonneg i))
+  have hLeft :
+      (∑ i, (fourDeficit i : Real) * (p i - y i)) -
+          T * (∑ i, (p i - y i)) ≤
+        (5 - T) * (∑ i, (p i - y i)) := by
+    have h0 := hyLe (0 : Fin 4)
+    have h1 := hyLe (1 : Fin 4)
+    have h2 := hyLe (2 : Fin 4)
+    have h3 := hyLe (3 : Fin 4)
+    simp only [Fin.sum_univ_four, fourDeficit_zero, fourDeficit_one,
+      fourDeficit_two, fourDeficit_three, Nat.cast_ofNat]
+    nlinarith
+  have hRight :
+      (∑ i, (fourDeficit i : Real) * (p i - y i)) -
+          T * (∑ i, (p i - y i)) ≤
+        (T - 2) * (1 - ∑ i, (p i - y i)) := by
+    have hy0 := hyNonneg (0 : Fin 4)
+    have hy1 := hyNonneg (1 : Fin 4)
+    have hy2 := hyNonneg (2 : Fin 4)
+    have hy3 := hyNonneg (3 : Fin 4)
+    simp only [Fin.sum_univ_four, fourDeficit_zero, fourDeficit_one,
+      fourDeficit_two, fourDeficit_three, Nat.cast_ofNat] at hpSum hpMean ⊢
+    nlinarith
+  exact partialDiagonalRate_uniform_negative T _ _ hTupper hRlower hRupper hLeft hRight
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PartialDiagonalFourDeficitRateBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PartialDiagonalFourDeficitRateBridge
 ========================================================================== -/
 
 /- ==========================================================================
@@ -60748,7 +60867,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 58f563b20a9913ffa885f76225977e286a878a01d9db1ee1ec469cc0346a830c
+Normalized SHA-256: 21cbd4f373bfd6656e4e7ae3ec3a35f1b9704cae57f9f009d3b80c9ff307229a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61619,6 +61738,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
 #print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
 #print axioms Erdos625.fullCornerWeight_le_one_of_mu_cap
+#print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
+#print axioms Erdos625.partialDiagonalRate_uniform_negative_fourDeficit
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
@@ -61638,7 +61759,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: d5f1d220a0aa2e28966d9270953a7b2376daa4339d78a0cf49413fbacd2ad3d7
+Normalized SHA-256: 5f8cf9a9b77e39d3a3609ce8e7a4b6bf46370b741ab6740e328cb2f7e63f2c1f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

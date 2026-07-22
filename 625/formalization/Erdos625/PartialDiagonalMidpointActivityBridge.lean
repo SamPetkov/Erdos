@@ -81,8 +81,56 @@ theorem partialDiagonalWeight_increment_le_of_mu_cutoff_activity
           mu (n - selectedVertexMass u ell) (u i) := by
         field_simp [hmuCut.ne']
 
+/-- The finite partial-diagonal mass below the selected-vertex cutoff is
+controlled by the exponential of its exact cutoff activity. -/
+theorem sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
+    (n massCap : Nat) (u k : I -> Nat)
+    (hmassCap : massCap <= n)
+    (hu : forall i, u i <= n - massCap) :
+    sum ell in (partialSubprofileBox k).filter
+        (fun ell => selectedVertexMass u ell <= massCap),
+      partialDiagonalWeight n u k ell
+      <= Real.exp (sum i, muCutoffActivity n massCap u k i) := by
+  apply sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass
+  · intro i
+    unfold muCutoffActivity
+    exact div_nonneg (sq_nonneg _) (mul_nonneg (by positivity) (mu_pos (hu i)).le)
+  · exact hmassCap
+  · intro ell i hprofile hi hcut
+    have hsub : ((k i - ell i : Nat) : Real) <= k i := by
+      exact_mod_cast Nat.sub_le (k i) (ell i)
+    have hnum : ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := by
+      nlinarith
+    unfold muCutoffActivity
+    rw [selectedVertexMass_increment] at hcut
+    have hselected : selectedVertexMass u ell <= massCap := by omega
+    have hremLe : n - massCap <= n - selectedVertexMass u ell :=
+      Nat.sub_le_sub_left hselected n
+    have hmuMono :
+        mu (n - massCap) (u i) <=
+          mu (n - selectedVertexMass u ell) (u i) :=
+      mu_le_of_le_vertex_count (hu i) hremLe
+    have hmuCut : 0 < mu (n - massCap) (u i) := mu_pos (hu i)
+    have hratio :
+        1 <= mu (n - selectedVertexMass u ell) (u i) /
+          mu (n - massCap) (u i) := by
+      apply (le_div_iff₀ hmuCut).2
+      simpa using hmuMono
+    calc
+      ((k i - ell i : Nat) : Real) ^ 2 <= (k i : Real) ^ 2 := hnum
+      _ = (k i : Real) ^ 2 * 1 := by ring
+      _ <= (k i : Real) ^ 2 *
+          (mu (n - selectedVertexMass u ell) (u i) /
+            mu (n - massCap) (u i)) := by
+        exact mul_le_mul_of_nonneg_left hratio (sq_nonneg _)
+      _ = 2 * ((k i : Real) ^ 2 /
+            (2 * mu (n - massCap) (u i))) *
+          mu (n - selectedVertexMass u ell) (u i) := by
+        field_simp [hmuCut.ne']
+
 #print axioms mu_le_of_le_vertex_count
 #print axioms partialDiagonalWeight_increment_le_of_mu_cutoff_activity
+#print axioms sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
 
 end
 

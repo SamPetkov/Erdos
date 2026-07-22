@@ -264,6 +264,7 @@ import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing
 import Erdos625.PartialDiagonalMidpointActivityBridge
 import Erdos625.PartialDiagonalRateBound
+import Erdos625.PartialDiagonalFourDeficitRateBridge
 import Erdos625.FullCornerWeights
 import Erdos625.FinpartitionRefinement
 import Erdos625.ColoringProfileExtraction
@@ -1166,6 +1167,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
 #print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
 #print axioms Erdos625.fullCornerWeight_le_one_of_mu_cap
+#print axioms Erdos625.sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity
+#print axioms Erdos625.partialDiagonalRate_uniform_negative_fourDeficit
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation

@@ -292,6 +292,7 @@ import Erdos625.PartialDiagonalWeights
 import Erdos625.PartialDiagonalDecayReindexing
 import Erdos625.PartialDiagonalMidpointActivityBridge
 import Erdos625.PartialDiagonalRateBound
+import Erdos625.PartialDiagonalFourDeficitRateBridge
 import Erdos625.FullCornerWeights
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerMuCapBridge
