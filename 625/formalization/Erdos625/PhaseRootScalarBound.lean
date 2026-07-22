@@ -23,7 +23,7 @@ theorem phaseRootScalarTerm_isBigO_logLogOrder :
         phaseExpansionResidual_isBigO_logLogOrder).sub
       phaseStirlingResidual_isBigO_logLogOrder).sub
         phaseNat_stirlingLogRemainder_isBigO_logLogOrder
-  refine hBound.congr_left ?_
+  refine hBound.congr' ?_ Filter.EventuallyEq.rfl
   filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
     eventually_two_le_phaseNat] with n hn hphase
   exact (phaseRootScalarTerm_eq_core hn.1 hn.2.1 (by omega)).symm
