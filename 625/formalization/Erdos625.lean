@@ -115,6 +115,7 @@ import Erdos625.TangentNatConservationDisplacement
 import Erdos625.MidpointProfileRounding
 import Erdos625.MidpointProfileRoundingCast
 import Erdos625.MidpointProfileRoundingIntDisplacement
+import Erdos625.MidpointProfileUniformDisplacement
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding

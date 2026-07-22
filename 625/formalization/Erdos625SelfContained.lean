@@ -24044,6 +24044,40 @@ END SOURCE MODULE: Erdos625.MidpointProfileRoundingIntDisplacement
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileUniformDisplacement
+Source: Erdos625/MidpointProfileUniformDisplacement.lean
+Normalized SHA-256: c49dedd0ddcc28a80e638fbe3f0b8dd07c0b86d629be867de9d27bd650441955
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileUniformDisplacement
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The actual natural midpoint multiplicities remain uniformly within five
+of their real optimizer coordinates. -/
+theorem midpointMultiplicity_uniform_displacement
+    (n alpha K : Nat)
+    (h : MidpointRoundingAdmissible n alpha K) :
+    ∀ i : Fin 4,
+      |((midpointMultiplicity n alpha K i : Nat) : Real) -
+          (K : Real) * midpointOptimizer n alpha K i| ≤ (5 : Real) := by
+  intro i
+  rw [midpointMultiplicity_cast_eq_correctedInt n alpha K h i]
+  exact (midpointMultiplicity_count_deficit_intDisplacement n alpha K h).2.2 i
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileUniformDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileUniformDisplacement
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.SPlusPrimalDirect
 Source: Erdos625/SPlusPrimalDirect.lean
 Normalized SHA-256: e311a3b6f6afa66dca9e633bc3d25d715f2bdc2461545051200b8b95f1f0360c
@@ -63420,7 +63454,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2989d4bfd8e72bc145863169d87a98bd8aea91d0c964b8ed28886c638b633c24
+Normalized SHA-256: 14e27fce3c20bf5f82bdf4592271d5c49b527938534831066c35c7eff35b2843
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64340,6 +64374,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointOptimizer_count_and_moment
 #print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
 #print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
+#print axioms Erdos625.midpointMultiplicity_uniform_displacement
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64349,7 +64384,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: d3c86b7cfce948315d1a1e44005d78afa83c76be7f50b96be231fed81c8386e3
+Normalized SHA-256: f393c6729ab4c9080907a44e536beb040cbb51eb64c7dbad0cf85bb817080d32
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
