@@ -10786,6 +10786,48 @@ END SOURCE MODULE: Erdos625.ProfileValueStabilityS4
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileValueMonotonicityS4
+Source: Erdos625/ProfileValueMonotonicityS4.lean
+Normalized SHA-256: 37c4efd447e05c45c54a90361bbf245432dfaaadeed70168a83869b1d9e8f23b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileValueMonotonicityS4
+
+namespace Erdos625.ProfileEntropyS4
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- At an interior target, the optimized entropy-plus-score value is monotone in every score coordinate. -/
+theorem optimizedValue_mono_scores
+    (h g : Fin 4 → ℝ) {T : ℝ}
+    (hT : T ∈ Set.Ioo (2 : ℝ) 5)
+    (h_le : ∀ i, h i ≤ g i) :
+    optimizedValue h T ≤ optimizedValue g T := by
+  have hscore :
+      (∑ i : Fin 4, optimizer h T i * h i) ≤
+        ∑ i : Fin 4, optimizer h T i * g i := by
+    apply Finset.sum_le_sum
+    intro i _hi
+    exact mul_le_mul_of_nonneg_left (h_le i) (optimizer_nonneg h T i)
+  have hhEq :=
+    optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target h hT
+  have hgLe := entropy_score_le_log_partition_sub_tilt_mul_target
+    g (optimizer h T) hT (optimizer_nonneg h T) (sum_optimizer h T)
+      (sum_optimizer_mul_support h hT)
+  simp only [optimizedValue]
+  linarith
+
+end
+
+end Erdos625.ProfileEntropyS4
+
+end Erdos625SelfContained_Module_Erdos625_ProfileValueMonotonicityS4
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileValueMonotonicityS4
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ProfileValueUniformS4
 Source: Erdos625/ProfileValueUniformS4.lean
 Normalized SHA-256: f714518b663a0cca1be9820348b5d1cd04ca2b903ce2de0fbd5c64b8ead6c3b7
@@ -56155,6 +56197,146 @@ END SOURCE MODULE: Erdos625.Section8EndpointSingleCellStubs
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointDecoratedBlockPairings
+Source: Erdos625/Section8EndpointDecoratedBlockPairings.lean
+Normalized SHA-256: 96db5f606677c2df328cc8db87ebb169304bd07b2af24b4962d42d2fbd2c9b38
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointDecoratedBlockPairings
+
+/-!
+# Decorated endpoint block-pairing cardinality
+
+This module isolates the independent full-cell stub decorations of a selected
+endpoint block pairing. It proves no equivalence with the manuscript's full
+physical fibre, no reward constancy, and no probability or asymptotic bound.
+-/
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A canonical numbering of the endpoint blocks of each of the four sizes. -/
+abbrev FourEndpointSlotIndexing (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) :=
+  ∀ i : Fin 4, Fin (fourEndpointMultiplicity alpha hAlpha k i) ≃
+    ↥(fourEndpointBlockSlots alpha hAlpha k i)
+
+noncomputable def canonicalFourEndpointSlotIndexing (alpha : Nat)
+    (hAlpha : 5 < alpha) (k : ColoringProfile (alpha + 1)) :
+    FourEndpointSlotIndexing alpha hAlpha k := fun i =>
+  Fintype.equivOfCardEq (by
+    simpa only [Fintype.card_fin, Fintype.card_coe] using
+      ((fourEndpoint_profile_indexing_facts alpha hAlpha k).2.1 i).symm)
+
+def fourEndpointActualBlockOfAtom (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (slotIndex : FourEndpointSlotIndexing alpha hAlpha k)
+    (a : Σ i : Fin 4, Fin (fourEndpointMultiplicity alpha hAlpha k i)) :
+    ProfileBlockIndex k :=
+  (slotIndex a.1 a.2).1
+
+/-- The stub decoration at one selected full endpoint cell. -/
+abbrev FourEndpointSelectedCellStubMatching (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable)
+    (P : FourEndpointBlockPairing alpha hAlpha k L) (e : ↥P.1.edges) :=
+  SingleCellStubMatching
+    (fourEndpointSize alpha hAlpha e.1.1.1)
+    (fourEndpointSize alpha hAlpha e.1.2.1)
+    (fourEndpointOverlapSize alpha hAlpha e.1.1.1 e.1.2.1)
+
+/-- A selected endpoint block pairing together with an independent literal
+stub matching in every selected cell. -/
+abbrev FourEndpointDecoratedBlockPairing (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) :=
+  Σ P : FourEndpointBlockPairing alpha hAlpha k L,
+    ∀ e : ↥P.1.edges,
+      FourEndpointSelectedCellStubMatching alpha hAlpha k L P e
+
+def fourEndpointCellStubFactorialProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Nat :=
+  ∏ i : Fin 4, ∏ j : Fin 4,
+    (fourEndpointOverlapSize alpha hAlpha i j).factorial ^ L.toFun i j
+
+def fourEndpointCellStubSelectionProduct (alpha : Nat) (hAlpha : 5 < alpha)
+    (L : FourEndpointFullTable) : Nat :=
+  ∏ i : Fin 4, ∏ j : Fin 4,
+    (((fourEndpointSize alpha hAlpha i).descFactorial
+        (fourEndpointOverlapSize alpha hAlpha i j)) *
+      ((fourEndpointSize alpha hAlpha j).descFactorial
+        (fourEndpointOverlapSize alpha hAlpha i j))) ^ L.toFun i j
+
+theorem card_fourEndpointDecoratedBlockPairing_mul_cellStubFactorials
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1)) (L : FourEndpointFullTable) :
+    Fintype.card (FourEndpointDecoratedBlockPairing alpha hAlpha k L) *
+        fourEndpointCellStubFactorialProduct alpha hAlpha L =
+      Fintype.card (FourEndpointBlockPairing alpha hAlpha k L) *
+        fourEndpointCellStubSelectionProduct alpha hAlpha L := by
+  let fac : Fin 4 → Fin 4 → Nat := fun i j =>
+    (fourEndpointOverlapSize alpha hAlpha i j).factorial
+  let sel : Fin 4 → Fin 4 → Nat := fun i j =>
+    (fourEndpointSize alpha hAlpha i).descFactorial
+        (fourEndpointOverlapSize alpha hAlpha i j) *
+      (fourEndpointSize alpha hAlpha j).descFactorial
+        (fourEndpointOverlapSize alpha hAlpha i j)
+  have hgroup (P : FourEndpointBlockPairing alpha hAlpha k L)
+      (f : Fin 4 → Fin 4 → Nat) :
+      (∏ e ∈ P.1.edges, f e.1.1 e.2.1) =
+        ∏ i : Fin 4, ∏ j : Fin 4, (f i j) ^ L.toFun i j := by
+    rw [← Finset.prod_fiberwise' P.1.edges
+      (fun e => (e.1.1, e.2.1))
+      (fun ij : Fin 4 × Fin 4 => f ij.1 ij.2)]
+    rw [Fintype.prod_prod_type]
+    apply Finset.prod_congr rfl
+    intro i hi
+    apply Finset.prod_congr rfl
+    intro j hj
+    rw [Finset.prod_const]
+    apply congrArg (fun n => (f i j) ^ n)
+    calc
+      _ = (P.1.edges.filter
+          (fun e => e.1.1 = i ∧ e.2.1 = j)).card := by
+        congr 1
+        ext e
+        simp [Prod.ext_iff]
+      _ = P.1.typeTable i j := rfl
+      _ = L.toFun i j := congrFun (congrFun P.2 i) j
+  have hfiber (P : FourEndpointBlockPairing alpha hAlpha k L) :
+      Fintype.card (∀ e : ↥P.1.edges,
+          FourEndpointSelectedCellStubMatching alpha hAlpha k L P e) *
+          fourEndpointCellStubFactorialProduct alpha hAlpha L =
+        fourEndpointCellStubSelectionProduct alpha hAlpha L := by
+    rw [Fintype.card_pi]
+    rw [← Finset.prod_subtype P.1.edges (fun _ => Iff.rfl)
+      (fun e => Fintype.card (SingleCellStubMatching
+        (fourEndpointSize alpha hAlpha e.1.1)
+        (fourEndpointSize alpha hAlpha e.2.1)
+        (fourEndpointOverlapSize alpha hAlpha e.1.1 e.2.1)))]
+    unfold fourEndpointCellStubFactorialProduct
+      fourEndpointCellStubSelectionProduct
+    rw [← hgroup P fac, ← hgroup P sel]
+    rw [← Finset.prod_mul_distrib]
+    apply Finset.prod_congr rfl
+    intro e he
+    exact card_singleCellStubMatching_mul_factorial _ _ _
+  rw [Fintype.card_sigma]
+  simp_rw [Finset.sum_mul, hfiber]
+  simp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointDecoratedBlockPairings
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointDecoratedBlockPairings
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8EndpointGlobalTransport
 Source: Erdos625/Section8EndpointGlobalTransport.lean
 Normalized SHA-256: 20a0a7eb7cfcfd07c0764026a26b74b6fd9af4ea61bb7b7251e5b31cead09bc2
@@ -61493,7 +61675,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f9e9f455f9067984425b6c7d49865a806f0f410094192ecbb7a4a3849a663440
+Normalized SHA-256: e6901574e27667a53d607687c4164c15e339ad666af4f467f5122e68f14e9b3c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61701,6 +61883,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
+#print axioms Erdos625.optimizedValue_mono_scores
 #print axioms Erdos625.signedFourDeficitProfileExpectation_eq
 #print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
 #print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
@@ -62377,6 +62560,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_floor_error_intervals
 #print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
+#print axioms Erdos625.card_fourEndpointDecoratedBlockPairing_mul_cellStubFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
 #print axioms Erdos625.fourDeficitScore_le_fourGaussianScore
@@ -62396,7 +62580,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 683288a83e70a7655616947e05f4016a322631009ec220d3da2f4a354ccd2626
+Normalized SHA-256: 13fd685c79e5457516d9a9a7b54794c845b1c3e1d6643e36da07c4d44fea7d3a
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

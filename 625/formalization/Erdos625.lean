@@ -56,6 +56,7 @@ import Erdos625.Section10_11UniformSeedRootFinal
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
+import Erdos625.ProfileValueMonotonicityS4
 import Erdos625.ProfileValueUniformS4
 import Erdos625.ProfileOptimizerContinuityS4
 import Erdos625.ProfileOptimizerUniformS4
@@ -289,6 +290,7 @@ import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
 import Erdos625.Section8RowAssignmentExpansion
 import Erdos625.Section8EndpointBlockPairings
+import Erdos625.Section8EndpointDecoratedBlockPairings
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport
 import Erdos625.ConfigurationThetaMoments

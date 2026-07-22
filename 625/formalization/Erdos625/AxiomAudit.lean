@@ -51,6 +51,7 @@ import Erdos625.PhaseConsequences
 import Erdos625.ProfileEntropyS4
 import Erdos625.ProfileOptimizerS4
 import Erdos625.ProfileValueStabilityS4
+import Erdos625.ProfileValueMonotonicityS4
 import Erdos625.ProfileValueUniformS4
 import Erdos625.ProfileOptimizerContinuityS4
 import Erdos625.ProfileOptimizerUniformS4
@@ -297,6 +298,7 @@ import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
 import Erdos625.Section8RowAssignmentExpansion
 import Erdos625.Section8EndpointBlockPairings
+import Erdos625.Section8EndpointDecoratedBlockPairings
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport
 import Erdos625.Section9PositiveSupportMassBound
@@ -513,6 +515,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores
 #print axioms Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact
 #print axioms Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact
+#print axioms Erdos625.optimizedValue_mono_scores
 #print axioms Erdos625.signedFourDeficitProfileExpectation_eq
 #print axioms Erdos625.fourSizeFiniteEntropy_eq_gibbs
 #print axioms Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs
@@ -1189,6 +1192,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_floor_error_intervals
 #print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
+#print axioms Erdos625.card_fourEndpointDecoratedBlockPairing_mul_cellStubFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
 #print axioms Erdos625.fourDeficitScore_le_fourGaussianScore
