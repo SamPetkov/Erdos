@@ -284,6 +284,7 @@ import Erdos625.Section8NearPrefixFoundation
 import Erdos625.Section8CanonicalNearPrefix
 import Erdos625.Section8CanonicalNearUniqueness
 import Erdos625.Section8EndpointProfileIndexing
+import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointBlockPairings
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport
@@ -1158,6 +1159,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
+#print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation

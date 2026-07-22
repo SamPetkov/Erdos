@@ -55477,6 +55477,47 @@ END SOURCE MODULE: Erdos625.Section8EndpointProfileIndexing
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8EndpointCanonicalHigh
+Source: Erdos625/Section8EndpointCanonicalHigh.lean
+Normalized SHA-256: 4c9c22cc6ec37c2ac7e6213f287a49586798522a0f905aa28350225d7c15ba53
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8EndpointCanonicalHigh
+
+/-!
+# Section VIII: endpoint canonical-high bridge
+
+For an endpoint-only physical skeleton, every literal full endpoint cell is
+strictly above the endpoint high threshold.  The separate block-matching
+conclusion is intentionally not included here.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+theorem fourEndpoint_endpointOnly_isCanonicalHigh
+    (alpha : Nat) (hAlpha : 5 < alpha) (hHigh : 8 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (S : UnlabelledTypedSkeleton (profileBlockMargin k) (profileBlockMargin k))
+    (hOnly : IsFourEndpointOnlyPhysicalSkeleton alpha hAlpha k S) :
+    IsCanonicalHighFourEndpointSkeleton alpha hAlpha k S := by
+  refine ⟨hOnly, ?_⟩
+  intro ab hab
+  simp only [fourEndpointFullPairs, Finset.mem_filter] at hab
+  rcases hab with ⟨_, i, j, _, _, hij⟩
+  rw [hij]
+  fin_cases i <;> fin_cases j <;>
+    simp [fourEndpointHighCutoff, fourEndpointOverlapSize, fourEndpointSize,
+      fourEndpointCoordinate, fourDeficitCoordinate, fourDeficit] <;> omega
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8EndpointCanonicalHigh
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8EndpointCanonicalHigh
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8EndpointBlockPairings
 Source: Erdos625/Section8EndpointBlockPairings.lean
 Normalized SHA-256: c9bb509683758cf1bf9715f815b3be70accaec9a06c3b5ff44b7a1cc31d86dae
@@ -60437,7 +60478,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 51a07a01b02b5106cb00dc381ba7690970ba95a7d906f678a2513c9794b5c86f
+Normalized SHA-256: e245a1a543034af228fe7bd15783e7ba0fdd992a6845342407959a2926354bf4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61304,6 +61345,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear
 #print axioms Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
+#print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
@@ -61323,7 +61365,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: ce0b9910615103545a13a1830ab65290cca16d3b33d309e47573f124ee77ed4c
+Normalized SHA-256: 489079a2ed5d921eaeb289384172fd9263ac892bcc4de30ea434837da2a0b1d1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

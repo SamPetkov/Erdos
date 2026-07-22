@@ -686,6 +686,9 @@ The next audited finite layer adds the following statement-faithful ports:
   physical high fibre, using subset plus equal finite cell cardinality rather
   than an untracked edgewise-closure assumption; and
 - the four endpoint size, slot-cardinality, and pairwise-disjointness facts.
+- the canonical-high threshold bridge for an endpoint-only physical skeleton,
+  under the explicit endpoint cutoff hypotheses; this is only a narrow
+  threshold fact and supplies no matching, enumeration, or asymptotic bound.
 - the exact endpoint unlabelled typed-skeleton fibre count after multiplying
   by the cell factorials.
 - the exact one-cell physical-stub matching count and the finite global
