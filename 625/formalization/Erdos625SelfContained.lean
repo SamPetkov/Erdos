@@ -20237,7 +20237,7 @@ END SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
 Source: Erdos625/PhaseRootObjectiveCenterBound.lean
-Normalized SHA-256: 0c46296ce79450ef1caaaf4e711fdfb23cb31662e0cd5bdd9ac0636893d7038a
+Normalized SHA-256: a2b3d09e49fc0b96a30925e1ebb1653f87a3ee688e3b05f129b26aa3e02cb030
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootObjectiveCenterBound
 
@@ -20281,7 +20281,7 @@ theorem unrestrictedPhaseObjective_center_div_isBigO_logLogOrder :
       (fun n : ℕ ↦ phaseRootScalarTerm n + phaseRootSelectedDeficitTerm n)
         =O[atTop] logLogOrder :=
     phaseRootScalarTerm_isBigO_logLogOrder.add hSelected
-  refine hSum.congr_left ?_
+  refine hSum.congr' ?_ Filter.EventuallyEq.rfl
   filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor] with n hn
   exact (unrestrictedPhaseObjective_center_div_decomposition hn.1 hn.2.1).symm
 
