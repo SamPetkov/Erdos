@@ -19990,6 +19990,48 @@ END SOURCE MODULE: Erdos625.PhaseRootScalarCore
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarResidualRemainderBound
+Source: Erdos625/PhaseRootScalarResidualRemainderBound.lean
+Normalized SHA-256: 9caece7abd84f14372616815f4c4e540d4d0075f3c28a6d1f1d085fa18b1fa2c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarResidualRemainderBound
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseNat_stirlingLogRemainder_isBigO_logLogOrder :
+    (fun n : ℕ ↦ stirlingLogRemainder (phaseNat n)) =O[atTop] logLogOrder := by
+  apply Asymptotics.IsBigO.of_bound 1
+  have hLogLog : ∀ᶠ n : ℕ in atTop, 1 ≤ logLogOrder n :=
+    tendsto_logLogOrder_atTop.eventually (eventually_ge_atTop (1 : ℝ))
+  filter_upwards [eventually_two_le_phaseNat, hLogLog] with n hn hll
+  have hpos : 0 < phaseNat n := by omega
+  have hnonneg := stirlingLogRemainder_nonneg hpos
+  have hle := stirlingLogRemainder_le hpos
+  rw [Real.norm_eq_abs, abs_of_nonneg hnonneg, Real.norm_eq_abs,
+    abs_of_nonneg (le_trans (by norm_num : (0 : ℝ) ≤ 1) hll)]
+  have hphase : (1 : ℝ) ≤ phaseNat n := by
+    exact_mod_cast (show 1 ≤ phaseNat n by omega)
+  have hone : 1 / (12 * (phaseNat n : ℝ)) ≤ 1 := by
+    apply (div_le_one (by positivity)).2
+    nlinarith
+  linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootScalarResidualRemainderBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootScalarResidualRemainderBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
 Source: Erdos625/PhaseRootSelectedDeficitBound.lean
 Normalized SHA-256: 54577f50c65c5873da05d559940f1ff91bc2e16f0ee76732d65f3fa67ba8baad
@@ -63121,7 +63163,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: b5c386ef17878881f190e75d280f46a176f9ee7fa3cb5b964d226f74bbe99a36
+Normalized SHA-256: 27c8c4c1fdc432da82837b3560cbc7add7b389d76a8a9bb613ebaccd29d06d42
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -63984,6 +64026,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootAlgebraicCore_isBigO
 #print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
+#print axioms Erdos625.phaseNat_stirlingLogRemainder_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
@@ -64043,7 +64086,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 968e1d1273c7361bf1e63402f171dd3c873b6d8915cee0f4883a529539f53482
+Normalized SHA-256: 0abe84cfad027f2a35b5f5e66091c1b65d1fbe253f50e7e6eb7fc3cba8d71cd6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
