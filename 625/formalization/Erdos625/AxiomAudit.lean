@@ -80,6 +80,8 @@ import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
+import Erdos625.FourDeficitGaussianBound
+import Erdos625.Section9RealSeedMidpointCanonicalPolymer
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SPlusEntropyCandidateEmbedding
@@ -1183,6 +1185,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
+#print axioms Erdos625.fourDeficitScore_le_fourGaussianScore
+#print axioms Erdos625.eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound
 #print axioms Erdos625.fourEndpoint_mass_facts
 #print axioms Erdos625.fourEndpointLocalCellFactor_eq_lowerDiagonal_mul_choose
 #print axioms Erdos625.fourEndpointSizeDiagonalFactor_ratio

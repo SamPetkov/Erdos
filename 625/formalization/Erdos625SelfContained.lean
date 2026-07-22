@@ -16535,6 +16535,42 @@ END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourDeficitGaussianBound
+Source: Erdos625/FourDeficitGaussianBound.lean
+Normalized SHA-256: dcaf5e3e4ed0e770a2a1a0b3a782a04b5d9e770a1bb08c4d3c51a74ffe23b0fd
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Each exact finite four-deficit residual score is bounded above by its limiting Gaussian score. -/
+theorem fourDeficitScore_le_fourGaussianScore
+    (alpha : ℕ) (hAlpha : 5 < alpha) (i : Fin 4) :
+    fourDeficitScore alpha i ≤ fourGaussianScore i := by
+  have hDeficit : fourDeficit i ≤ 5 := by
+    simp [fourDeficit]
+    omega
+  have hDeficitAlpha : fourDeficit i ≤ alpha := by omega
+  have hAlphaPos : 0 < alpha := by omega
+  have hlog := log_descFactorial_le_mul_log alpha (fourDeficit i)
+    hDeficitAlpha hAlphaPos
+  rw [fourDeficitScore, fourGaussianScore, ← fourDeficit_cast_eq_support]
+  linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourDeficitGaussianBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
 Source: Erdos625/FourGaussianTiltCorridor.lean
 Normalized SHA-256: 93f30615405dd4b098be9b306b57c420762e7b91ab40e43f4a2740bec7d1772f
@@ -60059,6 +60095,52 @@ END SOURCE MODULE: Erdos625.Section9MidpointSecondMomentSeed
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9RealSeedMidpointCanonicalPolymer
+Source: Erdos625/Section9RealSeedMidpointCanonicalPolymer.lean
+Normalized SHA-256: 2f64046eaeed4bdb6ecbb55328fb4119eebc14aab7cbf65a33062c100038d9b2
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9RealSeedMidpointCanonicalPolymer
+
+namespace Erdos625
+
+open Filter MeasureTheory Set
+open scoped ENNReal NNReal ProbabilityTheory Topology
+
+noncomputable section
+
+theorem eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound
+    (b U : Nat → Nat)
+    (k : (n : Nat) → ColoringProfile (b n))
+    (row0 : (n : Nat) → OrderedProfilePartition n (k n))
+    (Lambda : Nat → Real)
+    (hU : ∀ n, 2 ≤ U n)
+    (hcap : ∀ n (a : ProfileBlockIndex (k n)),
+      profileBlockMargin (k n) a ≤ U n)
+    (hpolymer : ∀ᶠ n in atTop,
+      midpointCanonicalPolymerSum (row0 n) (U n) ≤
+        ENNReal.ofReal (Real.exp (Lambda n))) :
+    ∀ᶠ n in atTop,
+      Real.exp (-Lambda n) ≤
+        (randomGraphMeasure n).real
+          {G | CoColorable G (ColoringProfile.partCount (k n))} := by
+  filter_upwards [hpolymer] with n hn
+  apply signedProfile_real_seed_of_tableSum_bound (row0 n) (Lambda n)
+  rw [← normalizedSignedProfileSecondMoment_eq_tableSum (row0 n)]
+  exact normalizedSignedProfileSecondMoment_le_exp_of_polymerSum
+    (row0 n) (U n) (hU n) (Lambda n) (hcap n) hn
+
+#print axioms eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9RealSeedMidpointCanonicalPolymer
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9RealSeedMidpointCanonicalPolymer
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9CanonicalLambda
 Source: Erdos625/Section9CanonicalLambda.lean
 Normalized SHA-256: b0ed835ded92525ac61b5d32cad3d445ad46d4ef7dd0b650587d1af3839bca4f
@@ -61265,7 +61347,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f311d45ae6aa474de860881ae72fc41a6acc18be46d7069f50db67c9bba16f93
+Normalized SHA-256: 0942cfce6c4f4856f6051c8099b6b1ac3700b360f0e9802344bc82b18e9bccfa
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -62148,6 +62230,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
+#print axioms Erdos625.fourDeficitScore_le_fourGaussianScore
+#print axioms Erdos625.eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound
 #print axioms Erdos625.fourEndpoint_mass_facts
 #print axioms Erdos625.fourEndpointLocalCellFactor_eq_lowerDiagonal_mul_choose
 #print axioms Erdos625.fourEndpointSizeDiagonalFactor_ratio
@@ -62163,7 +62247,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1f7003c32c1cf6d501bb6fc70fd4fcc208f87a0fa318d97583b5014ca3a2c733
+Normalized SHA-256: 0bbf3eb08d1ea95b8bd529d510c47a8b5ac4fddfd3ad4a74420a47f32b07fbe1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

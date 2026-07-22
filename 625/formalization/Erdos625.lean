@@ -85,6 +85,7 @@ import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
+import Erdos625.FourDeficitGaussianBound
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
@@ -315,6 +316,7 @@ import Erdos625.ColoringProfilePhaseCenteredEnvelope
 import Erdos625.Section9ProfileAttachmentPolymerAssembly
 import Erdos625.Section9ZeroResidualMatchingAttachment
 import Erdos625.Section9MidpointSecondMomentSeed
+import Erdos625.Section9RealSeedMidpointCanonicalPolymer
 import Erdos625.Section9CanonicalLambda
 import Erdos625.Section9CanonicalTwoRegimeSeed
 import Erdos625.Section9RealSecondMomentSeed
