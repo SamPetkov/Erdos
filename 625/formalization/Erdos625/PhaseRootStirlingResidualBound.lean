@@ -20,7 +20,7 @@ theorem phaseStirlingResidual_isBigO_logLogOrder :
   filter_upwards [hLog, hLogLog] with n hn hhn
   rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (inv_nonneg.mpr (le_trans zero_le_one hn)),
     abs_of_nonneg (le_trans zero_le_one hhn), one_mul]
-  exact le_trans ((inv_le_one₀ (le_trans zero_le_one hn)).2 hn) hhn
+  exact le_trans ((inv_le_one₀ (lt_of_lt_of_le zero_lt_one hn)).2 hn) hhn
 
 end
 

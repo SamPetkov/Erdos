@@ -20075,7 +20075,7 @@ END SOURCE MODULE: Erdos625.PhaseRootScalarResidualRemainderBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootStirlingResidualBound
 Source: Erdos625/PhaseRootStirlingResidualBound.lean
-Normalized SHA-256: 0eca4f7ff1bf29e62483988bdd7d93b55ba6a651366a1494afa0d7a3b130a450
+Normalized SHA-256: cf8f7b1a48ce6c6c209e493e3e46e1604fd91b6fec652af55a128ae9bf8cfe51
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootStirlingResidualBound
 
@@ -20098,7 +20098,7 @@ theorem phaseStirlingResidual_isBigO_logLogOrder :
   filter_upwards [hLog, hLogLog] with n hn hhn
   rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (inv_nonneg.mpr (le_trans zero_le_one hn)),
     abs_of_nonneg (le_trans zero_le_one hhn), one_mul]
-  exact le_trans ((inv_le_one₀ (le_trans zero_le_one hn)).2 hn) hhn
+  exact le_trans ((inv_le_one₀ (lt_of_lt_of_le zero_lt_one hn)).2 hn) hhn
 
 end
 
