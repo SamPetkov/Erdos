@@ -286,6 +286,8 @@ import Erdos625.Section8NearPrefixFoundation
 import Erdos625.Section8CanonicalNearPrefix
 import Erdos625.Section8CanonicalNearUniqueness
 import Erdos625.Section8EndpointProfileIndexing
+import Erdos625.Section8EndpointMassFacts
+import Erdos625.Section8EndpointLocalCellFactor
 import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
 import Erdos625.Section8RowAssignmentExpansion
@@ -296,6 +298,7 @@ import Erdos625.Section9PositiveSupportMassBound
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.Section9ActualAttachmentAggregation
+import Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
 import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools

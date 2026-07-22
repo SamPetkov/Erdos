@@ -61214,7 +61214,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2ac625f174e3e9b0982f335c6a8f2e0c324fc43196a45d28ed70d68fe0aa679c
+Normalized SHA-256: 4d9dbbd8032abc5f11c8b1e593bab7b470fc3e41c4781495feae4bdc495acb65
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
