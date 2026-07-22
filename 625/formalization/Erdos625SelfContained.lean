@@ -60478,7 +60478,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e245a1a543034af228fe7bd15783e7ba0fdd992a6845342407959a2926354bf4
+Normalized SHA-256: f132a9c618ddb0b0e05edf2c4b5fbbe401ca12a4fe7bf66f1ecc30f679abe3ed
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61350,7 +61350,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
 #print axioms Erdos625.tangent_floor_error_intervals
-#print axioms Erdos625.tangent_correctedInt_nonnegative
+#print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial

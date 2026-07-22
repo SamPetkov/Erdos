@@ -1164,7 +1164,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
 #print axioms Erdos625.tangent_floor_error_intervals
-#print axioms Erdos625.tangent_correctedInt_nonnegative
+#print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
