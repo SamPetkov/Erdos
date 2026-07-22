@@ -41,7 +41,7 @@ theorem unrestrictedPhaseObjective_center_div_isBigO_logLogOrder :
       (fun n : ℕ ↦ phaseRootScalarTerm n + phaseRootSelectedDeficitTerm n)
         =O[atTop] logLogOrder :=
     phaseRootScalarTerm_isBigO_logLogOrder.add hSelected
-  refine hSum.congr_left ?_
+  refine hSum.congr' ?_ Filter.EventuallyEq.rfl
   filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor] with n hn
   exact (unrestrictedPhaseObjective_center_div_decomposition hn.1 hn.2.1).symm
 
