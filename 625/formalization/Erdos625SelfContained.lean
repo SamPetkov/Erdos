@@ -20235,6 +20235,66 @@ END SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
+Source: Erdos625/PhaseRootObjectiveCenterBound.lean
+Normalized SHA-256: 0c46296ce79450ef1caaaf4e711fdfb23cb31662e0cd5bdd9ac0636893d7038a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootObjectiveCenterBound
+
+/-!
+# The unrestricted phase objective at the reference center
+
+This module combines the exact finite center decomposition with the two
+independently established bounds for its scalar and selected-deficit terms.
+-/
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A constant error is eventually dominated by `logLogOrder`. -/
+theorem one_isBigO_logLogOrder :
+    (fun _n : ℕ ↦ (1 : ℝ)) =O[atTop] logLogOrder := by
+  apply IsBigO.of_bound 1
+  filter_upwards
+    [tendsto_logLogOrder_atTop.eventually_ge_atTop (1 : ℝ)] with n hn
+  rw [norm_one, Real.norm_eq_abs,
+    abs_of_nonneg (le_trans zero_le_one hn), one_mul]
+  exact hn
+
+/-- At the manuscript reference center, the attained unrestricted-profile
+objective divided by the center is at most logarithmic in the logarithmic
+order.  This is the direct asymptotic consequence of the exact center
+decomposition: its scalar contribution is `O(log log n)`, while its
+selected-deficit contribution is uniformly bounded. -/
+theorem unrestrictedPhaseObjective_center_div_isBigO_logLogOrder :
+    (fun n : ℕ ↦
+        unrestrictedPhaseObjective n (phaseRootCenter n) /
+          phaseRootCenter n) =O[atTop] logLogOrder := by
+  have hSelected : phaseRootSelectedDeficitTerm =O[atTop] logLogOrder :=
+    phaseRootSelectedDeficitTerm_isBigO_one.trans one_isBigO_logLogOrder
+  have hSum :
+      (fun n : ℕ ↦ phaseRootScalarTerm n + phaseRootSelectedDeficitTerm n)
+        =O[atTop] logLogOrder :=
+    phaseRootScalarTerm_isBigO_logLogOrder.add hSelected
+  refine hSum.congr_left ?_
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor] with n hn
+  exact (unrestrictedPhaseObjective_center_div_decomposition hn.1 hn.2.1).symm
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootObjectiveCenterBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -23208,7 +23268,7 @@ END SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: 7908f89a168543409738b41ca7fe317a289120dc973ee686c2b31c730dac867b
+Normalized SHA-256: 8511e0601ff969fa0c7f6fd981941735a69707217dde502eed3a470f252927d1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -23297,6 +23357,18 @@ theorem fourDeficitEmbedding_profile_invariants
       simp [hc]
     exact hj hz
 
+/-- The four distinguished class-size coordinates are pairwise distinct. -/
+theorem fourDeficitCoordinate_injective
+    (alpha : Nat) (hAlpha : 5 < alpha) :
+    Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+  intro i j hij
+  have hdeficit := congrArg (profileDeficit alpha) hij
+  rw [profileDeficit_fourDeficitCoordinate,
+    profileDeficit_fourDeficitCoordinate] at hdeficit
+  norm_cast at hdeficit
+  apply Fin.ext
+  simpa [fourDeficit] using hdeficit
+
 /-- The four-deficit embedding has the prescribed value at each distinguished
 coordinate and vanishes away from the four distinguished coordinates. -/
 theorem fourDeficitEmbedding_eval_and_off_image
@@ -23307,13 +23379,8 @@ theorem fourDeficitEmbedding_eval_and_off_image
     (∀ j : Fin (alpha + 1),
       (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
         fourDeficitEmbedding alpha hAlpha m j = 0) := by
-  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
-    intro i k hik
-    have h := congrArg (profileDeficit alpha) hik
-    rw [profileDeficit_fourDeficitCoordinate,
-      profileDeficit_fourDeficitCoordinate] at h
-    simp [fourDeficit] at h
-    exact Fin.ext h
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) :=
+    fourDeficitCoordinate_injective alpha hAlpha
   constructor
   · intro i
     unfold fourDeficitEmbedding
@@ -63281,7 +63348,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: d9754c864e6818905ba0e286e168cf88e181bd21220f55a8c0928014fe84a847
+Normalized SHA-256: fd4277cac1ed04c99ecb44d3b59e3e55b171aeb5576bf6fe961d822f42464966
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64149,6 +64216,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseStirlingResidual_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootScalarTerm_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
@@ -64162,6 +64230,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 #print axioms Erdos625.fourDeficitCoordinate_val_add_one_eq
+#print axioms Erdos625.fourDeficitCoordinate_injective
 #print axioms Erdos625.nonempty_orderedProfilePartition_of_vertexMass
 #print axioms Erdos625.partialDiagonalRate_uniform_negative
 #print axioms Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges
@@ -64207,7 +64276,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 5dfe53de7e34780a6cf0843fbb04517eeb58b2c85880f491b6c7a89001062095
+Normalized SHA-256: 59e59a22b68e539c704aa7a3416c0cfb782fd699715028fe275b5b9de0b1e85b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

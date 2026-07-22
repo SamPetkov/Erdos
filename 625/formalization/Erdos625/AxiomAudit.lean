@@ -88,6 +88,7 @@ import Erdos625.PhaseRootScalarResidualRemainderBound
 import Erdos625.PhaseRootStirlingResidualBound
 import Erdos625.PhaseRootScalarBound
 import Erdos625.PhaseRootSelectedDeficitBound
+import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -1194,6 +1195,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseStirlingResidual_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootScalarTerm_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
@@ -1207,6 +1209,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 #print axioms Erdos625.fourDeficitCoordinate_val_add_one_eq
+#print axioms Erdos625.fourDeficitCoordinate_injective
 #print axioms Erdos625.nonempty_orderedProfilePartition_of_vertexMass
 #print axioms Erdos625.partialDiagonalRate_uniform_negative
 #print axioms Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges
