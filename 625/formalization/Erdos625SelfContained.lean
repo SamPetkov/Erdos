@@ -55677,6 +55677,39 @@ END SOURCE MODULE: Erdos625.Section8EndpointMatchingFeasibility
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section8RowAssignmentExpansion
+Source: Erdos625/Section8RowAssignmentExpansion.lean
+Normalized SHA-256: d6f4521482f78c403ad9b1d98ca99d6ba4247feb1de412975627ead6615e409c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section8RowAssignmentExpansion
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem fourEndpoint_rowAssignment_product_expansion
+    {R : Type*} [CommSemiring R]
+    (r : Fin 4 → Nat) (q : Fin 4 → Fin 4 → R) :
+    (∑ f : ((i : Fin 4) → Fin (r i) → Fin 4),
+      ∏ i : Fin 4, ∏ x : Fin (r i), q i (f i x)) =
+    ∏ i : Fin 4, (∑ j : Fin 4, q i j) ^ r i := by
+  simp_rw [Fintype.sum_pow]
+  rw [Fintype.prod_sum]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section8RowAssignmentExpansion
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section8RowAssignmentExpansion
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section8EndpointBlockPairings
 Source: Erdos625/Section8EndpointBlockPairings.lean
 Normalized SHA-256: c9bb509683758cf1bf9715f815b3be70accaec9a06c3b5ff44b7a1cc31d86dae
@@ -60637,7 +60670,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: f4f7faa052e590aee784d470c29f793d35cf05a34ec24fa15f133eb736062176
+Normalized SHA-256: 97983e6a222b0a785840a06c545d41a38f4b0139b1c2cc8709c99200b426037b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61506,6 +61539,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
 #print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
+#print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
@@ -61525,7 +61559,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: a5a04d7f5496913ed4af123061b3c6efe64f2b70a21c09e52fceaf82e98b7497
+Normalized SHA-256: 730063c35e329e4478120e20a893848a3dbf7c878c18f06483c4012d9bdaea54
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

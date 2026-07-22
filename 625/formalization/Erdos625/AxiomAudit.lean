@@ -286,6 +286,7 @@ import Erdos625.Section8CanonicalNearUniqueness
 import Erdos625.Section8EndpointProfileIndexing
 import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
+import Erdos625.Section8RowAssignmentExpansion
 import Erdos625.Section8EndpointBlockPairings
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport
@@ -1162,6 +1163,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_profile_indexing_facts
 #print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
+#print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation

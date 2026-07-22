@@ -283,6 +283,7 @@ import Erdos625.Section8EndpointFoundation
 import Erdos625.Section8EndpointProfileIndexing
 import Erdos625.Section8EndpointCanonicalHigh
 import Erdos625.Section8EndpointMatchingFeasibility
+import Erdos625.Section8RowAssignmentExpansion
 import Erdos625.Section8EndpointBlockPairings
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport

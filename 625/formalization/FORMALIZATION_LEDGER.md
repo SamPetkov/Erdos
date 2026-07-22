@@ -692,6 +692,9 @@ The next audited finite layer adds the following statement-faithful ports:
 - the endpoint full-table row and column feasibility inequalities under the
   explicit hypothesis that the full-pair support is a matching; this does not
   prove that matching hypothesis for a physical skeleton.
+- the generic finite row-assignment product expansion over any commutative
+  semiring; this is the labelled multinomial expansion only and does not
+  identify assignment fibres with unlabelled endpoint tables.
 - the exact endpoint unlabelled typed-skeleton fibre count after multiplying
   by the cell factorials.
 - the exact one-cell physical-stub matching count and the finite global
