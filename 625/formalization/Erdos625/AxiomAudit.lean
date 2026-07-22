@@ -307,6 +307,7 @@ import Erdos625.Section8EndpointMatchingFeasibility
 import Erdos625.Section8RowAssignmentExpansion
 import Erdos625.Section8EndpointBlockPairings
 import Erdos625.Section8EndpointDecoratedBlockPairings
+import Erdos625.Section8EndpointDecoratedPhysicalFibre
 import Erdos625.Section8EndpointSingleCellStubs
 import Erdos625.Section8EndpointGlobalTransport
 import Erdos625.Section9PositiveSupportMassBound
@@ -315,6 +316,7 @@ import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.Section9ActualAttachmentAggregation
 import Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
 import Erdos625.Section9ProfileAttachmentSmallResidualLogScale
+import Erdos625.Section9ProfileAttachmentLargeResidualLogScale
 import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
@@ -1181,6 +1183,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
+#print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_largeResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
@@ -1211,6 +1214,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_corrected_counts_nonnegative_of_fourteen
 #print axioms Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials
 #print axioms Erdos625.card_fourEndpointDecoratedBlockPairing_mul_cellStubFactorials
+#print axioms Erdos625.fourEndpointDecoratedBlockPairingToPhysicalFibre
 #print axioms Erdos625.fourDeficitEmbedding_profile_invariants
 #print axioms Erdos625.fourDeficitEmbedding_eval_and_off_image
 #print axioms Erdos625.fourDeficitScore_le_fourGaussianScore
