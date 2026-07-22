@@ -57555,6 +57555,84 @@ END SOURCE MODULE: Erdos625.FullCornerLocalRatioBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FullCornerMuCapBridge
+Source: Erdos625/FullCornerMuCapBridge.lean
+Normalized SHA-256: 677ae18ecc9f8be64780ee0cd2fc8dc8c118747826a07a9a657b035903ca29ff
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FullCornerMuCapBridge
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+variable {I : Type*} [Fintype I] [DecidableEq I]
+
+/-- A finite full-corner cap certificate implies the full-corner weight bound.
+
+The `mu` certificate is deliberately stated at the largest residual vertex
+count relevant to the final profile.  The proof must reduce it to the exact
+prefix-local quotient hypothesis of `fullCornerWeight_le_one_of_local_ratio`;
+it must not add a global ratio hypothesis. -/
+theorem fullCornerWeight_le_one_of_mu_cap
+    (u k h : I → Nat) (massCap : Nat)
+    (hprofile : IsPartialSubprofile k h)
+    (hmass : residualVertexMass u h ≤ massCap)
+    (hmuCap : ∀ i,
+      2 * (k i : Real) * mu (massCap + u i) (u i) ≤ 1) :
+    fullCornerWeight u k h ≤ 1 := by
+  apply fullCornerWeight_le_one_of_local_ratio u k h hprofile
+  intro g i hg hgi
+  rw [fullCornerWeight_increment_div u k g i
+    (fun j ↦ le_trans (hg j) (hprofile j))]
+  have hmass_g : residualVertexMass u g ≤ residualVertexMass u h := by
+    unfold residualVertexMass selectedVertexMass
+    exact Finset.sum_le_sum fun j _ ↦ Nat.mul_le_mul_left (u j) (hg j)
+  have hvertex : residualVertexMass u g + u i ≤ massCap + u i := by
+    omega
+  have hmu : mu (residualVertexMass u g + u i) (u i) ≤
+      mu (massCap + u i) (u i) :=
+    mu_le_of_le_vertex_count (Nat.le_add_left _ _) hvertex
+  have hk : ((k i - g i : Nat) : Real) ≤ k i := by
+    exact_mod_cast Nat.sub_le (k i) (g i)
+  have hmu_nonneg :
+      0 ≤ mu (residualVertexMass u g + u i) (u i) :=
+    mu_nonneg _ _
+  have hnum :
+      2 * ((k i - g i : Nat) : Real) *
+          mu (residualVertexMass u g + u i) (u i) ≤
+        2 * (k i : Real) * mu (massCap + u i) (u i) := by
+    exact mul_le_mul (mul_le_mul_of_nonneg_left hk (by norm_num)) hmu
+      hmu_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg _))
+  have hden : (1 : Real) ≤ (g i + 1 : Real) ^ 2 := by
+    nlinarith [show (0 : Real) ≤ g i by positivity]
+  have hnum_nonneg :
+      0 ≤ 2 * ((k i - g i : Nat) : Real) *
+          mu (residualVertexMass u g + u i) (u i) :=
+    mul_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg _)) hmu_nonneg
+  calc
+    (2 * ((k i - g i : Nat) : Real) *
+          mu (residualVertexMass u g + u i) (u i)) /
+        (g i + 1 : Real) ^ 2 ≤
+      2 * ((k i - g i : Nat) : Real) *
+          mu (residualVertexMass u g + u i) (u i) := by
+            exact div_le_self hnum_nonneg hden
+    _ ≤ 2 * (k i : Real) * mu (massCap + u i) (u i) := hnum
+    _ ≤ 1 := hmuCap i
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FullCornerMuCapBridge
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FullCornerMuCapBridge
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FullCornerSumReindexing
 Source: Erdos625/FullCornerSumReindexing.lean
 Normalized SHA-256: 33365ca93649d8e4ae9a9ffb9a91940ff107c23ffd130e5dced58d067bd96032
@@ -60670,7 +60748,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 97983e6a222b0a785840a06c545d41a38f4b0139b1c2cc8709c99200b426037b
+Normalized SHA-256: 58f563b20a9913ffa885f76225977e286a878a01d9db1ee1ec469cc0346a830c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -61540,6 +61618,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
 #print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
+#print axioms Erdos625.fullCornerWeight_le_one_of_mu_cap
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation
@@ -61559,7 +61638,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 730063c35e329e4478120e20a893848a3dbf7c878c18f06483c4012d9bdaea54
+Normalized SHA-256: d5f1d220a0aa2e28966d9270953a7b2376daa4339d78a0cf49413fbacd2ad3d7
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

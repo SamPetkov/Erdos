@@ -680,6 +680,9 @@ The next audited finite layer adds the following statement-faithful ports:
 - exact part count, vertex mass, and four-deficit support for the concrete
   four-coordinate embedding;
 - the uniform negative bound for the finite Section VII partial-diagonal rate;
+- the finite full-corner bound `fullCornerWeight u k h ≤ 1` from an explicit
+  uniform `mu` cap, obtained through residual-mass monotonicity and the exact
+  local-ratio recurrence; the concrete phase-window `mu` cap remains open.
 - the canonical physical near-cell filter, its exact type table, and the
   resulting `NearPrefix`;
 - `NoFurtherNear` and uniqueness of that near prefix for one fixed attained

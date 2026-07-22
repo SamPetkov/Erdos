@@ -92,6 +92,7 @@ import Erdos625.TangentFloorErrorIntervals
 import Erdos625.TangentCorrectedCountNonnegativity
 import Erdos625.TangentNatConservationDisplacement
 import Erdos625.FullCornerLocalRatioBound
+import Erdos625.FullCornerMuCapBridge
 import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.UniformLimitingEntropyCertificate
@@ -1164,6 +1165,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh
 #print axioms Erdos625.fourEndpoint_fullTable_feasible_of_matching
 #print axioms Erdos625.fourEndpoint_rowAssignment_product_expansion
+#print axioms Erdos625.fullCornerWeight_le_one_of_mu_cap
 #print axioms Erdos625.eventually_five_lt_phaseNat
 #print axioms Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget
 #print axioms Erdos625.tangent_rounding_integer_conservation

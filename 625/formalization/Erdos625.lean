@@ -294,6 +294,7 @@ import Erdos625.PartialDiagonalMidpointActivityBridge
 import Erdos625.PartialDiagonalRateBound
 import Erdos625.FullCornerWeights
 import Erdos625.FullCornerLocalRatioBound
+import Erdos625.FullCornerMuCapBridge
 import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.FinpartitionRefinement
