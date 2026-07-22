@@ -19627,6 +19627,46 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivative
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
+Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem log_profileDeficitPartition_mem_Icc_gaussianEnvelope
+    (alpha : ℕ) (halpha : 0 < alpha) {lambda M : ℝ}
+    (hlambda : |lambda| ≤ M) :
+    Real.log (profileDeficitPartition alpha lambda) ∈
+      Icc 0
+        (Real.log
+          (Real.exp M +
+            Real.exp (M ^ 2 / q) *
+              (1 / (1 - Real.exp (-q / 4))))) := by
+  constructor
+  · exact Real.log_nonneg
+      (one_le_profileDeficitPartition alpha halpha lambda)
+  · exact Real.log_le_log
+      (profileDeficitPartition_pos alpha lambda)
+      (profileDeficitPartition_le_gaussianEnvelope alpha halpha hlambda)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 Source: Erdos625/FourDeficitScoreConvergence.lean
 Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
@@ -61675,7 +61715,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e6901574e27667a53d607687c4164c15e339ad666af4f467f5122e68f14e9b3c
+Normalized SHA-256: 9ee0aff41c18ffcc2aa4a99d1aaa7970fa35077a047b1842d8d816fe381d4e05
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -62530,6 +62570,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.sum_zeroResidual_canonicalDemandRawAttachmentTerm_eq_bare
 #print axioms Erdos625.profileHighSkeleton_cardinality_and_support_mass_bounds
 #print axioms Erdos625.unrestrictedPhaseObjective_div_eq_deficitCentered
+#print axioms Erdos625.log_profileDeficitPartition_mem_Icc_gaussianEnvelope
 #print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
@@ -62580,7 +62621,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 13fd685c79e5457516d9a9a7b54794c845b1c3e1d6643e36da07c4d44fea7d3a
+Normalized SHA-256: 770b3c38718ee4dbbe562c876bcfdcd4de2f5781d194d952175cb4902a5fbab6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
