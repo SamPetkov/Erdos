@@ -21,12 +21,9 @@ theorem phaseRootAlgebraicCore_isBigO :
       =O[atTop] (fun n : ℕ ↦ logLogOrder n) := by
   have h := phaseRootAlgebraicNoLog_sub_logOrder_isBigO.add
     logOrder_sub_log_phaseRootCenter_isBigO
-  apply h.congr'
-  · filter_upwards with n
-    rw [phaseRootAlgebraicCore_eq]
-    rfl
-  · filter_upwards with n
-    rfl
+  exact h.congr_left
+    (Filter.Eventually.of_forall fun n ↦
+      (phaseRootAlgebraicCore_eq n).symm)
 
 end
 

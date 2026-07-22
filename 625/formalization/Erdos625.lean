@@ -107,6 +107,8 @@ import Erdos625.TangentRoundingCore
 import Erdos625.TangentFloorErrorIntervals
 import Erdos625.TangentCorrectedCountNonnegativity
 import Erdos625.TangentNatConservationDisplacement
+import Erdos625.MidpointProfileRounding
+import Erdos625.MidpointProfileRoundingCast
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding

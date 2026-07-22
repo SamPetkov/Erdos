@@ -105,6 +105,8 @@ import Erdos625.TangentRoundingCore
 import Erdos625.TangentFloorErrorIntervals
 import Erdos625.TangentCorrectedCountNonnegativity
 import Erdos625.TangentNatConservationDisplacement
+import Erdos625.MidpointProfileRounding
+import Erdos625.MidpointProfileRoundingCast
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerMuCapBridge
 import Erdos625.FullCornerSumReindexing
@@ -1231,3 +1233,5 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
 #print axioms Erdos625.fourEndpoint_global_transport
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
+#print axioms Erdos625.midpointOptimizer_count_and_moment
+#print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt

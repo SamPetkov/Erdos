@@ -19823,7 +19823,7 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterLogBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootAlgebraicCoreBound
 Source: Erdos625/PhaseRootAlgebraicCoreBound.lean
-Normalized SHA-256: f3f3af4d5f1f6f3d20c38cc270c15246c34fbad9f08df2dd1a05b5bb305dcc46
+Normalized SHA-256: a8f2141d7083d4de0b09c2d8c69e8b8f0e8c2ca9416ac8ae284fd3a2ef4dff4c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootAlgebraicCoreBound
 
@@ -19847,12 +19847,9 @@ theorem phaseRootAlgebraicCore_isBigO :
       =O[atTop] (fun n : ℕ ↦ logLogOrder n) := by
   have h := phaseRootAlgebraicNoLog_sub_logOrder_isBigO.add
     logOrder_sub_log_phaseRootCenter_isBigO
-  apply h.congr'
-  · filter_upwards with n
-    rw [phaseRootAlgebraicCore_eq]
-    rfl
-  · filter_upwards with n
-    rfl
+  exact h.congr_left
+    (Filter.Eventually.of_forall fun n ↦
+      (phaseRootAlgebraicCore_eq n).symm)
 
 end
 
@@ -23570,6 +23567,181 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_TangentNatConservationDisplacement
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.TangentNatConservationDisplacement
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileRounding
+Source: Erdos625/MidpointProfileRounding.lean
+Normalized SHA-256: f9723b925e21af4f78bdd54fa5b64cd8d620e02653c42b0712e0a71191e8a3a6
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileRounding
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+def midpointDeficit (n alpha K : Nat) : Nat :=
+  alpha * K - n
+
+noncomputable def midpointOptimizer
+    (n alpha K : Nat) : Fin 4 → Real :=
+  ProfileEntropyS4.optimizer (fourDeficitScore alpha)
+    (fourSizeTarget n alpha (K : Real))
+
+noncomputable def midpointMultiplicity
+    (n alpha K : Nat) : Fin 4 → Nat :=
+  tangentCorrectedNat K (midpointDeficit n alpha K)
+    (midpointOptimizer n alpha K)
+
+def MidpointRoundingAdmissible
+    (n alpha K : Nat) : Prop :=
+  5 < alpha ∧
+  0 < K ∧
+  n ≤ alpha * K ∧
+  fourSizeTarget n alpha (K : Real) ∈ Set.Ioo (2 : Real) 5 ∧
+  ∀ i : Fin 4,
+    (14 : Real) ≤
+      (K : Real) * midpointOptimizer n alpha K i
+
+theorem midpointOptimizer_count_and_moment
+    (n alpha K : Nat)
+    (hK : 0 < K)
+    (hn : n ≤ alpha * K)
+    (hTarget :
+      fourSizeTarget n alpha (K : Real) ∈ Set.Ioo (2 : Real) 5) :
+    (∑ i : Fin 4,
+        (K : Real) * midpointOptimizer n alpha K i) =
+          (K : Real) ∧
+    (∑ i : Fin 4,
+        (tangentDeficit i : Real) *
+          ((K : Real) * midpointOptimizer n alpha K i)) =
+          (midpointDeficit n alpha K : Real) := by
+  constructor
+  · unfold midpointOptimizer
+    rw [← Finset.mul_sum, ProfileEntropyS4.sum_optimizer]
+    ring
+  · have hMean :=
+      ProfileEntropyS4.sum_optimizer_mul_support
+        (fourDeficitScore alpha) hTarget
+    have hDeficit := deficit_cast_eq_parts_mul_fourSizeTarget n alpha K hK hn
+    unfold midpointOptimizer
+    change (∑ i : Fin 4,
+        (tangentDeficit i : Real) *
+          ((K : Real) * ProfileEntropyS4.optimizer (fourDeficitScore alpha)
+            (fourSizeTarget n alpha (K : Real)) i)) =
+      (alpha * K - n : Nat)
+    calc
+      _ = (K : Real) *
+          (∑ i : Fin 4,
+            ProfileEntropyS4.optimizer (fourDeficitScore alpha)
+              (fourSizeTarget n alpha (K : Real)) i *
+                ProfileEntropyS4.support i) := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        simp only [tangentDeficit, ProfileEntropyS4.support]
+        push_cast
+        ring
+      _ = (K : Real) * fourSizeTarget n alpha (K : Real) := by rw [hMean]
+      _ = (alpha * K - n : Nat) := hDeficit.symm
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileRounding
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileRounding
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileRoundingCast
+Source: Erdos625/MidpointProfileRoundingCast.lean
+Normalized SHA-256: c0da17bd54f1227f75a57956d3aa3a269ea290e4b9c4d7ef282eca56852f39d9
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingCast
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Safe transport from the corrected integer count to its natural-number
+representation.  The proof deliberately establishes nonnegativity before
+using `Int.toNat_of_nonneg`, so no negative count can be silently truncated. -/
+theorem midpointMultiplicity_cast_eq_correctedInt
+    (n alpha K : Nat)
+    (h : MidpointRoundingAdmissible n alpha K)
+    (i : Fin 4) :
+    ((midpointMultiplicity n alpha K i : Nat) : Real) =
+      ((tangentCorrectedInt K (midpointDeficit n alpha K)
+          (midpointOptimizer n alpha K) i : Int) : Real) := by
+  rcases h with ⟨hAlpha, hK, hn, hTarget, hLower⟩
+  have hCountMoment :
+      (∑ j : Fin 4,
+          (K : Real) * midpointOptimizer n alpha K j) =
+            (K : Real) ∧
+      (∑ j : Fin 4,
+          (tangentDeficit j : Real) *
+            ((K : Real) * midpointOptimizer n alpha K j)) =
+            (midpointDeficit n alpha K : Real) := by
+    constructor
+    · calc
+        (∑ j : Fin 4,
+            (K : Real) * midpointOptimizer n alpha K j) =
+            (K : Real) *
+              (∑ j : Fin 4, midpointOptimizer n alpha K j) := by
+                rw [Finset.mul_sum]
+        _ = (K : Real) := by
+          rw [midpointOptimizer, ProfileEntropyS4.sum_optimizer]
+          ring
+    · calc
+        (∑ j : Fin 4,
+            (tangentDeficit j : Real) *
+              ((K : Real) * midpointOptimizer n alpha K j)) =
+            (K : Real) *
+              (∑ j : Fin 4,
+                midpointOptimizer n alpha K j *
+                  ProfileEntropyS4.support j) := by
+                    rw [Finset.mul_sum]
+                    apply Finset.sum_congr rfl
+                    intro j _
+                    rw [← fourDeficit_cast_eq_support]
+                    simp only [tangentDeficit, fourDeficit]
+                    push_cast
+                    ring
+        _ = (K : Real) * fourSizeTarget n alpha (K : Real) := by
+          rw [midpointOptimizer,
+            ProfileEntropyS4.sum_optimizer_mul_support
+              (fourDeficitScore alpha) hTarget]
+        _ = (midpointDeficit n alpha K : Real) := by
+          rw [midpointDeficit,
+            deficit_cast_eq_parts_mul_fourSizeTarget n alpha K hK hn]
+  have hNonneg :
+      (0 : Int) ≤
+        tangentCorrectedInt K (midpointDeficit n alpha K)
+          (midpointOptimizer n alpha K) i :=
+    tangent_corrected_counts_nonnegative_of_fourteen
+      K (midpointDeficit n alpha K) (midpointOptimizer n alpha K)
+      hCountMoment.1 hCountMoment.2 hLower i
+  unfold midpointMultiplicity tangentCorrectedNat
+  norm_cast
+  exact Int.toNat_of_nonneg hNonneg
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingCast
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileRoundingCast
 ========================================================================== -/
 
 /- ==========================================================================
@@ -62949,7 +63121,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 2ed2964528960d3913d7752b28e033c2c799605e24b98fa62d26333c269c493a
+Normalized SHA-256: b5c386ef17878881f190e75d280f46a176f9ee7fa3cb5b964d226f74bbe99a36
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -63860,6 +64032,8 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_singleCellStubMatching_mul_factorial
 #print axioms Erdos625.fourEndpoint_global_transport
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
+#print axioms Erdos625.midpointOptimizer_count_and_moment
+#print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -63869,7 +64043,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: b87f16004807c1f096fff9836d55e65777a067b8c405d880255426a8040fe013
+Normalized SHA-256: 968e1d1273c7361bf1e63402f171dd3c873b6d8915cee0f4883a529539f53482
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
