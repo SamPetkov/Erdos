@@ -60911,6 +60911,57 @@ END SOURCE MODULE: Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.Section9ProfileAttachmentSmallResidualLogScale
+Source: Erdos625/Section9ProfileAttachmentSmallResidualLogScale.lean
+Normalized SHA-256: e6f2f6576e73ee31ce883f8e58288ea425816d0f243fa03d7e005ef90457040d
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentSmallResidualLogScale
+
+namespace Erdos625
+
+open Filter
+open scoped ENNReal Topology
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem eventually_profileHighSkeletonAttachment_le_smallResidual_logScale :
+    ∃ C : ℝ, 0 ≤ C ∧
+      ∀ᶠ n : ℕ in Filter.atTop,
+        ∀ {b : ℕ} {k : ColoringProfile b}
+          (row₀ : OrderedProfilePartition n k) (U : ℕ),
+          U ≤ phaseNat n →
+          (∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U) →
+          ∀ demand : ProfileCanonicalHighSkeleton k U,
+            (canonicalDemandResidualTotal (profileBlockMargin k)
+                (profileBlockMargin k) U demand : ℝ) <
+                (n : ℝ) / Real.log (n : ℝ) ^ 6 →
+            profileHighSkeletonAttachment row₀ U demand ≤
+              ENNReal.ofReal
+                (Real.exp (C * ((n : ℝ) / Real.log (n : ℝ) ^ 5))) := by
+  refine ⟨2 * Real.log 2,
+    mul_nonneg (by norm_num) (Real.log_nonneg one_le_two), ?_⟩
+  filter_upwards
+    [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+      eventually_log_growth_bounds] with n hphase hlog
+  intro b k row₀ U hU hcap demand hm
+  have hUreal : (U : ℝ) ≤ 4 * Real.log (n : ℝ) :=
+    (Nat.cast_le.mpr hU).trans hphase.2
+  have h := profileHighSkeletonAttachment_le_smallResidualExpScale
+    row₀ U hcap demand (Real.log (n : ℝ)) 4 hlog.1 (by norm_num) hUreal hm.le
+  convert h using 1 <;> ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_Section9ProfileAttachmentSmallResidualLogScale
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.Section9ProfileAttachmentSmallResidualLogScale
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.Section9ActualAttachmentLargeResidualExp
 Source: Erdos625/Section9ActualAttachmentLargeResidualExp.lean
 Normalized SHA-256: f296a6f926fb23481b13d52af94e2bc0994db26a6d919dff7c8027b3663c6682
@@ -61214,7 +61265,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 4d9dbbd8032abc5f11c8b1e593bab7b470fc3e41c4781495feae4bdc495acb65
+Normalized SHA-256: f311d45ae6aa474de860881ae72fc41a6acc18be46d7069f50db67c9bba16f93
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -62065,6 +62116,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
 #print axioms Erdos625.exists_midpointCanonicalAttachment_twoRegime_error
+#print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
@@ -62111,7 +62163,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: b314bbfa01ed05097ce6e5047f16edfb03e08d184deacf53f3e1856b16f03094
+Normalized SHA-256: 1f7003c32c1cf6d501bb6fc70fd4fcc208f87a0fa318d97583b5014ca3a2c733
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

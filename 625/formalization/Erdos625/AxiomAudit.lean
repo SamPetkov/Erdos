@@ -299,6 +299,7 @@ import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.Section9ActualAttachmentAggregation
 import Erdos625.Section9MidpointCanonicalAttachmentTwoRegime
+import Erdos625.Section9ProfileAttachmentSmallResidualLogScale
 import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
@@ -1150,6 +1151,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition
 #print axioms Erdos625.midpointCanonicalAttachmentSum_le_bare_mul
 #print axioms Erdos625.exists_midpointCanonicalAttachment_twoRegime_error
+#print axioms Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale
 #print axioms Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp
 #print axioms Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 #print axioms Erdos625.phaseRoot_target_identity
