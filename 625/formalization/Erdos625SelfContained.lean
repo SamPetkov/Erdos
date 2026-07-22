@@ -19875,7 +19875,7 @@ END SOURCE MODULE: Erdos625.PhaseRootPartGeometry
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarCore
 Source: Erdos625/PhaseRootScalarCore.lean
-Normalized SHA-256: 6bdff4243ed59fa51ccacacd3f91f537372c40e45fb2d4e37d8107b063d00ca1
+Normalized SHA-256: ff1cd5547bdbdebec4d8a2cb47feebcbf676e969b9443e6c9d70b500b1cea745
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarCore
 
@@ -19925,6 +19925,7 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
   simp only [phaseRootScalarTerm, profileDeficitAffineA,
     coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
   rw [hquot, hLogProduct, hChoose, phaseRootDeficitTarget_eq hn]
+  simp only [logOrder, q]
   ring_nf
 
 theorem phaseRootScalarTerm_eq_core {n : ℕ}

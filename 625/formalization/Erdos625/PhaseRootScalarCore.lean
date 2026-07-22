@@ -46,6 +46,7 @@ theorem phaseRootScalarTerm_eq_stirlingForm {n : ℕ}
   simp only [phaseRootScalarTerm, profileDeficitAffineA,
     coloringClassLogCost, phaseStirlingMain, stirlingLogRemainder]
   rw [hquot, hLogProduct, hChoose, phaseRootDeficitTarget_eq hn]
+  simp only [logOrder, q]
   ring_nf
 
 theorem phaseRootScalarTerm_eq_core {n : ℕ}
