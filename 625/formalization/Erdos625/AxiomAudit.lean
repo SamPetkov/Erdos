@@ -78,6 +78,7 @@ import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
+import Erdos625.PhaseRootAlgebraicNoLogBound
 import Erdos625.PhaseRootCenterLogBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
@@ -1175,6 +1176,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.log_profileDeficitPartition_mem_Icc_gaussianEnvelope
 #print axioms Erdos625.phaseRootDeficitTarget_eq
 #print axioms Erdos625.unrestrictedPhaseObjective_center_div_decomposition
+#print axioms Erdos625.phaseRootAlgebraicNoLog_sub_logOrder_isBigO
 #print axioms Erdos625.logOrder_sub_log_phaseRootCenter_isBigO
 #print axioms Erdos625.phaseRootScalarTerm_eq_stirlingForm
 #print axioms Erdos625.phaseRootScalarTerm_eq_core

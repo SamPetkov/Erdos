@@ -83,6 +83,7 @@ import Erdos625.ColoringProfileDualOptimalValue
 import Erdos625.ColoringProfilePhaseObjective
 import Erdos625.ColoringProfilePhaseRootCenter
 import Erdos625.PhaseRootFiniteCommon
+import Erdos625.PhaseRootAlgebraicNoLogBound
 import Erdos625.PhaseRootCenterLogBound
 import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
