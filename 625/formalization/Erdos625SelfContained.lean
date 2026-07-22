@@ -20112,7 +20112,7 @@ END SOURCE MODULE: Erdos625.PhaseRootStirlingResidualBound
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarBound
 Source: Erdos625/PhaseRootScalarBound.lean
-Normalized SHA-256: 39326c778a316dddc0103ac1d519a775d75acd9998dcd2c140dab09649f27164
+Normalized SHA-256: c624e4a161a15000103ba39a85bef774837d545605c8aab8b07c7471f06a8a15
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarBound
 
@@ -20135,7 +20135,7 @@ theorem phaseRootScalarTerm_isBigO_logLogOrder :
         phaseExpansionResidual_isBigO_logLogOrder).sub
       phaseStirlingResidual_isBigO_logLogOrder).sub
         phaseNat_stirlingLogRemainder_isBigO_logLogOrder
-  refine hBound.congr_left ?_
+  refine hBound.congr' ?_ Filter.EventuallyEq.rfl
   filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
     eventually_two_le_phaseNat] with n hn hphase
   exact (phaseRootScalarTerm_eq_core hn.1 hn.2.1 (by omega)).symm
