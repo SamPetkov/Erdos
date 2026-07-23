@@ -1,0 +1,552 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prb}{\mathbb P}
+\newcommand{\Bare}{\operatorname{Bare}}
+
+\title{Review-Focused Replacement Text for Sections 7--9}
+\author{Companion revision for the Erd\H{o}s Problem 625 candidate manuscript}
+\date{23 July 2026}
+
+\begin{document}
+\maketitle
+
+\paragraph{Status.}
+This file supplies drop-in replacement passages for the most concentrated
+parts of the canonical manuscript.  It does not change the theorem, constant,
+four class sizes, or proof architecture.  Its purpose is to make the
+quantifiers, finite decompositions, and multiplicity accounting explicit
+enough for independent review and later formalization.  Equation numbers refer
+to the canonical manuscript.
+
+\section*{Global notation and uniformity edits}
+
+Use
+\[
+ q=\ln2,\qquad N=\ln n,\qquad w=\ln N.
+\]
+Rename the affine coefficient in equation (3.12) from $B_n$ to
+$b_n^{\mathrm{aff}}$.  Reserve
+\[
+ \mathcal B_n:=\frac{n}{N^4}
+\]
+for the amplification scale currently called $B_n$ in equation (10.10).
+
+Unless a statement says otherwise, every asymptotic estimate below is uniform
+over the complete phase interval $0\le\delta<1$, the exact tangent-rounded
+four-size profile, every feasible subprofile or canonical skeleton in the
+displayed finite sum, and every residual degree list satisfying the displayed
+cap and total-mass hypotheses.  Constants may depend on fixed numerical
+corridor widths, but not on the phase, profile coordinates, skeleton, or
+residual table.
+
+\section*{Replacement A: the central rate in Lemma 7.1}
+
+\begin{lemma}[Uniform central-rate gap]
+Let $p=(p_i)_{i=2}^5$ be a probability vector with
+\[
+ \sum_{i=2}^5 i p_i=T,
+ \qquad
+ \frac2q\le T\le1+\frac2q.
+\]
+Let $0\le z_i\le p_i$, and put
+\[
+ R=\sum_{i=2}^5 z_i,
+ \qquad
+ Y=1-R,
+ \qquad
+ I_r=\sum_{i=2}^5 i z_i.
+\]
+For
+\[
+ \Phi_T(z)=R\ln R+\frac q2(I_r-TR),
+\]
+with $0\ln0=0$, one has
+\[
+ \Phi_T(z)\le-\frac{Y}{5000}
+ \qquad\text{whenever}\qquad
+ \frac1{64}\le R\le1.
+ \tag{7.21a}
+\]
+\end{lemma}
+
+\begin{proof}
+Because every residual deficit lies in $\{2,3,4,5\}$,
+\[
+ I_r-TR=\sum_i(i-T)z_i\le(5-T)R.
+ \tag{7.21b}
+\]
+Since $y_i=p_i-z_i$, the mean identity for $p$ also gives
+\[
+ I_r-TR=\sum_i(T-i)y_i\le(T-2)Y.
+ \tag{7.21c}
+\]
+First suppose $1/64\le R\le47/100$.  Since $T\ge2/q$,
+\[
+ \Phi_T(z)
+ \le R\left\{\ln R+\frac q2\left(5-\frac2q\right)\right\}
+ =R\{\ln R+5q/2-1\}.
+ \tag{7.21d}
+\]
+The function
+\[
+ f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{5000}
+\]
+is convex on $(0,\infty)$.  Hence its maximum on
+$[1/64,47/100]$ occurs at an endpoint.  Using $q<0.6932$,
+\[
+ f(1/64)<-0.053,
+ \qquad
+ f(47/100)<-0.010,
+\]
+so $f(R)<0$ throughout the interval.
+
+Now suppose $47/100\le R\le1$.  Since $T\le1+2/q$, equation (7.21c)
+gives
+\[
+ \Phi_T(z)
+ \le R\ln R+(1-q/2)(1-R).
+ \tag{7.21e}
+\]
+Set
+\[
+ h(R)=R\ln R+(1-q/2+1/200)(1-R).
+\]
+This function is convex, $h(1)=0$, and direct evaluation gives
+$h(47/100)<-0.0058$.  Convexity therefore places $h$ below the chord joining
+these endpoint values, so $h(R)\le0$ on $[47/100,1]$.  Thus
+\[
+ \Phi_T(z)\le-\frac{1-R}{200}
+ \le-\frac{1-R}{5000}.
+\]
+\end{proof}
+
+\paragraph{Completion of the central range.}
+If
+\[
+ m>\eta n,
+ \qquad
+ n-m>n/32,
+\]
+then equation (7.13) gives $R\ge1/64$ for all sufficiently large $n$, and
+the selected mass satisfies $Y\ge\eta/2$.  Equation (7.20) and the lemma give
+\[
+ \ln D(\ell)
+ \le-\frac{k_{co}\alpha Y}{5000}
+      +Ck_{co}Y\ln(e/Y)+CN.
+ \tag{7.24a}
+\]
+Here $Y\ge w/(64N)$, $\alpha=(2/q+o(1))N$, and
+$k_{co}=\Theta(n/N)$.  Consequently
+\[
+ \frac{\ln(e/Y)}{\alpha}=o(1),
+ \qquad
+ \frac{N}{k_{co}\alpha Y}=o(1),
+\]
+uniformly.  After increasing the eventual threshold for $n$, the error terms
+are at most half of the leading negative term.  Hence, for an absolute $c>0$,
+\[
+ D(\ell)\le \exp(-c k_{co}w).
+ \tag{7.25}
+\]
+The at most $(k_{co}+1)^4$ central vectors therefore contribute $o(1)$.
+
+\section*{Replacement B: exact canonical exposure at the start of Section 8}
+
+\begin{proposition}[Canonical high-cell exposure identity]
+Fix row degrees $(s_a)_a$ and column degrees $(t_b)_b$, each summing to $n$,
+and let $r=(r_{ab})$ be a feasible overlap table.  Put
+\[
+ U=\alpha-2,
+ \qquad
+ R_0=\lfloor U/2\rfloor,
+ \qquad
+ M(r)=\{(a,b):r_{ab}>R_0\}.
+\]
+Then:
+\begin{enumerate}[label=\arabic*.]
+\item $M(r)$ is a partial matching.
+\item For $e=(a,b)\in M(r)$, set $j_e=r_{ab}$ and
+$J=\sum_{e\in M(r)}j_e$.  The residual degrees are
+\[
+ s_a'=s_a-\sum_{b:(a,b)\in M(r)}j_{ab},
+ \qquad
+ t_b'=t_b-\sum_{a:(a,b)\in M(r)}j_{ab}.
+\]
+\item The residual table
+\[
+ r'_{ab}=
+ \begin{cases}
+ 0,&(a,b)\in M(r),\\
+ r_{ab},&(a,b)\notin M(r)
+ \end{cases}
+\]
+has those residual margins, vanishes on $M(r)$, and is at most $R_0$ off the
+matching.
+\item The matching, demands, selected labelled stub pairs, and capped residual
+matching reconstruct the original matching uniquely.
+\item The exposure incidence times the residual contingency law equals the
+original table law exactly.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+The matching property follows because every row and column degree is at most
+$U$, while two cells larger than $U/2$ in one row or column would use more than
+$U$ stubs.  The margin and cap statements follow directly from the definition.
+Reconstruction is by adjoining the selected labelled pairs to the residual
+matching; canonical extraction recovers the same data.
+
+Write
+\[
+ d_a=\sum_{b:(a,b)\in M}j_{ab},
+ \qquad
+ d_b'=\sum_{a:(a,b)\in M}j_{ab}.
+\]
+The exposure incidence is
+\[
+ \pi(M,j)=
+ \frac{
+   \prod_a(s_a)_{d_a}
+   \prod_b(t_b)_{d_b'}
+ }{
+   (n)_J\prod_{e\in M}j_e!
+ }.
+ \tag{8.3a}
+\]
+The residual table mass is
+\[
+ p_{res}(r')=
+ \frac{
+   \prod_a(s_a-d_a)!
+   \prod_b(t_b-d_b')!
+ }{
+   (n-J)!\prod_{a,b}r'_{ab}!
+ }.
+ \tag{8.3b}
+\]
+Using $(s)_d=s!/(s-d)!$ and $(n)_J=n!/(n-J)!$ gives
+\[
+\begin{split}
+ \pi(M,j)p_{res}(r')
+ &=\frac{\prod_a s_a!\prod_b t_b!}
+         {n!\prod_{e\in M}j_e!\prod_{a,b}r'_{ab}!}\\
+ &=\frac{\prod_a s_a!\prod_b t_b!}
+         {n!\prod_{a,b}r_{ab}!}
+ =p(r).
+\end{split}
+\tag{8.3c}
+\]
+Thus every table appears once, with no hidden multiplicity or proportionality
+constant.
+\end{proof}
+
+\begin{definition}[Bare canonical-skeleton weight]
+For a feasible canonical skeleton $(M,j)$, set
+\[
+ \Bare(M,j)=\pi(M,j)\prod_{e\in M}g(j_e).
+ \tag{8.3d}
+\]
+The residual cap and no-return event remain in the residual law, while the
+capped residual local/cycle factor is postponed to Section 9.
+\end{definition}
+
+When an unfinished high-cell completion is bounded above by the full
+residual integrand, the latter is only a larger nonnegative numerical
+majorant.  It does not redefine $\Bare(M,j)$, and the Section 9 residual factor
+is still applied exactly once.
+
+\section*{Replacement C: split form of Lemma 8.3}
+
+\begin{lemma}[One-cell near-containment sum]
+Let the smaller slot have size $m$, the larger size $m+d$, where
+$0\le d\le3$.  Replacing endpoint multiplicity $m$ by $m-e$ has exact ratio
+\[
+ R_{m,d}(e)=
+ \frac{\binom me}{(d+1)\cdots(d+e)}
+ 2^{-em+e(e+1)/2}.
+ \tag{8.21}
+\]
+Uniformly in the four cell types,
+\[
+ \sum_{1\le e<m/4}n^eR_{m,d}(e)=O(N^3/n).
+ \tag{8.25}
+\]
+\end{lemma}
+
+\begin{proof}
+The consecutive ratio is
+\[
+ \rho_e=
+ \frac{n(m-e)2^{-m+e+1}}{(e+1)(d+e+1)}.
+ \tag{8.23}
+\]
+For real $e$,
+\[
+ \frac{d^2}{de^2}\ln\rho_e
+ =-\frac1{(m-e)^2}
+  +\frac1{(e+1)^2}
+  +\frac1{(d+e+1)^2}>0
+ \tag{8.24a}
+\]
+on $0\le e\le m/4$ for all sufficiently large $m$.  Thus the ratios are
+log-convex and attain their maximum at an endpoint.  At $e=0$ the ratio is
+$O(N^3/n)$, and at $e=\lfloor m/4\rfloor$ it is $n^{-1/2+o(1)}$.  Both are
+eventually below $1/2$, uniformly, so the series is geometrically decreasing.
+\end{proof}
+
+\begin{lemma}[Global product over near-containment decorations]
+Fix a typed full-containment table $L$ and temporarily distinguish every
+endpoint cell occurrence.  Let $\mathcal S(L)$ be the family obtained by
+choosing for each occurrence either deficit $0$ or $1\le e<m/4$.  If $w(S)$ is
+the exact incidence and local high-cell reward, then
+\[
+ \sum_{S\in\mathcal S(L)}w(S)
+ \le W(L)\prod_{c\in L}
+ \left(1+\sum_{1\le e<m_c/4}n^eR_{m_c,d_c}(e)\right).
+ \tag{8.25a}
+\]
+Forgetting the temporary labels gives exactly the typed multinomial
+multiplicity.  Since a high skeleton has at most $k_{co}$ cells,
+\[
+ \sum_{S\in\mathcal S(L)}w(S)
+ \le W(L)(1+O(N^3/n))^{k_{co}}
+ =W(L)\exp(O(N^2)).
+ \tag{8.26}
+\]
+\end{lemma}
+
+\begin{lemma}[Middle strip with large residual mass]
+Fix a near-containment skeleton $S$, and let $m_0$ be the remaining stub mass.
+On the event $\mathcal N(S)$ that no additional near-containment cell occurs,
+every unexposed high cell satisfies
+\[
+ R_0<j\le3a/4+O(1),
+ \qquad a=\alpha-2.
+\]
+If $m_0\ge n/N^6$, then
+\[
+ E_{mid}(S)\le\exp(\Xi_4),
+ \tag{8.26a}
+\]
+where
+\[
+ \Xi_4\le k_{co}^2
+ \sum_{a/2<j\le3a/4+O(1)}
+ g(j)\frac{(ea^2/m_0)^j}{j!}.
+ \tag{8.27}
+\]
+There is an absolute $c_0>0$ such that, eventually and uniformly,
+\[
+ \log_2\left[
+   k_{co}^2g(j)\frac{(ea^2/m_0)^j}{j!}
+ \right]
+ \le-c_0(\log_2n)^2.
+ \tag{8.28a}
+\]
+Thus $\Xi_4=2^{-\Omega((\log n)^2)}$.
+\end{lemma}
+
+\begin{proof}
+Expand over distinct residual cells and threshold demands before dropping any
+constraints.  Lemma 6.2 gives (8.26a)--(8.27).  Put $L_2=\log_2n$ and
+$j=xL_2$.  Then
+\[
+ 1+o(1)\le x\le3/2+o(1),
+ \qquad
+ \log_2m_0\ge L_2-6\log_2N.
+\]
+Using $g(j)\le2^{j^2/2}$ and $k_{co}\le n$,
+\[
+ \log_2\left[
+   k_{co}^2g(j)\frac{(ea^2/m_0)^j}{j!}
+ \right]
+ \le2L_2+
+ \left(\frac{x^2}{2}-x\right)L_2^2
+ +O(L_2\log L_2).
+\]
+On $[1,3/2]$, $x^2/2-x\le-3/8$.  Taking $c_0=1/4$, the lower-order term is
+smaller than $L_2^2/8$ for all sufficiently large $n$, uniformly over the floor
+perturbations and cell types.
+\end{proof}
+
+\begin{lemma}[Small residual completion]
+If $m_0<n/N^6$, then pointwise
+\[
+ \beta(S\cup H_{res})\le|E(H_{res})|\le m_0/2,
+ \qquad
+ \sum_e\binom{r_e}{2}\le(a-1)m_0/2.
+ \tag{8.29}
+\]
+Hence every nonnegative completion weight needed to dominate the unfinished
+high-cell sum is at most
+\[
+ \exp(Cam_0)\le\exp(Cn/N^5).
+ \tag{8.29a}
+\]
+\end{lemma}
+
+This may use the full residual cycle factor as a pointwise majorant.  It is
+only a numerical upper bound for the bare completion sum and does not alter the
+exact factorization in Section 9.
+
+\begin{proposition}[Sum of all bare canonical skeletons]
+The sum over every feasible canonical matching, allowed high multiplicity, and
+induced nonnegative residual degree list satisfies
+\[
+ \sum_{(M,j)}\Bare(M,j)
+ \le e^{O(N^2)}
+ \left(\sum_LW(L)\right)
+ \max\{e^{\Xi_4},e^{Cn/N^5}\}.
+ \tag{8.29b}
+\]
+Consequently
+\[
+ \sum_{(M,j)}\Bare(M,j)
+ \le\exp\{O(\sqrt{nN})+O(N^2)+O(n/N^5)\}
+ =\exp\{o(n/N^4)\}.
+ \tag{8.30}
+\]
+\end{proposition}
+
+Endpoint and near-endpoint multiplicities are generated from a typed endpoint
+table, and every remaining high multiplicity is generated in the middle-strip
+expansion under the no-further-near-cell event.  Hence every multiplicity is
+included exactly once.
+
+\section*{Replacement D: finite cycle expansion in Lemma 9.1}
+
+\begin{lemma}[Even subgraphs to a simple-cycle product]
+Let $G$ be a finite graph with nonnegative edge weights $(w_e)$.  For every
+even edge set $F$, fix deterministically an edge-disjoint decomposition
+$\mathcal D(F)$ into simple cycles.  Then
+\[
+ \sum_{F\text{ even}}\prod_{e\in F}w_e
+ \le
+ \prod_{C\text{ simple cycle}}
+ \left(1+\prod_{e\in C}w_e\right)
+ \le
+ \exp\left\{\sum_{C\text{ simple cycle}}\prod_{e\in C}w_e\right\}.
+ \tag{9.15a}
+\]
+\end{lemma}
+
+\begin{proof}
+The cycles in $\mathcal D(F)$ are edge-disjoint and therefore distinct, and
+\[
+ \prod_{e\in F}w_e
+ =\prod_{C\in\mathcal D(F)}\prod_{e\in C}w_e.
+\]
+The union of the cycles recovers $F$, so the map to the resulting cycle set is
+injective.  Dropping edge-disjointness enlarges the image to all subsets of the
+finite simple-cycle set.  Summing those subsets gives the first product, and
+$1+x\le e^x$ gives the second inequality.
+\end{proof}
+
+Apply the lemma to $G=M\cup R$, with matching-edge weight one and residual-edge
+weight $q_e$.
+
+\begin{lemma}[Cycles disjoint from the high matching]
+Let $Q$ be the symmetric weighted adjacency kernel of the residual bipartite
+graph.  If every row and column sum is at most $\tau<1$, then
+\[
+ \sum_{C:C\cap M=\varnothing}\prod_{e\in C}q_e
+ \le\frac{n\tau^4}{1-\tau^2}.
+ \tag{9.16}
+\]
+\end{lemma}
+
+\begin{proof}
+A residual-only bipartite cycle has length $2s\ge4$.  Mark one row vertex,
+forget simplicity, and forget the closing constraint.  For each marked start,
+the total mass of length-$2s$ walks is at most $\tau^{2s}$.  There are at most
+$n$ marked starts, so summing $s\ge2$ gives the result.
+\end{proof}
+
+\begin{lemma}[Cycles meeting the high matching]
+Let $M$ be a bipartite matching of size $h$.  Let $Q$ be a nonnegative symmetric
+residual kernel, zero on $M$, with row-sum norm at most $\tau<1/3$.  Put
+\[
+ P=Q+Q^2+Q^3+\cdots,
+ \qquad
+ b=\|P\|_{\infty}\le\frac{\tau}{1-\tau}.
+ \tag{9.17a}
+\]
+Then
+\[
+ \sum_{C:C\cap M\ne\varnothing}\prod_{e\in C\setminus M}q_e
+ \le2h\sum_{r\ge1}b^r
+ =\frac{2hb}{1-b}
+ \le Ch\tau.
+ \tag{9.18a}
+\]
+\end{lemma}
+
+\begin{proof}
+Fix a total order on the oriented matching edges.  For every simple cycle
+meeting $M$, mark the least oriented matching edge on the cycle.  This costs at
+most $2h$ choices and removes rotation and orientation ambiguity.
+
+If the cycle uses $r\ge1$ matching edges, cutting at them leaves $r$ nonempty
+residual paths.  Between consecutive residual paths, the next matching edge is
+determined by the current endpoint because $M$ is a matching.  Matching
+traversal is therefore a partial permutation of row-sum norm one and introduces
+no new factor $h$.
+
+After dropping simplicity, vertex-disjointness, and the final closing
+constraint, each residual path contributes total mass at most $b$.  Relaxed
+codes with exactly $r$ matching edges therefore have total mass at most
+$2hb^r$.  Summing over $r$ proves the claim.
+\end{proof}
+
+\paragraph{Completion of the large-residual branch.}
+Equations (9.12)--(9.14) give
+\[
+ \Lambda_0\le C U^4/m_0,
+ \qquad
+ \tau\le C U^3/m_0.
+\]
+For $m_0\ge n/N^6$, one has $\tau<1/3$ eventually, uniformly over every
+feasible canonical skeleton.  The preceding lemmas and $h<2n/U$ yield
+\[
+ \mathcal A(M,j)
+ \le
+ \exp\left[
+ C\left\{
+   \frac{U^4}{m_0}+n\tau^4+h\tau
+ \right\}
+ \right]
+ \le\exp(C'N^8).
+ \tag{9.19}
+\]
+This is a one-sided bound.  No lower estimate for $\mathcal A(M,j)$ is asserted
+or used.
+
+\section*{Integration checklist}
+
+\begin{enumerate}
+\item Preserve equations (7.8)--(7.21), insert the central-rate lemma, and
+replace the paragraph leading to (7.25).
+\item Insert the canonical exposure proposition and bare-weight definition
+after (8.3).
+\item Replace the current Lemma 8.3 by the split lemmas and final proposition.
+\item Insert the three cycle lemmas between (9.14) and the large-residual
+conclusion.
+\item Rename the two unrelated uses of $B_n$.
+\item Regenerate the TeX and PDFs from the canonical source.
+\item Rerun display-tag, citation, finite-diagnostic, and formalization-status
+checks.
+\item Retain the status ``candidate solution; not externally or fully formally
+verified'' until a stronger review is complete.
+\end{enumerate}
+
+\end{document}
