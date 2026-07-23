@@ -106,6 +106,7 @@ import Erdos625.FiniteFourVsExtendedEntropyLoss
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
+import Erdos625.PhaseSignedFourSizeRootCorridor
 import Erdos625.SignedFourEntropyLossDecomposition
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore

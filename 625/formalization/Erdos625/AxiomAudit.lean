@@ -120,6 +120,7 @@ import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
+import Erdos625.PhaseSignedFourSizeRootCorridor
 import Erdos625.SignedFourEntropyLossDecomposition
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -1250,3 +1251,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
 #print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
 #print axioms Erdos625.midpointMultiplicity_uniform_displacement
+#print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
