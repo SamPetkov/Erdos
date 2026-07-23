@@ -250,13 +250,22 @@ def compile_internal_625_proof() -> None:
     copy_file(pdf, ROOT / "625" / "COMPLETE_PROOF_SELF_CONTAINED.pdf")
 
 
-def make_zip(path: Path, files: list[tuple[Path, str]], *, fixed: tuple[int, int, int, int, int, int]) -> None:
+def make_zip(
+    path: Path,
+    files: list[tuple[Path, str]],
+    *,
+    fixed: tuple[int, int, int, int, int, int],
+    compression: int = zipfile.ZIP_DEFLATED,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    options: dict[str, object] = {"compression": compression}
+    if compression == zipfile.ZIP_DEFLATED:
+        options["compresslevel"] = 9
+    with zipfile.ZipFile(path, "w", **options) as archive:
         for source, arcname in files:
             if source.exists():
                 info = zipfile.ZipInfo(arcname, fixed)
-                info.compress_type = zipfile.ZIP_DEFLATED
+                info.compress_type = compression
                 info.external_attr = 0o100644 << 16
                 archive.writestr(info, source.read_bytes())
 
@@ -330,6 +339,8 @@ def sync_625() -> None:
             (P625_BIB, "references.bib"),
         ],
         fixed=(2026, 7, 20, 12, 0, 0),
+        # Stored entries are byte-identical across Python/zlib versions.
+        compression=zipfile.ZIP_STORED,
     )
 
 
