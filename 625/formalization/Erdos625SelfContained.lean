@@ -25629,6 +25629,56 @@ END SOURCE MODULE: Erdos625.DeficitDerivativeComposition
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DerivativeAffineCoreError
+Source: Erdos625/DerivativeAffineCoreError.lean
+Normalized SHA-256: 1ae72d234bba801a4f42652f0db6bad64516818d23f8f5819fd1e87b4835a862
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+After converting the unrestricted phase derivative to deficit coordinates,
+the only error in replacing its affine factorial-log core by the quadratic
+main term is the explicit `factorialLogErrorBound`.
+-/
+theorem abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    |deriv (unrestrictedPhaseObjective n) k -
+      (q / 2 * (phaseNat n : ℝ) ^ 2 + (phaseNat n : ℝ) -
+        profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
+          (phaseNat n : ℝ) +
+        Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
+        Real.log k)| ≤ factorialLogErrorBound (phaseNat n) := by
+  rw [unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget hT]
+  obtain ⟨_, h2⟩ := phaseDeficitTarget_domain_coordinates hT
+  have hpn : 0 < phaseNat n := by omega
+  have key := abs_profileDeficitAffineCore_sub_quadratic_le (phaseNat n) hpn
+  convert key using 2
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DerivativeAffineCoreError
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfileDeficitVariance
 Source: Erdos625/ColoringProfileDeficitVariance.lean
 Normalized SHA-256: 323faef6be874981708ed6a5ef7b477ab2fac927bc6e119b4f04f956a6ad6ca4
@@ -63685,7 +63735,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 985fec39e7b16d94d0de46df1f3484c3cedc61a24d6bdf283f802b7917cf4fd9
+Normalized SHA-256: eb8ec0ada1bd7210ecd1fa08bed97f0a261266638d4db7002e22054ca5805e26
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64607,6 +64657,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
 #print axioms Erdos625.midpointMultiplicity_uniform_displacement
 #print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
+#print axioms Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64616,7 +64667,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1b3cb1a9973d71db29b0fd46a0dc8d14ff6c0aeb85a52c51d1544cb3f362022c
+Normalized SHA-256: 725fad5591b8ea9b6014f273b6711b3a3cf475b7d70cfc933255da01dc7189b8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
