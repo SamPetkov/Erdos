@@ -1590,7 +1590,7 @@ The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle (Achim et al. 202
 
 # AI assistance
 
-The proof and formalisation were completed with extensive assistance from ChatGPT-5.6 Sol Ultra and Aristotle. Separate adversarial verification passes were run with ChatGPT-5.6 Sol Pro; these passes are not external peer review. In particular, ChatGPT-5.6 proposed the four-size signed profile with class sizes $\alpha-2,\alpha-3,\alpha-4,\alpha-5$, which led to the phase-uniform first-moment separation used in Section 5. The author reviewed every incorporated suggestion and assumes full responsibility for the arguments, citations, and final manuscript.
+The proof and formalisation were completed with extensive assistance from ChatGPT-5.6 Sol Ultra and Aristotle. Separate adversarial verification passes were run with ChatGPT-5.6 Sol Pro; these passes are not external peer review. ChatGPT-5.6 Sol Ultra provided substantial assistance in developing the central argument. In particular, it proposed the four-size signed profile with class sizes $\alpha-2,\alpha-3,\alpha-4,\alpha-5$, which led to the phase-uniform first-moment separation used in Section 5. The author assumes full responsibility for the arguments, citations, and final manuscript.
 
 # Funding
 
