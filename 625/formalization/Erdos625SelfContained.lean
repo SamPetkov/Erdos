@@ -20073,6 +20073,83 @@ END SOURCE MODULE: Erdos625.PhaseRootScalarResidualRemainderBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootStirlingResidualBound
+Source: Erdos625/PhaseRootStirlingResidualBound.lean
+Normalized SHA-256: cf8f7b1a48ce6c6c209e493e3e46e1604fd91b6fec652af55a128ae9bf8cfe51
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootStirlingResidualBound
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseStirlingResidual_isBigO_logLogOrder :
+    phaseStirlingResidual =O[atTop] logLogOrder := by
+  refine phaseStirlingResidual_isBigO_inv_logOrder.trans ?_
+  apply IsBigO.of_bound 1
+  have hLog : ∀ᶠ n : ℕ in atTop, 1 ≤ logOrder n :=
+    tendsto_logOrder_atTop.eventually (eventually_ge_atTop (1 : ℝ))
+  have hLogLog : ∀ᶠ n : ℕ in atTop, 1 ≤ logLogOrder n :=
+    tendsto_logLogOrder_atTop.eventually (eventually_ge_atTop (1 : ℝ))
+  filter_upwards [hLog, hLogLog] with n hn hhn
+  rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (inv_nonneg.mpr (le_trans zero_le_one hn)),
+    abs_of_nonneg (le_trans zero_le_one hhn), one_mul]
+  exact le_trans ((inv_le_one₀ (lt_of_lt_of_le zero_lt_one hn)).2 hn) hhn
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootStirlingResidualBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootStirlingResidualBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarBound
+Source: Erdos625/PhaseRootScalarBound.lean
+Normalized SHA-256: c624e4a161a15000103ba39a85bef774837d545605c8aab8b07c7471f06a8a15
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarBound
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem phaseRootScalarTerm_isBigO_logLogOrder :
+    phaseRootScalarTerm =O[atTop] logLogOrder := by
+  have hBound :
+      (fun n : ℕ ↦
+          phaseRootAlgebraicCore n + phaseExpansionResidual n -
+            phaseStirlingResidual n - stirlingLogRemainder (phaseNat n))
+        =O[atTop] logLogOrder :=
+    ((phaseRootAlgebraicCore_isBigO.add
+        phaseExpansionResidual_isBigO_logLogOrder).sub
+      phaseStirlingResidual_isBigO_logLogOrder).sub
+        phaseNat_stirlingLogRemainder_isBigO_logLogOrder
+  refine hBound.congr' ?_ Filter.EventuallyEq.rfl
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+    eventually_two_le_phaseNat] with n hn hphase
+  exact (phaseRootScalarTerm_eq_core hn.1 hn.2.1 (by omega)).symm
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootScalarBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootScalarBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
 Source: Erdos625/PhaseRootSelectedDeficitBound.lean
 Normalized SHA-256: 54577f50c65c5873da05d559940f1ff91bc2e16f0ee76732d65f3fa67ba8baad
@@ -20155,6 +20232,66 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_PhaseRootSelectedDeficitBound
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.PhaseRootSelectedDeficitBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
+Source: Erdos625/PhaseRootObjectiveCenterBound.lean
+Normalized SHA-256: a2b3d09e49fc0b96a30925e1ebb1653f87a3ee688e3b05f129b26aa3e02cb030
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootObjectiveCenterBound
+
+/-!
+# The unrestricted phase objective at the reference center
+
+This module combines the exact finite center decomposition with the two
+independently established bounds for its scalar and selected-deficit terms.
+-/
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A constant error is eventually dominated by `logLogOrder`. -/
+theorem one_isBigO_logLogOrder :
+    (fun _n : ℕ ↦ (1 : ℝ)) =O[atTop] logLogOrder := by
+  apply IsBigO.of_bound 1
+  filter_upwards
+    [tendsto_logLogOrder_atTop.eventually_ge_atTop (1 : ℝ)] with n hn
+  rw [norm_one, Real.norm_eq_abs,
+    abs_of_nonneg (le_trans zero_le_one hn), one_mul]
+  exact hn
+
+/-- At the manuscript reference center, the attained unrestricted-profile
+objective divided by the center is at most logarithmic in the logarithmic
+order.  This is the direct asymptotic consequence of the exact center
+decomposition: its scalar contribution is `O(log log n)`, while its
+selected-deficit contribution is uniformly bounded. -/
+theorem unrestrictedPhaseObjective_center_div_isBigO_logLogOrder :
+    (fun n : ℕ ↦
+        unrestrictedPhaseObjective n (phaseRootCenter n) /
+          phaseRootCenter n) =O[atTop] logLogOrder := by
+  have hSelected : phaseRootSelectedDeficitTerm =O[atTop] logLogOrder :=
+    phaseRootSelectedDeficitTerm_isBigO_one.trans one_isBigO_logLogOrder
+  have hSum :
+      (fun n : ℕ ↦ phaseRootScalarTerm n + phaseRootSelectedDeficitTerm n)
+        =O[atTop] logLogOrder :=
+    phaseRootScalarTerm_isBigO_logLogOrder.add hSelected
+  refine hSum.congr' ?_ Filter.EventuallyEq.rfl
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor] with n hn
+  exact (unrestrictedPhaseObjective_center_div_decomposition hn.1 hn.2.1).symm
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootObjectiveCenterBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -23156,6 +23293,255 @@ END SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ProfileCorridorTools
+Source: Erdos625/ProfileCorridorTools.lean
+Normalized SHA-256: 56494155ea53ba7cf333b96b7ab72de8d7139eaf750fa07d619d19a832f8b417
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ProfileCorridorTools
+
+/-!
+# Generic corridor tools for the profile argument
+
+This module records four finite-dimensional order and calculus lemmas used by
+the planned root-corridor and rounding stages.  They are deliberately stated
+for arbitrary real functions.  In particular, nothing here supplies a phase
+bracket, a derivative lower bound for the coloring-profile value, or any
+asymptotic estimate.
+-/
+
+namespace Erdos625
+
+open Set
+
+/-! ## A unique zero in a decreasing corridor -/
+
+/-- A continuous function that is strictly decreasing on a closed interval
+and changes sign at its endpoints has a unique zero in the open interval. -/
+theorem existsUnique_root_mem_Ioo_of_strictAntiOn
+    {f : ℝ → ℝ} {a b : ℝ}
+    (hcont : ContinuousOn f (Icc a b))
+  (hanti : StrictAntiOn f (Icc a b))
+  (hab : a < b) (ha : 0 < f a) (hb : f b < 0) :
+    ∃! x : ℝ, x ∈ Ioo a b ∧ f x = 0 := by
+  have hExists : ∃ c ∈ Ioo a b, f c = 0 := by
+    exact intermediate_value_Ioo' hab.le hcont ⟨hb, ha⟩
+  refine ⟨hExists.choose, hExists.choose_spec, ?_⟩
+  intro x hx
+  exact hanti.injOn
+    (Ioo_subset_Icc_self hx.1)
+    (Ioo_subset_Icc_self hExists.choose_spec.1)
+    (hx.2.trans hExists.choose_spec.2.symm)
+
+/-- A center-value error strictly smaller than the integrated derivative
+margin gives a unique zero in the open symmetric corridor. -/
+theorem existsUnique_root_mem_corridor_of_center_bound_deriv_upper
+    {psi : ℝ → ℝ} {s0 Delta E D : ℝ}
+    (hDelta : 0 < Delta) (hD : 0 < D)
+    (hmargin : E < D * Delta)
+    (hcenter : |psi s0| ≤ E)
+    (hcont : ContinuousOn psi (Icc (s0 - Delta) (s0 + Delta)))
+    (hdiff : DifferentiableOn ℝ psi (Ioo (s0 - Delta) (s0 + Delta)))
+    (hupper : ∀ s ∈ Ioo (s0 - Delta) (s0 + Delta),
+      deriv psi s ≤ -D) :
+    ∃! s : ℝ, s ∈ Ioo (s0 - Delta) (s0 + Delta) ∧ psi s = 0 := by
+  have hab : s0 - Delta < s0 + Delta := by linarith
+  have hanti : StrictAntiOn psi (Icc (s0 - Delta) (s0 + Delta)) := by
+    apply strictAntiOn_of_deriv_neg (convex_Icc _ _) hcont
+    rw [interior_Icc]
+    intro s hs
+    linarith [hupper s hs]
+  have hrightStep :
+      psi (s0 + Delta) - psi s0 ≤ (-D) * ((s0 + Delta) - s0) := by
+    refine Convex.image_sub_le_mul_sub_of_deriv_le
+      (convex_Icc (s0 - Delta) (s0 + Delta)) hcont ?_ ?_
+      s0 ?_ (s0 + Delta) ?_ ?_
+    · simpa only [interior_Icc] using hdiff
+    · simpa only [interior_Icc] using hupper
+    · constructor <;> linarith
+    · exact right_mem_Icc.mpr hab.le
+    · linarith
+  have hleftStep :
+      psi s0 - psi (s0 - Delta) ≤ (-D) * (s0 - (s0 - Delta)) := by
+    refine Convex.image_sub_le_mul_sub_of_deriv_le
+      (convex_Icc (s0 - Delta) (s0 + Delta)) hcont ?_ ?_
+      (s0 - Delta) ?_ s0 ?_ ?_
+    · simpa only [interior_Icc] using hdiff
+    · simpa only [interior_Icc] using hupper
+    · exact left_mem_Icc.mpr hab.le
+    · constructor <;> linarith
+    · linarith
+  have hleft : 0 < psi (s0 - Delta) := by
+    rcases abs_le.mp hcenter with ⟨hcenterLower, _⟩
+    nlinarith
+  have hright : psi (s0 + Delta) < 0 := by
+    rcases abs_le.mp hcenter with ⟨_, hcenterUpper⟩
+    nlinarith
+  exact existsUnique_root_mem_Ioo_of_strictAntiOn
+    hcont hanti hab hleft hright
+
+/-! ## Integrating a pointwise derivative lower bound -/
+
+/-- A derivative lower bound on the open interval gives the corresponding
+finite increment lower bound across the closed interval. -/
+theorem derivative_lower_bound_mul_sub_le_sub
+    {f : ℝ → ℝ} {a b s : ℝ} (hab : a ≤ b)
+    (hcont : ContinuousOn f (Icc a b))
+    (hdiff : DifferentiableOn ℝ f (Ioo a b))
+    (hlower : ∀ x ∈ Ioo a b, s ≤ deriv f x) :
+    s * (b - a) ≤ f b - f a := by
+  have hconv : Convex ℝ (Icc a b) := convex_Icc a b
+  have hint : interior (Icc a b) = Ioo a b := interior_Icc
+  refine Convex.mul_sub_le_image_sub_of_le_deriv hconv hcont ?_ ?_
+    a (left_mem_Icc.mpr hab) b (right_mem_Icc.mpr hab) hab
+  · rw [hint]
+    exact hdiff
+  · intro x hx
+    rw [hint] at hx
+    exact hlower x hx
+
+/-! ## Trapping a target-matching tilt -/
+
+/-- Endpoint mean brackets trap a target-matching point in the same open
+interval when the mean map is strictly increasing. -/
+theorem tilt_mem_Ioo_of_strictMono_mean_eq
+    {mean : ℝ → ℝ} {M target tilt : ℝ}
+    (hmono : StrictMono mean)
+    (hleft : mean (-M) < target) (hright : target < mean M)
+    (heq : mean tilt = target) :
+    tilt ∈ Ioo (-M) M := by
+  constructor
+  · apply hmono.lt_iff_lt.mp
+    rw [heq]
+    exact hleft
+  · apply hmono.lt_iff_lt.mp
+    rw [heq]
+    exact hright
+
+/-! ## Exact integer rounding at a real root -/
+
+/-- Moving left from a real root by flooring the root and subtracting
+`⌈N⌉` creates a displacement of at least `N`.  A nonnegative derivative
+lower bound converts that displacement into the stated value decrement. -/
+theorem rounded_left_value_le
+    {F : ℝ → ℝ} {r N slope : ℝ}
+    (hN : 0 < N) (hslope : 0 ≤ slope)
+    (hcont : ContinuousOn F
+      (Icc ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r))
+    (hdiff : DifferentiableOn ℝ F
+      (Ioo ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r))
+    (hlower : ∀ x ∈
+      Ioo ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r,
+      slope ≤ deriv F x)
+    (hroot : F r = 0) :
+    F ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) ≤ -slope * N := by
+  set a : ℝ := (((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ) with ha
+  have hint : interior (Icc a r) = Ioo a r := interior_Icc
+  have hNle : N ≤ r - a := by
+    have hFloor : (⌊r⌋ : ℝ) ≤ r := Int.floor_le r
+    have hCeil : N ≤ (⌈N⌉ : ℝ) := Int.le_ceil N
+    push_cast [ha]
+    linarith
+  have hale : a ≤ r := by
+    linarith
+  have hIncrement := Convex.mul_sub_le_image_sub_of_le_deriv
+    (convex_Icc a r) hcont
+    (by
+      rw [hint]
+      exact hdiff)
+    (C := slope)
+    (by
+      rw [hint]
+      exact hlower)
+    a (left_mem_Icc.mpr hale) r (right_mem_Icc.mpr hale) hale
+  rw [hroot] at hIncrement
+  have hScaled : slope * N ≤ slope * (r - a) :=
+    mul_le_mul_of_nonneg_left hNle hslope
+  nlinarith [hIncrement]
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ProfileCorridorTools
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ProfileCorridorTools
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseSignedFourSizeRootCorridor
+Source: Erdos625/PhaseSignedFourSizeRootCorridor.lean
+Normalized SHA-256: 57a2672f280bb74784909f6637fa26fc8309646d4d0e8e740a55c4b15d33d798
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseSignedFourSizeRootCorridor
+
+namespace Erdos625
+
+open Set
+open scoped Topology
+
+noncomputable section
+
+/-- A signed four-size root follows from a concrete center-value error,
+admissibility of the full corridor, and a positive derivative lower bound.
+The quantitative center and derivative estimates are hypotheses, not supplied
+by this finite bridge. -/
+theorem existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
+    (n : Nat) (s0 Delta E D : Real)
+    (hDelta : 0 < Delta) (hD : 0 < D)
+    (hmargin : E < D * Delta)
+    (hcenter : |phaseSignedFourSizeObjective n s0| ≤ E)
+    (hfeasible : ∀ s ∈ Icc (s0 - Delta) (s0 + Delta),
+      0 < s ∧
+        fourSizeTarget n (phaseNat n) s ∈ Ioo (2 : Real) 5)
+    (hderivLower : ∀ s ∈ Ioo (s0 - Delta) (s0 + Delta),
+      D ≤ signedFourSizeObjectiveDerivative n (phaseNat n) s) :
+    ∃! r : Real,
+      r ∈ Ioo (s0 - Delta) (s0 + Delta) ∧
+        IsPhaseSignedFourSizeRoot n r := by
+  let psi : Real → Real := fun s => -phaseSignedFourSizeObjective n s
+  have hcont : ContinuousOn psi (Icc (s0 - Delta) (s0 + Delta)) := by
+    intro s hs
+    exact (continuousAt_phaseSignedFourSizeObjective n
+      (hfeasible s hs).1 (hfeasible s hs).2).neg.continuousWithinAt
+  have hdiff : DifferentiableOn Real psi (Ioo (s0 - Delta) (s0 + Delta)) := by
+    intro s hs
+    have hsIcc : s ∈ Icc (s0 - Delta) (s0 + Delta) :=
+      Ioo_subset_Icc_self hs
+    exact (hasDerivAt_phaseSignedFourSizeObjective n
+      (hfeasible s hsIcc).1 (hfeasible s hsIcc).2).neg.differentiableAt.differentiableWithinAt
+  have hupper : ∀ s ∈ Ioo (s0 - Delta) (s0 + Delta), deriv psi s ≤ -D := by
+    intro s hs
+    have hsIcc : s ∈ Icc (s0 - Delta) (s0 + Delta) :=
+      Ioo_subset_Icc_self hs
+    have hderiv := (hasDerivAt_phaseSignedFourSizeObjective n
+      (hfeasible s hsIcc).1 (hfeasible s hsIcc).2).neg
+    change deriv (-phaseSignedFourSizeObjective n) s ≤ -D
+    rw [hderiv.deriv]
+    exact neg_le_neg (hderivLower s hs)
+  have hcenterPsi : |psi s0| ≤ E := by
+    simpa [psi] using hcenter
+  obtain ⟨r, hr, hunique⟩ :=
+    existsUnique_root_mem_corridor_of_center_bound_deriv_upper
+      hDelta hD hmargin hcenterPsi hcont hdiff hupper
+  refine ⟨r, ⟨hr.1, ?_⟩, ?_⟩
+  · have hrIcc : r ∈ Icc (s0 - Delta) (s0 + Delta) :=
+      Ioo_subset_Icc_self hr.1
+    have hradmissible := hfeasible r hrIcc
+    exact ⟨hradmissible.1, hradmissible.2, by
+      simpa [psi, phaseSignedFourSizeObjective] using hr.2⟩
+  · intro y hy
+    apply hunique y
+    exact ⟨hy.1, by simpa [psi, IsPhaseSignedFourSizeRoot,
+      IsSignedFourSizeRoot, phaseSignedFourSizeObjective] using hy.2.2.2⟩
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseSignedFourSizeRootCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseSignedFourSizeRootCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
 Source: Erdos625/SignedFourEntropyLossDecomposition.lean
 Normalized SHA-256: ab68aa6ec20eff11673e9243b5d6e7e4dae2e9fbb3a259b42c64927ab304f983
@@ -23189,7 +23575,7 @@ END SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.MidpointProfileCoordinates
 Source: Erdos625/MidpointProfileCoordinates.lean
-Normalized SHA-256: 7908f89a168543409738b41ca7fe317a289120dc973ee686c2b31c730dac867b
+Normalized SHA-256: 8511e0601ff969fa0c7f6fd981941735a69707217dde502eed3a470f252927d1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_MidpointProfileCoordinates
 
@@ -23278,6 +23664,18 @@ theorem fourDeficitEmbedding_profile_invariants
       simp [hc]
     exact hj hz
 
+/-- The four distinguished class-size coordinates are pairwise distinct. -/
+theorem fourDeficitCoordinate_injective
+    (alpha : Nat) (hAlpha : 5 < alpha) :
+    Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+  intro i j hij
+  have hdeficit := congrArg (profileDeficit alpha) hij
+  rw [profileDeficit_fourDeficitCoordinate,
+    profileDeficit_fourDeficitCoordinate] at hdeficit
+  norm_cast at hdeficit
+  apply Fin.ext
+  simpa [fourDeficit] using hdeficit
+
 /-- The four-deficit embedding has the prescribed value at each distinguished
 coordinate and vanishes away from the four distinguished coordinates. -/
 theorem fourDeficitEmbedding_eval_and_off_image
@@ -23288,13 +23686,8 @@ theorem fourDeficitEmbedding_eval_and_off_image
     (∀ j : Fin (alpha + 1),
       (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
         fourDeficitEmbedding alpha hAlpha m j = 0) := by
-  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
-    intro i k hik
-    have h := congrArg (profileDeficit alpha) hik
-    rw [profileDeficit_fourDeficitCoordinate,
-      profileDeficit_fourDeficitCoordinate] at h
-    simp [fourDeficit] at h
-    exact Fin.ext h
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) :=
+    fourDeficitCoordinate_injective alpha hAlpha
   constructor
   · intro i
     unfold fourDeficitEmbedding
@@ -23883,6 +24276,112 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingCast
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.MidpointProfileRoundingCast
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileRoundingIntDisplacement
+Source: Erdos625/MidpointProfileRoundingIntDisplacement.lean
+Normalized SHA-256: 7d3dfc1b7de395b2a436ca8ff7cf84ff1a2d202ef025499a3e431510e6403801
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingIntDisplacement
+
+namespace Erdos625
+
+open scoped BigOperators
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Exact natural count and deficit conservation, together with the uniform
+displacement estimate at the corrected-integer level.  The final conjunct is
+intentionally stated before any `Int.toNat` cast, so the later nonnegativity
+and cast transport remain explicit proof obligations. -/
+theorem midpointMultiplicity_count_deficit_intDisplacement
+    (n alpha K : Nat)
+    (h : MidpointRoundingAdmissible n alpha K) :
+    (∑ i : Fin 4, midpointMultiplicity n alpha K i) = K ∧
+    (∑ i : Fin 4,
+        tangentDeficitNat i * midpointMultiplicity n alpha K i) =
+          midpointDeficit n alpha K ∧
+    (∀ i : Fin 4,
+      |((tangentCorrectedInt K (midpointDeficit n alpha K)
+            (midpointOptimizer n alpha K) i : Int) : Real) -
+          (K : Real) * midpointOptimizer n alpha K i| ≤
+        (5 : Real)) := by
+  rcases h with ⟨_hAlpha, hK, hn, hTarget, hLower⟩
+  have hCount :
+      ∑ i : Fin 4, (K : Real) * midpointOptimizer n alpha K i =
+        (K : Real) := by
+    rw [← Finset.mul_sum, midpointOptimizer,
+      ProfileEntropyS4.sum_optimizer, mul_one]
+  have hMoment :
+      ∑ i : Fin 4, (tangentDeficit i : Real) *
+          ((K : Real) * midpointOptimizer n alpha K i) =
+        ((midpointDeficit n alpha K : Nat) : Real) := by
+    calc
+      _ = (K : Real) * ∑ i : Fin 4,
+          midpointOptimizer n alpha K i * ProfileEntropyS4.support i := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        have hDeficit : (tangentDeficit i : Real) =
+            ProfileEntropyS4.support i := by
+          simp [tangentDeficit, ProfileEntropyS4.support]
+        rw [hDeficit]
+        ring
+      _ = (K : Real) * fourSizeTarget n alpha (K : Real) := by
+        rw [midpointOptimizer,
+          ProfileEntropyS4.sum_optimizer_mul_support
+            (fourDeficitScore alpha) hTarget]
+      _ = ((midpointDeficit n alpha K : Nat) : Real) := by
+        rw [midpointDeficit,
+          deficit_cast_eq_parts_mul_fourSizeTarget n alpha K hK hn]
+  exact tangent_rounding_nat_conservation_and_uniform_displacement
+    K (midpointDeficit n alpha K) (midpointOptimizer n alpha K)
+      hCount hMoment hLower
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileRoundingIntDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileRoundingIntDisplacement
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.MidpointProfileUniformDisplacement
+Source: Erdos625/MidpointProfileUniformDisplacement.lean
+Normalized SHA-256: c49dedd0ddcc28a80e638fbe3f0b8dd07c0b86d629be867de9d27bd650441955
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_MidpointProfileUniformDisplacement
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The actual natural midpoint multiplicities remain uniformly within five
+of their real optimizer coordinates. -/
+theorem midpointMultiplicity_uniform_displacement
+    (n alpha K : Nat)
+    (h : MidpointRoundingAdmissible n alpha K) :
+    ∀ i : Fin 4,
+      |((midpointMultiplicity n alpha K i : Nat) : Real) -
+          (K : Real) * midpointOptimizer n alpha K i| ≤ (5 : Real) := by
+  intro i
+  rw [midpointMultiplicity_cast_eq_correctedInt n alpha K h i]
+  exact (midpointMultiplicity_count_deficit_intDisplacement n alpha K h).2.2 i
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_MidpointProfileUniformDisplacement
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.MidpointProfileUniformDisplacement
 ========================================================================== -/
 
 /- ==========================================================================
@@ -26199,179 +26698,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDeficitTiltConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDeficitTiltConvergence
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ProfileCorridorTools
-Source: Erdos625/ProfileCorridorTools.lean
-Normalized SHA-256: 56494155ea53ba7cf333b96b7ab72de8d7139eaf750fa07d619d19a832f8b417
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ProfileCorridorTools
-
-/-!
-# Generic corridor tools for the profile argument
-
-This module records four finite-dimensional order and calculus lemmas used by
-the planned root-corridor and rounding stages.  They are deliberately stated
-for arbitrary real functions.  In particular, nothing here supplies a phase
-bracket, a derivative lower bound for the coloring-profile value, or any
-asymptotic estimate.
--/
-
-namespace Erdos625
-
-open Set
-
-/-! ## A unique zero in a decreasing corridor -/
-
-/-- A continuous function that is strictly decreasing on a closed interval
-and changes sign at its endpoints has a unique zero in the open interval. -/
-theorem existsUnique_root_mem_Ioo_of_strictAntiOn
-    {f : ℝ → ℝ} {a b : ℝ}
-    (hcont : ContinuousOn f (Icc a b))
-  (hanti : StrictAntiOn f (Icc a b))
-  (hab : a < b) (ha : 0 < f a) (hb : f b < 0) :
-    ∃! x : ℝ, x ∈ Ioo a b ∧ f x = 0 := by
-  have hExists : ∃ c ∈ Ioo a b, f c = 0 := by
-    exact intermediate_value_Ioo' hab.le hcont ⟨hb, ha⟩
-  refine ⟨hExists.choose, hExists.choose_spec, ?_⟩
-  intro x hx
-  exact hanti.injOn
-    (Ioo_subset_Icc_self hx.1)
-    (Ioo_subset_Icc_self hExists.choose_spec.1)
-    (hx.2.trans hExists.choose_spec.2.symm)
-
-/-- A center-value error strictly smaller than the integrated derivative
-margin gives a unique zero in the open symmetric corridor. -/
-theorem existsUnique_root_mem_corridor_of_center_bound_deriv_upper
-    {psi : ℝ → ℝ} {s0 Delta E D : ℝ}
-    (hDelta : 0 < Delta) (hD : 0 < D)
-    (hmargin : E < D * Delta)
-    (hcenter : |psi s0| ≤ E)
-    (hcont : ContinuousOn psi (Icc (s0 - Delta) (s0 + Delta)))
-    (hdiff : DifferentiableOn ℝ psi (Ioo (s0 - Delta) (s0 + Delta)))
-    (hupper : ∀ s ∈ Ioo (s0 - Delta) (s0 + Delta),
-      deriv psi s ≤ -D) :
-    ∃! s : ℝ, s ∈ Ioo (s0 - Delta) (s0 + Delta) ∧ psi s = 0 := by
-  have hab : s0 - Delta < s0 + Delta := by linarith
-  have hanti : StrictAntiOn psi (Icc (s0 - Delta) (s0 + Delta)) := by
-    apply strictAntiOn_of_deriv_neg (convex_Icc _ _) hcont
-    rw [interior_Icc]
-    intro s hs
-    linarith [hupper s hs]
-  have hrightStep :
-      psi (s0 + Delta) - psi s0 ≤ (-D) * ((s0 + Delta) - s0) := by
-    refine Convex.image_sub_le_mul_sub_of_deriv_le
-      (convex_Icc (s0 - Delta) (s0 + Delta)) hcont ?_ ?_
-      s0 ?_ (s0 + Delta) ?_ ?_
-    · simpa only [interior_Icc] using hdiff
-    · simpa only [interior_Icc] using hupper
-    · constructor <;> linarith
-    · exact right_mem_Icc.mpr hab.le
-    · linarith
-  have hleftStep :
-      psi s0 - psi (s0 - Delta) ≤ (-D) * (s0 - (s0 - Delta)) := by
-    refine Convex.image_sub_le_mul_sub_of_deriv_le
-      (convex_Icc (s0 - Delta) (s0 + Delta)) hcont ?_ ?_
-      (s0 - Delta) ?_ s0 ?_ ?_
-    · simpa only [interior_Icc] using hdiff
-    · simpa only [interior_Icc] using hupper
-    · exact left_mem_Icc.mpr hab.le
-    · constructor <;> linarith
-    · linarith
-  have hleft : 0 < psi (s0 - Delta) := by
-    rcases abs_le.mp hcenter with ⟨hcenterLower, _⟩
-    nlinarith
-  have hright : psi (s0 + Delta) < 0 := by
-    rcases abs_le.mp hcenter with ⟨_, hcenterUpper⟩
-    nlinarith
-  exact existsUnique_root_mem_Ioo_of_strictAntiOn
-    hcont hanti hab hleft hright
-
-/-! ## Integrating a pointwise derivative lower bound -/
-
-/-- A derivative lower bound on the open interval gives the corresponding
-finite increment lower bound across the closed interval. -/
-theorem derivative_lower_bound_mul_sub_le_sub
-    {f : ℝ → ℝ} {a b s : ℝ} (hab : a ≤ b)
-    (hcont : ContinuousOn f (Icc a b))
-    (hdiff : DifferentiableOn ℝ f (Ioo a b))
-    (hlower : ∀ x ∈ Ioo a b, s ≤ deriv f x) :
-    s * (b - a) ≤ f b - f a := by
-  have hconv : Convex ℝ (Icc a b) := convex_Icc a b
-  have hint : interior (Icc a b) = Ioo a b := interior_Icc
-  refine Convex.mul_sub_le_image_sub_of_le_deriv hconv hcont ?_ ?_
-    a (left_mem_Icc.mpr hab) b (right_mem_Icc.mpr hab) hab
-  · rw [hint]
-    exact hdiff
-  · intro x hx
-    rw [hint] at hx
-    exact hlower x hx
-
-/-! ## Trapping a target-matching tilt -/
-
-/-- Endpoint mean brackets trap a target-matching point in the same open
-interval when the mean map is strictly increasing. -/
-theorem tilt_mem_Ioo_of_strictMono_mean_eq
-    {mean : ℝ → ℝ} {M target tilt : ℝ}
-    (hmono : StrictMono mean)
-    (hleft : mean (-M) < target) (hright : target < mean M)
-    (heq : mean tilt = target) :
-    tilt ∈ Ioo (-M) M := by
-  constructor
-  · apply hmono.lt_iff_lt.mp
-    rw [heq]
-    exact hleft
-  · apply hmono.lt_iff_lt.mp
-    rw [heq]
-    exact hright
-
-/-! ## Exact integer rounding at a real root -/
-
-/-- Moving left from a real root by flooring the root and subtracting
-`⌈N⌉` creates a displacement of at least `N`.  A nonnegative derivative
-lower bound converts that displacement into the stated value decrement. -/
-theorem rounded_left_value_le
-    {F : ℝ → ℝ} {r N slope : ℝ}
-    (hN : 0 < N) (hslope : 0 ≤ slope)
-    (hcont : ContinuousOn F
-      (Icc ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r))
-    (hdiff : DifferentiableOn ℝ F
-      (Ioo ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r))
-    (hlower : ∀ x ∈
-      Ioo ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) r,
-      slope ≤ deriv F x)
-    (hroot : F r = 0) :
-    F ((((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ)) ≤ -slope * N := by
-  set a : ℝ := (((⌊r⌋ : ℤ) - ⌈N⌉ : ℤ) : ℝ) with ha
-  have hint : interior (Icc a r) = Ioo a r := interior_Icc
-  have hNle : N ≤ r - a := by
-    have hFloor : (⌊r⌋ : ℝ) ≤ r := Int.floor_le r
-    have hCeil : N ≤ (⌈N⌉ : ℝ) := Int.le_ceil N
-    push_cast [ha]
-    linarith
-  have hale : a ≤ r := by
-    linarith
-  have hIncrement := Convex.mul_sub_le_image_sub_of_le_deriv
-    (convex_Icc a r) hcont
-    (by
-      rw [hint]
-      exact hdiff)
-    (C := slope)
-    (by
-      rw [hint]
-      exact hlower)
-    a (left_mem_Icc.mpr hale) r (right_mem_Icc.mpr hale) hale
-  rw [hroot] at hIncrement
-  have hScaled : slope * N ≤ slope * (r - a) :=
-    mul_le_mul_of_nonneg_left hNle hslope
-  nlinarith [hIncrement]
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ProfileCorridorTools
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ProfileCorridorTools
 ========================================================================== -/
 
 /- ==========================================================================
@@ -63359,7 +63685,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 866a1d37e491ce9c86adb6ff643895afc6b72f291f431a14953c602be458b847
+Normalized SHA-256: 985fec39e7b16d94d0de46df1f3484c3cedc61a24d6bdf283f802b7917cf4fd9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64224,7 +64550,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
 #print axioms Erdos625.phaseExpansionResidual_isBigO_logLogOrder
 #print axioms Erdos625.phaseNat_stirlingLogRemainder_isBigO_logLogOrder
+#print axioms Erdos625.phaseStirlingResidual_isBigO_logLogOrder
+#print axioms Erdos625.phaseRootScalarTerm_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
@@ -64238,6 +64567,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 #print axioms Erdos625.fourDeficitCoordinate_val_add_one_eq
+#print axioms Erdos625.fourDeficitCoordinate_injective
 #print axioms Erdos625.nonempty_orderedProfilePartition_of_vertexMass
 #print axioms Erdos625.partialDiagonalRate_uniform_negative
 #print axioms Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges
@@ -64274,6 +64604,9 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
 #print axioms Erdos625.midpointOptimizer_count_and_moment
 #print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
+#print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
+#print axioms Erdos625.midpointMultiplicity_uniform_displacement
+#print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64283,7 +64616,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 0aa2835aa78adeb227776f1442ca1fbe7de2af249876d1ef70a9e788bc031615
+Normalized SHA-256: 1b3cb1a9973d71db29b0fd46a0dc8d14ff6c0aeb85a52c51d1544cb3f362022c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

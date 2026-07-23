@@ -3,6 +3,9 @@
 This ledger separates kernel-checked Lean results from the remaining claims in
 the candidate manuscript.  Its manuscript anchor is
 [`../proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](../proofs/COMPLETE_PROOF_SELF_CONTAINED.md).
+The concise current frontier, external proof-search queue, and global
+remaining-work summary are maintained in
+[`CURRENT_FORMALIZATION_STATUS.md`](CURRENT_FORMALIZATION_STATUS.md).
 
 ## Status vocabulary
 
@@ -717,3 +720,11 @@ Section VIII skeleton estimate, or `Erdos625Statement`.  Acceptance of this
 checkpoint requires the repository's GitHub Lean 4.31 placeholder scan,
 warning-fatal modular build, generated-source freshness check, and
 warning-fatal self-contained compilation.
+
+The midpoint rounding layer also now records the exact theorem
+`midpointMultiplicity_count_deficit_intDisplacement`: under
+`MidpointRoundingAdmissible`, the rounded multiplicities have total count
+`K`, total four-deficit moment `midpointDeficit n alpha K`, and corrected-Int
+coordinate displacement at most `5`. This deliberately precedes the separate
+nonnegative `Int.toNat` transport and does not claim the final natural-coordinate
+displacement theorem or all-`n` admissibility.

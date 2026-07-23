@@ -7,6 +7,9 @@ resolution of Erdős Problem 625.
 
 The confirmed scope, conventions, validation criteria, failure modes, and
 checkpoint policy are recorded in [`FORMALIZATION_BRIEF.md`](FORMALIZATION_BRIEF.md).
+The concise current frontier, active proof-search queue, and remaining
+theorem-level work are tracked in
+[`CURRENT_FORMALIZATION_STATUS.md`](CURRENT_FORMALIZATION_STATUS.md).
 The comparison with DeepMind's statement-only Problem 625 draft is recorded in
 [`EXTERNAL_FORMALIZATION_AUDIT.md`](EXTERNAL_FORMALIZATION_AUDIT.md); no code
 was copied and no dependency was added.
