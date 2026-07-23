@@ -1586,11 +1586,11 @@ The complete proof sources and reproducibility material are collected in the num
 
 The `625/verification/` directory additionally contains an independently written Python checker, its reproduced output, and a Markdown verification report. These files provide supplementary finite consistency checks and an auditable record of what was tested; they are not a substitute for external peer review or for a complete formal proof.
 
-The Lean checkpoint, developed using ChatGPT-5.6 and Aristotle (Achim et al. 2025), is provided as a self-contained source file. Each formalised statement is decomposed into smaller claims, with its hypotheses and conclusion checked explicitly. This is a partial machine-checked formalisation, not a claim that the entire paper has been formalised.
+The Lean checkpoint, developed in collaboration with ChatGPT-5.6 and Aristotle (Achim et al. 2025), is provided as a self-contained source file. Each formalised statement is decomposed into smaller claims, with its hypotheses and conclusion checked explicitly. This is a partial machine-checked formalisation, not a claim that the entire paper has been formalised.
 
-# AI assistance
+# AI collaboration
 
-The proof and formalisation were completed with extensive assistance from ChatGPT-5.6 Sol Ultra and Aristotle. Separate adversarial verification passes were run with ChatGPT-5.6 Sol Pro; these passes are not external peer review. ChatGPT-5.6 Sol Ultra provided substantial assistance in developing the central argument. In particular, it proposed the four-size signed profile with class sizes $\alpha-2,\alpha-3,\alpha-4,\alpha-5$, which led to the phase-uniform first-moment separation used in Section 5. The author assumes full responsibility for the arguments, citations, and final manuscript.
+The proof and formalisation were completed in extensive collaboration with ChatGPT-5.6 Sol Ultra and with Aristotle. Separate adversarial verification passes were conducted in collaboration with ChatGPT-5.6 Sol Pro; these passes are not external peer review. The central argument was developed in substantial collaboration with ChatGPT-5.6 Sol Ultra. In particular, this collaboration produced the four-size signed profile with class sizes $\alpha-2,\alpha-3,\alpha-4,\alpha-5$, which led to the phase-uniform first-moment separation used in Section 5. The author assumes full responsibility for the arguments, citations, and final manuscript.
 
 # Funding
 

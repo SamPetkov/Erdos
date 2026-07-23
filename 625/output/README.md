@@ -6,7 +6,8 @@ Markdown proof in
 The derivatives do not change the theorem, proof text, or qualification as a
 candidate solution that has not been externally peer reviewed.
 The Markdown, TeX title page, and embedded PDF metadata attribute the
-manuscript to **Samuil Petkov & ChatGPT 5.6**.
+manuscript to **Samuil Petkov**.  The project documentation records its
+development in collaboration with **ChatGPT 5.6**.
 
 ## Files
 
@@ -33,8 +34,8 @@ CAB0A748309B9566E7AF3CB6A99ECBE939A901FB989F9392DDFD7451751D341E  tex/COMPLETE_P
 
 - Compile exit code: 0.
 - Page count and size: 30 pages, A4, unencrypted.
-- Authorship: the title page and PDF Author field both read
-  `Samuil Petkov & ChatGPT 5.6`.
+- Authorship: the title page and PDF Author field both read `Samuil Petkov`;
+  the project documentation records collaboration with `ChatGPT 5.6`.
 - Statement styling: all 12 lemma statements appear in blue breakable boxes;
   Proposition 9.2 appears in a green box; proofs remain in normal page flow.
 - Compile diagnostics: no fatal errors; the publication-layout preprint has a

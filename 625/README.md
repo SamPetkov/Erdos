@@ -7,9 +7,9 @@
 **[Open the publication-layout preprint PDF](arxiv_625.pdf)**
 
 The publication-layout PDF is dated 20 July 2026 and lists Samuil Petkov as
-the sole author, with explicit AI-assistance, Aristotle-use, funding, and
-competing-interests disclosures.  It remains a candidate preprint while the
-full Lean target is open.
+the sole author, with explicit disclosures of collaboration with ChatGPT,
+use of Aristotle, funding, and competing interests.  It remains a candidate
+preprint while the full Lean target is open.
 
 Its editable source, author--year bibliography, arXiv-ready `.bbl`, build
 notes, and byte-identical PDF are collected in the [`arxiv/`](arxiv/) folder.
@@ -28,7 +28,8 @@ illustrative example, not statistical or asymptotic proof evidence.
 ## Lean formalization
 
 [`formalization/`](formalization/) contains the pinned Lean 4 formalization,
-authored by **Samuil Petkov** and developed with disclosed AI assistance.  The accepted project is checked
+authored by **Samuil Petkov** and developed in disclosed collaboration with
+ChatGPT.  The accepted project is checked
 locally with Lean/mathlib `v4.31.0`.  Raw Aristotle outputs remain quarantined;
 only manually reviewed Lean 4.31 ports or reconstructions that pass the local
 repository gates enter the accepted project.  The verified closure includes
@@ -401,9 +402,10 @@ excluding local build/service caches and copyrighted historical-source PDFs.
 
 ## Publication artifacts
 
-The canonical dossier manuscript attributes co-authorship to **Samuil Petkov
-& ChatGPT 5.6**.  The separate publication-layout preprint lists **Samuil
-Petkov** as author and gives explicit AI-assistance and ethics disclosures.
+The canonical dossier manuscript is attributed to **Samuil Petkov** and records
+its development in collaboration with **ChatGPT 5.6**.  The separate
+publication-layout preprint likewise lists **Samuil Petkov** as author and
+gives explicit collaboration-with-ChatGPT and ethics disclosures.
 
 - [`COMPLETE_PROOF_SELF_CONTAINED.pdf`](COMPLETE_PROOF_SELF_CONTAINED.pdf)
   - top-level convenience copy for immediate viewing on GitHub; byte-identical

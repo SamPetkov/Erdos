@@ -273,7 +273,7 @@
   statement intentionally retains only its two required conjectural holes.
 - Regenerated the public manuscript PDF with repository/formalization links
   and prepared a separate local arXiv submission package under Samuil Petkov's
-  sole authorship with an explicit AI-assistance ethics disclosure.  This
+  sole authorship with an explicit collaboration-with-AI ethics disclosure.  This
   formatting work does not change the candidate status or substitute for the
   still-incomplete Lean proof.
 - Completed the M7 growing-support checkpoint.  The full finite partition,
