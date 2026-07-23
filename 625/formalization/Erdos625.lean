@@ -90,7 +90,10 @@ import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
 import Erdos625.PhaseRootExpansionResidualBound
 import Erdos625.PhaseRootScalarResidualRemainderBound
+import Erdos625.PhaseRootStirlingResidualBound
+import Erdos625.PhaseRootScalarBound
 import Erdos625.PhaseRootSelectedDeficitBound
+import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -104,6 +107,7 @@ import Erdos625.FiniteFourVsExtendedEntropyLoss
 import Erdos625.FourGaussianTiltCorridor
 import Erdos625.UniformExplicitPartitionRatio
 import Erdos625.SignedFourSizeObjective
+import Erdos625.PhaseSignedFourSizeRootCorridor
 import Erdos625.SignedFourEntropyLossDecomposition
 import Erdos625.MidpointProfileCoordinates
 import Erdos625.TangentRoundingCore
@@ -112,6 +116,8 @@ import Erdos625.TangentCorrectedCountNonnegativity
 import Erdos625.TangentNatConservationDisplacement
 import Erdos625.MidpointProfileRounding
 import Erdos625.MidpointProfileRoundingCast
+import Erdos625.MidpointProfileRoundingIntDisplacement
+import Erdos625.MidpointProfileUniformDisplacement
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.ExtendedGaussianEntropyTransport
 import Erdos625.SPlusEntropyCandidateEmbedding

@@ -85,6 +85,18 @@ theorem fourDeficitEmbedding_profile_invariants
       simp [hc]
     exact hj hz
 
+/-- The four distinguished class-size coordinates are pairwise distinct. -/
+theorem fourDeficitCoordinate_injective
+    (alpha : Nat) (hAlpha : 5 < alpha) :
+    Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
+  intro i j hij
+  have hdeficit := congrArg (profileDeficit alpha) hij
+  rw [profileDeficit_fourDeficitCoordinate,
+    profileDeficit_fourDeficitCoordinate] at hdeficit
+  norm_cast at hdeficit
+  apply Fin.ext
+  simpa [fourDeficit] using hdeficit
+
 /-- The four-deficit embedding has the prescribed value at each distinguished
 coordinate and vanishes away from the four distinguished coordinates. -/
 theorem fourDeficitEmbedding_eval_and_off_image
@@ -95,13 +107,8 @@ theorem fourDeficitEmbedding_eval_and_off_image
     (∀ j : Fin (alpha + 1),
       (∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j) →
         fourDeficitEmbedding alpha hAlpha m j = 0) := by
-  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) := by
-    intro i k hik
-    have h := congrArg (profileDeficit alpha) hik
-    rw [profileDeficit_fourDeficitCoordinate,
-      profileDeficit_fourDeficitCoordinate] at h
-    simp [fourDeficit] at h
-    exact Fin.ext h
+  have hcoord : Function.Injective (fourDeficitCoordinate alpha hAlpha) :=
+    fourDeficitCoordinate_injective alpha hAlpha
   constructor
   · intro i
     unfold fourDeficitEmbedding

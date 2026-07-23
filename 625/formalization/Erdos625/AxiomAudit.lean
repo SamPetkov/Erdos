@@ -85,7 +85,10 @@ import Erdos625.PhaseRootPartGeometry
 import Erdos625.PhaseRootScalarCore
 import Erdos625.PhaseRootExpansionResidualBound
 import Erdos625.PhaseRootScalarResidualRemainderBound
+import Erdos625.PhaseRootStirlingResidualBound
+import Erdos625.PhaseRootScalarBound
 import Erdos625.PhaseRootSelectedDeficitBound
+import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -109,12 +112,15 @@ import Erdos625.TangentCorrectedCountNonnegativity
 import Erdos625.TangentNatConservationDisplacement
 import Erdos625.MidpointProfileRounding
 import Erdos625.MidpointProfileRoundingCast
+import Erdos625.MidpointProfileRoundingIntDisplacement
+import Erdos625.MidpointProfileUniformDisplacement
 import Erdos625.FullCornerLocalRatioBound
 import Erdos625.FullCornerMuCapBridge
 import Erdos625.FullCornerSumReindexing
 import Erdos625.PartialDiagonalMuRatioBound
 import Erdos625.UniformLimitingEntropyCertificate
 import Erdos625.SignedFourSizeObjective
+import Erdos625.PhaseSignedFourSizeRootCorridor
 import Erdos625.SignedFourEntropyLossDecomposition
 import Erdos625.SignedFourEntropyCertificate
 import Erdos625.GaussianTailTools
@@ -1189,7 +1195,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootScalarTerm_eq_core
 #print axioms Erdos625.phaseExpansionResidual_isBigO_logLogOrder
 #print axioms Erdos625.phaseNat_stirlingLogRemainder_isBigO_logLogOrder
+#print axioms Erdos625.phaseStirlingResidual_isBigO_logLogOrder
+#print axioms Erdos625.phaseRootScalarTerm_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootSelectedDeficitTerm_isBigO_one
+#print axioms Erdos625.unrestrictedPhaseObjective_center_div_isBigO_logLogOrder
 #print axioms Erdos625.phaseRootS0_isEquivalent_scaled_logOrder
 #print axioms Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le
 #print axioms Erdos625.finite_four_entropy_loss_eq_limiting_add_error
@@ -1203,6 +1212,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.uniform_limiting_entropy_certificate_for_delta
 #print axioms Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer
 #print axioms Erdos625.fourDeficitCoordinate_val_add_one_eq
+#print axioms Erdos625.fourDeficitCoordinate_injective
 #print axioms Erdos625.nonempty_orderedProfilePartition_of_vertexMass
 #print axioms Erdos625.partialDiagonalRate_uniform_negative
 #print axioms Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges
@@ -1239,3 +1249,6 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement
 #print axioms Erdos625.midpointOptimizer_count_and_moment
 #print axioms Erdos625.midpointMultiplicity_cast_eq_correctedInt
+#print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
+#print axioms Erdos625.midpointMultiplicity_uniform_displacement
+#print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
