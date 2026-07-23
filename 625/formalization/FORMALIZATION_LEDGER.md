@@ -728,3 +728,20 @@ The midpoint rounding layer also now records the exact theorem
 coordinate displacement at most `5`. This deliberately precedes the separate
 nonnegative `Int.toNat` transport and does not claim the final natural-coordinate
 displacement theorem or all-`n` admissibility.
+
+## Deficit-derivative affine-core error — 2026-07-24
+
+The theorem
+`abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le` now combines the
+exact deficit-coordinate derivative identity with the accepted affine
+factorial-log estimate. On the stated target corridor, replacing the affine
+core by its quadratic main term incurs at most
+`factorialLogErrorBound (phaseNat n)`. The returned proof was quarantined,
+checked for exact statement preservation and trust cleanliness, and then
+passed the GitHub Lean 4.31 placeholder gate, warning-fatal modular build,
+generated-source freshness check, warning-fatal self-contained compilation,
+and standard-axiom audit in run `30051383521`.
+
+This finite error isolation does not by itself prove the concrete uniform
+derivative lower bound, root corridor, integer rounding decrement, chromatic
+tail, or `Erdos625Statement`.
