@@ -25077,6 +25077,59 @@ END SOURCE MODULE: Erdos625.DeficitTargetDomain
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DeficitDerivativeComposition
+Source: Erdos625/DeficitDerivativeComposition.lean
+Normalized SHA-256: f2cf153ba2ed4df38bc369410d1464851923ee2606f81b443eeb78acbebf2b91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A deficit-target corridor alone supplies both the admissible size
+coordinate and the positivity of the class-count variable, so the exact
+deficit-coordinate derivative formula applies without a separate `0 < k`
+hypothesis. -/
+theorem unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    deriv (unrestrictedPhaseObjective n) k =
+      profileDeficitAffineA (phaseNat n) +
+        profileDeficitAffineB (phaseNat n) * (phaseNat n : ℝ) -
+        profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
+          (phaseNat n : ℝ) +
+        Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
+        Real.log k := by
+  obtain ⟨hsize, _⟩ := phaseDeficitTarget_domain_coordinates hT
+  have hk : 0 < k := by
+    rw [Set.mem_Ioo] at hsize
+    by_contra h
+    have hkle : k ≤ 0 := not_lt.mp h
+    have hle : (n : ℝ) / k ≤ 0 :=
+      div_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg n) hkle
+    linarith [hsize.1]
+  exact unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_sizeTarget hk hsize
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DeficitDerivativeComposition
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfileDeficitVariance
 Source: Erdos625/ColoringProfileDeficitVariance.lean
 Normalized SHA-256: 323faef6be874981708ed6a5ef7b477ab2fac927bc6e119b4f04f956a6ad6ca4
@@ -64230,7 +64283,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: e46ebe394e9b695937dfe42f6acdda70deae3b1ee06f36c01f3238aed132eea9
+Normalized SHA-256: 0aa2835aa78adeb227776f1442ca1fbe7de2af249876d1ef70a9e788bc031615
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
