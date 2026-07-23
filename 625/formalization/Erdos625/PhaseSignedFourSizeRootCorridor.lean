@@ -43,6 +43,7 @@ theorem existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
       Ioo_subset_Icc_self hs
     have hderiv := (hasDerivAt_phaseSignedFourSizeObjective n
       (hfeasible s hsIcc).1 (hfeasible s hsIcc).2).neg
+    change deriv (-phaseSignedFourSizeObjective n) s ≤ -D
     rw [hderiv.deriv]
     exact neg_le_neg (hderivLower s hs)
   have hcenterPsi : |psi s0| ≤ E := by
@@ -54,11 +55,12 @@ theorem existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
   · have hrIcc : r ∈ Icc (s0 - Delta) (s0 + Delta) :=
       Ioo_subset_Icc_self hr.1
     have hradmissible := hfeasible r hrIcc
-    exact ⟨hradmissible.1, hradmissible.2, by simpa [psi] using hr.2⟩
+    exact ⟨hradmissible.1, hradmissible.2, by
+      simpa [psi, phaseSignedFourSizeObjective] using hr.2⟩
   · intro y hy
     apply hunique y
     exact ⟨hy.1, by simpa [psi, IsPhaseSignedFourSizeRoot,
-      IsSignedFourSizeRoot] using hy.2.2.2⟩
+      IsSignedFourSizeRoot, phaseSignedFourSizeObjective] using hy.2.2.2⟩
 
 end
 
