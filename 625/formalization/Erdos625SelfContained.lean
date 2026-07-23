@@ -20367,6 +20367,64 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DerivativeCoordinateRewrite
+Source: Erdos625/DerivativeCoordinateRewrite.lean
+Normalized SHA-256: 703482d2334d4fef68dd0bb821dca3bb811bcf7690a22bd57b4c04f6225ee67f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DerivativeCoordinateRewrite
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Once the size coordinate is in the admissible corridor, the derivative
+of the unrestricted phase objective has the exact deficit-coordinate form. -/
+theorem unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_sizeTarget
+    {n : ℕ} {k : ℝ} (hk : 0 < k)
+    (hsize : (n : ℝ) / k ∈
+      Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ))) :
+    deriv (unrestrictedPhaseObjective n) k =
+      profileDeficitAffineA (phaseNat n) +
+        profileDeficitAffineB (phaseNat n) * (phaseNat n : ℝ) -
+        profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
+          (phaseNat n : ℝ) +
+        Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
+        Real.log k := by
+  have hbReal : (1 : ℝ) < (((phaseNat n) + 1 : ℕ) : ℝ) :=
+    lt_trans hsize.1 hsize.2
+  have hb : 2 ≤ phaseNat n + 1 := by exact_mod_cast hbReal
+  have htilt :
+      profileDeficitAffineB (phaseNat n) -
+          profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) =
+        profileDualTilt (phaseNat n + 1) ((n : ℝ) / k) := by
+    rw [profileDeficitAffineB_sub_profileDeficitTilt]
+    congr 1
+    simp only [profileDeficitTarget]
+    ring
+  show deriv (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k) k = _
+  rw [deriv_profileDualOptimalValue_parts hb hk hsize, ← htilt,
+    log_profileDualPartition_eq_deficitCentered]
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DerivativeCoordinateRewrite
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DerivativeCoordinateRewrite
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 Source: Erdos625/FourDeficitScoreConvergence.lean
 Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
@@ -24972,6 +25030,50 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDeficitUniformMeanConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDeficitUniformMeanConvergence
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DeficitTargetDomain
+Source: Erdos625/DeficitTargetDomain.lean
+Normalized SHA-256: bc0651cffbbffb6bf7cdb83fed0a5f0aa83efa09843d22d300c1cbdb144c35ce
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The deficit-target corridor gives the corresponding size-coordinate
+corridor and forces the phase support endpoint to be at least two. -/
+theorem phaseDeficitTarget_domain_coordinates
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    (n : ℝ) / k ∈
+        Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ)) ∧
+      2 ≤ phaseNat n + 1 := by
+  rw [Set.mem_Ioo] at hT
+  unfold profileDeficitTarget at hT
+  obtain ⟨h1, h2⟩ := hT
+  have hpos : (0 : ℝ) < (phaseNat n : ℝ) := by linarith
+  have hpn : 0 < phaseNat n := by exact_mod_cast hpos
+  refine ⟨?_, ?_⟩
+  · rw [Set.mem_Ioo]
+    push_cast
+    constructor <;> linarith
+  · omega
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DeficitTargetDomain
 ========================================================================== -/
 
 /- ==========================================================================
@@ -64128,7 +64230,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: c0c0de4c217dc7f5ec1f13b2a9d0fbe95c70caebf2f6e6003f161524493c75d5
+Normalized SHA-256: e46ebe394e9b695937dfe42f6acdda70deae3b1ee06f36c01f3238aed132eea9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
