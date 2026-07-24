@@ -21467,99 +21467,6 @@ END SOURCE MODULE: Erdos625.PhaseRootUnitCorridorDomain
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
-Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
-Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
-
-namespace Erdos625
-
-open Filter Asymptotics
-
-noncomputable section
-
-set_option autoImplicit false
-
-theorem unrestrictedPhaseObjective_div_eq_deficitCentered
-    (n : ℕ) {parts : ℝ} (hparts : parts ≠ 0) :
-    unrestrictedPhaseObjective n parts / parts =
-      (n : ℝ) * Real.log (n : ℝ) / parts - (n : ℝ) / parts + 1 -
-        Real.log parts +
-        (profileDeficitAffineA (phaseNat n) +
-          profileDeficitAffineB (phaseNat n) *
-            profileDeficitTarget (phaseNat n) (n : ℝ) parts +
-          Real.log
-            (profileDeficitPartition (phaseNat n)
-              (profileDeficitTilt (phaseNat n)
-                (profileDeficitTarget (phaseNat n) (n : ℝ) parts))) -
-          profileDeficitTilt (phaseNat n)
-              (profileDeficitTarget (phaseNat n) (n : ℝ) parts) *
-            profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
-  rw [unrestrictedPhaseObjective,
-    profileDualOptimalValue_eq_profileDualUpper (phaseNat n + 1) hparts]
-  have htilt :
-      profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts) =
-        profileDeficitAffineB (phaseNat n) -
-          profileDeficitTilt (phaseNat n)
-            (profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
-    rw [profileDeficitAffineB_sub_profileDeficitTilt]
-    congr 1
-    unfold profileDeficitTarget
-    ring
-  rw [htilt, profileDualUpper_eq_deficitCentered (phaseNat n) hparts]
-  field_simp
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
-Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
-Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
-
-namespace Erdos625
-
-open Filter Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-theorem log_profileDeficitPartition_mem_Icc_gaussianEnvelope
-    (alpha : ℕ) (halpha : 0 < alpha) {lambda M : ℝ}
-    (hlambda : |lambda| ≤ M) :
-    Real.log (profileDeficitPartition alpha lambda) ∈
-      Icc 0
-        (Real.log
-          (Real.exp M +
-            Real.exp (M ^ 2 / q) *
-              (1 / (1 - Real.exp (-q / 4))))) := by
-  constructor
-  · exact Real.log_nonneg
-      (one_le_profileDeficitPartition alpha halpha lambda)
-  · exact Real.log_le_log
-      (profileDeficitPartition_pos alpha lambda)
-      (profileDeficitPartition_le_gaussianEnvelope alpha halpha hlambda)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 Source: Erdos625/FourDeficitScoreConvergence.lean
 Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
@@ -21697,42 +21604,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_FourDeficitScoreConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.FourDeficitGaussianBound
-Source: Erdos625/FourDeficitGaussianBound.lean
-Normalized SHA-256: dcaf5e3e4ed0e770a2a1a0b3a782a04b5d9e770a1bb08c4d3c51a74ffe23b0fd
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
-
-namespace Erdos625
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- Each exact finite four-deficit residual score is bounded above by its limiting Gaussian score. -/
-theorem fourDeficitScore_le_fourGaussianScore
-    (alpha : ℕ) (hAlpha : 5 < alpha) (i : Fin 4) :
-    fourDeficitScore alpha i ≤ fourGaussianScore i := by
-  have hDeficit : fourDeficit i ≤ 5 := by
-    simp [fourDeficit]
-    omega
-  have hDeficitAlpha : fourDeficit i ≤ alpha := by omega
-  have hAlphaPos : 0 < alpha := by omega
-  have hlog := log_descFactorial_le_mul_log alpha (fourDeficit i)
-    hDeficitAlpha hAlphaPos
-  rw [fourDeficitScore, fourGaussianScore, ← fourDeficit_cast_eq_support]
-  linarith
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.FourDeficitGaussianBound
 ========================================================================== -/
 
 /- ==========================================================================
@@ -23751,55 +23622,6 @@ END SOURCE MODULE: Erdos625.SPlusEntropySupremumDualInterior
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.FiniteFourVsExtendedEntropyLoss
-Source: Erdos625/FiniteFourVsExtendedEntropyLoss.lean
-Normalized SHA-256: 2f87f44493072c18098f5e43eb2b42fbca78a031bf09eb869f598277a18215fa
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_FiniteFourVsExtendedEntropyLoss
-
-namespace Erdos625
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- The mixed comparison between the exact finite four-size entropy value and
-the limiting unrestricted extended entropy value.  This is not a finite-cutoff
-`S₊` entropy loss. -/
-noncomputable def finiteFourVsExtendedEntropyLoss
-    (alpha : ℕ) (target : ℝ) : ℝ :=
-  extendedGaussianEntropyValue target -
-    ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) target
-
-/-- The mixed finite-four versus limiting-extended entropy loss is
-nonnegative on the interior target interval. -/
-theorem finiteFourVsExtendedEntropyLoss_nonneg
-    (alpha : ℕ) (hAlpha : 5 < alpha) {target : ℝ}
-    (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
-    0 ≤ finiteFourVsExtendedEntropyLoss alpha target := by
-  unfold finiteFourVsExtendedEntropyLoss
-  have hFiniteGaussian :
-      ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) target ≤
-        ProfileEntropyS4.optimizedValue fourGaussianScore target :=
-    ProfileEntropyS4.optimizedValue_mono_scores
-      (fourDeficitScore alpha) fourGaussianScore hT
-      (fourDeficitScore_le_fourGaussianScore alpha hAlpha)
-  have hGaussianExtended :
-      ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
-        extendedGaussianEntropyValue target :=
-    fourGaussian_optimizedValue_le_extendedGaussianEntropyValue hT
-  linarith
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_FiniteFourVsExtendedEntropyLoss
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.FiniteFourVsExtendedEntropyLoss
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourGaussianTiltCorridor
 Source: Erdos625/FourGaussianTiltCorridor.lean
 Normalized SHA-256: 93f30615405dd4b098be9b306b57c420762e7b91ab40e43f4a2740bec7d1772f
@@ -24291,6 +24113,465 @@ END SOURCE MODULE: Erdos625.UniformExplicitPartitionRatio
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
+Source: Erdos625/UniformLimitingEntropyCertificate.lean
+Normalized SHA-256: b1edb7e9877257e9985e3820ae967af745af28738df244edf55b450b50626ddc
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
+
+/-!
+# Uniform limiting entropy certificate
+
+This assembles the verified limiting entropy-dual and explicit four-size
+ratio estimates uniformly over the full phase interval.  The separate module
+`SPlusPrimalRepresentation` proves that the entropy value used here is exactly
+the direct manuscript primal supremum: its older finite all-tilts field follows
+automatically from coordinatewise Gibbs inequalities and nonnegativity.
+
+The proof was returned by Aristotle project
+`f916811d-4971-44ae-9c9b-c1d731298958`, task
+`d4d1264a-d9da-4673-b646-ff82a272aa71`, and independently audited before
+integration.
+-/
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-- Limiting form of the Section V uniform entropy certificate. -/
+theorem uniform_limiting_entropy_certificate_for_delta
+    (delta : ℝ)
+    (hDelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    0 ≤ fourEntropyLoss (1 + 2 / q - delta) ∧
+      fourEntropyLoss (1 + 2 / q - delta) <
+        Real.log (153 / 100 : ℝ) ∧
+      Real.log (200 / 153 : ℝ) <
+        q - fourEntropyLoss (1 + 2 / q - delta) := by
+  rcases hDelta with ⟨hDeltaLower, hDeltaUpper⟩
+  have hq_lt_one : q < 1 := by
+    have h := Real.log_lt_sub_one_of_pos (by norm_num : (0 : ℝ) < 2)
+      (by norm_num : (2 : ℝ) ≠ 1)
+    norm_num [q] at h ⊢
+    exact h
+  have hq_gt_half : (1 / 2 : ℝ) < q := by
+    have h := Real.log_two_gt_d9
+    unfold q
+    norm_num at h ⊢
+    linarith
+  have htwo_div_q_lower : 2 < 2 / q := by
+    rw [lt_div_iff₀ q_pos]
+    linarith
+  have htwo_div_q_upper : 2 / q < 4 := by
+    rw [div_lt_iff₀ q_pos]
+    linarith
+  have hTarget : 1 + 2 / q - delta ∈ Set.Ioo (2 : ℝ) 5 := by
+    constructor <;> linarith
+  let lambda := ProfileEntropyS4.tilt fourGaussianScore
+    (1 + 2 / q - delta)
+  have hMean : ProfileEntropyS4.mean fourGaussianScore lambda =
+      1 + 2 / q - delta := by
+    exact ProfileEntropyS4.mean_tilt_eq fourGaussianScore hTarget
+  have hLossLt : fourEntropyLoss (1 + 2 / q - delta) <
+      Real.log (153 / 100 : ℝ) := by
+    have hDual := extendedGaussianEntropyValue_le_dual_interior
+      (tilt := lambda) hTarget
+    have hRatio := uniform_four_size_partition_ratio_for_delta delta lambda
+      hDeltaLower hDeltaUpper hMean
+    simpa [fourEntropyLoss] using
+      (entropy_loss_lt_log_153_div_100_of_dual_ratio hMean hDual hRatio)
+  exact ⟨fourEntropyLoss_nonneg_interior hTarget, hLossLt,
+    signed_margin_gt_log_200_div_153_of_entropy_loss_lt hLossLt⟩
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
+Source: Erdos625/SignedFourEntropyLossDecomposition.lean
+Normalized SHA-256: ab68aa6ec20eff11673e9243b5d6e7e4dae2e9fbb3a259b42c64927ab304f983
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
+
+namespace Erdos625
+
+noncomputable section
+
+/-- The finite four-size loss is the limiting four-size loss plus the exact
+finite-score approximation error. -/
+theorem finite_four_entropy_loss_eq_limiting_add_error
+    (alpha : ℕ) (T : ℝ) :
+    extendedGaussianEntropyValue T - fourSizeFiniteEntropy alpha T =
+      fourEntropyLoss T +
+        (ProfileEntropyS4.optimizedValue fourGaussianScore T -
+          ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) T) := by
+  unfold fourSizeFiniteEntropy fourEntropyLoss
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
+Source: Erdos625/UniformFiniteFourEntropyCertificate.lean
+Normalized SHA-256: 22d2c20dc1355d09ce3968da63ff7702ec1a5013e53d7419901693358cf5199a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformFiniteFourEntropyCertificate
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+open scoped Topology
+
+theorem two_div_q_bounds : 2 < 2 / q ∧ 2 / q < 4 := by
+  have hq_lt_one : q < 1 := by
+    have h := Real.log_lt_sub_one_of_pos (by norm_num : (0 : ℝ) < 2)
+      (by norm_num : (2 : ℝ) ≠ 1)
+    norm_num [q] at h ⊢
+    exact h
+  have hq_gt_half : (1 / 2 : ℝ) < q := by
+    have h := Real.log_two_gt_d9
+    unfold q
+    norm_num at h ⊢
+    linarith
+  refine ⟨?_, ?_⟩
+  · rw [lt_div_iff₀ q_pos]; linarith
+  · rw [div_lt_iff₀ q_pos]; linarith
+
+theorem fourTarget_mem_Ioo (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    (1 + 2 / q - delta) ∈ Set.Ioo (2 : ℝ) 5 := by
+  rcases hdelta with ⟨h0, h1⟩
+  obtain ⟨hlo, hhi⟩ := two_div_q_bounds
+  constructor <;> [linarith; linarith]
+
+noncomputable def fourRatioLog (delta : ℝ) : ℝ :=
+  Real.log
+    (extendedGaussianPartition q
+        (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)) /
+      ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)))
+
+theorem fourEntropyLoss_le_fourRatioLog (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    fourEntropyLoss (1 + 2 / q - delta) ≤ fourRatioLog delta := by
+  have hT : (1 + 2 / q - delta) ∈ Set.Ioo (2 : ℝ) 5 :=
+    fourTarget_mem_Ioo delta hdelta
+  set tilt := ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta) with htilt
+  have hMean : ProfileEntropyS4.mean fourGaussianScore tilt = 1 + 2 / q - delta :=
+    ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT
+  have hDual := extendedGaussianEntropyValue_le_dual_interior (tilt := tilt) hT
+  have h := entropy_loss_le_log_partition_ratio (tilt := tilt) hMean hDual
+  simpa [fourEntropyLoss, fourRatioLog, htilt] using h
+
+theorem fourRatioLog_lt_log_153_div_100 (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    fourRatioLog delta < Real.log (153 / 100 : ℝ) := by
+  rcases hdelta with ⟨h0, h1⟩
+  set tilt := ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta) with htilt
+  have hT : (1 + 2 / q - delta) ∈ Set.Ioo (2 : ℝ) 5 :=
+    fourTarget_mem_Ioo delta ⟨h0, h1⟩
+  have hMean : ProfileEntropyS4.mean fourGaussianScore tilt = 1 + 2 / q - delta :=
+    ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT
+  have hRatio := uniform_four_size_partition_ratio_for_delta delta tilt h0 h1 hMean
+  have hpos : 0 < extendedGaussianPartition q tilt /
+      ProfileEntropyS4.partition fourGaussianScore tilt :=
+    div_pos (extendedGaussianPartition_pos q_pos)
+      (ProfileEntropyS4.partition_pos fourGaussianScore tilt)
+  have := Real.strictMonoOn_log hpos (by norm_num) hRatio
+  simpa [fourRatioLog, htilt] using this
+
+theorem continuousOn_fourRatioLog :
+    ContinuousOn fourRatioLog (Set.Icc (0 : ℝ) 1) := by
+  have htiltCont :
+      ContinuousOn
+        (fun delta => ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta))
+        (Set.Icc (0 : ℝ) 1) := by
+    intro delta hdelta
+    apply ContinuousAt.continuousWithinAt
+    have hT : (1 + 2 / q - delta) ∈ Set.Ioo (2 : ℝ) 5 :=
+      fourTarget_mem_Ioo delta hdelta
+    exact ProfileEntropyS4.tendsto_tilt_of_scores_and_target
+      (h := fun _ : ℝ => fourGaussianScore) fourGaussianScore
+      (T' := fun d => 1 + 2 / q - d)
+      (fun _ => tendsto_const_nhds)
+      ((continuous_const.sub continuous_id).tendsto delta) hT
+  have hExtCont : Continuous (extendedGaussianPartition q) := by
+    rw [continuous_iff_continuousAt]
+    exact fun lambda => (hasDerivAt_extendedGaussianPartition q lambda q_pos).continuousAt
+  have hFourCont : Continuous (ProfileEntropyS4.partition fourGaussianScore) := by
+    rw [continuous_iff_continuousAt]
+    intro t
+    exact ProfileEntropyS4.tendsto_partition_of_scores_and_parameter
+      (fun _ : ℝ => fourGaussianScore) fourGaussianScore id t
+      (fun _ => tendsto_const_nhds) Filter.tendsto_id
+  have hNum : ContinuousOn
+      (fun delta => extendedGaussianPartition q
+        (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)))
+      (Set.Icc (0 : ℝ) 1) := hExtCont.comp_continuousOn htiltCont
+  have hDen : ContinuousOn
+      (fun delta => ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)))
+      (Set.Icc (0 : ℝ) 1) := hFourCont.comp_continuousOn htiltCont
+  have hDenNe : ∀ delta ∈ Set.Icc (0 : ℝ) 1,
+      ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)) ≠ 0 :=
+    fun delta _ => (ProfileEntropyS4.partition_pos fourGaussianScore _).ne'
+  have hRatio : ContinuousOn
+      (fun delta => extendedGaussianPartition q
+          (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)) /
+        ProfileEntropyS4.partition fourGaussianScore
+          (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)))
+      (Set.Icc (0 : ℝ) 1) := hNum.div hDen hDenNe
+  have hRatioPos : ∀ delta ∈ Set.Icc (0 : ℝ) 1,
+      extendedGaussianPartition q
+          (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)) /
+        ProfileEntropyS4.partition fourGaussianScore
+          (ProfileEntropyS4.tilt fourGaussianScore (1 + 2 / q - delta)) ≠ 0 :=
+    fun delta _ => (div_pos (extendedGaussianPartition_pos q_pos)
+      (ProfileEntropyS4.partition_pos fourGaussianScore _)).ne'
+  exact hRatio.log hRatioPos
+
+theorem uniform_fourEntropyLoss_bound :
+    ∃ M : ℝ, M < Real.log (153 / 100 : ℝ) ∧
+      ∀ delta ∈ Set.Icc (0 : ℝ) 1,
+        fourEntropyLoss (1 + 2 / q - delta) ≤ M := by
+  obtain ⟨delta0, hdelta0, hmax⟩ :=
+    (isCompact_Icc).exists_isMaxOn (⟨0, by norm_num⟩ : (Set.Icc (0 : ℝ) 1).Nonempty)
+      continuousOn_fourRatioLog
+  refine ⟨fourRatioLog delta0, fourRatioLog_lt_log_153_div_100 delta0 hdelta0, ?_⟩
+  intro delta hdelta
+  exact (fourEntropyLoss_le_fourRatioLog delta hdelta).trans (hmax hdelta)
+
+/-- Transfer the limiting uniform entropy gap to the exact finite
+four-deficit scores with one threshold valid for every phase displacement. -/
+theorem eventually_uniform_finite_four_entropy_certificate :
+    ∃ N : ℕ, ∀ alpha ≥ N, ∀ delta ∈ Set.Icc (0 : ℝ) 1,
+      extendedGaussianEntropyValue (1 + 2 / q - delta) -
+          fourSizeFiniteEntropy alpha (1 + 2 / q - delta) <
+        Real.log (153 / 100 : ℝ) := by
+  obtain ⟨M, hM_lt, hM_bound⟩ := uniform_fourEntropyLoss_bound
+  set m := Real.log (153 / 100 : ℝ) - M with hm
+  have hm_pos : 0 < m := by simp only [hm]; linarith
+  obtain ⟨N, hN⟩ := eventually_uniform_fourDeficitOptimizedValue m hm_pos
+  refine ⟨N, fun alpha halpha delta hdelta => ?_⟩
+  have hT : (1 + 2 / q - delta) ∈ Set.Ioo (2 : ℝ) 5 :=
+    fourTarget_mem_Ioo delta hdelta
+  have hdecomp :=
+    finite_four_entropy_loss_eq_limiting_add_error alpha (1 + 2 / q - delta)
+  have herr := hN alpha halpha (1 + 2 / q - delta) hT
+  have hloss := hM_bound delta hdelta
+  rw [hdecomp]
+  simp only [hm] at hm_pos
+  have : |ProfileEntropyS4.optimizedValue fourGaussianScore (1 + 2 / q - delta) -
+      ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) (1 + 2 / q - delta)| < m := by
+    rw [abs_sub_comm]; exact herr
+  have h2 := abs_lt.mp this
+  linarith [h2.2, hloss]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformFiniteFourEntropyCertificate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
+Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
+Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem unrestrictedPhaseObjective_div_eq_deficitCentered
+    (n : ℕ) {parts : ℝ} (hparts : parts ≠ 0) :
+    unrestrictedPhaseObjective n parts / parts =
+      (n : ℝ) * Real.log (n : ℝ) / parts - (n : ℝ) / parts + 1 -
+        Real.log parts +
+        (profileDeficitAffineA (phaseNat n) +
+          profileDeficitAffineB (phaseNat n) *
+            profileDeficitTarget (phaseNat n) (n : ℝ) parts +
+          Real.log
+            (profileDeficitPartition (phaseNat n)
+              (profileDeficitTilt (phaseNat n)
+                (profileDeficitTarget (phaseNat n) (n : ℝ) parts))) -
+          profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) parts) *
+            profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
+  rw [unrestrictedPhaseObjective,
+    profileDualOptimalValue_eq_profileDualUpper (phaseNat n + 1) hparts]
+  have htilt :
+      profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts) =
+        profileDeficitAffineB (phaseNat n) -
+          profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
+    rw [profileDeficitAffineB_sub_profileDeficitTilt]
+    congr 1
+    unfold profileDeficitTarget
+    ring
+  rw [htilt, profileDualUpper_eq_deficitCentered (phaseNat n) hparts]
+  field_simp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
+Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem log_profileDeficitPartition_mem_Icc_gaussianEnvelope
+    (alpha : ℕ) (halpha : 0 < alpha) {lambda M : ℝ}
+    (hlambda : |lambda| ≤ M) :
+    Real.log (profileDeficitPartition alpha lambda) ∈
+      Icc 0
+        (Real.log
+          (Real.exp M +
+            Real.exp (M ^ 2 / q) *
+              (1 / (1 - Real.exp (-q / 4))))) := by
+  constructor
+  · exact Real.log_nonneg
+      (one_le_profileDeficitPartition alpha halpha lambda)
+  · exact Real.log_le_log
+      (profileDeficitPartition_pos alpha lambda)
+      (profileDeficitPartition_le_gaussianEnvelope alpha halpha hlambda)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FourDeficitGaussianBound
+Source: Erdos625/FourDeficitGaussianBound.lean
+Normalized SHA-256: dcaf5e3e4ed0e770a2a1a0b3a782a04b5d9e770a1bb08c4d3c51a74ffe23b0fd
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Each exact finite four-deficit residual score is bounded above by its limiting Gaussian score. -/
+theorem fourDeficitScore_le_fourGaussianScore
+    (alpha : ℕ) (hAlpha : 5 < alpha) (i : Fin 4) :
+    fourDeficitScore alpha i ≤ fourGaussianScore i := by
+  have hDeficit : fourDeficit i ≤ 5 := by
+    simp [fourDeficit]
+    omega
+  have hDeficitAlpha : fourDeficit i ≤ alpha := by omega
+  have hAlphaPos : 0 < alpha := by omega
+  have hlog := log_descFactorial_le_mul_log alpha (fourDeficit i)
+    hDeficitAlpha hAlphaPos
+  rw [fourDeficitScore, fourGaussianScore, ← fourDeficit_cast_eq_support]
+  linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FourDeficitGaussianBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FourDeficitGaussianBound
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FiniteFourVsExtendedEntropyLoss
+Source: Erdos625/FiniteFourVsExtendedEntropyLoss.lean
+Normalized SHA-256: 2f87f44493072c18098f5e43eb2b42fbca78a031bf09eb869f598277a18215fa
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FiniteFourVsExtendedEntropyLoss
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The mixed comparison between the exact finite four-size entropy value and
+the limiting unrestricted extended entropy value.  This is not a finite-cutoff
+`S₊` entropy loss. -/
+noncomputable def finiteFourVsExtendedEntropyLoss
+    (alpha : ℕ) (target : ℝ) : ℝ :=
+  extendedGaussianEntropyValue target -
+    ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) target
+
+/-- The mixed finite-four versus limiting-extended entropy loss is
+nonnegative on the interior target interval. -/
+theorem finiteFourVsExtendedEntropyLoss_nonneg
+    (alpha : ℕ) (hAlpha : 5 < alpha) {target : ℝ}
+    (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    0 ≤ finiteFourVsExtendedEntropyLoss alpha target := by
+  unfold finiteFourVsExtendedEntropyLoss
+  have hFiniteGaussian :
+      ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) target ≤
+        ProfileEntropyS4.optimizedValue fourGaussianScore target :=
+    ProfileEntropyS4.optimizedValue_mono_scores
+      (fourDeficitScore alpha) fourGaussianScore hT
+      (fourDeficitScore_le_fourGaussianScore alpha hAlpha)
+  have hGaussianExtended :
+      ProfileEntropyS4.optimizedValue fourGaussianScore target ≤
+        extendedGaussianEntropyValue target :=
+    fourGaussian_optimizedValue_le_extendedGaussianEntropyValue hT
+  linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_FiniteFourVsExtendedEntropyLoss
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FiniteFourVsExtendedEntropyLoss
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ProfileCorridorTools
 Source: Erdos625/ProfileCorridorTools.lean
 Normalized SHA-256: 56494155ea53ba7cf333b96b7ab72de8d7139eaf750fa07d619d19a832f8b417
@@ -24537,37 +24818,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_PhaseSignedFourSizeRootCorridor
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.PhaseSignedFourSizeRootCorridor
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
-Source: Erdos625/SignedFourEntropyLossDecomposition.lean
-Normalized SHA-256: ab68aa6ec20eff11673e9243b5d6e7e4dae2e9fbb3a259b42c64927ab304f983
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
-
-namespace Erdos625
-
-noncomputable section
-
-/-- The finite four-size loss is the limiting four-size loss plus the exact
-finite-score approximation error. -/
-theorem finite_four_entropy_loss_eq_limiting_add_error
-    (alpha : ℕ) (T : ℝ) :
-    extendedGaussianEntropyValue T - fourSizeFiniteEntropy alpha T =
-      fourEntropyLoss T +
-        (ProfileEntropyS4.optimizedValue fourGaussianScore T -
-          ProfileEntropyS4.optimizedValue (fourDeficitScore alpha) T) := by
-  unfold fourSizeFiniteEntropy fourEntropyLoss
-  ring
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_SignedFourEntropyLossDecomposition
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.SignedFourEntropyLossDecomposition
 ========================================================================== -/
 
 /- ==========================================================================
@@ -25696,87 +25946,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_SPlusPrimalRepresentation
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.SPlusPrimalRepresentation
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
-Source: Erdos625/UniformLimitingEntropyCertificate.lean
-Normalized SHA-256: b1edb7e9877257e9985e3820ae967af745af28738df244edf55b450b50626ddc
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
-
-/-!
-# Uniform limiting entropy certificate
-
-This assembles the verified limiting entropy-dual and explicit four-size
-ratio estimates uniformly over the full phase interval.  The separate module
-`SPlusPrimalRepresentation` proves that the entropy value used here is exactly
-the direct manuscript primal supremum: its older finite all-tilts field follows
-automatically from coordinatewise Gibbs inequalities and nonnegativity.
-
-The proof was returned by Aristotle project
-`f916811d-4971-44ae-9c9b-c1d731298958`, task
-`d4d1264a-d9da-4673-b646-ff82a272aa71`, and independently audited before
-integration.
--/
-
-namespace Erdos625
-
-set_option autoImplicit false
-
-noncomputable section
-
-/-- Limiting form of the Section V uniform entropy certificate. -/
-theorem uniform_limiting_entropy_certificate_for_delta
-    (delta : ℝ)
-    (hDelta : delta ∈ Set.Icc (0 : ℝ) 1) :
-    0 ≤ fourEntropyLoss (1 + 2 / q - delta) ∧
-      fourEntropyLoss (1 + 2 / q - delta) <
-        Real.log (153 / 100 : ℝ) ∧
-      Real.log (200 / 153 : ℝ) <
-        q - fourEntropyLoss (1 + 2 / q - delta) := by
-  rcases hDelta with ⟨hDeltaLower, hDeltaUpper⟩
-  have hq_lt_one : q < 1 := by
-    have h := Real.log_lt_sub_one_of_pos (by norm_num : (0 : ℝ) < 2)
-      (by norm_num : (2 : ℝ) ≠ 1)
-    norm_num [q] at h ⊢
-    exact h
-  have hq_gt_half : (1 / 2 : ℝ) < q := by
-    have h := Real.log_two_gt_d9
-    unfold q
-    norm_num at h ⊢
-    linarith
-  have htwo_div_q_lower : 2 < 2 / q := by
-    rw [lt_div_iff₀ q_pos]
-    linarith
-  have htwo_div_q_upper : 2 / q < 4 := by
-    rw [div_lt_iff₀ q_pos]
-    linarith
-  have hTarget : 1 + 2 / q - delta ∈ Set.Ioo (2 : ℝ) 5 := by
-    constructor <;> linarith
-  let lambda := ProfileEntropyS4.tilt fourGaussianScore
-    (1 + 2 / q - delta)
-  have hMean : ProfileEntropyS4.mean fourGaussianScore lambda =
-      1 + 2 / q - delta := by
-    exact ProfileEntropyS4.mean_tilt_eq fourGaussianScore hTarget
-  have hLossLt : fourEntropyLoss (1 + 2 / q - delta) <
-      Real.log (153 / 100 : ℝ) := by
-    have hDual := extendedGaussianEntropyValue_le_dual_interior
-      (tilt := lambda) hTarget
-    have hRatio := uniform_four_size_partition_ratio_for_delta delta lambda
-      hDeltaLower hDeltaUpper hMean
-    simpa [fourEntropyLoss] using
-      (entropy_loss_lt_log_153_div_100_of_dual_ratio hMean hDual hRatio)
-  exact ⟨fourEntropyLoss_nonneg_interior hTarget, hLossLt,
-    signed_margin_gt_log_200_div_153_of_entropy_loss_lt hLossLt⟩
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_UniformLimitingEntropyCertificate
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.UniformLimitingEntropyCertificate
 ========================================================================== -/
 
 /- ==========================================================================
@@ -64586,7 +64755,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 9728fd61987a5f9043569ac63782efda1e929e5496ede23c73e5928918721e0f
+Normalized SHA-256: e61959dd74a1985ee3cb067e8499ce870f6cc1e2674ee7cc680f6ee3a76b24d9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -65522,6 +65691,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 #print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
+#print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -65531,7 +65701,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: a5caf188ba3912b37e8605fdb3019a9b4c8f79e1a3037c2502aa3b264f402afe
+Normalized SHA-256: 7cf8223bbc475d4fa68c065f25b6ffa06c72b69927ee433934fcddf38c2d8d6f
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
