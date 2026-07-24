@@ -93,6 +93,7 @@ import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
 import Erdos625.ColoringProfilePhaseDerivativeAffineCore
+import Erdos625.DerivativeAffineCoreError
 import Erdos625.ColoringProfileDeficitScoreBounds
 import Erdos625.ColoringProfileDeficitConvergence
 import Erdos625.FourDeficitScoreConvergence
@@ -1252,3 +1253,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointMultiplicity_count_deficit_intDisplacement
 #print axioms Erdos625.midpointMultiplicity_uniform_displacement
 #print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
+#print axioms Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le

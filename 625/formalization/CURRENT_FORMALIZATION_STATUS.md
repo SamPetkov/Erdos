@@ -9,8 +9,8 @@ The repository contains a large, kernel-checked **partial formalization**.
 It does not yet prove `Erdos625Statement`, and it must not be described as a
 complete machine verification of the manuscript.
 
-The generated checkpoint currently packages 370 local source modules into
-64,868 lines in `Erdos625SelfContained.lean`. This is a reproducible
+The generated checkpoint currently packages 371 local source modules into
+64,919 lines in `Erdos625SelfContained.lean`. This is a reproducible
 single-file presentation of the same partial development, not an additional
 proof claim.
 
@@ -23,6 +23,9 @@ and its two audited coordinate/domain inputs.
 
 This checkpoint adds:
 
+- an explicit `factorialLogErrorBound` control for replacing the
+  deficit-coordinate derivative's affine factorial-log core by its quadratic
+  main term;
 - exact integral and natural-coordinate displacement control for the concrete
   four-coordinate midpoint rounding;
 - `O(log log n)` bounds for the phase-root scalar term, Stirling residual, and
@@ -45,10 +48,11 @@ GitHub Actions.
 
 | Service item | Snapshot status | Intended contribution |
 |---|---|---|
-| Aristotle `06eac8ab-581c-4337-8dcf-244ece334075` | running | Bound the error after replacing the deficit-coordinate derivative's affine factorial-log core by its quadratic main term. |
+| Aristotle `06eac8ab-581c-4337-8dcf-244ece334075` | completed; exact source/trust audit and authoritative Lean 4.31 validation passed | Bound the error after replacing the deficit-coordinate derivative's affine factorial-log core by its quadratic main term. |
 
-No second request should duplicate this obligation. If it succeeds cleanly,
-the next request may address only a bounded theorem directly unlocked by it.
+No second request should duplicate this obligation. The accepted proof is
+integrated on the follow-up branch and awaits repository merge. The next
+request may address only a bounded theorem directly unlocked by it.
 
 ## Remaining theorem-level work
 

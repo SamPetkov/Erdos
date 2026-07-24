@@ -146,6 +146,7 @@ import Erdos625.ColoringProfileDeficitUniformMeanConvergence
 import Erdos625.ColoringProfileDeficitTilt
 import Erdos625.DeficitTargetDomain
 import Erdos625.DeficitDerivativeComposition
+import Erdos625.DerivativeAffineCoreError
 import Erdos625.ColoringProfileDeficitVariance
 import Erdos625.InverseConvergenceTools
 import Erdos625.VarianceStabilityTools
