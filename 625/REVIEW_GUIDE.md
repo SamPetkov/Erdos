@@ -5,8 +5,10 @@
 This guide is an entry point for an independent mathematical review of the
 candidate proof in
 [`proofs/COMPLETE_PROOF_SELF_CONTAINED.md`](proofs/COMPLETE_PROOF_SELF_CONTAINED.md).
-The branch containing this guide was cut from repository commit
-`ddeabbf8b23b5a89b269cf5fae4ed18549a8001d`.
+The current review appendix has been re-audited against repository `main` at
+`cda78922ea6c87bfc81f9bf693374dd045dac624`.  The PR branch was originally
+cut earlier, so all added files state their base explicitly and remain
+additive.
 
 The current status is deliberately narrower than “verified solution”:
 
@@ -20,6 +22,14 @@ The current status is deliberately narrower than “verified solution”:
 
 A reviewer should therefore treat every manuscript claim as unproved and use
 this guide only as a navigation and traceability aid.
+
+The current PR appendix incorporates the blocking corrections raised in the
+first PR review: bounded row/column degrees are now hypotheses of the high-cell
+matching statement; the middle strip has exact floor bounds; the Section 8
+summation exposes its dependent witness fibres and admits infeasible formal data
+only as a nonnegative overcount; and the Section 9 square-sum identity is stated
+only off the exposed matching.  The separate verification report records the
+finite regression coverage and the remaining asymptotic review boundary.
 
 ## 2. Exact theorem under review
 
@@ -47,6 +57,13 @@ infinite subsequence or a density-one set.
 | Adversarial repair audit | `audits/ADVERSARIAL_LEAP_AUDIT_2026-07-13.md` |
 | Verification and artifact record | `FINAL_VERIFICATION.md` |
 | Independent finite checker | `verification/erdos625_independent_checks.py` |
+| PR #27 verification report | `PR27_VERIFICATION_REPORT.md` |
+| Corrected Section 7 appendix | `proofs/PR27_SECTION7_CENTRAL_RATE.md` |
+| Corrected Section 8 exposure | `proofs/PR27_SECTION8_EXPOSURE.md` |
+| Corrected Section 8 sum | `proofs/PR27_SECTION8_HIGH_SKELETON_SUM.md` |
+| Corrected Section 9 route | `proofs/PR27_SECTION9_RESIDUAL_RESTRICTION.md` |
+| PR #27 finite regression checker | `experiments/review27_verification.py` |
+| Entropy certificate checker | `experiments/entropy_certificate_upgrade.py` |
 
 Historical drafts and earlier `PASS` audits are not substitutes for the
 canonical manuscript.  Their scope is limited to the hashes and dates stated
@@ -97,8 +114,8 @@ Read Section 6.  Check:
 
 ### Pass C: partial diagonals
 
-Read Section 7 and the replacement text in
-[`proofs/SECTIONS_7_9_REVIEW_REWRITE.md`](proofs/SECTIONS_7_9_REVIEW_REWRITE.md).
+Read Section 7 and
+[`proofs/PR27_SECTION7_CENTRAL_RATE.md`](proofs/PR27_SECTION7_CENTRAL_RATE.md).
 Check all three ranges separately:
 
 - empty corner: iteration of the exact recurrence and the Poisson majorant;
@@ -109,7 +126,10 @@ Check all three ranges separately:
 
 ### Pass D: canonical high skeleton
 
-Read Section 8.  The critical finite statement is the exact exposure identity:
+Read Section 8 together with
+[`proofs/PR27_SECTION8_EXPOSURE.md`](proofs/PR27_SECTION8_EXPOSURE.md) and
+[`proofs/PR27_SECTION8_HIGH_SKELETON_SUM.md`](proofs/PR27_SECTION8_HIGH_SKELETON_SUM.md).
+The critical finite statement is the exact exposure identity:
 for every overlap table, the canonical high support, its multiplicities, the
 selected labelled stub pairs, and the capped residual table reconstruct the
 original table uniquely, and the incidence times the residual contingency law
@@ -125,17 +145,21 @@ Then check separately:
 
 ### Pass E: residual attachments
 
-Read Section 9.  Check:
+Read Section 9 and
+[`proofs/PR27_SECTION9_RESIDUAL_RESTRICTION.md`](proofs/PR27_SECTION9_RESIDUAL_RESTRICTION.md).
+Check:
 
 - local reward telescoping and the fact that threshold alternatives do not
   double-charge triple cells;
-- the total local increment and row/column norm estimates;
-- the deterministic cycle decomposition used to pass from even subgraphs to a
-  product over simple cycles;
-- residual-only cycle enumeration;
-- mixed cycles meeting the high matching, including why only the first marked
-  matching edge costs a factor `2|M|`;
+- injectivity of the restriction `F -> F \ M` on even edge sets;
+- the weighted subset-product expansion and nonnegativity of every `q_e`;
+- the distinction between the off-matching square sum and its unrestricted
+  factorized upper bound;
 - both residual-mass regimes and the uniformity in the skeleton.
+
+The direct restriction argument removes the simple-cycle decomposition,
+residual-walk enumeration, and mixed matching-cycle encoding from the proposed
+large-residual proof.
 
 ### Pass F: amplification and final quantifiers
 
@@ -179,18 +203,20 @@ nonnegative expansion that records:
 - cap and no-return constraints;
 - the split between large and small residual mass.
 
-### 6.4 Weighted residual cycle expansion
+### 6.4 Weighted residual restriction
 
-The mixed-cycle bound must exhibit an encoding from every simple cycle meeting
-the high matching to:
+The revised large-residual route uses the simpler finite fact that an even edge
+set supported on a matching plus residual edges is uniquely determined by its
+residual restriction.  Check the injection, then verify
 
-- one marked and oriented matching edge;
-- a sequence of nonempty residual paths;
-- deterministic matching transitions.
+\[
+ \sum_{F\text{ even}}\prod_{e\in F\setminus M}q_e
+ \le\prod_{e\notin M}(1+q_e).
+\]
 
-After the first marked edge, each matching transition is determined by the
-current endpoint, so no new factor `|M|` is introduced.  The replacement text
-states this as a finite kernel lemma.
+The off-matching square sum is only bounded by the unrestricted factorized sum;
+it is not equal to it.  The exact finite cycle and traversal modules remain
+valid but are not needed by this replacement route.
 
 ## 7. Uniformity checklist
 
@@ -203,7 +229,7 @@ For every load-bearing `O`, `o`, or `Omega`, record:
 | Section 7 rate gap | phase, exact rounded profile, all central subprofiles |
 | Section 8 middle strip | cell type, floor errors, residual skeleton |
 | Section 9 local increments | every feasible canonical skeleton |
-| Section 9 traversal | row/column degree lists and matching size |
+| Section 9 residual restriction | residual edge relation, degree lists, and matching support |
 | amplification | deterministic `k_n`, seed exponent, and tail parameter |
 
 A useful audit question is: “Could the implicit constant change with the
@@ -232,6 +258,8 @@ The following are useful regression checks, not proof certificates:
 ```text
 python 625/verification/erdos625_independent_checks.py
 python 625/experiments/exact_chi_zeta.py --self-test --exhaustive-n 5
+python 625/experiments/review27_verification.py
+python 625/experiments/entropy_certificate_upgrade.py
 ```
 
 For Lean reproduction, follow
