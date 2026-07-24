@@ -1,0 +1,34 @@
+name: Erdős 625 four-support entropy certificate
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/FOUR_SUPPORT_ENTROPY_CERTIFICATE.md"
+      - "625/audits/FOUR_SUPPORT_ENTROPY_CERTIFICATE_AUDIT.md"
+      - "625/experiments/four_support_entropy_certificate.py"
+      - ".github/workflows/erdos625-four-support-entropy-certificate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-certificate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Compile checker
+        run: python -m py_compile 625/experiments/four_support_entropy_certificate.py
+
+      - name: Run exact certificate
+        run: python 625/experiments/four_support_entropy_certificate.py
+
+      - name: Verify optimization-independent gates
+        run: python -O 625/experiments/four_support_entropy_certificate.py
