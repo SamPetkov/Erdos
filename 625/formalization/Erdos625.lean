@@ -109,6 +109,7 @@ import Erdos625.PhaseRootDisplacementScale
 import Erdos625.PhaseRootScalarOverSlopeNegligible
 import Erdos625.PhaseRootScalarLogLogScale
 import Erdos625.PhaseRootUnitCorridorDomain
+import Erdos625.PhaseRootDerivativeUnitCorridor
 import Erdos625.UniformFiniteFourEntropyCertificate
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
