@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{longtable,booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\title{PR \#27: Section 7 central-rate replacement}
+\author{Companion revision for the Erd\H{o}s Problem 625 candidate manuscript}
+\date{24 July 2026}
+\begin{document}
+\maketitle
+\section{PR \#27: Section 7 central-rate replacement}\label{pr-27-section-7-central-rate-replacement}
+
+\textbf{Status.} This file is a review appendix and candidate replacement for the most concentrated parts of the canonical manuscript. It does not change the theorem, constant, four class sizes, or proof architecture. The finite maps, fibre cardinalities, and inequality chains below are stated explicitly so that they can be reviewed before any canonical integration.
+
+\subsection{Replacement block A: the central rate in Lemma 7.1}\label{replacement-block-a-the-central-rate-in-lemma-7.1}
+
+Insert the following lemma after equation (7.21), replacing the compressed numerical paragraph leading to (7.25).
+
+\subsubsection{Lemma 7.1A (uniform central-rate gap)}\label{lemma-7.1a-uniform-central-rate-gap}
+
+Let \(p=(p_i)_{i=2}^5\) be a probability vector with
+
+\[
+ \sum_{i=2}^5 i p_i=T,
+ \qquad
+ \frac2q\le T\le1+\frac2q.
+\]
+
+Let \(0\le z_i\le p_i\), and put
+
+\[
+ R=\sum_{i=2}^5 z_i,\qquad
+ Y=1-R,\qquad
+ I_r=\sum_{i=2}^5 i z_i.
+\]
+
+For
+
+\[
+ \Phi_T(z)=R\ln R+\frac q2(I_r-TR),
+\]
+
+with the convention \(0\ln0=0\), one has
+
+\[
+ \Phi_T(z)\le-\frac{Y}{100}
+ \qquad\text{whenever}\qquad
+ \frac1{64}\le R\le1.
+ \tag{7.21a}
+\]
+
+\paragraph{Proof}\label{proof}
+
+Because every residual deficit lies in \(\{2,3,4,5\}\),
+
+\[
+ I_r-TR=\sum_i(i-T)z_i\le(5-T)R.
+ \tag{7.21b}
+\]
+
+Since \(y_i=p_i-z_i\), the mean identity for \(p\) also gives
+
+\[
+ I_r-TR=\sum_i(T-i)y_i\le(T-2)Y.
+ \tag{7.21c}
+\]
+
+First suppose \(1/64\le R\le47/100\). Since \(T\ge2/q\),
+
+\[
+ \Phi_T(z)
+ \le R\left\{\ln R+\frac q2\left(5-\frac2q\right)\right\}
+ =R\{\ln R+5q/2-1\}.
+ \tag{7.21d}
+\]
+
+The function
+
+\[
+ f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{100}
+\]
+
+is convex on \((0,\infty)\). Hence its maximum on \([1/64,47/100]\) occurs at an endpoint. Using \(q<0.6932\),
+
+\[
+ f(1/64)<-0.0436,
+ \qquad
+ f(47/100)<-0.0051,
+\]
+
+so \(f(R)<0\) throughout the interval.
+
+Now suppose \(47/100\le R\le1\). Since \(T\le1+2/q\), equation (7.21c) gives
+
+\[
+ \Phi_T(z)
+ \le R\ln R+(1-q/2)(1-R).
+ \tag{7.21e}
+\]
+
+Set
+
+\[
+ h(R)=R\ln R+(1-q/2+1/100)(1-R).
+\]
+
+This function is convex, \(h(1)=0\), and a direct evaluation gives \(h(47/100)<-0.0032\). Convexity therefore places \(h\) below the chord joining these endpoint values, so \(h(R)\le0\) on \([47/100,1]\). Thus
+
+\[
+ \Phi_T(z)\le-\frac{1-R}{100}.
+\]
+
+Combining the two ranges proves (7.21a). \(\square\)
+
+\subsubsection{Completion of the central range}\label{completion-of-the-central-range}
+
+Return to the notation of Lemma 7.1. If
+
+\[
+ m>\eta n,
+ \qquad
+ n-m>n/32,
+\]
+
+then equation (7.13) gives \(R\ge1/64\) for all sufficiently large \(n\), and the selected mass satisfies \(Y\ge\eta/2\). Lemma 7.1A and equation (7.20) therefore give
+
+\[
+ \ln D(\ell)
+ \le-\frac{k_{co}\alpha Y}{100}
+      +Ck_{co}Y\ln(e/Y)+CN.
+ \tag{7.24a}
+\]
+
+Here \(Y\ge w/(64N)\), \(\alpha=(2/q+o(1))N\), and \(k_{co}=\Theta(n/N)\). Consequently
+
+\[
+ \frac{\ln(e/Y)}{\alpha}=o(1),
+ \qquad
+ \frac{N}{k_{co}\alpha Y}=o(1),
+\]
+
+uniformly in the phase and in the central subprofile. After increasing the eventual threshold for \(n\), the two error terms in (7.24a) are at most half of the leading negative term. Thus there is an absolute \(c>0\) such that
+
+\[
+ D(\ell)\le \exp(-c k_{co}w)
+ \tag{7.25}
+\]
+
+throughout the central range. Since there are at most \((k_{co}+1)^4\) subprofile vectors, their total contribution is \(o(1)\).
+
+This formulation isolates the only numerical analytic estimate used in the central range and makes its domain independent of the later asymptotic error comparison.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\end{document}
