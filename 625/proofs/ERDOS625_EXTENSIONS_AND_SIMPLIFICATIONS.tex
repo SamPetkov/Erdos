@@ -1,0 +1,270 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newcommand{\E}{\mathbb E}
+\newcommand{\cE}{\mathcal E}
+\newcommand{\cP}{\mathcal P}
+\title{Erd\H{o}s Problem 625: Result Extensions and Proof Simplifications}
+\author{Research note for the candidate manuscript}
+\date{24 July 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Status.}
+This note records exact deductions, finite rational certificates, and
+architectural alternatives obtained by re-examining the candidate manuscript
+at repository main commit
+\begin{center}
+\small\ttfamily cda78922ea6c87bfc81f9bf693374dd045dac624
+\end{center}
+It is not external peer review, priority verification, or a completed Lean
+proof of the final target.  Put $q=\ln2$ and $N=\ln n$.
+
+\section{Exact simplification of the large-residual attachment bound}
+
+\begin{lemma}[An even completion of residual edges is unique]
+Let $M$ be a matching and $R$ any other finite edge set.  Put
+\[
+ \cE(M,R)=\{F\subseteq M\cup R:\deg_F(v)\equiv0\pmod2\text{ for every }v\}.
+\]
+Then
+\[
+ \rho:\cE(M,R)\to\cP(R\setminus M),\qquad \rho(F)=F\setminus M
+ \tag{1.1}
+\]
+is injective.
+\end{lemma}
+
+\begin{proof}
+If $\rho(F)=\rho(F')$, then $F\mathbin\triangle F'\subseteq M$.  The symmetric
+difference is even.  A nonempty subset of a matching has degree one at every
+incident vertex, so it is not even.  Thus $F\mathbin\triangle F'=\varnothing$.
+\end{proof}
+
+\begin{corollary}[Weighted product bound]
+For nonnegative residual weights $(q_e)$, extended by zero on $M$,
+\[
+ \sum_{F\in\cE(M,R)}\prod_{e\in F\setminus M}q_e
+ \le\prod_{e\in R\setminus M}(1+q_e)
+ \le\exp\left(\sum_e q_e\right).
+ \tag{1.2}
+\]
+\end{corollary}
+
+Equation (9.12) therefore gives
+\[
+ \mathcal A(M,j)\le\exp\left(\Lambda_0+\sum_eq_e\right).
+ \tag{1.3}
+\]
+Since
+\[
+ \sum_eq_e=\frac12\sum_{a,b}\theta_{ab}^2+\Lambda_0
+ \tag{1.4}
+\]
+and
+\[
+ \sum_{a,b}\theta_{ab}^2
+ =\frac{e^2}{m_0^2}
+   \left(\sum_ad_a^2\right)\left(\sum_b(d'_b)^2\right)
+ \le e^2U^2,
+ \tag{1.5}
+\]
+while $\Lambda_0\le CU^4/m_0$, we obtain
+\[
+ \boxed{\mathcal A(M,j)
+ \le\exp\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
+ \tag{1.6}
+\]
+For $m_0\ge n/N^6$ and $U=O(N)$ this is $\exp(CN^2)$, stronger than the
+current $\exp(CN^8)$ bound.  It removes the simple-cycle decomposition,
+residual and mixed walk enumeration, $\tau$, and equations (9.15)--(9.18).
+
+\section{A stronger central partial-diagonal rate}
+
+\begin{lemma}
+Under the hypotheses of Lemma 7.1A,
+\[
+ \Phi_T(z)\le-\frac{1-R}{100}\qquad(1/64\le R\le1).
+ \tag{2.1}
+\]
+\end{lemma}
+
+\begin{proof}
+On $[1/64,47/100]$ use
+\[
+ \Phi_T(z)\le R\ln R+(5q/2-1)R.
+\]
+The convex function
+\[
+ f(R)=R\ln R+(5q/2-1)R+\frac{1-R}{100}
+\]
+has $f(1/64)<-0.0436$ and $f(47/100)<-0.0051$.  On
+$[47/100,1]$ use
+\[
+ \Phi_T(z)\le R\ln R+(1-q/2)(1-R).
+\]
+The convex function
+\[
+ h(R)=R\ln R+(1-q/2+1/100)(1-R)
+\]
+has $h(47/100)<-0.0032$ and $h(1)=0$.
+\end{proof}
+
+\section{Carry the phase-resolved displacement to the theorem}
+
+Put
+\[
+ A(\delta)=q-D_4(\delta),\qquad
+ A_*=\min_{0\le\delta\le1}A(\delta).
+ \tag{3.1}
+\]
+Continuity and Lemma 5.1 give $A_*>\gamma_4$, where
+$\gamma_4=\ln(200/153)$.  Equation (5.11), the midpoint construction, and the
+$o(n/N^3)$ amplification loss give
+\[
+ \boxed{\chi(G_n)-\zeta(G_n)
+ \ge\left(\frac{q^2}{8}A(\delta_n)-o(1)\right)\frac{n}{N^3}}
+ \tag{3.2}
+\]
+with high probability.  Thus the fixed displayed constant can be increased
+from $q^2\gamma_4/32$ to $q^2\gamma_4/8$ without changing the witness or
+second-moment argument.
+
+\section{A stronger four-support entropy certificate}
+
+\begin{proposition}
+For every phase,
+\[
+ \frac{12}{5}q<\lambda_4<\frac{21}{5}q.
+ \tag{4.1}
+\]
+Moreover
+\[
+ L(12q/5)<3/10,\quad H(3q)<1/50,
+ \quad L(3q)<3/25,\quad H(21q/5)<1/5.
+ \tag{4.2}
+\]
+Consequently
+\[
+ D_4(\delta)<\ln(33/25),\qquad q-D_4(\delta)>\ln(50/33).
+ \tag{4.3}
+\]
+\end{proposition}
+
+Put $x=2^{1/10}$.  The rational intervals
+\[
+ 0.693147<q<0.693148,
+ \qquad 1.071773<x<1.071774
+ \tag{4.4}
+\]
+reduce the new comparisons to integer powers.  For example,
+\[
+ 10(1+x^{29}+x^{48})
+ <3(x^{57}+x^{56}+x^{45}+x^{24})
+ \tag{4.5}
+\]
+gives $L(12q/5)<3/10$, while
+\[
+ H(21q/5)\le
+ \frac{x^{72}}{(1-x^{-23})(x^{64}+x^{81}+x^{88}+x^{85})}<\frac15.
+ \tag{4.6}
+\]
+The standard-library script \texttt{entropy\_certificate\_upgrade.py} checks
+these rational statements and the two mean brackets exactly.
+
+Combining this certificate with (3.2) gives
+\[
+ \boxed{c_{\rm improved}
+ =\frac{(\ln2)^2}{8}\ln\frac{50}{33}
+ =0.0249544559\ldots,}
+ \tag{4.7}
+\]
+more than six times the current displayed coefficient.
+
+\section{Complement-symmetric strengthening}
+
+Since $\zeta(\overline G)=\zeta(G)$ and $G(n,1/2)$ is complement invariant,
+intersecting the theorem for $G_n$ and $\overline G_n$ gives
+\[
+ \boxed{\min\{\chi(G_n),\chi(\overline G_n)\}-\zeta(G_n)
+ \ge c\frac{n}{(\ln n)^3}}
+ \tag{5.1}
+\]
+with high probability.
+
+\section{Fixed-density criticality away from one half}
+
+For every graph,
+\[
+ \zeta(G)\le\min\{\chi(G),\chi(\overline G)\}.
+\]
+For fixed $p\in(0,1)$,
+\[
+ \chi(G(n,p))
+ =\left(\frac12\ln\frac1{1-p}+o(1)\right)\frac{n}{\ln n}.
+\]
+Therefore
+\[
+ \boxed{\max\{\chi(G),\chi(\overline G)\}-\zeta(G)
+ \ge\left(\frac12\left|\ln\frac{p}{1-p}\right|+o(1)\right)
+ \frac{n}{\ln n}.}
+ \tag{6.1}
+\]
+For $p>1/2$ this is a direct lower bound on $\chi(G)-\zeta(G)$; for $p<1/2$
+it applies to the complementary chromatic gap.  Thus $p=1/2$ is the unique
+fixed-density point where the first-order comparison cancels.
+
+\section{A standard upper bound}
+
+If $h(G)=\max\{\alpha(G),\omega(G)\}$, then $\zeta(G)\ge n/h(G)$.  The standard
+second-order estimates at $p=1/2$ give
+\[
+ h(G)=2\log_2n-2\log_2\log_2n+O(1)
+\]
+and
+\[
+ \chi(G)=\frac{n}{2\log_2n-2\log_2\log_2n+O(1)}.
+\]
+Hence
+\[
+ \boxed{\chi(G)-\zeta(G)=O\left(\frac{n}{(\ln n)^2}\right)}
+ \tag{7.1}
+\]
+with high probability.
+
+\section{Architectural alternatives}
+
+Numerical optimization shows that the three-size support $\{2,3,5\}$ still has
+uniform positive signed advantage, approximately $0.0921449643$.  It preserves
+the unimodular correction coordinates $2,3$, the central-rate endpoints $2,5$,
+and maximum type displacement three, while reducing the transportation table
+from $4\times4$ to $3\times3$.  This is a diagnostic, not yet a proved
+replacement route.
+
+The midpoint can also be replaced by
+\[
+ k_\theta=\left\lceil r_4^{co}+\theta(r_+-r_4^{co})\right\rceil
+\]
+for fixed $\theta\in(0,1)$.  The retained gap would be
+\[
+ \left((1-\theta)\frac{q^2}{4}A(\delta)+o(1)\right)\frac{n}{N^3},
+\]
+while the signed first moment keeps a fixed positive exponential margin.  This
+requires a route-by-route replay of every use of $c_Z$ before being promoted to
+a theorem.
+
+\section{Recommended order}
+\begin{enumerate}
+\item Replace the large-residual cycle expansion by the restriction injection.
+\item Strengthen the central rate.
+\item Carry equation (5.11) directly to the conclusion.
+\item Review and insert the exact entropy certificate.
+\item Add the complement and fixed-density corollaries.
+\item Keep the three-size and non-midpoint variants on experimental branches.
+\end{enumerate}
+\end{document}
