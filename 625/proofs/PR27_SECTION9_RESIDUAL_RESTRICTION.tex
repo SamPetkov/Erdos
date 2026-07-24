@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{longtable,booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\title{PR \#27: residual-restriction replacement for Lemma 9.1}
+\author{Companion revision for the Erd\H{o}s Problem 625 candidate manuscript}
+\date{24 July 2026}
+\begin{document}
+\maketitle
+\section{PR \#27: residual-restriction replacement for Lemma 9.1}\label{pr-27-residual-restriction-replacement-for-lemma-9.1}
+
+\textbf{Status.} Candidate replacement text. The finite restriction injection and product algebra have Lean counterparts, but their full probabilistic specialization is not claimed as formally complete.
+
+\subsection{Replacement block D: residual-restriction product bound in Lemma 9.1}\label{replacement-block-d-residual-restriction-product-bound-in-lemma-9.1}
+
+Replace the cycle decomposition and traversal discussion surrounding equations (9.15)--(9.18) by the following two finite lemmas.
+
+\subsubsection{Lemma 9.1A (an even matching completion is unique)}\label{lemma-9.1a-an-even-matching-completion-is-unique}
+
+Let \(M\) be a matching and let \(R\) be any finite residual edge set. Write
+
+\[
+ \mathcal C_{\rm even}(M,R)
+ =\{F\subseteq M\cup R:\deg_F(v)\text{ is even for every }v\}.
+\]
+
+Then the restriction map
+
+\[
+ \rho:\mathcal C_{\rm even}(M,R)\longrightarrow\mathcal P(R\setminus M),
+ \qquad \rho(F)=F\setminus M,
+ \tag{9.15a}
+\]
+
+is injective.
+
+\paragraph{Proof}\label{proof}
+
+If \(\rho(F)=\rho(F')\), then \(F\mathbin\triangle F'\subseteq M\). The symmetric difference is even. A nonempty subset of a matching has degree one at every incident vertex and cannot be even. Hence \(F=F'\). \(\square\)
+
+\subsubsection{Lemma 9.1B (weighted restriction product)}\label{lemma-9.1b-weighted-restriction-product}
+
+For nonnegative residual weights \(q_e\),
+
+\[
+ \begin{split}
+ \sum_{F\in\mathcal C_{\rm even}(M,R)}
+      \prod_{e\in F\setminus M}q_e
+ &\le\sum_{S\subseteq R\setminus M}\prod_{e\in S}q_e\\
+ &=\prod_{e\in R\setminus M}(1+q_e)
+ \le\exp\left(\sum_{e\in R\setminus M}q_e\right).
+ \end{split}
+ \tag{9.15b}
+\]
+
+This is the weighted form of the finite restriction injection already present in the Lean development.
+
+\subsubsection{Completion of the large-residual branch}\label{completion-of-the-large-residual-branch}
+
+Equation (9.12) gives
+
+\[
+ \mathcal A(M,j)
+ \le\exp\left(\Lambda_0+
+   \sum_{e\in R\setminus M}q_e\right).
+ \tag{9.16}
+\]
+
+For every off-matching cell put \(\widetilde\theta_{ab}=e d_ad_b'/m_0\). Since \(q=0\) on \(M\), equation (9.6) gives
+
+\[
+ \sum_{e\in R\setminus M}q_e
+ =\frac12\sum_{(a,b)\notin M}\widetilde\theta_{ab}^{\,2}+\Lambda_0
+ \le\frac12\sum_{a,b}\widetilde\theta_{ab}^{\,2}+\Lambda_0.
+ \tag{9.17}
+\]
+
+The unrestricted square sum factorizes exactly:
+
+\[
+ \sum_{a,b}\widetilde\theta_{ab}^{\,2}
+ =\frac{e^2}{m_0^2}
+   \left(\sum_a d_a^2\right)
+   \left(\sum_b(d_b')^2\right).
+ \tag{9.18}
+\]
+
+Every residual degree is at most \(U\), and both degree sums equal \(m_0\), so
+
+\[
+ \sum_a d_a^2\le Um_0,
+ \qquad
+ \sum_b(d_b')^2\le Um_0,
+ \qquad
+ \sum_{a,b}\widetilde\theta_{ab}^{\,2}\le e^2U^2.
+ \tag{9.18a}
+\]
+
+Together with \(\Lambda_0\le CU^4/m_0\), this proves
+
+\[
+ \boxed{\mathcal A(M,j)
+ \le\exp\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
+ \tag{9.19}
+\]
+
+If \(m_0\ge n/N^6\), then \(U=O(N)\) and \(U^4/m_0=O(N^{10}/n)=o(1)\). Hence
+
+\[
+ \mathcal A(M,j)\le e^{C'N^2}=\exp\{o(n/N^4)\}
+ \tag{9.19a}
+\]
+
+uniformly over every feasible skeleton. This removes the simple-cycle partition, residual-walk enumeration, matching-cycle encoding, \(\tau\), and the \(h\tau\) term.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\end{document}
