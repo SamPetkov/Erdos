@@ -110,6 +110,7 @@ import Erdos625.PhaseRootScalarOverSlopeNegligible
 import Erdos625.PhaseRootScalarLogLogScale
 import Erdos625.PhaseRootUnitCorridorDomain
 import Erdos625.PhaseRootDerivativeUnitCorridor
+import Erdos625.PhaseRootDerivativeGapCorridor
 import Erdos625.PhaseRootGapCorridorSignedDomain
 import Erdos625.PhaseRootGapCorridorTargetConvergence
 import Erdos625.UniformFiniteFourEntropyCertificate

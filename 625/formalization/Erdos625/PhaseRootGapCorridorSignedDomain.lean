@@ -119,6 +119,52 @@ theorem eventually_phaseRoot_gapCorridor_signed_domain :
   rw [fourSizeTarget, Set.mem_Icc, ← hp]
   constructor <;> linarith
 
+/-- The manuscript-scale corridor radius diverges: `phaseRootGapRadius n → ∞`. -/
+theorem phaseRootGapRadius_tendsto_atTop :
+    Tendsto phaseRootGapRadius atTop atTop := by
+  -- The reference scale `n / (logOrder n)^3` diverges.
+  have hgtop : Tendsto (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) atTop atTop := by
+    have hreal : Tendsto (fun x : ℝ ↦ x / (Real.log x) ^ 3) atTop atTop := by
+      have h0 : Tendsto (fun x : ℝ ↦ (Real.log x) ^ 3 / x) atTop (nhds 0) := by
+        simpa using Real.tendsto_pow_log_div_mul_add_atTop 1 0 3 one_ne_zero
+      have h1 : Tendsto (fun x : ℝ ↦ (Real.log x) ^ 3 / x) atTop
+          (nhdsWithin 0 (Set.Ioi 0)) := by
+        refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ h0 ?_
+        filter_upwards [eventually_gt_atTop 1] with x hx
+        have hlog : 0 < Real.log x := Real.log_pos hx
+        rw [Set.mem_Ioi]; positivity
+      have h2 := h1.inv_tendsto_nhdsGT_zero
+      refine h2.congr ?_
+      intro x; simp [inv_div]
+    exact hreal.comp tendsto_natCast_atTop_atTop
+  -- The radius stays eventually positive.
+  have hpos : ∀ᶠ n : ℕ in atTop, 0 < phaseRootGapRadius n := by
+    filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+      tendsto_logOrder_atTop.eventually_gt_atTop (0 : ℝ),
+      eventually_gt_atTop (0 : ℕ)] with n hdom hphase hlog hnpos
+    obtain ⟨_, hs0pos, _⟩ := hdom
+    have hnR : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hnpos
+    have hcenter : 0 < phaseRootCenter n := by rw [phaseRootCenter]; positivity
+    have hphaseNat : (0 : ℝ) < (phaseNat n : ℝ) := lt_of_lt_of_le hlog hphase.1
+    rw [phaseRootGapRadius]; positivity
+  -- Transfer divergence along `=Θ` and remove the norm using positivity.
+  have hnormg : Tendsto (fun n : ℕ ↦ ‖(n : ℝ) / (logOrder n) ^ 3‖) atTop atTop :=
+    tendsto_norm_atTop_atTop.comp hgtop
+  have hO : (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) =O[atTop] phaseRootGapRadius :=
+    (phaseRootGapRadius_isTheta_gapScale.symm).isBigO
+  have hnormf : Tendsto (fun n : ℕ ↦ ‖phaseRootGapRadius n‖) atTop atTop :=
+    hO.trans_tendsto_norm_atTop hnormg
+  have heq : (fun n : ℕ ↦ ‖phaseRootGapRadius n‖) =ᶠ[atTop] phaseRootGapRadius := by
+    filter_upwards [hpos] with n hn
+    exact (Real.norm_eq_abs _).trans (abs_of_pos hn)
+  exact hnormf.congr' heq
+
+/-- Consequently the corridor radius is eventually at least `1`. -/
+theorem eventually_one_le_phaseRootGapRadius :
+    ∀ᶠ n : ℕ in atTop, (1 : ℝ) ≤ phaseRootGapRadius n :=
+  phaseRootGapRadius_tendsto_atTop.eventually_ge_atTop 1
+
 end
 
 end Erdos625

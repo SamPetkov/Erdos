@@ -22254,6 +22254,156 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeUnitCorridor
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootDerivativeGapCorridor
+Source: Erdos625/PhaseRootDerivativeGapCorridor.lean
+Normalized SHA-256: e2ba9c30b2c71be29af5e4f8d35551b4d05707f7011716eb162ee5462c706195
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeGapCorridor
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+set_option maxHeartbeats 1000000 in
+/-- Upgrade the unrestricted-objective slope bound from a fixed unit
+corridor to the full manuscript-scale corridor. -/
+theorem eventually_unrestrictedPhaseObjective_deriv_gapCorridor_lower :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ s ∈ Icc (phaseRootCenter n - phaseRootGapRadius n)
+          (phaseRootCenter n + phaseRootGapRadius n),
+        q / 8 * (phaseNat n : ℝ) ^ 2 ≤
+          deriv (unrestrictedPhaseObjective n) s := by
+  have hqLower : (1 / 2 : ℝ) < q :=
+    (by norm_num : (1 / 2 : ℝ) < 0.6931471803).trans Real.log_two_gt_d9
+  have hqUpper : q < 2 := Real.log_two_lt_d9.trans (by norm_num)
+  have h2q4 : (2 / q : ℝ) < 4 := by rw [div_lt_iff₀ q_pos]; linarith
+  have hAlow : (-1 : ℝ) < 2 / q - 1 := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  have hAB : (2 / q - 1 : ℝ) ≤ 2 + 2 / q := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  filter_upwards [eventually_forall_mem_Icc_abs_selectedTerm_le_quadratic hAlow hAB,
+    eventually_phaseRoot_domain_pos_and_target_corridor,
+    eventually_phaseNat_sq_add_phaseNat_le,
+    eventually_five_lt_phaseNat,
+    eventually_abs_log_phaseRootCenter_le_quadratic,
+    eventually_factorialLogErrorBound_phaseNat_le_quadratic] with
+    n hsel hcorr hgrowth hfive hlogc hfac s hs
+  obtain ⟨hn, hs0pos, hcentermem⟩ := hcorr
+  rw [mem_Icc] at hs
+  set a := (phaseNat n : ℝ) with ha
+  set s0 := phaseRootS0 n with hs0
+  set c := phaseRootCenter n with hc
+  set r := phaseRootGapRadius n with hrdef
+  -- Basic reference-center facts, exactly as in the unit-corridor argument.
+  have hnpos : 0 < (n : ℝ) := by exact_mod_cast (lt_trans Nat.zero_lt_one hn.1)
+  have hcne : c ≠ 0 := by
+    rw [hc]; unfold phaseRootCenter; exact div_ne_zero hnpos.ne' hs0pos.ne'
+  have hDivide : (n : ℝ) / c = s0 := by rw [hc, hs0]; unfold phaseRootCenter; field_simp
+  have hnc : (n : ℝ) = c * s0 := by rw [div_eq_iff hcne] at hDivide; rw [hDivide, mul_comm]
+  have haR : (6 : ℝ) ≤ a := by rw [ha]; exact_mod_cast (by omega : 6 ≤ phaseNat n)
+  have hs0le : s0 ≤ a := by
+    rw [hs0, phaseRootS0, alphaZero_eq_phaseNat_add_delta hn, ha]
+    have := phaseDelta_lt_one n
+    have hq1 : (1 : ℝ) < 2 / q := by rw [lt_div_iff₀ q_pos]; linarith
+    linarith
+  have hs0ge : (1 : ℝ) ≤ s0 := by
+    rw [hs0, phaseRootS0, alphaZero_eq_phaseNat_add_delta hn]
+    have := phaseDelta_nonneg n
+    linarith [haR, h2q4]
+  have hgrow : s0 + 1 ≤ c := by
+    have hpn2 : s0 ^ 2 + s0 ≤ (n : ℝ) := by nlinarith [hgrowth, hs0le, hs0pos.le]
+    rw [hnc] at hpn2; nlinarith [hpn2, hs0pos]
+  have hcpos : 0 < c := by linarith [hgrow, hs0pos]
+  have hcge2 : (2 : ℝ) ≤ c := by linarith [hgrow, hs0ge]
+  have ha2 : (36 : ℝ) ≤ a ^ 2 := by nlinarith [haR]
+  have hs01a2 : s0 + 1 ≤ a ^ 2 := by nlinarith [hs0le, haR]
+  -- The corridor radius `r = c / a²`, and the key inequality `(s0+1)·r ≤ c`.
+  have hr : r = c / a ^ 2 := by rw [hrdef, phaseRootGapRadius, ← hc, ← ha]
+  have hrpos : 0 ≤ r := by rw [hr]; positivity
+  have hkey : (s0 + 1) * r ≤ c := by
+    have hexp : (s0 + 1) * r = (s0 + 1) * c / a ^ 2 := by rw [hr]; ring
+    rw [hexp, div_le_iff₀ (by positivity : (0 : ℝ) < a ^ 2)]
+    calc (s0 + 1) * c ≤ a ^ 2 * c := mul_le_mul_of_nonneg_right hs01a2 hcpos.le
+      _ = c * a ^ 2 := mul_comm _ _
+  have hr_small : r ≤ c / 36 := by
+    rw [hr]; exact div_le_div_of_nonneg_left hcpos.le (by norm_num) ha2
+  have hcr_pos : 0 < c - r := by nlinarith [hr_small, hcpos]
+  have hcpr_pos : 0 < c + r := by linarith [hcpos, hrpos]
+  have hs_pos : 0 < s := lt_of_lt_of_le hcr_pos hs.1
+  have hcs0 : 0 ≤ c * s0 := by positivity
+  -- Over the corridor the size mean `c·s₀/s` stays within `1` of `s₀`.
+  have hupper : c * s0 / s ≤ s0 + 1 := by
+    have h1 : c * s0 / s ≤ c * s0 / (c - r) := div_le_div_of_nonneg_left hcs0 hcr_pos hs.1
+    have h2 : c * s0 / (c - r) ≤ s0 + 1 := by
+      rw [div_le_iff₀ hcr_pos]
+      have hexp : (s0 + 1) * (c - r) = c * s0 + (c - (s0 + 1) * r) := by ring
+      linarith [hkey, hexp]
+    linarith
+  have hlo : s0 - 1 ≤ c * s0 / s := by
+    have h1 : c * s0 / (c + r) ≤ c * s0 / s := div_le_div_of_nonneg_left hcs0 hs_pos hs.2
+    have h2 : s0 - 1 ≤ c * s0 / (c + r) := by
+      rw [le_div_iff₀ hcpr_pos]
+      have hexp : (s0 - 1) * (c + r) = c * s0 + ((s0 + 1) * r - c - 2 * r) := by ring
+      linarith [hkey, hrpos, hexp]
+    linarith
+  -- The exact deficit target lands in the fixed compact interval.
+  have htar : profileDeficitTarget (phaseNat n) (n : ℝ) s = a - c * s0 / s := by
+    rw [profileDeficitTarget, ha, hnc]
+  rw [mem_Icc] at hcentermem
+  rw [hDivide] at hcentermem
+  have hTmem : profileDeficitTarget (phaseNat n) (n : ℝ) s ∈
+      Icc (2 / q - 1) (2 + 2 / q) := by
+    rw [htar, mem_Icc]
+    refine ⟨?_, ?_⟩
+    · linarith [hcentermem.1, hupper]
+    · linarith [hcentermem.2, hlo]
+  -- Over the corridor the log of the size coordinate is quadratically negligible.
+  have hs_ge1 : (1 : ℝ) ≤ s := by nlinarith [hs.1, hr_small, hcge2]
+  have hs_le2c : s ≤ 2 * c := by nlinarith [hs.2, hr_small, hcpos]
+  have hlog : |Real.log s| ≤ q / 8 * a ^ 2 := by
+    have hlogs_nonneg : 0 ≤ Real.log s := Real.log_nonneg hs_ge1
+    have hupper' : Real.log s ≤ Real.log (2 * c) := Real.log_le_log hs_pos hs_le2c
+    have hmul2 : Real.log (2 * c) = Real.log 2 + Real.log c :=
+      Real.log_mul (by norm_num) (by linarith)
+    have hlogc2 : Real.log c ≤ q / 16 * a ^ 2 := (abs_le.mp hlogc).2
+    have hq16 : q ≤ q / 16 * a ^ 2 := by
+      nlinarith [mul_nonneg q_pos.le (show (0 : ℝ) ≤ a ^ 2 - 16 by linarith [ha2])]
+    rw [abs_of_nonneg hlogs_nonneg]
+    calc Real.log s ≤ Real.log (2 * c) := hupper'
+      _ = Real.log 2 + Real.log c := hmul2
+      _ = q + Real.log c := rfl
+      _ ≤ q / 16 * a ^ 2 + q / 16 * a ^ 2 := by linarith [hq16, hlogc2]
+      _ = q / 8 * a ^ 2 := by ring
+  -- Combine the selected-term, log and factorial errors, exactly as in the
+  -- unit corridor.
+  obtain ⟨hTopen, hselbound⟩ :=
+    hsel (profileDeficitTarget (phaseNat n) (n : ℝ) s) hTmem
+  have hderiv := abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
+    (n := n) (k := s) hTopen
+  rw [abs_le] at hderiv
+  have hselle := (abs_le.mp hselbound)
+  have hloge := (abs_le.mp hlog)
+  have hanonneg : (0 : ℝ) ≤ (phaseNat n : ℝ) := Nat.cast_nonneg _
+  have hqa : (0 : ℝ) ≤ q / 16 * (phaseNat n : ℝ) ^ 2 :=
+    mul_nonneg (div_nonneg q_pos.le (by norm_num)) (sq_nonneg _)
+  linarith [hderiv.1, hselle.1, hloge.2, hfac, hanonneg, hqa]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeGapCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootDerivativeGapCorridor
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.FourDeficitScoreConvergence
 Source: Erdos625/FourDeficitScoreConvergence.lean
 Normalized SHA-256: c57ff32c1f02458159d63b68b5f55833524ab3f960a61ba66dba7c818ccdfb00
@@ -23246,7 +23396,7 @@ END SOURCE MODULE: Erdos625.SignedFourSizeObjective
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootGapCorridorSignedDomain
 Source: Erdos625/PhaseRootGapCorridorSignedDomain.lean
-Normalized SHA-256: 6093ecff86ef9041f3aaedcad1773e9611ed24673df3513179b129e4cc18c1ed
+Normalized SHA-256: 2a80143b31a6fdd37972fe76a63191c73667621255c90690104878865dbf0676
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootGapCorridorSignedDomain
 
@@ -23365,6 +23515,52 @@ theorem eventually_phaseRoot_gapCorridor_signed_domain :
     (le_div_iff₀ hspos).mpr hns2
   rw [fourSizeTarget, Set.mem_Icc, ← hp]
   constructor <;> linarith
+
+/-- The manuscript-scale corridor radius diverges: `phaseRootGapRadius n → ∞`. -/
+theorem phaseRootGapRadius_tendsto_atTop :
+    Tendsto phaseRootGapRadius atTop atTop := by
+  -- The reference scale `n / (logOrder n)^3` diverges.
+  have hgtop : Tendsto (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) atTop atTop := by
+    have hreal : Tendsto (fun x : ℝ ↦ x / (Real.log x) ^ 3) atTop atTop := by
+      have h0 : Tendsto (fun x : ℝ ↦ (Real.log x) ^ 3 / x) atTop (nhds 0) := by
+        simpa using Real.tendsto_pow_log_div_mul_add_atTop 1 0 3 one_ne_zero
+      have h1 : Tendsto (fun x : ℝ ↦ (Real.log x) ^ 3 / x) atTop
+          (nhdsWithin 0 (Set.Ioi 0)) := by
+        refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ h0 ?_
+        filter_upwards [eventually_gt_atTop 1] with x hx
+        have hlog : 0 < Real.log x := Real.log_pos hx
+        rw [Set.mem_Ioi]; positivity
+      have h2 := h1.inv_tendsto_nhdsGT_zero
+      refine h2.congr ?_
+      intro x; simp [inv_div]
+    exact hreal.comp tendsto_natCast_atTop_atTop
+  -- The radius stays eventually positive.
+  have hpos : ∀ᶠ n : ℕ in atTop, 0 < phaseRootGapRadius n := by
+    filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+      tendsto_logOrder_atTop.eventually_gt_atTop (0 : ℝ),
+      eventually_gt_atTop (0 : ℕ)] with n hdom hphase hlog hnpos
+    obtain ⟨_, hs0pos, _⟩ := hdom
+    have hnR : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hnpos
+    have hcenter : 0 < phaseRootCenter n := by rw [phaseRootCenter]; positivity
+    have hphaseNat : (0 : ℝ) < (phaseNat n : ℝ) := lt_of_lt_of_le hlog hphase.1
+    rw [phaseRootGapRadius]; positivity
+  -- Transfer divergence along `=Θ` and remove the norm using positivity.
+  have hnormg : Tendsto (fun n : ℕ ↦ ‖(n : ℝ) / (logOrder n) ^ 3‖) atTop atTop :=
+    tendsto_norm_atTop_atTop.comp hgtop
+  have hO : (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) =O[atTop] phaseRootGapRadius :=
+    (phaseRootGapRadius_isTheta_gapScale.symm).isBigO
+  have hnormf : Tendsto (fun n : ℕ ↦ ‖phaseRootGapRadius n‖) atTop atTop :=
+    hO.trans_tendsto_norm_atTop hnormg
+  have heq : (fun n : ℕ ↦ ‖phaseRootGapRadius n‖) =ᶠ[atTop] phaseRootGapRadius := by
+    filter_upwards [hpos] with n hn
+    exact (Real.norm_eq_abs _).trans (abs_of_pos hn)
+  exact hnormf.congr' heq
+
+/-- Consequently the corridor radius is eventually at least `1`. -/
+theorem eventually_one_le_phaseRootGapRadius :
+    ∀ᶠ n : ℕ in atTop, (1 : ℝ) ≤ phaseRootGapRadius n :=
+  phaseRootGapRadius_tendsto_atTop.eventually_ge_atTop 1
 
 end
 
@@ -66165,7 +66361,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: ac944d25cfd4b67c75c18e9b4c9ededa33c96dcb7d56231ccb30b77be9b185b2
+Normalized SHA-256: faac14fde8ac01d91a39b7343471360af07976139ad229b1063e157577eade2c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -67105,7 +67301,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower
+#print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_gapCorridor_lower
 #print axioms Erdos625.eventually_phaseRoot_gapCorridor_signed_domain
+#print axioms Erdos625.phaseRootGapRadius_tendsto_atTop
+#print axioms Erdos625.eventually_one_le_phaseRootGapRadius
 #print axioms Erdos625.eventually_uniform_phaseRoot_gapCorridor_target_close
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
 #print axioms Erdos625.exists_uniform_finite_four_entropy_neighborhood
@@ -67122,7 +67321,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: c68b820844f3c569a9da60929623ebbb9e0a34fb1975aac18bd589333d8669d6
+Normalized SHA-256: 51e5a849dd70c60992665113aa4f86976cb719934f5650da5efd2fed649d3d24
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
