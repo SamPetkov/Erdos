@@ -517,46 +517,180 @@ moment.
 
 ---
 
-## 8. A possible three-size simplification
+## 8. An exactly certified three-size first-moment alternative
 
-Numerical optimization over the full phase interval shows that the support
+Let
 
 \[
- S_3=\{2,3,5\}
+ S_3=\{2,3,5\},
+ \qquad
+ D_3(\delta)=\mathcal F_{S_+}(T_0)-\mathcal F_{S_3}(T_0).
  \tag{8.1}
 \]
 
-still has a positive uniform signed advantage:
+The three-size support has a positive uniform signed advantage that can be
+proved by the same elementary omitted-mass method as Lemma 5.1.
+
+### Proposition 8.1 (three-size entropy certificate)
+
+For every target
+
+\[
+ \frac2q\le T\le1+\frac2q,
+\]
+
+let \(\lambda_3\) be the unique tilt for the support \(S_3\).  Then
+
+\[
+ \frac{29}{10}q<\lambda_3<\frac{21}{5}q.
+ \tag{8.2}
+\]
+
+At a tilt \(\lambda\), let \(L_3(\lambda)\) be the weight of deficits
+\(-1,0,1\) divided by the retained \(S_3\) weight, let
+\(M_4(\lambda)\) be the deficit-4 weight divided by the retained weight, and
+let \(H_3(\lambda)\) be the analogous ratio for deficits at least six.  The
+following exact bounds hold:
+
+\[
+ L_3(29q/10)<\frac15,
+ \qquad
+ H_3(7q/2)<\frac2{25},
+ \qquad
+ M_4(7q/2)=\frac12,
+ \tag{8.3}
+\]
+
+and
+
+\[
+ L_3(7q/2)<\frac2{25},
+ \qquad
+ H_3(21q/5)<\frac14,
+ \qquad
+ M_4(21q/5)<\frac58.
+ \tag{8.4}
+\]
+
+Consequently
+
+\[
+ L_3(\lambda_3)+M_4(\lambda_3)+H_3(\lambda_3)
+ <\frac{191}{200},
+ \tag{8.5}
+\]
+
+and hence
+
+\[
+ \boxed{
+ D_3(\delta)<\ln\frac{391}{200},
+ \qquad
+ q-D_3(\delta)>\ln\frac{400}{391}>0.}
+ \tag{8.6}
+\]
+
+#### Proof
+
+The mean on a finite support is strictly increasing in the tilt.  At
+\(29q/10\), exact rational comparison gives a mean below \(2/q\); at
+\(21q/5\), it gives a mean above \(1+2/q\).  This proves (8.2).
+
+The low ratio \(L_3\) decreases with the tilt because every low omitted index
+is below every retained index.  The high ratio \(H_3\) increases for the
+opposite reason.  The ratio \(M_4\) has logarithmic derivative
+\(4-\mathbb E_{S_3,\lambda}i\).  The retained mean is below four throughout
+(8.2), so \(M_4\) is increasing on the relevant interval.
+
+Put \(x=2^{1/10}\).  At \(29q/10\), after division by the deficit \(-1\)
+weight, the low exponents are \(0,34,58\), while the retained exponents are
+\(72,76,54\).  Thus
+
+\[
+ 5(1+x^{34}+x^{58})<x^{72}+x^{76}+x^{54}
+ \tag{8.7}
+\]
+
+proves the first bound in (8.3).  At \(7q/2\), the retained weights are
+proportional to \(x^{50},x^{60},x^{50}\), while the deficit-4 weight is
+\(x^{60}\); hence \(M_4=1/2\).  The low and high bounds at this tilt follow
+from the same rational interval for \(x\) and a geometric tail beginning with
+exponent \(30\).
+
+At \(21q/5\), the retained exponents are \(64,81,85\), the deficit-4 exponent
+is \(88\), and the high tail begins with exponents \(72,49,16\).  The
+remainder has successive ratio at most \(x^{-43}\), giving
+
+\[
+ 4\left(x^{72}+x^{49}+\frac{x^{16}}{1-x^{-43}}\right)
+ <x^{64}+x^{81}+x^{85},
+ \tag{8.8}
+\]
+
+and
+
+\[
+ 8x^{88}<5(x^{64}+x^{81}+x^{85}).
+ \tag{8.9}
+\]
+
+These are exactly the last two bounds in (8.4).
+
+If \(\lambda_3\le7q/2\), monotonicity gives an omitted ratio below
+
+\[
+ \frac15+\frac12+\frac2{25}=\frac{39}{50}.
+\]
+
+If \(\lambda_3\ge7q/2\), it is below
+
+\[
+ \frac2{25}+\frac58+\frac14=\frac{191}{200}.
+\]
+
+Evaluating the full-support dual function at the \(S_3\) tilt proves
+\(D_3\le\ln(1+191/200)\), and subtraction from \(q=\ln2\) gives (8.6).
+\(\square\)
+
+The attached exact-check script verifies every rational comparison in this
+proof using `Fraction`; its separate support scan reports the stronger numerical
+minimum
 
 \[
  \min_T\{q-(\mathcal F_{S_+}(T)-\mathcal F_{S_3}(T))\}
  \approx0.0921449643.
- \tag{8.2}
+ \tag{8.10}
 \]
 
-This support is structurally attractive:
+The certified three-size route has several structural advantages:
 
-- it retains deficits `2` and `3`, so the unimodular integer correction in
-  (5.16) still works;
-- its minimum and maximum deficits remain `2` and `5`, so the central-rate
-  inequalities are unchanged;
+- it retains deficits `2` and `3`, so the unimodular correction in (5.16)
+  remains unchanged;
+- its minimum and maximum deficits are still `2` and `5`, so the central-rate
+  proof uses the same endpoint inequalities;
 - the maximum type displacement remains three;
-- the dense transportation table becomes `3 by 3` rather than `4 by 4`.
+- the dense transportation table becomes `3 by 3` rather than `4 by 4`;
+- all three limiting masses are uniformly positive by compactness of the tilt
+  interval.
 
-The proof would therefore become shorter in Sections 5, 7, and 8.  However,
-(8.2) is currently a numerical diagnostic, not a replacement proof.  A uniform
-analytic entropy certificate and a complete replay of the endpoint and
-residual estimates are required before adopting this route.
-
-Adding deficit `1` gives a larger first-moment advantage but is not a safe
-simplification: the empty-corner activity
+Combining (8.6) with the direct propagation of (5.11) would give the explicit
+three-size coefficient
 
 \[
- k_1^2/\mu_{\alpha-1}(n)
+ \frac{(\ln2)^2}{8}\ln\frac{400}{391}
+ =0.0013667079\ldots.
+ \tag{8.11}
 \]
 
-is not uniformly `o(1)` through the phase cycle.  Deficit `2` is the natural
-largest-class cutoff for the current partial-diagonal method.
+This is now an exact first-moment alternative, not merely a numerical guess.
+It is **not yet a second proof of the theorem**: the partial-diagonal,
+transportation, high-skeleton, and residual estimates must be replayed with a
+three-coordinate profile before the route can replace the four-size witness.
+
+Adding deficit `1` remains unsafe for the existing empty-corner argument,
+because the activity \(k_1^2/\mu_{\alpha-1}(n)\) is not uniformly `o(1)` over
+the phase cycle.  Deficit `2` remains the natural largest-class cutoff for this
+method.
 
 ---
 
