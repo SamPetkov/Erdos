@@ -20527,6 +20527,51 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterLogQuadratic
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedDiscrepancy
+Source: Erdos625/PhaseRootDerivativeSelectedDiscrepancy.lean
+Normalized SHA-256: 4f24ac7cd8c2c0996b143b9ca08a3fad8831563300fc32dbdc9008dc7eb886b7
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeSelectedDiscrepancy
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The selected partition/tilt contribution appearing in the derivative. -/
+noncomputable def phaseRootDerivativeSelectedTerm (n : ℕ) : ℝ :=
+  Real.log
+      (profileDeficitPartition (phaseNat n)
+        (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+    profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+      (phaseNat n : ℝ)
+
+/--
+Exact discrepancy between the derivative-selected term and the objective's
+deficit-selected term.
+-/
+theorem phaseRootDerivativeSelectedTerm_eq :
+    ∀ n : ℕ,
+      phaseRootDerivativeSelectedTerm n =
+        phaseRootSelectedDeficitTerm n -
+          profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+            ((n : ℝ) / phaseRootCenter n) := by
+  intro n
+  unfold phaseRootDerivativeSelectedTerm phaseRootSelectedDeficitTerm
+    phaseRootDeficitTarget
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeSelectedDiscrepancy
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedDiscrepancy
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -63967,7 +64012,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: c33e8eae48e792ac7ef250258a1d3c4a032a6e7d8dddb685ac34fa708b039547
+Normalized SHA-256: fa576abefa9ad9916637345562e356307fe26871dc0872ab64bbdbc7fe9fcac8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64894,6 +64939,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_factorialLogErrorBound_phaseNat_le_quadratic
 #print axioms Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic
 #print axioms Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic
+#print axioms Erdos625.phaseRootDerivativeSelectedTerm_eq
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64903,7 +64949,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 956d4e4cd9157bfdc37c749049963261e5afd2a1722883cc489a0e51712df4e8
+Normalized SHA-256: 92f9431bda280bc862bf0180a4a9920de13af0602c5dcd9813c6046c147d4bb0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

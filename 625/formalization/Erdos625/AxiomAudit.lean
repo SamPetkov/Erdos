@@ -93,6 +93,7 @@ import Erdos625.PhaseRootCenterOpenCorridor
 import Erdos625.PhaseFactorialErrorQuadratic
 import Erdos625.PhaseSelectedDeficitQuadratic
 import Erdos625.PhaseRootCenterLogQuadratic
+import Erdos625.PhaseRootDerivativeSelectedDiscrepancy
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -1262,3 +1263,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_factorialLogErrorBound_phaseNat_le_quadratic
 #print axioms Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic
 #print axioms Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic
+#print axioms Erdos625.phaseRootDerivativeSelectedTerm_eq
