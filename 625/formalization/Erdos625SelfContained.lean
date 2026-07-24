@@ -25181,6 +25181,76 @@ END SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformFourDeficitTiltBound
+Source: Erdos625/UniformFourDeficitTiltBound.lean
+Normalized SHA-256: 79c3e9bc374a9517fce315acbe4d1c03e51a8427560cb73f3842dc87599cbd96
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformFourDeficitTiltBound
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The exact four-deficit tilt is uniformly bounded on the compact target
+interval used by the manuscript-scale phase-root corridor. -/
+theorem exists_eventually_uniform_fourDeficitTilt_bound :
+    ∃ M : ℝ, 0 ≤ M ∧ ∃ N : ℕ, ∀ alpha ≥ N,
+      ∀ target ∈ Set.Icc (5 / 2 : ℝ) (9 / 2 : ℝ),
+        |ProfileEntropyS4.tilt (fourDeficitScore alpha) target| ≤ M := by
+  set K : Set ℝ := Set.Icc (5 / 2 : ℝ) (9 / 2 : ℝ) with hK
+  have hKcompact : IsCompact K := isCompact_Icc
+  have hKinterior : K ⊆ Set.Ioo (2 : ℝ) 5 := by
+    intro T hT
+    rw [hK, Set.mem_Icc] at hT
+    rw [Set.mem_Ioo]
+    constructor <;> [linarith [hT.1]; linarith [hT.2]]
+  have hKne : K.Nonempty :=
+    ⟨(5 / 2 : ℝ), by rw [hK, Set.mem_Icc]; norm_num⟩
+  have hContOn : ContinuousOn
+      (fun T : ℝ ↦ |ProfileEntropyS4.tilt fourGaussianScore T|) K := by
+    apply Continuous.comp_continuousOn continuous_abs
+    intro T hTK
+    have hjoint : ContinuousAt
+        (fun y : (Fin 4 → ℝ) × ℝ ↦ ProfileEntropyS4.tilt y.1 y.2)
+        (fourGaussianScore, T) :=
+      ProfileEntropyS4.continuousAt_tilt_joint (fourGaussianScore, T)
+        (hKinterior hTK)
+    have hmap : ContinuousAt (fun T' : ℝ ↦ (fourGaussianScore, T')) T :=
+      (continuousAt_const.prodMk continuousAt_id)
+    exact (hjoint.comp hmap).continuousWithinAt
+  obtain ⟨T0, hT0K, hT0max⟩ :=
+    hKcompact.exists_isMaxOn hKne hContOn
+  set M0 : ℝ := |ProfileEntropyS4.tilt fourGaussianScore T0| with hM0
+  have hM0nonneg : 0 ≤ M0 := abs_nonneg _
+  obtain ⟨N, hN⟩ :=
+    ProfileEntropyS4.eventually_uniformOn_tilt_of_uniform_scores
+      fourDeficitScore fourGaussianScore K hKcompact hKinterior
+      eventually_uniform_fourDeficitScore 1 (by norm_num)
+  refine ⟨M0 + 1, by linarith, N, fun alpha halpha target htarget ↦ ?_⟩
+  have htargetK : target ∈ K := htarget
+  have hclose := hN alpha halpha target htargetK
+  have hgbound : |ProfileEntropyS4.tilt fourGaussianScore target| ≤ M0 :=
+    hT0max htargetK
+  have hdiff := abs_sub_abs_le_abs_sub
+    (ProfileEntropyS4.tilt (fourDeficitScore alpha) target)
+    (ProfileEntropyS4.tilt fourGaussianScore target)
+  have hlt : |ProfileEntropyS4.tilt (fourDeficitScore alpha) target| -
+      |ProfileEntropyS4.tilt fourGaussianScore target| < 1 :=
+    lt_of_le_of_lt hdiff hclose
+  linarith
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformFourDeficitTiltBound
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformFourDeficitTiltBound
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
 Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
 Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
@@ -65489,7 +65559,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: d15657a22af6b359612c2655b8116e63d45452e042bcc92b1d52c3fc2ea33f1c
+Normalized SHA-256: 105a56bbcffb048f431540dd9966f6c53849557f5b88a2b9f81f24c99ba89558
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -66430,6 +66500,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
+#print axioms Erdos625.exists_eventually_uniform_fourDeficitTilt_bound
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -66439,7 +66510,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: a0066589823f495e57e283c51effd42dd6a90a6fff9b30852a19b5e7302a4168
+Normalized SHA-256: 9122ba6cb8b596280198ca89fb3750b3e49a8d108a67564823e924c92e965fa5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
