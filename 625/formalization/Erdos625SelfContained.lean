@@ -20572,56 +20572,72 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedDiscrepancy
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
-Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
-Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
+BEGIN SOURCE MODULE: Erdos625.PhaseRootTiltLinearQuadratic
+Source: Erdos625/PhaseRootTiltLinearQuadratic.lean
+Normalized SHA-256: 89c2a82aee2725de4b4422ff0c54dfd3dc1ad7db16d9a63af28f5cb6af2a47ca
 ========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+section Erdos625SelfContained_Module_Erdos625_PhaseRootTiltLinearQuadratic
+
+Exit code: 0
+Wall time: 0.2 seconds
+Output:
+Exit code: 0
+Wall time: 0.2 seconds
+Output:
 
 namespace Erdos625
 
-open Filter Asymptotics
+open Filter
 
 noncomputable section
 
 set_option autoImplicit false
 
-theorem unrestrictedPhaseObjective_div_eq_deficitCentered
-    (n : ℕ) {parts : ℝ} (hparts : parts ≠ 0) :
-    unrestrictedPhaseObjective n parts / parts =
-      (n : ℝ) * Real.log (n : ℝ) / parts - (n : ℝ) / parts + 1 -
-        Real.log parts +
-        (profileDeficitAffineA (phaseNat n) +
-          profileDeficitAffineB (phaseNat n) *
-            profileDeficitTarget (phaseNat n) (n : ℝ) parts +
-          Real.log
-            (profileDeficitPartition (phaseNat n)
-              (profileDeficitTilt (phaseNat n)
-                (profileDeficitTarget (phaseNat n) (n : ℝ) parts))) -
-          profileDeficitTilt (phaseNat n)
-              (profileDeficitTarget (phaseNat n) (n : ℝ) parts) *
-            profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
-  rw [unrestrictedPhaseObjective,
-    profileDualOptimalValue_eq_profileDualUpper (phaseNat n + 1) hparts]
-  have htilt :
-      profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts) =
-        profileDeficitAffineB (phaseNat n) -
-          profileDeficitTilt (phaseNat n)
-            (profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
-    rw [profileDeficitAffineB_sub_profileDeficitTilt]
-    congr 1
-    unfold profileDeficitTarget
-    ring
-  rw [htilt, profileDualUpper_eq_deficitCentered (phaseNat n) hparts]
-  field_simp
+/-- The derivative's tilt-linear term is eventually quadratically negligible. -/
+theorem eventually_abs_phaseRootTilt_mul_phaseNat_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      |profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          (phaseNat n : ℝ)| ≤
+        q / 32 * (phaseNat n : ℝ) ^ 2 := by
+  have hA : (-1 : ℝ) < 2 / q := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  have hAB : (2 / q : ℝ) ≤ 1 + 2 / q := by linarith
+  obtain ⟨M, _hM, huniform⟩ :=
+    exists_eventually_forall_mem_Icc_abs_profileDeficitTilt_le hA hAB
+  obtain ⟨N, hN⟩ := (eventually_atTop.1 huniform)
+  have hphaseLargeN : ∀ᶠ n : ℕ in atTop, N ≤ phaseNat n := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact_mod_cast hn.trans hphase.1
+  have hphaseThresh : ∀ᶠ n : ℕ in atTop, (32 * M / q : ℝ) ≤ (phaseNat n : ℝ) := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop (32 * M / q : ℝ),
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact hn.trans hphase.1
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      hphaseLargeN, hphaseThresh] with n hn hlarge hthresh
+  have htilt := (hN (phaseNat n) hlarge
+    (phaseRootDeficitTarget n) (by
+      simpa [phaseRootDeficitTarget] using hn.2.2)).2
+  have hphaseNonneg : (0 : ℝ) ≤ (phaseNat n : ℝ) := Nat.cast_nonneg _
+  rw [abs_mul, abs_of_nonneg hphaseNonneg]
+  have h1 : 32 * M ≤ (phaseNat n : ℝ) * q := by
+    rw [div_le_iff₀ q_pos] at hthresh
+    exact hthresh
+  calc |profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)| * (phaseNat n : ℝ)
+      ≤ M * (phaseNat n : ℝ) := by gcongr
+    _ ≤ q / 32 * (phaseNat n : ℝ) ^ 2 := by
+        nlinarith [mul_le_mul_of_nonneg_right h1 hphaseNonneg, hphaseNonneg, q_pos]
 
 end
 
 end Erdos625
 
-end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+end Erdos625SelfContained_Module_Erdos625_PhaseRootTiltLinearQuadratic
 /- ==========================================================================
-END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
+END SOURCE MODULE: Erdos625.PhaseRootTiltLinearQuadratic
 ========================================================================== -/
 
 /- ==========================================================================
@@ -20695,92 +20711,6 @@ END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivative
 ========================================================================== -/
 
 /- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
-Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
-Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
-
-namespace Erdos625
-
-open Filter Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-theorem log_profileDeficitPartition_mem_Icc_gaussianEnvelope
-    (alpha : ℕ) (halpha : 0 < alpha) {lambda M : ℝ}
-    (hlambda : |lambda| ≤ M) :
-    Real.log (profileDeficitPartition alpha lambda) ∈
-      Icc 0
-        (Real.log
-          (Real.exp M +
-            Real.exp (M ^ 2 / q) *
-              (1 / (1 - Real.exp (-q / 4))))) := by
-  constructor
-  · exact Real.log_nonneg
-      (one_le_profileDeficitPartition alpha halpha lambda)
-  · exact Real.log_le_log
-      (profileDeficitPartition_pos alpha lambda)
-      (profileDeficitPartition_le_gaussianEnvelope alpha halpha hlambda)
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
-Source: Erdos625/ColoringProfilePhaseDerivativeAffineCore.lean
-Normalized SHA-256: 57f0aec853efb5449e14a982efe93cb6de22f77f8fcb457bd4dffab6764a30ee
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
-
-namespace Erdos625
-
-open Filter Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-theorem abs_profileDeficitAffineCore_sub_quadratic_le
-    (alpha : ℕ) (halpha : 0 < alpha) :
-    |profileDeficitAffineA alpha +
-          profileDeficitAffineB alpha * (alpha : ℝ) -
-        (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ))| ≤
-      factorialLogErrorBound alpha := by
-  have hchoose : ((alpha.choose 2 : ℕ) : ℝ) =
-      (alpha : ℝ) * ((alpha : ℝ) - 1) / 2 := by
-    exact Nat.cast_choose_two ℝ alpha
-  have hmain := abs_log_factorial_sub_factorialEntropyMain_le alpha
-  rw [factorialEntropyMain_of_pos halpha] at hmain
-  unfold profileDeficitAffineA profileDeficitAffineB coloringClassLogCost
-  rw [show Real.log 2 = q from rfl, hchoose]
-  rw [show
-      -(Real.log (alpha.factorial : ℝ) +
-          ((alpha : ℝ) * ((alpha : ℝ) - 1) / 2) * q) +
-          (q * (alpha : ℝ) - q / 2 + Real.log (alpha : ℝ)) * (alpha : ℝ) -
-          (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ)) =
-        - (Real.log (alpha.factorial : ℝ) -
-          ((alpha : ℝ) * Real.log (alpha : ℝ) - (alpha : ℝ))) by ring]
-  simpa only [abs_neg] using hmain
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
-========================================================================== -/
-
-/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.DerivativeCoordinateRewrite
 Source: Erdos625/DerivativeCoordinateRewrite.lean
 Normalized SHA-256: 703482d2334d4fef68dd0bb821dca3bb811bcf7690a22bd57b4c04f6225ee67f
@@ -20836,6 +20766,606 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_DerivativeCoordinateRewrite
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.DerivativeCoordinateRewrite
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DeficitTargetDomain
+Source: Erdos625/DeficitTargetDomain.lean
+Normalized SHA-256: bc0651cffbbffb6bf7cdb83fed0a5f0aa83efa09843d22d300c1cbdb144c35ce
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The deficit-target corridor gives the corresponding size-coordinate
+corridor and forces the phase support endpoint to be at least two. -/
+theorem phaseDeficitTarget_domain_coordinates
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    (n : ℝ) / k ∈
+        Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ)) ∧
+      2 ≤ phaseNat n + 1 := by
+  rw [Set.mem_Ioo] at hT
+  unfold profileDeficitTarget at hT
+  obtain ⟨h1, h2⟩ := hT
+  have hpos : (0 : ℝ) < (phaseNat n : ℝ) := by linarith
+  have hpn : 0 < phaseNat n := by exact_mod_cast hpos
+  refine ⟨?_, ?_⟩
+  · rw [Set.mem_Ioo]
+    push_cast
+    constructor <;> linarith
+  · omega
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DeficitTargetDomain
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DeficitDerivativeComposition
+Source: Erdos625/DeficitDerivativeComposition.lean
+Normalized SHA-256: f2cf153ba2ed4df38bc369410d1464851923ee2606f81b443eeb78acbebf2b91
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- A deficit-target corridor alone supplies both the admissible size
+coordinate and the positivity of the class-count variable, so the exact
+deficit-coordinate derivative formula applies without a separate `0 < k`
+hypothesis. -/
+theorem unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    deriv (unrestrictedPhaseObjective n) k =
+      profileDeficitAffineA (phaseNat n) +
+        profileDeficitAffineB (phaseNat n) * (phaseNat n : ℝ) -
+        profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
+          (phaseNat n : ℝ) +
+        Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
+        Real.log k := by
+  obtain ⟨hsize, _⟩ := phaseDeficitTarget_domain_coordinates hT
+  have hk : 0 < k := by
+    rw [Set.mem_Ioo] at hsize
+    by_contra h
+    have hkle : k ≤ 0 := not_lt.mp h
+    have hle : (n : ℝ) / k ≤ 0 :=
+      div_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg n) hkle
+    linarith [hsize.1]
+  exact unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_sizeTarget hk hsize
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DeficitDerivativeComposition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
+Source: Erdos625/ColoringProfilePhaseDerivativeAffineCore.lean
+Normalized SHA-256: 57f0aec853efb5449e14a982efe93cb6de22f77f8fcb457bd4dffab6764a30ee
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem abs_profileDeficitAffineCore_sub_quadratic_le
+    (alpha : ℕ) (halpha : 0 < alpha) :
+    |profileDeficitAffineA alpha +
+          profileDeficitAffineB alpha * (alpha : ℝ) -
+        (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ))| ≤
+      factorialLogErrorBound alpha := by
+  have hchoose : ((alpha.choose 2 : ℕ) : ℝ) =
+      (alpha : ℝ) * ((alpha : ℝ) - 1) / 2 := by
+    exact Nat.cast_choose_two ℝ alpha
+  have hmain := abs_log_factorial_sub_factorialEntropyMain_le alpha
+  rw [factorialEntropyMain_of_pos halpha] at hmain
+  unfold profileDeficitAffineA profileDeficitAffineB coloringClassLogCost
+  rw [show Real.log 2 = q from rfl, hchoose]
+  rw [show
+      -(Real.log (alpha.factorial : ℝ) +
+          ((alpha : ℝ) * ((alpha : ℝ) - 1) / 2) * q) +
+          (q * (alpha : ℝ) - q / 2 + Real.log (alpha : ℝ)) * (alpha : ℝ) -
+          (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ)) =
+        - (Real.log (alpha.factorial : ℝ) -
+          ((alpha : ℝ) * Real.log (alpha : ℝ) - (alpha : ℝ))) by ring]
+  simpa only [abs_neg] using hmain
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeAffineCore
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeAffineCore
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.DerivativeAffineCoreError
+Source: Erdos625/DerivativeAffineCoreError.lean
+Normalized SHA-256: 1ae72d234bba801a4f42652f0db6bad64516818d23f8f5819fd1e87b4835a862
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+After converting the unrestricted phase derivative to deficit coordinates,
+the only error in replacing its affine factorial-log core by the quadratic
+main term is the explicit `factorialLogErrorBound`.
+-/
+theorem abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
+    {n : ℕ} {k : ℝ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    |deriv (unrestrictedPhaseObjective n) k -
+      (q / 2 * (phaseNat n : ℝ) ^ 2 + (phaseNat n : ℝ) -
+        profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
+          (phaseNat n : ℝ) +
+        Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
+        Real.log k)| ≤ factorialLogErrorBound (phaseNat n) := by
+  rw [unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget hT]
+  obtain ⟨_, h2⟩ := phaseDeficitTarget_domain_coordinates hT
+  have hpn : 0 < phaseNat n := by omega
+  have key := abs_profileDeficitAffineCore_sub_quadratic_le (phaseNat n) hpn
+  convert key using 2
+  ring
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.DerivativeAffineCoreError
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootCenterDerivativeLowerCorrected
+Source: Erdos625/PhaseRootCenterDerivativeLowerCorrected.lean
+Normalized SHA-256: a6c334b9eed8c82332ad5ea190089ec1f23f32669de91c913cec2039aff45a04
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootCenterDerivativeLowerCorrected
+
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
+Exit code: 0
+Wall time: 0.2 seconds
+Output:
+
+namespace Erdos625
+
+open Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+Correct finite lower bound at the reference center, using the derivative's
+actual affine coefficient `phaseNat n` in the selected tilt term.
+-/
+theorem unrestrictedPhaseObjective_deriv_center_lower_corrected
+    {n : ℕ}
+    (hT : profileDeficitTarget (phaseNat n) (n : ℝ)
+        (phaseRootCenter n) ∈
+      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
+    q / 2 * (phaseNat n : ℝ) ^ 2 + (phaseNat n : ℝ) -
+          profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ)
+                (phaseRootCenter n)) *
+            (phaseNat n : ℝ) +
+          Real.log
+            (profileDeficitPartition (phaseNat n)
+              (profileDeficitTilt (phaseNat n)
+                (profileDeficitTarget (phaseNat n) (n : ℝ)
+                  (phaseRootCenter n)))) -
+          Real.log (phaseRootCenter n) -
+          factorialLogErrorBound (phaseNat n) ≤
+      deriv (unrestrictedPhaseObjective n) (phaseRootCenter n) := by
+  have h := abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le hT
+  rw [abs_le] at h
+  linarith [h.1]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootCenterDerivativeLowerCorrected
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootCenterDerivativeLowerCorrected
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootLogPartitionQuadratic
+Source: Erdos625/PhaseRootLogPartitionQuadratic.lean
+Normalized SHA-256: 123390da4d1bf79d0d07c7c33a77a26f1407cb4baacf013c2bb256ff56109828
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootLogPartitionQuadratic
+
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
+Exit code: 0
+Wall time: 0.2 seconds
+Output:
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The derivative's selected log-partition term is eventually quadratically negligible. -/
+theorem eventually_abs_phaseRootLogPartition_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      |Real.log
+        (profileDeficitPartition (phaseNat n)
+          (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)))| ≤
+        q / 32 * (phaseNat n : ℝ) ^ 2 := by
+  have hA : (-1 : ℝ) < 2 / q := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  have hAB : (2 / q : ℝ) ≤ 1 + 2 / q := by linarith
+  obtain ⟨M, _, huniform⟩ :=
+    exists_eventually_forall_mem_Icc_abs_profileDeficitTilt_le hA hAB
+  set C : ℝ :=
+    Real.exp M + Real.exp (M ^ 2 / q) * (1 / (1 - Real.exp (-q / 4))) with hC
+  obtain ⟨N, hN⟩ := (eventually_atTop.1 huniform)
+  have hphaseLarge : ∀ᶠ n : ℕ in atTop, N ≤ phaseNat n := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact_mod_cast hn.trans hphase.1
+  -- The log-partition term is eventually bounded by the constant `C` coming from
+  -- the uniform selected-tilt bound and the Gaussian envelope for the partition.
+  have hlogBound : ∀ᶠ n : ℕ in atTop,
+      |Real.log
+        (profileDeficitPartition (phaseNat n)
+          (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)))| ≤ C := by
+    filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+        hphaseLarge, eventually_two_le_phaseNat] with n hn hlarge hphasePos
+    have htilt := (hN (phaseNat n) hlarge
+      (phaseRootDeficitTarget n) (by
+        simpa [phaseRootDeficitTarget] using hn.2.2)).2
+    have hpartLower := one_le_profileDeficitPartition
+      (phaseNat n) (by omega)
+      (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))
+    have hpartUpper := profileDeficitPartition_le_gaussianEnvelope
+      (phaseNat n) (by omega) htilt
+    rw [abs_of_nonneg (Real.log_nonneg hpartLower)]
+    exact (Real.log_le_sub_one_of_pos (profileDeficitPartition_pos _ _)).trans
+      (by rw [hC]; linarith)
+  -- `phaseNat` grows without bound, so the `q / 32` quadratic eventually dominates `C`.
+  have hquad : ∀ᶠ n : ℕ in atTop, C ≤ q / 32 * (phaseNat n : ℝ) ^ 2 := by
+    have hpt : Tendsto (fun n : ℕ ↦ (phaseNat n : ℝ)) atTop atTop := by
+      apply tendsto_atTop_mono' atTop _ tendsto_logOrder_atTop
+      filter_upwards
+        [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn
+      exact hn.1
+    have hsq : Tendsto (fun n : ℕ ↦ (phaseNat n : ℝ) ^ 2) atTop atTop :=
+      (tendsto_pow_atTop (two_ne_zero)).comp hpt
+    have htend : Tendsto (fun n : ℕ ↦ q / 32 * (phaseNat n : ℝ) ^ 2) atTop atTop :=
+      hsq.const_mul_atTop (div_pos q_pos (by norm_num))
+    exact htend.eventually_ge_atTop C
+  filter_upwards [hlogBound, hquad] with n h1 h2
+  exact h1.trans h2
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootLogPartitionQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootLogPartitionQuadratic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedQuadratic
+Source: Erdos625/PhaseRootDerivativeSelectedQuadratic.lean
+Normalized SHA-256: b8152315c2f97b888ed48b31b34579f0299de854c646a9756b0b7bc160021d9f
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeSelectedQuadratic
+
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
+Exit code: 0
+Wall time: 0.2 seconds
+Output:
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+The complete selected term occurring in the derivative is eventually
+quadratically negligible.
+-/
+theorem eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+        profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          (phaseNat n : ℝ)| ≤
+        q / 16 * (phaseNat n : ℝ) ^ 2 := by
+  have hA : (-1 : ℝ) < 2 / q := by
+    have : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+    linarith
+  have hAB : (2 / q : ℝ) ≤ 1 + 2 / q := by linarith
+  obtain ⟨M, _, huniform⟩ :=
+    exists_eventually_forall_mem_Icc_abs_profileDeficitTilt_le hA hAB
+  obtain ⟨N, hN⟩ := eventually_atTop.1 huniform
+  -- The constant logarithmic-partition envelope coming from the Gaussian bound.
+  set CL : ℝ :=
+    Real.exp M +
+      Real.exp (M ^ 2 / q) * (1 / (1 - Real.exp (-q / 4))) with hCLdef
+  -- The linear-growth threshold ensuring quadratic domination.
+  set K : ℝ := 16 / q * (CL + M) with hKdef
+  -- `phaseNat` eventually exceeds the natural index `N` from the uniform bound.
+  have hphaseN : ∀ᶠ n : ℕ in atTop, N ≤ phaseNat n := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact_mod_cast hn.trans hphase.1
+  -- `phaseNat` eventually exceeds the real threshold `K`.
+  have hphaseK : ∀ᶠ n : ℕ in atTop, K ≤ (phaseNat n : ℝ) := by
+    filter_upwards
+      [tendsto_logOrder_atTop.eventually_ge_atTop K,
+        eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+    exact hn.trans hphase.1
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      hphaseN, hphaseK, eventually_two_le_phaseNat] with n hn hlarge hKle hphasePos
+  -- The deficit target lands in the uniform selected-tilt corridor.
+  have hcorr :
+      phaseRootDeficitTarget n ∈ Set.Icc (2 / q) (1 + 2 / q) := by
+    simpa [phaseRootDeficitTarget] using hn.2.2
+  have htiltbound :=
+    (hN (phaseNat n) hlarge (phaseRootDeficitTarget n) hcorr).2
+  -- Partition corridor: lower bound `1` and Gaussian-envelope upper bound `CL`.
+  have hpartLower :=
+    one_le_profileDeficitPartition (phaseNat n) (by omega)
+      (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))
+  have hpartUpper :=
+    profileDeficitPartition_le_gaussianEnvelope (phaseNat n) (by omega) htiltbound
+  rw [← hCLdef] at hpartUpper
+  have hCLnn : (0 : ℝ) ≤ CL := by linarith
+  -- Uniform bound on the logarithmic-partition piece.
+  have hlogPart :
+      |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)))| ≤ CL := by
+    rw [abs_of_nonneg (Real.log_nonneg hpartLower)]
+    exact (Real.log_le_sub_one_of_pos (profileDeficitPartition_pos _ _)).trans
+      (by linarith)
+  -- Bound on the tilt-linear piece.
+  have hPnn : (0 : ℝ) ≤ (phaseNat n : ℝ) := by positivity
+  have htiltP :
+      |profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          (phaseNat n : ℝ)| ≤ M * (phaseNat n : ℝ) := by
+    rw [abs_mul, abs_of_nonneg hPnn]
+    exact mul_le_mul_of_nonneg_right htiltbound hPnn
+  -- Linear-in-`phaseNat` domination from the growth threshold.
+  have hqDivNn : (0 : ℝ) ≤ q / 16 := div_nonneg q_pos.le (by norm_num)
+  have hstep : CL + M ≤ q / 16 * (phaseNat n : ℝ) := by
+    have hK : q / 16 * K = CL + M := by
+      have hqne : q ≠ 0 := q_pos.ne'
+      rw [hKdef]
+      field_simp
+    calc
+      CL + M = q / 16 * K := hK.symm
+      _ ≤ q / 16 * (phaseNat n : ℝ) := mul_le_mul_of_nonneg_left hKle hqDivNn
+  have hP1 : (1 : ℝ) ≤ (phaseNat n : ℝ) := by exact_mod_cast (by omega : 1 ≤ phaseNat n)
+  have hfinal :
+      CL + M * (phaseNat n : ℝ) ≤ q / 16 * (phaseNat n : ℝ) ^ 2 := by
+    nlinarith [mul_le_mul_of_nonneg_right hstep hPnn,
+      mul_nonneg hCLnn (by linarith : (0 : ℝ) ≤ (phaseNat n : ℝ) - 1)]
+  calc
+    |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+        profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          (phaseNat n : ℝ)| ≤
+        |Real.log
+          (profileDeficitPartition (phaseNat n)
+            (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n)))| +
+        |profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+          (phaseNat n : ℝ)| := abs_sub _ _
+    _ ≤ CL + M * (phaseNat n : ℝ) := by linarith
+    _ ≤ q / 16 * (phaseNat n : ℝ) ^ 2 := hfinal
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeSelectedQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedQuadratic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.QuadraticSlopeAssemblyArithmetic
+Source: Erdos625/QuadraticSlopeAssemblyArithmetic.lean
+Normalized SHA-256: c7744e2e7f624646760616de1685b492cc1fd1ea6ac38348d53090804f702184
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_QuadraticSlopeAssemblyArithmetic
+
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
+
+namespace Erdos625
+
+set_option autoImplicit false
+
+/--
+Three errors bounded by one sixteenth of the positive `q`-quadratic scale
+leave at least one quarter of that quadratic scale in the main term.
+-/
+theorem quadraticMain_sub_three_errors_ge_quarter
+    {a selected centerLog factorialError : ℝ}
+    (ha : 0 ≤ a)
+    (hselected : |selected| ≤ q / 16 * a ^ 2)
+    (hcenterLog : |centerLog| ≤ q / 16 * a ^ 2)
+    (hfactorialNonneg : 0 ≤ factorialError)
+    (hfactorial : factorialError ≤ q / 16 * a ^ 2) :
+    q / 4 * a ^ 2 ≤
+      q / 2 * a ^ 2 + a + selected - centerLog - factorialError := by
+  have hsel := (abs_le.mp hselected).1
+  have hcen := (abs_le.mp hcenterLog).2
+  nlinarith [q_pos, ha, hsel, hcen, hfactorialNonneg, hfactorial, sq_nonneg a,
+    mul_nonneg q_pos.le (sq_nonneg a)]
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_QuadraticSlopeAssemblyArithmetic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.QuadraticSlopeAssemblyArithmetic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
+Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
+Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem unrestrictedPhaseObjective_div_eq_deficitCentered
+    (n : ℕ) {parts : ℝ} (hparts : parts ≠ 0) :
+    unrestrictedPhaseObjective n parts / parts =
+      (n : ℝ) * Real.log (n : ℝ) / parts - (n : ℝ) / parts + 1 -
+        Real.log parts +
+        (profileDeficitAffineA (phaseNat n) +
+          profileDeficitAffineB (phaseNat n) *
+            profileDeficitTarget (phaseNat n) (n : ℝ) parts +
+          Real.log
+            (profileDeficitPartition (phaseNat n)
+              (profileDeficitTilt (phaseNat n)
+                (profileDeficitTarget (phaseNat n) (n : ℝ) parts))) -
+          profileDeficitTilt (phaseNat n)
+              (profileDeficitTarget (phaseNat n) (n : ℝ) parts) *
+            profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
+  rw [unrestrictedPhaseObjective,
+    profileDualOptimalValue_eq_profileDualUpper (phaseNat n + 1) hparts]
+  have htilt :
+      profileDualTilt (phaseNat n + 1) ((n : ℝ) / parts) =
+        profileDeficitAffineB (phaseNat n) -
+          profileDeficitTilt (phaseNat n)
+            (profileDeficitTarget (phaseNat n) (n : ℝ) parts) := by
+    rw [profileDeficitAffineB_sub_profileDeficitTilt]
+    congr 1
+    unfold profileDeficitTarget
+    ring
+  rw [htilt, profileDualUpper_eq_deficitCentered (phaseNat n) hparts]
+  field_simp
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseObjectiveDeficitDecomposition
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
+Source: Erdos625/ColoringProfilePhaseDerivativeLogPartitionEnvelope.lean
+Normalized SHA-256: b9d2c31254538a97555e7578cfe9d5cd581b506253fa97b3b31b3fa039022be4
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+theorem log_profileDeficitPartition_mem_Icc_gaussianEnvelope
+    (alpha : ℕ) (halpha : 0 < alpha) {lambda M : ℝ}
+    (hlambda : |lambda| ≤ M) :
+    Real.log (profileDeficitPartition alpha lambda) ∈
+      Icc 0
+        (Real.log
+          (Real.exp M +
+            Real.exp (M ^ 2 / q) *
+              (1 / (1 - Real.exp (-q / 4))))) := by
+  constructor
+  · exact Real.log_nonneg
+      (one_le_profileDeficitPartition alpha halpha lambda)
+  · exact Real.log_le_log
+      (profileDeficitPartition_pos alpha lambda)
+      (profileDeficitPartition_le_gaussianEnvelope alpha halpha hlambda)
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_ColoringProfilePhaseDerivativeLogPartitionEnvelope
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
 ========================================================================== -/
 
 /- ==========================================================================
@@ -25806,153 +26336,6 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_ColoringProfileDeficitUniformMeanConvergence
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.ColoringProfileDeficitUniformMeanConvergence
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.DeficitTargetDomain
-Source: Erdos625/DeficitTargetDomain.lean
-Normalized SHA-256: bc0651cffbbffb6bf7cdb83fed0a5f0aa83efa09843d22d300c1cbdb144c35ce
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
-
-namespace Erdos625
-
-open Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- The deficit-target corridor gives the corresponding size-coordinate
-corridor and forces the phase support endpoint to be at least two. -/
-theorem phaseDeficitTarget_domain_coordinates
-    {n : ℕ} {k : ℝ}
-    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
-      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
-    (n : ℝ) / k ∈
-        Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ)) ∧
-      2 ≤ phaseNat n + 1 := by
-  rw [Set.mem_Ioo] at hT
-  unfold profileDeficitTarget at hT
-  obtain ⟨h1, h2⟩ := hT
-  have hpos : (0 : ℝ) < (phaseNat n : ℝ) := by linarith
-  have hpn : 0 < phaseNat n := by exact_mod_cast hpos
-  refine ⟨?_, ?_⟩
-  · rw [Set.mem_Ioo]
-    push_cast
-    constructor <;> linarith
-  · omega
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_DeficitTargetDomain
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.DeficitTargetDomain
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.DeficitDerivativeComposition
-Source: Erdos625/DeficitDerivativeComposition.lean
-Normalized SHA-256: f2cf153ba2ed4df38bc369410d1464851923ee2606f81b443eeb78acbebf2b91
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
-
-namespace Erdos625
-
-open Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-/-- A deficit-target corridor alone supplies both the admissible size
-coordinate and the positivity of the class-count variable, so the exact
-deficit-coordinate derivative formula applies without a separate `0 < k`
-hypothesis. -/
-theorem unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget
-    {n : ℕ} {k : ℝ}
-    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
-      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
-    deriv (unrestrictedPhaseObjective n) k =
-      profileDeficitAffineA (phaseNat n) +
-        profileDeficitAffineB (phaseNat n) * (phaseNat n : ℝ) -
-        profileDeficitTilt (phaseNat n)
-            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
-          (phaseNat n : ℝ) +
-        Real.log
-          (profileDeficitPartition (phaseNat n)
-            (profileDeficitTilt (phaseNat n)
-              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
-        Real.log k := by
-  obtain ⟨hsize, _⟩ := phaseDeficitTarget_domain_coordinates hT
-  have hk : 0 < k := by
-    rw [Set.mem_Ioo] at hsize
-    by_contra h
-    have hkle : k ≤ 0 := not_lt.mp h
-    have hle : (n : ℝ) / k ≤ 0 :=
-      div_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg n) hkle
-    linarith [hsize.1]
-  exact unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_sizeTarget hk hsize
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_DeficitDerivativeComposition
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.DeficitDerivativeComposition
-========================================================================== -/
-
-/- ==========================================================================
-BEGIN SOURCE MODULE: Erdos625.DerivativeAffineCoreError
-Source: Erdos625/DerivativeAffineCoreError.lean
-Normalized SHA-256: 1ae72d234bba801a4f42652f0db6bad64516818d23f8f5819fd1e87b4835a862
-========================================================================== -/
-section Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
-
-namespace Erdos625
-
-open Set
-
-noncomputable section
-
-set_option autoImplicit false
-
-/--
-After converting the unrestricted phase derivative to deficit coordinates,
-the only error in replacing its affine factorial-log core by the quadratic
-main term is the explicit `factorialLogErrorBound`.
--/
-theorem abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
-    {n : ℕ} {k : ℝ}
-    (hT : profileDeficitTarget (phaseNat n) (n : ℝ) k ∈
-      Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1)) :
-    |deriv (unrestrictedPhaseObjective n) k -
-      (q / 2 * (phaseNat n : ℝ) ^ 2 + (phaseNat n : ℝ) -
-        profileDeficitTilt (phaseNat n)
-            (profileDeficitTarget (phaseNat n) (n : ℝ) k) *
-          (phaseNat n : ℝ) +
-        Real.log
-          (profileDeficitPartition (phaseNat n)
-            (profileDeficitTilt (phaseNat n)
-              (profileDeficitTarget (phaseNat n) (n : ℝ) k))) -
-        Real.log k)| ≤ factorialLogErrorBound (phaseNat n) := by
-  rw [unrestrictedPhaseObjective_deriv_eq_deficitCoordinates_of_deficitTarget hT]
-  obtain ⟨_, h2⟩ := phaseDeficitTarget_domain_coordinates hT
-  have hpn : 0 < phaseNat n := by omega
-  have key := abs_profileDeficitAffineCore_sub_quadratic_le (phaseNat n) hpn
-  convert key using 2
-  ring
-
-end
-
-end Erdos625
-
-end Erdos625SelfContained_Module_Erdos625_DerivativeAffineCoreError
-/- ==========================================================================
-END SOURCE MODULE: Erdos625.DerivativeAffineCoreError
 ========================================================================== -/
 
 /- ==========================================================================
@@ -64012,7 +64395,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: fa576abefa9ad9916637345562e356307fe26871dc0872ab64bbdbc7fe9fcac8
+Normalized SHA-256: 1900b4e201ee00f10e7ce76af4528bdb5c652035cff2ff0546a85674e960ff73
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64940,6 +65323,11 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic
 #print axioms Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic
 #print axioms Erdos625.phaseRootDerivativeSelectedTerm_eq
+#print axioms Erdos625.eventually_abs_phaseRootTilt_mul_phaseNat_le_quadratic
+#print axioms Erdos625.unrestrictedPhaseObjective_deriv_center_lower_corrected
+#print axioms Erdos625.eventually_abs_phaseRootLogPartition_le_quadratic
+#print axioms Erdos625.eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic
+#print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64949,7 +65337,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 92f9431bda280bc862bf0180a4a9920de13af0602c5dcd9813c6046c147d4bb0
+Normalized SHA-256: 1ddb8e0bc7da1e5a24b2bacece45be97f85cbbf43a779566e640cd4e4dc2ff85
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
