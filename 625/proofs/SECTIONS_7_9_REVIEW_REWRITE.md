@@ -73,7 +73,7 @@ For
 with the convention \(0\ln0=0\), one has
 
 \[
- \Phi_T(z)\le-\frac{Y}{5000}
+ \Phi_T(z)\le-\frac{Y}{100}
  \qquad\text{whenever}\qquad
  \frac1{64}\le R\le1.
  \tag{7.21a}
@@ -107,16 +107,16 @@ First suppose \(1/64\le R\le47/100\).  Since \(T\ge2/q\),
 The function
 
 \[
- f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{5000}
+ f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{100}
 \]
 
 is convex on \((0,\infty)\).  Hence its maximum on
 \([1/64,47/100]\) occurs at an endpoint.  Using \(q<0.6932\),
 
 \[
- f(1/64)<-0.053,
+ f(1/64)<-0.0436,
  \qquad
- f(47/100)<-0.010,
+ f(47/100)<-0.0051,
 \]
 
 so \(f(R)<0\) throughout the interval.
@@ -133,16 +133,15 @@ Now suppose \(47/100\le R\le1\).  Since
 Set
 
 \[
- h(R)=R\ln R+(1-q/2+1/200)(1-R).
+ h(R)=R\ln R+(1-q/2+1/100)(1-R).
 \]
 
 This function is convex, \(h(1)=0\), and a direct evaluation gives
-\(h(47/100)<-0.0058\).  Convexity therefore places \(h\) below the chord joining
+\(h(47/100)<-0.0032\).  Convexity therefore places \(h\) below the chord joining
 these endpoint values, so \(h(R)\le0\) on \([47/100,1]\).  Thus
 
 \[
- \Phi_T(z)\le-\frac{1-R}{200}
- \le-\frac{1-R}{5000}.
+ \Phi_T(z)\le-\frac{1-R}{100}.
 \]
 
 Combining the two ranges proves (7.21a).  \(\square\)
@@ -163,7 +162,7 @@ therefore give
 
 \[
  \ln D(\ell)
- \le-\frac{k_{co}\alpha Y}{5000}
+ \le-\frac{k_{co}\alpha Y}{100}
       +Ck_{co}Y\ln(e/Y)+CN.
  \tag{7.24a}
 \]
@@ -535,150 +534,136 @@ no-further-near-cell event.
 
 ---
 
-## Replacement block D: finite cycle expansion in Lemma 9.1
+## Replacement block D: residual-restriction product bound in Lemma 9.1
 
-Replace the compressed discussion surrounding equations (9.15)--(9.18) by the
-following lemmas.
+Replace the cycle decomposition and traversal discussion surrounding equations
+(9.15)--(9.18) by the following two finite lemmas.
 
-### Lemma 9.1A (even subgraphs to a simple-cycle product)
+### Lemma 9.1A (an even matching completion is unique)
 
-Let \(G\) be a finite graph with nonnegative edge weights \((w_e)\).  For every
-even edge set \(F\), fix deterministically an edge-disjoint decomposition
-\(\mathcal D(F)\) into simple cycles.  Then
+Let \(M\) be a matching and let \(R\) be any finite residual edge set.  Write
 
 \[
- \sum_{F\text{ even}}\prod_{e\in F}w_e
- \le
- \prod_{C\text{ simple cycle}}
- \left(1+\prod_{e\in C}w_e\right)
- \le
- \exp\left\{\sum_{C\text{ simple cycle}}\prod_{e\in C}w_e\right\}.
+ \mathcal C_{\rm even}(M,R)
+ =\{F\subseteq M\cup R:\deg_F(v)\text{ is even for every }v\}.
+\]
+
+Then the restriction map
+
+\[
+ \rho:\mathcal C_{\rm even}(M,R)
+ \longrightarrow\mathcal P(R\setminus M),
+ \qquad
+ \rho(F)=F\setminus M,
  \tag{9.15a}
 \]
 
+is injective.
+
 #### Proof
 
-Because the cycles in \(\mathcal D(F)\) are edge-disjoint, they are distinct,
-and
+Suppose \(\rho(F)=\rho(F')\).  Then the symmetric difference
+\(F\mathbin\triangle F'\) is contained in \(M\).  It is also even, because
+symmetric difference preserves vertex parity.  A nonempty subset of a matching
+has degree one at every incident vertex, and therefore cannot be even.  Hence
+\(F\mathbin\triangle F'=\varnothing\), so \(F=F'\).  \(\square\)
+
+Equivalently, once the residual edges are specified, parity forces every
+matching edge that can occur.  Some residual subsets have no even completion,
+but none has two.
+
+### Lemma 9.1B (weighted restriction product)
+
+Let \(q_e\ge0\) for residual edges and put \(q_e=0\) on \(M\).  Then
 
 \[
- \prod_{e\in F}w_e
- =\prod_{C\in\mathcal D(F)}\prod_{e\in C}w_e.
-\]
-
-The map \(F\mapsto\mathcal D(F)\) is injective after forgetting the chosen
-ordering, since the union of the cycles recovers \(F\).  Dropping the
-disjointness condition enlarges the image to all subsets of the finite set of
-simple cycles.  Summing over those subsets gives the first product, and
-\(1+x\le e^x\) gives the second inequality.  \(\square\)
-
-Apply the lemma to \(G=M\cup R\), with matching-edge weight one and residual
-edge weight \(q_e\).  This gives equation (9.15) with no implicit multiplicity
-factor.
-
-### Lemma 9.1B (cycles disjoint from the high matching)
-
-Let \(Q\) be the symmetric weighted adjacency kernel of the residual bipartite
-graph, with edge weights \(q_e\).  If every row and column sum is at most
-\(\tau<1\), then
-
-\[
- \sum_{C:C\cap M=\varnothing}\prod_{e\in C}q_e
- \le
- \frac{n\tau^4}{1-\tau^2}.
- \tag{9.16}
+ \begin{split}
+ \sum_{F\in\mathcal C_{\rm even}(M,R)}
+      \prod_{e\in F\setminus M}q_e
+ &\le
+ \sum_{S\subseteq R\setminus M}\prod_{e\in S}q_e\\
+ &=\prod_{e\in R\setminus M}(1+q_e)
+ \le\exp\left(\sum_e q_e\right).
+ \end{split}
+ \tag{9.15b}
 \]
 
 #### Proof
 
-A residual-only bipartite cycle has even length \(2s\ge4\).  Mark one row
-vertex on the cycle, forget simplicity, and forget the closing constraint.
-For each marked row start, the total mass of all length-\(2s\) walks is at most
-\(\tau^{2s}\) by repeated use of the row-sum norm.  There are at most \(n\)
-possible marked row starts.  Therefore
+Apply Lemma 9.1A and enlarge the image of \(\rho\) to the full power set.  The
+middle identity is the finite subset-product expansion, and the last inequality
+uses \(1+x\le e^x\).  \(\square\)
 
-\[
- \sum_{C:C\cap M=\varnothing}\prod_{e\in C}q_e
- \le n\sum_{s\ge2}\tau^{2s}
- =\frac{n\tau^4}{1-\tau^2}.
-\]
-
-The marking may count a cycle more than once, which is harmless for an upper
-bound.  \(\square\)
-
-### Lemma 9.1C (cycles meeting the high matching)
-
-Let \(M\) be a bipartite matching of size \(h\).  Let \(Q\) be a nonnegative
-symmetric residual kernel on the same row and column vertex sets, zero on
-\(M\), with row-sum norm at most \(\tau<1/3\).  Put
-
-\[
- P=Q+Q^2+Q^3+\cdots,
- \qquad
- b=\|P\|_{\infty}
- \le\frac{\tau}{1-\tau}.
- \tag{9.17a}
-\]
-
-Then
-
-\[
- \sum_{C:C\cap M\ne\varnothing}\prod_{e\in C\setminus M}q_e
- \le2h\sum_{r\ge1}b^r
- =\frac{2hb}{1-b}
- \le C h\tau.
- \tag{9.18a}
-\]
-
-#### Proof
-
-Fix a total order on the oriented matching edges.  For every simple cycle that
-meets \(M\), mark the least oriented matching edge occurring on that cycle.
-This costs at most \(2h\) choices and removes rotation and orientation
-ambiguity.
-
-Suppose the cycle uses \(r\ge1\) matching edges.  Cutting the cycle at all of
-those edges leaves \(r\) nonempty residual paths.  Encode each path by its
-ordered sequence of residual vertices.  Between consecutive residual paths,
-the next matching edge is determined by the current endpoint because \(M\) is
-a matching.  Thus matching traversal is a partial permutation operator of
-row-sum norm one; it introduces no new factor \(h\).
-
-After dropping simplicity, vertex-disjointness, and the final closing
-constraint, the total mass of the first residual path is at most \(b\), and the
-same is true after every deterministic matching transition.  Hence the total
-mass of relaxed codes with exactly \(r\) matching edges is at most
-\(2h b^r\).  Summing over \(r\ge1\) proves (9.18a).  \(\square\)
+The two finite ingredients are already represented in the Lean development by
+`residualRestriction_injective` and
+`finiteInjectiveFamily_product_exp_bound`.
 
 ### Completion of the large-residual branch
 
-Equations (9.12)--(9.14) give
-
-\[
- \Lambda_0\le C U^4/m_0,
- \qquad
- \tau\le C U^3/m_0.
-\]
-
-For \(m_0\ge n/N^6\), one has \(\tau<1/3\) eventually, uniformly over every
-feasible canonical skeleton.  Lemmas 9.1A--9.1C and \(h<2n/U\) therefore yield
+Equation (9.12) and Lemma 9.1B give
 
 \[
  \mathcal A(M,j)
+ \le\exp\left(\Lambda_0+\sum_e q_e\right).
+ \tag{9.16}
+\]
+
+By (9.6),
+
+\[
+ \sum_e q_e
+ =\frac12\sum_{a,b}\theta_{ab}^2+\Lambda_0.
+ \tag{9.17}
+\]
+
+The square sum factorizes exactly:
+
+\[
+ \sum_{a,b}\theta_{ab}^2
+ =\frac{e^2}{m_0^2}
+   \left(\sum_a d_a^2\right)
+   \left(\sum_b(d'_b)^2\right).
+ \tag{9.18}
+\]
+
+Every residual degree is at most \(U\), and both degree sums equal \(m_0\).
+Consequently
+
+\[
+ \sum_a d_a^2\le Um_0,
+ \qquad
+ \sum_b(d'_b)^2\le Um_0,
+ \qquad
+ \sum_{a,b}\theta_{ab}^2\le e^2U^2.
+ \tag{9.18a}
+\]
+
+Combining this with (9.13) yields the uniform one-sided bound
+
+\[
+ \boxed{
+ \mathcal A(M,j)
  \le
- \exp\left[
- C\left\{
-   \frac{U^4}{m_0}
-   +n\tau^4
-   +h\tau
- \right\}
- \right]
- \le\exp(C'N^8).
+ \exp\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
  \tag{9.19}
 \]
 
-This is a one-sided bound.  No lower estimate for \(\mathcal A(M,j)\) is used
-or asserted.
+If \(m_0\ge n/N^6\), then \(U=O(N)\) and
+\(U^4/m_0=O(N^{10}/n)=o(1)\).  Thus
+
+\[
+ \mathcal A(M,j)\le\exp(C'N^2)
+ =\exp\{o(n/N^4)\},
+ \tag{9.19a}
+\]
+
+uniformly over every feasible canonical skeleton.
+
+This argument removes the simple-cycle decomposition, residual-only walk sum,
+mixed matching-cycle encoding, the parameter \(\tau\), and the factor
+\(h\tau\).  It is deliberately coarser than the bounded-cell estimate in the
+separate overlap note, but it is far sharper than needed for Proposition 9.2.
+No lower estimate for \(\mathcal A(M,j)\) is asserted or used.
 
 ---
 
@@ -690,7 +675,7 @@ When incorporating these blocks into the canonical Markdown and generated TeX:
    paragraph leading to (7.25);
 2. insert Proposition 8.0 and Definition 8.0A immediately after (8.3);
 3. replace the current Lemma 8.3 by Lemmas 8.3A--8.3D and Proposition 8.4;
-4. insert Lemmas 9.1A--9.1C between (9.14) and the large-residual conclusion;
+4. replace the cycle/traversal passage by Lemmas 9.1A--9.1B and the global square-sum estimate;
 5. rename the two unrelated uses of `B_n`;
 6. regenerate the TeX and PDFs from the canonical source;
 7. rerun display-tag, citation, finite-diagnostic, and formalization-status
