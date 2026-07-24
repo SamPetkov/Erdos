@@ -90,6 +90,55 @@ def certify_omitted_weight_bounds() -> None:
     assert 50 * high_num_hi < denominator_lo      # H(3q) < 1/50
 
 
+def certify_three_support_certificate() -> None:
+    """Certify a positive entropy advantage for support {2,3,5}."""
+    # At lambda=(29/10)q the S3 exponents are 38,42,20.
+    # Its mean is below 2/q, so the target tilt lies to the right.
+    numerator_hi = 2 * X_HI**38 + 3 * X_HI**42 + 5 * X_HI**20
+    denominator_lo = X_LO**38 + X_LO**42 + X_LO**20
+    assert Q_HI * numerator_hi < 2 * denominator_lo
+
+    # At lambda=(21/5)q the S3 exponents are 64,81,85.
+    # Its mean is above 1+2/q, so the target tilt lies to the left.
+    lower_sum = Fraction(0)
+    for i, exponent in ((2, 64), (3, 81), (5, 85)):
+        coefficient = Q_LO * (i - 1) - 2
+        x_power = X_HI**exponent if coefficient < 0 else X_LO**exponent
+        lower_sum += coefficient * x_power
+    assert lower_sum > 0
+
+    # Low omitted ratio at 2.9q: after division by the deficit -1 weight,
+    # low exponents are 0,34,58 and retained exponents are 72,76,54.
+    low_29_hi = 1 + X_HI**34 + X_HI**58
+    kept_29_lo = X_LO**72 + X_LO**76 + X_LO**54
+    assert 5 * low_29_hi < kept_29_lo
+
+    # At 3.5q the retained exponents are 50,60,50.  The first high
+    # exponent is 30 and subsequent ratios are at most x^(-30).
+    kept_35_lo = 2 * X_LO**50 + X_LO**60
+    high_35_hi = X_HI**30 / (1 - X_LO**(-30))
+    assert 25 * high_35_hi < 2 * kept_35_lo
+
+    # The low omitted ratio at 3.5q is also below 2/25.
+    low_35_hi = X_LO**(-40) + 1 + X_HI**30
+    assert 25 * low_35_hi < 2 * kept_35_lo
+
+    # At 4.2q the high tail begins with exponents 72,49,16; after that
+    # every ratio is at most x^(-43).  This sharper split proves H<1/4.
+    kept_42_lo = X_LO**64 + X_LO**81 + X_LO**85
+    high_42_hi = (
+        X_HI**72 + X_HI**49 + X_HI**16 / (1 - X_LO**(-43))
+    )
+    assert 4 * high_42_hi < kept_42_lo
+
+    # The omitted deficit-4 ratio is below 5/8 at the upper bracket.
+    assert 8 * X_HI**88 < 5 * kept_42_lo
+
+    # The S3 mean at the upper bracket is below 4, so the deficit-4
+    # ratio is increasing throughout the relevant tilt interval.
+    assert 2 * X_LO**64 + X_LO**81 > X_HI**85
+
+
 def value_function(support: Sequence[int], target: float) -> tuple[float, float]:
     """Return (tilt, entropy-quadratic value) for a finite support."""
     def moments(lam: float) -> tuple[float, float]:
@@ -149,7 +198,10 @@ def scan_supports() -> None:
     print(f"  proposed certificate gamma  = {new_gamma:.12f}")
     print(f"  numerical S4 minimum         = {actual_s4:.12f}")
     print(f"  current displayed constant   = {q*q*old_gamma/32:.12f}")
+    three_gamma = math.log(400 / 391)
     print(f"  carry-(5.11)+new certificate = {q*q*new_gamma/8:.12f}")
+    print(f"  proved S3 certificate gamma  = {three_gamma:.12f}")
+    print(f"  carry-(5.11)+S3 certificate  = {q*q*three_gamma/8:.12f}")
 
 
 def main() -> None:
@@ -157,6 +209,7 @@ def main() -> None:
     certify_tenth_root_interval()
     certify_tilt_bracket()
     certify_omitted_weight_bounds()
+    certify_three_support_certificate()
     print("EXACT CERTIFICATE CHECKS: PASS")
     scan_supports()
 
