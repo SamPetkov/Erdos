@@ -21296,7 +21296,7 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeQuadraticLower
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
 Source: Erdos625/PhaseRootDisplacementScale.lean
-Normalized SHA-256: cbbad86d412e3763b0fc70e95a063e68e05a06c1032e0a33c8d92eeae5d54e57
+Normalized SHA-256: e540403c71be202b87fdb36420b9b7ceea263e42bba6889a4151712b874ab198
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootDisplacementScale
 
@@ -21307,6 +21307,10 @@ open Filter Asymptotics
 noncomputable section
 
 set_option autoImplicit false
+
+/-- The natural manuscript-scale radius around the reference phase center. -/
+noncomputable def phaseRootGapRadius (n : ℕ) : ℝ :=
+  phaseRootCenter n / (phaseNat n : ℝ) ^ 2
 
 /--
 The inverse quadratic slope scale at the reference center has exactly the
@@ -21332,6 +21336,13 @@ theorem phaseRootCenter_div_phaseNat_sq_isTheta_gapScale :
     funext n; ring
   rw [hEq] at hDiv
   simpa only [phaseRootCenter] using hDiv
+
+/-- The named phase-root corridor radius has order `n / (logOrder n)^3`. -/
+theorem phaseRootGapRadius_isTheta_gapScale :
+    phaseRootGapRadius =Θ[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
+  simpa only [phaseRootGapRadius] using
+    phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 
 end
 
@@ -65477,7 +65488,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: c2f889cbacf92f0a13fde6db5800f726ebc15a9df291c37d3b53db4f5dec9001
+Normalized SHA-256: d15657a22af6b359612c2655b8116e63d45452e042bcc92b1d52c3fc2ea33f1c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -66412,6 +66423,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 #print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
+#print axioms Erdos625.phaseRootGapRadius_isTheta_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain

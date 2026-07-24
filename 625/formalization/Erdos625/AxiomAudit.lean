@@ -1283,6 +1283,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 #print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
+#print axioms Erdos625.phaseRootGapRadius_isTheta_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain

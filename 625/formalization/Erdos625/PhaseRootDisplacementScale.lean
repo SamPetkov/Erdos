@@ -10,6 +10,10 @@ noncomputable section
 
 set_option autoImplicit false
 
+/-- The natural manuscript-scale radius around the reference phase center. -/
+noncomputable def phaseRootGapRadius (n : ℕ) : ℝ :=
+  phaseRootCenter n / (phaseNat n : ℝ) ^ 2
+
 /--
 The inverse quadratic slope scale at the reference center has exactly the
 manuscript order `n / (logOrder n)^3`.
@@ -34,6 +38,13 @@ theorem phaseRootCenter_div_phaseNat_sq_isTheta_gapScale :
     funext n; ring
   rw [hEq] at hDiv
   simpa only [phaseRootCenter] using hDiv
+
+/-- The named phase-root corridor radius has order `n / (logOrder n)^3`. -/
+theorem phaseRootGapRadius_isTheta_gapScale :
+    phaseRootGapRadius =Θ[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
+  simpa only [phaseRootGapRadius] using
+    phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 
 end
 
