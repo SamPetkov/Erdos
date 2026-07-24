@@ -20295,6 +20295,238 @@ END SOURCE MODULE: Erdos625.PhaseRootObjectiveCenterBound
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootCenterOpenCorridor
+Source: Erdos625/PhaseRootCenterOpenCorridor.lean
+Normalized SHA-256: 57c359038bfcf1d833ac3a6997af2022731e69f491ed37cb9afbad80038b347b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootCenterOpenCorridor
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+Eventually the exact deficit target at the reference center lies in the open
+finite-support domain needed by the derivative formula.
+-/
+theorem eventually_phaseRootCenter_deficitTarget_mem_open :
+    ∀ᶠ n : ℕ in atTop,
+      profileDeficitTarget (phaseNat n) (n : ℝ) (phaseRootCenter n) ∈
+        Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1) := by
+  have hqLower : (1 / 2 : ℝ) < q :=
+    (by norm_num : (1 / 2 : ℝ) < 0.6931471803).trans Real.log_two_gt_d9
+  have hqUpper : q < 2 := Real.log_two_lt_d9.trans (by norm_num)
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+    eventually_five_lt_phaseNat] with n hcorr hfive
+  obtain ⟨-, -, hmem⟩ := hcorr
+  rw [Set.mem_Icc] at hmem
+  obtain ⟨hlo, hhi⟩ := hmem
+  have h1 : (1 : ℝ) < 2 / q := by rw [lt_div_iff₀ q_pos]; linarith
+  have h2 : 2 / q < 4 := by rw [div_lt_iff₀ q_pos]; linarith
+  have hsixR : (6 : ℝ) ≤ (phaseNat n : ℝ) := by
+    have hsix : (6 : ℕ) ≤ phaseNat n := hfive
+    exact_mod_cast hsix
+  rw [profileDeficitTarget, Set.mem_Ioo]
+  refine ⟨by linarith, by linarith⟩
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootCenterOpenCorridor
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootCenterOpenCorridor
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseFactorialErrorQuadratic
+Source: Erdos625/PhaseFactorialErrorQuadratic.lean
+Normalized SHA-256: 5e90b5f904ce4ce1fd097f9e2685b1fc165729bc1896b39a711dacce6934b24c
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseFactorialErrorQuadratic
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+The explicit factorial-log error is eventually at most one sixteenth of the
+positive `q`-quadratic phase scale.
+-/
+theorem eventually_factorialLogErrorBound_phaseNat_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      factorialLogErrorBound (phaseNat n) ≤
+        q / 16 * (phaseNat n : ℝ) ^ 2 := by
+  have hM : ∀ᶠ m : ℕ in atTop,
+      factorialLogErrorBound m ≤ q / 16 * (m : ℝ) ^ 2 := by
+    filter_upwards [eventually_ge_atTop 100] with m hm
+    have hmR : (100 : ℝ) ≤ (m : ℝ) := by exact_mod_cast hm
+    have hlog : Real.log ((m + 1 : ℕ) : ℝ) ≤ (m : ℝ) := by
+      have h := Real.log_le_sub_one_of_pos
+        (x := ((m + 1 : ℕ) : ℝ)) (by positivity)
+      push_cast at h ⊢
+      linarith
+    have hq : (0.6931471803 : ℝ) < q := Real.log_two_gt_d9
+    have hEq : factorialLogErrorBound m =
+        Real.log ((m + 1 : ℕ) : ℝ) + 4 := rfl
+    rw [hEq]
+    nlinarith [hlog, hq, hmR,
+      mul_nonneg (by linarith : (0 : ℝ) ≤ (m : ℝ) - 100)
+        (by linarith : (0 : ℝ) ≤ (m : ℝ)),
+      mul_nonneg (by linarith : (0 : ℝ) ≤ q - 0.6931471803)
+        (by positivity : (0 : ℝ) ≤ (m : ℝ) ^ 2)]
+  have hle : (logOrder : ℕ → ℝ) ≤ᶠ[atTop]
+      fun n : ℕ ↦ (phaseNat n : ℝ) := by
+    filter_upwards
+      [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn
+    exact hn.1
+  have hphaseReal : Tendsto (fun n : ℕ ↦ (phaseNat n : ℝ)) atTop atTop :=
+    tendsto_atTop_mono' atTop hle tendsto_logOrder_atTop
+  have hphase : Tendsto (fun n : ℕ ↦ phaseNat n) atTop atTop := by
+    rwa [tendsto_natCast_atTop_iff] at hphaseReal
+  exact hphase.eventually hM
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseFactorialErrorQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseFactorialErrorQuadratic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseSelectedDeficitQuadratic
+Source: Erdos625/PhaseSelectedDeficitQuadratic.lean
+Normalized SHA-256: 2e51239f7b5abae0bb9968852441559094d199a7080db8e19b0c6da96fd98d60
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseSelectedDeficitQuadratic
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+The selected deficit contribution is eventually negligible compared with the
+positive quadratic phase scale, in the explicit form needed by later
+assemblies.
+-/
+theorem eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      |phaseRootSelectedDeficitTerm n| ≤
+        q / 16 * (phaseNat n : ℝ) ^ 2 := by
+  obtain ⟨C, hC⟩ := (phaseRootSelectedDeficitTerm_isBigO_one).bound
+  have hPhaseTop : Tendsto (fun n : ℕ ↦ (phaseNat n : ℝ)) atTop atTop := by
+    refine tendsto_atTop_mono' atTop ?_ tendsto_logOrder_atTop
+    filter_upwards [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder]
+      with n hn
+    exact hn.1
+  have hQuadTop :
+      Tendsto (fun n : ℕ ↦ q / 16 * (phaseNat n : ℝ) ^ 2) atTop atTop := by
+    apply Tendsto.const_mul_atTop (div_pos q_pos (by norm_num))
+    exact (tendsto_pow_atTop (by norm_num)).comp hPhaseTop
+  filter_upwards [hC, hQuadTop.eventually_ge_atTop C] with n hn hge
+  simp only [Real.norm_eq_abs, norm_one, mul_one] at hn
+  exact hn.trans hge
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseSelectedDeficitQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseSelectedDeficitQuadratic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootCenterLogQuadratic
+Source: Erdos625/PhaseRootCenterLogQuadratic.lean
+Normalized SHA-256: b9ab16329d5cb6d628820f6c7df1332391a776957b12c16dc366b53affae1d6b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootCenterLogQuadratic
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+The logarithm of the reference part-count center is eventually negligible
+compared with the positive quadratic phase scale, in an explicit one-sided
+form.
+-/
+theorem eventually_abs_log_phaseRootCenter_le_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      |Real.log (phaseRootCenter n)| ≤
+        q / 16 * (phaseNat n : ℝ) ^ 2 := by
+  obtain ⟨C, hCpos, hWith⟩ :=
+    logOrder_sub_log_phaseRootCenter_isBigO.exists_pos
+  have hLL : ∀ᶠ n : ℕ in atTop, ‖logLogOrder n‖ ≤ 1 * ‖logOrder n‖ :=
+    logLogOrder_isLittleO_logOrder.bound (by norm_num : (0 : ℝ) < 1)
+  have hThresh : ∀ᶠ n : ℕ in atTop,
+      (16 * (1 + C) / q) ≤ logOrder n :=
+    tendsto_logOrder_atTop.eventually_ge_atTop _
+  have hPos : ∀ᶠ n : ℕ in atTop, 0 < logOrder n :=
+    tendsto_logOrder_atTop.eventually_gt_atTop 0
+  filter_upwards [hWith.bound, hLL,
+    eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+    hThresh, hPos] with n hb hll hphase hthr hpos
+  set L := logOrder n with hLdef
+  set P := (phaseNat n : ℝ) with hPdef
+  set M := Real.log (phaseRootCenter n) with hMdef
+  have hq : (0 : ℝ) < q := q_pos
+  have hLnorm : ‖L‖ = L := by rw [Real.norm_eq_abs, abs_of_pos hpos]
+  have hll' : ‖logLogOrder n‖ ≤ L := by rw [← hLnorm]; linarith [hll]
+  have hb' : |L - M| ≤ C * L := by
+    have hbb : ‖L - M‖ ≤ C * ‖logLogOrder n‖ := hb
+    rw [Real.norm_eq_abs] at hbb
+    calc
+      |L - M| ≤ C * ‖logLogOrder n‖ := hbb
+      _ ≤ C * L := by nlinarith [hll', hCpos.le]
+  have h1 : |M| ≤ (1 + C) * L := by
+    rw [abs_le] at hb' ⊢
+    obtain ⟨hlo, hhi⟩ := hb'
+    exact ⟨by nlinarith [hpos.le], by nlinarith [hpos.le]⟩
+  have h2 : L ≤ P := hphase.1
+  have Pnonneg : (0 : ℝ) ≤ P := by
+    rw [hPdef]
+    exact Nat.cast_nonneg _
+  have hkey : 16 * (1 + C) ≤ P * q := by
+    have hPge : 16 * (1 + C) / q ≤ P := le_trans hthr h2
+    rw [div_le_iff₀ hq] at hPge
+    linarith
+  have hPmul : (1 + C) * P ≤ q / 16 * P ^ 2 := by
+    nlinarith [hkey, Pnonneg]
+  calc
+    |M| ≤ (1 + C) * L := h1
+    _ ≤ (1 + C) * P := by nlinarith [h2, hCpos.le]
+    _ ≤ q / 16 * P ^ 2 := hPmul
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootCenterLogQuadratic
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootCenterLogQuadratic
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -63735,7 +63967,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: cafaf6598232cdea8c332df4570f30f53b2b5e931ca820f307695648f0b575e0
+Normalized SHA-256: c33e8eae48e792ac7ef250258a1d3c4a032a6e7d8dddb685ac34fa708b039547
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -64658,6 +64890,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointMultiplicity_uniform_displacement
 #print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
 #print axioms Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
+#print axioms Erdos625.eventually_phaseRootCenter_deficitTarget_mem_open
+#print axioms Erdos625.eventually_factorialLogErrorBound_phaseNat_le_quadratic
+#print axioms Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic
+#print axioms Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -64667,7 +64903,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 725fad5591b8ea9b6014f273b6711b3a3cf475b7d70cfc933255da01dc7189b8
+Normalized SHA-256: 956d4e4cd9157bfdc37c749049963261e5afd2a1722883cc489a0e51712df4e8
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

@@ -89,6 +89,10 @@ import Erdos625.PhaseRootStirlingResidualBound
 import Erdos625.PhaseRootScalarBound
 import Erdos625.PhaseRootSelectedDeficitBound
 import Erdos625.PhaseRootObjectiveCenterBound
+import Erdos625.PhaseRootCenterOpenCorridor
+import Erdos625.PhaseFactorialErrorQuadratic
+import Erdos625.PhaseSelectedDeficitQuadratic
+import Erdos625.PhaseRootCenterLogQuadratic
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -1254,3 +1258,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.midpointMultiplicity_uniform_displacement
 #print axioms Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower
 #print axioms Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le
+#print axioms Erdos625.eventually_phaseRootCenter_deficitTarget_mem_open
+#print axioms Erdos625.eventually_factorialLogErrorBound_phaseNat_le_quadratic
+#print axioms Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic
+#print axioms Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic
