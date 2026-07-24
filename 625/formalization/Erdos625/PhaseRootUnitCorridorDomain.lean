@@ -86,7 +86,7 @@ theorem eventually_phaseRoot_unitCorridor_domain :
       nlinarith [hA, hB, hC]
     rw [hceq]
     rw [show ((phaseNat n : ℝ) + 1) * ((n : ℝ) / s0 - 1) =
-        (((phaseNat n : ℝ) + 1) * ((n : ℝ) - s0)) / s0 by field_simp <;> ring]
+        (((phaseNat n : ℝ) + 1) * ((n : ℝ) - s0)) / s0 by field_simp]
     rw [lt_div_iff₀ hs0pos]
     exact key
   have hcge2 : (2 : ℝ) ≤ phaseRootCenter n := by

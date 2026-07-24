@@ -21345,7 +21345,7 @@ END SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootUnitCorridorDomain
 Source: Erdos625/PhaseRootUnitCorridorDomain.lean
-Normalized SHA-256: d8c7f6e695834f648d45846e80e044097f27123cd267184bd3a9bc87e09390a7
+Normalized SHA-256: f00f6a7639b9e8216bff6797de82da49b78f06c28ffdbf4743a6dd3f23f6a9f5
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootUnitCorridorDomain
 
@@ -21433,7 +21433,7 @@ theorem eventually_phaseRoot_unitCorridor_domain :
       nlinarith [hA, hB, hC]
     rw [hceq]
     rw [show ((phaseNat n : ℝ) + 1) * ((n : ℝ) / s0 - 1) =
-        (((phaseNat n : ℝ) + 1) * ((n : ℝ) - s0)) / s0 by field_simp <;> ring]
+        (((phaseNat n : ℝ) + 1) * ((n : ℝ) - s0)) / s0 by field_simp]
     rw [lt_div_iff₀ hs0pos]
     exact key
   have hcge2 : (2 : ℝ) ≤ phaseRootCenter n := by
