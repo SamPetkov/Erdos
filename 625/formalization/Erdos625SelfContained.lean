@@ -21343,6 +21343,65 @@ END SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarOverSlopeNegligible
+Source: Erdos625/PhaseRootScalarOverSlopeNegligible.lean
+Normalized SHA-256: 23830d51b65d99ba1f2f0da32258233427d67de6b817c24f9432972303cbb29e
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarOverSlopeNegligible
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- The scalar correction, after division by the quadratic slope scale, is
+negligible relative to the manuscript gap scale. -/
+theorem phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale :
+    (fun n : ℕ ↦ phaseRootScalarTerm n / (phaseNat n : ℝ) ^ 2) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
+  have h1 : phaseRootScalarTerm =O[atTop] logLogOrder :=
+    phaseRootScalarTerm_isBigO_logLogOrder
+  have hPhaseSq : (fun n : ℕ ↦ (phaseNat n : ℝ) ^ 2) =Θ[atTop]
+      (fun n : ℕ ↦ (logOrder n) ^ 2) := phaseNat_isTheta_logOrder.pow 2
+  have hFG : (fun n : ℕ ↦ phaseRootScalarTerm n * ((phaseNat n : ℝ) ^ 2)⁻¹)
+      =O[atTop] (fun n : ℕ ↦ logLogOrder n * ((logOrder n) ^ 2)⁻¹) :=
+    h1.mul hPhaseSq.inv.isBigO
+  have hlogsq : (fun n : ℕ ↦ logOrder n * logOrder n) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ)) := by
+    have h := (Real.isLittleO_pow_log_id_atTop (n := 2)).comp_tendsto
+      (tendsto_natCast_atTop_atTop (R := ℝ))
+    simpa [logOrder, Function.comp_def, pow_two] using h
+  have htrans : (fun n : ℕ ↦ logLogOrder n * logOrder n) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ)) :=
+    (logLogOrder_isLittleO_logOrder.mul_isBigO
+      (isBigO_refl (fun n : ℕ ↦ logOrder n) atTop)).trans hlogsq
+  have hmul := htrans.mul_isBigO
+    (isBigO_refl (fun n : ℕ ↦ ((logOrder n) ^ 3)⁻¹) atTop)
+  have hG : (fun n : ℕ ↦ logLogOrder n * ((logOrder n) ^ 2)⁻¹) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) * ((logOrder n) ^ 3)⁻¹) := by
+    refine hmul.congr' ?_ EventuallyEq.rfl
+    filter_upwards [tendsto_logOrder_atTop.eventually_gt_atTop (0 : ℝ)] with n hlog
+    have hne : logOrder n ≠ 0 := ne_of_gt hlog
+    field_simp
+  have hfinal :
+      (fun n : ℕ ↦ phaseRootScalarTerm n * ((phaseNat n : ℝ) ^ 2)⁻¹) =o[atTop]
+        (fun n : ℕ ↦ (n : ℝ) * ((logOrder n) ^ 3)⁻¹) :=
+    hFG.trans_isLittleO hG
+  simpa only [div_eq_mul_inv] using hfinal
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootScalarOverSlopeNegligible
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootScalarOverSlopeNegligible
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootUnitCorridorDomain
 Source: Erdos625/PhaseRootUnitCorridorDomain.lean
 Normalized SHA-256: f00f6a7639b9e8216bff6797de82da49b78f06c28ffdbf4743a6dd3f23f6a9f5
@@ -64755,7 +64814,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e61959dd74a1985ee3cb067e8499ce870f6cc1e2674ee7cc680f6ee3a76b24d9
+Normalized SHA-256: 2ac529a4d1920c45cc5c27cb45a991219bc0b1008c1f67c4605f4464a6c3e6a4
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -65690,6 +65749,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 #print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
+#print axioms Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
 
@@ -65701,7 +65761,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 7cf8223bbc475d4fa68c065f25b6ffa06c72b69927ee433934fcddf38c2d8d6f
+Normalized SHA-256: f9b79db11aca3e79d07cc022ea71a390c797c5959d76f8193d9975210c1136ab
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
