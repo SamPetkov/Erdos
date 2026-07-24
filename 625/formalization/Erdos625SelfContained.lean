@@ -23376,6 +23376,159 @@ END SOURCE MODULE: Erdos625.PhaseRootGapCorridorSignedDomain
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootGapCorridorTargetConvergence
+Source: Erdos625/PhaseRootGapCorridorTargetConvergence.lean
+Normalized SHA-256: c61a5af404651db157c2f003bd7e7c4e71c0f85b132d0ab8b2fd3e59b1b5de69
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootGapCorridorTargetConvergence
+
+namespace Erdos625
+
+open Filter Set
+
+noncomputable section
+
+set_option autoImplicit false
+
+/-- Across the full manuscript-scale phase-root corridor, the four-size target
+is uniformly asymptotic to its exact value at the reference center. -/
+theorem eventually_uniform_phaseRoot_gapCorridor_target_close :
+    ∀ epsilon > 0,
+      ∀ᶠ n : ℕ in atTop,
+        ∀ s ∈ Icc (phaseRootCenter n - phaseRootGapRadius n)
+            (phaseRootCenter n + phaseRootGapRadius n),
+          |fourSizeTarget n (phaseNat n) s -
+              (1 + 2 / q - phaseDelta n)| < epsilon := by
+  intro epsilon hepsilon
+  -- The uniform gap bound tends to zero.
+  have hphasetop : Tendsto (fun n : ℕ => (phaseNat n : ℝ)) atTop atTop := by
+    refine tendsto_atTop_mono' atTop ?_ tendsto_logOrder_atTop
+    filter_upwards [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder]
+      with n h using h.1
+  have hmaj : Tendsto (fun n : ℕ => 2 * (phaseNat n : ℝ)⁻¹) atTop (nhds 0) := by
+    have h0 := hphasetop.inv_tendsto_atTop
+    simpa using h0.const_mul (2 : ℝ)
+  have htend :
+      Tendsto (fun n : ℕ => phaseRootS0 n / ((phaseNat n : ℝ) ^ 2 - 1))
+        atTop (nhds 0) := by
+    apply squeeze_zero' ?_ ?_ hmaj
+    · filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+        eventually_five_lt_phaseNat] with n hdom hα
+      have hs0 : 0 < phaseRootS0 n := hdom.2.1
+      have hαR : (2 : ℝ) ≤ (phaseNat n : ℝ) := by
+        have h5 : (5 : ℕ) < phaseNat n := hα
+        have : (2 : ℕ) ≤ phaseNat n := by omega
+        exact_mod_cast this
+      have hden : 0 < (phaseNat n : ℝ) ^ 2 - 1 := by nlinarith [hαR]
+      exact div_nonneg hs0.le hden.le
+    · filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+        eventually_five_lt_phaseNat] with n hdom hα
+      obtain ⟨hPD, hs0, _⟩ := hdom
+      have hαR : (2 : ℝ) ≤ (phaseNat n : ℝ) := by
+        have h5 : (5 : ℕ) < phaseNat n := hα
+        have : (2 : ℕ) ≤ phaseNat n := by omega
+        exact_mod_cast this
+      have hαpos : 0 < (phaseNat n : ℝ) := by linarith
+      have hden : 0 < (phaseNat n : ℝ) ^ 2 - 1 := by nlinarith [hαR]
+      -- phaseRootS0 n ≤ phaseNat n
+      have hs0le : phaseRootS0 n ≤ (phaseNat n : ℝ) := by
+        rw [phaseRootS0, alphaZero_eq_phaseNat_add_delta hPD]
+        have h2q : (0 : ℝ) < 2 / q := div_pos (by norm_num) q_pos
+        linarith [phaseDelta_lt_one n]
+      -- phaseRootS0/(α²-1) ≤ 2/α
+      rw [div_le_iff₀ hden]
+      rw [show (2 : ℝ) * (phaseNat n : ℝ)⁻¹ * ((phaseNat n : ℝ) ^ 2 - 1)
+            = 2 * ((phaseNat n : ℝ) ^ 2 - 1) / (phaseNat n : ℝ) by
+          field_simp]
+      rw [le_div_iff₀ hαpos]
+      nlinarith [hs0le, hs0, hαR, hαpos]
+  have hsmall : ∀ᶠ n : ℕ in atTop,
+      phaseRootS0 n / ((phaseNat n : ℝ) ^ 2 - 1) < epsilon :=
+    htend.eventually (Iio_mem_nhds hepsilon)
+  -- Assemble.
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+    eventually_five_lt_phaseNat, hsmall] with n hdom hα hsmalln
+  obtain ⟨hPD, hs0pos, _⟩ := hdom
+  intro s hs
+  have hnpos : 0 < n := lt_trans Nat.zero_lt_one hPD.1
+  have hnR : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hnpos
+  have hnRne : (n : ℝ) ≠ 0 := ne_of_gt hnR
+  have hs0ne : phaseRootS0 n ≠ 0 := ne_of_gt hs0pos
+  have hαR : (2 : ℝ) ≤ (phaseNat n : ℝ) := by
+    have h5 : (5 : ℕ) < phaseNat n := hα
+    have : (2 : ℕ) ≤ phaseNat n := by omega
+    exact_mod_cast this
+  have hαpos : 0 < (phaseNat n : ℝ) := by linarith
+  have hα2 : (1 : ℝ) < (phaseNat n : ℝ) ^ 2 := by nlinarith [hαR]
+  have hden : 0 < (phaseNat n : ℝ) ^ 2 - 1 := by linarith
+  have hcpos : 0 < phaseRootCenter n := by
+    rw [phaseRootCenter]; exact div_pos hnR hs0pos
+  -- abbreviations
+  set c := phaseRootCenter n with hc
+  set r := phaseRootGapRadius n with hr
+  have hr_eq : r = c / (phaseNat n : ℝ) ^ 2 := by
+    rw [hr, hc, phaseRootGapRadius]
+  have hrpos : 0 < r := by rw [hr_eq]; exact div_pos hcpos (pow_pos hαpos 2)
+  -- c - r > 0
+  have hcmr : c - r = c * ((phaseNat n : ℝ) ^ 2 - 1) / (phaseNat n : ℝ) ^ 2 := by
+    rw [hr_eq]; field_simp
+  have hcmrpos : 0 < c - r := by
+    rw [hcmr]; positivity
+  have hspos : 0 < s := lt_of_lt_of_le hcmrpos hs.1
+  -- rewrite difference
+  have hnc : (n : ℝ) / phaseRootCenter n = phaseRootS0 n := by
+    rw [phaseRootCenter]; field_simp
+  have hid := phaseRoot_target_identity hPD
+  rw [hnc] at hid
+  have hdiff : fourSizeTarget n (phaseNat n) s - (1 + 2 / q - phaseDelta n)
+      = phaseRootS0 n - (n : ℝ) / s := by
+    rw [fourSizeTarget, ← hid]; ring
+  rw [hdiff]
+  -- n = phaseRootS0 * c
+  have hn_eq : (n : ℝ) = phaseRootS0 n * c := by
+    rw [hc, phaseRootCenter]; field_simp
+  -- phaseRootS0 - n/s = phaseRootS0 * (s - c)/s
+  have hval : phaseRootS0 n - (n : ℝ) / s = phaseRootS0 n * (s - c) / s := by
+    rw [hn_eq]; field_simp
+  rw [hval]
+  -- bound the absolute value
+  have habs : |phaseRootS0 n * (s - c) / s|
+      = phaseRootS0 n * |s - c| / s := by
+    rw [abs_div, abs_mul, abs_of_pos hs0pos, abs_of_pos hspos]
+  rw [habs]
+  -- |s - c| ≤ r
+  have hsc : |s - c| ≤ r := by
+    rw [abs_le]
+    constructor
+    · linarith [hs.1]
+    · linarith [hs.2]
+  -- core: phaseRootS0 * |s-c| / s ≤ phaseRootS0/(α²-1) < epsilon
+  have hkey : phaseRootS0 n * |s - c| / s
+      ≤ phaseRootS0 n / ((phaseNat n : ℝ) ^ 2 - 1) := by
+    have hr_alpha : r * (phaseNat n : ℝ) ^ 2 = c := by
+      rw [hr_eq]; field_simp
+    have hcore : |s - c| * ((phaseNat n : ℝ) ^ 2 - 1) ≤ s := by
+      have h1 : |s - c| * ((phaseNat n : ℝ) ^ 2 - 1)
+          ≤ r * ((phaseNat n : ℝ) ^ 2 - 1) :=
+        mul_le_mul_of_nonneg_right hsc hden.le
+      nlinarith [h1, hs.1, hr_alpha, hrpos]
+    rw [div_le_iff₀ hspos,
+      show phaseRootS0 n / ((phaseNat n : ℝ) ^ 2 - 1) * s
+          = phaseRootS0 n * s / ((phaseNat n : ℝ) ^ 2 - 1) by ring,
+      le_div_iff₀ hden]
+    nlinarith [mul_le_mul_of_nonneg_left hcore hs0pos.le]
+  exact lt_of_le_of_lt hkey hsmalln
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootGapCorridorTargetConvergence
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootGapCorridorTargetConvergence
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ExplicitPartitionRatio
 Source: Erdos625/ExplicitPartitionRatio.lean
 Normalized SHA-256: cabba3307080bfd58350541cbd2dbaadd08f86b30b5b7b2368e192e50ba60a61
@@ -25313,9 +25466,230 @@ END SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.UniformFiniteEntropyNeighborhood
+Source: Erdos625/UniformFiniteEntropyNeighborhood.lean
+Normalized SHA-256: 9717d9433e7439a34fa9c19f6818e30d1cbe02607b091c4262aa43b85dc7c416
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_UniformFiniteEntropyNeighborhood
+
+namespace Erdos625
+
+noncomputable section
+
+set_option autoImplicit false
+
+open scoped Topology
+
+/-! ## Neighborhood extension of the finite four-entropy certificate
+
+The helper declarations below are the ones genuinely needed to prove
+`exists_uniform_finite_four_entropy_neighborhood`.  They are kept local to this
+file (and `private`) so that no dependency file has to be modified. -/
+
+/-- Target-parameterized version of `fourRatioLog`: the log of the extended
+Gaussian partition ratio at the exact four-size tilt representing `target`. -/
+private noncomputable def fourRatioLogTarget (target : ℝ) : ℝ :=
+  Real.log
+    (extendedGaussianPartition q
+        (ProfileEntropyS4.tilt fourGaussianScore target) /
+      ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore target))
+
+private theorem fourEntropyLoss_le_fourRatioLogTarget (target : ℝ)
+    (hT : target ∈ Set.Ioo (2 : ℝ) 5) :
+    fourEntropyLoss target ≤ fourRatioLogTarget target := by
+  set tilt := ProfileEntropyS4.tilt fourGaussianScore target with htilt
+  have hMean : ProfileEntropyS4.mean fourGaussianScore tilt = target :=
+    ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT
+  have hDual := extendedGaussianEntropyValue_le_dual_interior (tilt := tilt) hT
+  have h := entropy_loss_le_log_partition_ratio (tilt := tilt) hMean hDual
+  simpa [fourEntropyLoss, fourRatioLogTarget, htilt] using h
+
+private theorem fourRatioLogTarget_lt_log_153_div_100 (target : ℝ)
+    (hlo : 2 / q ≤ target) (hhi : target ≤ 1 + 2 / q) :
+    fourRatioLogTarget target < Real.log (153 / 100 : ℝ) := by
+  have hT : target ∈ Set.Ioo (2 : ℝ) 5 := by
+    obtain ⟨h2, h4⟩ := two_div_q_bounds
+    exact ⟨by linarith, by linarith⟩
+  set tilt := ProfileEntropyS4.tilt fourGaussianScore target with htilt
+  have hMean : ProfileEntropyS4.mean fourGaussianScore tilt = target :=
+    ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT
+  have hRatio := uniform_four_size_partition_ratio target tilt hlo hhi hMean
+  have hpos : 0 < extendedGaussianPartition q tilt /
+      ProfileEntropyS4.partition fourGaussianScore tilt :=
+    div_pos (extendedGaussianPartition_pos q_pos)
+      (ProfileEntropyS4.partition_pos fourGaussianScore tilt)
+  have := Real.strictMonoOn_log hpos (by norm_num) hRatio
+  simpa [fourRatioLogTarget, htilt] using this
+
+private theorem continuousOn_fourRatioLogTarget :
+    ContinuousOn fourRatioLogTarget (Set.Ioo (2 : ℝ) 5) := by
+  have htiltCont :
+      ContinuousOn
+        (fun target => ProfileEntropyS4.tilt fourGaussianScore target)
+        (Set.Ioo (2 : ℝ) 5) := by
+    intro target hT
+    apply ContinuousAt.continuousWithinAt
+    exact ProfileEntropyS4.tendsto_tilt_of_scores_and_target
+      (h := fun _ : ℝ => fourGaussianScore) fourGaussianScore
+      (T' := id)
+      (fun _ => tendsto_const_nhds)
+      (continuous_id.tendsto target) hT
+  have hExtCont : Continuous (extendedGaussianPartition q) := by
+    rw [continuous_iff_continuousAt]
+    exact fun lambda => (hasDerivAt_extendedGaussianPartition q lambda q_pos).continuousAt
+  have hFourCont : Continuous (ProfileEntropyS4.partition fourGaussianScore) := by
+    rw [continuous_iff_continuousAt]
+    intro t
+    exact ProfileEntropyS4.tendsto_partition_of_scores_and_parameter
+      (fun _ : ℝ => fourGaussianScore) fourGaussianScore id t
+      (fun _ => tendsto_const_nhds) Filter.tendsto_id
+  have hNum : ContinuousOn
+      (fun target => extendedGaussianPartition q
+        (ProfileEntropyS4.tilt fourGaussianScore target))
+      (Set.Ioo (2 : ℝ) 5) := hExtCont.comp_continuousOn htiltCont
+  have hDen : ContinuousOn
+      (fun target => ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore target))
+      (Set.Ioo (2 : ℝ) 5) := hFourCont.comp_continuousOn htiltCont
+  have hDenNe : ∀ target ∈ Set.Ioo (2 : ℝ) 5,
+      ProfileEntropyS4.partition fourGaussianScore
+        (ProfileEntropyS4.tilt fourGaussianScore target) ≠ 0 :=
+    fun target _ => (ProfileEntropyS4.partition_pos fourGaussianScore _).ne'
+  have hRatio : ContinuousOn
+      (fun target => extendedGaussianPartition q
+          (ProfileEntropyS4.tilt fourGaussianScore target) /
+        ProfileEntropyS4.partition fourGaussianScore
+          (ProfileEntropyS4.tilt fourGaussianScore target))
+      (Set.Ioo (2 : ℝ) 5) := hNum.div hDen hDenNe
+  have hRatioPos : ∀ target ∈ Set.Ioo (2 : ℝ) 5,
+      extendedGaussianPartition q
+          (ProfileEntropyS4.tilt fourGaussianScore target) /
+        ProfileEntropyS4.partition fourGaussianScore
+          (ProfileEntropyS4.tilt fourGaussianScore target) ≠ 0 :=
+    fun target _ => (div_pos (extendedGaussianPartition_pos q_pos)
+      (ProfileEntropyS4.partition_pos fourGaussianScore _)).ne'
+  exact hRatio.log hRatioPos
+
+/-- The finite four-entropy loss is bounded by a single constant strictly below
+`log(153/100)` on a genuine closed neighborhood of the limiting phase interval
+`[2/q, 1+2/q]`.  The neighborhood radius `eta` is a single positive constant. -/
+private theorem exists_neighborhood_fourEntropyLoss_bound :
+    ∃ eta : ℝ, 0 < eta ∧ (2 : ℝ) < 2 / q - eta ∧ 1 + 2 / q + eta < 5 ∧
+      ∃ M : ℝ, M < Real.log (153 / 100 : ℝ) ∧
+        ∀ target ∈ Set.Icc (2 / q - eta) (1 + 2 / q + eta),
+          fourEntropyLoss target ≤ M := by
+  obtain ⟨hq2, hq4⟩ := two_div_q_bounds
+  set a : ℝ := 2 / q with ha
+  set b : ℝ := 1 + 2 / q with hb
+  have hab : a < b := by simp only [ha, hb]; linarith
+  have hKsub : Set.Icc a b ⊆ Set.Ioo (2 : ℝ) 5 := by
+    intro t ht
+    exact ⟨by simp only [ha] at ht ⊢; linarith [ht.1],
+      by simp only [hb] at ht ⊢; linarith [ht.2]⟩
+  -- the open set on which the ratio log is strictly below the target constant
+  set c : ℝ := Real.log (153 / 100 : ℝ) with hc
+  set U : Set ℝ := Set.Ioo (2 : ℝ) 5 ∩ (fourRatioLogTarget ⁻¹' Set.Iio c) with hU
+  have hUopen : IsOpen U := by
+    rw [hU]
+    exact continuousOn_fourRatioLogTarget.isOpen_inter_preimage isOpen_Ioo isOpen_Iio
+  have hKU : Set.Icc a b ⊆ U := by
+    intro t ht
+    refine ⟨hKsub ht, ?_⟩
+    simp only [Set.mem_preimage, Set.mem_Iio, hc]
+    exact fourRatioLogTarget_lt_log_153_div_100 t (by simp only [ha] at ht; exact ht.1)
+      (by simp only [hb] at ht; exact ht.2)
+  obtain ⟨δ, hδpos, hδsub⟩ :=
+    (isCompact_Icc).exists_cthickening_subset_open hUopen hKU
+  set eta : ℝ := min δ (min ((a - 2) / 2) ((5 - b) / 2)) with heta
+  have hetapos : 0 < eta := by
+    simp only [heta, lt_min_iff]
+    refine ⟨hδpos, ?_, ?_⟩
+    · simp only [ha]; linarith
+    · simp only [hb]; linarith
+  have heta_le_δ : eta ≤ δ := min_le_left _ _
+  have heta_lo : (2 : ℝ) < a - eta := by
+    have : eta ≤ (a - 2) / 2 := le_trans (min_le_right _ _) (min_le_left _ _)
+    simp only [ha] at this ⊢; linarith
+  have heta_hi : b + eta < 5 := by
+    have : eta ≤ (5 - b) / 2 := le_trans (min_le_right _ _) (min_le_right _ _)
+    simp only [hb] at this ⊢; linarith
+  -- the closed neighborhood interval sits inside the cthickening, hence inside U
+  have hIntervalU : Set.Icc (a - eta) (b + eta) ⊆ U := by
+    intro t ht
+    apply hδsub
+    rcases ht with ⟨htlo, hthi⟩
+    rcases le_or_gt t a with hta | hta
+    · refine Metric.mem_cthickening_of_dist_le t a δ _ ⟨le_refl a, hab.le⟩ ?_
+      rw [Real.dist_eq]
+      rw [abs_of_nonpos (by linarith)]
+      linarith
+    · rcases le_or_gt t b with htb | htb
+      · refine Metric.mem_cthickening_of_dist_le t t δ _ ⟨hta.le, htb⟩ ?_
+        simp [hδpos.le]
+      · refine Metric.mem_cthickening_of_dist_le t b δ _ ⟨hab.le, le_refl b⟩ ?_
+        rw [Real.dist_eq]
+        rw [abs_of_pos (by linarith)]
+        linarith
+  have hIntervalIoo : Set.Icc (a - eta) (b + eta) ⊆ Set.Ioo (2 : ℝ) 5 :=
+    fun t ht => (hIntervalU ht).1
+  have hIntervalRatio : ∀ t ∈ Set.Icc (a - eta) (b + eta),
+      fourRatioLogTarget t < c := fun t ht => (hIntervalU ht).2
+  -- maximum of the ratio log over the compact neighborhood interval
+  have hContOnInterval : ContinuousOn fourRatioLogTarget
+      (Set.Icc (a - eta) (b + eta)) :=
+    continuousOn_fourRatioLogTarget.mono hIntervalIoo
+  have hNe : (Set.Icc (a - eta) (b + eta)).Nonempty :=
+    Set.nonempty_Icc.2 (by linarith)
+  obtain ⟨tmax, htmax_mem, htmax⟩ :=
+    (isCompact_Icc).exists_isMaxOn hNe hContOnInterval
+  refine ⟨eta, hetapos, ?_, ?_, fourRatioLogTarget tmax, ?_, ?_⟩
+  · simpa [ha] using heta_lo
+  · simpa [hb] using heta_hi
+  · exact hIntervalRatio tmax htmax_mem
+  · intro target htarget
+    have hTioo : target ∈ Set.Ioo (2 : ℝ) 5 := hIntervalIoo htarget
+    exact (fourEntropyLoss_le_fourRatioLogTarget target hTioo).trans (htmax htarget)
+
+/-- The strict finite four-entropy certificate extends uniformly to one fixed
+neighborhood of the full limiting phase interval. -/
+theorem exists_uniform_finite_four_entropy_neighborhood :
+    ∃ eta : ℝ, 0 < eta ∧ ∃ N : ℕ, ∀ alpha ≥ N,
+      ∀ target ∈ Set.Icc (2 / q - eta) (1 + 2 / q + eta),
+        extendedGaussianEntropyValue target -
+            fourSizeFiniteEntropy alpha target <
+          Real.log (153 / 100 : ℝ) := by
+  obtain ⟨eta, heta, hlo, hhi, M, hM_lt, hM_bound⟩ :=
+    exists_neighborhood_fourEntropyLoss_bound
+  refine ⟨eta, heta, ?_⟩
+  set m : ℝ := Real.log (153 / 100 : ℝ) - M with hm
+  have hm_pos : 0 < m := by simp only [hm]; linarith
+  obtain ⟨N, hN⟩ := eventually_uniform_fourDeficitOptimizedValue m hm_pos
+  refine ⟨N, fun alpha halpha target htarget => ?_⟩
+  have hTioo : target ∈ Set.Ioo (2 : ℝ) 5 := by
+    rcases htarget with ⟨htlo, hthi⟩
+    exact ⟨by linarith, by linarith⟩
+  have hdecomp :=
+    finite_four_entropy_loss_eq_limiting_add_error alpha target
+  have herr := hN alpha halpha target hTioo
+  have hloss := hM_bound target htarget
+  rw [hdecomp]
+  have h2 := abs_lt.mp herr
+  linarith [h2.1, h2.2, hloss]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_UniformFiniteEntropyNeighborhood
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.UniformFiniteEntropyNeighborhood
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformFourDeficitTiltBound
 Source: Erdos625/UniformFourDeficitTiltBound.lean
-Normalized SHA-256: 79c3e9bc374a9517fce315acbe4d1c03e51a8427560cb73f3842dc87599cbd96
+Normalized SHA-256: bf505a346b70e3231c40f309587910ec4a83410bdcb1f415d61c3de113c28b3c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformFourDeficitTiltBound
 
@@ -25372,6 +25746,106 @@ theorem exists_eventually_uniform_fourDeficitTilt_bound :
       |ProfileEntropyS4.tilt fourGaussianScore target| < 1 :=
     lt_of_le_of_lt hdiff hclose
   linarith
+
+/-- Uniform bound on the exact four-deficit scores for all large `alpha`. -/
+theorem exists_eventually_uniform_fourDeficitScore_bound :
+    ∃ C : ℝ, 0 ≤ C ∧ ∃ N : ℕ, ∀ alpha ≥ N, ∀ i : Fin 4,
+      |fourDeficitScore alpha i| ≤ C := by
+  obtain ⟨N, hN⟩ := eventually_uniform_fourDeficitScore 1 (by norm_num)
+  refine ⟨1 + ∑ j : Fin 4, |fourGaussianScore j|, by positivity, N, ?_⟩
+  intro alpha halpha i
+  have h := hN alpha halpha i
+  have htri := abs_sub_abs_le_abs_sub
+    (fourDeficitScore alpha i) (fourGaussianScore i)
+  have hsum : |fourGaussianScore i| ≤ ∑ j : Fin 4, |fourGaussianScore j| :=
+    Finset.single_le_sum (f := fun j => |fourGaussianScore j|)
+      (fun j _ => abs_nonneg _) (Finset.mem_univ i)
+  linarith
+
+/-- Elementary two-sided bound on the log-partition of the four-point family in
+terms of uniform bounds `C` on the score and `M` on the tilt.  Each
+unnormalized mass `exp (h i + t * support i)` has exponent in `[-(C+5M), C+5M]`
+because `support i ∈ [2,5]`, so the four-term partition lies between
+`exp (-(C+5M))` and `4 * exp (C+5M)`. -/
+theorem abs_log_partition_le (h : Fin 4 → ℝ) (t C M : ℝ)
+    (hM : 0 ≤ M) (hh : ∀ i, |h i| ≤ C) (ht : |t| ≤ M) :
+    |Real.log (ProfileEntropyS4.partition h t)| ≤ Real.log 4 + C + 5 * M := by
+  set P := ProfileEntropyS4.partition h t with hP
+  have hPpos : 0 < P := ProfileEntropyS4.partition_pos h t
+  -- Each support value lies in `[2,5]`, so `|support i| ≤ 5`.
+  have hsupp : ∀ i : Fin 4, |ProfileEntropyS4.support i| ≤ 5 := by
+    intro i; fin_cases i <;> norm_num [ProfileEntropyS4.support]
+  -- Two-sided bound on the tilt contribution `t * support i`.
+  have htsupp : ∀ i : Fin 4, |t * ProfileEntropyS4.support i| ≤ 5 * M := by
+    intro i
+    calc |t * ProfileEntropyS4.support i|
+        = |t| * |ProfileEntropyS4.support i| := abs_mul _ _
+      _ ≤ M * 5 := mul_le_mul ht (hsupp i) (abs_nonneg _) hM
+      _ = 5 * M := by ring
+  -- Hence each exponent lies in `[-(C+5M), C+5M]`.
+  have hexp_le : ∀ i : Fin 4,
+      h i + t * ProfileEntropyS4.support i ≤ C + 5 * M := by
+    intro i
+    have h1 : h i ≤ C := (abs_le.mp (hh i)).2
+    have h2 : t * ProfileEntropyS4.support i ≤ 5 * M :=
+      le_trans (le_abs_self _) (htsupp i)
+    linarith
+  have hexp_ge : ∀ i : Fin 4,
+      -(C + 5 * M) ≤ h i + t * ProfileEntropyS4.support i := by
+    intro i
+    have h1 : -C ≤ h i := (abs_le.mp (hh i)).1
+    have h2 : -(5 * M) ≤ t * ProfileEntropyS4.support i :=
+      neg_le_of_neg_le (le_trans (neg_le_abs _) (htsupp i))
+    linarith
+  -- Term-wise bounds on the unnormalized masses.
+  have hterm_le : ∀ i : Fin 4,
+      ProfileEntropyS4.unnormalized h t i ≤ Real.exp (C + 5 * M) := by
+    intro i; exact Real.exp_le_exp.mpr (hexp_le i)
+  have hterm_ge : ∀ i : Fin 4,
+      Real.exp (-(C + 5 * M)) ≤ ProfileEntropyS4.unnormalized h t i := by
+    intro i; exact Real.exp_le_exp.mpr (hexp_ge i)
+  have hu0 := ProfileEntropyS4.unnormalized_pos h t 0
+  have hu1 := ProfileEntropyS4.unnormalized_pos h t 1
+  have hu2 := ProfileEntropyS4.unnormalized_pos h t 2
+  have hu3 := ProfileEntropyS4.unnormalized_pos h t 3
+  -- Upper and lower bounds on the partition function.
+  have hP_le : P ≤ 4 * Real.exp (C + 5 * M) := by
+    rw [hP, ProfileEntropyS4.partition, Fin.sum_univ_four]
+    have := hterm_le 0; have := hterm_le 1
+    have := hterm_le 2; have := hterm_le 3
+    linarith [hterm_le 0, hterm_le 1, hterm_le 2, hterm_le 3]
+  have hP_ge : Real.exp (-(C + 5 * M)) ≤ P := by
+    rw [hP, ProfileEntropyS4.partition, Fin.sum_univ_four]
+    linarith [hterm_ge 0, hu1, hu2, hu3]
+  -- Translate to the logarithm.
+  have hlog_le : Real.log P ≤ Real.log 4 + (C + 5 * M) := by
+    have hle := Real.log_le_log hPpos hP_le
+    rwa [Real.log_mul (by norm_num) (Real.exp_pos _).ne', Real.log_exp] at hle
+  have hlog_ge : -(C + 5 * M) ≤ Real.log P := by
+    have hle := Real.log_le_log (Real.exp_pos _) hP_ge
+    rwa [Real.log_exp] at hle
+  have hlog4 : (0 : ℝ) ≤ Real.log 4 := Real.log_nonneg (by norm_num)
+  rw [abs_le]
+  exact ⟨by linarith, by linarith⟩
+
+/-- The exact four-deficit log-partition, evaluated at the mean-`target` tilt, is
+uniformly bounded on the compact target corridor `[5/2, 9/2]` for large `alpha`.
+This is the companion of `exists_eventually_uniform_fourDeficitTilt_bound` used
+by the derivative assembly. -/
+theorem exists_eventually_uniform_fourDeficit_logPartition_bound :
+    ∃ M : ℝ, 0 ≤ M ∧ ∃ N : ℕ, ∀ alpha ≥ N,
+      ∀ target ∈ Set.Icc (5 / 2 : ℝ) (9 / 2 : ℝ),
+        |Real.log (ProfileEntropyS4.partition (fourDeficitScore alpha)
+          (ProfileEntropyS4.tilt (fourDeficitScore alpha) target))| ≤ M := by
+  obtain ⟨C, hC, Nc, hCbound⟩ := exists_eventually_uniform_fourDeficitScore_bound
+  obtain ⟨Mt, hMt, Nt, hTbound⟩ := exists_eventually_uniform_fourDeficitTilt_bound
+  have hlog4 : (0 : ℝ) ≤ Real.log 4 := Real.log_nonneg (by norm_num)
+  refine ⟨Real.log 4 + C + 5 * Mt, by linarith, max Nc Nt, ?_⟩
+  intro alpha halpha target htarget
+  have h1 : alpha ≥ Nc := le_trans (le_max_left _ _) halpha
+  have h2 : alpha ≥ Nt := le_trans (le_max_right _ _) halpha
+  exact abs_log_partition_le _ _ C Mt hMt (hCbound alpha h1)
+    (hTbound alpha h2 target htarget)
 
 end
 
@@ -65691,7 +66165,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: e56f2c1afd96bb60c56a3e19723eee0d3ff90d8cf4651442f23528b58558610e
+Normalized SHA-256: ac944d25cfd4b67c75c18e9b4c9ededa33c96dcb7d56231ccb30b77be9b185b2
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -66632,8 +67106,13 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower
 #print axioms Erdos625.eventually_phaseRoot_gapCorridor_signed_domain
+#print axioms Erdos625.eventually_uniform_phaseRoot_gapCorridor_target_close
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
+#print axioms Erdos625.exists_uniform_finite_four_entropy_neighborhood
 #print axioms Erdos625.exists_eventually_uniform_fourDeficitTilt_bound
+#print axioms Erdos625.exists_eventually_uniform_fourDeficitScore_bound
+#print axioms Erdos625.abs_log_partition_le
+#print axioms Erdos625.exists_eventually_uniform_fourDeficit_logPartition_bound
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -66643,7 +67122,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 35c65600ecd7e143ac213ad99d0979f09664745a6caeb4426f0a1055ba56ad59
+Normalized SHA-256: c68b820844f3c569a9da60929623ebbb9e0a34fb1975aac18bd589333d8669d6
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
