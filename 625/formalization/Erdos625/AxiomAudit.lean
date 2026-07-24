@@ -102,6 +102,7 @@ import Erdos625.QuadraticSlopeAssemblyArithmetic
 import Erdos625.PhaseRootDerivativeQuadraticLower
 import Erdos625.PhaseRootDisplacementScale
 import Erdos625.PhaseRootScalarOverSlopeNegligible
+import Erdos625.PhaseRootScalarLogLogScale
 import Erdos625.PhaseRootUnitCorridorDomain
 import Erdos625.UniformFiniteFourEntropyCertificate
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
@@ -1282,5 +1283,6 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 #print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale
+#print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
