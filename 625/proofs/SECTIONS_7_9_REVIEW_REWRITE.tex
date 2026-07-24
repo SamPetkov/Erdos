@@ -72,7 +72,7 @@ For
 \]
 with $0\ln0=0$, one has
 \[
- \Phi_T(z)\le-\frac{Y}{5000}
+ \Phi_T(z)\le-\frac{Y}{100}
  \qquad\text{whenever}\qquad
  \frac1{64}\le R\le1.
  \tag{7.21a}
@@ -99,14 +99,14 @@ First suppose $1/64\le R\le47/100$.  Since $T\ge2/q$,
 \]
 The function
 \[
- f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{5000}
+ f(R)=R\{\ln R+5q/2-1\}+\frac{1-R}{100}
 \]
 is convex on $(0,\infty)$.  Hence its maximum on
 $[1/64,47/100]$ occurs at an endpoint.  Using $q<0.6932$,
 \[
- f(1/64)<-0.053,
+ f(1/64)<-0.0436,
  \qquad
- f(47/100)<-0.010,
+ f(47/100)<-0.0051,
 \]
 so $f(R)<0$ throughout the interval.
 
@@ -119,14 +119,13 @@ gives
 \]
 Set
 \[
- h(R)=R\ln R+(1-q/2+1/200)(1-R).
+ h(R)=R\ln R+(1-q/2+1/100)(1-R).
 \]
 This function is convex, $h(1)=0$, and direct evaluation gives
-$h(47/100)<-0.0058$.  Convexity therefore places $h$ below the chord joining
+$h(47/100)<-0.0032$.  Convexity therefore places $h$ below the chord joining
 these endpoint values, so $h(R)\le0$ on $[47/100,1]$.  Thus
 \[
- \Phi_T(z)\le-\frac{1-R}{200}
- \le-\frac{1-R}{5000}.
+ \Phi_T(z)\le-\frac{1-R}{100}.
 \]
 \end{proof}
 
@@ -141,7 +140,7 @@ then equation (7.13) gives $R\ge1/64$ for all sufficiently large $n$, and
 the selected mass satisfies $Y\ge\eta/2$.  Equation (7.20) and the lemma give
 \[
  \ln D(\ell)
- \le-\frac{k_{co}\alpha Y}{5000}
+ \le-\frac{k_{co}\alpha Y}{100}
       +Ck_{co}Y\ln(e/Y)+CN.
  \tag{7.24a}
 \]
@@ -423,113 +422,101 @@ table, and every remaining high multiplicity is generated in the middle-strip
 expansion under the no-further-near-cell event.  Hence every multiplicity is
 included exactly once.
 
-\section*{Replacement D: finite cycle expansion in Lemma 9.1}
+\section*{Replacement D: residual-restriction product bound in Lemma 9.1}
 
-\begin{lemma}[Even subgraphs to a simple-cycle product]
-Let $G$ be a finite graph with nonnegative edge weights $(w_e)$.  For every
-even edge set $F$, fix deterministically an edge-disjoint decomposition
-$\mathcal D(F)$ into simple cycles.  Then
+\begin{lemma}[An even matching completion is unique]
+Let $M$ be a matching and $R$ any finite residual edge set.  Put
 \[
- \sum_{F\text{ even}}\prod_{e\in F}w_e
- \le
- \prod_{C\text{ simple cycle}}
- \left(1+\prod_{e\in C}w_e\right)
- \le
- \exp\left\{\sum_{C\text{ simple cycle}}\prod_{e\in C}w_e\right\}.
- \tag{9.15a}
-\]
-\end{lemma}
-
-\begin{proof}
-The cycles in $\mathcal D(F)$ are edge-disjoint and therefore distinct, and
-\[
- \prod_{e\in F}w_e
- =\prod_{C\in\mathcal D(F)}\prod_{e\in C}w_e.
-\]
-The union of the cycles recovers $F$, so the map to the resulting cycle set is
-injective.  Dropping edge-disjointness enlarges the image to all subsets of the
-finite simple-cycle set.  Summing those subsets gives the first product, and
-$1+x\le e^x$ gives the second inequality.
-\end{proof}
-
-Apply the lemma to $G=M\cup R$, with matching-edge weight one and residual-edge
-weight $q_e$.
-
-\begin{lemma}[Cycles disjoint from the high matching]
-Let $Q$ be the symmetric weighted adjacency kernel of the residual bipartite
-graph.  If every row and column sum is at most $\tau<1$, then
-\[
- \sum_{C:C\cap M=\varnothing}\prod_{e\in C}q_e
- \le\frac{n\tau^4}{1-\tau^2}.
- \tag{9.16}
-\]
-\end{lemma}
-
-\begin{proof}
-A residual-only bipartite cycle has length $2s\ge4$.  Mark one row vertex,
-forget simplicity, and forget the closing constraint.  For each marked start,
-the total mass of length-$2s$ walks is at most $\tau^{2s}$.  There are at most
-$n$ marked starts, so summing $s\ge2$ gives the result.
-\end{proof}
-
-\begin{lemma}[Cycles meeting the high matching]
-Let $M$ be a bipartite matching of size $h$.  Let $Q$ be a nonnegative symmetric
-residual kernel, zero on $M$, with row-sum norm at most $\tau<1/3$.  Put
-\[
- P=Q+Q^2+Q^3+\cdots,
- \qquad
- b=\|P\|_{\infty}\le\frac{\tau}{1-\tau}.
- \tag{9.17a}
+ \mathcal C_{\rm even}(M,R)
+ =\{F\subseteq M\cup R:\deg_F(v)\text{ is even for every }v\}.
 \]
 Then
 \[
- \sum_{C:C\cap M\ne\varnothing}\prod_{e\in C\setminus M}q_e
- \le2h\sum_{r\ge1}b^r
- =\frac{2hb}{1-b}
- \le Ch\tau.
- \tag{9.18a}
+ \rho:\mathcal C_{\rm even}(M,R)\to\mathcal P(R\setminus M),
+ \qquad \rho(F)=F\setminus M
+ \tag{9.15a}
+\]
+is injective.
+\end{lemma}
+
+\begin{proof}
+If $\rho(F)=\rho(F')$, then
+$F\mathbin\triangle F'\subseteq M$.  The symmetric difference is even.  A
+nonempty subset of a matching has degree one at every incident vertex, so it is
+not even.  Therefore $F\mathbin\triangle F'=\varnothing$.
+\end{proof}
+
+\begin{lemma}[Weighted restriction product]
+For nonnegative residual weights $q_e$, extended by zero on $M$,
+\[
+ \begin{split}
+ \sum_{F\in\mathcal C_{\rm even}(M,R)}
+      \prod_{e\in F\setminus M}q_e
+ &\le\sum_{S\subseteq R\setminus M}\prod_{e\in S}q_e\\
+ &=\prod_{e\in R\setminus M}(1+q_e)
+ \le\exp\left(\sum_e q_e\right).
+ \end{split}
+ \tag{9.15b}
 \]
 \end{lemma}
 
 \begin{proof}
-Fix a total order on the oriented matching edges.  For every simple cycle
-meeting $M$, mark the least oriented matching edge on the cycle.  This costs at
-most $2h$ choices and removes rotation and orientation ambiguity.
-
-If the cycle uses $r\ge1$ matching edges, cutting at them leaves $r$ nonempty
-residual paths.  Between consecutive residual paths, the next matching edge is
-determined by the current endpoint because $M$ is a matching.  Matching
-traversal is therefore a partial permutation of row-sum norm one and introduces
-no new factor $h$.
-
-After dropping simplicity, vertex-disjointness, and the final closing
-constraint, each residual path contributes total mass at most $b$.  Relaxed
-codes with exactly $r$ matching edges therefore have total mass at most
-$2hb^r$.  Summing over $r$ proves the claim.
+Use the preceding injection and enlarge its image to the full power set.  The
+middle equality is the finite subset-product expansion, and $1+x\le e^x$ gives
+the last inequality.
 \end{proof}
 
+The corresponding finite ingredients already occur in the Lean development:
+\begin{center}
+\small\ttfamily
+residualRestriction\_injective\\
+finiteInjectiveFamily\_product\_exp\_bound
+\end{center}
+
 \paragraph{Completion of the large-residual branch.}
-Equations (9.12)--(9.14) give
+Equation (9.12) gives
 \[
- \Lambda_0\le C U^4/m_0,
- \qquad
- \tau\le C U^3/m_0.
+ \mathcal A(M,j)\le\exp\left(\Lambda_0+\sum_eq_e\right).
+ \tag{9.16}
 \]
-For $m_0\ge n/N^6$, one has $\tau<1/3$ eventually, uniformly over every
-feasible canonical skeleton.  The preceding lemmas and $h<2n/U$ yield
+By (9.6),
 \[
- \mathcal A(M,j)
- \le
- \exp\left[
- C\left\{
-   \frac{U^4}{m_0}+n\tau^4+h\tau
- \right\}
- \right]
- \le\exp(C'N^8).
+ \sum_eq_e=\frac12\sum_{a,b}\theta_{ab}^2+\Lambda_0.
+ \tag{9.17}
+\]
+Moreover
+\[
+ \sum_{a,b}\theta_{ab}^2
+ =\frac{e^2}{m_0^2}
+   \left(\sum_ad_a^2\right)
+   \left(\sum_b(d'_b)^2\right).
+ \tag{9.18}
+\]
+Every residual degree is at most $U$, while both degree sums are $m_0$.
+Therefore
+\[
+ \sum_ad_a^2\le Um_0,
+ \qquad
+ \sum_b(d'_b)^2\le Um_0,
+ \qquad
+ \sum_{a,b}\theta_{ab}^2\le e^2U^2.
+ \tag{9.18a}
+\]
+Together with (9.13),
+\[
+ \boxed{\mathcal A(M,j)
+ \le\exp\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
  \tag{9.19}
 \]
-This is a one-sided bound.  No lower estimate for $\mathcal A(M,j)$ is asserted
-or used.
+If $m_0\ge n/N^6$, then $U=O(N)$ and
+$U^4/m_0=O(N^{10}/n)=o(1)$, so
+\[
+ \mathcal A(M,j)\le\exp(C'N^2)=\exp\{o(n/N^4)\}.
+ \tag{9.19a}
+\]
+This removes the cycle decomposition, residual and mixed walk sums, $\tau$,
+and the $h\tau$ term.  No lower estimate for $\mathcal A(M,j)$ is asserted or
+used.
 
 \section*{Integration checklist}
 
@@ -539,8 +526,7 @@ replace the paragraph leading to (7.25).
 \item Insert the canonical exposure proposition and bare-weight definition
 after (8.3).
 \item Replace the current Lemma 8.3 by the split lemmas and final proposition.
-\item Insert the three cycle lemmas between (9.14) and the large-residual
-conclusion.
+\item Replace the cycle/traversal passage by the matching-restriction lemmas and global square-sum estimate.
 \item Rename the two unrelated uses of $B_n$.
 \item Regenerate the TeX and PDFs from the canonical source.
 \item Rerun display-tag, citation, finite-diagnostic, and formalization-status
