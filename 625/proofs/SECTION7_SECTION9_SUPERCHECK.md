@@ -135,6 +135,8 @@ therefore empty.  \(\square\)
 \[
  \sum_{F\text{ even}}\prod_{e\in F\setminus M}q_e
  \le
+ \sum_{S\subseteq R\setminus M}\prod_{e\in S}q_e
+ =
  \prod_{e\in R\setminus M}(1+q_e)
  \le
  \exp\!\left(\sum_{e\in R\setminus M}q_e\right).
@@ -142,8 +144,8 @@ therefore empty.  \(\square\)
 \]
 
 The first inequality follows from Lemma 2.1 by enlarging the image to the full
-power set.  The second is the finite identity for a subset generating function,
-and the third uses \(1+x\le e^x\).
+power set.  The equality is the finite subset generating-function identity,
+and the final inequality uses \(1+x\le e^x\).
 
 The finite injection already has a Lean counterpart in
 `EvenMatchingRestriction.lean`, and the generic product-to-exponential algebra
