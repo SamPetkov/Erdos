@@ -9,6 +9,7 @@ noncomputable section
 
 set_option autoImplicit false
 
+open Filter
 open scoped Topology
 
 /-! ## Neighborhood extension of the finite four-entropy certificate

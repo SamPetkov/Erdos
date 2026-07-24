@@ -26007,7 +26007,7 @@ END SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformFiniteEntropyNeighborhood
 Source: Erdos625/UniformFiniteEntropyNeighborhood.lean
-Normalized SHA-256: f86ef9b2252f3af77c41379bb46c168af155b6f565cc69adcf5d17ffc9a20d66
+Normalized SHA-256: 6259473c923d503f3d2fd84838cb9b0c0e7db0bf10e33412a223910fa49bfff1
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformFiniteEntropyNeighborhood
 
@@ -26017,6 +26017,7 @@ noncomputable section
 
 set_option autoImplicit false
 
+open Filter
 open scoped Topology
 
 /-! ## Neighborhood extension of the finite four-entropy certificate
