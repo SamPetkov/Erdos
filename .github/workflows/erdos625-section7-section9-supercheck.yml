@@ -1,0 +1,36 @@
+name: Erdős 625 Section 7 and 9 supercheck
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/SECTION7_SECTION9_SUPERCHECK.md"
+      - "625/audits/SECTION7_SECTION9_SUPERCHECK.md"
+      - "625/experiments/section7_section9_supercheck.py"
+      - ".github/workflows/erdos625-section7-section9-supercheck.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "625/proofs/SECTION7_SECTION9_SUPERCHECK.md"
+      - "625/audits/SECTION7_SECTION9_SUPERCHECK.md"
+      - "625/experiments/section7_section9_supercheck.py"
+      - ".github/workflows/erdos625-section7-section9-supercheck.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  exact-supercheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile the checker
+        run: python -m py_compile 625/experiments/section7_section9_supercheck.py
+      - name: Run exact checks
+        run: python 625/experiments/section7_section9_supercheck.py
+      - name: Verify optimization-independent failure handling
+        run: python -O 625/experiments/section7_section9_supercheck.py
