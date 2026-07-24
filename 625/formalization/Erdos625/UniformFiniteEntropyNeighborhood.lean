@@ -208,7 +208,24 @@ theorem exists_uniform_finite_four_entropy_neighborhood :
   have h2 := abs_lt.mp herr
   linarith [h2.1, h2.2, hloss]
 
+/-- Specialization of `exists_uniform_finite_four_entropy_neighborhood` to the
+phase size `phaseNat n`: since `phaseNat` eventually exceeds every fixed natural
+threshold, the uniform neighborhood bound holds eventually along `phaseNat n`. -/
+theorem exists_eventually_uniform_phaseNat_four_entropy_neighborhood :
+    ∃ eta : ℝ, 0 < eta ∧
+      ∀ᶠ n : ℕ in atTop,
+        ∀ target ∈ Set.Icc (2 / q - eta) (1 + 2 / q + eta),
+          extendedGaussianEntropyValue target -
+              fourSizeFiniteEntropy (phaseNat n) target <
+            Real.log (153 / 100 : ℝ) := by
+  obtain ⟨eta, heta, N, hN⟩ := exists_uniform_finite_four_entropy_neighborhood
+  refine ⟨eta, heta, ?_⟩
+  filter_upwards
+    [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+  have hge : N ≤ phaseNat n := by exact_mod_cast hn.trans hphase.1
+  exact hN (phaseNat n) hge
+
 end
 
 end Erdos625
-

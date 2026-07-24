@@ -108,6 +108,7 @@ import Erdos625.PhaseRootDerivativeQuadraticLower
 import Erdos625.PhaseRootDisplacementScale
 import Erdos625.PhaseRootScalarOverSlopeNegligible
 import Erdos625.PhaseRootScalarLogLogScale
+import Erdos625.PhaseRootScalarSignLower
 import Erdos625.PhaseRootUnitCorridorDomain
 import Erdos625.PhaseRootDerivativeUnitCorridor
 import Erdos625.PhaseRootDerivativeGapCorridor

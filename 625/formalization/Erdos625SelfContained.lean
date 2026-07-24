@@ -21765,6 +21765,330 @@ END SOURCE MODULE: Erdos625.PhaseRootScalarLogLogScale
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootScalarSignLower
+Source: Erdos625/PhaseRootScalarSignLower.lean
+Normalized SHA-256: cc9082374765b32e80c552f8e98c3e57d20316c9bf15b60c63971a838176eab6
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootScalarSignLower
+
+namespace Erdos625
+
+open Filter Set Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+private theorem cLead_pos' : 0 < 2 / q - 1 / 2 := by
+  have hqUpper : q < 2 := Real.log_two_lt_d9.trans (by norm_num)
+  have h : (1 : ℝ) < 2 / q := by
+    rw [lt_div_iff₀ q_pos]; linarith
+  linarith
+
+/-- A constant is little-o of `logLogOrder` because the latter tends to `+∞`. -/
+private theorem one_isLittleO_logLogOrder' :
+    (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop] logLogOrder := by
+  rw [Asymptotics.isLittleO_const_left]
+  refine Or.inr ?_
+  have h : Tendsto (fun n : ℕ ↦ |logLogOrder n|) atTop atTop :=
+    tendsto_atTop_mono (fun n ↦ le_abs_self _) tendsto_logLogOrder_atTop
+  simpa [Real.norm_eq_abs, Function.comp_def] using h
+
+/-- `logLogOrder ^ 2 / logOrder` is little-o of `logLogOrder`, since the ratio
+`logLogOrder / logOrder` tends to `0`. -/
+private theorem logLogOrderSq_div_logOrder_isLittleO' :
+    (fun n : ℕ ↦ logLogOrder n ^ 2 / logOrder n) =o[atTop] logLogOrder := by
+  have hratio : (fun n : ℕ ↦ logLogOrder n / logOrder n) =o[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) :=
+    (Asymptotics.isLittleO_one_iff ℝ).mpr
+      logLogOrder_isLittleO_logOrder.tendsto_div_nhds_zero
+  have h := (Asymptotics.isBigO_refl logLogOrder atTop).mul_isLittleO hratio
+  refine h.congr' ?_ ?_
+  · filter_upwards with n; ring
+  · filter_upwards with n; ring
+
+private theorem phaseExpansionResidual_isLittleO_logLogOrder' :
+    phaseExpansionResidual =o[atTop] logLogOrder :=
+  phaseExpansionResidual_isBigO.trans_isLittleO logLogOrderSq_div_logOrder_isLittleO'
+
+private theorem phaseStirlingResidual_isLittleO_logLogOrder' :
+    phaseStirlingResidual =o[atTop] logLogOrder := by
+  refine phaseStirlingResidual_isBigO_inv_logOrder.trans_isLittleO ?_
+  refine ((Asymptotics.isLittleO_one_iff ℝ).mpr ?_).trans one_isLittleO_logLogOrder'
+  exact tendsto_inv_atTop_zero.comp tendsto_logOrder_atTop
+
+private theorem stirlingLogRemainder_phaseNat_isLittleO_logLogOrder' :
+    (fun n : ℕ ↦ stirlingLogRemainder (phaseNat n)) =o[atTop] logLogOrder := by
+  have hBig : (fun n : ℕ ↦ stirlingLogRemainder (phaseNat n)) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    apply IsBigO.of_bound 1
+    filter_upwards [eventually_two_le_phaseNat] with n hn
+    have hpos : 0 < phaseNat n := by omega
+    have hnonneg := stirlingLogRemainder_nonneg hpos
+    have hle := stirlingLogRemainder_le hpos
+    have hphase : (2 : ℝ) ≤ phaseNat n := by exact_mod_cast hn
+    rw [Real.norm_eq_abs, abs_of_nonneg hnonneg, norm_one, mul_one]
+    have : 1 / (12 * (phaseNat n : ℝ)) ≤ 1 := by
+      rw [div_le_one (by positivity)]; nlinarith
+    linarith
+  exact hBig.trans_isLittleO one_isLittleO_logLogOrder'
+
+private theorem residualSum_isLittleO_logLogOrder' :
+    (fun n : ℕ ↦
+        phaseExpansionResidual n - phaseStirlingResidual n -
+          stirlingLogRemainder (phaseNat n))
+      =o[atTop] logLogOrder :=
+  (phaseExpansionResidual_isLittleO_logLogOrder'.sub
+      phaseStirlingResidual_isLittleO_logLogOrder').sub
+    stirlingLogRemainder_phaseNat_isLittleO_logLogOrder'
+
+/-- `log 4 ≤ 2`. -/
+private theorem log_four_le_two' : Real.log 4 ≤ 2 := by
+  calc
+    Real.log 4 ≤ Real.log (Real.exp 2) :=
+      Real.log_le_log (by norm_num)
+        (by rw [show (2 : ℝ) = 1 + 1 by norm_num, Real.exp_add]
+            nlinarith [Real.exp_one_gt_two])
+    _ = 2 := Real.log_exp 2
+
+/-- `log (phaseNat n) - logLogOrder n` is bounded, since
+`logOrder n ≤ phaseNat n ≤ 4 logOrder n`. -/
+private theorem log_phaseNat_sub_logLogOrder_isBigO_one' :
+    (fun n : ℕ ↦ Real.log (phaseNat n : ℝ) - logLogOrder n)
+      =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+  apply IsBigO.of_bound 2
+  filter_upwards [eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+    tendsto_logOrder_atTop.eventually_gt_atTop (1 : ℝ)] with n hp hN
+  have hlogpos : 0 < logOrder n := lt_trans one_pos hN
+  have hphasepos : 0 < (phaseNat n : ℝ) := lt_of_lt_of_le hlogpos hp.1
+  have hlow : logLogOrder n ≤ Real.log (phaseNat n : ℝ) := by
+    have := Real.log_le_log hlogpos hp.1
+    simpa [logLogOrder] using this
+  have hhigh : Real.log (phaseNat n : ℝ) ≤ logLogOrder n + Real.log 4 := by
+    have h1 := Real.log_le_log hphasepos hp.2
+    rw [Real.log_mul (by norm_num) hlogpos.ne'] at h1
+    simp only [logLogOrder]; linarith
+  rw [Real.norm_eq_abs, norm_one, mul_one, abs_le]
+  exact ⟨by linarith, by linarith [log_four_le_two']⟩
+
+/-- `(logOrder n - log (phaseRootCenter n)) - logLogOrder n` is bounded. -/
+private theorem logOrder_sub_logCenter_sub_logLogOrder_isBigO_one' :
+    (fun n : ℕ ↦
+        (logOrder n - Real.log (phaseRootCenter n)) - logLogOrder n)
+      =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+  apply IsBigO.of_bound 2
+  filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+    eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
+    tendsto_logOrder_atTop.eventually_gt_atTop (10 : ℝ),
+    eventually_gt_atTop (0 : ℕ)] with n hdom hp hN hnpos
+  have hn0 : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hnpos.ne'
+  have hs0pos : 0 < phaseRootS0 n := hdom.2.1
+  have hs0ne : phaseRootS0 n ≠ 0 := hs0pos.ne'
+  have hlogpos : 0 < logOrder n := lt_trans (by norm_num) hN
+  have hcenter : Real.log (phaseRootCenter n) =
+      Real.log (n : ℝ) - Real.log (phaseRootS0 n) := by
+    rw [phaseRootCenter, Real.log_div hn0 hs0ne]
+  have hkey : (logOrder n - Real.log (phaseRootCenter n)) - logLogOrder n =
+      Real.log (phaseRootS0 n) - logLogOrder n := by
+    rw [hcenter, logOrder]; ring
+  rw [hkey]
+  have hqU : q < 2 := Real.log_two_lt_d9.trans (by norm_num)
+  have hqL : (1 / 2 : ℝ) < q :=
+    (by norm_num : (1 / 2 : ℝ) < 0.6931471803).trans Real.log_two_gt_d9
+  have h2qU : 2 / q < 4 := by rw [div_lt_iff₀ q_pos]; linarith
+  have h2qL : (1 : ℝ) < 2 / q := by rw [lt_div_iff₀ q_pos]; linarith
+  have hs0eq : phaseRootS0 n = (phaseNat n : ℝ) + phaseDelta n - 1 - 2 / q := by
+    rw [phaseRootS0, alphaZero_eq_phaseNat_add_delta hdom.1]
+  have hs0U : phaseRootS0 n ≤ 4 * logOrder n := by
+    rw [hs0eq]; nlinarith [hp.2, phaseDelta_lt_one n, h2qL]
+  have hs0L : logOrder n / 2 ≤ phaseRootS0 n := by
+    rw [hs0eq]; nlinarith [hp.1, phaseDelta_nonneg n, h2qU, hN]
+  have hup : Real.log (phaseRootS0 n) ≤ logLogOrder n + Real.log 4 := by
+    have := Real.log_le_log hs0pos hs0U
+    rw [Real.log_mul (by norm_num) hlogpos.ne'] at this
+    simp only [logLogOrder]; linarith
+  have hlow : logLogOrder n - Real.log 2 ≤ Real.log (phaseRootS0 n) := by
+    have hpos2 : 0 < logOrder n / 2 := by linarith
+    have := Real.log_le_log hpos2 hs0L
+    rw [Real.log_div hlogpos.ne' (by norm_num)] at this
+    simp only [logLogOrder]; linarith
+  have hlog2 : Real.log 2 ≤ 2 := by
+    have := Real.log_two_lt_d9; linarith
+  rw [Real.norm_eq_abs, norm_one, mul_one, abs_le]
+  exact ⟨by linarith, by linarith [log_four_le_two']⟩
+
+/-- The exact expansion of `phaseRootAlgebraicNoLog n - logOrder n`. -/
+private theorem phaseRootAlgebraicNoLog_sub_logOrder_eq' :
+    ∀ᶠ n : ℕ in atTop,
+      phaseRootAlgebraicNoLog n - logOrder n =
+        (1 + 2 / q - phaseDelta n) * Real.log (phaseNat n : ℝ) +
+        (phaseDelta n - 5 / 2) * logLogOrder n +
+        phaseK (phaseDelta n) +
+        (1 + 2 / q - phaseDelta n) *
+          (2 * phaseC + q / 2 - q * phaseDelta n) -
+        (2 * phaseC / q + phaseB n) - phaseDelta n + 2 + 2 / q := by
+  filter_upwards [eventually_phaseDomain] with n hn
+  have hpre : phaseRootAlgebraicNoLog n - logOrder n =
+      (1 + 2 / q - phaseDelta n) * Real.log (phaseNat n : ℝ) +
+      phaseK (phaseDelta n) + (2 / q - 1 / 2) * logLogOrder n +
+      (1 + 2 / q - phaseDelta n) *
+        (q * (phaseNat n : ℝ) - q / 2 - logOrder n) +
+      phaseDelta n * (logOrder n - logLogOrder n) -
+      ((phaseNat n : ℝ) + phaseDelta n - 1 - 2 / q) + 1 - logOrder n := by
+    unfold phaseRootAlgebraicNoLog
+    rw [show phaseRootDeficitTarget n = 1 + 2 / q - phaseDelta n by
+      exact phaseRoot_target_identity hn]
+    rw [show phaseRootS0 n =
+        (phaseNat n : ℝ) + phaseDelta n - 1 - 2 / q by
+      unfold phaseRootS0
+      rw [alphaZero_eq_phaseNat_add_delta hn]]
+    unfold phaseExpansionMain profileDeficitAffineB
+    ring
+  rw [hpre]
+  have hp : (phaseNat n : ℝ) * q =
+      2 * logOrder n - 2 * logLogOrder n + 2 * phaseC + q * phaseB n := by
+    rw [phaseNat_cast_eq_two_phaseS_div_q_add_phaseB hn]
+    unfold phaseS
+    field_simp [q_ne_zero]
+  rw [show phaseB n = 1 - phaseDelta n from rfl] at hp ⊢
+  field_simp [q_ne_zero] at hp ⊢
+  linear_combination (2 * q - 2 * q * phaseDelta n + 2) * hp
+
+/-- The bounded remainder of the algebraic-core expansion. -/
+private theorem algebraicCore_remainder_isBigO_one' :
+    (fun n : ℕ ↦
+        phaseK (phaseDelta n) +
+        (1 + 2 / q - phaseDelta n) *
+          (2 * phaseC + q / 2 - q * phaseDelta n) -
+        (2 * phaseC / q + phaseB n) - phaseDelta n + 2 + 2 / q)
+      =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+  have hDelta : (fun n : ℕ ↦ phaseDelta n) =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+    apply IsBigO.of_bound 1
+    filter_upwards with n
+    rw [Real.norm_eq_abs, abs_of_nonneg (phaseDelta_nonneg n), norm_one, one_mul]
+    exact (phaseDelta_lt_one n).le
+  have hB : phaseB =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+    apply IsBigO.of_bound 1
+    filter_upwards with n
+    rw [Real.norm_eq_abs, abs_of_nonneg (phaseB_pos n).le, norm_one, one_mul]
+    exact phaseB_le_one n
+  have hK : (fun n : ℕ ↦ phaseK (phaseDelta n)) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    obtain ⟨M, hM⟩ := exists_phaseK_abs_bound
+    apply IsBigO.of_bound M
+    filter_upwards with n
+    rw [Real.norm_eq_abs, norm_one, mul_one]
+    exact hM _ ⟨phaseDelta_nonneg n, (phaseDelta_lt_one n).le⟩
+  have hCoeff : (fun n : ℕ ↦ 1 + 2 / q - phaseDelta n) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    simpa using ((Asymptotics.isBigO_refl (fun _n : ℕ ↦ (1 : ℝ)) atTop).const_mul_left
+      (1 + 2 / q)).sub hDelta
+  have hInner : (fun n : ℕ ↦ 2 * phaseC + q / 2 - q * phaseDelta n) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    simpa using ((Asymptotics.isBigO_refl (fun _n : ℕ ↦ (1 : ℝ)) atTop).const_mul_left
+      (2 * phaseC + q / 2)).sub (hDelta.const_mul_left q)
+  have hConst (c : ℝ) : (fun _n : ℕ ↦ c) =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+    simpa using (Asymptotics.isBigO_refl (fun _n : ℕ ↦ (1 : ℝ)) atTop).const_mul_left c
+  have hProduct : (fun n : ℕ ↦ (1 + 2 / q - phaseDelta n) *
+      (2 * phaseC + q / 2 - q * phaseDelta n)) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    simpa using hCoeff.mul hInner
+  have h := hK.add hProduct |>.sub ((hConst (2 * phaseC / q)).add hB)
+    |>.sub hDelta |>.add (hConst 2) |>.add (hConst (2 / q))
+  simpa only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply] using h
+
+/-- The algebraic core, once the leading `(2 / q - 1 / 2) * logLogOrder` term is
+removed, is bounded (`O(1)`). -/
+private theorem algebraicCore_sub_lead_isBigO_one' :
+    (fun n : ℕ ↦
+        phaseRootAlgebraicCore n - (2 / q - 1 / 2) * logLogOrder n)
+      =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+  have hident : ∀ᶠ n : ℕ in atTop,
+      phaseRootAlgebraicCore n - (2 / q - 1 / 2) * logLogOrder n =
+        (1 + 2 / q - phaseDelta n) * (Real.log (phaseNat n : ℝ) - logLogOrder n)
+        + ((logOrder n - Real.log (phaseRootCenter n)) - logLogOrder n)
+        + (phaseK (phaseDelta n) +
+            (1 + 2 / q - phaseDelta n) *
+              (2 * phaseC + q / 2 - q * phaseDelta n) -
+            (2 * phaseC / q + phaseB n) - phaseDelta n + 2 + 2 / q) := by
+    filter_upwards [phaseRootAlgebraicNoLog_sub_logOrder_eq'] with n hn
+    rw [phaseRootAlgebraicCore_eq n, hn]
+    ring
+  have hCoeff : (fun n : ℕ ↦ 1 + 2 / q - phaseDelta n) =O[atTop]
+      (fun _n : ℕ ↦ (1 : ℝ)) := by
+    have hDelta : (fun n : ℕ ↦ phaseDelta n) =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+      apply IsBigO.of_bound 1
+      filter_upwards with n
+      rw [Real.norm_eq_abs, abs_of_nonneg (phaseDelta_nonneg n), norm_one, one_mul]
+      exact (phaseDelta_lt_one n).le
+    simpa using ((Asymptotics.isBigO_refl (fun _n : ℕ ↦ (1 : ℝ)) atTop).const_mul_left
+      (1 + 2 / q)).sub hDelta
+  have hT1 : (fun n : ℕ ↦
+      (1 + 2 / q - phaseDelta n) * (Real.log (phaseNat n : ℝ) - logLogOrder n))
+      =O[atTop] (fun _n : ℕ ↦ (1 : ℝ)) := by
+    simpa using hCoeff.mul log_phaseNat_sub_logLogOrder_isBigO_one'
+  have hSum :=
+    (hT1.add logOrder_sub_logCenter_sub_logLogOrder_isBigO_one').add
+      algebraicCore_remainder_isBigO_one'
+  refine hSum.congr' ?_ Filter.EventuallyEq.rfl
+  filter_upwards [hident] with n hn
+  simpa using hn.symm
+
+/-- `phaseRootScalarTerm` minus its exact leading term is little-o of
+`logLogOrder`. -/
+private theorem phaseRootScalarTerm_sub_lead_isLittleO' :
+    (fun n : ℕ ↦
+        phaseRootScalarTerm n - (2 / q - 1 / 2) * logLogOrder n)
+      =o[atTop] logLogOrder := by
+  have hSplit : ∀ᶠ n : ℕ in atTop,
+      phaseRootScalarTerm n - (2 / q - 1 / 2) * logLogOrder n =
+        (phaseRootAlgebraicCore n - (2 / q - 1 / 2) * logLogOrder n)
+        + (phaseExpansionResidual n - phaseStirlingResidual n -
+            stirlingLogRemainder (phaseNat n)) := by
+    filter_upwards [eventually_phaseRoot_domain_pos_and_target_corridor,
+      eventually_two_le_phaseNat] with n hdom hphase
+    have hcore := phaseRootScalarTerm_eq_core hdom.1 hdom.2.1 (by omega)
+    rw [hcore]; ring
+  have h1 :=
+    algebraicCore_sub_lead_isBigO_one'.trans_isLittleO one_isLittleO_logLogOrder'
+  have h2 := residualSum_isLittleO_logLogOrder'
+  refine (h1.add h2).congr' ?_ Filter.EventuallyEq.rfl
+  filter_upwards [hSplit] with n hn
+  simpa using hn.symm
+
+/--
+A signed (sign-sensitive) lower bound on the phase-root scalar term: there is a
+positive constant `c` for which `c * logLogOrder n ≤ phaseRootScalarTerm n`
+eventually.  This is genuinely stronger than the norm-only Θ-bound and is derived
+from the positive leading coefficient `2 / q - 1 / 2 > 0` together with the exact
+little-o scalar expansion.
+-/
+theorem exists_pos_eventually_phaseRootScalarTerm_lower :
+    ∃ c : ℝ, 0 < c ∧
+      ∀ᶠ n : ℕ in atTop,
+        c * logLogOrder n ≤ phaseRootScalarTerm n := by
+  have hc : 0 < 2 / q - 1 / 2 := cLead_pos'
+  refine ⟨(2 / q - 1 / 2) / 2, by linarith, ?_⟩
+  have hb := phaseRootScalarTerm_sub_lead_isLittleO'.bound
+    (by linarith : (0 : ℝ) < (2 / q - 1 / 2) / 2)
+  filter_upwards [hb, tendsto_logLogOrder_atTop.eventually_ge_atTop (0 : ℝ)]
+    with n hbn hgn
+  have hnormg : ‖logLogOrder n‖ = logLogOrder n := by
+    rw [Real.norm_eq_abs, abs_of_nonneg hgn]
+  rw [hnormg] at hbn
+  rw [Real.norm_eq_abs, abs_le] at hbn
+  nlinarith [hbn.1, hgn, hc]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootScalarSignLower
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootScalarSignLower
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootUnitCorridorDomain
 Source: Erdos625/PhaseRootUnitCorridorDomain.lean
 Normalized SHA-256: f00f6a7639b9e8216bff6797de82da49b78f06c28ffdbf4743a6dd3f23f6a9f5
@@ -23574,7 +23898,7 @@ END SOURCE MODULE: Erdos625.PhaseRootGapCorridorSignedDomain
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootGapCorridorTargetConvergence
 Source: Erdos625/PhaseRootGapCorridorTargetConvergence.lean
-Normalized SHA-256: c61a5af404651db157c2f003bd7e7c4e71c0f85b132d0ab8b2fd3e59b1b5de69
+Normalized SHA-256: 9b90eed689e53223a76c44b73924c42f7786876de287135fabfb09bf52860a22
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootGapCorridorTargetConvergence
 
@@ -23714,6 +24038,25 @@ theorem eventually_uniform_phaseRoot_gapCorridor_target_close :
       le_div_iff₀ hden]
     nlinarith [mul_le_mul_of_nonneg_left hcore hs0pos.le]
   exact lt_of_le_of_lt hkey hsmalln
+
+/-- Across the full phase-root corridor, the four-size target is eventually
+trapped in the fixed neighborhood `[2/q - eta, 1 + 2/q + eta]`, using the
+closeness to `1 + 2/q - phaseDelta n` together with `0 ≤ phaseDelta n < 1`. -/
+theorem eventually_phaseRoot_gapCorridor_target_mem_neighborhood
+    (eta : ℝ) (heta : 0 < eta) :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ s ∈ Set.Icc (phaseRootCenter n - phaseRootGapRadius n)
+          (phaseRootCenter n + phaseRootGapRadius n),
+        fourSizeTarget n (phaseNat n) s ∈
+          Set.Icc (2 / q - eta) (1 + 2 / q + eta) := by
+  filter_upwards
+    [eventually_uniform_phaseRoot_gapCorridor_target_close eta heta] with n hn
+  intro s hs
+  have hclose := hn s hs
+  rw [abs_lt] at hclose
+  have hlo := phaseDelta_nonneg n
+  have hhi := phaseDelta_lt_one n
+  constructor <;> [linarith [hclose.1]; linarith [hclose.2]]
 
 end
 
@@ -25664,7 +26007,7 @@ END SOURCE MODULE: Erdos625.UniformFiniteFourEntropyCertificate
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.UniformFiniteEntropyNeighborhood
 Source: Erdos625/UniformFiniteEntropyNeighborhood.lean
-Normalized SHA-256: 9717d9433e7439a34fa9c19f6818e30d1cbe02607b091c4262aa43b85dc7c416
+Normalized SHA-256: f86ef9b2252f3af77c41379bb46c168af155b6f565cc69adcf5d17ffc9a20d66
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_UniformFiniteEntropyNeighborhood
 
@@ -25872,6 +26215,24 @@ theorem exists_uniform_finite_four_entropy_neighborhood :
   rw [hdecomp]
   have h2 := abs_lt.mp herr
   linarith [h2.1, h2.2, hloss]
+
+/-- Specialization of `exists_uniform_finite_four_entropy_neighborhood` to the
+phase size `phaseNat n`: since `phaseNat` eventually exceeds every fixed natural
+threshold, the uniform neighborhood bound holds eventually along `phaseNat n`. -/
+theorem exists_eventually_uniform_phaseNat_four_entropy_neighborhood :
+    ∃ eta : ℝ, 0 < eta ∧
+      ∀ᶠ n : ℕ in atTop,
+        ∀ target ∈ Set.Icc (2 / q - eta) (1 + 2 / q + eta),
+          extendedGaussianEntropyValue target -
+              fourSizeFiniteEntropy (phaseNat n) target <
+            Real.log (153 / 100 : ℝ) := by
+  obtain ⟨eta, heta, N, hN⟩ := exists_uniform_finite_four_entropy_neighborhood
+  refine ⟨eta, heta, ?_⟩
+  filter_upwards
+    [tendsto_logOrder_atTop.eventually_ge_atTop (N : ℝ),
+      eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder] with n hn hphase
+  have hge : N ≤ phaseNat n := by exact_mod_cast hn.trans hphase.1
+  exact hN (phaseNat n) hge
 
 end
 
@@ -66361,7 +66722,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: faac14fde8ac01d91a39b7343471360af07976139ad229b1063e157577eade2c
+Normalized SHA-256: dd0c57280ef87300491fca87745df4328f7402609fa0e676a749aa51c6280e0c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -67299,6 +67660,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootGapRadius_isTheta_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale
 #print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
+#print axioms Erdos625.exists_pos_eventually_phaseRootScalarTerm_lower
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_gapCorridor_lower
@@ -67306,8 +67668,10 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootGapRadius_tendsto_atTop
 #print axioms Erdos625.eventually_one_le_phaseRootGapRadius
 #print axioms Erdos625.eventually_uniform_phaseRoot_gapCorridor_target_close
+#print axioms Erdos625.eventually_phaseRoot_gapCorridor_target_mem_neighborhood
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
 #print axioms Erdos625.exists_uniform_finite_four_entropy_neighborhood
+#print axioms Erdos625.exists_eventually_uniform_phaseNat_four_entropy_neighborhood
 #print axioms Erdos625.exists_eventually_uniform_fourDeficitTilt_bound
 #print axioms Erdos625.exists_eventually_uniform_fourDeficitScore_bound
 #print axioms Erdos625.abs_log_partition_le
@@ -67321,7 +67685,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 51e5a849dd70c60992665113aa4f86976cb719934f5650da5efd2fed649d3d24
+Normalized SHA-256: 0869fa923d6a206e3b52899da4fc4b260e65c10c90c8e9581f9a01f3faa8fcfa
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

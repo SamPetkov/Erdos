@@ -140,7 +140,25 @@ theorem eventually_uniform_phaseRoot_gapCorridor_target_close :
     nlinarith [mul_le_mul_of_nonneg_left hcore hs0pos.le]
   exact lt_of_le_of_lt hkey hsmalln
 
+/-- Across the full phase-root corridor, the four-size target is eventually
+trapped in the fixed neighborhood `[2/q - eta, 1 + 2/q + eta]`, using the
+closeness to `1 + 2/q - phaseDelta n` together with `0 ≤ phaseDelta n < 1`. -/
+theorem eventually_phaseRoot_gapCorridor_target_mem_neighborhood
+    (eta : ℝ) (heta : 0 < eta) :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ s ∈ Set.Icc (phaseRootCenter n - phaseRootGapRadius n)
+          (phaseRootCenter n + phaseRootGapRadius n),
+        fourSizeTarget n (phaseNat n) s ∈
+          Set.Icc (2 / q - eta) (1 + 2 / q + eta) := by
+  filter_upwards
+    [eventually_uniform_phaseRoot_gapCorridor_target_close eta heta] with n hn
+  intro s hs
+  have hclose := hn s hs
+  rw [abs_lt] at hclose
+  have hlo := phaseDelta_nonneg n
+  have hhi := phaseDelta_lt_one n
+  constructor <;> [linarith [hclose.1]; linarith [hclose.2]]
+
 end
 
 end Erdos625
-
