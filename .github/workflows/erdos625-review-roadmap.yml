@@ -1,0 +1,33 @@
+name: Erdős 625 review roadmap support scan
+
+on:
+  pull_request:
+    paths:
+      - "625/REVIEW_SEQUENCE_ROADMAP.md"
+      - "625/experiments/support_frontier_scan.py"
+      - ".github/workflows/erdos625-review-roadmap.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  support-frontier-diagnostic:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Compile diagnostic
+        run: python -m py_compile 625/experiments/support_frontier_scan.py
+
+      - name: Run full support-frontier scan
+        run: python 625/experiments/support_frontier_scan.py
+
+      - name: Verify optimization-independent gates
+        run: python -O 625/experiments/support_frontier_scan.py --grid 101
