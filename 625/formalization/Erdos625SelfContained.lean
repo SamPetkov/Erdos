@@ -21296,7 +21296,7 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeQuadraticLower
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
 Source: Erdos625/PhaseRootDisplacementScale.lean
-Normalized SHA-256: e540403c71be202b87fdb36420b9b7ceea263e42bba6889a4151712b874ab198
+Normalized SHA-256: 82fcc88f3404266d1614633adacddaeaeed799c5932566d84764d70b7452c6f9
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootDisplacementScale
 
@@ -21341,8 +21341,9 @@ theorem phaseRootCenter_div_phaseNat_sq_isTheta_gapScale :
 theorem phaseRootGapRadius_isTheta_gapScale :
     phaseRootGapRadius =Θ[atTop]
       (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
-  simpa only [phaseRootGapRadius] using
-    phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
+  change (fun n : ℕ ↦ phaseRootCenter n / (phaseNat n : ℝ) ^ 2) =Θ[atTop]
+    (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3)
+  exact phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 
 end
 

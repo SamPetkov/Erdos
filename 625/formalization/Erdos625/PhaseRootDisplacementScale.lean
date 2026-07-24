@@ -43,8 +43,9 @@ theorem phaseRootCenter_div_phaseNat_sq_isTheta_gapScale :
 theorem phaseRootGapRadius_isTheta_gapScale :
     phaseRootGapRadius =Θ[atTop]
       (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
-  simpa only [phaseRootGapRadius] using
-    phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
+  change (fun n : ℕ ↦ phaseRootCenter n / (phaseNat n : ℝ) ^ 2) =Θ[atTop]
+    (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3)
+  exact phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 
 end
 
