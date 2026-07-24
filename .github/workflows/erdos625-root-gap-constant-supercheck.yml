@@ -1,0 +1,34 @@
+name: Erdős 625 root-gap constant supercheck
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/ROOT_GAP_CONSTANT_PROPAGATION.md"
+      - "625/audits/ROOT_GAP_CONSTANT_PROPAGATION_AUDIT.md"
+      - "625/experiments/root_gap_constant_supercheck.py"
+      - ".github/workflows/erdos625-root-gap-constant-supercheck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-supercheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Compile checker
+        run: python -m py_compile 625/experiments/root_gap_constant_supercheck.py
+
+      - name: Run exact and diagnostic checks
+        run: python 625/experiments/root_gap_constant_supercheck.py
+
+      - name: Verify optimization-independent gates
+        run: python -O 625/experiments/root_gap_constant_supercheck.py
