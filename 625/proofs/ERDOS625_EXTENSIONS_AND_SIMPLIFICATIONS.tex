@@ -237,16 +237,78 @@ Hence
 \]
 with high probability.
 
-\section{Architectural alternatives}
+\section{An exactly certified three-size alternative}
 
-Numerical optimization shows that the three-size support $\{2,3,5\}$ still has
-uniform positive signed advantage, approximately $0.0921449643$.  It preserves
-the unimodular correction coordinates $2,3$, the central-rate endpoints $2,5$,
-and maximum type displacement three, while reducing the transportation table
-from $4\times4$ to $3\times3$.  This is a diagnostic, not yet a proved
-replacement route.
+Let $S_3=\{2,3,5\}$ and
+\[
+ D_3(\delta)=\mathcal F_{S_+}(T_0)-\mathcal F_{S_3}(T_0).
+\]
+The same omitted-mass method gives a rigorous positive advantage.
 
-The midpoint can also be replaced by
+\begin{proposition}
+For every target $2/q\le T\le1+2/q$, the $S_3$ tilt satisfies
+\[
+ \frac{29}{10}q<\lambda_3<\frac{21}{5}q.
+ \tag{8.1}
+\]
+Moreover
+\[
+ D_3(\delta)<\ln\frac{391}{200},
+ \qquad
+ q-D_3(\delta)>\ln\frac{400}{391}>0.
+ \tag{8.2}
+\]
+\end{proposition}
+
+Let $L_3$ be the omitted ratio from deficits $-1,0,1$, let $M_4$ be the
+ratio of the deficit-4 weight, and let $H_3$ be the ratio of the tail from six
+onward.  Exact rational comparisons give
+\[
+ L_3(29q/10)<\frac15,
+ \quad H_3(7q/2)<\frac2{25},
+ \quad M_4(7q/2)=\frac12,
+ \tag{8.3}
+\]
+and
+\[
+ L_3(7q/2)<\frac2{25},
+ \quad H_3(21q/5)<\frac14,
+ \quad M_4(21q/5)<\frac58.
+ \tag{8.4}
+\]
+The low ratio decreases with the tilt, the high ratio increases, and $M_4$
+increases because the retained mean stays below four.  Splitting at $7q/2$
+therefore bounds the total omitted ratio by $191/200$.
+
+With $x=2^{1/10}$, the endpoint checks reduce to integer powers.  Two of the
+load-bearing inequalities are
+\[
+ 5(1+x^{34}+x^{58})<x^{72}+x^{76}+x^{54}
+ \tag{8.5}
+\]
+and
+\[
+ 4\left(x^{72}+x^{49}+\frac{x^{16}}{1-x^{-43}}\right)
+ <x^{64}+x^{81}+x^{85}.
+ \tag{8.6}
+\]
+The exact-check script verifies all mean brackets, tail estimates, and ratio
+bounds using rational arithmetic.
+
+The support retains the correction coordinates $2,3$, the endpoint deficits
+$2,5$, and maximum type displacement three, while reducing the transportation
+table from $4\times4$ to $3\times3$.  Direct propagation of (5.11) would give
+\[
+ \frac{(\ln2)^2}{8}\ln\frac{400}{391}
+ =0.0013667079\ldots.
+ \tag{8.7}
+\]
+This is an exact first-moment alternative, but the later second-moment modules
+must still be replayed for the three-coordinate profile.
+
+\section{Root placement remains an experimental optimization}
+
+The midpoint can be replaced by
 \[
  k_\theta=\left\lceil r_4^{co}+\theta(r_+-r_4^{co})\right\rceil
 \]
