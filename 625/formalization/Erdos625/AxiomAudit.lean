@@ -100,6 +100,7 @@ import Erdos625.PhaseRootLogPartitionQuadratic
 import Erdos625.PhaseRootDerivativeSelectedQuadratic
 import Erdos625.QuadraticSlopeAssemblyArithmetic
 import Erdos625.PhaseRootDerivativeQuadraticLower
+import Erdos625.PhaseRootDisplacementScale
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 import Erdos625.ColoringProfilePhaseDerivative
 import Erdos625.ColoringProfilePhaseDerivativeLogPartitionEnvelope
@@ -1276,3 +1277,4 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
+#print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale

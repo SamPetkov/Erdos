@@ -21294,6 +21294,55 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeQuadraticLower
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
+Source: Erdos625/PhaseRootDisplacementScale.lean
+Normalized SHA-256: cbbad86d412e3763b0fc70e95a063e68e05a06c1032e0a33c8d92eeae5d54e57
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootDisplacementScale
+
+namespace Erdos625
+
+open Filter Asymptotics
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+The inverse quadratic slope scale at the reference center has exactly the
+manuscript order `n / (logOrder n)^3`.
+-/
+theorem phaseRootCenter_div_phaseNat_sq_isTheta_gapScale :
+    (fun n : ℕ ↦
+      phaseRootCenter n / (phaseNat n : ℝ) ^ 2) =Θ[atTop]
+        (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
+  have hS0 : phaseRootS0 =Θ[atTop] logOrder :=
+    (IsEquivalent.isTheta phaseRootS0_isEquivalent_scaled_logOrder).of_const_mul_right
+      (div_ne_zero (by norm_num) q_ne_zero)
+  have hPhase : (fun n : ℕ ↦ (phaseNat n : ℝ)) =Θ[atTop] logOrder :=
+    phaseNat_isTheta_logOrder
+  have hCenter : (fun n : ℕ ↦ (n : ℝ) / phaseRootS0 n) =Θ[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / logOrder n) :=
+    (isTheta_refl (fun n : ℕ ↦ (n : ℝ)) atTop).div hS0
+  have hSq : (fun n : ℕ ↦ (phaseNat n : ℝ) ^ 2) =Θ[atTop]
+      (fun n : ℕ ↦ (logOrder n) ^ 2) := hPhase.pow 2
+  have hDiv := hCenter.div hSq
+  have hEq : (fun n : ℕ ↦ ((n : ℝ) / logOrder n) / (logOrder n) ^ 2) =
+      (fun n : ℕ ↦ (n : ℝ) / (logOrder n) ^ 3) := by
+    funext n; ring
+  rw [hEq] at hDiv
+  simpa only [phaseRootCenter] using hDiv
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootDisplacementScale
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootDisplacementScale
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
 Source: Erdos625/ColoringProfilePhaseObjectiveDeficitDecomposition.lean
 Normalized SHA-256: d6cb77c2918cd42b6560032506e6089c42b2559f647608e46871dad2c5c02ba0
@@ -64413,7 +64462,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 8f9c82091802049554275dfaf952d071aff44ca11383fb38437c2b00adefe067
+Normalized SHA-256: 41a1974fc255127c9ab22e8dc71247529a34dd2b9232884009a874e2cd3e8648
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -65347,6 +65396,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
+#print axioms Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -65356,7 +65406,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: f9228baa50bc3b8b7b9ffbf182a6e76aaf770d8979861ab82a03c75bde66279b
+Normalized SHA-256: 47a2d89372344e62e189f88b4e8940cbda4fc21a7ebf9c2d4350ade95ea9b72c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
