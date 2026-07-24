@@ -1,9 +1,3 @@
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 import Erdos625.PhaseRootFiniteCommon
 import Erdos625.PhaseEstimates
 import Mathlib.Tactic
@@ -57,5 +51,4 @@ theorem eventually_abs_phaseRootTilt_mul_phaseNat_le_quadratic :
 end
 
 end Erdos625
-
 

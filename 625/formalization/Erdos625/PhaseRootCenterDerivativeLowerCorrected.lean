@@ -1,9 +1,3 @@
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 import Erdos625.DerivativeAffineCoreError
 import Erdos625.PhaseRootFiniteCommon
 import Mathlib.Tactic
@@ -45,5 +39,4 @@ theorem unrestrictedPhaseObjective_deriv_center_lower_corrected
 end
 
 end Erdos625
-
 

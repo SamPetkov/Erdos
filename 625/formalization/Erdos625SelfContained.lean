@@ -20574,16 +20574,9 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedDiscrepancy
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootTiltLinearQuadratic
 Source: Erdos625/PhaseRootTiltLinearQuadratic.lean
-Normalized SHA-256: 89c2a82aee2725de4b4422ff0c54dfd3dc1ad7db16d9a63af28f5cb6af2a47ca
+Normalized SHA-256: e320275be0237822b99e1d658ea7769c3f70170623f988fca377db295cb819e0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootTiltLinearQuadratic
-
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 
 namespace Erdos625
 
@@ -20964,16 +20957,9 @@ END SOURCE MODULE: Erdos625.DerivativeAffineCoreError
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootCenterDerivativeLowerCorrected
 Source: Erdos625/PhaseRootCenterDerivativeLowerCorrected.lean
-Normalized SHA-256: a6c334b9eed8c82332ad5ea190089ec1f23f32669de91c913cec2039aff45a04
+Normalized SHA-256: 6a97f4cf75bc6b28412710e1b33f962e96e2013a43ddffb85787cdd7a0ba3d44
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootCenterDerivativeLowerCorrected
-
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 
 namespace Erdos625
 
@@ -21021,16 +21007,9 @@ END SOURCE MODULE: Erdos625.PhaseRootCenterDerivativeLowerCorrected
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootLogPartitionQuadratic
 Source: Erdos625/PhaseRootLogPartitionQuadratic.lean
-Normalized SHA-256: 123390da4d1bf79d0d07c7c33a77a26f1407cb4baacf013c2bb256ff56109828
+Normalized SHA-256: 4d86230dca277a69385f4f10f8c66533e815fa0ef48fb8f9f23db69020952e6e
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootLogPartitionQuadratic
-
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 
 namespace Erdos625
 
@@ -21107,16 +21086,9 @@ END SOURCE MODULE: Erdos625.PhaseRootLogPartitionQuadratic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedQuadratic
 Source: Erdos625/PhaseRootDerivativeSelectedQuadratic.lean
-Normalized SHA-256: b8152315c2f97b888ed48b31b34579f0299de854c646a9756b0b7bc160021d9f
+Normalized SHA-256: 542907019b7a6481cb52e46babbf62df172f1f3fa1ac732b3c7046a940d6a7ca
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeSelectedQuadratic
-
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.2 seconds
-Output:
 
 namespace Erdos625
 
@@ -21235,16 +21207,9 @@ END SOURCE MODULE: Erdos625.PhaseRootDerivativeSelectedQuadratic
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.QuadraticSlopeAssemblyArithmetic
 Source: Erdos625/QuadraticSlopeAssemblyArithmetic.lean
-Normalized SHA-256: c7744e2e7f624646760616de1685b492cc1fd1ea6ac38348d53090804f702184
+Normalized SHA-256: 2902a051c50885586740419c52044d22cc92407a23eb920a9e565ec132a0a2d0
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_QuadraticSlopeAssemblyArithmetic
-
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
 
 namespace Erdos625
 
@@ -21273,6 +21238,59 @@ end Erdos625
 end Erdos625SelfContained_Module_Erdos625_QuadraticSlopeAssemblyArithmetic
 /- ==========================================================================
 END SOURCE MODULE: Erdos625.QuadraticSlopeAssemblyArithmetic
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.PhaseRootDerivativeQuadraticLower
+Source: Erdos625/PhaseRootDerivativeQuadraticLower.lean
+Normalized SHA-256: fb95dc763f0774f7f0add5e6cecd465d85cdea0524fb9ad93f784b6b8bd9d65b
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeQuadraticLower
+
+namespace Erdos625
+
+open Filter
+
+noncomputable section
+
+set_option autoImplicit false
+
+/--
+At the reference center, the unrestricted phase objective eventually has a
+strictly positive derivative of explicit quadratic size.
+-/
+theorem eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic :
+    ∀ᶠ n : ℕ in atTop,
+      q / 4 * (phaseNat n : ℝ) ^ 2 ≤
+        deriv (unrestrictedPhaseObjective n) (phaseRootCenter n) := by
+  filter_upwards [eventually_phaseRootCenter_deficitTarget_mem_open,
+    eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic,
+    eventually_abs_log_phaseRootCenter_le_quadratic,
+    eventually_factorialLogErrorBound_phaseNat_le_quadratic] with n hT hsel hcen hfac
+  have hlb := unrestrictedPhaseObjective_deriv_center_lower_corrected hT
+  have heq : profileDeficitTarget (phaseNat n) (n : ℝ) (phaseRootCenter n)
+      = phaseRootDeficitTarget n := rfl
+  rw [heq] at hlb
+  have hkey := quadraticMain_sub_three_errors_ge_quarter
+    (a := (phaseNat n : ℝ))
+    (selected := Real.log
+        (profileDeficitPartition (phaseNat n)
+          (profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n))) -
+      profileDeficitTilt (phaseNat n) (phaseRootDeficitTarget n) *
+        (phaseNat n : ℝ))
+    (centerLog := Real.log (phaseRootCenter n))
+    (factorialError := factorialLogErrorBound (phaseNat n))
+    (Nat.cast_nonneg _) hsel hcen
+    (factorialLogErrorBound_nonneg _) hfac
+  linarith [hkey, hlb]
+
+end
+
+end Erdos625
+
+end Erdos625SelfContained_Module_Erdos625_PhaseRootDerivativeQuadraticLower
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.PhaseRootDerivativeQuadraticLower
 ========================================================================== -/
 
 /- ==========================================================================
@@ -64395,7 +64413,7 @@ END SOURCE MODULE: Erdos625.ExpTailTransport
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625.AxiomAudit
 Source: Erdos625/AxiomAudit.lean
-Normalized SHA-256: 1900b4e201ee00f10e7ce76af4528bdb5c652035cff2ff0546a85674e960ff73
+Normalized SHA-256: 8f9c82091802049554275dfaf952d071aff44ca11383fb38437c2b00adefe067
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625_AxiomAudit
 
@@ -65328,6 +65346,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_abs_phaseRootLogPartition_le_quadratic
 #print axioms Erdos625.eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic
 #print axioms Erdos625.quadraticMain_sub_three_errors_ge_quarter
+#print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic
 
 end Erdos625SelfContained_Module_Erdos625_AxiomAudit
 /- ==========================================================================
@@ -65337,7 +65356,7 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 /- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: 1ddb8e0bc7da1e5a24b2bacece45be97f85cbbf43a779566e640cd4e4dc2ff85
+Normalized SHA-256: f9228baa50bc3b8b7b9ffbf182a6e76aaf770d8979861ab82a03c75bde66279b
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 

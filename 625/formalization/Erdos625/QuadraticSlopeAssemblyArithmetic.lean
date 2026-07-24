@@ -1,9 +1,3 @@
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
-Exit code: 0
-Wall time: 0.3 seconds
-Output:
 import Erdos625.PhaseEstimates
 import Mathlib.Tactic
 
@@ -30,5 +24,4 @@ theorem quadraticMain_sub_three_errors_ge_quarter
     mul_nonneg q_pos.le (sq_nonneg a)]
 
 end Erdos625
-
 
