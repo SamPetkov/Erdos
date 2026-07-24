@@ -100,18 +100,21 @@ Therefore Corollary 1.2 gives immediately
  \tag{1.4}
 \]
 
-Using the definitions in (9.5)--(9.6),
+For every off-matching cell put
+\(\widetilde\theta_{ab}=e d_ad'_b/m_0\).  The weights \(q_e\) are zero on
+\(M\), so (9.5)--(9.6) give
 
 \[
  \sum_e q_e
- =\frac12\sum_{a,b}\theta_{ab}^2+\Lambda_0.
+ =\frac12\sum_{(a,b)\notin M}\widetilde\theta_{ab}^{\,2}+\Lambda_0
+ \le\frac12\sum_{a,b}\widetilde\theta_{ab}^{\,2}+\Lambda_0.
  \tag{1.5}
 \]
 
-The degree sums factor exactly:
+The unrestricted square sum factorizes exactly:
 
 \[
- \sum_{a,b}\theta_{ab}^2
+ \sum_{a,b}\widetilde\theta_{ab}^{\,2}
  =\frac{e^2}{m_0^2}
    \left(\sum_a d_a^2\right)
    \left(\sum_b(d'_b)^2\right).
@@ -130,7 +133,7 @@ Since every residual degree is at most `U` and both degree sums are `m_0`,
 so
 
 \[
- \sum_{a,b}\theta_{ab}^2\le e^2U^2.
+ \sum_{a,b}\widetilde\theta_{ab}^{\,2}\le e^2U^2.
  \tag{1.8}
 \]
 
@@ -244,15 +247,15 @@ Define
  \tag{3.1}
 \]
 
-The value functions in Section 3 are continuous, so `A` is continuous.  Lemma
-5.1 gives `A(delta)>gamma_4` on the compact closed phase interval, where
+The value functions in Section 3 are continuous, so \(A\) is continuous.  Lemma
+5.1 gives \(A(\delta)>\gamma_4\) on the compact closed phase interval, where
 
 \[
  \gamma_4=\ln(200/153).
  \tag{3.2}
 \]
 
-Consequently `A_*>gamma_4`.
+Consequently \(A_*>\gamma_4\).
 
 Using (5.11) directly and the midpoint definition (5.13), rather than replacing
 (5.11) by (5.12), gives
@@ -432,13 +435,18 @@ For every deterministic graph,
  \tag{6.1}
 \]
 
-For fixed `p in (0,1)`, the standard dense-random-graph asymptotic is
+For fixed `p in (0,1)`, McDiarmid's refinement of the dense-random-graph
+chromatic asymptotic gives
 
 \[
  \chi(G(n,p))
  =\left(\frac12\ln\frac1{1-p}+o(1)\right)\frac{n}{\ln n}.
  \tag{6.2}
 \]
+
+This literature-dependent extension uses C. McDiarmid, *On the chromatic
+number of random graphs*, Random Structures & Algorithms 1 (1990), 435--442,
+DOI [`10.1002/rsa.3240010404`](https://doi.org/10.1002/rsa.3240010404).
 
 Applying the same formula to the complement gives
 
@@ -476,29 +484,37 @@ Every coclour class has size at most `h(G)`, so
  \tag{7.1}
 \]
 
-The standard second-order estimates for `G(n,1/2)` give
+The standard clique/independence and chromatic estimates for `G(n,1/2)`
+give
 
 \[
  h(G)=2\log_2n-2\log_2\log_2n+O(1)
  \tag{7.2}
 \]
 
-and
+and, writing \(d_\chi(G)=n/\chi(G)\),
 
 \[
- \chi(G)=
- \frac{n}{2\log_2n-2\log_2\log_2n+O(1)}
+ d_\chi(G)=2\log_2n-2\log_2\log_2n+O(1)
  \tag{7.3}
 \]
 
-with high probability.  The two denominators differ by only `O(1)`, hence
+with high probability.  Deterministically \(\chi(G)\ge n/h(G)\), so
+\(d_\chi(G)\le h(G)\).  The two quantities in (7.2)--(7.3) differ by `O(1)`,
+and therefore
 
 \[
- \boxed{\chi(G)-\zeta(G)=O\left(\frac{n}{(\ln n)^2}\right)}
+ 0\le \chi(G)-\zeta(G)
+ \le \frac{n}{d_\chi(G)}-\frac{n}{h(G)}
+ =O\left(\frac{n}{(\ln n)^2}\right).
  \tag{7.4}
 \]
 
-with high probability.
+For the chromatic estimate, see McDiarmid (1990), cited above.  The
+clique-number input is the classical two-point result of Bollobás--Erdős and
+Matula; see B. Bollobás and P. Erdős, *Cliques in random graphs*, Math. Proc.
+Cambridge Philos. Soc. 80 (1976), 419--427, DOI
+[`10.1017/S0305004100053056`](https://doi.org/10.1017/S0305004100053056).
 
 Combined with the candidate lower bound, this gives the current scale window
 
@@ -726,7 +742,36 @@ leaving a substantial fixed first-moment margin.
 
 ---
 
-## 10. Recommended integration order
+## 10. Verification status of the new claims
+
+The companion script `experiments/review27_verification.py` independently
+checks the finite combinatorial seams used by the review rewrite:
+
+- bounded-margin canonical extraction and the exact cancellation
+  \(\pi(M,j)p_{\rm res}(r')=p(r)\) on 3,809 small contingency tables;
+- the dependent labelled demand/witness/residual encoding and table-count
+  factorization on 5,880 perfect matchings;
+- the typed-decoration fibre cardinality
+  \(\ell!/\prod_e n_e!\) and its cancellation against the endpoint-table
+  factorial on 330 count fibres;
+- the exact endpoint/near/middle partition and the floor bound
+  \(r\le\lfloor3m/4\rfloor\) on 5,929 finite cases;
+- injectivity of \(F\mapsto F\setminus M\), the cardinality bound, and the
+  weighted subset-product inequality on 162 finite bipartite instances;
+- the corrected off-matching square-sum inequality on 263,967 finite
+  degree/matching instances;
+- the endpoint signs in the \(1/100\) central-rate argument at 80 decimal
+  digits.
+
+These computations are regression and transcription tests.  They do not
+replace the asymptotic proof, the dependent conditional-law construction, or
+an independent review of the new entropy certificates.  In particular, the
+three-size profile and the non-midpoint placement remain separate proposed
+routes until their complete second-moment chains are replayed.
+
+---
+
+## 11. Recommended integration order
 
 1. Replace the large-residual cycle expansion by Lemma 1.1 and Corollary 1.2.
 2. Strengthen the central rate to (2.1).
