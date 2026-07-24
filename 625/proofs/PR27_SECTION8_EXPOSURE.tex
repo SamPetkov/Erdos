@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{longtable,booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\title{PR \#27: exact canonical high-cell exposure}
+\author{Companion revision for the Erd\H{o}s Problem 625 candidate manuscript}
+\date{24 July 2026}
+\begin{document}
+\maketitle
+\section{PR \#27: exact canonical high-cell exposure}\label{pr-27-exact-canonical-high-cell-exposure}
+
+\textbf{Status.} Candidate replacement text, audited against current \texttt{main} on 24 July 2026. It is not a completed proof of the asymptotic theorem.
+
+\subsection{Replacement block B: exact canonical exposure at the start of Section 8}\label{replacement-block-b-exact-canonical-exposure-at-the-start-of-section-8}
+
+Replace the prose following equation (8.3) with the following proposition.
+
+\subsubsection{Proposition 8.0 (canonical high-cell exposure identity)}\label{proposition-8.0-canonical-high-cell-exposure-identity}
+
+Let \(A,B\) be finite row and column index sets. Fix degree lists \((s_a)_{a\in A}\), \((t_b)_{b\in B}\) satisfying
+
+\[
+ 0\le s_a\le U,\qquad 0\le t_b\le U,
+ \qquad
+ \sum_a s_a=\sum_b t_b=n.
+ \tag{8.3a}
+\]
+
+Let \(r=(r_{ab})\) be a feasible overlap table with these margins, put \(R_0=\lfloor U/2\rfloor\), and define
+
+\[
+ M(r)=\{(a,b):r_{ab}>R_0\}.
+\]
+
+Then the following hold.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Matching property.} The support \(M(r)\) is a partial matching. If two selected cells shared a row, their total would be at least \(2(R_0+1)>U\), contradicting \(s_a\le U\); the column argument is the same.
+\item
+  \textbf{Canonical demand and residual table.} For \(e=(a,b)\in M(r)\), set \(j_e=r_{ab}\), \(J=\sum_{e\in M(r)}j_e\), and
+
+  \[
+   d_a=\sum_{b:(a,b)\in M(r)}j_{ab},
+   \qquad
+   d_b'=\sum_{a:(a,b)\in M(r)}j_{ab}.
+  \]
+
+  Remove the selected paired stubs and define
+
+  \[
+   s_a'=s_a-d_a,
+   \qquad
+   t_b'=t_b-d_b',
+   \qquad
+   r'_{ab}=\begin{cases}
+      0,&(a,b)\in M(r),\\
+      r_{ab},&(a,b)\notin M(r).
+   \end{cases}
+  \]
+
+  The table \(r'\) has margins \((s_a')\), \((t_b')\), both summing to \(n-J\); it vanishes on \(M(r)\) and satisfies \(r'_{ab}\le R_0\) off it.
+\item
+  \textbf{Exact finite reconstruction.} Let \(\mathcal D(s,t,U)\) be the finite image of the canonical high-demand map. For \(D=(M,j)\in\mathcal D(s,t,U)\), let \(\mathcal W(D)\) be the finite set of labelled prescribed-demand witnesses. For a witness \(w\in\mathcal W(D)\), let \(\Omega_{\rm res}(w)\) be the residual matching space with the displayed residual margins, zero-on-\(M\), and cap-off-\(M\) conditions. A full matching is recovered uniquely from \((D,w,\omega)\), and canonical extraction gives the inverse map. Thus the exact finite decomposition is the dependent disjoint union
+
+  \[
+   \Omega(s,t)\ \cong\
+   \bigsqcup_{D\in\mathcal D(s,t,U)}
+     \bigsqcup_{w\in\mathcal W(D)}\Omega_{\rm res}(w).
+   \tag{8.3b}
+  \]
+
+  The dependence on \(w\) is material: residual stub types are canonically relabelled for each witness before comparison with a standard residual configuration space.
+\item
+  \textbf{Exact mass cancellation.} The aggregate normalized incidence obtained by summing all labelled witnesses for the demand \(D=(M,j)\) is
+
+  \[
+   \pi(M,j)=
+   \frac{\prod_a(s_a)_{d_a}\prod_b(t_b)_{d_b'}}
+        {(n)_J\prod_{e\in M}j_e!}.
+   \tag{8.3c}
+  \]
+
+  After any fixed witness is standardized, the residual contingency-table mass is
+
+  \[
+   p_{\rm res}(r')=
+   \frac{\prod_a(s_a-d_a)!\prod_b(t_b-d_b')!}
+        {(n-J)!\prod_{a,b}r'_{ab}!}.
+   \tag{8.3d}
+  \]
+
+  The residual table law is the same for all witnesses after unused-stub relabelling. Since \((s)_d=s!/(s-d)!\) and \((n)_J=n!/(n-J)!\),
+
+  \[
+   \pi(M,j)p_{\rm res}(r')
+   =\frac{\prod_a s_a!\prod_b t_b!}
+          {n!\prod_{a,b}r_{ab}!}
+   =p(r).
+   \tag{8.3e}
+  \]
+\end{enumerate}
+
+Thus the canonical exposure is a genuine partition of the finite matching space, not a union bound or a proportionality statement. The cap assumptions in (8.3a) are essential; without them the matching assertion is false.
+
+\subsubsection{Definition 8.0A (bare canonical-skeleton weight)}\label{definition-8.0a-bare-canonical-skeleton-weight}
+
+For a feasible canonical skeleton \((M,j)\), set
+
+\[
+ \operatorname{Bare}(M,j)=\pi(M,j)\prod_{e\in M}g(j_e).
+ \tag{8.3f}
+\]
+
+The residual cap/no-return event and its local/cycle factor remain in the conditional residual law. A later use of the full residual integrand as a nonnegative majorant does not redefine \(\operatorname{Bare}\) and does not cause that factor to be applied twice.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\end{document}
