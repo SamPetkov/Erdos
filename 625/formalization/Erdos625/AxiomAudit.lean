@@ -105,6 +105,7 @@ import Erdos625.PhaseRootScalarOverSlopeNegligible
 import Erdos625.PhaseRootScalarLogLogScale
 import Erdos625.PhaseRootUnitCorridorDomain
 import Erdos625.PhaseRootDerivativeUnitCorridor
+import Erdos625.PhaseRootGapCorridorSignedDomain
 import Erdos625.UniformFiniteFourEntropyCertificate
 import Erdos625.UniformFourDeficitTiltBound
 import Erdos625.ColoringProfilePhaseObjectiveDeficitDecomposition
@@ -1289,5 +1290,6 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.phaseRootScalarTerm_isTheta_logLogOrder
 #print axioms Erdos625.eventually_phaseRoot_unitCorridor_domain
 #print axioms Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower
+#print axioms Erdos625.eventually_phaseRoot_gapCorridor_signed_domain
 #print axioms Erdos625.eventually_uniform_finite_four_entropy_certificate
 #print axioms Erdos625.exists_eventually_uniform_fourDeficitTilt_bound
