@@ -1,332 +1,156 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage[hidelinks]{hyperref}
-\usepackage{enumitem}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
 \newtheorem{lemma}{Lemma}
 \newtheorem{proposition}{Proposition}
-\newtheorem{corollary}{Corollary}
-\newcommand{\E}{\mathbb E}
-\newcommand{\cE}{\mathcal E}
-\newcommand{\cP}{\mathcal P}
-\title{Erd\H{o}s Problem 625: Result Extensions and Proof Simplifications}
-\author{Research note for the candidate manuscript}
+\title{Erd\H{o}s Problem 625: Verified Extensions and Simplifications}
+\author{Companion synopsis for draft PR \#27}
 \date{24 July 2026}
 \begin{document}
 \maketitle
 
 \paragraph{Status.}
-This note records exact deductions, finite rational certificates, and
-architectural alternatives obtained by re-examining the candidate manuscript
-at repository main commit
-\begin{center}
-\small\ttfamily cda78922ea6c87bfc81f9bf693374dd045dac624
-\end{center}
-It is not external peer review, priority verification, or a completed Lean
-proof of the final target.  Put $q=\ln2$ and $N=\ln n$.
+This is a concise TeX synopsis of
+\texttt{ERDOS625\_EXTENSIONS\_AND\_SIMPLIFICATIONS.md}.  The Markdown file
+contains the detailed certificates and literature notes.  Nothing here is
+external peer review or a completed Lean proof of
+\texttt{Erdos625Statement}.
 
-\section{Exact simplification of the large-residual attachment bound}
+Throughout, let \(q=\ln2\) and \(N=\ln n\).
 
-\begin{lemma}[An even completion of residual edges is unique]
-Let $M$ be a matching and $R$ any other finite edge set.  Put
+\section{Direct residual-restriction bound}
+
+Let \(M\) be a matching and \(R\) a finite residual edge set.  For
 \[
- \cE(M,R)=\{F\subseteq M\cup R:\deg_F(v)\equiv0\pmod2\text{ for every }v\}.
+ \mathcal E(M,R)=\{F\subseteq M\cup R:\deg_F(v)\equiv0\pmod2
+   \text{ for every }v\},
 \]
-Then
+the map \(F\mapsto F\setminus M\) is injective: the symmetric difference of
+two completions with the same residual restriction would be a nonempty even
+subset of a matching, which is impossible.  Hence, for nonnegative weights,
 \[
- \rho:\cE(M,R)\to\cP(R\setminus M),\qquad \rho(F)=F\setminus M
+ \sum_{F\in\mathcal E(M,R)}\prod_{e\in F\setminus M}q_e
+ \le \prod_{e\in R\setminus M}(1+q_e)
+ \le \exp\!\left(\sum_{e\in R\setminus M}q_e\right).
  \tag{1.1}
 \]
-is injective.
-\end{lemma}
 
-\begin{proof}
-If $\rho(F)=\rho(F')$, then $F\mathbin\triangle F'\subseteq M$.  The symmetric
-difference is even.  A nonempty subset of a matching has degree one at every
-incident vertex, so it is not even.  Thus $F\mathbin\triangle F'=\varnothing$.
-\end{proof}
-
-\begin{corollary}[Weighted product bound]
-For nonnegative residual weights $(q_e)$, extended by zero on $M$,
+In the notation of Lemma 9.1, put
+\(\widetilde\theta_{ab}=e d_ad_b'/m_0\) off the exposed matching.  Because the
+weights vanish on \(M\),
 \[
- \sum_{F\in\cE(M,R)}\prod_{e\in F\setminus M}q_e
- \le\prod_{e\in R\setminus M}(1+q_e)
- \le\exp\left(\sum_e q_e\right).
+ \sum_e q_e
+ =\frac12\sum_{(a,b)\notin M}\widetilde\theta_{ab}^{\,2}+\Lambda_0
+ \le\frac12\sum_{a,b}\widetilde\theta_{ab}^{\,2}+\Lambda_0.
  \tag{1.2}
 \]
-\end{corollary}
-
-Equation (9.12) therefore gives
+Only the unrestricted sum factorizes:
 \[
- \mathcal A(M,j)\le\exp\left(\Lambda_0+\sum_eq_e\right).
+ \sum_{a,b}\widetilde\theta_{ab}^{\,2}
+ =\frac{e^2}{m_0^2}
+   \left(\sum_a d_a^2\right)\left(\sum_b(d_b')^2\right)
+ \le e^2U^2.
  \tag{1.3}
 \]
-Since
+Together with \(\Lambda_0\le CU^4/m_0\), this gives
 \[
- \sum_eq_e=\frac12\sum_{a,b}\theta_{ab}^2+\Lambda_0
+ \boxed{\mathcal A(M,j)\le
+ \exp\!\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
  \tag{1.4}
 \]
-and
-\[
- \sum_{a,b}\theta_{ab}^2
- =\frac{e^2}{m_0^2}
-   \left(\sum_ad_a^2\right)\left(\sum_b(d'_b)^2\right)
- \le e^2U^2,
- \tag{1.5}
-\]
-while $\Lambda_0\le CU^4/m_0$, we obtain
-\[
- \boxed{\mathcal A(M,j)
- \le\exp\left\{C\left(U^2+\frac{U^4}{m_0}\right)\right\}.}
- \tag{1.6}
-\]
-For $m_0\ge n/N^6$ and $U=O(N)$ this is $\exp(CN^2)$, stronger than the
-current $\exp(CN^8)$ bound.  It removes the simple-cycle decomposition,
-residual and mixed walk enumeration, $\tau$, and equations (9.15)--(9.18).
+Thus the large-residual regime costs only \(\exp(O(N^2))\), and the
+simple-cycle decomposition, residual-walk enumeration, parameter \(	au\), and
+term \(h\tau\) are unnecessary for this bound.
 
-\section{A stronger central partial-diagonal rate}
+\section{Stronger central rate}
 
-\begin{lemma}
-Under the hypotheses of Lemma 7.1A,
+On the domain of the central partial-diagonal argument,
 \[
- \Phi_T(z)\le-\frac{1-R}{100}\qquad(1/64\le R\le1).
+ \boxed{\Phi_T(z)\le-\frac{1-R}{100}},
+ \qquad \frac1{64}\le R\le1.
  \tag{2.1}
 \]
-\end{lemma}
+The proof uses the same two convex endpoint comparisons as the manuscript but
+retains the larger numerical margin.  The companion finite checker evaluates
+the three endpoint signs at 80 decimal digits.
 
-\begin{proof}
-On $[1/64,47/100]$ use
-\[
- \Phi_T(z)\le R\ln R+(5q/2-1)R.
-\]
-The convex function
-\[
- f(R)=R\ln R+(5q/2-1)R+\frac{1-R}{100}
-\]
-has $f(1/64)<-0.0436$ and $f(47/100)<-0.0051$.  On
-$[47/100,1]$ use
-\[
- \Phi_T(z)\le R\ln R+(1-q/2)(1-R).
-\]
-The convex function
-\[
- h(R)=R\ln R+(1-q/2+1/100)(1-R)
-\]
-has $h(47/100)<-0.0032$ and $h(1)=0$.
-\end{proof}
+\section{Constant propagation}
 
-\section{Carry the phase-resolved displacement to the theorem}
-
-Put
+Writing \(A(\delta)=q-D_4(\delta)\), equation (5.11) and the midpoint choice give
 \[
- A(\delta)=q-D_4(\delta),\qquad
- A_*=\min_{0\le\delta\le1}A(\delta).
+ k_\chi^- -k_{co}
+ =\left(\frac{q^2}{8}A(\delta)+o(1)\right)\frac{n}{N^3}.
  \tag{3.1}
 \]
-Continuity and Lemma 5.1 give $A_*>\gamma_4$, where
-$\gamma_4=\ln(200/153)$.  Equation (5.11), the midpoint construction, and the
-$o(n/N^3)$ amplification loss give
-\[
- \boxed{\chi(G_n)-\zeta(G_n)
- \ge\left(\frac{q^2}{8}A(\delta_n)-o(1)\right)\frac{n}{N^3}}
- \tag{3.2}
-\]
-with high probability.  Thus the fixed displayed constant can be increased
-from $q^2\gamma_4/32$ to $q^2\gamma_4/8$ without changing the witness or
-second-moment argument.
+The amplification loss is \(o(n/N^3)\).  Thus carrying the existing root
+displacement directly would improve the explicit coefficient from
+\(q^2\gamma_4/32\) to \(q^2\gamma_4/8\), subject to line-by-line review of the
+rounding and amplification propagation.
 
-\section{A stronger four-support entropy certificate}
+\section{Exact entropy certificates}
 
-\begin{proposition}
-For every phase,
+The exact rational checker verifies the four-support bounds
 \[
- \frac{12}{5}q<\lambda_4<\frac{21}{5}q.
+ \frac{12}{5}q<\lambda_4<\frac{21}{5}q,
+ \qquad
+ D_4(\delta)<\ln\frac{33}{25},
+ \qquad
+ q-D_4(\delta)>\ln\frac{50}{33}.
  \tag{4.1}
 \]
-Moreover
+Combined with (3.1), the candidate coefficient is
 \[
- L(12q/5)<3/10,\quad H(3q)<1/50,
- \quad L(3q)<3/25,\quad H(21q/5)<1/5.
+ \frac{(\ln2)^2}{8}\ln\frac{50}{33}
+ =0.0249544559\ldots.
  \tag{4.2}
 \]
-Consequently
+The checker also verifies an exact first-moment certificate for the three-size
+support \(S_3=\{2,3,5\}\):
 \[
- D_4(\delta)<\ln(33/25),\qquad q-D_4(\delta)>\ln(50/33).
- \tag{4.3}
-\]
-\end{proposition}
-
-Put $x=2^{1/10}$.  The rational intervals
-\[
- 0.693147<q<0.693148,
- \qquad 1.071773<x<1.071774
- \tag{4.4}
-\]
-reduce the new comparisons to integer powers.  For example,
-\[
- 10(1+x^{29}+x^{48})
- <3(x^{57}+x^{56}+x^{45}+x^{24})
- \tag{4.5}
-\]
-gives $L(12q/5)<3/10$, while
-\[
- H(21q/5)\le
- \frac{x^{72}}{(1-x^{-23})(x^{64}+x^{81}+x^{88}+x^{85})}<\frac15.
- \tag{4.6}
-\]
-The standard-library script \texttt{entropy\_certificate\_upgrade.py} checks
-these rational statements and the two mean brackets exactly.
-
-Combining this certificate with (3.2) gives
-\[
- \boxed{c_{\rm improved}
- =\frac{(\ln2)^2}{8}\ln\frac{50}{33}
- =0.0249544559\ldots,}
- \tag{4.7}
-\]
-more than six times the current displayed coefficient.
-
-\section{Complement-symmetric strengthening}
-
-Since $\zeta(\overline G)=\zeta(G)$ and $G(n,1/2)$ is complement invariant,
-intersecting the theorem for $G_n$ and $\overline G_n$ gives
-\[
- \boxed{\min\{\chi(G_n),\chi(\overline G_n)\}-\zeta(G_n)
- \ge c\frac{n}{(\ln n)^3}}
- \tag{5.1}
-\]
-with high probability.
-
-\section{Fixed-density criticality away from one half}
-
-For every graph,
-\[
- \zeta(G)\le\min\{\chi(G),\chi(\overline G)\}.
-\]
-For fixed $p\in(0,1)$,
-\[
- \chi(G(n,p))
- =\left(\frac12\ln\frac1{1-p}+o(1)\right)\frac{n}{\ln n}.
-\]
-Therefore
-\[
- \boxed{\max\{\chi(G),\chi(\overline G)\}-\zeta(G)
- \ge\left(\frac12\left|\ln\frac{p}{1-p}\right|+o(1)\right)
- \frac{n}{\ln n}.}
- \tag{6.1}
-\]
-For $p>1/2$ this is a direct lower bound on $\chi(G)-\zeta(G)$; for $p<1/2$
-it applies to the complementary chromatic gap.  Thus $p=1/2$ is the unique
-fixed-density point where the first-order comparison cancels.
-
-\section{A standard upper bound}
-
-If $h(G)=\max\{\alpha(G),\omega(G)\}$, then $\zeta(G)\ge n/h(G)$.  The standard
-second-order estimates at $p=1/2$ give
-\[
- h(G)=2\log_2n-2\log_2\log_2n+O(1)
-\]
-and
-\[
- \chi(G)=\frac{n}{2\log_2n-2\log_2\log_2n+O(1)}.
-\]
-Hence
-\[
- \boxed{\chi(G)-\zeta(G)=O\left(\frac{n}{(\ln n)^2}\right)}
- \tag{7.1}
-\]
-with high probability.
-
-\section{An exactly certified three-size alternative}
-
-Let $S_3=\{2,3,5\}$ and
-\[
- D_3(\delta)=\mathcal F_{S_+}(T_0)-\mathcal F_{S_3}(T_0).
-\]
-The same omitted-mass method gives a rigorous positive advantage.
-
-\begin{proposition}
-For every target $2/q\le T\le1+2/q$, the $S_3$ tilt satisfies
-\[
- \frac{29}{10}q<\lambda_3<\frac{21}{5}q.
- \tag{8.1}
-\]
-Moreover
-\[
+ \frac{29}{10}q<\lambda_3<\frac{21}{5}q,
+ \qquad
  D_3(\delta)<\ln\frac{391}{200},
  \qquad
- q-D_3(\delta)>\ln\frac{400}{391}>0.
- \tag{8.2}
+ q-D_3(\delta)>\ln\frac{400}{391}.
+ \tag{4.3}
 \]
-\end{proposition}
+The three-size support reduces the transportation table from \(4\times4\) to
+\(3\times3\), but its complete second-moment chain has not been replayed.
 
-Let $L_3$ be the omitted ratio from deficits $-1,0,1$, let $M_4$ be the
-ratio of the deficit-4 weight, and let $H_3$ be the ratio of the tail from six
-onward.  Exact rational comparisons give
-\[
- L_3(29q/10)<\frac15,
- \quad H_3(7q/2)<\frac2{25},
- \quad M_4(7q/2)=\frac12,
- \tag{8.3}
-\]
-and
-\[
- L_3(7q/2)<\frac2{25},
- \quad H_3(21q/5)<\frac14,
- \quad M_4(21q/5)<\frac58.
- \tag{8.4}
-\]
-The low ratio decreases with the tilt, the high ratio increases, and $M_4$
-increases because the retained mean stays below four.  Splitting at $7q/2$
-therefore bounds the total omitted ratio by $191/200$.
+\section{Additional consequences}
 
-With $x=2^{1/10}$, the endpoint checks reduce to integer powers.  Two of the
-load-bearing inequalities are
+Complement invariance gives, conditionally on the candidate theorem,
 \[
- 5(1+x^{34}+x^{58})<x^{72}+x^{76}+x^{54}
- \tag{8.5}
+ \min\{\chi(G_n),\chi(\overline G_n)\}-\zeta(G_n)
+ \ge c\frac{n}{(\ln n)^3}
+ \quad\text{with high probability}.
+ \tag{5.1}
 \]
-and
+For fixed \(p\ne1/2\), the standard dense-random-graph chromatic asymptotic
+shows that the larger of \(\chi(G(n,p))\) and its complementary chromatic
+number exceeds \(\zeta\) by order \(n/\ln n\); \(p=1/2\) is the unique
+first-order cancellation point.  Standard second-order clique/independence and
+chromatic estimates also imply
 \[
- 4\left(x^{72}+x^{49}+\frac{x^{16}}{1-x^{-43}}\right)
- <x^{64}+x^{81}+x^{85}.
- \tag{8.6}
+ 0\le\chi(G(n,1/2))-\zeta(G(n,1/2))
+ =O\!\left(\frac{n}{(\ln n)^2}\right)
+ \quad\text{with high probability}.
+ \tag{5.2}
 \]
-The exact-check script verifies all mean brackets, tail estimates, and ratio
-bounds using rational arithmetic.
 
-The support retains the correction coordinates $2,3$, the endpoint deficits
-$2,5$, and maximum type displacement three, while reducing the transportation
-table from $4\times4$ to $3\times3$.  Direct propagation of (5.11) would give
-\[
- \frac{(\ln2)^2}{8}\ln\frac{400}{391}
- =0.0013667079\ldots.
- \tag{8.7}
-\]
-This is an exact first-moment alternative, but the later second-moment modules
-must still be replayed for the three-coordinate profile.
+\section{Verification boundary}
 
-\section{Root placement remains an experimental optimization}
+The companion scripts check 3,809 bounded contingency tables, 5,880 labelled
+perfect matchings, 330 typed decoration fibres, 5,929 middle-strip cases, 162
+even-subgraph restriction instances, and 263,967 off-matching square-sum
+instances.  These are regression tests, not a proof of the asymptotic theorem.
+The corrected Section 8 maps, the finite-\(n\) entropy translation, and the
+constant propagation still require independent mathematical review before any
+canonical manuscript integration.
 
-The midpoint can be replaced by
-\[
- k_\theta=\left\lceil r_4^{co}+\theta(r_+-r_4^{co})\right\rceil
-\]
-for fixed $\theta\in(0,1)$.  The retained gap would be
-\[
- \left((1-\theta)\frac{q^2}{4}A(\delta)+o(1)\right)\frac{n}{N^3},
-\]
-while the signed first moment keeps a fixed positive exponential margin.  This
-requires a route-by-route replay of every use of $c_Z$ before being promoted to
-a theorem.
-
-\section{Recommended order}
-\begin{enumerate}
-\item Replace the large-residual cycle expansion by the restriction injection.
-\item Strengthen the central rate.
-\item Carry equation (5.11) directly to the conclusion.
-\item Review and insert the exact entropy certificate.
-\item Add the complement and fixed-density corollaries.
-\item Keep the three-size and non-midpoint variants on experimental branches.
-\end{enumerate}
 \end{document}
