@@ -1,0 +1,61 @@
+name: Erdős 625 q-only attachment envelope
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/Section9MatchingRestrictionQOnly.lean"
+      - "625/formalization/Erdos625/Section9ProfileAttachmentQOnly.lean"
+      - "625/formalization/Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean"
+      - "625/formalization/Erdos625/Section9QOnlyTwoRegimeAssembly.lean"
+      - "625/formalization/Q_ONLY_ATTACHMENT_ENVELOPE_AUDIT.md"
+      - ".github/workflows/erdos625-q-only-attachment-envelope.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-q-only-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section9MatchingRestrictionQOnly.lean \
+            625/formalization/Erdos625/Section9ProfileAttachmentQOnly.lean \
+            625/formalization/Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean \
+            625/formalization/Erdos625/Section9QOnlyTwoRegimeAssembly.lean; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Build q-only two-regime assembly warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build Erdos625.Section9QOnlyTwoRegimeAssembly --wfail \
+            > /tmp/q-only-envelope-lean.log 2>&1
+          status=$?
+          tail -n 380 /tmp/q-only-envelope-lean.log
+          exit $status
+      - name: Upload focused compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: section9-q-only-envelope-lean-log
+          path: /tmp/q-only-envelope-lean.log
+          if-no-files-found: ignore
