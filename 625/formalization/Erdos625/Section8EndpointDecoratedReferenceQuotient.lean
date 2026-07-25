@@ -82,9 +82,22 @@ theorem card_fourEndpointDecoratedBlockPairing_mul_denominator
 theorem fourEndpointDecoratedDenominator_ne_zero
     (alpha : Nat) (hAlpha : 5 < alpha) (L : FourEndpointFullTable) :
     fourEndpointDecoratedDenominator alpha hAlpha L ≠ 0 := by
-  apply Nat.ne_of_gt
+  have hTable : 0 < fourEndpointCellFactorialProduct L := by
+    unfold fourEndpointCellFactorialProduct
+    apply Finset.prod_pos
+    intro i hi
+    apply Finset.prod_pos
+    intro j hj
+    exact Nat.factorial_pos _
+  have hStub : 0 < fourEndpointCellStubFactorialProduct alpha hAlpha L := by
+    unfold fourEndpointCellStubFactorialProduct
+    apply Finset.prod_pos
+    intro i hi
+    apply Finset.prod_pos
+    intro j hj
+    exact pow_pos (Nat.factorial_pos _) _
   unfold fourEndpointDecoratedDenominator
-  positivity
+  exact mul_ne_zero hTable.ne' hStub.ne'
 
 /-- Division form of the exact decorated endpoint cardinality in `ENNReal`.
 All factors are finite and the denominator is nonzero. -/
