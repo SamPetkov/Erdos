@@ -83,9 +83,14 @@ theorem exists_uniform_qOnly_twoRegime_error
     apply eventually_atTop.2
     refine ⟨Nat.max (Nat.max a₁ a₂) 3, ?_⟩
     intro n hn
-    have ha₁n : a₁ ≤ n := by omega
-    have ha₂n : a₂ ≤ n := by omega
-    have hn3 : 3 ≤ n := by omega
+    have ha₁n : a₁ ≤ n :=
+      (Nat.le_max_left a₁ a₂).trans
+        ((Nat.le_max_left (Nat.max a₁ a₂) 3).trans hn)
+    have ha₂n : a₂ ≤ n :=
+      (Nat.le_max_right a₁ a₂).trans
+        ((Nat.le_max_left (Nat.max a₁ a₂) 3).trans hn)
+    have hn3 : 3 ≤ n :=
+      (Nat.le_max_right (Nat.max a₁ a₂) 3).trans hn
     have hnpos : 0 < (n : ℝ) := by positivity
     have hlog : 0 < Real.log (n : ℝ) :=
       Real.log_pos (by exact_mod_cast (lt_of_lt_of_le (by norm_num : 1 < 3) hn3))
@@ -96,7 +101,6 @@ theorem exists_uniform_qOnly_twoRegime_error
           Cq * Real.log (n : ℝ) ^ 2 +
             Cs * (n : ℝ) / Real.log (n : ℝ) ^ 5 := by
       field_simp [ne_of_gt hnpos, ne_of_gt hlog]
-      ring
     refine ⟨?_, ?_⟩
     · exact add_nonneg
         (mul_nonneg hCq
@@ -223,7 +227,7 @@ theorem exists_midpointCanonicalAttachment_qOnly_twoRegime_error
       rw [htop] at hbound
       exact ENNReal.ofReal_ne_top (top_le_iff.mp hbound)
   rw [← ENNReal.ofReal_toReal hfinite]
-  apply ENNReal.ofReal_le_ofReal
+  apply ENNREAL.ofReal_le_ofReal
   simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
 
 #print axioms exists_uniform_qOnly_twoRegime_error
