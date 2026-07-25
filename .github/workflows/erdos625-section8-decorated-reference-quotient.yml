@@ -8,6 +8,8 @@ on:
       - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceIdentification.lean"
       - "625/formalization/SECTION8_DECORATED_REFERENCE_QUOTIENT_AUDIT.md"
       - "625/audits/LITERATURE_UPDATE_2026-07-25.md"
+      - "625/sources/ERDOS625_REFERENCES.bib"
+      - "625/arxiv/references.bib"
       - ".github/workflows/erdos625-section8-decorated-reference-quotient.yml"
   workflow_dispatch:
 
@@ -33,6 +35,31 @@ jobs:
             625/formalization/Erdos625/Section8EndpointDecoratedReferenceIdentification.lean; then
               exit 1
           fi
+      - name: Parse added bibliography entries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required = {
+              "lesniak-straight-1977",
+              "erdos-gimbel-straight-1990",
+              "erdos-gimbel-kratsch-1991",
+              "scheinerman-1992",
+              "bollobas-thomason-1995",
+              "gimbel-kundgen-molloy-2022",
+          }
+          for path in (
+              Path("625/sources/ERDOS625_REFERENCES.bib"),
+              Path("625/arxiv/references.bib"),
+          ):
+              text = path.read_text(encoding="utf-8")
+              missing = sorted(key for key in required if "{" + key + "," not in text)
+              if missing:
+                  raise SystemExit(f"{path}: missing bibliography keys {missing}")
+              if text.count("{") != text.count("}"):
+                  raise SystemExit(f"{path}: unbalanced braces")
+              print(f"{path}: bibliography key and brace checks passed")
+          PY
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: 625/formalization
