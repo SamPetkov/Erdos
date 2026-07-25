@@ -179,6 +179,9 @@ jobs:
 
           stage_pr 37 "$branch37" "$branch35" \
             "625/formalization/Erdos625/Section9MatchingRestrictionQOnly.lean::Erdos625/Section9MatchingRestrictionQOnly.lean" \
+            "625/formalization/Erdos625/Section9ProfileAttachmentQOnly.lean::Erdos625/Section9ProfileAttachmentQOnly.lean" \
+            "625/formalization/Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean::Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean" \
+            "625/formalization/Erdos625/Section9QOnlyTwoRegimeAssembly.lean::Erdos625/Section9QOnlyTwoRegimeAssembly.lean" \
             "625/formalization/Q_ONLY_ATTACHMENT_ENVELOPE_AUDIT.md::Q_ONLY_ATTACHMENT_ENVELOPE_AUDIT.md"
 
           stage_pr 36 "$branch36" "$private_main" \
