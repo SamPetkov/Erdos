@@ -30,7 +30,7 @@ theorem exists_absolute_profileHighSkeletonAttachment_intrinsic_split :
     ∃ kappa : ENNReal, 0 < kappa ∧ kappa ≠ ∞ ∧
       ∀ {b n : ℕ} {k : ColoringProfile b}
           (row0 : OrderedProfilePartition n k) (U : ℕ)
-          (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+          (_hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
           (demand : ProfileCanonicalHighSkeleton k U),
         let m := canonicalDemandResidualTotal
           (profileBlockMargin k) (profileBlockMargin k) U demand
@@ -53,8 +53,8 @@ theorem exists_absolute_profileHighSkeletonAttachment_intrinsic_split :
     have hmpos : 0 < m := by
       by_contra hm
       have hm0 : m = 0 := Nat.eq_zero_of_not_pos hm
-      have htwoPos : 0 < (2 : Nat) ^ U := pow_pos (by decide) U
-      exact (not_le_of_gt htwoPos) (by simpa [hm0] using hpow)
+      subst m
+      simp at hpow
     exact ⟨hpow, hlarge row0 U m hcap demand rfl hmpos hpow⟩
   · right
     have hmass := residualMass_lt_two_pow_ceilThird_of_not_cube U m hpow
