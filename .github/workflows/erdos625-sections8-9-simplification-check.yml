@@ -11,6 +11,7 @@ on:
       - "625/formalization/Erdos625/Section8AllHighDeficitArithmetic.lean"
       - "625/formalization/Erdos625/Section8AllHighDeficitCellWeight.lean"
       - "625/formalization/Erdos625/Section8AllHighDeficitProductBound.lean"
+      - "625/formalization/Erdos625/Section8EndpointAllHighDecoration.lean"
       - "625/formalization/Erdos625/Section8SimplificationCore.lean"
       - ".github/workflows/erdos625-sections8-9-simplification-check.yml"
   workflow_dispatch:
@@ -47,6 +48,7 @@ jobs:
             625/formalization/Erdos625/Section8AllHighDeficitArithmetic.lean \
             625/formalization/Erdos625/Section8AllHighDeficitCellWeight.lean \
             625/formalization/Erdos625/Section8AllHighDeficitProductBound.lean \
+            625/formalization/Erdos625/Section8EndpointAllHighDecoration.lean \
             625/formalization/Erdos625/Section8SimplificationCore.lean; then
             exit 1
           fi
@@ -66,7 +68,7 @@ jobs:
           lake build Erdos625.Section8SimplificationCore --wfail \
             > /tmp/section8-simplification-lean.log 2>&1
           status=$?
-          tail -n 400 /tmp/section8-simplification-lean.log
+          tail -n 460 /tmp/section8-simplification-lean.log
           exit $status
       - name: Upload focused compiler log
         if: always()
