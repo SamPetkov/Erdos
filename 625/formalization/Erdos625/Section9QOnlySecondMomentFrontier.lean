@@ -56,7 +56,7 @@ theorem exists_normalizedSignedProfileSecondMoment_qOnly_error_of_bareSkeleton
       b U k row0 hPhase hcap
   let epsilon := fun n => epsilonSkeleton n + epsilonAttachment n
   refine ⟨epsilon, ?_, ?_, ?_⟩
-  · simpa only [epsilon] using hSkeletonTendsto.add hAttachmentTendsto
+  · simpa [epsilon] using hSkeletonTendsto.add hAttachmentTendsto
   · filter_upwards [hSkeletonNonneg, hAttachmentNonneg] with n hs ha
     exact add_nonneg hs ha
   · filter_upwards [hUmin, hSkeleton, hAttachment] with n hUn hs ha
@@ -71,7 +71,7 @@ theorem exists_normalizedSignedProfileSecondMoment_qOnly_error_of_bareSkeleton
             (Real.exp (epsilonSkeleton n * amplificationBase n)) *
           ENNReal.ofReal
             (Real.exp (epsilonAttachment n * amplificationBase n)) := by
-        exact mul_le_mul_right hs _
+        exact mul_le_mul_left hs _
       _ = ENNReal.ofReal
           (Real.exp (epsilon n * amplificationBase n)) := by
         rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add]
