@@ -2,14 +2,18 @@
 
 ## Scope
 
-This audit accompanies `Erdos625/Section9MatchingRestrictionEnvelope.lean`.
+This audit accompanies:
+
+- `Erdos625/Section9MatchingRestrictionEnvelope.lean`;
+- `Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean`.
+
 The branch is stacked on PR #34 and therefore assumes the finite
 matching-restriction product theorem from
 `Section9MatchingRestrictionProduct.lean`.
 
 ## New checked targets
 
-The new module is intended to prove the following finite statements.
+The first module is intended to prove the following finite statements.
 
 1. The complete square mass of the configuration-cell parameters factorizes as
 
@@ -49,8 +53,14 @@ The new module is intended to prove the following finite statements.
    \right).
    \]
 
-This statement has no traversal parameter, no factor depending on the number
-of profile blocks, and no factor depending on the number of matching edges.
+The second module specializes this statement to every attained profile high
+skeleton by using its canonical reference witness, literal positive-demand
+matching support, residual degree caps, equal residual totals, and the exact
+definition of `profileHighSkeletonAttachment`.
+
+The resulting profile theorem has no traversal parameter, no factor depending
+on the number of profile blocks, and no factor depending on the number of
+matching edges.
 
 ## Dependencies reused
 
@@ -61,15 +71,17 @@ of profile blocks, and no factor depending on the number of matching edges.
 - `existsAbsoluteResidualLambdaTotalBound`;
 - exact degree-square and configuration-theta identities from
   `ConfigurationThetaMoments.lean`;
-- `ennreal_polymer_product_le_ereal_exp_sum` for finite products.
+- `ennreal_polymer_product_le_ereal_exp_sum` for finite products;
+- `canonicalReference_residual_parameters` and
+  `profileBlockMargin_total_eq_self` for the attained-profile specialization.
 
 ## Trust gates
 
 The focused workflow:
 
 - rejects `sorry`, `admit`, `sorryAx`, project `axiom`/`constant`, and `unsafe`;
-- builds the pinned Lean 4.31/mathlib project with warnings fatal;
-- compiles the new module directly with `-DwarningAsError=true`;
+- prepares the pinned Lean 4.31/mathlib project;
+- builds the profile endpoint and its dependency closure with `--wfail`;
 - prints the axioms of every new public theorem.
 
 The ordinary repository Lean workflow also runs because this PR changes the
@@ -77,12 +89,12 @@ formalization tree.
 
 ## Deliberate boundary
 
-This module still does not prove the complete Erdős 625 theorem. In particular
-it does not:
+These modules still do not prove the complete Erdős 625 theorem. In particular
+they do not:
 
 - sum the Section VIII bare skeleton weights;
-- specialize the envelope to the midpoint profile and produce the eventual
-  `o(n/(log n)^4)` coefficient;
+- specialize the exponent to the midpoint phase and prove the eventual
+  `O((log n)^2)` or `o(n/(log n)^4)` scale;
 - update the root aggregate or generated self-contained checkpoint;
 - prove the chromatic lower tail, rare seed, or final event intersection.
 
