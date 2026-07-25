@@ -1,4 +1,4 @@
-name: Mirror active public Erdős 625 Lean PRs
+name: Mirror and validate active public Erdős 625 Lean PRs
 
 on:
   workflow_dispatch:
@@ -9,13 +9,14 @@ on:
 
 permissions:
   contents: write
+  statuses: write
 
 concurrency:
   group: mirror-public-erdos625-lean-prs
   cancel-in-progress: false
 
 jobs:
-  mirror:
+  mirror-and-validate:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -23,13 +24,27 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Mirror reviewed public PR heads into private staging branches
+      - name: Prepare and verify the private base project
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: .
+          auto-config: false
+          build: true
+          build-args: --wfail
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+
+      - name: Mirror, validate, and status public PR heads
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          mkdir -p mirror-validation-logs
           public_url="https://github.com/SamPetkov/Erdos.git"
           git remote add public "$public_url"
           for pr in 34 35 36 37; do
@@ -38,6 +53,32 @@ jobs:
           done
 
           private_main="$(git rev-parse HEAD)"
+          any_failed=0
+
+          publish_status() {
+            local sha="$1"
+            local state="$2"
+            local description="$3"
+            local target_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            STATE="$state" DESCRIPTION="$description" TARGET_URL="$target_url" \
+              python - <<'PY' > commit-status.json
+          import json
+          import os
+          print(json.dumps({
+              "state": os.environ["STATE"],
+              "context": "private-lean/mirror-validation",
+              "description": os.environ["DESCRIPTION"][:140],
+              "target_url": os.environ["TARGET_URL"],
+          }))
+          PY
+            curl --fail-with-body --silent --show-error \
+              --request POST \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer $GITHUB_TOKEN" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/$sha" \
+              --data-binary @commit-status.json
+          }
 
           stage_pr() {
             local pr="$1"
@@ -56,6 +97,45 @@ jobs:
               git show "refs/remotes/public/pr-$pr:$src" > "$dst"
             done
 
+            mapfile -t changed_lean < <(
+              git diff --name-only "$base_ref" -- '*.lean'
+            )
+            printf '%s\n' "${changed_lean[@]}" \
+              > "mirror-validation-logs/pr-$pr-changed-lean.txt"
+
+            local log="mirror-validation-logs/pr-$pr-validation.log"
+            set +e
+            (
+              set -euo pipefail
+              for file in "${changed_lean[@]}"; do
+                test -z "$file" && continue
+                test -f "$file"
+                if grep -nE \
+                  '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+                  "$file"; then
+                  echo "Rejected placeholder or project-defined trust escape in $file" >&2
+                  exit 1
+                fi
+              done
+              lake build --wfail
+              for file in "${changed_lean[@]}"; do
+                test -z "$file" && continue
+                lake env lean -DwarningAsError=true "$file"
+              done
+            ) > "$log" 2>&1
+            local validation_rc=$?
+            set -e
+
+            local validation_state validation_description
+            if test "$validation_rc" -eq 0; then
+              validation_state="success"
+              validation_description="Private Lean build and changed-module audit passed"
+            else
+              validation_state="failure"
+              validation_description="Private Lean build or changed-module audit failed"
+              any_failed=1
+            fi
+
             mkdir -p .private-staging
             source_sha="$(git rev-parse "refs/remotes/public/pr-$pr")"
             cat > ".private-staging/public-pr-$pr.json" <<JSON
@@ -64,17 +144,22 @@ jobs:
             "source_pull_request": $pr,
             "source_head_sha": "$source_sha",
             "private_branch": "$branch",
-            "base_ref": "$base_ref"
+            "base_ref": "$base_ref",
+            "lean_validation": "$validation_state",
+            "validation_run_id": "$GITHUB_RUN_ID"
           }
           JSON
 
             git add Erdos625 '*.md' .private-staging
-            if git diff --cached --quiet; then
-              echo "No content change for public PR #$pr"
-            else
-              git commit -m "Stage public Erdos PR #$pr at $source_sha"
-            fi
+            git commit -m "Stage and validate public Erdos PR #$pr at $source_sha"
+            final_sha="$(git rev-parse HEAD)"
             git push --force origin "HEAD:refs/heads/$branch"
+            publish_status "$final_sha" "$validation_state" "$validation_description"
+
+            if test "$validation_rc" -ne 0; then
+              echo "Validation failed for public PR #$pr; tail follows:" >&2
+              tail -n 120 "$log" >&2 || true
+            fi
           }
 
           branch34="staging/public-34-matching-restriction-product"
@@ -100,5 +185,16 @@ jobs:
             "625/formalization/Erdos625/Section8EndpointTransportCore.lean::Erdos625/Section8EndpointTransportCore.lean" \
             "625/formalization/SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md::SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md"
 
-# The workflow is intentionally push-triggered only when this file changes;
-# staged-branch pushes cannot recursively invoke the mirror.
+          exit "$any_failed"
+
+      - name: Preserve mirror validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-private-mirror-validation-${{ github.run_id }}
+          path: mirror-validation-logs
+          if-no-files-found: warn
+          retention-days: 14
+
+# This workflow changes only private staging branches and cannot push to the
+# public repository. Staging-branch pushes do not recursively invoke it.
