@@ -102,7 +102,7 @@ theorem nearCellTerm_le_allHighCellBase_pow
     _ = ((n : ENNReal) ^ e * (m : ENNReal) ^ e) *
           (((2 : ENNReal) ^ budget)⁻¹) ^ e := by
       have heb : e * budget = budget * e := Nat.mul_comm _ _
-      rw [heb, pow_mul, ← inv_pow]
+      rw [heb, pow_mul, inv_pow]
     _ = allHighCellBase n m ^ e := by
       simp only [allHighCellBase, budget, div_eq_mul_inv, mul_pow]
 
