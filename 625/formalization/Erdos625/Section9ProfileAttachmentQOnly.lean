@@ -94,6 +94,7 @@ theorem eventually_profileHighSkeletonAttachment_le_qOnly_logScale :
   intro b k row0 U hU hcap demand hpow
   let m := canonicalDemandResidualTotal (profileBlockMargin k)
     (profileBlockMargin k) U demand
+  change 2 ^ U ≤ m ^ 3 at hpow
   have hmpos : 0 < m := by
     by_contra hm
     have hm0 : m = 0 := Nat.eq_zero_of_not_pos hm
