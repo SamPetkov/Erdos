@@ -9,13 +9,13 @@ import Mathlib.Tactic
 # Section IX: q-only two-regime attachment assembly
 
 The direct matching-restriction route gives an `exp(O((log n)^2))` attachment
-bound whenever its intrinsic finite hypothesis `2^U <= m^3` holds.  The
+bound whenever its intrinsic finite hypothesis `2^U <= m^3` holds. The
 existing phase corridor shows that this hypothesis holds throughout the old
-large-residual range.  Its complement is therefore covered by the literal
+large-residual range. Its complement is therefore covered by the literal
 small-residual estimate.
 
 This file combines those two profile-level estimates with the exact bare-times-
-attachment aggregation.  It does not estimate the Section VIII bare skeleton
+attachment aggregation. It does not estimate the Section VIII bare skeleton
 sum or prove the final random-graph statement.
 -/
 
@@ -29,7 +29,7 @@ noncomputable section
 set_option autoImplicit false
 
 /-- A `log^2` large branch and an `n/log^5` small branch yield one deterministic
-error sequence at the amplification scale `n/log^4`.  The two branches may have
+error sequence at the amplification scale `n/log^4`. The two branches may have
 different nonnegative constants. -/
 theorem exists_uniform_qOnly_twoRegime_error
     (S : ℕ → Type*)
@@ -69,15 +69,16 @@ theorem exists_uniform_qOnly_twoRegime_error
           simp +decide [Real.exp_log (Nat.cast_pos.mpr hn)])
       simpa only [Real.exp_neg, div_eq_mul_inv] using
         Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 6
+    have h_inv_log_raw := tendsto_inv_atTop_zero.comp
+      (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
     have h_inv_log :
-        Tendsto (fun n : ℕ => 1 / Real.log (n : ℝ)) atTop (nhds 0) :=
-      tendsto_inv_atTop_zero.comp
-        (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
-    simpa only [div_eq_mul_inv] using
-      (tendsto_const_nhds.mul h_log_div_n).add
-        (tendsto_const_nhds.mul h_inv_log)
-  · obtain ⟨a₁, ha₁⟩ := hlarge
-    obtain ⟨a₂, ha₂⟩ := hsmall
+        Tendsto (fun n : ℕ => 1 / Real.log (n : ℝ)) atTop (nhds 0) := by
+      simpa only [Function.comp_apply, one_div] using h_inv_log_raw
+    have hq := h_log_div_n.const_mul Cq
+    have hs := h_inv_log.const_mul Cs
+    simpa only [div_eq_mul_inv, one_div, mul_zero, add_zero] using hq.add hs
+  · rcases (eventually_atTop.1 hlarge) with ⟨a₁, ha₁⟩
+    rcases (eventually_atTop.1 hsmall) with ⟨a₂, ha₂⟩
     use Nat.max (Nat.max a₁ a₂) 3
     intro n hn
     have ha₁n : a₁ ≤ n := by omega
@@ -173,7 +174,9 @@ theorem exists_midpointCanonicalAttachment_qOnly_twoRegime_error
     intro demand hmass
     have hbound := hsn (row0 n) (U n) hUn hcapn demand hmass
     exact (ENNReal.toReal_mono ENNReal.ofReal_ne_top hbound).trans_eq (by
-      rw [ENNReal.toReal_ofReal (Real.exp_nonneg _)])
+      rw [ENNReal.toReal_ofReal (Real.exp_nonneg _)]
+      congr 1
+      ring)
   obtain ⟨epsilon, hepsilon, hevent⟩ :=
     exists_uniform_qOnly_twoRegime_error
       (fun n => ProfileCanonicalHighSkeleton (k n) (U n))
