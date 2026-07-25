@@ -34,12 +34,47 @@ therefore controls both products, giving
 
 1. `residualLambda_le_residualQ`;
 2. `lambda_matching_products_le_exp_two_q_bound`;
-3. `exists_absolute_residualActualAttachmentNumerator_le_qOnlyEnvelope`.
+3. `le_three_mul_residualCeilThird`;
+4. `residualMass_lt_two_pow_ceilThird_of_not_cube`;
+5. `exists_absolute_residualActualAttachmentNumerator_le_qOnlyEnvelope`.
 
 The last theorem is pointwise in the finite residual data and concerns the
 literal cap/no-return numerator.  It has no separate `U^4/m` term, no cubic
 degree moment, no cycle traversal, and no dependence on the number of profile
 blocks or matching edges.
+
+## A more intrinsic two-regime split
+
+The finite q-only theorem naturally assumes
+
+\[
+2^U\le m^3.
+\]
+
+There is no need to introduce the manuscript cutoff
+\(m=n/(\log n)^6\) at the finite combinatorial level.  The Lean theorem
+`residualMass_lt_two_pow_ceilThird_of_not_cube` proves the exact complementary
+statement
+
+\[
+2^U\nleq m^3
+\quad\Longrightarrow\quad
+m<2^{\lceil U/3\rceil},
+\qquad
+\lceil U/3\rceil=\frac{U+2}{3}.
+\]
+
+Thus Section 9 may eventually be organized around the intrinsic dichotomy:
+
+- **quadratic regime:** `2^U <= m^3`, use the q-only envelope
+  `exp(O(U^2))`;
+- **small-power regime:** `2^U > m^3`, use the deterministic bound together
+  with `m < 2^(ceil(U/3))`.
+
+At the midpoint phase, `U=(2+o(1)) log_2 n`, so the second exponent is of order
+at most `U 2^(ceil(U/3)) = n^(2/3+o(1))`, still
+`o(n/(log n)^4)`.  That asymptotic specialization is not asserted by this PR;
+only the exact finite dichotomy is kernel-checked here.
 
 ## Reused inputs
 
@@ -61,8 +96,10 @@ This PR does not by itself:
 
 - rewrite the canonical manuscript;
 - sum the Section 8 skeleton weights;
-- combine the large and small residual regimes;
+- prove the phase-asymptotic small-power estimate;
+- combine both residual regimes in the profile-level second moment;
 - prove Proposition 9.2 or `Erdos625Statement`.
 
 Its role is to remove a redundant analytic branch from the large-residual
-attachment estimate before manuscript integration.
+attachment estimate and to expose a cleaner finite regime split before
+manuscript integration.
