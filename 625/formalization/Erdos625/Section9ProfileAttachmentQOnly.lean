@@ -29,7 +29,7 @@ theorem exists_absolute_profileHighSkeletonAttachment_le_qOnlyEnvelope :
     ∃ kappa : ENNReal, 0 < kappa ∧ kappa ≠ ∞ ∧
       ∀ {b n : ℕ} {k : ColoringProfile b}
           (row0 : OrderedProfilePartition n k) (U m : ℕ)
-          (hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
+          (_hcap : ∀ a : ProfileBlockIndex k, profileBlockMargin k a ≤ U)
           (demand : ProfileCanonicalHighSkeleton k U),
         m = canonicalDemandResidualTotal
           (profileBlockMargin k) (profileBlockMargin k) U demand →
@@ -97,8 +97,8 @@ theorem eventually_profileHighSkeletonAttachment_le_qOnly_logScale :
   have hmpos : 0 < m := by
     by_contra hm
     have hm0 : m = 0 := Nat.eq_zero_of_not_pos hm
-    subst m
-    simp at hpow
+    have htwoPos : 0 < (2 : Nat) ^ U := pow_pos (by decide) U
+    exact (not_le_of_gt htwoPos) (by simpa [hm0] using hpow)
   have hbase := hfinite row0 U m hcap demand rfl hmpos hpow
   let exponent : ENNReal := kappa * (U : ENNReal) ^ 2
   have hexponent : exponent ≠ ∞ := by
@@ -126,7 +126,7 @@ theorem eventually_profileHighSkeletonAttachment_le_qOnly_logScale :
         simp [C]
         ring
   have hexponentReal : exponent.toReal = kappa.toReal * (U : ℝ) ^ 2 := by
-    simp [exponent, hktop]
+    simp [exponent]
   rw [hexponentReal]
   exact hbound
 
