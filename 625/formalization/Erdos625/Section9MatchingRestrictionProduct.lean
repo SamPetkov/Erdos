@@ -1,19 +1,20 @@
 import Erdos625.Section9FixedFEvenAggregation
 import Erdos625.EvenMatchingRestriction
+import Erdos625.FiniteRestrictionProduct
 import Mathlib.Tactic
 
 /-!
 # Section IX: direct product bound from matching restriction
 
 For an exposed bipartite matching `M`, an even edge set is uniquely determined
-by its restriction outside `M`.  This gives a direct subset-product bound for
-the weighted even-family sum and avoids the cycle/polymer decomposition at the
-finite algebraic level.
+by its restriction outside `M`.  The generic finite restriction-product theorem
+then gives the required subset-product bound without a cycle/polymer
+decomposition.
 
 The final theorem composes this injection with the already checked fixed-`F`
 aggregation.  It does not identify the fixed-`F` sum with the actual tagged
 attachment expectation, prove the residual-`q` analytic envelope, or establish
-Lemma 9.1.
+the final random-graph statement.
 -/
 
 namespace Erdos625
@@ -77,27 +78,9 @@ theorem weighted_evenSubgraph_ennreal_matching_product
         (1 + q e.1 e.2) := by
   classical
   unfold edgeWeightOutsideENN
-  calc
-    (∑ F ∈ bipartiteEvenEdgeSets A B,
-        ∏ e ∈ F \ M, q e.1 e.2) =
-        ∑ S ∈ Finset.image (fun F : Finset (A × B) => F \ M)
-            (bipartiteEvenEdgeSets A B),
-          ∏ e ∈ S, q e.1 e.2 := by
-      symm
-      rw [Finset.sum_image]
-      exact sdiff_matching_injective_on_bipartiteEvenEdgeSets M hM
-    _ ≤ ∑ S ∈ Finset.powerset
-          ((Finset.univ : Finset (A × B)) \ M),
-          ∏ e ∈ S, q e.1 e.2 := by
-      apply Finset.sum_le_sum_of_subset
-      exact Finset.image_subset_iff.mpr fun F _hF =>
-        Finset.mem_powerset.mpr (by
-          intro e he
-          exact Finset.mem_sdiff.mpr
-            ⟨Finset.mem_univ e, (Finset.mem_sdiff.mp he).2⟩)
-    _ = ∏ e ∈ (Finset.univ : Finset (A × B)) \ M,
-          (1 + q e.1 e.2) := by
-      simp +decide [Finset.prod_add, add_comm]
+  exact weighted_finsetFamily_sdiff_le_subsetProduct
+    (bipartiteEvenEdgeSets A B) M (fun e => q e.1 e.2)
+    (sdiff_matching_injective_on_bipartiteEvenEdgeSets M hM)
 
 /-- Direct matching-restriction replacement for the polymer-product endpoint
 in the finite capped fixed-`F` aggregation. -/
