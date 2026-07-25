@@ -1,0 +1,118 @@
+name: Validate current private PR 37 candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-current-pr37-private.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: validate-current-private-pr37
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: staging/public-37-q-only-attachment-envelope
+          fetch-depth: 0
+
+      - name: Reject project-defined trust escapes
+        run: |
+          if grep -nE \
+            '^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            Erdos625/Section9MatchingRestrictionQOnly.lean \
+            Erdos625/Section9ProfileAttachmentQOnly.lean \
+            Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean \
+            Erdos625/Section9QOnlyTwoRegimeAssembly.lean; then
+            exit 1
+          fi
+
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: .
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+
+      - name: Build current q-only two-regime dependency closure
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build Erdos625.Section9QOnlyTwoRegimeAssembly --wfail \
+            2>&1 | tee /tmp/q-only-private-current.log
+
+      - name: Compile repaired profile modules warning-fatally
+        id: direct
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            lake env lean -DwarningAsError=true \
+              Erdos625/Section9ProfileAttachmentQOnly.lean
+            lake env lean -DwarningAsError=true \
+              Erdos625/Section9ProfileAttachmentIntrinsicSplit.lean
+          } 2>&1 | tee -a /tmp/q-only-private-current.log
+
+      - name: Record terminal private validation result
+        if: always()
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          DIRECT_OUTCOME: ${{ steps.direct.outcome }}
+          PUBLIC_HEAD: 2dd427978fd4199733b665e24c11a17da0237b2e
+        run: |
+          set -euo pipefail
+          status=failure
+          if test "$BUILD_OUTCOME" = success && test "$DIRECT_OUTCOME" = success; then
+            status=success
+          fi
+          mkdir -p .private-staging
+          candidate_head="$(git rev-parse HEAD)"
+          cat > .private-staging/public-pr-37-private-fix.json <<JSON
+          {
+            "source_repository": "SamPetkov/Erdos",
+            "source_pull_request": 37,
+            "source_head_sha": "$PUBLIC_HEAD",
+            "private_candidate_head_sha": "$candidate_head",
+            "lean_validation": "$status",
+            "build_outcome": "$BUILD_OUTCOME",
+            "direct_compile_outcome": "$DIRECT_OUTCOME",
+            "validation_run_id": "$GITHUB_RUN_ID"
+          }
+          JSON
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .private-staging/public-pr-37-private-fix.json
+          git commit -m "Record private validation for current public PR #37" || true
+          git push origin HEAD:staging/public-37-q-only-attachment-envelope
+
+      - name: Upload exact compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-current-pr37-private-validation-${{ github.run_id }}
+          path: /tmp/q-only-private-current.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Require successful private validation
+        if: always()
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          DIRECT_OUTCOME: ${{ steps.direct.outcome }}
+        run: |
+          test "$BUILD_OUTCOME" = success
+          test "$DIRECT_OUTCOME" = success
