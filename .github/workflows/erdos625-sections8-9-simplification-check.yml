@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "625/proofs/SECTIONS8_9_SIMPLIFIED_ROUTE.md"
+      - "625/proofs/SECTION8_FORMALIZATION_FIRST_ALL_DEFICIT.md"
       - "625/experiments/sections8_9_simplification_check.py"
       - "625/formalization/Erdos625/Section8AllHighDeficitArithmetic.lean"
       - ".github/workflows/erdos625-sections8-9-simplification-check.yml"
