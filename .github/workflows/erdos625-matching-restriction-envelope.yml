@@ -37,6 +37,11 @@ jobs:
         working-directory: 625/formalization
         shell: bash
         run: |
+          set +e
           lake env lean -DwarningAsError=true \
             Erdos625/Section9MatchingRestrictionEnvelope.lean \
-            -o .lake/build/lib/lean/Erdos625/Section9MatchingRestrictionEnvelope.olean
+            -o .lake/build/lib/lean/Erdos625/Section9MatchingRestrictionEnvelope.olean \
+            > /tmp/section9-envelope-lean.log 2>&1
+          status=$?
+          tail -n 240 /tmp/section9-envelope-lean.log
+          exit $status
