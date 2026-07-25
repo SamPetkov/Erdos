@@ -13,6 +13,10 @@ on:
       - ".github/workflows/erdos625-sections8-9-simplification-check.yml"
   workflow_dispatch:
 
+concurrency:
+  group: erdos625-sections8-9-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
