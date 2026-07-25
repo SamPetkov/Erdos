@@ -1,0 +1,45 @@
+name: Balan-Wang partial-results certificate
+
+on:
+  pull_request:
+    paths:
+      - "phase_retrieval/balan_wang/**"
+      - ".github/workflows/balan-wang-partial-results-check.yml"
+  push:
+    branches:
+      - "agent/balan-wang-strong-partial-results"
+    paths:
+      - "phase_retrieval/balan_wang/**"
+      - ".github/workflows/balan-wang-partial-results-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  exact-small-dimension-certificates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile checker
+        run: >-
+          python -m py_compile
+          phase_retrieval/balan_wang/experiments/verify_small_dimension_certificates.py
+
+      - name: Run exact certificates
+        run: >-
+          python
+          phase_retrieval/balan_wang/experiments/verify_small_dimension_certificates.py
+
+      - name: Run with optimized bytecode
+        run: >-
+          python -O
+          phase_retrieval/balan_wang/experiments/verify_small_dimension_certificates.py
