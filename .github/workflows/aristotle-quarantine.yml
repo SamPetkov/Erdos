@@ -4,9 +4,24 @@ on:
   workflow_dispatch:
     inputs:
       project_dir:
-        description: "Repository-relative path to a reviewed, minimal Lean project"
+        description: "Repository-relative path to a reviewed Lean project"
         required: true
         type: string
+      target_file:
+        description: "Optional project-relative Lean file whose gaps must decrease"
+        required: false
+        default: ""
+        type: string
+      allow_full_project:
+        description: "Set true only for an approved full-private-project request"
+        required: false
+        default: false
+        type: boolean
+      max_wait_minutes:
+        description: "Maximum time to poll Aristotle after an interrupted stream"
+        required: false
+        default: 300
+        type: number
       prompt:
         description: "Exact theorem-scoped request; include acceptance constraints"
         required: true
@@ -21,30 +36,257 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate isolated input
+
+      - name: Validate and fingerprint reviewed input
+        env:
+          PROJECT_DIR: ${{ inputs.project_dir }}
+          TARGET_FILE: ${{ inputs.target_file }}
+          ALLOW_FULL_PROJECT: ${{ inputs.allow_full_project }}
+        run: |
+          set -euo pipefail
+          test "$PROJECT_DIR" != "." || test "$ALLOW_FULL_PROJECT" = "true"
+          test -d "$PROJECT_DIR"
+          test -f "$PROJECT_DIR/lakefile.toml" -o -f "$PROJECT_DIR/lakefile.lean"
+          test -f "$PROJECT_DIR/lean-toolchain"
+          if test -n "$TARGET_FILE"; then
+            test -f "$PROJECT_DIR/$TARGET_FILE"
+          fi
+          PROJECT_DIR="$PROJECT_DIR" python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+          import os
+
+          root = Path(os.environ["PROJECT_DIR"])
+          lines = []
+          for path in sorted(root.rglob("*")):
+              if not path.is_file() or ".lake" in path.parts or ".git" in path.parts:
+                  continue
+              rel = path.relative_to(root).as_posix()
+              lines.append(f"{sha256(path.read_bytes()).hexdigest()}  {rel}")
+          Path("aristotle-input.sha256").write_text("\n".join(lines) + "\n")
+          PY
+          grep -RInE '\b(sorry|admit)\b' "$PROJECT_DIR" \
+            --include='*.lean' --exclude-dir=.lake > aristotle-input-gaps.log || true
+          wc -l < aristotle-input-gaps.log | tr -d ' ' > aristotle-input-gap-count.txt
+          input_gaps="$(cat aristotle-input-gap-count.txt)"
+          if test "$input_gaps" -gt 0; then
+            test -n "$TARGET_FILE"
+          fi
+          if test -n "$TARGET_FILE"; then
+            grep -nE '\b(sorry|admit)\b' "$PROJECT_DIR/$TARGET_FILE" \
+              > aristotle-input-target-gaps.log || true
+            wc -l < aristotle-input-target-gaps.log | tr -d ' ' \
+              > aristotle-input-target-gap-count.txt
+          fi
+
+      - name: Install Aristotle CLI
+        run: python -m pip install --disable-pip-version-check aristotlelib
+
+      - name: Install the project's Lean toolchain
         env:
           PROJECT_DIR: ${{ inputs.project_dir }}
         run: |
-          test "$PROJECT_DIR" != "."
-          test -d "$PROJECT_DIR"
-          test -f "$PROJECT_DIR/lakefile.toml" -o -f "$PROJECT_DIR/lakefile.lean"
-      - name: Install Aristotle CLI
-        run: python -m pip install --disable-pip-version-check aristotlelib
-      - name: Submit quarantined proof-search request
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain "$(cat "$PROJECT_DIR/lean-toolchain")"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Build the reviewed Lean input
+        env:
+          PROJECT_DIR: ${{ inputs.project_dir }}
+        run: |
+          set -euo pipefail
+          cd "$PROJECT_DIR"
+          lake update
+          lake build
+
+      - name: Submit and monitor Aristotle to terminal completion
         env:
           ARISTOTLE_API_KEY: ${{ secrets.ARISTOTLE_API_KEY }}
           PROJECT_DIR: ${{ inputs.project_dir }}
           PROMPT: ${{ inputs.prompt }}
+          MAX_WAIT_MINUTES: ${{ inputs.max_wait_minutes }}
         run: |
+          set -euo pipefail
           test -n "$ARISTOTLE_API_KEY"
-          aristotle submit "$PROMPT" --project-dir "$PROJECT_DIR" --wait --destination aristotle-result.tar.gz
-      - name: Preserve result for local review
+          test "$MAX_WAIT_MINUTES" -ge 1
+          rm -f aristotle-result.tar.gz
+
+          set +e
+          aristotle submit "$PROMPT" --project-dir "$PROJECT_DIR" --wait \
+            --destination aristotle-result.tar.gz 2>&1 | tee aristotle-submit.log
+          submit_rc=${PIPESTATUS[0]}
+          set -e
+          printf '%s\n' "$submit_rc" > aristotle-submit-exit-code.txt
+
+          project_id="$(sed -nE \
+            's/.*Project created: ([0-9a-f-]+).*/\1/p' \
+            aristotle-submit.log | tail -n 1)"
+          test -n "$project_id"
+          printf '%s\n' "$project_id" > aristotle-project-id.txt
+
+          # The CLI may leave a nonempty archive when its event stream breaks
+          # before the remote task finishes. Never accept that archive.
+          rm -f aristotle-result.tar.gz
+          : > aristotle-status.log
+          terminal_status=""
+          for attempt in $(seq 1 "$MAX_WAIT_MINUTES"); do
+            echo "Poll $attempt/$MAX_WAIT_MINUTES for Aristotle project $project_id" \
+              | tee -a aristotle-status.log
+            set +e
+            aristotle show "$project_id" > aristotle-status-current.log 2>&1
+            show_rc=$?
+            set -e
+            cat aristotle-status-current.log | tee -a aristotle-status.log
+            printf '\n' >> aristotle-status.log
+
+            if grep -Eq '(^|[^A-Z])(COMPLETE|COMPLETED)([^A-Z]|$)' \
+                aristotle-status-current.log; then
+              terminal_status="COMPLETE"
+              break
+            fi
+            if grep -Eq '(^|[^A-Z])(ERROR|FAILED|FAILURE|CANCELLED|CANCELED)([^A-Z]|$)' \
+                aristotle-status-current.log; then
+              terminal_status="FAILED"
+              break
+            fi
+            if test "$show_rc" -ne 0; then
+              echo "Transient show failure (exit $show_rc); continuing." \
+                | tee -a aristotle-status.log
+            fi
+            sleep 60
+          done
+
+          printf '%s\n' "$terminal_status" > aristotle-terminal-status.txt
+          test "$terminal_status" = "COMPLETE"
+          aristotle download "$project_id" --destination aristotle-result.tar.gz \
+            2>&1 | tee aristotle-download.log
+          test -s aristotle-result.tar.gz
+
+      - name: Securely extract and audit returned project
+        env:
+          PROJECT_DIR: ${{ inputs.project_dir }}
+          TARGET_FILE: ${{ inputs.target_file }}
+        run: |
+          set -euo pipefail
+          rm -rf aristotle-return
+          mkdir aristotle-return
+          python - <<'PY'
+          from pathlib import Path, PurePosixPath
+          import tarfile
+
+          archive = Path("aristotle-result.tar.gz")
+          destination = Path("aristotle-return")
+          with tarfile.open(archive, "r:gz") as tf:
+              members = tf.getmembers()
+              for member in members:
+                  path = PurePosixPath(member.name)
+                  if path.is_absolute() or ".." in path.parts:
+                      raise SystemExit(f"unsafe archive path: {member.name}")
+                  if member.issym() or member.islnk():
+                      raise SystemExit(f"archive link rejected: {member.name}")
+              Path("aristotle-archive-manifest.txt").write_text(
+                  "\n".join(member.name for member in members) + "\n"
+              )
+              tf.extractall(destination, members=members)
+
+          roots = set()
+          for name in ("lakefile.toml", "lakefile.lean"):
+              roots.update(path.parent for path in destination.rglob(name))
+          if not roots:
+              raise SystemExit("returned archive contains no Lean project")
+          min_depth = min(len(path.relative_to(destination).parts) for path in roots)
+          shallow = sorted(
+              path for path in roots
+              if len(path.relative_to(destination).parts) == min_depth
+          )
+          if len(shallow) != 1:
+              raise SystemExit(f"ambiguous returned Lean roots: {shallow}")
+          Path("aristotle-return-root.txt").write_text(str(shallow[0]) + "\n")
+          PY
+
+          RETURN_DIR="$(cat aristotle-return-root.txt)"
+          grep -RInE '\b(sorry|admit)\b' "$RETURN_DIR" \
+            --include='*.lean' --exclude-dir=.lake > aristotle-output-gaps.log || true
+          wc -l < aristotle-output-gaps.log | tr -d ' ' > aristotle-output-gap-count.txt
+
+          input_gaps="$(cat aristotle-input-gap-count.txt)"
+          output_gaps="$(cat aristotle-output-gap-count.txt)"
+          echo "Lean gaps: input=$input_gaps output=$output_gaps"
+          if test "$input_gaps" -gt 0; then
+            test "$output_gaps" -lt "$input_gaps"
+          fi
+
+          if test -n "$TARGET_FILE"; then
+            test -f "$RETURN_DIR/$TARGET_FILE"
+            grep -nE '\b(sorry|admit)\b' "$RETURN_DIR/$TARGET_FILE" \
+              > aristotle-output-target-gaps.log || true
+            wc -l < aristotle-output-target-gaps.log | tr -d ' ' \
+              > aristotle-output-target-gap-count.txt
+            input_target_gaps="$(cat aristotle-input-target-gap-count.txt)"
+            output_target_gaps="$(cat aristotle-output-target-gap-count.txt)"
+            echo "Target gaps: input=$input_target_gaps output=$output_target_gaps"
+            if test "$input_target_gaps" -gt 0; then
+              test "$output_target_gaps" -lt "$input_target_gaps"
+            fi
+          fi
+
+          RETURN_DIR="$RETURN_DIR" python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+          import os
+
+          root = Path(os.environ["RETURN_DIR"])
+          lines = []
+          for path in sorted(root.rglob("*")):
+              if not path.is_file() or ".lake" in path.parts or ".git" in path.parts:
+                  continue
+              rel = path.relative_to(root).as_posix()
+              lines.append(f"{sha256(path.read_bytes()).hexdigest()}  {rel}")
+          Path("aristotle-output.sha256").write_text("\n".join(lines) + "\n")
+          PY
+          if cmp -s aristotle-input.sha256 aristotle-output.sha256; then
+            echo "Aristotle returned a byte-identical project" >&2
+            exit 1
+          fi
+
+      - name: Build returned Lean project
+        run: |
+          set -euo pipefail
+          RETURN_DIR="$(cat aristotle-return-root.txt)"
+          cd "$RETURN_DIR"
+          lake update
+          lake build
+
+      - name: Preserve one auditable Aristotle artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aristotle-quarantined-result
-          path: aristotle-result.tar.gz
-          if-no-files-found: error
+          name: aristotle-quarantined-audit-${{ github.run_id }}
+          path: |
+            aristotle-result.tar.gz
+            aristotle-project-id.txt
+            aristotle-submit.log
+            aristotle-submit-exit-code.txt
+            aristotle-status.log
+            aristotle-status-current.log
+            aristotle-terminal-status.txt
+            aristotle-download.log
+            aristotle-archive-manifest.txt
+            aristotle-return-root.txt
+            aristotle-input.sha256
+            aristotle-output.sha256
+            aristotle-input-gaps.log
+            aristotle-output-gaps.log
+            aristotle-input-gap-count.txt
+            aristotle-output-gap-count.txt
+            aristotle-input-target-gaps.log
+            aristotle-output-target-gaps.log
+            aristotle-input-target-gap-count.txt
+            aristotle-output-target-gap-count.txt
+          if-no-files-found: warn
           retention-days: 14
