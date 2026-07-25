@@ -28,7 +28,7 @@ noncomputable section
 
 set_option autoImplicit false
 
-/-- A `log^2` large branch and an `n/log^5` small branch admit one deterministic
+/-- A `log^2` large branch and an `n/log^5` small branch yield one deterministic
 error sequence at the amplification scale `n/log^4`.  The two branches may have
 different nonnegative constants. -/
 theorem exists_uniform_qOnly_twoRegime_error
