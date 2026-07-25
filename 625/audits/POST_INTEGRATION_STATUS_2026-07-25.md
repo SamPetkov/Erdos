@@ -84,25 +84,45 @@ The repository already has kernel-checked finite components for:
 - the literal one-cell high-deficit weight bound;
 - the optional-deficit product for one fixed physical endpoint block pairing.
 
-The new note `SECTION8_GLOBAL_DECORATION_BRIDGE.md` supplies the missing
-paper-level assembly. Its central finite comparison is
+The note `SECTION8_GLOBAL_DECORATION_BRIDGE.md` now states the paper-level
+assembly without a false unique-completion claim. A partial physical stub
+matching generally has many full completions. The exact finite decomposition
+is instead by
 
 \[
-  \frac{w(\mathcal M,j)}{w(\mathcal M,m)}
-  \le
-  \prod_{e\in\mathcal M}n^{h_e}R_{m_e,d_e}(h_e),
+  (\text{endpoint block pairing},\ \text{deficit vector},\
+    \text{per-cell partial stub matchings}).
 \]
 
-where completing a high cell of multiplicity `j_e=m_e-h_e` to full
-containment changes the single global denominator by
+After summing the partial stub-matching fibres, the aggregate bare weight for a
+fixed block pairing \(P\) and multiplicity vector \(j\) is
+
+\[
+ w(P,j)
+ =
+ \frac{\prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}}
+      {(n)_J\prod_{e\in P}j_e!}
+ \prod_{e\in P}g(j_e).
+\]
+
+Its comparison with the aggregate full-containment reference weight on the
+same block support is
+
+\[
+  \frac{w(P,m-h)}{w_{\mathrm{full}}(P)}
+  \le
+  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e),
+\]
+
+where the single global denominator ratio is
 
 \[
   \frac{(n)_{J+H}}{(n)_J}=(n-J)_H\le n^H.
 \]
 
-The completion map gives a disjoint fibre decomposition over full endpoint
-block pairings. Summing the geometric deficit charges in each physical cell
-and then applying endpoint transportation yields
+There is no asserted bijection between one partial physical matching and one
+full physical matching. Summing the geometric deficit charges over each
+block-pairing fibre and then applying endpoint transportation yields
 
 \[
   \operatorname{BareSkeletonSum}_n
@@ -114,8 +134,8 @@ and then applying endpoint transportation yields
   \exp\!\left\{o\!\left(\frac n{(\ln n)^4}\right)\right\}.
 \]
 
-The exact local ratio, the global falling-factorial identity, the product
-comparison, and the geometric fibre sum are regression-tested in
+The exact local aggregate ratio, the global falling-factorial identity, the
+product comparison, and the geometric fibre sum are regression-tested in
 `full_proof_audit_regression.py`.
 
 ### Remaining formal theorem
@@ -123,13 +143,14 @@ comparison, and the geometric fibre sum are regression-tested in
 The main unresolved Lean obligation is one global Section VIII theorem, with
 four explicit subinterfaces:
 
-1. identify every attained canonical high physical skeleton uniquely as a
-   full endpoint block pairing plus one allowed deficit per selected physical
-   cell;
-2. prove the global weight comparison, including the single denominator ratio
-   above;
-3. identify the sum of full-pairing weights with the exact endpoint table sum
-   `sum_L fourEndpointW(L)` using the existing fibre cardinality theorem;
+1. identify every attained canonical high physical skeleton uniquely as an
+   endpoint block pairing, an allowed deficit per selected cell, and a
+   per-cell partial stub matching;
+2. sum the partial physical fibres and prove the global aggregate weight
+   comparison, including the single denominator ratio above;
+3. identify the aggregate full-reference block-pairing sum with the exact
+   endpoint table sum `sum_L fourEndpointW(L)` using the existing fibre
+   cardinality theorem;
 4. combine the endpoint AM--GM/multinomial sum and the all-deficit fibre sum at
    the attained four-size midpoint profile.
 
@@ -153,8 +174,8 @@ The theorem-level status is now:
 | Layer | Status |
 |---|---|
 | Sections 2--7: locations, entropy, exact overlap algebra, partial diagonals | logically coherent; finite improvements available |
-| Section 8 bare-skeleton estimate | paper-level global bridge written; global Lean assembly pending |
-| Section 9 literal attained attachment estimate | repaired and focused-CI green |
+| Section 8 bare-skeleton estimate | corrected paper-level aggregate bridge written; global Lean assembly pending |
+| Section 9 literal attained attachment estimate | repaired and focused-CI green on its source branch |
 | Proposition 9.2 | follows once the Section 8 bare-skeleton theorem is instantiated and composed with the existing exact Section 9 identity |
 | Lemmas 10.1--10.2 and final event intersection | logically coherent conditional on Proposition 9.2 |
 | `Erdos625Statement` | not yet kernel-proved |
@@ -183,8 +204,8 @@ The cumulative audit supports the following upgraded main-paper package:
    \]
 4. the matching-restriction theorem for weighted even subgraphs;
 5. the abstract rare-seed-to-typical-completion method;
-6. the matching-decoration transfer principle isolated in the new Section VIII
-   bridge.
+6. the aggregate matching-decoration transfer principle isolated in the new
+   Section VIII bridge.
 
 Items 1--3 remain conditional on completion of the normalized second moment;
 items 4--6 are reusable finite or method-level results whose exact scope is
@@ -198,10 +219,13 @@ focused workflow attached to each proof branch is therefore load-bearing.
 
 At the time of this update:
 
-- the repaired q-only focused target has a recorded successful run;
-- the exact Python audit had already passed before the final Section VIII
-  regression expansion;
-- the cumulative head is rerunning the root and focused workflows.
+- the repaired q-only focused target has a recorded successful run on its
+  source branch;
+- the expanded exact Python audit is green under normal and optimized Python;
+- the cumulative head is rerunning the root and focused workflows after a
+  local Section VIII coercion repair.
 
 The PR must remain draft until the exact cumulative head has green focused
-Section VIII, focused Section IX, audit-regression, and root Lean checks.
+Section VIII, focused Section IX, audit-regression, and root Lean checks, and it
+must remain mathematically conditional until the global Section VIII assembly
+theorem is proved.
