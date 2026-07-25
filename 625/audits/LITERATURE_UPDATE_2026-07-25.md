@@ -43,7 +43,29 @@ it does not claim the full random-graph resolution pursued here.
 The bibliography and introduction should therefore cite the journal version,
 not only the arXiv preprint.
 
-## 3. Older generalized-chromatic framework missing from the current draft
+## 3. Foundational cochromatic literature absent from the present background
+
+The present introduction begins with the 1993 problem paper, but the invariant
+and the surrounding comparison questions predate it. A more complete historical
+paragraph should include at least:
+
+1. L. Lesniak and H. J. Straight, *The cochromatic number of a graph*, Ars
+   Combin. 3 (1977), 39--46. This is the standard origin reference for the
+   parameter.
+2. P. Erdős, J. Gimbel, and H. J. Straight, *Chromatic number versus
+   cochromatic number in graphs with bounded clique number*, European J.
+   Combin. 11 (1990), 235--240, DOI 10.1016/S0195-6698(13)80123-0.
+3. P. Erdős, J. Gimbel, and D. Kratsch, *Some extremal results in
+   cochromatic and dichromatic theory*, J. Graph Theory 15 (1991), 579--585,
+   DOI 10.1002/jgt.3190150604.
+4. P. Erdős and J. Gimbel, *Some problems and results in cochromatic theory*,
+   Ann. Discrete Math. 55 (1993), 261--264, which contains the problem used in
+   the manuscript.
+
+Steiner's 2025 paper gives a compact modern map of these three early papers and
+of which associated conjectures and questions have since been settled.
+
+## 4. Generalized-chromatic random-graph framework missing from the draft
 
 Edward R. Scheinerman's
 
@@ -54,16 +76,49 @@ studies `P`-chromatic numbers for hereditary graph classes. For an infinite
 hereditary class `P` and fixed `0<p<1`, it proves the first-order scale
 `Theta(n/log n)`.
 
+Béla Bollobás and Andrew Thomason subsequently proved the sharper general
+result
+
+> *Generalized chromatic numbers of random graphs*, Random Structures &
+> Algorithms 6 (1995), 353--356, DOI 10.1002/rsa.3240060222.
+
+Their theorem associates an explicit coloring-number parameter `r(P)` with a
+nontrivial hereditary property and gives the corresponding exact first-order
+constant for its generalized chromatic number in a dense random graph.
+
 The cochromatic number is the `P`-chromatic number for the hereditary class
-consisting of complete and empty graphs. Scheinerman therefore supplies useful
-historical first-order context, although it does not address the fine
-chromatic--cochromatic difference or the `n/(log n)^3` scale. It should be
-considered for the background paragraph and bibliography.
+consisting of complete and empty graphs. These two papers therefore provide the
+proper first-order framework for the present fine comparison. They do not
+address the phase-sensitive difference `chi-zeta`, but they explain why both
+parameters have the same `n/log n` order before the manuscript resolves their
+third-order separation.
 
-Source:
-<https://epubs.siam.org/doi/10.1137/0405006>.
+Before inserting the Bollobás--Thomason formula into the paper, the manuscript
+should state explicitly how their coloring-number parameter specializes to the
+complete-or-empty hereditary class, rather than leaving the reader to infer it.
 
-## 4. Informal two-independent-graph reduction
+Sources:
+
+- <https://epubs.siam.org/doi/10.1137/0405006>;
+- <https://doi.org/10.1002/rsa.3240060222>.
+
+## 5. Adjacent cocoloring literature
+
+John Gimbel, André Kündgen, and Michael Molloy's
+
+> *Fractional Cocoloring of Graphs*, Graphs Combin. 38 (2022), article 64,
+> DOI 10.1007/s00373-022-02463-5
+
+introduces and studies the fractional cochromatic number. Among other results,
+it compares fractional chromatic and cochromatic numbers under clique
+restrictions and determines the maximal order of the fractional parameter up
+to constants.
+
+This does not enter the random-graph second moment, but it is relevant if the
+paper includes a broader related-work paragraph or if a later paper studies a
+fractional or linear-programming relaxation of the signed witness.
+
+## 6. Informal two-independent-graph reduction
 
 The discussion thread for Problem 625 contains an informal reduction reported
 by Zach Hunter and observed with Micha Christoph, Annika Heckel, and Raphael
@@ -111,7 +166,7 @@ active, but it does not establish the cochromatic reduction.
 For the current manuscript, this direction is a follow-up project rather than
 a replacement for the nearly completed Section VIII--IX proof.
 
-## 5. Restriction-product theorem and novelty caution
+## 7. Restriction-product theorem and novelty caution
 
 The cumulative proof stack extracts the finite statement
 
@@ -133,15 +188,19 @@ should use it as a proof lemma without a novelty claim. A separate follow-up
 would require a dedicated literature review and applications beyond this one
 second-moment problem.
 
-## 6. Recommended manuscript changes after proof closure
+## 8. Recommended manuscript changes after proof closure
 
 1. Update Steiner's reference to the 2025 SIAM journal publication.
-2. Add Scheinerman's 1992 generalized-chromatic-number paper to the historical
-   first-order discussion.
-3. Keep the Erdős Problems page as a current-status pointer, not as the primary
+2. Add Lesniak--Straight (1977), Erdős--Gimbel--Straight (1990), and
+   Erdős--Gimbel--Kratsch (1991) to the historical paragraph.
+3. Add Scheinerman (1992) and Bollobás--Thomason (1995) to the first-order
+   random-graph background; the latter is the sharper general antecedent.
+4. Keep the Erdős Problems page as a current-status pointer, not as the primary
    source for the original problem.
-4. Mention the two-independent-graph model only in a concluding-remarks or
+5. Mention fractional cocoloring only as adjacent work unless the manuscript
+   develops a concrete fractional corollary.
+6. Mention the two-independent-graph model only in a concluding-remarks or
    future-work paragraph, clearly labelled as an informal external suggestion,
    unless a complete proof and attribution are obtained.
-5. Make no novelty claim for the generic restriction-product lemma without a
+7. Make no novelty claim for the generic restriction-product lemma without a
    separate coding/matroid literature audit.
