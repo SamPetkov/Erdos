@@ -37,8 +37,9 @@ theorem fourEndpointLocalProduct_eq_stubQuotient_mul_reward
     fourEndpointCellStubFactorialProduct
     fourEndpointFullRewardProduct
   push_cast
-  simp_rw [mul_pow, div_pow]
-  simp_rw [Finset.prod_mul_distrib, Finset.prod_div_distrib]
+  simp only [mul_pow, div_pow, Finset.prod_mul_distrib,
+    Finset.prod_div_distrib]
+  ring
 
 /-- The expanded decorated quotient weight is definitionally the manuscript
 endpoint reference weight after the local-product regrouping. -/
@@ -53,6 +54,9 @@ theorem fourEndpointDecoratedReferenceQuotientWeight_eq_fourEndpointW
   rw [fourEndpointLocalProduct_eq_stubQuotient_mul_reward]
   push_cast
   simp only [div_eq_mul_inv]
+  rw [ENNReal.mul_inv
+    (Or.inr (ENNReal.natCast_ne_top _))
+    (Or.inl (ENNReal.natCast_ne_top _))]
   ring
 
 /-- Exact full-endpoint normalization: summing the common reference atom over
