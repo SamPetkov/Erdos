@@ -6,7 +6,7 @@ import Mathlib.Tactic
 # Section VIII: literal all-high one-cell weight bound
 
 This module connects the all-high deficit parametrization to the repository's
-literal one-cell stub-matching weight `nearCellTerm`.  Despite the historical
+literal one-cell stub-matching weight `nearCellTerm`. Despite the historical
 name, the same exact local weight applies to every endpoint deficit above the
 high-cell cutoff.
 
@@ -101,9 +101,8 @@ theorem nearCellTerm_le_allHighCellBase_pow
       mul_le_mul' hfirst hinv
     _ = allHighCellBase n m ^ e := by
       have heb : e * budget = budget * e := Nat.mul_comm _ _
-      rw [heb]
-      simp [allHighCellBase, budget, div_eq_mul_inv, mul_pow, pow_mul,
-        mul_assoc]
+      rw [heb, pow_mul, inv_pow]
+      simp [allHighCellBase, budget, div_eq_mul_inv, mul_pow, mul_assoc]
 
 /-- Every allowed nonzero all-high deficit satisfies the hypothesis of the
 literal one-cell geometric bound. -/
