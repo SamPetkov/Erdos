@@ -5,6 +5,7 @@ on:
     paths:
       - "625/formalization/Erdos625/Section9MatchingRestrictionEnvelope.lean"
       - "625/formalization/Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean"
+      - "625/formalization/Erdos625/Section9ProfileAttachmentMatchingLogScale.lean"
       - "625/formalization/MATCHING_RESTRICTION_ENVELOPE_AUDIT.md"
       - ".github/workflows/erdos625-matching-restriction-envelope.yml"
   workflow_dispatch:
@@ -23,7 +24,8 @@ jobs:
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization/Erdos625/Section9MatchingRestrictionEnvelope.lean \
-            625/formalization/Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean; then
+            625/formalization/Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean \
+            625/formalization/Erdos625/Section9ProfileAttachmentMatchingLogScale.lean; then
             exit 1
           fi
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
@@ -34,15 +36,15 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Build the profile endpoint and dependency closure warning-fatally
+      - name: Build the log-square endpoint and dependency closure warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
           set +e
-          lake build Erdos625.Section9ProfileAttachmentMatchingEnvelope --wfail \
+          lake build Erdos625.Section9ProfileAttachmentMatchingLogScale --wfail \
             > /tmp/section9-envelope-lean.log 2>&1
           status=$?
-          tail -n 260 /tmp/section9-envelope-lean.log
+          tail -n 300 /tmp/section9-envelope-lean.log
           exit $status
       - name: Upload focused compiler log
         if: always()
