@@ -37,6 +37,11 @@ jobs:
         working-directory: 625/formalization
         shell: bash
         run: |
+          set +e
           lake env lean -DwarningAsError=true \
             Erdos625/Section8EndpointTransportCore.lean \
-            -o .lake/build/lib/lean/Erdos625/Section8EndpointTransportCore.olean
+            -o .lake/build/lib/lean/Erdos625/Section8EndpointTransportCore.olean \
+            > /tmp/section8-endpoint-lean.log 2>&1
+          status=$?
+          tail -n 240 /tmp/section8-endpoint-lean.log
+          exit $status
