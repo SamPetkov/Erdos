@@ -42,3 +42,10 @@ jobs:
           status=$?
           tail -n 240 /tmp/section9-envelope-lean.log
           exit $status
+      - name: Upload focused compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: section9-matching-envelope-lean-log
+          path: /tmp/section9-envelope-lean.log
+          if-no-files-found: ignore
