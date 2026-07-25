@@ -1,0 +1,101 @@
+name: Mirror active public Erdős 625 Lean PRs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mirror-public-erdos625-lean-prs.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-public-erdos625-lean-prs
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Mirror reviewed public PR heads into private staging branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          public_url="https://github.com/SamPetkov/Erdos.git"
+          git remote add public "$public_url"
+          for pr in 34 35 36 37; do
+            git fetch --no-tags public \
+              "+refs/pull/$pr/head:refs/remotes/public/pr-$pr"
+          done
+
+          private_main="$(git rev-parse HEAD)"
+
+          stage_pr() {
+            local pr="$1"
+            local branch="$2"
+            local base_ref="$3"
+            shift 3
+
+            git switch --detach "$base_ref"
+            git switch -C "$branch"
+
+            local spec src dst
+            for spec in "$@"; do
+              src="${spec%%::*}"
+              dst="${spec#*::}"
+              mkdir -p "$(dirname "$dst")"
+              git show "refs/remotes/public/pr-$pr:$src" > "$dst"
+            done
+
+            mkdir -p .private-staging
+            source_sha="$(git rev-parse "refs/remotes/public/pr-$pr")"
+            cat > ".private-staging/public-pr-$pr.json" <<JSON
+          {
+            "source_repository": "SamPetkov/Erdos",
+            "source_pull_request": $pr,
+            "source_head_sha": "$source_sha",
+            "private_branch": "$branch",
+            "base_ref": "$base_ref"
+          }
+          JSON
+
+            git add Erdos625 '*.md' .private-staging
+            if git diff --cached --quiet; then
+              echo "No content change for public PR #$pr"
+            else
+              git commit -m "Stage public Erdos PR #$pr at $source_sha"
+            fi
+            git push --force origin "HEAD:refs/heads/$branch"
+          }
+
+          branch34="staging/public-34-matching-restriction-product"
+          branch35="staging/public-35-matching-restriction-envelope"
+          branch37="staging/public-37-q-only-attachment-envelope"
+          branch36="staging/public-36-section8-endpoint-transport-core"
+
+          stage_pr 34 "$branch34" "$private_main" \
+            "625/formalization/Erdos625/Section9MatchingRestrictionProduct.lean::Erdos625/Section9MatchingRestrictionProduct.lean" \
+            "625/formalization/MATCHING_RESTRICTION_PRODUCT_AUDIT.md::MATCHING_RESTRICTION_PRODUCT_AUDIT.md"
+
+          stage_pr 35 "$branch35" "$branch34" \
+            "625/formalization/Erdos625/Section9MatchingRestrictionEnvelope.lean::Erdos625/Section9MatchingRestrictionEnvelope.lean" \
+            "625/formalization/Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean::Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean" \
+            "625/formalization/Erdos625/Section9ProfileAttachmentMatchingLogScale.lean::Erdos625/Section9ProfileAttachmentMatchingLogScale.lean" \
+            "625/formalization/MATCHING_RESTRICTION_ENVELOPE_AUDIT.md::MATCHING_RESTRICTION_ENVELOPE_AUDIT.md"
+
+          stage_pr 37 "$branch37" "$branch35" \
+            "625/formalization/Erdos625/Section9MatchingRestrictionQOnly.lean::Erdos625/Section9MatchingRestrictionQOnly.lean" \
+            "625/formalization/Q_ONLY_ATTACHMENT_ENVELOPE_AUDIT.md::Q_ONLY_ATTACHMENT_ENVELOPE_AUDIT.md"
+
+          stage_pr 36 "$branch36" "$private_main" \
+            "625/formalization/Erdos625/Section8EndpointTransportCore.lean::Erdos625/Section8EndpointTransportCore.lean" \
+            "625/formalization/SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md::SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md"
