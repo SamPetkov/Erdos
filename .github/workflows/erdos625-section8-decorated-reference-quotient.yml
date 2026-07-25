@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceQuotient.lean"
+      - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceWeight.lean"
       - "625/formalization/SECTION8_DECORATED_REFERENCE_QUOTIENT_AUDIT.md"
       - "625/audits/LITERATURE_UPDATE_2026-07-25.md"
       - ".github/workflows/erdos625-section8-decorated-reference-quotient.yml"
@@ -21,12 +22,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - name: Reject placeholders and project axioms in the new module
+      - name: Reject placeholders and project axioms in the new modules
         shell: bash
         run: |
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
-            625/formalization/Erdos625/Section8EndpointDecoratedReferenceQuotient.lean; then
+            625/formalization/Erdos625/Section8EndpointDecoratedReferenceQuotient.lean \
+            625/formalization/Erdos625/Section8EndpointDecoratedReferenceWeight.lean; then
               exit 1
           fi
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
@@ -37,12 +39,12 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Build the decorated endpoint reference quotient warning-fatally
+      - name: Build the decorated endpoint reference weight warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
           set +e
-          lake build Erdos625.Section8EndpointDecoratedReferenceQuotient --wfail \
+          lake build Erdos625.Section8EndpointDecoratedReferenceWeight --wfail \
             > /tmp/section8-decorated-reference-quotient.log 2>&1
           status=$?
           tail -n 500 /tmp/section8-decorated-reference-quotient.log
