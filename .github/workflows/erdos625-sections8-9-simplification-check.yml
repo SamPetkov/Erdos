@@ -1,0 +1,24 @@
+name: Erdős 625 Sections 8--9 simplification check
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/SECTIONS8_9_SIMPLIFIED_ROUTE.md"
+      - "625/experiments/sections8_9_simplification_check.py"
+      - ".github/workflows/erdos625-sections8-9-simplification-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile checker
+        run: python -m py_compile 625/experiments/sections8_9_simplification_check.py
+      - name: Run exact and diagnostic checks
+        run: python 625/experiments/sections8_9_simplification_check.py
+      - name: Run with optimization enabled
+        run: python -O 625/experiments/sections8_9_simplification_check.py
