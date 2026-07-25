@@ -128,7 +128,16 @@ theorem sum_fourEndpointAllHighChoiceWeight_le_uniform
       (fourEndpointAllHighWeight n alpha hAlpha P)
       (fun deficit => deficit.1) (alpha + 1) rho hrho
     · intro cell
-      exact Finset.card_le_univ _
+      have hsubset :
+          fourEndpointAllHighAllowed alpha hAlpha P cell ⊆
+            (Finset.univ : Finset (FourEndpointDeficit alpha)) := by
+        intro deficit _
+        exact Finset.mem_univ deficit
+      calc
+        (fourEndpointAllHighAllowed alpha hAlpha P cell).card ≤
+            (Finset.univ : Finset (FourEndpointDeficit alpha)).card :=
+          Finset.card_le_card hsubset
+        _ = alpha + 1 := by simp [FourEndpointDeficit]
     · intro cell deficit hdeficit
       have hmem : deficit.1 ∈ Finset.Icc 1
           (allHighDeficitCut (fourEndpointLargestSize alpha hAlpha)
