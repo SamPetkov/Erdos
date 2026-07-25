@@ -110,10 +110,13 @@ jobs:
               for file in "${changed_lean[@]}"; do
                 test -z "$file" && continue
                 test -f "$file"
+                # The compiler checks `sorry`/`admit` under --wfail. Keep the
+                # textual gate only for actual trust-expanding declarations,
+                # so ordinary prose such as "the bounds admit..." is harmless.
                 if grep -nE \
-                  '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+                  '^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
                   "$file"; then
-                  echo "Rejected placeholder or project-defined trust escape in $file" >&2
+                  echo "Rejected project-defined trust escape in $file" >&2
                   exit 1
                 fi
               done
