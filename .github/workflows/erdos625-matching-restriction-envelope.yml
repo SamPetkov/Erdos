@@ -10,6 +10,10 @@ on:
       - ".github/workflows/erdos625-matching-restriction-envelope.yml"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
