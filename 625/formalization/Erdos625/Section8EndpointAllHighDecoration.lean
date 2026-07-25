@@ -114,44 +114,54 @@ theorem sum_fourEndpointAllHighChoiceWeight_le_uniform
         (fourEndpointAllHighWeight n alpha hAlpha P) choice) ≤
       (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^ P.1.edges.card := by
   classical
-  apply sum_nearSkeletonChoiceWeight_le_uniform_pow
-    (fourEndpointAllHighAllowed alpha hAlpha P)
-    (fourEndpointAllHighWeight n alpha hAlpha P)
-    (fun deficit => deficit.1) (alpha + 1) rho hrho
-  · intro cell
-    exact Finset.card_le_univ _
-  · intro cell deficit hdeficit
-    have hmem : deficit.1 ∈ Finset.Icc 1
-        (allHighDeficitCut (fourEndpointLargestSize alpha hAlpha)
-          (fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1)) := by
-      simpa only [fourEndpointAllHighAllowed, Finset.mem_filter,
-        Finset.mem_univ, true_and] using hdeficit
-    exact (Finset.mem_Icc.mp hmem).1
-  · intro cell deficit hdeficit
-    let i : Fin 4 := cell.1.1.1
-    let j : Fin 4 := cell.1.2.1
-    let m := fourEndpointOverlapSize alpha hAlpha i j
-    have hmem : deficit.1 ∈ Finset.Icc 1
-        (allHighDeficitCut (fourEndpointLargestSize alpha hAlpha) m) := by
-      simpa only [fourEndpointAllHighAllowed, i, j, m,
-        Finset.mem_filter, Finset.mem_univ, true_and] using hdeficit
-    have hcut : deficit.1 ≤
-        allHighDeficitCut (fourEndpointLargestSize alpha hAlpha) m :=
-      (Finset.mem_Icc.mp hmem).2
-    have hm : m ≤ fourEndpointLargestSize alpha hAlpha :=
-      fourEndpointOverlapSize_le_largest alpha hAlpha i j
-    have hmHigh : fourEndpointLargestSize alpha hAlpha / 2 < m :=
-      fourEndpointOverlapSize_above_half_largest alpha hAlpha hHigh i j
-    have hjHigh := allHighDeficit_reconstructs_highMultiplicity
-      (fourEndpointLargestSize alpha hAlpha) m deficit.1 hmHigh hcut
-    have hhalf := highMultiplicity_deficit_twice_lt
-      (fourEndpointLargestSize alpha hAlpha) m (m - deficit.1)
-      hm hjHigh (Nat.sub_le _ _)
-    have hreconstruct : m - (m - deficit.1) = deficit.1 := by omega
-    rw [hreconstruct] at hhalf
-    have hlocal := nearCellTerm_le_allHighCellBase_pow n m
-      (Nat.dist i.val j.val) deficit.1 hhalf
-    exact hlocal.trans (ENNReal.pow_le_pow_left (hbase cell))
+  have hbound :
+      (∑ choice : NearSkeletonChoice (↥P.1.edges)
+          (FourEndpointDeficit alpha)
+          (fourEndpointAllHighAllowed alpha hAlpha P),
+        nearSkeletonChoiceWeight
+          (fourEndpointAllHighAllowed alpha hAlpha P)
+          (fourEndpointAllHighWeight n alpha hAlpha P) choice) ≤
+        (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^
+          Fintype.card (↥P.1.edges) := by
+    apply sum_nearSkeletonChoiceWeight_le_uniform_pow
+      (fourEndpointAllHighAllowed alpha hAlpha P)
+      (fourEndpointAllHighWeight n alpha hAlpha P)
+      (fun deficit => deficit.1) (alpha + 1) rho hrho
+    · intro cell
+      exact Finset.card_le_univ _
+    · intro cell deficit hdeficit
+      have hmem : deficit.1 ∈ Finset.Icc 1
+          (allHighDeficitCut (fourEndpointLargestSize alpha hAlpha)
+            (fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1)) := by
+        simpa only [fourEndpointAllHighAllowed, Finset.mem_filter,
+          Finset.mem_univ, true_and] using hdeficit
+      exact (Finset.mem_Icc.mp hmem).1
+    · intro cell deficit hdeficit
+      let i : Fin 4 := cell.1.1.1
+      let j : Fin 4 := cell.1.2.1
+      let m := fourEndpointOverlapSize alpha hAlpha i j
+      have hmem : deficit.1 ∈ Finset.Icc 1
+          (allHighDeficitCut (fourEndpointLargestSize alpha hAlpha) m) := by
+        simpa only [fourEndpointAllHighAllowed, i, j, m,
+          Finset.mem_filter, Finset.mem_univ, true_and] using hdeficit
+      have hcut : deficit.1 ≤
+          allHighDeficitCut (fourEndpointLargestSize alpha hAlpha) m :=
+        (Finset.mem_Icc.mp hmem).2
+      have hm : m ≤ fourEndpointLargestSize alpha hAlpha :=
+        fourEndpointOverlapSize_le_largest alpha hAlpha i j
+      have hmHigh : fourEndpointLargestSize alpha hAlpha / 2 < m :=
+        fourEndpointOverlapSize_above_half_largest alpha hAlpha hHigh i j
+      have hjHigh := allHighDeficit_reconstructs_highMultiplicity
+        (fourEndpointLargestSize alpha hAlpha) m deficit.1 hmHigh hcut
+      have hhalf := highMultiplicity_deficit_twice_lt
+        (fourEndpointLargestSize alpha hAlpha) m (m - deficit.1)
+        hm hjHigh (Nat.sub_le _ _)
+      have hreconstruct : m - (m - deficit.1) = deficit.1 := by omega
+      rw [hreconstruct] at hhalf
+      have hlocal := nearCellTerm_le_allHighCellBase_pow n m
+        (Nat.dist i.val j.val) deficit.1 hhalf
+      exact hlocal.trans (ENNReal.pow_le_pow_left (hbase cell))
+  simpa using hbound
 
 /-- Explicit common base: the sum of the sixteen endpoint-type bases. -/
 def fourEndpointAllHighRho
