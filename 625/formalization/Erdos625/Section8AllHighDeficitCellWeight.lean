@@ -51,7 +51,7 @@ all-high geometric base whenever the deficit is below half the endpoint size. -/
 theorem nearCellTerm_le_allHighCellBase_pow
     (n m d e : Nat) (hhalf : 2 * e < m) :
     nearCellTerm n m d e ≤ allHighCellBase n m ^ e := by
-  let den : Nat := ∏ t ∈ Finset.Icc 1 e, d + t
+  let den : Nat := ∏ t ∈ Finset.Icc 1 e, (d + t : Nat)
   let exponent : Nat := e * m - e * (e + 1) / 2
   let budget : Nat := (2 * m) / 3
   have hdenPos : 0 < den := by
@@ -76,7 +76,7 @@ theorem nearCellTerm_le_allHighCellBase_pow
       ((n : ENNReal) ^ e * (Nat.choose m e : ENNReal)) /
           (den : ENNReal) ≤
         (n : ENNReal) ^ e * (m : ENNReal) ^ e :=
-    hdiv.trans (mul_le_mul_left' hchoose _)
+    hdiv.trans (mul_le_mul_left hchoose _)
   have hbudgetNat : e * budget ≤ exponent := by
     dsimp [budget, exponent]
     exact highDeficit_twoThird_exponent_budget m e hhalf
@@ -94,13 +94,15 @@ theorem nearCellTerm_le_allHighCellBase_pow
     nearCellTerm n m d e =
         (((n : ENNReal) ^ e * (Nat.choose m e : ENNReal)) /
           (den : ENNReal)) * ((2 : ENNReal) ^ exponent)⁻¹ := by
-      rfl
+      simp only [nearCellTerm, den, exponent]
     _ ≤ ((n : ENNReal) ^ e * (m : ENNReal) ^ e) *
           ((2 : ENNReal) ^ (e * budget))⁻¹ :=
       mul_le_mul' hfirst hinv
     _ = allHighCellBase n m ^ e := by
+      have heb : e * budget = budget * e := Nat.mul_comm _ _
+      rw [heb]
       simp [allHighCellBase, budget, div_eq_mul_inv, mul_pow, pow_mul,
-        Nat.mul_comm, mul_assoc, mul_comm, mul_left_comm]
+        mul_assoc]
 
 /-- Every allowed nonzero all-high deficit satisfies the hypothesis of the
 literal one-cell geometric bound. -/
@@ -109,10 +111,10 @@ theorem nearCellTerm_le_allHighCellBase_pow_of_mem
     (e : Fin (m + 1))
     (he : e ∈ allHighCellAllowed a m 0) :
     nearCellTerm n m d e.1 ≤ allHighCellBase n m ^ e.1 := by
-  have heCut : e.1 ≤ allHighDeficitCut a m := by
+  have hmem : e.1 ∈ Finset.Icc 1 (allHighDeficitCut a m) := by
     simpa [allHighCellAllowed, nearCellAllowed] using he
+  have heCut : e.1 ≤ allHighDeficitCut a m := hmem.2
   have hjHigh := allHighDeficit_reconstructs_highMultiplicity a m e.1 hmHigh heCut
-  have heLe : e.1 ≤ m := by omega
   have hhalf := highMultiplicity_deficit_twice_lt a m (m - e.1)
     hm hjHigh (Nat.sub_le _ _)
   have hreconstruct : m - (m - e.1) = e.1 := by omega
