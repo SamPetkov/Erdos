@@ -250,8 +250,7 @@ theorem exists_absolute_residualActualAttachmentNumerator_le_matchingEnvelope :
         (∀ a, row a ≤ U) →
         (∀ b, col b ≤ U) →
         2 ^ U ≤ m ^ 3 →
-        ((residualActualAttachmentNumerator M (U / 2) row col htotal :
-          ENNReal) : EReal) ≤
+        residualActualAttachmentNumerator M (U / 2) row col htotal ≤
           EReal.exp
             (((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
               kappaQ * (U : ENNReal) ^ 2 : ENNReal) : EReal)) := by
@@ -293,15 +292,7 @@ theorem exists_absolute_residualActualAttachmentNumerator_le_matchingEnvelope :
       (residualQ M (U / 2) row col) M
       (kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal))
       (kappaQ * (U : ENNReal) ^ 2) hlambda hqOutside
-  have hbridgeE :
-      ((residualActualAttachmentNumerator M (U / 2) row col htotal :
-        ENNReal) : EReal) ≤
-        (((∏ a : A, ∏ b : B,
-            (1 + residualLambda M (U / 2) row col a b)) *
-          (∏ e ∈ (Finset.univ : Finset (A × B)) \ M,
-            (1 + residualQ M (U / 2) row col e.1 e.2)) : ENNReal) : EReal) :=
-    EReal.coe_ennreal_le_coe_ennreal_iff.mpr hbridge
-  exact hbridgeE.trans hproduct
+  exact hbridge.trans hproduct
 
 #print axioms sum_configurationCellTheta_sq_global
 #print axioms sum_configurationCellTheta_sq_le_euler_sq_cap_sq
