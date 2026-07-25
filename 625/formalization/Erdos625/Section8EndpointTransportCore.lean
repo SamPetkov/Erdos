@@ -243,7 +243,8 @@ theorem fourEndpoint_squareFree_transport
       fourEndpoint_global_transport_ennreal n alpha hAlpha L
   calc
     A * C = C * A := mul_comm _ _
-    _ ≤ C * B := mul_le_mul_left hAB C
+    _ ≤ C * B := by
+      simpa [mul_comm] using (mul_le_mul_left hAB C)
     _ = B * C := mul_comm _ _
     _ = B *
       (fourEndpointDiagonalLocalProduct alpha hAlpha
