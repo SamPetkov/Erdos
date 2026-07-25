@@ -4,10 +4,13 @@ on:
   pull_request:
     paths:
       - "625/audits/FULL_THEOREM_LEMMA_AUDIT_2026-07-25.md"
+      - "625/audits/POST_INTEGRATION_STATUS_2026-07-25.md"
+      - "625/proofs/SECTION8_GLOBAL_DECORATION_BRIDGE.md"
       - "625/proofs/TRANSFERABLE_RESULTS_AND_COROLLARIES_2026-07-25.md"
       - "625/experiments/full_proof_audit_regression.py"
       - "625/formalization/Erdos625/Section8AllHighDeficitCellWeight.lean"
       - "625/formalization/Erdos625/Section8AllHighDeficitProductBound.lean"
+      - "625/formalization/Erdos625/Section9QOnlySecondMomentFrontier.lean"
       - ".github/workflows/erdos625-full-proof-audit.yml"
   workflow_dispatch:
 
@@ -57,14 +60,52 @@ jobs:
         run: |
           set +e
           lake build Erdos625.Section8SimplificationCore --wfail \
-            > /tmp/erdos625-full-audit-lean.log 2>&1
+            > /tmp/erdos625-full-audit-section8.log 2>&1
           status=$?
-          tail -n 500 /tmp/erdos625-full-audit-lean.log
+          tail -n 500 /tmp/erdos625-full-audit-section8.log
           exit $status
-      - name: Upload focused compiler log
+      - name: Upload focused Section 8 compiler log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: erdos625-full-audit-lean-log
-          path: /tmp/erdos625-full-audit-lean.log
+          name: erdos625-full-audit-section8-log
+          path: /tmp/erdos625-full-audit-section8.log
+          if-no-files-found: ignore
+
+  focused-section9-frontier:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms in the frontier module
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section9QOnlySecondMomentFrontier.lean; then
+              exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Build the exact q-only second-moment frontier warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build Erdos625.Section9QOnlySecondMomentFrontier --wfail \
+            > /tmp/erdos625-full-audit-section9.log 2>&1
+          status=$?
+          tail -n 500 /tmp/erdos625-full-audit-section9.log
+          exit $status
+      - name: Upload focused Section 9 compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-full-audit-section9-log
+          path: /tmp/erdos625-full-audit-section9.log
           if-no-files-found: ignore
