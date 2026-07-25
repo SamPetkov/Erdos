@@ -58,7 +58,7 @@ theorem sum_nearSkeletonChoiceWeight_le_uniform_card_mul
         _ ≤ (U : ENNReal) * rho := by
           have hcard' : ((allowed c).card : ENNReal) ≤ (U : ENNReal) := by
             exact_mod_cast hcard c
-          exact mul_le_mul_right hcard' rho
+          simpa [mul_comm] using (mul_le_mul_right hcard' rho)
     _ = (1 + (U : ENNReal) * rho) ^ Fintype.card Cell := by
       simp
 
