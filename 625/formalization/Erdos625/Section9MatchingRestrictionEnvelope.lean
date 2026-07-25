@@ -53,6 +53,7 @@ theorem sum_configurationCellTheta_sq_global
     _ = ((eulerENNReal / (m : ENNReal)) ^ 2 *
           (∑ a, (row a : ENNReal) ^ 2)) *
           (∑ b, (col b : ENNReal) ^ 2) := by
+      congr 1
       rw [Finset.mul_sum]
     _ = (eulerENNReal / (m : ENNReal)) ^ 2 *
         (∑ a, (row a : ENNReal) ^ 2) *
@@ -295,10 +296,10 @@ theorem exists_absolute_residualActualAttachmentNumerator_le_matchingEnvelope :
   calc
     ((residualActualAttachmentNumerator M (U / 2) row col htotal :
         ENNReal) : EReal) ≤
-      (((∏ a : A, ∏ b : B,
-          (1 + residualLambda M (U / 2) row col a b)) *
-        (∏ e ∈ (Finset.univ : Finset (A × B)) \ M,
-          (1 + residualQ M (U / 2) row col e.1 e.2)) : ENNReal) : EReal) := by
+      ((∏ a : A, ∏ b : B,
+          (1 + residualLambda M (U / 2) row col a b)) : EReal) *
+        ((∏ e ∈ (Finset.univ : Finset (A × B)) \ M,
+          (1 + residualQ M (U / 2) row col e.1 e.2)) : EReal) := by
       exact_mod_cast hbridge
     _ ≤ EReal.exp
         (((kappaLambda * (U : ENNReal) ^ 4 / (m : ENNReal) +
