@@ -227,7 +227,7 @@ theorem exists_midpointCanonicalAttachment_qOnly_twoRegime_error
       rw [htop] at hbound
       exact ENNReal.ofReal_ne_top (top_le_iff.mp hbound)
   rw [← ENNReal.ofReal_toReal hfinite]
-  apply ENNREAL.ofReal_le_ofReal
+  apply ENNReal.ofReal_le_ofReal
   simpa only [amplificationBase, mul_div_assoc] using hn.2 demand
 
 #print axioms exists_uniform_qOnly_twoRegime_error
