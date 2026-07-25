@@ -14,13 +14,21 @@ record, audits, reproducibility material, and available formal verification.
   gap problem for \(G(n,1/2)\), together with supporting checks and a partial
   Lean 4 formalization.
 
+## Adjacent research notes
+
+- [Universal Balan–Wang phase-retrieval instability](phase_retrieval/balan_wang/)
+  — deterministic strong partial results, exact low-dimensional certificates,
+  and a quantitative totally-nonsingular-matrix obstruction. This note does
+  not claim a resolution of the universal conjecture.
+
 Submission-oriented source packages and compiled PDFs are collected in
 [arxiv_preprints](arxiv_preprints/).
 
-Both manuscripts are preprints and have not undergone external peer review.
-The repository makes the arguments and supporting material available for
-expert scrutiny; it does not assert an official change in the published
-status of either Erdős problem.
+Both Erdős manuscripts are preprints and have not undergone external peer
+review. The repository makes the arguments and supporting material available
+for expert scrutiny; it does not assert an official change in the published
+status of either Erdős problem. The adjacent research notes carry their own
+scope and status statements.
 
 ## Citation and license
 
