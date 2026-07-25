@@ -1,0 +1,116 @@
+name: Monitor public Erdős 625 PR heads
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: monitor-public-erdos625-prs
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 1
+
+      - name: Compare public heads with private validation records
+        id: compare
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add public https://github.com/SamPetkov/Erdos.git
+          stale=0
+          : > monitor-report.txt
+
+          check_pr() {
+            local pr="$1" branch="$2" expected="$3"
+            git fetch --quiet --no-tags public \
+              "+refs/pull/$pr/head:refs/remotes/public/pr-$pr"
+            public_sha="$(git rev-parse "refs/remotes/public/pr-$pr")"
+            if ! git fetch --quiet --no-tags origin \
+                "+refs/heads/$branch:refs/remotes/origin/$branch"; then
+              echo "PR #$pr: missing private branch $branch" | tee -a monitor-report.txt
+              stale=1
+              return
+            fi
+            if ! git show "refs/remotes/origin/$branch:.private-staging/public-pr-$pr.json" \
+                > current-metadata.json 2>/dev/null; then
+              echo "PR #$pr: missing private validation metadata" | tee -a monitor-report.txt
+              stale=1
+              return
+            fi
+            if ! PUBLIC_SHA="$public_sha" EXPECTED="$expected" python - <<'PY'
+          import json
+          import os
+
+          with open("current-metadata.json", encoding="utf-8") as stream:
+              meta = json.load(stream)
+          assert meta.get("source_head_sha") == os.environ["PUBLIC_SHA"]
+          assert meta.get("validation") == os.environ["EXPECTED"]
+          PY
+            then
+              echo "PR #$pr: stale head or non-passing validation" | tee -a monitor-report.txt
+              stale=1
+            else
+              echo "PR #$pr: current and $expected" | tee -a monitor-report.txt
+            fi
+          }
+
+          check_pr 34 staging/public-34-matching-restriction-product success
+          check_pr 35 staging/public-35-matching-restriction-envelope success
+          check_pr 36 staging/public-36-section8-endpoint-transport-core success
+          check_pr 37 staging/public-37-q-only-attachment-envelope success
+
+          echo "stale=$stale" >> "$GITHUB_OUTPUT"
+
+      - name: Detect an already active mirror run
+        if: steps.compare.outputs.stale == '1'
+        id: active
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_FILE: mirror-public-erdos625-lean-prs.yml
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/$WORKFLOW_FILE/runs"
+          active=0
+          for state in queued in_progress; do
+            count="$(curl --fail --silent --show-error \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer $GITHUB_TOKEN" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              "$api?status=$state&per_page=1" \
+              | python -c 'import json,sys; print(json.load(sys.stdin)["total_count"])')"
+            if test "$count" -gt 0; then active=1; fi
+          done
+          echo "active=$active" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch private mirror only when needed
+        if: steps.compare.outputs.stale == '1' && steps.active.outputs.active == '0'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_FILE: mirror-public-erdos625-lean-prs.yml
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer $GITHUB_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/$WORKFLOW_FILE/dispatches" \
+            --data '{"ref":"main"}'
+
+      - name: Preserve monitor report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-public-head-monitor-${{ github.run_id }}
+          path: monitor-report.txt
+          if-no-files-found: warn
+          retention-days: 14
