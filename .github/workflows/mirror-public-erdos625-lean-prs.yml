@@ -99,3 +99,6 @@ jobs:
           stage_pr 36 "$branch36" "$private_main" \
             "625/formalization/Erdos625/Section8EndpointTransportCore.lean::Erdos625/Section8EndpointTransportCore.lean" \
             "625/formalization/SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md::SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md"
+
+# The workflow is intentionally push-triggered only when this file changes;
+# staged-branch pushes cannot recursively invoke the mirror.
