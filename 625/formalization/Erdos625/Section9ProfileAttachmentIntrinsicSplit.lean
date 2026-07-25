@@ -45,6 +45,7 @@ theorem exists_absolute_profileHighSkeletonAttachment_intrinsic_split :
     exists_absolute_profileHighSkeletonAttachment_le_qOnlyEnvelope
   refine ⟨kappa, hkpos, hktop, ?_⟩
   intro b n k row0 U hcap demand
+  dsimp only
   let m := canonicalDemandResidualTotal
     (profileBlockMargin k) (profileBlockMargin k) U demand
   by_cases hpow : 2 ^ U ≤ m ^ 3
