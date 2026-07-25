@@ -3,10 +3,15 @@ name: Erdős 625 matching-restriction product
 on:
   pull_request:
     paths:
+      - "625/formalization/Erdos625/FiniteRestrictionProduct.lean"
       - "625/formalization/Erdos625/Section9MatchingRestrictionProduct.lean"
       - "625/formalization/MATCHING_RESTRICTION_PRODUCT_AUDIT.md"
       - ".github/workflows/erdos625-matching-restriction-product.yml"
   workflow_dispatch:
+
+concurrency:
+  group: erdos625-matching-restriction-product-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -16,27 +21,37 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - name: Reject placeholders and project axioms in the new module
+      - name: Reject placeholders and project axioms in the finite modules
         shell: bash
         run: |
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/FiniteRestrictionProduct.lean \
             625/formalization/Erdos625/Section9MatchingRestrictionProduct.lean; then
-            exit 1
+              exit 1
           fi
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: 625/formalization
           auto-config: false
-          build: true
-          build-args: --wfail
+          build: false
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Compile the module warning-fatally after dependency build
+      - name: Build the matching-restriction product warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
-          lake env lean -DwarningAsError=true \
-            Erdos625/Section9MatchingRestrictionProduct.lean \
-            -o .lake/build/lib/lean/Erdos625/Section9MatchingRestrictionProduct.olean
+          set +e
+          lake build Erdos625.Section9MatchingRestrictionProduct --wfail \
+            > /tmp/section9-matching-restriction-product.log 2>&1
+          status=$?
+          tail -n 500 /tmp/section9-matching-restriction-product.log
+          exit $status
+      - name: Upload focused compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-matching-restriction-product-log
+          path: /tmp/section9-matching-restriction-product.log
+          if-no-files-found: ignore
