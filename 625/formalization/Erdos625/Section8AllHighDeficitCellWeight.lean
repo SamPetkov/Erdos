@@ -58,6 +58,7 @@ theorem nearCellTerm_le_allHighCellBase_pow
     dsimp [den]
     apply Finset.prod_pos
     intro t ht
+    simp only [Finset.mem_Icc] at ht
     omega
   have hdenOne : 1 ≤ den := Nat.one_le_iff_ne_zero.mpr hdenPos.ne'
   have hdenZero : (den : ENNReal) ≠ 0 := by
@@ -76,7 +77,7 @@ theorem nearCellTerm_le_allHighCellBase_pow
       ((n : ENNReal) ^ e * (Nat.choose m e : ENNReal)) /
           (den : ENNReal) ≤
         (n : ENNReal) ^ e * (m : ENNReal) ^ e :=
-    hdiv.trans (mul_le_mul_left hchoose _)
+    hdiv.trans (mul_le_mul_right hchoose _)
   have hbudgetNat : e * budget ≤ exponent := by
     dsimp [budget, exponent]
     exact highDeficit_twoThird_exponent_budget m e hhalf
@@ -112,8 +113,10 @@ theorem nearCellTerm_le_allHighCellBase_pow_of_mem
     (he : e ∈ allHighCellAllowed a m 0) :
     nearCellTerm n m d e.1 ≤ allHighCellBase n m ^ e.1 := by
   have hmem : e.1 ∈ Finset.Icc 1 (allHighDeficitCut a m) := by
-    simpa [allHighCellAllowed, nearCellAllowed] using he
-  have heCut : e.1 ≤ allHighDeficitCut a m := hmem.2
+    simpa only [allHighCellAllowed, nearCellAllowed, Finset.mem_filter,
+      Finset.mem_univ, true_and] using he
+  have heCut : e.1 ≤ allHighDeficitCut a m :=
+    (Finset.mem_Icc.mp hmem).2
   have hjHigh := allHighDeficit_reconstructs_highMultiplicity a m e.1 hmHigh heCut
   have hhalf := highMultiplicity_deficit_twice_lt a m (m - e.1)
     hm hjHigh (Nat.sub_le _ _)
