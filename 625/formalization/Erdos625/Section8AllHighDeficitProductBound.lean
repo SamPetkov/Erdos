@@ -6,7 +6,7 @@ import Mathlib.Tactic
 
 Once the literal weight of every allowed nonzero deficit is bounded by one
 common quantity `rho`, the optional-deficit expansion is controlled by a single
-finite product.  This module records that generic step independently of the
+finite product. This module records that generic step independently of the
 endpoint profile and its phase asymptotics.
 -/
 
@@ -24,12 +24,7 @@ theorem ennreal_pow_le_self_of_le_one
     (rho : ENNReal) (hrho : rho ≤ 1) (e : Nat) (he : 1 ≤ e) :
     rho ^ e ≤ rho := by
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le he
-  have hk : rho ^ k ≤ 1 := by
-    induction k with
-    | zero => simp
-    | succ k ih =>
-        rw [pow_succ]
-        exact (mul_le_mul' ih hrho).trans_eq (one_mul 1)
+  have hk : rho ^ k ≤ 1 := pow_le_one₀ bot_le hrho
   rw [pow_add, pow_one]
   exact (mul_le_mul_right hk rho).trans_eq (mul_one rho)
 
@@ -53,7 +48,7 @@ theorem sum_nearSkeletonChoiceWeight_le_uniform_card_mul
         ∏ _c : Cell, (1 + (U : ENNReal) * rho) := by
       apply Finset.prod_le_prod'
       intro c _
-      apply add_le_add_left
+      apply add_le_add_right
       calc
         (∑ e ∈ allowed c, weight c e) ≤
             ∑ _e ∈ allowed c, rho := by
