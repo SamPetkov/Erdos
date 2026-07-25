@@ -1,14 +1,23 @@
 # Concise replacement draft for Sections 8 and 9
 
-This draft is intended to replace the present high-skeleton and residual
-attachment arguments after the supporting PRs have been reviewed.  It retains
-the exact canonical exposure, but removes the table-family Cauchy step, the
-near/middle split, the Section 8 residual model, the cycle decomposition, and
-the separate cubic lambda estimate.
+This draft records the shortest proof route currently supported by the focused
+review PRs.  It keeps the exact canonical exposure but removes four separate
+layers of machinery:
 
-Throughout, \(N=\ln n\),
+- the table-family Cauchy inequality;
+- the near/middle high-cell split;
+- the residual configuration-model argument inside Section 8;
+- the cycle decomposition and separate cubic lambda estimate in Section 9.
+
+The notation is chosen to avoid collisions.  We use \(U=\alpha-2\) for the
+largest block size, \(\mathcal M\) for the exposed matching, \(h\) for an endpoint
+deficit, \(m_0\) for residual mass, and \(\mathrm e\) for Euler's number.
+
+Throughout,
 
 \[
+N=\ln n,
+\qquad
 U=\alpha-2,
 \qquad
 R_0=\lfloor U/2\rfloor,
@@ -18,39 +27,50 @@ and the four block sizes are \(u_i=U-i\), \(0\le i\le3\).
 
 ## 8. Canonical high cells
 
-For an overlap table \(r=(r_{ab})\), let
+For an overlap table \(r=(r_{ab})\), define
 
 \[
 \mathcal M(r)=\{(a,b):r_{ab}>R_0\}.
 \]
 
-Because every row and column sum is at most \(U\), the support
-\(\mathcal M(r)\) is a bipartite matching.  Write its cell multiplicities as
-\(j_{ab}=r_{ab}\), and let \(J=\sum_{(a,b)\in\mathcal M}j_{ab}\).
+Every row and column sum is at most \(U\), so \(\mathcal M(r)\) is a bipartite
+matching.  Write its cell multiplicities as \(j_{ab}=r_{ab}\), and put
+
+\[
+J=\sum_{(a,b)\in\mathcal M}j_{ab}.
+\]
+
 Exposing the corresponding stub pairs has incidence
 
 \[
 \pi(\mathcal M,j)
 =
-\frac{\prod_{(a,b)\in\mathcal M}(s_a)_{j_{ab}}(t_b)_{j_{ab}}}
+\frac{\prod_{(a,b)\in\mathcal M}
+      (s_a)_{j_{ab}}(t_b)_{j_{ab}}}
      {(n)_J\prod_{(a,b)\in\mathcal M}j_{ab}!}.
 \tag{8.1}
 \]
 
-Conditional on those pairs, the remaining matching is uniform with the
-induced residual degrees, is zero on \(\mathcal M\), and is capped by \(R_0\).
+Conditional on those pairs, the remaining matching is uniform with the induced
+residual degrees, is zero on \(\mathcal M\), and is capped by \(R_0\).
 Multiplying (8.1) by the exact residual configuration-table law recovers the
 original overlap probability.  Thus the decomposition is exact and every
 overlap table occurs once.
 
-### 8.1 Endpoint transportation
+### 8.1 Endpoint transportation without a global Cauchy step
 
-First suppose every high cell is a full-containment cell.  Aggregate the
-physical block pairs by their endpoint types into a table
-\(L=(\ell_{ij})_{0\le i,j\le3}\).  Let \(r_i=\sum_j\ell_{ij}\),
-\(c_j=\sum_i\ell_{ij}\), and let \(W(L)\) be the exact endpoint incidence and
-local signed reward.  Let \(D(r)\) be the common-subprofile weight from
-Section 7.  Define
+First suppose that every high cell is a full-containment cell.  Aggregate the
+physical block pairs by endpoint type into a table
+\(L=(\ell_{ij})_{0\le i,j\le3}\).  Let
+
+\[
+r_i=\sum_j\ell_{ij},
+\qquad
+c_j=\sum_i\ell_{ij},
+\]
+
+and let \(W(L)\) denote its exact endpoint incidence and local signed reward.
+Let \(D(r)\) be the common-subprofile weight from Section 7, and define
 
 \[
 A_L=\frac{\prod_i r_i!}{\prod_{ij}\ell_{ij}!},
@@ -65,11 +85,11 @@ W(L)
 \le
 \sqrt{D(r)A_L\,D(c)C_L}\,Q^L,
 \qquad
-Q^L:=\prod_{ij}Q_{ij}^{\ell_{ij}},
+Q^L=\prod_{ij}Q_{ij}^{\ell_{ij}},
 \tag{8.2}
 \]
 
-where \(Q_{ii}=1\) and, for \(d=|i-j|\in\{1,2,3\}\),
+where \(Q_{ii}=1\), and for \(d=|i-j|\in\{1,2,3\}\),
 
 \[
 Q_{ij}\le\frac{\eta_n^d}{d!},
@@ -78,8 +98,8 @@ Q_{ij}\le\frac{\eta_n^d}{d!},
 \tag{8.3}
 \]
 
-The square-free finite algebra behind (8.2) is the statement formalized in
-PR #36.  For summation, apply \(2\sqrt{xy}\le x+y\) termwise:
+PR #36 proves the square-free finite algebra underlying (8.2).  For the table
+sum, apply \(2\sqrt{xy}\le x+y\) term by term:
 
 \[
 W(L)
@@ -88,8 +108,8 @@ W(L)
 \tag{8.4}
 \]
 
-Fixing \(r\) and dropping only the column-margin constraint gives the exact
-multinomial bound
+Fix \(r\).  Dropping only the column-margin constraint and using the
+multinomial theorem gives
 
 \[
 \sum_{L:\operatorname{row}(L)=r}A_LQ^L
@@ -99,8 +119,8 @@ multinomial bound
 \]
 
 The symmetric estimate holds after fixing \(c\).  Every row and column sum of
-\(Q\) is at most \(1+C\eta_n\), while the total number of selected blocks is at
-most \(k_{\mathrm{co}}\).  Hence
+\(Q\) is at most \(1+C\eta_n\), while every margin uses at most
+\(k_{\mathrm{co}}\) blocks.  Therefore
 
 \[
 \sum_LW(L)
@@ -109,7 +129,7 @@ most \(k_{\mathrm{co}}\).  Hence
 \tag{8.6}
 \]
 
-Lemma 7.1 gives \(\sum_rD(r)=1+o(1)\), and therefore
+Lemma 7.1 gives \(\sum_rD(r)=1+o(1)\), so
 
 \[
 \sum_LW(L)
@@ -120,57 +140,66 @@ Lemma 7.1 gives \(\sum_rD(r)=1+o(1)\), and therefore
 \tag{8.7}
 \]
 
-This proves the endpoint sum without Cauchy's inequality, without
-\((\sum_r\sqrt{D(r)})^2\), and without a polynomial count of margin vectors.
+Thus the endpoint sum needs neither a Cauchy inequality over the table family,
+nor \((\sum_r\sqrt{D(r)})^2\), nor a polynomial count of margin vectors.
 
-### 8.2 All high multiplicities in one geometric expansion
+### 8.2 One geometric expansion for all high multiplicities
 
-Let a high cell join endpoint sizes \(m\) and \(m+d\), \(0\le d\le3\), and
-write its multiplicity as \(j=m-e\).  Since \(j>R_0\ge\lfloor m/2\rfloor\),
+Let a high cell join endpoint sizes \(m\) and \(m+d\), where \(0\le d\le3\),
+and write its multiplicity as
 
 \[
-2e<m.
+j=m-h.
+\]
+
+Since \(j>R_0\ge\lfloor m/2\rfloor\),
+
+\[
+2h<m.
 \tag{8.8}
 \]
 
-Filling the cell from \(m-e\) to its endpoint multiplicity \(m\) changes the
+Filling the cell from \(m-h\) to its endpoint multiplicity \(m\) changes the
 local factor by the exact ratio
 
 \[
-R_{m,d}(e)
+R_{m,d}(h)
 =
-\frac{\binom me}{(d+1)\cdots(d+e)}
-2^{-em+e(e+1)/2}.
+\frac{\binom mh}{(d+1)\cdots(d+h)}
+2^{-hm+h(h+1)/2}.
 \tag{8.9}
 \]
 
-For several cells, if \(E=\sum e\), the single global denominator ratio is at
-most \(n^E\).  Thus each cell may be charged the factor
-\(A_{m,d}(e)=n^eR_{m,d}(e)\).
+For several cells, if \(H=\sum h\), the single global denominator ratio is at
+most \(n^H\).  Hence each cell may be charged
+
+\[
+A_{m,d}(h)=n^hR_{m,d}(h).
+\]
 
 The formalization-first integer estimate is
 
 \[
-e\left\lfloor\frac{2m}{3}\right\rfloor
+h\left\lfloor\frac{2m}{3}\right\rfloor
 \le
-em-\frac{e(e+1)}2
-\qquad(2e<m).
+hm-\frac{h(h+1)}2
+\qquad(2h<m).
 \tag{8.10}
 \]
 
-It is kernel-checked in PR #38.  Since
-\(inom me\le m^e\) and the denominator in (8.9) is at least one,
+PR #38 isolates this arithmetic statement.  Since
+\(inom mh\le m^h\), while the denominator in (8.9) is at least one,
 
 \[
-A_{m,d}(e)
+A_{m,d}(h)
 \le
 \left(
 \frac{nm}{2^{\lfloor2m/3\rfloor}}
-\right)^e.
+\right)^h.
 \tag{8.11}
 \]
 
-All endpoint sizes satisfy \(U-3\le m\le U\).  Put
+All endpoint sizes satisfy \(U-3\le m\le U\).  Set
 
 \[
 b_*:=\left\lfloor\frac{2(U-3)}3\right\rfloor,
@@ -187,13 +216,13 @@ The phase relation \(2^U=\Theta(n^2/N^2)\) gives
 \tag{8.12}
 \]
 
-Consequently the sum of all nonzero high deficits of one endpoint cell is at
-most \(2\rho_n\) eventually.  A high skeleton is a matching, so filling all its
-cells to their endpoints produces a feasible endpoint skeleton.  Conversely,
-an endpoint skeleton together with one allowed deficit per cell reconstructs
-the original high skeleton uniquely.  Distinguishing identical typed cells and
-then forgetting the labels is exactly the multinomial expansion; no further
-multiplicity is introduced.
+Thus the sum of all nonzero high deficits of one endpoint cell is at most
+\(2\rho_n\) eventually.  Because the high support is a matching, filling all
+its cells to their endpoints produces a feasible endpoint skeleton.
+Conversely, an endpoint skeleton together with one allowed deficit per cell
+reconstructs the original high skeleton uniquely.  Distinguishing identical
+typed cells and then forgetting the labels is exactly the multinomial
+expansion; no additional multiplicity appears.
 
 There are at most \(k_{\mathrm{co}}\) endpoint cells.  Therefore all high
 multiplicities cost at most
@@ -229,7 +258,7 @@ residual stub mass.  Its exact residual attachment is
 \mathcal A(\mathcal M,j)
 =
 \mathbb E_{\mathrm{res}}\!\left[
-\prod_e g(r'_e)
+\prod_{a,b} g(r'_{ab})
 2^{\beta(\mathcal M\cup H_{\mathrm{res}})}
 \mathbf1_{\mathcal E(\mathcal M,j)}
 \right].
@@ -239,7 +268,7 @@ residual stub mass.  Its exact residual attachment is
 For cells outside \(\mathcal M\), set
 
 \[
-\theta_{ab}=\frac{e\,d_ad'_b}{m_0},
+\theta_{ab}=\frac{\mathrm e\,d_ad'_b}{m_0},
 \qquad
 q_{ab}
 =
@@ -252,16 +281,16 @@ q_{ab}
 
 and put \(q_{ab}=0\) on \(\mathcal M\).
 
-The threshold expansion for a fixed even edge set \(F\) is bounded by a product
-of selected \(q\)-weights and unselected local increments.  Every local
-increment is at most \(q_{ab}\).  Hence
+The threshold expansion for a fixed even edge set \(F\) is bounded by selected
+\(q\)-weights and unselected local increments.  Every local increment is at
+most \(q_{ab}\).  Hence
 
 \[
 \mathcal A(\mathcal M,j)
 \le
-\left(\prod_{e\notin\mathcal M}(1+q_e)\right)
+\left(\prod_{(a,b)\notin\mathcal M}(1+q_{ab})\right)
 \sum_{F\text{ even}}
-\prod_{e\in F\setminus\mathcal M}q_e.
+\prod_{(a,b)\in F\setminus\mathcal M}q_{ab}.
 \tag{9.3}
 \]
 
@@ -271,41 +300,41 @@ subset of a matching, and the only such subset is empty.  Therefore
 
 \[
 \sum_{F\text{ even}}
-\prod_{e\in F\setminus\mathcal M}q_e
+\prod_{(a,b)\in F\setminus\mathcal M}q_{ab}
 \le
-\prod_{e\notin\mathcal M}(1+q_e).
+\prod_{(a,b)\notin\mathcal M}(1+q_{ab}).
 \tag{9.4}
 \]
 
-Combining (9.3)--(9.4),
+Combining (9.3) and (9.4),
 
 \[
 \boxed{
 \mathcal A(\mathcal M,j)
 \le
-\exp\left(2\sum_eq_e\right).}
+\exp\left(2\sum_{a,b}q_{ab}\right).}
 \tag{9.5}
 \]
 
 ### 9.1 Intrinsic quadratic regime
 
-If
+Assume
 
 \[
-2^U\le m_0^3,
+2^U\le m_0^3.
 \tag{9.6}
 \]
 
-then the finite endpoint estimate gives \(q_{ab}\le C\theta_{ab}^2\).  The
-square mass factorizes exactly:
+The finite endpoint estimate gives \(q_{ab}\le C\theta_{ab}^2\).  Moreover,
 
 \[
 \sum_{a,b}\theta_{ab}^2
 =
-\frac{e^2}{m_0^2}
+\frac{\mathrm e^2}{m_0^2}
 \left(\sum_ad_a^2\right)
 \left(\sum_b(d'_b)^2\right)
-\le e^2U^2.
+\le
+\mathrm e^2U^2.
 \tag{9.7}
 \]
 
@@ -319,19 +348,19 @@ Thus
 \tag{9.8}
 \]
 
-PR #37 kernel-checks the finite q-only bound and its attained-profile
+PR #37 formalizes the finite q-only bound and its attained-profile
 specialization.
 
 ### 9.2 Complementary small-power regime
 
-If (9.6) fails, the exact arithmetic dichotomy in PR #37 gives
+If (9.6) fails, the exact arithmetic dichotomy gives
 
 \[
 m_0<2^{\lceil U/3\rceil}.
 \tag{9.9}
 \]
 
-The deterministic residual estimate gives
+The deterministic residual estimate then yields
 
 \[
 \mathcal A(\mathcal M,j)
@@ -341,10 +370,9 @@ The deterministic residual estimate gives
 \tag{9.10}
 \]
 
-Since \(U=(2+o(1))\log_2n\), the exponent in (9.10) is
-\(n^{2/3+o(1)}\), and hence is \(o(n/N^4)\).  Together with (9.8), there is a
-deterministic sequence \(\varepsilon_n\to0\) such that uniformly over all
-attained high skeletons,
+Since \(U=(2+o(1))\log_2n\), this exponent is \(n^{2/3+o(1)}\), and hence is
+\(o(n/N^4)\).  Together with (9.8), there is a deterministic sequence
+\(arepsilon_n\to0\) such that uniformly over all attained high skeletons,
 
 \[
 \boxed{
@@ -354,10 +382,10 @@ attained high skeletons,
 \tag{9.11}
 \]
 
-This regime split is intrinsic to the finite q estimate and avoids introducing
-the auxiliary threshold \(n/N^6\).
+This split is intrinsic to the finite \(q\)-estimate and avoids the auxiliary
+threshold \(n/N^6\).
 
-## 9.3 Completion of the normalized second moment
+### 9.3 Completion of the normalized second moment
 
 The exact canonical decomposition gives
 
@@ -374,34 +402,35 @@ The exact canonical decomposition gives
 Equations (8.14) and (9.11) imply
 
 \[
+\boxed{
 \frac{\mathbb E(Z_k^{\mathrm{sgn}})^2}
      {(\mathbb EZ_k^{\mathrm{sgn}})^2}
 \le
-\exp\!\left\{o\!\left(\frac n{N^4}\right)\right\}.
+\exp\!\left\{o\!\left(\frac n{N^4}\right)\right\}.}
 \tag{9.13}
 \]
 
 This is the normalized second-moment estimate required by the seed and
 amplification argument.
 
-## Formalization map
+## Formalization map and remaining boundary
 
-The concise route is supported by the following focused developments:
+The concise route is supported by:
 
-- PR #34: matching-restriction injectivity and subset-product bound;
-- PR #35: literal attachment, attained-profile transport, and
-  `exp(O((log n)^2))` specialization;
-- PR #36: square-free endpoint transportation core;
-- PR #37: q-only absorption and intrinsic finite residual dichotomy;
-- PR #38: one all-high-deficit parametrization, its injectivity, and the
-  two-thirds exponent budget.
+- PR #34: matching-restriction injectivity and the finite subset-product bound;
+- PR #35: literal attachment, attained-profile transport, and the
+  \(\exp(O(N^2))\) large-residual specialization;
+- PR #36: square-free endpoint transportation;
+- PR #37: q-only absorption and the intrinsic finite residual dichotomy;
+- PR #38: square-free AM--GM linearization, one all-high-deficit
+  parametrization, and the two-thirds exponent budget.
 
 The remaining formal work is concentrated in two bridges:
 
-1. derive the linear endpoint inequality (8.4) from the square-free theorem and
-   sum it through the exact physical/type-table quotient;
-2. transport the local geometric bound (8.11) through the physical endpoint
-   decoration map and prove its phase-uniform asymptotic form.
+1. transport (8.4) through the exact physical/type-table quotient and sum it
+   by the one-sided multinomial expansions;
+2. prove (8.11) in the repository's `ENNReal` language and transport the
+   resulting decoration product through the physical endpoint-skeleton map.
 
-Those two obligations are considerably narrower than the current separate
-endpoint, near, middle, residual-cycle, and cubic-moment proof branches.
+These are narrower obligations than the present separate endpoint, near,
+middle, residual-cycle, and cubic-moment branches.
