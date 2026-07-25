@@ -109,13 +109,26 @@ theorem fourEndpointLocalProduct_sq_mul_transportDenProduct
           (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 =
         ∏ i, ∏ j,
           ((fourEndpointLocalCellFactor alpha hAlpha i j) ^ 2) ^ L.toFun i j := by
-    rw [Finset.prod_pow]
-    apply Finset.prod_congr rfl
-    intro i _
-    rw [Finset.prod_pow]
-    apply Finset.prod_congr rfl
-    intro j _
-    simp only [← pow_mul, Nat.mul_comm]
+    calc
+      (∏ i, ∏ j,
+          (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 =
+        ∏ i, (∏ j,
+          (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 :=
+        Finset.prod_pow Finset.univ 2 (fun i =>
+          ∏ j, (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)
+      _ = ∏ i, ∏ j,
+          ((fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 := by
+        apply Finset.prod_congr rfl
+        intro i _
+        exact Finset.prod_pow Finset.univ 2 (fun j =>
+          (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)
+      _ = ∏ i, ∏ j,
+          ((fourEndpointLocalCellFactor alpha hAlpha i j) ^ 2) ^ L.toFun i j := by
+        apply Finset.prod_congr rfl
+        intro i _
+        apply Finset.prod_congr rfl
+        intro j _
+        simp only [← pow_mul, Nat.mul_comm]
   have hrow :
       (∏ i, ∏ j,
           (fourEndpointSizeDiagonalFactor
@@ -125,7 +138,8 @@ theorem fourEndpointLocalProduct_sq_mul_transportDenProduct
     unfold fourEndpointDiagonalLocalProduct
     apply Finset.prod_congr rfl
     intro i _
-    simpa [fourEndpointRowMargin] using
+    simpa [fourEndpointRowMargin, fourEndpointDiagonalLocalFactor,
+      fourEndpointSizeDiagonalFactor] using
       (Finset.prod_pow_eq_pow_sum Finset.univ (L.toFun i)
         (fourEndpointSizeDiagonalFactor
           (fourEndpointSize alpha hAlpha i)))
@@ -139,7 +153,8 @@ theorem fourEndpointLocalProduct_sq_mul_transportDenProduct
     rw [Finset.prod_comm]
     apply Finset.prod_congr rfl
     intro j _
-    simpa [fourEndpointColumnMargin] using
+    simpa [fourEndpointColumnMargin, fourEndpointDiagonalLocalFactor,
+      fourEndpointSizeDiagonalFactor] using
       (Finset.prod_pow_eq_pow_sum Finset.univ
         (fun i => L.toFun i j)
         (fourEndpointSizeDiagonalFactor
@@ -222,9 +237,12 @@ theorem fourEndpoint_squareFree_transport
       (((n.descFactorial (fourEndpointJ alpha hAlpha L) : ENNReal) ^ 2) *
         (n + 1 : ENNReal) ^ fourEndpointDisplacement L) *
         (fourEndpointLocalProduct alpha hAlpha L ^ 2 *
-          fourEndpointLocalTransportDenProduct alpha hAlpha L) :=
-      mul_le_mul_right
-        (fourEndpoint_global_transport_ennreal n alpha hAlpha L) _
+          fourEndpointLocalTransportDenProduct alpha hAlpha L) := by
+      simpa [mul_comm] using
+        (mul_le_mul_right
+          (fourEndpoint_global_transport_ennreal n alpha hAlpha L)
+          (fourEndpointLocalProduct alpha hAlpha L ^ 2 *
+            fourEndpointLocalTransportDenProduct alpha hAlpha L))
     _ = (((n.descFactorial (fourEndpointJ alpha hAlpha L) : ENNReal) ^ 2) *
         (n + 1 : ENNReal) ^ fourEndpointDisplacement L) *
       (fourEndpointDiagonalLocalProduct alpha hAlpha
