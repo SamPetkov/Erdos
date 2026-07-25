@@ -5,6 +5,7 @@ on:
     paths:
       - "625/proofs/SECTIONS8_9_SIMPLIFIED_ROUTE.md"
       - "625/experiments/sections8_9_simplification_check.py"
+      - "625/formalization/Erdos625/Section8AllHighDeficitArithmetic.lean"
       - ".github/workflows/erdos625-sections8-9-simplification-check.yml"
   workflow_dispatch:
 
@@ -22,3 +23,41 @@ jobs:
         run: python 625/experiments/sections8_9_simplification_check.py
       - name: Run with optimization enabled
         run: python -O 625/experiments/sections8_9_simplification_check.py
+
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section8AllHighDeficitArithmetic.lean; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Build arithmetic module warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build Erdos625.Section8AllHighDeficitArithmetic --wfail \
+            > /tmp/section8-all-deficit-lean.log 2>&1
+          status=$?
+          tail -n 220 /tmp/section8-all-deficit-lean.log
+          exit $status
+      - name: Upload focused compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: section8-all-deficit-lean-log
+          path: /tmp/section8-all-deficit-lean.log
+          if-no-files-found: ignore
