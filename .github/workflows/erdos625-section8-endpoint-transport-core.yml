@@ -1,0 +1,42 @@
+name: Erdős 625 Section 8 endpoint transport core
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/Section8EndpointTransportCore.lean"
+      - "625/formalization/SECTION8_ENDPOINT_TRANSPORT_CORE_AUDIT.md"
+      - ".github/workflows/erdos625-section8-endpoint-transport-core.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms in the new module
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section8EndpointTransportCore.lean; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Compile the module warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          lake env lean -DwarningAsError=true \
+            Erdos625/Section8EndpointTransportCore.lean \
+            -o .lake/build/lib/lean/Erdos625/Section8EndpointTransportCore.olean
