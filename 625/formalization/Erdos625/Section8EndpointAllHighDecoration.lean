@@ -8,11 +8,11 @@ import Mathlib.Tactic
 
 For a fixed endpoint block pairing, every selected physical cell may retain its
 full endpoint multiplicity or choose one nonzero deficit still above the global
-high-cell cutoff.  This module expresses that literal family as one
+high-cell cutoff. This module expresses that literal family as one
 `NearSkeletonChoice` product and applies the generic uniform product theorem.
 
-The only analytic input retained as a hypothesis is a common upper bound `rho`
-on the one-cell bases.  Its phase asymptotics are deliberately postponed.
+The only analytic input retained at the endpoint is the eventual smallness of
+one explicit sum over the sixteen endpoint types.
 -/
 
 namespace Erdos625
@@ -96,7 +96,7 @@ theorem sum_fourEndpointAllHighChoiceWeight_eq_product
     (fourEndpointAllHighWeight n alpha hAlpha P)
 
 /-- Uniform finite product bound for all literal high deficits decorating one
-endpoint block pairing.  The phase-dependent task is reduced to proving that
+endpoint block pairing. The phase-dependent task is reduced to proving that
 `rho ≤ 1` and that it dominates every local `allHighCellBase`. -/
 theorem sum_fourEndpointAllHighChoiceWeight_le_uniform
     (n alpha : Nat) (hAlpha : 5 < alpha) (hHigh : 8 < alpha)
@@ -153,10 +153,65 @@ theorem sum_fourEndpointAllHighChoiceWeight_le_uniform
       (Nat.dist i.val j.val) deficit.1 hhalf
     exact hlocal.trans (ENNReal.pow_le_pow_left (hbase cell))
 
+/-- Explicit common base: the sum of the sixteen endpoint-type bases. -/
+def fourEndpointAllHighRho
+    (n alpha : Nat) (hAlpha : 5 < alpha) : ENNReal :=
+  ∑ i : Fin 4, ∑ j : Fin 4,
+    allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j)
+
+/-- Every endpoint-type base is bounded by the explicit sixteen-type sum. -/
+theorem allHighCellBase_le_fourEndpointAllHighRho
+    (n alpha : Nat) (hAlpha : 5 < alpha) (i j : Fin 4) :
+    allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j) ≤
+      fourEndpointAllHighRho n alpha hAlpha := by
+  have hrow :
+      allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j) ≤
+        ∑ j' : Fin 4,
+          allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j') :=
+    Finset.single_le_sum
+      (s := Finset.univ)
+      (f := fun j' : Fin 4 =>
+        allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j'))
+      (fun _ _ => bot_le) (Finset.mem_univ j)
+  have houter :
+      (∑ j' : Fin 4,
+          allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i j')) ≤
+        ∑ i' : Fin 4, ∑ j' : Fin 4,
+          allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i' j') :=
+    Finset.single_le_sum
+      (s := Finset.univ)
+      (f := fun i' : Fin 4 => ∑ j' : Fin 4,
+        allHighCellBase n (fourEndpointOverlapSize alpha hAlpha i' j'))
+      (fun _ _ => bot_le) (Finset.mem_univ i)
+  exact hrow.trans houter
+
+/-- The physical decoration sum is controlled by the explicit sixteen-type
+base; no pairing-dependent analytic hypothesis remains. -/
+theorem sum_fourEndpointAllHighChoiceWeight_le_rho
+    (n alpha : Nat) (hAlpha : 5 < alpha) (hHigh : 8 < alpha)
+    {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
+    (P : FourEndpointBlockPairing alpha hAlpha k L)
+    (hrho : fourEndpointAllHighRho n alpha hAlpha ≤ 1) :
+    (∑ choice : NearSkeletonChoice (↥P.1.edges)
+        (FourEndpointDeficit alpha)
+        (fourEndpointAllHighAllowed alpha hAlpha P),
+      nearSkeletonChoiceWeight
+        (fourEndpointAllHighAllowed alpha hAlpha P)
+        (fourEndpointAllHighWeight n alpha hAlpha P) choice) ≤
+      (1 + ((alpha + 1 : Nat) : ENNReal) *
+        fourEndpointAllHighRho n alpha hAlpha) ^ P.1.edges.card := by
+  apply sum_fourEndpointAllHighChoiceWeight_le_uniform
+    n alpha hAlpha hHigh P (fourEndpointAllHighRho n alpha hAlpha) hrho
+  intro cell
+  exact allHighCellBase_le_fourEndpointAllHighRho
+    n alpha hAlpha cell.1.1.1 cell.1.2.1
+
 #print axioms fourEndpointOverlapSize_le_largest
 #print axioms fourEndpointOverlapSize_above_half_largest
 #print axioms sum_fourEndpointAllHighChoiceWeight_eq_product
 #print axioms sum_fourEndpointAllHighChoiceWeight_le_uniform
+#print axioms allHighCellBase_le_fourEndpointAllHighRho
+#print axioms sum_fourEndpointAllHighChoiceWeight_le_rho
 
 end
 
