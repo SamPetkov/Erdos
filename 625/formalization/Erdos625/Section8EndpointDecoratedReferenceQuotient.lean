@@ -82,9 +82,9 @@ theorem card_fourEndpointDecoratedBlockPairing_mul_denominator
 theorem fourEndpointDecoratedDenominator_ne_zero
     (alpha : Nat) (hAlpha : 5 < alpha) (L : FourEndpointFullTable) :
     fourEndpointDecoratedDenominator alpha hAlpha L ≠ 0 := by
-  simp [fourEndpointDecoratedDenominator,
-    fourEndpointCellFactorialProduct,
-    fourEndpointCellStubFactorialProduct]
+  apply Nat.ne_of_gt
+  unfold fourEndpointDecoratedDenominator
+  positivity
 
 /-- Division form of the exact decorated endpoint cardinality in `ENNReal`.
 All factors are finite and the denominator is nonzero. -/
@@ -98,9 +98,10 @@ theorem ennreal_card_fourEndpointDecoratedBlockPairing_eq_quotient
     (Nat.cast_ne_zero.mpr
       (fourEndpointDecoratedDenominator_ne_zero alpha hAlpha L))
     (ENNReal.natCast_ne_top _)).2
-  simpa only [Nat.cast_mul] using congrArg (fun x : Nat => (x : ENNReal))
-    (card_fourEndpointDecoratedBlockPairing_mul_denominator
-      alpha hAlpha k L)
+  simpa only [Nat.cast_mul, mul_comm] using
+    congrArg (fun x : Nat => (x : ENNReal))
+      (card_fourEndpointDecoratedBlockPairing_mul_denominator
+        alpha hAlpha k L)
 
 /-- A weight constant on the full decorated endpoint fibre sums with exactly
 that quotient coefficient. -/
