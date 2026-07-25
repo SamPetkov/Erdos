@@ -75,6 +75,35 @@ theorem lambda_matching_products_le_exp_two_q_bound
     lambda q M qBound qBound hlambda hqOutside
   simpa [two_mul] using h
 
+/-- Natural ceiling of one third, written without introducing a dependency on
+later Section X utilities. -/
+def residualCeilThird (U : Nat) : Nat := (U + 2) / 3
+
+/-- The ceiling-third exponent covers `U`. -/
+theorem le_three_mul_residualCeilThird (U : Nat) :
+    U ≤ 3 * residualCeilThird U := by
+  unfold residualCeilThird
+  omega
+
+/-- If the quadratic large-residual hypothesis fails, the residual mass is
+already below the natural power threshold `2^(ceil(U/3))`.  This gives an
+intrinsic alternative to splitting at `n / (log n)^6`. -/
+theorem residualMass_lt_two_pow_ceilThird_of_not_cube
+    (U m : Nat) (hnot : ¬ 2 ^ U ≤ m ^ 3) :
+    m < 2 ^ residualCeilThird U := by
+  by_contra h
+  have hm : 2 ^ residualCeilThird U ≤ m := Nat.le_of_not_gt h
+  have hcube : (2 ^ residualCeilThird U) ^ 3 ≤ m ^ 3 :=
+    pow_le_pow_left' hm 3
+  have hpow : 2 ^ U ≤ 2 ^ (3 * residualCeilThird U) :=
+    pow_le_pow_right₀ (by decide) (le_three_mul_residualCeilThird U)
+  apply hnot
+  calc
+    2 ^ U ≤ 2 ^ (3 * residualCeilThird U) := hpow
+    _ = (2 ^ residualCeilThird U) ^ 3 := by
+      rw [Nat.mul_comm, pow_mul]
+    _ ≤ m ^ 3 := hcube
+
 /-- One absolute finite constant bounds the literal cap/no-return attachment
 numerator at scale `U^2`.  No separate lambda-total or cubic degree-moment
 estimate is needed. -/
@@ -122,6 +151,8 @@ theorem exists_absolute_residualActualAttachmentNumerator_le_qOnlyEnvelope :
 
 #print axioms residualLambda_le_residualQ
 #print axioms lambda_matching_products_le_exp_two_q_bound
+#print axioms le_three_mul_residualCeilThird
+#print axioms residualMass_lt_two_pow_ceilThird_of_not_cube
 #print axioms exists_absolute_residualActualAttachmentNumerator_le_qOnlyEnvelope
 
 end
