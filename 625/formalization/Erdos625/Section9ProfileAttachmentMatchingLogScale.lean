@@ -1,6 +1,7 @@
 import Erdos625.Section9ProfileAttachmentMatchingEnvelope
 import Erdos625.Section9PhaseTwoPowerCorridor
 import Erdos625.Section9ResidualRegimeScaleAdapters
+import Erdos625.Section9ERealENNRealExpTransport
 
 /-!
 # Section IX: direct matching-restriction profile log scale
@@ -36,7 +37,7 @@ theorem matchingRestrictionEnvelope_bound
     (hm0 : 0 < m)
     (hkappaLambda0 : 0 ≤ kappaLambda)
     (hkappaQ0 : 0 ≤ kappaQ)
-    (hCU0 : 0 ≤ C_U)
+    (_hCU0 : 0 ≤ C_U)
     (hm : n / L ^ 6 ≤ m)
     (hU : U ≤ C_U * L)
     (hL8 : L ^ 8 ≤ n) :
@@ -180,7 +181,7 @@ theorem eventually_profileHighSkeletonAttachment_le_matching_logScale :
     hm hUreal hlog8
   have hparts := ENNReal.add_ne_top.mp hexponent
   rw [ENNReal.toReal_add hparts.1 hparts.2]
-  simp only [exponent, ENNReal.toReal_mul, ENNReal.toReal_div,
+  simp only [ENNReal.toReal_mul, ENNReal.toReal_div,
     ENNReal.toReal_pow, ENNReal.toReal_natCast]
   change
     kappaLambda.toReal * (U : ℝ) ^ 4 / (m : ℝ) +
