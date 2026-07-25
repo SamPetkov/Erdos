@@ -13,12 +13,13 @@ namespace Erdos625
 
 set_option autoImplicit false
 
-/-- A nonnegative square-product bound linearizes by AM--GM without taking a
-square root.  This is the abstract bridge used after the endpoint factorial
-normalizations have been exposed. -/
+/-- A square-product bound linearizes by AM--GM without taking a square root.
+The explicit nonnegativity assumptions on `y` and `z` match the endpoint
+application; nonnegativity of `x` is not logically needed but is retained as an
+interface hypothesis. -/
 theorem two_mul_le_add_of_sq_le_mul
     (x y z : Real)
-    (hx : 0 <= x) (hy : 0 <= y) (hz : 0 <= z)
+    (_hx : 0 <= x) (hy : 0 <= y) (hz : 0 <= z)
     (h : x ^ 2 <= y * z) :
     2 * x <= y + z := by
   have hsq : (2 * x) ^ 2 <= (y + z) ^ 2 := by
