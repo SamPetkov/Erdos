@@ -5,7 +5,8 @@
 This audit accompanies:
 
 - `Erdos625/Section9MatchingRestrictionEnvelope.lean`;
-- `Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean`.
+- `Erdos625/Section9ProfileAttachmentMatchingEnvelope.lean`;
+- `Erdos625/Section9ProfileAttachmentMatchingLogScale.lean`.
 
 The branch is stacked on PR #34 and therefore assumes the finite
 matching-restriction product theorem from
@@ -58,6 +59,25 @@ skeleton by using its canonical reference witness, literal positive-demand
 matching support, residual degree caps, equal residual totals, and the exact
 definition of `profileHighSkeletonAttachment`.
 
+The third module proves the exact real arithmetic
+
+\[
+ \kappa_\Lambda\frac{U^4}{m}+\kappa_Q U^2
+ \le
+ (\kappa_\Lambda C_U^4+\kappa_Q C_U^2)L^2
+\]
+
+under `m >= n/L^6`, `U <= C_U L`, and `L^8 <= n`. It then proves the eventual
+phase specialization
+
+\[
+ \operatorname{profileHighSkeletonAttachment}
+ \le \exp\!\bigl(C(\log n)^2\bigr)
+\]
+
+uniformly over all attained profile high skeletons in the large-residual
+regime.
+
 The resulting profile theorem has no traversal parameter, no factor depending
 on the number of profile blocks, and no factor depending on the number of
 matching edges.
@@ -73,7 +93,9 @@ matching edges.
   `ConfigurationThetaMoments.lean`;
 - `ennreal_polymer_product_le_ereal_exp_sum` for finite products;
 - `canonicalReference_residual_parameters` and
-  `profileBlockMargin_total_eq_self` for the attained-profile specialization.
+  `profileBlockMargin_total_eq_self` for the attained-profile specialization;
+- the existing phase upper bound, residual two-power corridor, and logarithmic
+  little-o infrastructure for the `O((log n)^2)` adapter.
 
 ## Trust gates
 
@@ -81,7 +103,8 @@ The focused workflow:
 
 - rejects `sorry`, `admit`, `sorryAx`, project `axiom`/`constant`, and `unsafe`;
 - prepares the pinned Lean 4.31/mathlib project;
-- builds the profile endpoint and its dependency closure with `--wfail`;
+- builds the log-square profile endpoint and its complete dependency closure
+  with `--wfail`;
 - prints the axioms of every new public theorem.
 
 The ordinary repository Lean workflow also runs because this PR changes the
@@ -93,11 +116,10 @@ These modules still do not prove the complete Erdős 625 theorem. In particular
 they do not:
 
 - sum the Section VIII bare skeleton weights;
-- specialize the exponent to the midpoint phase and prove the eventual
-  `O((log n)^2)` or `o(n/(log n)^4)` scale;
 - update the root aggregate or generated self-contained checkpoint;
-- prove the chromatic lower tail, rare seed, or final event intersection.
+- prove the chromatic lower tail, rare seed, or final event intersection;
+- combine the large-residual log-square estimate with the small-residual branch
+  into one profile-level two-regime theorem on this branch.
 
-The next integration step, after review, is a profile-level asymptotic adapter
-showing that the displayed exponent is `o(amplificationBase n)` uniformly over
-attained canonical demands.
+The next integration step, after review, is the Section VIII skeleton sum and a
+single two-regime profile theorem using this direct large-residual endpoint.
