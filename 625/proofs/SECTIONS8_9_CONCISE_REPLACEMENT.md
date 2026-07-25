@@ -187,8 +187,9 @@ hm-\frac{h(h+1)}2
 \tag{8.10}
 \]
 
-PR #38 isolates this arithmetic statement.  Since
-\(inom mh\le m^h\), while the denominator in (8.9) is at least one,
+PR #38 isolates this arithmetic statement.  The elementary bound on the
+binomial coefficient is \(inom mh\le m^h\), while the denominator in (8.9) is
+at least one.  Hence
 
 \[
 A_{m,d}(h)
