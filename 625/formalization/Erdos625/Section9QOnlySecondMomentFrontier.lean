@@ -71,7 +71,7 @@ theorem exists_normalizedSignedProfileSecondMoment_qOnly_error_of_bareSkeleton
             (Real.exp (epsilonSkeleton n * amplificationBase n)) *
           ENNReal.ofReal
             (Real.exp (epsilonAttachment n * amplificationBase n)) := by
-        exact mul_le_mul_right' hs _
+        exact mul_le_mul_left hs _
       _ = ENNReal.ofReal
           (Real.exp (epsilon n * amplificationBase n)) := by
         rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add]
