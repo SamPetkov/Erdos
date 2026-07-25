@@ -27,4 +27,4 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/mirror-public-erdos625-lean-prs.yml/dispatches" \
             --data '{"ref":"main"}'
 
-# Updating this installed file deliberately emits one trusted dispatch.
+# Dispatch current PR #37 after the scanner and file map were corrected.
