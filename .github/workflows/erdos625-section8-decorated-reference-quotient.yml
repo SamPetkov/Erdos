@@ -1,4 +1,4 @@
-name: Erdős 625 Section 8 decorated reference quotient
+name: Erdős 625 Section 8 decorated endpoint reference
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
       - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceQuotient.lean"
       - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceWeight.lean"
       - "625/formalization/Erdos625/Section8EndpointDecoratedReferenceIdentification.lean"
+      - "625/formalization/Erdos625/Section8EndpointDecoratedPhysicalInjective.lean"
       - "625/formalization/SECTION8_DECORATED_REFERENCE_QUOTIENT_AUDIT.md"
       - "625/audits/LITERATURE_UPDATE_2026-07-25.md"
       - "625/sources/ERDOS625_REFERENCES.bib"
@@ -32,7 +33,8 @@ jobs:
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization/Erdos625/Section8EndpointDecoratedReferenceQuotient.lean \
             625/formalization/Erdos625/Section8EndpointDecoratedReferenceWeight.lean \
-            625/formalization/Erdos625/Section8EndpointDecoratedReferenceIdentification.lean; then
+            625/formalization/Erdos625/Section8EndpointDecoratedReferenceIdentification.lean \
+            625/formalization/Erdos625/Section8EndpointDecoratedPhysicalInjective.lean; then
               exit 1
           fi
       - name: Parse added bibliography entries
@@ -68,15 +70,15 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Build the decorated endpoint W(L) identification warning-fatally
+      - name: Build the decorated endpoint physical injection warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
           set +e
-          lake build Erdos625.Section8EndpointDecoratedReferenceIdentification --wfail \
+          lake build Erdos625.Section8EndpointDecoratedPhysicalInjective --wfail \
             > /tmp/section8-decorated-reference-quotient.log 2>&1
           status=$?
-          tail -n 500 /tmp/section8-decorated-reference-quotient.log
+          tail -n 600 /tmp/section8-decorated-reference-quotient.log
           exit $status
       - name: Upload focused compiler log
         if: always()
