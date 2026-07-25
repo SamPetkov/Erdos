@@ -114,14 +114,14 @@ theorem fourEndpointLocalProduct_sq_mul_transportDenProduct
           (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 =
         ∏ i, (∏ j,
           (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 :=
-        Finset.prod_pow Finset.univ 2 (fun i =>
-          ∏ j, (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)
+        (Finset.prod_pow Finset.univ 2 (fun i =>
+          ∏ j, (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)).symm
       _ = ∏ i, ∏ j,
           ((fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j) ^ 2 := by
         apply Finset.prod_congr rfl
         intro i _
-        exact Finset.prod_pow Finset.univ 2 (fun j =>
-          (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)
+        exact (Finset.prod_pow Finset.univ 2 (fun j =>
+          (fourEndpointLocalCellFactor alpha hAlpha i j) ^ L.toFun i j)).symm
       _ = ∏ i, ∏ j,
           ((fourEndpointLocalCellFactor alpha hAlpha i j) ^ 2) ^ L.toFun i j := by
         apply Finset.prod_congr rfl
@@ -229,29 +229,37 @@ theorem fourEndpoint_squareFree_transport
         fourEndpointDiagonalLocalProduct alpha hAlpha
           (fun j => fourEndpointColumnMargin L j) *
         fourEndpointLocalChooseSquareProduct alpha hAlpha L) := by
+  let A : ENNReal :=
+    (n.descFactorial (fourEndpointRowMass alpha hAlpha L) : ENNReal) *
+      (n.descFactorial (fourEndpointColumnMass alpha hAlpha L) : ENNReal)
+  let B : ENNReal :=
+    ((n.descFactorial (fourEndpointJ alpha hAlpha L) : ENNReal) ^ 2) *
+      (n + 1 : ENNReal) ^ fourEndpointDisplacement L
+  let C : ENNReal :=
+    fourEndpointLocalProduct alpha hAlpha L ^ 2 *
+      fourEndpointLocalTransportDenProduct alpha hAlpha L
+  have hAB : A ≤ B := by
+    simpa only [A, B] using
+      fourEndpoint_global_transport_ennreal n alpha hAlpha L
   calc
-    ((n.descFactorial (fourEndpointRowMass alpha hAlpha L) : ENNReal) *
-        (n.descFactorial (fourEndpointColumnMass alpha hAlpha L) : ENNReal)) *
-        (fourEndpointLocalProduct alpha hAlpha L ^ 2 *
-          fourEndpointLocalTransportDenProduct alpha hAlpha L) ≤
-      (((n.descFactorial (fourEndpointJ alpha hAlpha L) : ENNReal) ^ 2) *
-        (n + 1 : ENNReal) ^ fourEndpointDisplacement L) *
-        (fourEndpointLocalProduct alpha hAlpha L ^ 2 *
-          fourEndpointLocalTransportDenProduct alpha hAlpha L) := by
-      simpa [mul_comm] using
-        (mul_le_mul_right
-          (fourEndpoint_global_transport_ennreal n alpha hAlpha L)
-          (fourEndpointLocalProduct alpha hAlpha L ^ 2 *
-            fourEndpointLocalTransportDenProduct alpha hAlpha L))
-    _ = (((n.descFactorial (fourEndpointJ alpha hAlpha L) : ENNReal) ^ 2) *
-        (n + 1 : ENNReal) ^ fourEndpointDisplacement L) *
+    A * C = C * A := mul_comm _ _
+    _ ≤ C * B := mul_le_mul_left hAB C
+    _ = B * C := mul_comm _ _
+    _ = B *
       (fourEndpointDiagonalLocalProduct alpha hAlpha
           (fun i => fourEndpointRowMargin L i) *
         fourEndpointDiagonalLocalProduct alpha hAlpha
           (fun j => fourEndpointColumnMargin L j) *
         fourEndpointLocalChooseSquareProduct alpha hAlpha L) := by
-      rw [fourEndpointLocalProduct_sq_mul_transportDenProduct
-        alpha hAlpha hHigh L]
+      rw [show C =
+        fourEndpointDiagonalLocalProduct alpha hAlpha
+            (fun i => fourEndpointRowMargin L i) *
+          fourEndpointDiagonalLocalProduct alpha hAlpha
+            (fun j => fourEndpointColumnMargin L j) *
+          fourEndpointLocalChooseSquareProduct alpha hAlpha L by
+        simpa only [C] using
+          fourEndpointLocalProduct_sq_mul_transportDenProduct
+            alpha hAlpha hHigh L]
 
 #print axioms fourEndpointLocalCellFactor_sq_mul_transportDen
 #print axioms fourEndpointLocalProduct_sq_mul_transportDenProduct
