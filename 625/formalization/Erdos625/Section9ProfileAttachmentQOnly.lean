@@ -98,8 +98,9 @@ theorem eventually_profileHighSkeletonAttachment_le_qOnly_logScale :
   have hmpos : 0 < m := by
     by_contra hm
     have hm0 : m = 0 := Nat.eq_zero_of_not_pos hm
-    subst m
-    simp at hpow
+    have hm3 : m ^ 3 = 0 := by rw [hm0]; norm_num
+    rw [hm3] at hpow
+    exact (Nat.not_lt_of_ge hpow) (pow_pos (by decide) U)
   have hbase := hfinite row0 U m hcap demand rfl hmpos hpow
   let exponent : ENNReal := kappa * (U : ENNReal) ^ 2
   have hexponent : exponent ≠ ∞ := by
