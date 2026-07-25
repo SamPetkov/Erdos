@@ -73,13 +73,15 @@ theorem exists_uniform_qOnly_twoRegime_error
       (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
     have h_inv_log :
         Tendsto (fun n : ℕ => 1 / Real.log (n : ℝ)) atTop (nhds 0) := by
-      simpa only [Function.comp_apply, one_div] using h_inv_log_raw
+      simpa only [Function.comp_def, one_div] using h_inv_log_raw
     have hq := h_log_div_n.const_mul Cq
     have hs := h_inv_log.const_mul Cs
-    simpa only [div_eq_mul_inv, one_div, mul_zero, add_zero] using hq.add hs
+    simpa only [div_eq_mul_inv, one_div, one_mul, mul_zero, add_zero] using
+      hq.add hs
   · rcases (eventually_atTop.1 hlarge) with ⟨a₁, ha₁⟩
     rcases (eventually_atTop.1 hsmall) with ⟨a₂, ha₂⟩
-    use Nat.max (Nat.max a₁ a₂) 3
+    apply eventually_atTop.2
+    refine ⟨Nat.max (Nat.max a₁ a₂) 3, ?_⟩
     intro n hn
     have ha₁n : a₁ ≤ n := by omega
     have ha₂n : a₂ ≤ n := by omega
