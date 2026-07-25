@@ -35,12 +35,11 @@ theorem residualLambda_le_residualQ
     (a : A) (b : B) :
     residualLambda M R row col a b ≤ residualQ M R row col a b := by
   classical
-  unfold residualQ
+  unfold residualQ residualLambda
   by_cases hM : (a, b) ∈ M
   · simp [hM]
   · simp only [hM, if_false]
-    exact le_add_left (residualLambda M R row col a b)
-      (configurationCellTheta row col (Finset.univ.sum row) a b ^ 2 / 2)
+    exact le_add_of_nonneg_left (by positivity)
 
 /-- If `lambda` is pointwise bounded by `q`, then the lambda product and the
 direct outside-matching q product are jointly bounded by twice one total q
