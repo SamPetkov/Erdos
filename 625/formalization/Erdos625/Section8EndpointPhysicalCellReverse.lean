@@ -35,6 +35,22 @@ noncomputable def fourEndpointPhysicalStubToLocalEquiv
     (profileBlockMargin_fourEndpointActualBlockOfAtom
       alpha hAlpha k slotIndex a))
 
+/-- The endpoint stub cast changes only its dependent type, not its numerical
+coordinate. -/
+@[simp] theorem fourEndpointPhysicalStubToLocalEquiv_val
+    (alpha : Nat) (hAlpha : 5 < alpha) (k : ColoringProfile (alpha + 1))
+    (slotIndex : FourEndpointSlotIndexing alpha hAlpha k)
+    (a : FourEndpointBlockAtom alpha hAlpha k)
+    (x : Fin (profileBlockMargin k
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a))) :
+    (fourEndpointPhysicalStubToLocalEquiv
+      alpha hAlpha k slotIndex a x).val = x.val := by
+  unfold fourEndpointPhysicalStubToLocalEquiv
+  exact cast_fin_val
+    (congrArg Fin
+      (profileBlockMargin_fourEndpointActualBlockOfAtom
+        alpha hAlpha k slotIndex a)) x
+
 /-- Pull one physical cell edge back to the corresponding unit-typed local
 stub edge. -/
 noncomputable def fourEndpointPhysicalCellEdgeToLocal
@@ -276,6 +292,7 @@ noncomputable def fourEndpointPhysicalFibreToDecoratedBlockPairingValidated
     fun e => fourEndpointPhysicalCellStubMatchingValidated
       alpha hAlpha k L slotIndex S e⟩
 
+#print axioms fourEndpointPhysicalStubToLocalEquiv_val
 #print axioms fourEndpointPhysicalCellEdgeToLocal_injective
 #print axioms physicalCellEdges_card_eq_typeTable_public
 #print axioms fourEndpointPhysicalCellLocalSkeletonValidated_typeTable
