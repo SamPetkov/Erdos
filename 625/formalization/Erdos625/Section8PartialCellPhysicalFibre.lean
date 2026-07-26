@@ -37,7 +37,7 @@ def fourEndpointCellMultiplicityOfDeficit
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat)
+    (deficit : ∀ _e : ↥P.1.edges, Nat)
     (e : ↥P.1.edges) : Nat :=
   fourEndpointCellFullMultiplicity alpha hAlpha P e - deficit e
 
@@ -46,7 +46,7 @@ abbrev FourEndpointSelectedCellPartialStubMatching
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat)
+    (deficit : ∀ _e : ↥P.1.edges, Nat)
     (e : ↥P.1.edges) :=
   SingleCellStubMatching
     (fourEndpointSize alpha hAlpha e.1.1.1)
@@ -58,7 +58,7 @@ abbrev FourEndpointPartialStubDecoration
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) :=
   ∀ e : ↥P.1.edges,
     FourEndpointSelectedCellPartialStubMatching
       alpha hAlpha P deficit e
@@ -68,7 +68,7 @@ def fourEndpointPartialCellFactorialProduct
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : Nat :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : Nat :=
   ∏ e : ↥P.1.edges,
     (fourEndpointCellMultiplicityOfDeficit alpha hAlpha P deficit e).factorial
 
@@ -77,7 +77,7 @@ def fourEndpointPartialCellSelectionProduct
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : Nat :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : Nat :=
   ∏ e : ↥P.1.edges,
     (fourEndpointSize alpha hAlpha e.1.1.1).descFactorial
         (fourEndpointCellMultiplicityOfDeficit alpha hAlpha P deficit e) *
@@ -89,7 +89,7 @@ theorem card_fourEndpointPartialStubDecoration_mul_factorials
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) :
+    (deficit : ∀ _e : ↥P.1.edges, Nat) :
     Fintype.card
         (FourEndpointPartialStubDecoration alpha hAlpha P deficit) *
       fourEndpointPartialCellFactorialProduct alpha hAlpha P deficit =
@@ -100,7 +100,7 @@ theorem card_fourEndpointPartialStubDecoration_mul_factorials
     fourEndpointPartialCellSelectionProduct
   rw [← Finset.prod_mul_distrib]
   apply Finset.prod_congr rfl
-  intro e he
+  intro e _he
   exact card_singleCellStubMatching_mul_factorial
     (fourEndpointSize alpha hAlpha e.1.1.1)
     (fourEndpointSize alpha hAlpha e.1.2.1)
@@ -111,7 +111,7 @@ theorem fourEndpointPartialCellFactorialProduct_ne_zero
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) :
+    (deficit : ∀ _e : ↥P.1.edges, Nat) :
     fourEndpointPartialCellFactorialProduct alpha hAlpha P deficit ≠ 0 := by
   unfold fourEndpointPartialCellFactorialProduct
   exact Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.factorial_ne_zero _
@@ -121,7 +121,7 @@ theorem ennreal_card_fourEndpointPartialStubDecoration_eq_quotient
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) :
+    (deficit : ∀ _e : ↥P.1.edges, Nat) :
     (Fintype.card
       (FourEndpointPartialStubDecoration alpha hAlpha P deficit) : ENNReal) =
       (fourEndpointPartialCellSelectionProduct alpha hAlpha P deficit : ENNReal) /
@@ -141,7 +141,7 @@ def fourEndpointPartialTotalMultiplicity
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : Nat :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : Nat :=
   ∑ e : ↥P.1.edges,
     fourEndpointCellMultiplicityOfDeficit alpha hAlpha P deficit e
 
@@ -150,7 +150,7 @@ def fourEndpointPartialRewardProduct
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : ENNReal :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : ENNReal :=
   ∏ e : ↥P.1.edges,
     (localSignRewardNat
       (fourEndpointCellMultiplicityOfDeficit alpha hAlpha P deficit e) : ENNReal)
@@ -160,7 +160,7 @@ def fourEndpointPartialAtomWeight
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : ENNReal :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : ENNReal :=
   fourEndpointPartialRewardProduct alpha hAlpha P deficit /
     ((n.descFactorial
       (fourEndpointPartialTotalMultiplicity alpha hAlpha P deficit) : Nat) :
@@ -171,7 +171,7 @@ def fourEndpointPartialAggregateWeight
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) : ENNReal :=
+    (deficit : ∀ _e : ↥P.1.edges, Nat) : ENNReal :=
   ((fourEndpointPartialCellSelectionProduct alpha hAlpha P deficit : Nat) :
       ENNReal) /
     ((fourEndpointPartialCellFactorialProduct alpha hAlpha P deficit : Nat) :
@@ -184,7 +184,7 @@ theorem sum_fourEndpointPartialAtomWeight_eq_aggregateWeight
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)} {L : FourEndpointFullTable}
     (P : FourEndpointBlockPairing alpha hAlpha k L)
-    (deficit : ∀ e : ↥P.1.edges, Nat) :
+    (deficit : ∀ _e : ↥P.1.edges, Nat) :
     (∑ _ : FourEndpointPartialStubDecoration alpha hAlpha P deficit,
       fourEndpointPartialAtomWeight n alpha hAlpha P deficit) =
         fourEndpointPartialAggregateWeight n alpha hAlpha P deficit := by
