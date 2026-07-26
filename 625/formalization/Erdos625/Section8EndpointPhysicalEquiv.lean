@@ -42,18 +42,21 @@ theorem fourEndpointPhysicalEdge_local_roundtrip
         ⟨fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex e.1.2, p.2⟩) :
         RowStub (profileBlockMargin k) ×
           ColumnStub (profileBlockMargin k)) := by
-  simp only [fourEndpointPhysicalEdgeOfLocalEdge,
-    fourEndpointPhysicalCellEdgeToLocal,
-    fourEndpointPhysicalStubToLocalEquiv, Equiv.cast_apply]
   apply Prod.ext
-  · apply Sigma.ext rfl
+  · simp only [fourEndpointPhysicalEdgeOfLocalEdge,
+      fourEndpointPhysicalCellEdgeToLocal, Prod.fst]
+    apply Sigma.ext rfl
     apply heq_of_eq
     apply Fin.ext
-    rfl
-  · apply Sigma.ext rfl
+    exact fourEndpointPhysicalStubToLocalEquiv_val
+      alpha hAlpha k slotIndex e.1.1 p.1
+  · simp only [fourEndpointPhysicalEdgeOfLocalEdge,
+      fourEndpointPhysicalCellEdgeToLocal, Prod.snd]
+    apply Sigma.ext rfl
     apply heq_of_eq
     apply Fin.ext
-    rfl
+    exact fourEndpointPhysicalStubToLocalEquiv_val
+      alpha hAlpha k slotIndex e.1.2 p.2
 
 /-- The physical skeleton underlying forward-after-reverse is the original
 physical skeleton. -/
@@ -81,7 +84,8 @@ theorem fourEndpointDecoratedPhysicalSkeleton_reverse_eq
     obtain ⟨q, hq, rfl⟩ := hp
     rw [fourEndpointPhysicalEdge_local_roundtrip]
     simpa [UnlabelledTypedSkeleton.cellEdges] using hq
-  · rintro ⟨⟨za, zx⟩, ⟨zb, zy⟩⟩ hz
+  · intro hz
+    rcases z with ⟨⟨za, zx⟩, ⟨zb, zy⟩⟩
     obtain ⟨i, j, hi, hj, htable⟩ :=
       S.1.2.1 ((⟨za, zx⟩, ⟨zb, zy⟩) :
         RowStub (profileBlockMargin k) × ColumnStub (profileBlockMargin k)) hz
