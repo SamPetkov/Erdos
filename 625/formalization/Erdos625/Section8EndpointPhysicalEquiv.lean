@@ -44,16 +44,22 @@ theorem fourEndpointPhysicalEdge_local_roundtrip
           ColumnStub (profileBlockMargin k)) := by
   apply Prod.ext
   · simp only [fourEndpointPhysicalEdgeOfLocalEdge,
-      fourEndpointPhysicalCellEdgeToLocal, Prod.fst]
-    apply Sigma.ext rfl
-    apply heq_of_eq
+      fourEndpointPhysicalCellEdgeToLocal]
+    refine congrArg
+      (fun x : Fin (profileBlockMargin k
+          (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex e.1.1)) =>
+        (⟨fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex e.1.1, x⟩ :
+          RowStub (profileBlockMargin k))) ?_
     apply Fin.ext
     exact fourEndpointPhysicalStubToLocalEquiv_val
       alpha hAlpha k slotIndex e.1.1 p.1
   · simp only [fourEndpointPhysicalEdgeOfLocalEdge,
-      fourEndpointPhysicalCellEdgeToLocal, Prod.snd]
-    apply Sigma.ext rfl
-    apply heq_of_eq
+      fourEndpointPhysicalCellEdgeToLocal]
+    refine congrArg
+      (fun x : Fin (profileBlockMargin k
+          (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex e.1.2)) =>
+        (⟨fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex e.1.2, x⟩ :
+          ColumnStub (profileBlockMargin k))) ?_
     apply Fin.ext
     exact fourEndpointPhysicalStubToLocalEquiv_val
       alpha hAlpha k slotIndex e.1.2 p.2
@@ -99,8 +105,6 @@ theorem fourEndpointDecoratedPhysicalSkeleton_reverse_eq
     have hb :
         fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b = zb := by
       exact congrArg Subtype.val ((slotIndex j).apply_symm_apply ⟨zb, hj⟩)
-    subst za
-    subst zb
     let edge : FourEndpointBlockAtom alpha hAlpha k ×
         FourEndpointBlockAtom alpha hAlpha k := (a, b)
     have hedge : edge ∈ fourEndpointPhysicalBlockEdges
@@ -109,18 +113,30 @@ theorem fourEndpointDecoratedPhysicalSkeleton_reverse_eq
       constructor
       · simp
       · rw [fourEndpointFullPairs, Finset.mem_filter]
-        exact ⟨by simp, i, j, hi, hj, htable⟩
+        refine ⟨by simp, i, j, ?_, ?_, ?_⟩
+        · simpa only [ha] using hi
+        · simpa only [hb] using hj
+        · simpa only [ha, hb] using htable
     let e : ↥(fourEndpointPhysicalBlockPairing
         alpha hAlpha k L slotIndex S).1.edges := ⟨edge, hedge⟩
+    let qa : Fin (profileBlockMargin k
+        (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a)) :=
+      Fin.cast (congrArg (profileBlockMargin k) ha).symm zx
+    let qb : Fin (profileBlockMargin k
+        (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b)) :=
+      Fin.cast (congrArg (profileBlockMargin k) hb).symm zy
     let q : Fin (profileBlockMargin k
           (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a)) ×
         Fin (profileBlockMargin k
           (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b)) :=
-      (zx, zy)
+      (qa, qb)
     have hq : q ∈ S.1.1.cellEdges
         (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a)
         (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b) := by
-      simpa [q, UnlabelledTypedSkeleton.cellEdges] using hz
+      rw [UnlabelledTypedSkeleton.cellEdges, Finset.mem_filter]
+      constructor
+      · exact Finset.mem_univ q
+      · simpa [q, qa, qb, ha, hb] using hz
     let p := fourEndpointPhysicalCellEdgeToLocal
       alpha hAlpha k L slotIndex S e q
     have hp : p ∈ fourEndpointPhysicalCellLocalEdgesValidated
@@ -132,7 +148,7 @@ theorem fourEndpointDecoratedPhysicalSkeleton_reverse_eq
       Finset.mem_attach, true_and]
     refine ⟨e, Finset.mem_image.mpr ⟨p, hp, ?_⟩⟩
     rw [fourEndpointPhysicalEdge_local_roundtrip]
-    rfl
+    simpa [q, qa, qb, ha, hb]
 
 /-- Forward after reverse is the identity on the endpoint physical fibre. -/
 theorem fourEndpointDecoratedBlockPairingToPhysicalFibre_rightInverse
