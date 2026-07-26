@@ -19,6 +19,13 @@ def require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def decimal_close(left: Decimal, right: Decimal) -> bool:
+    """Relative comparison at a scale well below the 80-digit work precision."""
+
+    scale = max(Decimal(1), abs(left), abs(right))
+    return abs(left - right) <= Decimal("1e-70") * scale
+
+
 def falling(n: int, k: int) -> int:
     require(0 <= k <= n, f"invalid falling factorial ({n})_{k}")
     value = 1
@@ -68,8 +75,14 @@ def check_coefficient_ledger() -> dict[str, Decimal]:
     strong_near_root = q * q * (Decimal(1000) / Decimal(639)).ln() / Decimal(4)
     full_support_near_root = q**3 / Decimal(4)
 
-    require(old_certificate_midpoint == 4 * canonical, "factor-four ledger failed")
-    require(strong_near_root == 2 * strong_midpoint, "near-root factor-two failed")
+    require(
+        decimal_close(old_certificate_midpoint, 4 * canonical),
+        "factor-four ledger failed",
+    )
+    require(
+        decimal_close(strong_near_root, 2 * strong_midpoint),
+        "near-root factor-two failed",
+    )
     require(
         full_support_near_root > strong_near_root > strong_midpoint > canonical > 0,
         "coefficient ordering failed",
@@ -78,7 +91,10 @@ def check_coefficient_ledger() -> dict[str, Decimal]:
     diagnostic_advantage = Decimal("0.520701335491")
     diagnostic_midpoint = q * q * diagnostic_advantage / Decimal(8)
     diagnostic_near_root = q * q * diagnostic_advantage / Decimal(4)
-    require(diagnostic_near_root == 2 * diagnostic_midpoint, "diagnostic ratio failed")
+    require(
+        decimal_close(diagnostic_near_root, 2 * diagnostic_midpoint),
+        "diagnostic ratio failed",
+    )
 
     return {
         "canonical": canonical,
@@ -199,7 +215,7 @@ def check_asymptotic_scales() -> list[tuple[int, Decimal, Decimal, Decimal]]:
         log_all_high = -N / 3 + (Decimal(16) / 3) * N.ln()
         # sqrt(nN) divided by n/N^4.
         log_transport = -N / 2 + (Decimal(9) / 2) * N.ln()
-        # theta=nlog^(-1/2): (theta*n/N) / N, comparing the seed log-margin
+        # theta=N^(-1/2): (theta*n/N) / N, comparing the seed log-margin
         # with a conservative O(N) logarithmic error.
         log_theta_margin = N - (Decimal(5) / 2) * N.ln()
 
