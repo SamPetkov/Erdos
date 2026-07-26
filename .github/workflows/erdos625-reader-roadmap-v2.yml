@@ -1,0 +1,67 @@
+name: Erdős 625 Version 2 reader roadmap
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/PROOF_ARCHITECTURE_V2_READER_GUIDE.md"
+      - "625/arxiv/PROOF_ROADMAP_INSERT_V2.tex"
+      - ".github/workflows/erdos625-reader-roadmap-v2.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-reader-roadmap-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate-roadmap:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Check roadmap structure and TeX balance
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          md_path = Path("625/proofs/PROOF_ARCHITECTURE_V2_READER_GUIDE.md")
+          tex_path = Path("625/arxiv/PROOF_ROADMAP_INSERT_V2.tex")
+          md = md_path.read_text(encoding="utf-8")
+          tex = tex_path.read_text(encoding="utf-8")
+
+          md_required = [
+              "The theorem in one paragraph",
+              "Dependency graph",
+              "Exact signed-overlap identity",
+              "The Section VIII object dictionary",
+              "Exact high-skeleton weight",
+              "Geometric summation of all deficits",
+              "Direct Section IX residual bound",
+              "One worked two-cell example",
+              "Reader checklist",
+          ]
+          tex_required = [
+              r"\section{Proof architecture}",
+              r"\label{eq:v2-aggregate-high-weight}",
+              r"\label{eq:v2-global-deficit-comparison}",
+              r"\operatorname{BareSkeletonSum}_n",
+              r"\operatorname{AttachmentSum}_n",
+          ]
+
+          for marker in md_required:
+              if marker not in md:
+                  raise SystemExit(f"missing Markdown marker: {marker}")
+          for marker in tex_required:
+              if marker not in tex:
+                  raise SystemExit(f"missing TeX marker: {marker}")
+
+          if tex.count("{") != tex.count("}"):
+              raise SystemExit("unbalanced TeX braces")
+          if "\\tag{\\ref" in tex:
+              raise SystemExit("unstable manual equation tag remains")
+          if "proves the theorem unconditionally" in md.lower():
+              raise SystemExit("roadmap overstates the current proof status")
+
+          print("reader roadmap validation: PASS")
+          PY
