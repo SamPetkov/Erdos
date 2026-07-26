@@ -8,6 +8,7 @@ on:
       - "625/formalization/Erdos625/Section8EndpointPhysicalEquiv.lean"
       - "625/formalization/Erdos625/Section8PartialCellPhysicalFibre.lean"
       - "625/formalization/Erdos625/Section8AttainedDemandBlockSupport.lean"
+      - "625/formalization/Erdos625/Section8FourDeficitProfileCover.lean"
       - "625/formalization/Erdos625/Section8AttainedAllDeficitReindexing.lean"
       - "625/formalization/Erdos625/Section8BareSkeletonClosure.lean"
       - "625/formalization/Erdos625/Section9QOnlySecondMomentFrontier.lean"
@@ -50,6 +51,7 @@ jobs:
           for optional in \
             625/formalization/Erdos625/Section8EndpointPhysicalEquiv.lean \
             625/formalization/Erdos625/Section8AttainedDemandBlockSupport.lean \
+            625/formalization/Erdos625/Section8FourDeficitProfileCover.lean \
             625/formalization/Erdos625/Section8AttainedAllDeficitReindexing.lean \
             625/formalization/Erdos625/Section8BareSkeletonClosure.lean; do
             if [[ -f "$optional" ]]; then files+=("$optional"); fi
@@ -79,6 +81,7 @@ jobs:
           for optional in \
             Erdos625.Section8EndpointPhysicalEquiv \
             Erdos625.Section8AttainedDemandBlockSupport \
+            Erdos625.Section8FourDeficitProfileCover \
             Erdos625.Section8AttainedAllDeficitReindexing \
             Erdos625.Section8BareSkeletonClosure; do
             path="${optional//./\/}.lean"
