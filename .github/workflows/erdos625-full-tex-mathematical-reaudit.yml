@@ -1,0 +1,90 @@
+name: Erdős 625 full TeX mathematical re-audit
+
+on:
+  pull_request:
+    paths:
+      - "625/audits/FULL_TEX_MATHEMATICAL_REAUDIT_2026-07-26.md"
+      - "625/proofs/CANONICAL_V2_REWRITE_SPEC_2026-07-26.md"
+      - "625/experiments/full_tex_mathematical_reaudit.py"
+      - "625/research/ERDOS625_VALUE_UPGRADE_REAUDIT_CORRECTIONS_2026-07-26.md"
+      - ".github/workflows/erdos625-full-tex-mathematical-reaudit.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-full-tex-reaudit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mathematical-reaudit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Compile deterministic audit checker
+        run: python -m py_compile 625/experiments/full_tex_mathematical_reaudit.py
+
+      - name: Run deterministic audit checker
+        run: python 625/experiments/full_tex_mathematical_reaudit.py
+
+      - name: Run deterministic audit checker with optimization
+        run: python -O 625/experiments/full_tex_mathematical_reaudit.py
+
+      - name: Check audit coverage and corrected research classifications
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          audit = Path("625/audits/FULL_TEX_MATHEMATICAL_REAUDIT_2026-07-26.md")
+          rewrite = Path("625/proofs/CANONICAL_V2_REWRITE_SPEC_2026-07-26.md")
+          corrections = Path("625/research/ERDOS625_VALUE_UPGRADE_REAUDIT_CORRECTIONS_2026-07-26.md")
+
+          for path in (audit, rewrite, corrections):
+              if not path.is_file():
+                  raise SystemExit(f"missing required file: {path}")
+
+          audit_text = audit.read_text(encoding="utf-8")
+          rewrite_text = rewrite.read_text(encoding="utf-8")
+          correction_text = corrections.read_text(encoding="utf-8")
+
+          audit_markers = (
+              "The unique submission-blocking proof seam remains Section VIII",
+              "Section 7: partial diagonals",
+              "Section 8: exact diagnosis and replacement",
+              "Section 9: direct q-only replacement",
+              "Balance stability: restrict the current theorem",
+              "Slowly growing support: correct the complexity condition",
+              "Cochomatic location corridor: make the upper side conditional",
+          )
+          rewrite_markers = (
+              "Proposed main theorem",
+              "New Section VIII finite parameterization",
+              "New Section IX direct attachment theorem",
+              "Version 2 conclusion",
+          )
+          correction_markers = (
+              "Near-root placement correction",
+              "Balance-stability correction",
+              "Slow-support complexity correction",
+              "Cochromatic-corridor correction",
+          )
+
+          for marker in audit_markers:
+              if marker not in audit_text:
+                  raise SystemExit(f"missing audit marker: {marker}")
+          for marker in rewrite_markers:
+              if marker not in rewrite_text:
+                  raise SystemExit(f"missing rewrite marker: {marker}")
+          for marker in correction_markers:
+              if marker not in correction_text:
+                  raise SystemExit(f"missing correction marker: {marker}")
+
+          forbidden = (r"2^\ell_\bullet", "K(m_n)=o(N) is sufficient")
+          for token in forbidden:
+              if token in correction_text:
+                  raise SystemExit(f"superseded assertion remains in correction note: {token}")
+
+          print("full TeX re-audit coverage: PASS")
+          PY
