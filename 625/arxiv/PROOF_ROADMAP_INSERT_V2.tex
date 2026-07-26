@@ -1,0 +1,184 @@
+% Reader-facing proof roadmap for the corrected Version 2 manuscript.
+% This file is not included by main.tex automatically.  Insert only after the
+% Section VIII closure theorem has been checked and the theorem statement has
+% been updated consistently.
+
+\section{Proof architecture}\label{sec:proof-architecture}
+
+The proof has three logically separate components.  First, we compare the
+ordinary-colouring and signed four-size first-moment roots.  Second, we prove a
+normalised second-moment estimate for the signed profile.  Third, we amplify the
+resulting positive-probability signed seed to a high-probability cocolouring.
+We record the dependency structure before entering the technical estimates.
+
+\subsection{The two first-moment locations}
+
+Let $r_+(n)$ denote the continuous root of the ordinary profile first moment,
+and let $r_4^{\mathrm{co}}(n)$ denote the root of the signed four-size
+objective.  The four permitted deficits are $2,3,4,5$.  If $\delta_n$ is the
+phase parameter and
+\[
+  A_4(\delta):=\log 2-D_4(\delta),
+\]
+then the root comparison gives
+\[
+  r_+(n)-r_4^{\mathrm{co}}(n)
+  =
+  \left[
+    \frac{(\log2)^2}{4}A_4(\delta_n)+o(1)
+  \right]\frac{n}{(\log n)^3}.
+\]
+We place the signed seed at
+\[
+  k_{\mathrm{co}}
+  =
+  \left\lceil
+    \frac{r_4^{\mathrm{co}}(n)+r_+(n)}2
+  \right\rceil.
+\]
+Thus the deterministic distance from the ordinary root is
+\[
+  r_+(n)-k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
+  \right]\frac{n}{(\log n)^3}.
+\]
+The exact entropy certificate used below implies
+\[
+  A_4(\delta)>\log\!\left(\frac{1000}{639}\right)
+\]
+uniformly in the phase.
+
+\subsection{The signed overlap identity}
+
+For two ordered signed profile partitions, write $r=(r_{ab})$ for their overlap
+table and let $H_r$ be the bipartite graph of cells with multiplicity at least
+two.  Summing over the two sign vectors gives the exact identity
+\[
+  \operatorname{wt}_{\mathrm{sign}}(r)
+  =
+  \left(\prod_{a,b}g(r_{ab})\right)2^{\beta(H_r)},
+\]
+where $\beta(H_r)$ is the binary cycle rank.  We separate the normalised
+second moment into partial diagonals, canonical high cells, and the residual
+attachment.
+
+The partial-diagonal contribution is handled directly.  The positive support
+of the canonical high cells is a block matching, because every row and column
+margin is at most the phase cap whereas each high cell exceeds one half of that
+cap.
+
+\subsection{High cells as a matching with deficits}
+
+Fix a block matching $P$.  For $e\in P$, let $s_e,t_e$ be the endpoint block
+sizes,
+\[
+  m_e:=\min\{s_e,t_e\},\qquad
+  j_e:=m_e-h_e,
+\]
+and put
+\[
+  J:=\sum_{e\in P}j_e,\qquad H:=\sum_{e\in P}h_e.
+\]
+After summing the literal partial-stub-matching fibre, the exact aggregate
+weight is
+\[
+  w(P,j)
+  =
+  \frac{\displaystyle
+    \prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}}
+  {\displaystyle
+    (n)_J\prod_{e\in P}j_e!}
+  \prod_{e\in P}g(j_e).
+  \tag{\ref{sec:proof-architecture}.1}
+\]
+No full completion is selected objectwise.  Formula
+\eqref{sec:proof-architecture}.1 is obtained by summing the entire finite
+physical fibre.
+
+For endpoint sizes $m,m+d$, define
+\[
+  R_{m,d}(h)
+  :=
+  \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}
+  2^{-hm+h(h+1)/2}.
+\]
+The only global denominator change is
+\[
+  \frac{(n)_{J+H}}{(n)_J}
+  =(n-J)_H\le n^H.
+\]
+Consequently
+\[
+  \frac{w(P,m-h)}{w_{\mathrm{full}}(P)}
+  \le
+  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e).
+  \tag{\ref{sec:proof-architecture}.2}
+\]
+
+The canonical high condition implies $2h_e<m_e$.  Hence
+\[
+  n^hR_{m,d}(h)
+  \le
+  \left(\frac{nm}{2^{\lfloor2m/3\rfloor}}\right)^h.
+\]
+For the four phase sizes,
+\[
+  \rho_n
+  :=
+  \max_m\frac{nm}{2^{\lfloor2m/3\rfloor}}
+  =O\!\left(\frac{(\log n)^{7/3}}{n^{1/3}}\right)=o(1).
+\]
+Thus the sum of all positive deficits in one selected cell is at most
+$2\rho_n$ for large $n$, and the entire deficit fibre contributes
+\[
+  \exp\!\left\{
+    O\bigl(n^{2/3}(\log n)^{4/3}\bigr)
+  \right\}.
+\]
+The endpoint transportation estimate contributes
+$\exp\{O(\sqrt{n\log n})\}$.  Together with the partial-diagonal estimate this
+gives
+\[
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \exp\!\left\{
+    o\!\left(\frac{n}{(\log n)^4}\right)
+  \right\}.
+\]
+
+\subsection{Residual attachment by injective restriction}
+
+Let $M$ be the exposed high-support matching.  Deletion of $M$ is injective on
+the family of even residual edge sets: the symmetric difference of two
+completions would be an even subset of a matching and is therefore empty.  For
+nonnegative activities $(q_e)$,
+\[
+  \sum_{F\ \mathrm{even}}
+    \prod_{e\in F\setminus M}q_e
+  \le
+  \prod_{e\notin M}(1+q_e).
+\]
+The local increment activity is bounded pointwise by the same $q$ activity.
+The intrinsic and complementary residual regimes therefore yield
+\[
+  \operatorname{AttachmentSum}_n
+  \le
+  \operatorname{BareSkeletonSum}_n
+  \exp\!\left\{
+    \eta_n\frac{n}{(\log n)^4}
+  \right\},
+  \qquad \eta_n\longrightarrow0.
+\]
+This proves the required normalised second-moment estimate.
+
+\subsection{Amplification and the final intersection}
+
+Paley--Zygmund supplies a positive-probability signed seed.  A simultaneous
+leftover-colouring lemma and a one-Lipschitz cocolourable-capacity variable,
+combined with bounded differences, upgrade this seed to a high-probability
+upper bound for $\zeta(G_n)$ with additive loss
+$o(n/(\log n)^3)$.  The ordinary first-moment argument gives the corresponding
+high-probability lower bound for $\chi(G_n)$.  Intersecting the two events by a
+union bound completes the proof.
