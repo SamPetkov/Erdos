@@ -1,0 +1,80 @@
+name: Erdős 625 Section 8 physical-fibre closure
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/Section8EndpointPhysicalReverseData.lean"
+      - "625/formalization/Erdos625/Section8EndpointPhysicalEquiv.lean"
+      - "625/formalization/Erdos625/Section8PartialCellPhysicalFibre.lean"
+      - "625/formalization/Erdos625/Section8AttainedAllDeficitReindexing.lean"
+      - "625/formalization/Erdos625/Section8BareSkeletonClosure.lean"
+      - "625/formalization/Erdos625/Section9QOnlySecondMomentFrontier.lean"
+      - "625/formalization/SECTION8_PHYSICAL_FIBRE_CLOSURE_AUDIT.md"
+      - ".github/workflows/erdos625-section8-physical-fibre-closure.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-section8-physical-fibre-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms in closure modules
+        shell: bash
+        run: |
+          files=(
+            625/formalization/Erdos625/Section8EndpointPhysicalReverseData.lean
+          )
+          for optional in \
+            625/formalization/Erdos625/Section8EndpointPhysicalEquiv.lean \
+            625/formalization/Erdos625/Section8PartialCellPhysicalFibre.lean \
+            625/formalization/Erdos625/Section8AttainedAllDeficitReindexing.lean \
+            625/formalization/Erdos625/Section8BareSkeletonClosure.lean; do
+            if [[ -f "$optional" ]]; then files+=("$optional"); fi
+          done
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            "${files[@]}"; then
+              exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Build the current physical-fibre closure frontier warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          target=Erdos625.Section8EndpointPhysicalReverseData
+          if [[ -f Erdos625/Section8BareSkeletonClosure.lean ]]; then
+            target=Erdos625.Section8BareSkeletonClosure
+          elif [[ -f Erdos625/Section8AttainedAllDeficitReindexing.lean ]]; then
+            target=Erdos625.Section8AttainedAllDeficitReindexing
+          elif [[ -f Erdos625/Section8PartialCellPhysicalFibre.lean ]]; then
+            target=Erdos625.Section8PartialCellPhysicalFibre
+          elif [[ -f Erdos625/Section8EndpointPhysicalEquiv.lean ]]; then
+            target=Erdos625.Section8EndpointPhysicalEquiv
+          fi
+          set +e
+          lake build "$target" --wfail \
+            > /tmp/section8-physical-fibre-closure.log 2>&1
+          status=$?
+          tail -n 700 /tmp/section8-physical-fibre-closure.log
+          exit $status
+      - name: Upload focused compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-section8-physical-fibre-closure-log
+          path: /tmp/section8-physical-fibre-closure.log
+          if-no-files-found: ignore
