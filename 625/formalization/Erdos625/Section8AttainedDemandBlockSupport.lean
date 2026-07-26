@@ -164,7 +164,17 @@ noncomputable def fourEndpointDemandBlockSkeleton
         fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.1 =
           fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.1 :=
       congrArg (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex) hleft
-    have hrightActual := hmatching.1 _ _ _ hx' hy' hleftActual
+    have hy'' :
+        (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.1,
+          fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.2) ∈
+        positiveDemandSupport demand.1 := by
+      rw [hleftActual]
+      exact hy'
+    have hrightActual := hmatching.1
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.1)
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.2)
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.2)
+      hx' hy''
     exact Prod.ext hleft
       (fourEndpointActualBlockOfAtom_injective
         alpha hAlpha k slotIndex hrightActual)
@@ -182,7 +192,17 @@ noncomputable def fourEndpointDemandBlockSkeleton
         fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.2 =
           fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.2 :=
       congrArg (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex) hright
-    have hleftActual := hmatching.2 _ _ _ hx' hy' hrightActual
+    have hy'' :
+        (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.1,
+          fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.2) ∈
+        positiveDemandSupport demand.1 := by
+      rw [hrightActual]
+      exact hy'
+    have hleftActual := hmatching.2
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.2)
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex x.1)
+      (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex y.1)
+      hx' hy''
     exact Prod.ext
       (fourEndpointActualBlockOfAtom_injective
         alpha hAlpha k slotIndex hleftActual) hright
