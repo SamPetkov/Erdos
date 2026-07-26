@@ -218,9 +218,9 @@ theorem fourEndpointPhysicalBlockSkeleton_typeTable
       constructor
       · apply Finset.mem_product.mpr
         constructor
-        · simpa only [fourEndpointActualBlockOfAtom, hei] using
+        · simpa only [F, fourEndpointActualBlockOfAtom, hei] using
             (slotIndex edge.1.1 edge.1.2).2
-        · simpa only [fourEndpointActualBlockOfAtom, hej] using
+        · simpa only [F, fourEndpointActualBlockOfAtom, hej] using
             (slotIndex edge.2.1 edge.2.2).2
       · simpa only [hei, hej] using
           fourEndpointPhysicalBlockEdge_typeTable
