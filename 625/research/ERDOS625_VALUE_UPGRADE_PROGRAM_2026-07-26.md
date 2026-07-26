@@ -230,7 +230,7 @@ The single nonlocal denominator changes by
 
 \[
  \frac{(n)_{J+H}}{(n)_J}=(n-J)_H\le n^H,
- \qquad H=\sum_eh_e.
+ \qquad H=\sum_e h_e.
 \]
 
 Hence
@@ -273,7 +273,7 @@ The repaired Section IX theorem then yields
 \[
  \frac{\mathbb E Z_n^2}{(\mathbb E Z_n)^2}
  \le
- \exp\!\left\{o\!left(\frac n{N^4}\right)\right\}.
+ \exp\!\left\{o\!\left(\frac n{N^4}\right)\right\}.
 \]
 
 This is the exact closure route. Further cycle/polymer decompositions do not
@@ -288,7 +288,7 @@ address the remaining seam.
 Let
 
 \[
- A_4(\delta)=\log2-D_4(\delta),
+ A_4(\delta)=\log 2-D_4(\delta),
 \]
 
 where `D_4` is the four-support entropy loss at phase `delta`.
@@ -621,13 +621,13 @@ where
 The unrestricted sign entropy is `k log 2`. Thus an imbalance costs
 
 \[
- k\bigl(\log2-H(\rho)\bigr).
+ k\bigl(\log 2-H(\rho)\bigr).
 \]
 
 Near `rho=1/2+x`,
 
 \[
- \log2-H(1/2+x)=2x^2+O(x^4).
+ \log 2-H(1/2+x)=2x^2+O(x^4).
 \]
 
 Since the local derivative of the coloring first-moment logarithm with respect
@@ -653,7 +653,7 @@ A quantitative local version should give
 
 \[
  c(\epsilon)
- =\frac{q^2}{4}\bigl(\log2-H(1/2+\epsilon)\bigr)
+ =\frac{q^2}{4}\bigl(\log 2-H(1/2+\epsilon)\bigr)
  +o_\epsilon(1)
 \]
 
@@ -701,7 +701,7 @@ near-optimal cocoloring having
 For a fixed finite support `S`, the signed-root advantage is
 
 \[
- \frac{q^2}{4}\bigl(\log2-D_S(\delta_n)\bigr)H_n.
+ \frac{q^2}{4}\bigl(\log 2-D_S(\delta_n)\bigr)H_n.
 \]
 
 The four-size support has a strictly positive but nonzero truncation loss.
@@ -987,7 +987,7 @@ two carries the exact factor
 
 \[
  2^{W+c(H)-|V(H)|}
- =\left(\prod_eg(r_e)\right)2^{\beta(H)}.
+ =\left(\prod_e g(r_e)\right)2^{\beta(H)}.
 \]
 
 The topological correction is the binary cycle-space dimension. A `q`-template
