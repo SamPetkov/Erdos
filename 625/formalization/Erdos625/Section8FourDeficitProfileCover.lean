@@ -32,33 +32,30 @@ theorem isFourEndpointProfileCover_of_isFourDeficitSupported
   obtain ⟨coord, _hcoord, hrep⟩ := haMem
   simp only [Multiset.mem_replicate] at hrep
   obtain ⟨hkpos, hsize⟩ := hrep
-  rcases hsupport coord (by omega) with h0 | hrest
-  · subst coord
-    refine ⟨0, ?_⟩
-    simp only [fourEndpointBlockSlots, Finset.mem_filter,
-      Finset.mem_univ, true_and]
-    change (a.1 : Nat) = fourEndpointSize alpha hAlpha 0
-    simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-  · rcases hrest with h1 | hrest
-    · subst coord
-      refine ⟨1, ?_⟩
-      simp only [fourEndpointBlockSlots, Finset.mem_filter,
-        Finset.mem_univ, true_and]
-      change (a.1 : Nat) = fourEndpointSize alpha hAlpha 1
-      simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-    · rcases hrest with h2 | h3
-      · subst coord
-        refine ⟨2, ?_⟩
-        simp only [fourEndpointBlockSlots, Finset.mem_filter,
-          Finset.mem_univ, true_and]
-        change (a.1 : Nat) = fourEndpointSize alpha hAlpha 2
-        simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-      · subst coord
-        refine ⟨3, ?_⟩
-        simp only [fourEndpointBlockSlots, Finset.mem_filter,
-          Finset.mem_univ, true_and]
-        change (a.1 : Nat) = fourEndpointSize alpha hAlpha 3
-        simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
+  obtain ⟨i, hdeficit⟩ := hsupport coord hkpos
+  have hdeficit' :
+      profileDeficit alpha coord =
+        profileDeficit alpha (fourDeficitCoordinate alpha hAlpha i) := by
+    rw [profileDeficit_fourDeficitCoordinate]
+    exact hdeficit
+  have hclass :
+      profileClassSize coord =
+        profileClassSize (fourDeficitCoordinate alpha hAlpha i) := by
+    unfold profileDeficit at hdeficit'
+    linarith
+  have hval :
+      coord.val + 1 =
+        (fourDeficitCoordinate alpha hAlpha i).val + 1 := by
+    unfold profileClassSize at hclass
+    exact_mod_cast hclass
+  refine ⟨i, ?_⟩
+  simp only [fourEndpointBlockSlots, Finset.mem_filter,
+    Finset.mem_univ, true_and]
+  change (a.1 : Nat) = fourEndpointSize alpha hAlpha i
+  calc
+    (a.1 : Nat) = coord.val + 1 := hsize
+    _ = (fourDeficitCoordinate alpha hAlpha i).val + 1 := hval
+    _ = fourEndpointSize alpha hAlpha i := rfl
 
 /-- The concrete four-deficit embedding used by the midpoint construction
 satisfies the endpoint-cover hypothesis needed by the Section VIII block
