@@ -135,14 +135,14 @@ theorem fourEndpointDecoratedPhysicalSkeleton_reverse_eq
           RowStub (profileBlockMargin k)) = ⟨za, zx⟩ := by
       apply Sigma.ext ha
       apply (Fin.heq_ext_iff
-        (congrArg Fin (congrArg (profileBlockMargin k) ha))).2
+        (congrArg (profileBlockMargin k) ha)).2
       rfl
     have hcol :
         (⟨fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b, qb⟩ :
           ColumnStub (profileBlockMargin k)) = ⟨zb, zy⟩ := by
       apply Sigma.ext hb
       apply (Fin.heq_ext_iff
-        (congrArg Fin (congrArg (profileBlockMargin k) hb))).2
+        (congrArg (profileBlockMargin k) hb)).2
       rfl
     have hglobal :
         ((⟨fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a, qa⟩,
