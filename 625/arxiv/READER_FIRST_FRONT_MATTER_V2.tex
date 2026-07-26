@@ -1,0 +1,289 @@
+% Reader-first front matter for the corrected Version 2 manuscript.
+% This file is not included automatically.
+%
+% IMPORTANT STATUS BOUNDARY
+% -------------------------
+% The post-closure abstract and theorem below must not be inserted into main.tex
+% until the global Section VIII attained-demand/all-deficit physical-fibre
+% theorem and exact aggregate weight identity have been checked.
+
+% ---------------------------------------------------------------------------
+% A. AUDIT-SAFE ABSTRACT FOR THE CURRENT RESEARCH BRANCH
+% ---------------------------------------------------------------------------
+
+\begin{abstract}
+For a graph $G$, let $\chi(G)$ be its chromatic number and let $\zeta(G)$ be the
+least number of parts in a vertex partition in which every part induces either
+an empty graph or a complete graph.  We develop a full-sequence candidate proof
+that, for $G_n\sim G(n,1/2)$, the difference $\chi(G_n)-\zeta(G_n)$ is bounded
+below with high probability by a positive constant times
+$n/(\log n)^3$.  The argument has three layers.  An ordinary first-moment
+calculation locates the chromatic threshold; a signed four-size first moment
+places the cocolouring threshold lower by order $n/(\log n)^3$; and an exact
+signed-overlap identity reduces the required second moment to partial
+diagonals, a matching of high cells, and a residual even-subgraph attachment.
+The corrected Section VIII route sums high cells through literal physical
+matching fibres, one global falling-factorial denominator, and a geometric
+all-deficit estimate.  The residual attachment is then controlled by injective
+restriction outside the exposed matching.  A rare signed seed is amplified to
+high probability by leftover colouring and bounded differences.  The remaining
+submission-blocking step is the global reindexing of every attained canonical
+high skeleton by block support, admissible deficits, and local partial physical
+matchings, with exact aggregate weight preservation.  Until that finite theorem
+is closed, the normalized second moment and the final random-graph theorem
+remain conditional.
+\end{abstract}
+
+% ---------------------------------------------------------------------------
+% B. POST-CLOSURE PUBLICATION ABSTRACT
+% Delete the audit-safe abstract above and use this version only after closure.
+% ---------------------------------------------------------------------------
+
+\iffalse
+\begin{abstract}
+For a graph $G$, let $\chi(G)$ be its chromatic number and let $\zeta(G)$ be the
+least number of parts in a vertex partition in which every part induces either
+an empty graph or a complete graph.  For $G_n\sim G(n,1/2)$ we prove, uniformly
+over the full independence-threshold phase, that
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}
+      \bigl(\log2-D_4(\delta_n)\bigr)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability.  In particular,
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}
+      \log\!\left(\frac{1000}{639}\right)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability.  The gain comes from signed colour classes: at density
+$1/2$, declaring a class independent or complete has the same edge cost and
+contributes an exact factor $2$ per class.  An exact overlap identity separates
+local cell weights from a binary cycle-space factor.  We sum the canonical high
+cells through literal physical matching fibres and a single global
+falling-factorial denominator, and control the residual even-subgraph family by
+injective restriction outside the exposed matching.  The resulting second
+moment gives a positive-probability signed seed, which is amplified to high
+probability by leftover colouring and bounded differences.
+\end{abstract}
+\fi
+
+% ---------------------------------------------------------------------------
+% C. READER-FIRST INTRODUCTION
+% The theorem box is written in post-closure form; retain the explicit status
+% paragraph while this remains a research draft.
+% ---------------------------------------------------------------------------
+
+\section*{Introduction}\label{introduction-reader-first-v2}
+
+Let $G_n\sim G(n,1/2)$ be the random graph on $[n]$.  The chromatic number
+$\chi(G)$ is the least number of independent sets in a partition of $V(G)$.
+The cochromatic number $\zeta(G)$ is the least number of parts in a partition in
+which every part is either independent or complete.  Erd\H{o}s and Gimbel asked
+whether
+\[
+  \chi(G_n)-\zeta(G_n)\longrightarrow\infty
+\]
+with high probability.  The question is now catalogued as Erd\H{o}s
+Problem~625.
+
+The mechanism behind the gap is simple.  Fix a partition into $k$ classes.  An
+ordinary colouring requires every class to be independent.  A cocolouring may
+declare each class independent or complete.  Because $G(n,1/2)$ is invariant
+under complementation, the two declarations have the same probability cost.
+Summing over the sign choices therefore contributes an exact factor $2^k$.
+That additional entropy lowers the signed first-moment root by order
+$n/(\log n)^3$.
+
+The proof has three logically distinct layers.
+
+\begin{enumerate}
+\item \emph{Location.}  We compare the ordinary-colouring root $r_+(n)$ with
+      the signed four-size root $r_4^{\mathrm{co}}(n)$.
+\item \emph{Existence.}  We prove that the lower signed root is populated by
+      controlling one normalized second moment.
+\item \emph{Amplification.}  We turn the resulting positive-probability signed
+      seed into a high-probability cocolouring without changing the leading
+      root separation.
+\end{enumerate}
+
+Writing
+\[
+  A_4(\delta):=\log2-D_4(\delta),
+\]
+the phase-uniform first-moment comparison gives
+\[
+  r_+(n)-r_4^{\mathrm{co}}(n)
+  =
+  \left[
+    \frac{(\log2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+\]
+We place the signed seed at the midpoint between these roots, retaining one
+half of the separation.  The exact entropy certificate gives the uniform bound
+\[
+  A_4(\delta)>\log\!\left(\frac{1000}{639}\right).
+\]
+
+% Use the following theorem box only after the Section VIII closure theorem.
+\begin{resultbox}{Theorem 1: conditional Version 2 target}
+For $G_n\sim G(n,1/2)$,
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}A_4(\delta_n)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability.  Consequently,
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}
+      \log\!\left(\frac{1000}{639}\right)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability.
+\end{resultbox}
+
+\displayheading{What the second moment must prove}
+Let $Z_n$ count the signed four-size profiles at the selected midpoint.  The
+entire overlap analysis is directed toward the single estimate
+\[
+  \frac{\mathbb E Z_n^2}{(\mathbb E Z_n)^2}
+  \le
+  \exp\!\left\{
+    o\!\left(\frac{n}{(\log n)^4}\right)
+  \right\}.
+\]
+The second-moment sections do not move either first-moment root.  Their purpose
+is only to show that the signed first-moment advantage survives overlap.
+
+For two ordered signed partitions, let $r=(r_{ab})$ be the overlap table and
+let $H_r$ be the bipartite support graph of cells with multiplicity at least
+two.  Summing the sign declarations gives the exact identity
+\[
+  \operatorname{SignedOverlapWeight}(r)
+  =
+  \left(\prod_{a,b}g(r_{ab})\right)2^{\beta(H_r)},
+\]
+where $\beta(H_r)$ is the binary cycle rank.  The local product records the cell
+multiplicities, while the cycle-space factor records the remaining sign
+compatibility.
+
+We then reduce the overlap in three stages.  Common whole classes form the
+partial diagonals.  The remaining canonical high cells have support on a block
+matching.  Everything else is a residual even-subgraph attachment after the
+high matching has been exposed.
+
+\displayheading{The high-cell dictionary}
+A \emph{profile block} is an actual class; a \emph{block atom} is its type/slot
+label.  The \emph{block support} $P$ is the matching of block pairs carrying
+positive high demand.  For $e\in P$, let $s_e,t_e$ be the endpoint sizes,
+\[
+  m_e:=\min\{s_e,t_e\},
+  \qquad
+  j_e:=m_e-h_e,
+\]
+where $j_e$ is the actual high multiplicity and $h_e$ is its deficit from full
+containment.  A \emph{partial physical matching} is the literal size-$j_e$
+matching of stubs in one selected block pair.  An \emph{endpoint table} records
+only how many support edges have each pair of endpoint types.  A partial
+physical matching need not have a unique full completion; the proof compares
+whole finite fibres.
+
+For fixed support $P$ and multiplicities $j=(j_e)$, the aggregate physical
+weight is
+\[
+  w(P,j)
+  =
+  \frac{\displaystyle
+    \prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}}
+  {\displaystyle
+    (n)_J\prod_{e\in P}j_e!}
+  \prod_{e\in P}g(j_e),
+  \qquad
+  J:=\sum_{e\in P}j_e.
+\]
+There is one factorial $j_e!$ per selected cell and one global denominator
+$(n)_J$.
+
+If $H:=\sum_e h_e$, then the full-reference denominator changes by
+\[
+  \frac{(n)_{J+H}}{(n)_J}=(n-J)_H\le n^H.
+\]
+For endpoint sizes $m,m+d$, define
+\[
+  R_{m,d}(h)
+  :=
+  \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}
+  2^{-hm+h(h+1)/2}.
+\]
+The global comparison is
+\[
+  \frac{w(P,m-h)}{w_{\mathrm{full}}(P)}
+  \le
+  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e).
+\]
+The high-cell condition implies $2h_e<m_e$, turning the sum over all deficits
+into a geometric product.  Combined with endpoint transport, this yields
+\[
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \exp\!\left\{
+    o\!\left(\frac{n}{(\log n)^4}\right)
+  \right\}.
+\]
+
+\displayheading{Residual attachment}
+Let $M$ be the exposed high-support matching.  Restriction outside $M$ is
+injective on even residual edge sets: the symmetric difference of two
+completions would be an even subset of a matching and hence empty.  Therefore,
+for nonnegative activities $q_e$,
+\[
+  \sum_{F\ \mathrm{even}}
+    \prod_{e\in F\setminus M}q_e
+  \le
+  \prod_{e\notin M}(1+q_e).
+\]
+The local increment activity is bounded by the same $q$ activity.  The two
+residual regimes then give
+\[
+  \operatorname{AttachmentSum}_n
+  \le
+  \operatorname{BareSkeletonSum}_n
+  \exp\!\left\{
+    \eta_n\frac{n}{(\log n)^4}
+  \right\},
+  \qquad \eta_n\to0.
+\]
+This completes the normalized second moment once the physical-fibre reindexing
+has been established.
+
+\displayheading{Amplification and final intersection}
+Paley--Zygmund gives a signed seed with positive probability.  A leftover
+colouring lemma and a one-Lipschitz cocolourable-capacity variable, combined
+with bounded differences, promote this seed to a high-probability upper bound
+for $\zeta(G_n)$ with lower-order loss.  The ordinary first-moment analysis gives
+the corresponding high-probability lower bound for $\chi(G_n)$.  The two events
+need not be independent; their intersection follows from a union bound.
+
+\displayheading{Current audit boundary}
+At the time of this draft, the remaining submission-blocking theorem is the
+global identification of every attained canonical high skeleton with its block
+support, admissible deficits, and local partial physical matching fibres,
+together with exact aggregate weight preservation.  The theorem box and the
+post-closure abstract above must remain labelled conditional until that finite
+assembly has passed the focused proof audit.
