@@ -11,6 +11,7 @@ on:
       - "625/formalization/Erdos625/Section8BareSkeletonClosure.lean"
       - "625/formalization/Erdos625/Section9QOnlySecondMomentFrontier.lean"
       - "625/formalization/SECTION8_PHYSICAL_FIBRE_CLOSURE_AUDIT.md"
+      - "625/experiments/section8_physical_fibre_closure_regression.py"
       - ".github/workflows/erdos625-section8-physical-fibre-closure.yml"
   workflow_dispatch:
 
@@ -22,6 +23,17 @@ permissions:
   contents: read
 
 jobs:
+  exact-regression:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile the exact closure regression
+        run: python -m py_compile 625/experiments/section8_physical_fibre_closure_regression.py
+      - name: Run the exact closure regression
+        run: python 625/experiments/section8_physical_fibre_closure_regression.py
+      - name: Run with Python optimization enabled
+        run: python -O 625/experiments/section8_physical_fibre_closure_regression.py
+
   focused-lean-check:
     runs-on: ubuntu-24.04
     steps:
