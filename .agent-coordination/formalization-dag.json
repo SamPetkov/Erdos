@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "project": "Erdos 625",
+  "repository": "SamPetkov/Erdos625-private",
+  "private_only": true,
+  "baseline": {
+    "branch": "main",
+    "commit": "32dfa812eeb4abc2f7afb377fb6a20c4802e2134",
+    "captured_at": "2026-07-26"
+  },
+  "status_policy": {
+    "ordered_states": [
+      "needs-review",
+      "frozen",
+      "ready",
+      "running",
+      "candidate",
+      "lean-validated",
+      "welded",
+      "blocked"
+    ],
+    "dependency_satisfied_by": [
+      "lean-validated",
+      "welded"
+    ],
+    "aristotle_callable_states": [
+      "ready"
+    ],
+    "note": "The remaining research obligations are deliberately statement-review nodes. No proof-search service may turn an English label into a theorem statement."
+  },
+  "lean_import_graphs": [
+    {
+      "name": "canonical",
+      "directory": ".",
+      "root_files": [
+        "Erdos625.lean",
+        "Erdos625SelfContained.lean"
+      ]
+    }
+  ],
+  "root_nodes": [
+    "E625-15-target-instantiation"
+  ],
+  "nodes": [
+    {
+      "id": "E625-01-phase-root-corridor",
+      "title": "Signed four-size phase root corridor",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Provide existence and uniqueness of the local signed-profile root from explicit center and derivative hypotheses.",
+      "target": {
+        "declaration": "Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower",
+        "source": "Erdos625/PhaseSignedFourSizeRootCorridor.lean",
+        "signature_sha256": "f6a6d57a1ca4061b004e703bb6bcff79576b353a7a2a088edc08d3e8f8ce0d20"
+      },
+      "evidence": [
+        "Completed conditional theorem is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-02-derivative-affine-core",
+      "title": "Derivative affine-core error bound",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Control the unrestricted phase derivative by its explicit deficit main term.",
+      "target": {
+        "declaration": "Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le",
+        "source": "Erdos625/DerivativeAffineCoreError.lean",
+        "signature_sha256": "50fc501bc6412cfae06b271d5b043bda0d23be12bd81ab1e1df6c5c4966565fa"
+      },
+      "evidence": [
+        "Completed analytic estimate is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-03-four-entropy-certificate",
+      "title": "Uniform finite four-entropy certificate",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Supply the finite signed four-size entropy certificate for the first-moment branch.",
+      "target": {
+        "declaration": "Erdos625.eventually_uniform_finite_four_entropy_certificate",
+        "source": "Erdos625/UniformFiniteFourEntropyCertificate.lean",
+        "signature_sha256": "a226af28d179f56dc7c9fe37885448c5b18fb1987d8d2cc18c029b20ce62d9fa"
+      },
+      "evidence": [
+        "Completed finite certificate is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-04-full-corner-reindexing",
+      "title": "Full-corner partial-diagonal reindexing identity",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Close the exact finite reindexing identity needed before asymptotic diagonal estimates.",
+      "target": {
+        "declaration": "Erdos625.sum_partialDiagonalWeight_fullCorner_eq",
+        "source": "Erdos625/FullCornerSumReindexing.lean",
+        "signature_sha256": "7fcbe47f8edaf6a8972ab90ab2ff011a94fb3e44a81cf18f9adc6f56b151fe50"
+      },
+      "evidence": [
+        "Completed exact identity is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-05-signed-overlap-decomposition",
+      "title": "Signed overlap reward equals skeleton cycle-rank sum",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Provide the canonical Section IX decomposition into typed-skeleton contributions.",
+      "target": {
+        "declaration": "Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum",
+        "source": "Erdos625/Section9SignedOverlapCanonicalDecomposition.lean",
+        "signature_sha256": "b4fce26ddddb4f0eaf83a055fed977ff3ad64568aa9aa8f97eec1698520b35b4"
+      },
+      "evidence": [
+        "Completed canonical decomposition is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-06-midpoint-attachment-two-regime",
+      "title": "Midpoint canonical attachment two-regime error",
+      "status": "welded",
+      "depends_on": [
+        "E625-05-signed-overlap-decomposition"
+      ],
+      "purpose": "Produce the local two-regime attachment estimate used by the polymer argument.",
+      "target": {
+        "declaration": "Erdos625.exists_midpointCanonicalAttachment_twoRegime_error",
+        "source": "Erdos625/Section9MidpointCanonicalAttachmentTwoRegime.lean",
+        "signature_sha256": "77c1d605513c749141574a5add4ced7d1f3fae96330060c7a1fc7b3bbefee6a8"
+      },
+      "evidence": [
+        "Completed conditional estimate is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-07-real-seed-polymer",
+      "title": "Real signed-profile seed from midpoint polymer bound",
+      "status": "welded",
+      "depends_on": [
+        "E625-06-midpoint-attachment-two-regime"
+      ],
+      "purpose": "Convert the midpoint canonical polymer bound into the real seed hypothesis used by final assembly.",
+      "target": {
+        "declaration": "Erdos625.eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound",
+        "source": "Erdos625/Section9RealSeedMidpointCanonicalPolymer.lean",
+        "signature_sha256": "0c738282b35bb6b9453f35f9a6df371aecd68612afe084cff2f03955723044f6"
+      },
+      "evidence": [
+        "Completed conditional seed theorem is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-08-concrete-phase-inputs",
+      "title": "Freeze the concrete phase center, slope, and root inputs",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-01-phase-root-corridor",
+        "E625-02-derivative-affine-core"
+      ],
+      "purpose": "State the exact concrete center and uniform derivative bounds that instantiate the existing phase-root corridor at the parameters needed by Erdős 625.",
+      "target": null,
+      "blocker": "The private baseline contains extensive conditional phase infrastructure but no single reviewed declaration capturing the final concrete parameter package. The theorem statement, constants, asymptotic quantifiers, and dependency boundary must be frozen first."
+    },
+    {
+      "id": "E625-09-chromatic-lower-tail",
+      "title": "Freeze the chromatic lower-tail estimate",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-08-concrete-phase-inputs"
+      ],
+      "purpose": "State the exact lower-tail probability estimate required to convert the concrete phase root into the chromatic conclusion.",
+      "target": null,
+      "blocker": "The final quantitative tail statement and constants have not yet been isolated as a reviewed private theorem target."
+    },
+    {
+      "id": "E625-10-four-size-first-moment",
+      "title": "Freeze the signed four-size first-moment assembly",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-03-four-entropy-certificate"
+      ],
+      "purpose": "Assemble the finite entropy certificate and parameter estimates into the exact first-moment hypothesis consumed by the final theorem.",
+      "target": null,
+      "blocker": "The finite certificate is welded, but the concrete parameter substitution and final asymptotic wrapper need an exact theorem statement and hypothesis ledger."
+    },
+    {
+      "id": "E625-11-partial-diagonal-asymptotics",
+      "title": "Freeze the remaining partial-diagonal asymptotic ranges",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-04-full-corner-reindexing"
+      ],
+      "purpose": "Cover the remaining diagonal ranges beyond the exact full-corner reindexing identity with explicit uniform estimates.",
+      "target": null,
+      "blocker": "The range decomposition, uniformity domain, and quantitative decay target must be made exact before formal proof search."
+    },
+    {
+      "id": "E625-12-skeleton-weight",
+      "title": "Review and freeze the Section VIII unlabelled typed-skeleton estimate",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-05-signed-overlap-decomposition"
+      ],
+      "purpose": "State the exact quotient/counting estimate on unlabelled typed skeletons needed by the Section IX global sum.",
+      "target": null,
+      "blocker": "A proposed E625-LEMMA83 brief references a different public commit, Lean 4.31, and a declaration not established on this private baseline. It is quarantined as a clue, not an approved target."
+    },
+    {
+      "id": "E625-13-global-attachment",
+      "title": "Freeze the global attachment and two-regime summation",
+      "status": "needs-review",
+      "depends_on": [
+        "E625-06-midpoint-attachment-two-regime",
+        "E625-07-real-seed-polymer",
+        "E625-12-skeleton-weight"
+      ],
+      "purpose": "Combine local midpoint attachment control with the skeleton quotient estimate into the global Section IX bound and concrete seed.",
+      "target": null,
+      "blocker": "The local conditional pieces are welded; the global quantitative summation depends on the still-unfrozen skeleton estimate."
+    },
+    {
+      "id": "E625-14-conditional-final-adapter",
+      "title": "Conditional uniform-seed/root final adapter",
+      "status": "welded",
+      "depends_on": [],
+      "purpose": "Record that the Sections X–XI logical plumbing from uniform seed and root hypotheses to the final statement is already formalized.",
+      "target": {
+        "declaration": "Erdos625.erdos625Statement_of_uniform_seed_and_root",
+        "source": "Erdos625/Section10_11UniformSeedRootFinal.lean",
+        "signature_sha256": "cee155d4fff7e53a230000e27ca50d53a9e8e223991ce32473943a69ac7ff261"
+      },
+      "evidence": [
+        "Completed conditional final adapter is present on the frozen private-main baseline.",
+        "The source belongs to the canonical Erdos625 import closure."
+      ]
+    },
+    {
+      "id": "E625-15-target-instantiation",
+      "title": "Instantiate every quantitative hypothesis and prove Erdős 625",
+      "status": "blocked",
+      "depends_on": [
+        "E625-09-chromatic-lower-tail",
+        "E625-10-four-size-first-moment",
+        "E625-11-partial-diagonal-asymptotics",
+        "E625-13-global-attachment",
+        "E625-14-conditional-final-adapter"
+      ],
+      "purpose": "Close the exact top-level proposition without axioms or hidden analytical assumptions.",
+      "target": {
+        "declaration": "Erdos625.Erdos625Statement",
+        "source": "Erdos625/Target.lean",
+        "signature_sha256": "5955f003f2a8fdbc72cdec6c00014330f4f6e0c194aae02f955b581d5b171f66"
+      },
+      "blocker": "Concrete phase/tail, first-moment, diagonal, and skeleton/attachment obligations remain. The final conditional adapter itself is already welded."
+    }
+  ],
+  "candidate_streams": [
+    {
+      "repository": "SamPetkov/Erdos",
+      "pull_requests": [
+        27,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        41,
+        43
+      ],
+      "snapshot_captured_at": "2026-07-26T12:46:14+03:00",
+      "head_snapshot": {
+        "27": "79ad43f5ec14a9e56ea294f7e14f94415b8d9e2e",
+        "30": "9e40ff52bee811ca073ccff66dd5f5afa8be75ce",
+        "31": "3a4e41399e5da24cfd65bc190d9766b9a28818a1",
+        "32": "e559d630d343d9fdb6134f7994d3e4a1f3d74afd",
+        "33": "74709bb3d223ca3c1b54fbdc59269b6ce3844ceb",
+        "34": "35fa4f5aa85a12ae9ae23b7351031cd96dc6305f",
+        "35": "628f0c2ba92ef5bc17cd93a6ff14f830962b5f77",
+        "36": "f702b646ad7fd88f63e294b905286f2a6a8cbbc1",
+        "37": "2ea82c988218dee89d3639f598090ce813501c40",
+        "38": "a28d43c56897daa44ec2e07acc85855bd58db288",
+        "39": "ff70aa8f21d0b906ca22887ce78754984c5462de",
+        "41": "b5c5eac61dc71140b53a9e7dccc74bb085d0559c",
+        "43": "4d1b12206fefad3e65e6c32818fd4a0dbd2d82b6"
+      },
+      "excluded_pull_requests": [
+        {
+          "number": 42,
+          "head_snapshot": "4aecc0a93c9c3c3640db367a4be3f332ca492d56",
+          "reason": "Unrelated Balan-Wang work; outside the Erdős 625 DAG."
+        }
+      ],
+      "tracking": "mutable-head",
+      "sync_rule": "Refresh by PR number and exact head tree. Stage additions, modifications, deletions, and renames in private quarantine; never assume a PR only appends files. In particular, public PR 37 has moved beyond the previously staged private head.",
+      "promotion_rule": "Validated mathematical/report material may be integrated into private branches independently of unfinished Lean, but no prose claim is marked welded until its Lean endpoint and assumptions agree. This DAG never authorizes a public write or merge."
+    }
+  ],
+  "quarantined_external_runs": [
+    {
+      "provider": "Aristotle",
+      "project_id": "9224a832-6aee-4d33-8645-d2cf4d43d6a9",
+      "reported_target": "Lemma 9.1 profile attachment and Proposition 9.2 asymptotic seed",
+      "disposition": "Legacy handoff run without a DAG-frozen exact declaration. Any result may be inspected only as an untrusted candidate and split into exact reviewed obligations; never integrate or resubmit it automatically."
+    }
+  ],
+  "automation_policy": {
+    "mailbox": "Private pull-request comments using CODEX-DIRECTIVE v1 and ANTIGRAVITY-REPORT v1.",
+    "selection_command": "python scripts/formalization_dag.py next",
+    "validation_command": "python scripts/formalization_dag.py validate",
+    "brief_command": "python scripts/formalization_dag.py brief NODE_ID",
+    "aristotle": "Never submit unless the selected node is ready and a human-approved exact theorem brief changes its authorization line to APPROVED.",
+    "axle": "May propose candidate lemmas only; all output remains candidate until independent Lean replay, axiom audit, and mathematical review.",
+    "public_repositories": "Read-only. Never merge or write from this workflow."
+  }
+}

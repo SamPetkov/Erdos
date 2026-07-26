@@ -79,3 +79,25 @@ Next action:
 `PRIVATE-VALIDATED` applies only to the exact reviewed SHA. Any later update,
 including a modification of existing proof code, invalidates that verdict until
 the new head is checked.
+
+## Formalization DAG
+
+Before selecting or continuing proof work, read
+`FORMALIZATION_DAG.md` and run:
+
+```text
+python scripts/formalization_dag.py validate
+python scripts/formalization_dag.py next
+```
+
+The JSON graph freezes completed declaration signatures, reconstructs the Lean
+import closure, and exposes only dependency-ready work. A `needs-review`
+frontier requires statement design, not proof search. An Aristotle request
+requires both a `ready` node and an active `CODEX-DIRECTIVE v1` containing the
+user-approved exact theorem brief. Output from Aristotle, AXLE, Gemini, or any
+other agent is only a candidate until Codex independently validates the exact
+SHA.
+
+Tracked public PRs are mutable inputs: refresh their complete current trees,
+including modifications, deletions, and renames. The mailbox and DAG remain
+private-only and never authorize a public write or merge.

@@ -93,3 +93,13 @@ Codex answers with `CODEX-REVIEW v1`:
 
 Validation applies only to the reviewed commit SHA. A later PR update must be
 reviewed again.
+
+## Formalization DAG control
+
+Before selecting a theorem or changing proof code, validate and read
+`.agent-coordination/formalization-dag.json` using
+`scripts/formalization_dag.py`. Follow
+`.agents/workflows/advance-formalization-dag.md`. Only a `ready` node paired
+with an active user-approved exact brief may be sent to Aristotle. Public
+repositories are read-only, and tracked public PRs must be refreshed as full
+mutable trees rather than append-only patches.

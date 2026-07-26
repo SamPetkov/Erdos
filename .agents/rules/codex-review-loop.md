@@ -11,3 +11,10 @@ The private PR is not append-only. Correct existing files when that is the
 faithful fix, including modifying, replacing, renaming, or deleting prior work.
 Do not touch or merge any public repository. Do not submit Aristotle work
 without the exact user-approved theorem brief required by `AGENTS.md`.
+
+Before choosing work, validate
+`.agent-coordination/formalization-dag.json` with
+`python scripts/formalization_dag.py validate`, then use `next`. Follow
+`.agents/workflows/advance-formalization-dag.md`. A statement-review frontier
+is not permission to prove or submit anything, and no agent may change
+`Aristotle authorization` from `NOT APPROVED` on the user's behalf.
