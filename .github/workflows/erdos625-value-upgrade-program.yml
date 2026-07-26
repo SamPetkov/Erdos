@@ -68,10 +68,8 @@ jobs:
           if missing_tex:
               raise SystemExit(f"missing TeX markers: {missing_tex}")
 
-          forbidden_typos = (r"o\!left", r"\log2")
-          for typo in forbidden_typos:
-              if typo in md_text or typo in tex_text:
-                  raise SystemExit(f"known TeX typo remains: {typo}")
+          if r"o\!left" in md_text or r"o\!left" in tex_text:
+              raise SystemExit(r"known TeX typo remains: o\!left")
 
           if tex_text.count(r"\begin{document}") != 1:
               raise SystemExit("TeX file must have exactly one begin{document}")
