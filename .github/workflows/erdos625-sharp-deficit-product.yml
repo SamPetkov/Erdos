@@ -117,17 +117,39 @@ jobs:
           python -m py_compile 625/experiments/extract_line_by_line_audit_map.py
           python -m py_compile 625/experiments/check_line_by_line_audit.py
       - name: Run audit consistency checker
-        run: python 625/experiments/check_line_by_line_audit.py
+        id: audit-check
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python 625/experiments/check_line_by_line_audit.py \
+            > /tmp/erdos625-line-audit-check.log 2>&1
+          status=$?
+          cat /tmp/erdos625-line-audit-check.log
+          exit $status
+      - name: Upload audit checker log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-line-audit-check-log
+          path: /tmp/erdos625-line-audit-check.log
+          if-no-files-found: error
       - name: Run audit checker with optimization
+        if: steps.audit-check.outcome == 'success'
         run: python -O 625/experiments/check_line_by_line_audit.py
       - name: Generate exact source-map artifact
+        if: steps.audit-check.outcome == 'success'
         run: |
           python 625/experiments/extract_line_by_line_audit_map.py \
             625/arxiv/main.tex \
             --output /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
       - name: Upload generated source map
+        if: steps.audit-check.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: erdos625-generated-source-map
           path: /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
           if-no-files-found: error
+      - name: Fail if audit checker failed
+        if: steps.audit-check.outcome == 'failure'
+        run: exit 1
