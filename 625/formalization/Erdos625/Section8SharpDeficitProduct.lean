@@ -41,7 +41,7 @@ theorem sum_nearSkeletonChoiceWeight_le_product_of_local_sums
   rw [sum_nearSkeletonChoiceWeight_eq_product]
   apply Finset.prod_le_prod'
   intro c _
-  exact add_le_add_left (hlocal c) 1
+  simpa [add_comm] using add_le_add_left (hlocal c) 1
 
 /-- Uniform specialization of the cellwise local-sum interface. -/
 theorem sum_nearSkeletonChoiceWeight_le_uniform_local_sum
@@ -102,14 +102,15 @@ theorem two_mul_ennreal_le_natCast_mul
     2 * rho ≤ (U : ENNReal) * rho := by
   have hU' : (2 : ENNReal) ≤ (U : ENNReal) := by
     exact_mod_cast hU
-  exact mul_le_mul_right hU' rho
+  simpa [mul_comm] using mul_le_mul_right hU' rho
 
 /-- Additive form of the comparison with the earlier uniform-cardinality
 interface. -/
 theorem one_add_two_mul_ennreal_le_one_add_natCast_mul
     (U : Nat) (rho : ENNReal) (hU : 2 ≤ U) :
     1 + 2 * rho ≤ 1 + (U : ENNReal) * rho := by
-  exact add_le_add_left (two_mul_ennreal_le_natCast_mul U rho hU) 1
+  simpa [add_comm] using
+    add_le_add_left (two_mul_ennreal_le_natCast_mul U rho hU) 1
 
 #print axioms sum_nearSkeletonChoiceWeight_le_product_of_local_sums
 #print axioms sum_nearSkeletonChoiceWeight_le_uniform_local_sum
