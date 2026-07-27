@@ -93,7 +93,9 @@ def matchingDemandDecoratedPhysicalSkeleton
     obtain ⟨ey, py, hpy, rfl⟩ := hy
     have ha : ex.1.1 = ey.1.1 := (Sigma.mk.inj_iff.mp hxy).1
     have hb : ex.1.2 = ey.1.2 :=
-      hmatching.1 ex.1.1 ex.1.2 ey.1.2 ex.2 (by simpa [ha] using ey.2)
+      hmatching.1 ex.1.1 ex.1.2 ey.1.2 ex.2 (by
+        rw [ha]
+        exact ey.2)
     have he : ex = ey := Subtype.ext (Prod.ext ha hb)
     subst ey
     have hpl : px.1 = py.1 := by
@@ -110,7 +112,9 @@ def matchingDemandDecoratedPhysicalSkeleton
     obtain ⟨ey, py, hpy, rfl⟩ := hy
     have hb : ex.1.2 = ey.1.2 := (Sigma.mk.inj_iff.mp hxy).1
     have ha : ex.1.1 = ey.1.1 :=
-      hmatching.2 ex.1.2 ex.1.1 ey.1.1 ex.2 (by simpa [hb] using ey.2)
+      hmatching.2 ex.1.2 ex.1.1 ey.1.1 ex.2 (by
+        rw [hb]
+        exact ey.2)
     have he : ex = ey := Subtype.ext (Prod.ext ha hb)
     subst ey
     have hpr : px.2 = py.2 := by
