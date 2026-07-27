@@ -14,7 +14,6 @@ import json
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
 
 
 STATEMENT_BEGIN_RE = re.compile(
@@ -62,8 +61,7 @@ def normalize_tex(text: str) -> str:
     text = re.sub(r"\\(?:textup|textbf|emph|texorpdfstring)\{([^{}]*)\}", r"\1", text)
     text = re.sub(r"\\[A-Za-z@]+\*?(?:\[[^]]*\])?", " ", text)
     text = text.replace("{", " ").replace("}", " ")
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def display_start_at(lines: list[str], tag_index: int) -> int:
@@ -101,8 +99,7 @@ def next_nonempty_preview(lines: list[str], start: int, end: int) -> str:
             pieces.append(cleaned)
         if sum(len(piece) for piece in pieces) >= 150:
             break
-    preview = " ".join(pieces)
-    return preview[:180]
+    return " ".join(pieces)[:180]
 
 
 def find_end_environment(lines: list[str], start_index: int, environment: str) -> int:
