@@ -1,0 +1,86 @@
+name: Erdős 625 line-by-line theorem audit
+
+on:
+  pull_request:
+    paths:
+      - "625/arxiv/main.tex"
+      - "625/audits/LINE_BY_LINE_THEOREM_AUDIT_2026-07-27.md"
+      - "625/audits/THEOREM_STATUS_MANIFEST_2026-07-27.json"
+      - "625/experiments/extract_line_by_line_audit_map.py"
+      - "625/experiments/check_line_by_line_audit.py"
+      - ".github/workflows/erdos625-line-by-line-audit.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-line-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  generate-source-map:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile the source-map extractor
+        run: python -m py_compile 625/experiments/extract_line_by_line_audit_map.py
+      - name: Generate the exact source map
+        run: |
+          python 625/experiments/extract_line_by_line_audit_map.py \
+            625/arxiv/main.tex \
+            --output /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
+      - name: Validate basic coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path("625/arxiv/main.tex").read_text(encoding="utf-8").splitlines()
+          audit = Path("/tmp/ERDOS625_GENERATED_SOURCE_MAP.md").read_text(encoding="utf-8")
+          if len(source) < 3000:
+              raise SystemExit(f"unexpectedly short canonical TeX: {len(source)} lines")
+          required = (
+              "Boxed theorem/lemma/proposition ledger",
+              "Tagged-display ledger",
+              "Mechanical consistency checks",
+              "Audit-risk flags",
+              "Theorem 1",
+              "Lemma 3.1",
+              "Lemma 5.1",
+              "Lemma 6.1",
+              "Lemma 6.2",
+              "Lemma 7.1",
+              "Lemma 8.1",
+              "Lemma 8.2",
+              "Lemma 8.3",
+              "Lemma 9.1",
+              "Proposition 9.2",
+              "Lemma 10.1",
+              "Lemma 10.2",
+          )
+          missing = [token for token in required if token not in audit]
+          if missing:
+              raise SystemExit(f"source-map coverage missing: {missing}")
+          print(f"source lines: {len(source)}")
+          print("source-map coverage markers passed")
+          PY
+      - name: Upload generated source map
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-generated-source-map
+          path: /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
+          if-no-files-found: error
+
+  validate-human-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Validate audit when present
+        shell: bash
+        run: |
+          if [[ -f 625/experiments/check_line_by_line_audit.py ]]; then
+            python -m py_compile 625/experiments/check_line_by_line_audit.py
+            python 625/experiments/check_line_by_line_audit.py
+            python -O 625/experiments/check_line_by_line_audit.py
+          else
+            echo "Human audit checker not yet present; source-map job remains authoritative."
+          fi
