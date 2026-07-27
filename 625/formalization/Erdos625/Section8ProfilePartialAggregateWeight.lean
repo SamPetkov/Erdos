@@ -9,7 +9,7 @@ for a matching-supported demand table, the global physical skeleton fibre is
 exactly a product of independent one-cell partial matching fibres.
 
 This module computes the cardinality of that product and applies it to the exact
-profile high-skeleton weight.  The final theorem is pointwise in one attained
+profile high-skeleton weight. The final theorem is pointwise in one attained
 canonical demand and introduces no endpoint completion, probability estimate,
 or asymptotic bound.
 -/
@@ -129,10 +129,11 @@ theorem profileHighSkeletonWeight_eq_matchingDemandCellAggregateWeight
     _ = ∑ _ : MatchingDemandCellDecoration demand.1
           (profileBlockMargin k) (profileBlockMargin k),
             profileHighSkeletonWitnessWeight k U demand := by
-      simpa using
+      rw [Finset.sum_const, Finset.sum_const,
+        Finset.card_univ, Finset.card_univ]
+      rw [← Fintype.card_congr
         (matchingDemandCellDecorationEquivPhysicalFibre demand.1
-          (profileBlockMargin k) (profileBlockMargin k) hmatching).symm.sum_comp
-            (fun _ => profileHighSkeletonWitnessWeight k U demand)
+          (profileBlockMargin k) (profileBlockMargin k) hmatching)]
     _ = matchingDemandCellAggregateWeight demand.1
           (profileBlockMargin k) (profileBlockMargin k)
           (profileHighSkeletonWitnessWeight k U demand) :=
