@@ -98,10 +98,7 @@ def matchingDemandDecoratedPhysicalSkeleton
     subst ey
     have hpl : px.1 = py.1 := by
       apply Sigma.ext (x := px.1) (y := py.1) rfl
-      apply heq_of_eq
-      apply Fin.ext
-      simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
-        congrArg (fun z => z.1.2.val) hxy
+      exact (Sigma.mk.inj_iff.mp hxy).2
     have hp : px = py := (D ex).1.leftUnique px hpx py hpy hpl
     subst py
     rfl
@@ -118,10 +115,7 @@ def matchingDemandDecoratedPhysicalSkeleton
     subst ey
     have hpr : px.2 = py.2 := by
       apply Sigma.ext (x := px.2) (y := py.2) rfl
-      apply heq_of_eq
-      apply Fin.ext
-      simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
-        congrArg (fun z => z.2.2.val) hxy
+      exact (Sigma.mk.inj_iff.mp hxy).2
     have hp : px = py := (D ex).1.rightUnique px hpx py hpy hpr
     subst py
     rfl
