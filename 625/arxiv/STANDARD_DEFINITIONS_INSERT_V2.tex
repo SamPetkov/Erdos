@@ -1,0 +1,84 @@
+% Reader-facing terminology insert for the future Version 2 manuscript.
+% This file is intentionally not included by main.tex on this branch.
+
+\subsection*{Conventions and terminology}
+
+All graphs are finite, simple, and undirected. For a graph \(G\) and
+\(S\subseteq V(G)\), write \(G[S]\) for the subgraph induced by \(S\). A set
+\(S\) is \emph{independent} if \(G[S]\) is edgeless and is a \emph{clique} if
+\(G[S]\) is complete. By a vertex partition we mean a family of nonempty,
+pairwise disjoint sets whose union is \(V(G)\).
+
+A \emph{cocoloring} of \(G\) is a vertex partition in which every class is an
+independent set or a clique. The \emph{cochromatic number} \(\zeta(G)\) is the
+minimum number of classes in a cocoloring. This is the standard invariant
+introduced by Lesniak and Straight \citep{lesniak-straight-1977}; the equivalent
+formulation says that every class induces an empty or complete graph. In the
+language of generalized chromatic numbers,
+\[
+  \zeta(G)=\chi_{\mathcal P_{\mathrm{co}}}(G),
+  \qquad
+  \mathcal P_{\mathrm{co}}=\{K_m,\overline{K_m}:m\ge0\},
+\]
+where \(\mathcal P_{\mathrm{co}}\) is hereditary
+\citep{scheinerman-1992,bollobas-thomason-1995}.
+
+We write \(G(n,p)\) for the simple labelled random graph on
+\([n]=\{1,\ldots,n\}\) in which the \(\binom n2\) edges occur independently
+with probability \(p\). An event holds \emph{with high probability} if its
+probability tends to one as \(n\to\infty\). Throughout the paper \(p=1/2\).
+
+For nonnegative integers \(x,r\), the falling factorial is
+\[
+  (x)_r=x(x-1)\cdots(x-r+1),
+  \qquad (x)_0=1,
+\]
+with the total convention \((x)_r=0\) when \(r>x\). This convention makes all
+finite counting identities valid without a separate feasibility clause.
+
+\paragraph{Signed witnesses.}
+A \emph{signed cocoloring witness} is a vertex partition together with a mark
+\(I\) or \(K\) on every class. An \(I\)-marked class is required to be
+independent and a \(K\)-marked class is required to be a clique. The marks are
+auxiliary counting data, not a new graph invariant. In the four-size profile
+used below every class has size at least two for all sufficiently large \(n\),
+so a realized class cannot satisfy both marks. Forgetting the marks therefore
+recovers an ordinary cocoloring witness without multiplicity.
+
+\paragraph{Overlap and configuration model.}
+For ordered partitions \((V_a)_a\) and \((W_b)_b\), their overlap matrix is the
+contingency table
+\[
+  r_{ab}=|V_a\cap W_b|.
+\]
+Equivalently, give row slot \(a\) exactly \(s_a\) labelled stubs and column slot
+\(b\) exactly \(t_b\) labelled stubs, and choose a uniform perfect matching
+between the two stub sets. The number of matched pairs in cell \((a,b)\) is
+\(r_{ab}\). This bipartite configuration model is a stub-level matching and
+may have several matched pairs between the same two slot types; it is not the
+simple support graph defined next.
+
+\paragraph{Support graph and binary cycle space.}
+Let \(H(r)\) be the simple bipartite graph whose edges are the cells
+\((a,b)\) satisfying \(r_{ab}\ge2\), with isolated slot vertices omitted. Let
+\(c(H)\) denote the number of connected components, with \(c(\varnothing)=0\),
+and put
+\[
+  \beta(H)=|E(H)|-|V(H)|+c(H).
+\]
+An \emph{even subgraph} is an edge set \(F\subseteq E(H)\) for which every
+vertex has even degree in \((V(H),F)\). The even edge sets form the binary cycle
+space under symmetric difference, and \(\beta(H)\) is its dimension. Hence
+\[
+  \#\{F\subseteq E(H):\deg_F(v)\text{ is even for every }v\}
+  =2^{\beta(H)}.
+\]
+
+\paragraph{Manuscript-specific bookkeeping.}
+The terms \emph{deficit coordinate}, \emph{demand table}, \emph{high cell},
+\emph{physical high skeleton}, \emph{block support}, \emph{endpoint table},
+\emph{local reward}, and \emph{residual attachment} are auxiliary terms defined
+in the sections where they are used. They do not denote additional standard
+graph invariants. In particular, a physical skeleton is a partial matching of
+individual row and column stubs, whereas its block support is a matching of row
+and column class types.
