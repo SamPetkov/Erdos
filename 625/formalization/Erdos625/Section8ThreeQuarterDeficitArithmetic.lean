@@ -2,11 +2,13 @@ import Erdos625.Section8AllHighDeficitArithmetic
 import Mathlib.Tactic
 
 /-!
-# Section VIII: the sharp three-quarter exponent budget
+# Section VIII: a three-quarter exponent budget
 
 For a high multiplicity `j=m-h`, the condition `2h<m` gives a stronger binary
-exponent budget than the earlier two-thirds estimate.  The exact coefficient
-`floor((3m-1)/4)` is the worst-case value at the largest admissible deficit.
+exponent budget than the earlier two-thirds estimate.  The coefficient
+`floor((3m-1)/4)` is within one of the optimal integer coefficient
+`floor(3m/4)` and has a short parity-free proof.  The two coefficients have the
+same phase asymptotics.
 
 This improves the common local charge from
 
