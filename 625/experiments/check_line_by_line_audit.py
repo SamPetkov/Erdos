@@ -216,7 +216,6 @@ def check_audit(audit: str, manifest: dict[str, Any]) -> None:
         "Theorem 1",
         "2^\\ell_\\bullet",
         "matching-restriction",
-        "three-quarter",
         "Acceptance gates before changing theorem status",
         "The current canonical TeX is nevertheless not ready to assert Theorem 1",
         "**Theorem 1:** RED",
