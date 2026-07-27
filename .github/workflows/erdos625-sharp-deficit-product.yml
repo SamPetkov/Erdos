@@ -7,7 +7,12 @@ on:
       - "625/formalization/Erdos625/Section8ThreeQuarterDeficitArithmetic.lean"
       - "625/proofs/SECTION8_SHARP_DEFICIT_PRODUCT_AND_REWRITE.md"
       - "625/arxiv/SECTION8_SHARP_DEFICIT_INSERT_V2.tex"
+      - "625/arxiv/main.tex"
+      - "625/audits/LINE_BY_LINE_THEOREM_AUDIT_2026-07-27.md"
+      - "625/audits/THEOREM_STATUS_MANIFEST_2026-07-27.json"
       - "625/experiments/section8_sharp_deficit_product.py"
+      - "625/experiments/extract_line_by_line_audit_map.py"
+      - "625/experiments/check_line_by_line_audit.py"
       - ".github/workflows/erdos625-sharp-deficit-product.yml"
   workflow_dispatch:
 
@@ -102,3 +107,27 @@ jobs:
           name: erdos625-sharp-deficit-product-log
           path: /tmp/erdos625-sharp-deficit-product.log
           if-no-files-found: ignore
+
+  line-by-line-theorem-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile audit tools
+        run: |
+          python -m py_compile 625/experiments/extract_line_by_line_audit_map.py
+          python -m py_compile 625/experiments/check_line_by_line_audit.py
+      - name: Run audit consistency checker
+        run: python 625/experiments/check_line_by_line_audit.py
+      - name: Run audit checker with optimization
+        run: python -O 625/experiments/check_line_by_line_audit.py
+      - name: Generate exact source-map artifact
+        run: |
+          python 625/experiments/extract_line_by_line_audit_map.py \
+            625/arxiv/main.tex \
+            --output /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
+      - name: Upload generated source map
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-generated-source-map
+          path: /tmp/ERDOS625_GENERATED_SOURCE_MAP.md
+          if-no-files-found: error
