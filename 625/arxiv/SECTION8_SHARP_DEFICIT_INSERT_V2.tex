@@ -101,7 +101,7 @@ or exactly one positive-deficit weight in every distinguishable selected cell.
 
 For $2h<m$, the integer estimate
 \[
-  h\left\lfloor\frac{2m}{3}\right\rfloor
+  h\left\lfloor\frac{3m-1}{4}\right\rfloor
   \le
   hm-\frac{h(h+1)}2
 \]
@@ -110,15 +110,15 @@ and \eqref{eq:local-deficit-ratio-v2} give
   n^hR_{m,d}(h)
   \le
   \left(
-    \frac{nm}{2^{\lfloor2m/3\rfloor}}
+    \frac{nm}{2^{\lfloor(3m-1)/4\rfloor}}
   \right)^h.
-  \label{eq:two-thirds-local-charge-v2}
+  \label{eq:three-quarter-local-charge-v2}
 \end{equation}
 Define the cell-dependent charge
 \[
   \rho_e
   :=
-  \frac{n m_e}{2^{\lfloor2m_e/3\rfloor}}.
+  \frac{n m_e}{2^{\lfloor(3m_e-1)/4\rfloor}}.
 \]
 For all sufficiently large $n$, every endpoint charge is at most $1/2$.
 Therefore
@@ -148,7 +148,7 @@ The four-size phase relation gives
   \rho_n
   =
   O\!\left(
-    \frac{(\log n)^{7/3}}{n^{1/3}}
+    \frac{(\log n)^{5/2}}{\sqrt n}
   \right)
   =o(1).
 \]
@@ -159,11 +159,11 @@ Since $|P|\le k_{\mathrm{co}}=\Theta(n/\log n)$,
   (1+2\rho_n)^{k_{\mathrm{co}}}
   \le
   \exp\!\left\{
-    O\!\left(n^{2/3}(\log n)^{4/3}\right)
+    O\!\left(\sqrt n(\log n)^{3/2}\right)
   \right\}.
 \]
-This estimate has no extra factor of order $\log n$ from counting the
-admissible deficits.
+This estimate has neither the old factor counting admissible deficits nor the
+weaker two-thirds exponent loss.
 
 Combining \eqref{eq:fixed-support-all-deficit-v2} with the exact full-endpoint
 normalisation, endpoint transportation, and the partial-diagonal estimate gives
@@ -171,7 +171,7 @@ normalisation, endpoint transportation, and the partial-diagonal estimate gives
   \operatorname{BareSkeletonSum}_n
   \le
   \exp\!\left\{
-    O\!\left(n^{2/3}(\log n)^{4/3}\right)
+    O\!\left(\sqrt n(\log n)^{3/2}\right)
     +O(\sqrt{n\log n})
   \right\}
   =
@@ -180,6 +180,21 @@ normalisation, endpoint transportation, and the partial-diagonal estimate gives
   \right\}.
   \label{eq:bare-skeleton-sharp-v2}
 \end{equation}
+
+\begin{remark}[Optional head--tail refinement]
+The first positive deficit is explicit:
+\[
+  nR_{m,d}(1)
+  =
+  \frac{nm}{d+1}2^{-m+1}
+  =O\!\left(\frac{(\log n)^3}{n}\right).
+\]
+The remaining terms are at most
+$\rho_n^2/(1-\rho_n)=O((\log n)^5/n)$.  Thus one may replace the direct
+all-deficit exponent above by $O((\log n)^4)$.  This refinement is not needed
+for the second moment, so we retain the one-line geometric estimate in the main
+argument.
+\end{remark}
 
 % Audit boundary: equation \eqref{eq:bare-skeleton-sharp-v2} may be promoted
 % into the canonical manuscript only after the attained-demand reindexing and
