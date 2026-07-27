@@ -1,0 +1,186 @@
+% Copy-ready Section VIII insert for the post-closure Version 2 manuscript.
+% Do not include this file from main.tex until the attained-demand reindexing
+% and pointwise aggregate weight identity have been checked.
+
+\subsection{The all-deficit partition function}
+\label{subsec:all-deficit-partition-function}
+
+Fix a block-level matching support $P$.  For every selected cell $e\in P$, let
+$s_e,t_e$ be its endpoint block sizes and put
+\[
+  m_e:=\min\{s_e,t_e\},
+  \qquad
+  d_e:=|s_e-t_e|.
+\]
+If the actual high multiplicity is $j_e$, write
+\[
+  j_e=m_e-h_e.
+\]
+The canonical high condition implies $2h_e<m_e$.
+
+After summing the literal partial-stub-matching fibre in every selected cell,
+the aggregate bare weight is
+\begin{equation}
+  w(P,j)
+  =
+  \frac{\displaystyle\prod_{e\in P}
+    (s_e)_{j_e}(t_e)_{j_e}}
+  {\displaystyle (n)_J\prod_{e\in P}j_e!}
+  \prod_{e\in P}g(j_e),
+  \qquad
+  J:=\sum_{e\in P}j_e.
+  \label{eq:aggregate-bare-weight-v2}
+\end{equation}
+No objectwise full completion is selected in
+\eqref{eq:aggregate-bare-weight-v2}; the formula is the sum of the complete
+finite physical fibre.
+
+For endpoint sizes $m,m+d$, define
+\begin{equation}
+  R_{m,d}(h)
+  :=
+  \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}
+  2^{-hm+h(h+1)/2},
+  \label{eq:local-deficit-ratio-v2}
+\end{equation}
+with $R_{m,d}(0)=1$.
+
+\begin{lemma}[Aggregate deficit comparison]
+\label{lem:aggregate-deficit-comparison-v2}
+For a fixed block support $P$ and an admissible deficit vector
+$h=(h_e)_{e\in P}$,
+\[
+  \frac{w(P,m-h)}{w_{\mathrm{full}}(P)}
+  \le
+  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e).
+\]
+\end{lemma}
+
+\begin{proof}
+The ratio of the local factors in one selected cell is exactly
+\eqref{eq:local-deficit-ratio-v2}.  Put
+\[
+  H:=\sum_{e\in P}h_e.
+\]
+The only nonlocal change is the ambient falling-factorial denominator:
+\[
+  \frac{(n)_{J+H}}{(n)_J}
+  =(n-J)_H
+  \le n^H.
+\]
+Distributing $n^H=\prod_e n^{h_e}$ over the selected cells gives the result.
+\end{proof}
+
+\begin{lemma}[Cellwise optional-deficit product]
+\label{lem:cellwise-deficit-product-v2}
+Let $A_e$ be the finite positive-deficit set in cell $e$, and let
+$u_e(h)\ge0$ be its charged local weight.  Then
+\[
+  \sum_{\text{optional deficit choices }\omega}
+    \prod_{e\in P}u_e(\omega_e)
+  =
+  \prod_{e\in P}
+    \left(1+\sum_{h\in A_e}u_e(h)\right),
+\]
+where the local factor is one if no positive deficit is selected.
+Consequently, if
+\[
+  \sum_{h\in A_e}u_e(h)\le \sigma_e
+  \qquad(e\in P),
+\]
+then the total optional-deficit weight is at most
+\[
+  \prod_{e\in P}(1+\sigma_e).
+\]
+\end{lemma}
+
+\begin{proof}
+Expand the finite product.  Each monomial selects either the constant term one
+or exactly one positive-deficit weight in every distinguishable selected cell.
+\end{proof}
+
+For $2h<m$, the integer estimate
+\[
+  h\left\lfloor\frac{2m}{3}\right\rfloor
+  \le
+  hm-\frac{h(h+1)}2
+\]
+and \eqref{eq:local-deficit-ratio-v2} give
+\begin{equation}
+  n^hR_{m,d}(h)
+  \le
+  \left(
+    \frac{nm}{2^{\lfloor2m/3\rfloor}}
+  \right)^h.
+  \label{eq:two-thirds-local-charge-v2}
+\end{equation}
+Define the cell-dependent charge
+\[
+  \rho_e
+  :=
+  \frac{n m_e}{2^{\lfloor2m_e/3\rfloor}}.
+\]
+For all sufficiently large $n$, every endpoint charge is at most $1/2$.
+Therefore
+\[
+  \sum_{h\in A_e}n^hR_{m_e,d_e}(h)
+  \le
+  \sum_{h\ge1}\rho_e^h
+  =
+  \frac{\rho_e}{1-\rho_e}
+  \le2\rho_e.
+\]
+By Lemma~\ref{lem:cellwise-deficit-product-v2},
+\begin{equation}
+  \sum_{h:\,m-h\text{ high}}w(P,m-h)
+  \le
+  w_{\mathrm{full}}(P)
+  \prod_{e\in P}(1+2\rho_e).
+  \label{eq:fixed-support-all-deficit-v2}
+\end{equation}
+
+Let
+\[
+  \rho_n:=\max_e\rho_e.
+\]
+The four-size phase relation gives
+\[
+  \rho_n
+  =
+  O\!\left(
+    \frac{(\log n)^{7/3}}{n^{1/3}}
+  \right)
+  =o(1).
+\]
+Since $|P|\le k_{\mathrm{co}}=\Theta(n/\log n)$,
+\[
+  \prod_{e\in P}(1+2\rho_e)
+  \le
+  (1+2\rho_n)^{k_{\mathrm{co}}}
+  \le
+  \exp\!\left\{
+    O\!\left(n^{2/3}(\log n)^{4/3}\right)
+  \right\}.
+\]
+This estimate has no extra factor of order $\log n$ from counting the
+admissible deficits.
+
+Combining \eqref{eq:fixed-support-all-deficit-v2} with the exact full-endpoint
+normalisation, endpoint transportation, and the partial-diagonal estimate gives
+\begin{equation}
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \exp\!\left\{
+    O\!\left(n^{2/3}(\log n)^{4/3}\right)
+    +O(\sqrt{n\log n})
+  \right\}
+  =
+  \exp\!\left\{
+    o\!\left(\frac{n}{(\log n)^4}\right)
+  \right\}.
+  \label{eq:bare-skeleton-sharp-v2}
+\end{equation}
+
+% Audit boundary: equation \eqref{eq:bare-skeleton-sharp-v2} may be promoted
+% into the canonical manuscript only after the attained-demand reindexing and
+% the pointwise aggregate weight identity are proved on the integrated branch.
