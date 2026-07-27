@@ -1,0 +1,31 @@
+name: Erdős 625 physical-fibre exact ratio
+
+on:
+  pull_request:
+    paths:
+      - "625/proofs/PHYSICAL_FIBRE_EXACT_RATIO.md"
+      - "625/scripts/verify_physical_fibre_exact_ratio.py"
+      - ".github/workflows/erdos625-physical-fibre-exact-ratio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-ratio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile verifier
+        run: python -m py_compile 625/scripts/verify_physical_fibre_exact_ratio.py
+      - name: Run exact finite audit
+        run: python 625/scripts/verify_physical_fibre_exact_ratio.py
+      - name: Check theorem and status markers
+        run: |
+          grep -F '(n-J)_H' 625/proofs/PHYSICAL_FIBRE_EXACT_RATIO.md >/dev/null
+          grep -F 'one-global-denominator' 625/proofs/PHYSICAL_FIBRE_EXACT_RATIO.md >/dev/null
+          grep -F 'global attained-skeleton reindexing not claimed' 625/scripts/verify_physical_fibre_exact_ratio.py >/dev/null
+          grep -F 'does **not** close the remaining global theorem' 625/proofs/PHYSICAL_FIBRE_EXACT_RATIO.md >/dev/null
