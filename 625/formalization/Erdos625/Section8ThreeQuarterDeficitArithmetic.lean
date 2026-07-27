@@ -33,8 +33,6 @@ theorem highDeficit_threeQuarter_exponent_budget
     h * ((3 * m - 1) / 4) ≤ h * m - h * (h + 1) / 2 := by
   by_cases hh : h = 0
   · simp [hh]
-  have hhpos : 0 < h := Nat.pos_of_ne_zero hh
-  have hmpos : 0 < m := by omega
   let penalty := h * (h + 1) / 2
   have hh_m : h + 1 ≤ m := by omega
   have hpenalty_le_product : penalty ≤ h * (h + 1) := by
@@ -53,7 +51,7 @@ theorem highDeficit_threeQuarter_exponent_budget
     exact Nat.div_mul_le_self _ _
   have hpenalty_four : 4 * penalty ≤ 2 * (h * (h + 1)) := by
     have hmul := Nat.mul_le_mul_left 2 hpenalty_div
-    simpa [mul_assoc, mul_comm, mul_left_comm] using hmul
+    omega
   have hpenalty_bound : 4 * penalty ≤ h * (m + 1) :=
     hpenalty_four.trans hstep_mul
   have h3m : 1 ≤ 3 * m := by omega
