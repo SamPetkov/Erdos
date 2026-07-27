@@ -6,12 +6,12 @@ import Mathlib.Tactic
 # Section VIII: exact local-cell fibre of a matching-supported demand
 
 Let `demand : A → B → Nat` be a finite demand table whose positive support is a
-bipartite matching.  A physical skeleton with this type table is then exactly a
+bipartite matching. A physical skeleton with this type table is exactly a
 product of independent one-cell partial stub matchings, one for every positive
-cell.  This module proves that statement as a literal finite equivalence.
+cell. This module proves that statement as a literal finite equivalence.
 
 This is the aggregate physical-fibre theorem needed in place of an objectwise
-"complete every cell and delete deficits" construction.  It introduces no
+"complete every cell and delete deficits" construction. It introduces no
 full-cell completion and no probability or asymptotic estimate.
 -/
 
@@ -44,6 +44,28 @@ def matchingDemandPhysicalEdgeOfLocalEdge
     RowStub row × ColumnStub col :=
   (⟨e.1.1, p.1.2⟩, ⟨e.1.2, p.2.2⟩)
 
+/-- The local-to-global edge map is injective. -/
+theorem matchingDemandPhysicalEdgeOfLocalEdge_injective
+    {A B : Type*}
+    [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
+    {demand : A → B → Nat} {row : A → Nat} {col : B → Nat}
+    (e : ↥(positiveDemandSupport demand)) :
+    Function.Injective
+      (matchingDemandPhysicalEdgeOfLocalEdge
+        (demand := demand) (row := row) (col := col) e) := by
+  intro p q hpq
+  apply Prod.ext
+  · apply Sigma.ext (x := p.1) (y := q.1) rfl
+    apply heq_of_eq
+    apply Fin.ext
+    simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
+      congrArg (fun z => z.1.2.val) hpq
+  · apply Sigma.ext (x := p.2) (y := q.2) rfl
+    apply heq_of_eq
+    apply Fin.ext
+    simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
+      congrArg (fun z => z.2.2.val) hpq
+
 /-- Union of the physical edges supplied by all positive demand cells. -/
 def matchingDemandDecoratedPhysicalEdges
     {A B : Type*}
@@ -72,12 +94,14 @@ def matchingDemandDecoratedPhysicalSkeleton
     have ha : ex.1.1 = ey.1.1 := (Sigma.mk.inj_iff.mp hxy).1
     have hb : ex.1.2 = ey.1.2 :=
       hmatching.1 ex.1.1 ex.1.2 ey.1.2 ex.2 (by simpa [ha] using ey.2)
-    have heval : ex.1 = ey.1 := Prod.ext ha hb
-    have he : ex = ey := Subtype.ext heval
+    have he : ex = ey := Subtype.ext (Prod.ext ha hb)
     subst ey
     have hpl : px.1 = py.1 := by
-      apply Sigma.ext rfl
-      exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp hxy).2)
+      apply Sigma.ext (x := px.1) (y := py.1) rfl
+      apply heq_of_eq
+      apply Fin.ext
+      simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
+        congrArg (fun z => z.1.2.val) hxy
     have hp : px = py := (D ex).1.leftUnique px hpx py hpy hpl
     subst py
     rfl
@@ -90,12 +114,14 @@ def matchingDemandDecoratedPhysicalSkeleton
     have hb : ex.1.2 = ey.1.2 := (Sigma.mk.inj_iff.mp hxy).1
     have ha : ex.1.1 = ey.1.1 :=
       hmatching.2 ex.1.2 ex.1.1 ey.1.1 ex.2 (by simpa [hb] using ey.2)
-    have heval : ex.1 = ey.1 := Prod.ext ha hb
-    have he : ex = ey := Subtype.ext heval
+    have he : ex = ey := Subtype.ext (Prod.ext ha hb)
     subst ey
     have hpr : px.2 = py.2 := by
-      apply Sigma.ext rfl
-      exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp hxy).2)
+      apply Sigma.ext (x := px.2) (y := py.2) rfl
+      apply heq_of_eq
+      apply Fin.ext
+      simpa only [matchingDemandPhysicalEdgeOfLocalEdge] using
+        congrArg (fun z => z.2.2.val) hxy
     have hp : px = py := (D ex).1.rightUnique px hpx py hpy hpr
     subst py
     rfl
@@ -121,9 +147,7 @@ theorem matchingDemandDecoratedPhysicalSkeleton_cellEdges_selected
       matchingDemandDecoratedPhysicalEdges, Finset.mem_biUnion,
       Finset.mem_attach, true_and, Finset.mem_image] at hz
     obtain ⟨e', p, hp, rfl⟩ := hz
-    have ha : e'.1.1 = e.1.1 := hztype.1
-    have hb : e'.1.2 = e.1.2 := hztype.2
-    have he : e' = e := Subtype.ext (Prod.ext ha hb)
+    have he : e' = e := Subtype.ext (Prod.ext hztype.1 hztype.2)
     subst e'
     exact Finset.mem_image.mpr ⟨p, hp, rfl⟩
   · intro hz
@@ -135,7 +159,7 @@ theorem matchingDemandDecoratedPhysicalSkeleton_cellEdges_selected
         matchingDemandDecoratedPhysicalEdges, Finset.mem_biUnion,
         Finset.mem_attach, true_and]
       exact ⟨e, Finset.mem_image.mpr ⟨p, hp, rfl⟩⟩
-    · rfl
+    · simp [matchingDemandPhysicalEdgeOfLocalEdge]
 
 /-- The global skeleton has the prescribed multiplicity in every selected
 positive cell. -/
@@ -150,16 +174,9 @@ theorem matchingDemandDecoratedPhysicalSkeleton_typeTable_selected
         e.1.1 e.1.2 = demand e.1.1 e.1.2 := by
   unfold UnlabelledTypedSkeleton.typeTable
   rw [matchingDemandDecoratedPhysicalSkeleton_cellEdges_selected hmatching D e]
-  rw [Finset.card_image_of_injOn]
+  rw [Finset.card_image_of_injective]
   · simpa [UnlabelledTypedSkeleton.typeTable] using (D e).2
-  · intro p hp q hq hpq
-    apply Prod.ext
-    · apply Sigma.ext rfl
-      exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-        (congrArg Prod.fst hpq)).2)
-    · apply Sigma.ext rfl
-      exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-        (congrArg Prod.snd hpq)).2)
+  · exact matchingDemandPhysicalEdgeOfLocalEdge_injective e
 
 /-- No edge of the constructed skeleton lies in a zero demand cell. -/
 theorem matchingDemandDecoratedPhysicalSkeleton_typeTable_zero
@@ -183,15 +200,16 @@ theorem matchingDemandDecoratedPhysicalSkeleton_typeTable_zero
         matchingDemandDecoratedPhysicalEdges, Finset.mem_biUnion,
         Finset.mem_attach, true_and, Finset.mem_image] at hz
       obtain ⟨e, p, hp, hzp⟩ := hz
-      have hea : e.1.1 = a := by
-        simpa [matchingDemandPhysicalEdgeOfLocalEdge] using
-          congrArg (fun x => x.1.1) hzp
-      have heb : e.1.2 = b := by
-        simpa [matchingDemandPhysicalEdgeOfLocalEdge] using
-          congrArg (fun x => x.2.1) hzp
-      have : demand a b ≠ 0 := by
-        simpa [positiveDemandSupport, hea, heb] using e.2
-      exact (this hzero).elim
+      have hea : e.1.1 = a :=
+        (congrArg (fun x => x.1.1) hzp).trans ha
+      have heb : e.1.2 = b :=
+        (congrArg (fun x => x.2.1) hzp).trans hb
+      have hepos : demand e.1.1 e.1.2 ≠ 0 := by
+        simpa only [positiveDemandSupport, Finset.mem_filter,
+          Finset.mem_univ, true_and] using e.2
+      have habpos : demand a b ≠ 0 := by
+        simpa [hea, heb] using hepos
+      exact (habpos hzero).elim
     · simp
   rw [hfilter]
   simp
@@ -207,8 +225,9 @@ theorem matchingDemandDecoratedPhysicalSkeleton_typeTable
     (matchingDemandDecoratedPhysicalSkeleton hmatching D).typeTable = demand := by
   funext a b
   by_cases hzero : demand a b = 0
-  · exact matchingDemandDecoratedPhysicalSkeleton_typeTable_zero
-      hmatching D a b hzero
+  · simpa [hzero] using
+      matchingDemandDecoratedPhysicalSkeleton_typeTable_zero
+        hmatching D a b hzero
   · let e : ↥(positiveDemandSupport demand) :=
       ⟨(a, b), by simp [positiveDemandSupport, hzero]⟩
     simpa [e] using
@@ -258,15 +277,9 @@ theorem matchingDemandCellDecorationToPhysicalFibre_injective
         Finset.mem_image.mpr ⟨p, hp, rfl⟩
       rw [hImage] at hpImage
       obtain ⟨q, hq, hpq⟩ := Finset.mem_image.mp hpImage
-      have : p = q := by
-        apply Prod.ext
-        · apply Sigma.ext rfl
-          exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-            (congrArg Prod.fst hpq)).2)
-        · apply Sigma.ext rfl
-          exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-            (congrArg Prod.snd hpq)).2)
-      simpa [this] using hq
+      have hpq' : p = q :=
+        matchingDemandPhysicalEdgeOfLocalEdge_injective e hpq.symm
+      simpa [hpq'] using hq
     · intro hp
       have hpImage : matchingDemandPhysicalEdgeOfLocalEdge e p ∈
           (D₂ e).1.edges.image (fun q =>
@@ -274,15 +287,9 @@ theorem matchingDemandCellDecorationToPhysicalFibre_injective
         Finset.mem_image.mpr ⟨p, hp, rfl⟩
       rw [← hImage] at hpImage
       obtain ⟨q, hq, hpq⟩ := Finset.mem_image.mp hpImage
-      have : p = q := by
-        apply Prod.ext
-        · apply Sigma.ext rfl
-          exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-            (congrArg Prod.fst hpq)).2)
-        · apply Sigma.ext rfl
-          exact heq_of_eq (eq_of_heq (Sigma.mk.inj_iff.mp
-            (congrArg Prod.snd hpq)).2)
-      simpa [this] using hq
+      have hpq' : p = q :=
+        matchingDemandPhysicalEdgeOfLocalEdge_injective e hpq.symm
+      simpa [hpq'] using hq
   exact Subtype.ext (UnlabelledTypedSkeleton.ext hLocalEdges)
 
 /-- Pull one global physical cell edge into the corresponding unit-typed local
@@ -430,7 +437,6 @@ theorem matchingDemandPhysicalEdge_local_roundtrip
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]
     {demand : A → B → Nat} {row : A → Nat} {col : B → Nat}
-    (S : {S : UnlabelledTypedSkeleton row col // S.typeTable = demand})
     (e : ↥(positiveDemandSupport demand))
     (p : Fin (row e.1.1) × Fin (col e.1.2)) :
     matchingDemandPhysicalEdgeOfLocalEdge e
@@ -471,7 +477,8 @@ theorem matchingDemandCellDecorationToPhysicalFibre_rightInverse
       have htypepos : S.1.typeTable a b ≠ 0 :=
         (S.1.typeTable_ne_zero_iff_exists_physical_edge a b).2
           ⟨((⟨a, r⟩, ⟨b, c⟩) : RowStub row × ColumnStub col), hz, rfl, rfl⟩
-      simpa [S.2] using htypepos
+      have hcell := congrFun (congrFun S.2 a) b
+      simpa only [hcell] using htypepos
     let e : ↥(positiveDemandSupport demand) :=
       ⟨(a, b), by simp [positiveDemandSupport, hcellpos]⟩
     let q : Fin (row a) × Fin (col b) := (r, c)
