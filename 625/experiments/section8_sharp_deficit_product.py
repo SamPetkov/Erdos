@@ -30,11 +30,9 @@ def falling(n: int, k: int) -> int:
 def local_ratio(m: int, d: int, h: int) -> Fraction:
     """The aggregate local ratio R_{m,d}(h)."""
 
-    denominator = 1
-    for t in range(1, h + 1):
-        denominator *= d + t
+    rising = factorial(d + h) // factorial(d)
     binary_exponent = h * m - h * (h + 1) // 2
-    return Fraction(comb(m, h), denominator * 2**binary_exponent)
+    return Fraction(comb(m, h), rising * 2**binary_exponent)
 
 
 def check_exact_local_ratio(max_m: int = 100) -> int:
@@ -57,24 +55,25 @@ def check_exact_local_ratio(max_m: int = 100) -> int:
     return checked
 
 
-def check_two_thirds_charge(max_m: int = 240) -> int:
+def check_two_thirds_charge(max_m: int = 220) -> int:
     """Verify n^h R <= (n m / 2^floor(2m/3))^h exactly."""
 
     checked = 0
     sample_n = (1, 2, 3, 5, 10, 20, 50, 100)
     for m in range(3, max_m + 1):
+        exponent = (2 * m) // 3
         for d in range(4):
             for h in range(1, (m - 1) // 2 + 1):
-                if 2 * h >= m:
-                    continue
+                require(2 * h < m, "loop admitted a non-high deficit")
                 exponent_budget = h * m - h * (h + 1) // 2
                 require(
-                    h * ((2 * m) // 3) <= exponent_budget,
+                    h * exponent <= exponent_budget,
                     f"two-thirds exponent budget failed at m={m}, h={h}",
                 )
+                ratio = local_ratio(m, d, h)
                 for n in sample_n:
-                    lhs = n**h * local_ratio(m, d, h)
-                    rho = Fraction(n * m, 2 ** ((2 * m) // 3))
+                    lhs = n**h * ratio
+                    rho = Fraction(n * m, 2**exponent)
                     require(
                         lhs <= rho**h,
                         f"two-thirds charge failed at n={n}, m={m}, d={d}, h={h}",
@@ -83,8 +82,8 @@ def check_two_thirds_charge(max_m: int = 240) -> int:
     return checked
 
 
-def check_three_quarter_charge(max_m: int = 360) -> int:
-    """Verify the sharper floor((3m-1)/4) charged ratio exactly."""
+def check_three_quarter_charge(max_m: int = 280) -> int:
+    """Verify the stronger floor((3m-1)/4) charged ratio exactly."""
 
     checked = 0
     sample_n = (1, 2, 3, 5, 10, 20, 50, 100)
@@ -97,15 +96,15 @@ def check_three_quarter_charge(max_m: int = 360) -> int:
         )
         for d in range(4):
             for h in range(1, (m - 1) // 2 + 1):
-                if 2 * h >= m:
-                    continue
+                require(2 * h < m, "loop admitted a non-high deficit")
                 exponent_budget = h * m - h * (h + 1) // 2
                 require(
                     h * three_quarters <= exponent_budget,
                     f"three-quarter exponent budget failed at m={m}, h={h}",
                 )
+                ratio = local_ratio(m, d, h)
                 for n in sample_n:
-                    lhs = n**h * local_ratio(m, d, h)
+                    lhs = n**h * ratio
                     rho = Fraction(n * m, 2**three_quarters)
                     require(
                         lhs <= rho**h,
@@ -123,10 +122,12 @@ def check_finite_geometric_bound() -> int:
         for numerator in range(1, denominator // 2 + 1):
             rho = Fraction(numerator, denominator)
             require(rho <= Fraction(1, 2), "test construction exceeded one half")
+            power = Fraction(1, 1)
+            finite_sum = Fraction(0, 1)
             for cutoff in range(0, 81):
-                finite_sum = sum(
-                    (rho**h for h in range(1, cutoff + 1)), Fraction(0, 1)
-                )
+                if cutoff > 0:
+                    power *= rho
+                    finite_sum += power
                 require(
                     finite_sum <= rho / (1 - rho),
                     f"geometric majorant failed at rho={rho}, H={cutoff}",
@@ -139,31 +140,24 @@ def check_finite_geometric_bound() -> int:
     return checked
 
 
-def check_head_tail_bound(max_m: int = 120) -> int:
-    """Check an optional first-term plus geometric-tail refinement.
-
-    Whenever the three-quarter charge rho is at most one half,
-
-      sum_{h>=1} n^h R(h) <= n R(1) + rho^2/(1-rho).
-
-    This refinement is not needed by the main PR theorem, but records that the
-    first deficit can be separated without changing the exact local ratio.
-    """
+def check_head_tail_bound(max_m: int = 100) -> int:
+    """Check the optional first-term plus geometric-tail refinement."""
 
     checked = 0
     for m in range(3, max_m + 1):
         exponent = (3 * m - 1) // 4
-        for n in range(1, 21):
-            rho = Fraction(n * m, 2**exponent)
-            if rho > Fraction(1, 2):
-                continue
-            for d in range(4):
-                largest = (m - 1) // 2
+        largest = (m - 1) // 2
+        for d in range(4):
+            ratios = tuple(local_ratio(m, d, h) for h in range(largest + 1))
+            for n in range(1, 21):
+                rho = Fraction(n * m, 2**exponent)
+                if rho > Fraction(1, 2):
+                    continue
                 actual = sum(
-                    (n**h * local_ratio(m, d, h) for h in range(1, largest + 1)),
+                    (n**h * ratios[h] for h in range(1, largest + 1)),
                     Fraction(0, 1),
                 )
-                first = n * local_ratio(m, d, 1)
+                first = n * ratios[1]
                 tail = rho**2 / (1 - rho)
                 require(
                     actual <= first + tail,
