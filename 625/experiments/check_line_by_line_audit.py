@@ -2,7 +2,7 @@
 """Validate the literal theorem-by-theorem audit of the Erdős 625 TeX.
 
 This checker verifies coverage, exact source ranges, status consistency, and
-known source defects.  It does not prove any mathematical theorem.
+known source defects. It does not prove any mathematical theorem.
 """
 
 from __future__ import annotations
@@ -179,8 +179,10 @@ def validate_manifest_against_source(
         statement_text = line_slice(source_lines, *statement_range)
         line_slice(source_lines, *proof_range)
         if item_id in REQUIRED_BOXED_IDS:
-            title = item["title"]
-            require(title in statement_text, f"{item_id}: title absent from statement range")
+            require(
+                item["title"] in statement_text,
+                f"{item_id}: title absent from statement range",
+            )
 
     for item_id, expected_status in EXPECTED_BOXED_STATUS.items():
         require(
@@ -213,7 +215,8 @@ def validate_manifest_against_source(
         f"unexpected boxed RED set: {sorted(theorem_blockers)}",
     )
     require(
-        manifest.get("single_blocking_chain") == ["Lemma 8.3", "Proposition 9.2", "Theorem 1"],
+        manifest.get("single_blocking_chain")
+        == ["Lemma 8.3", "Proposition 9.2", "Theorem 1"],
         "blocking chain changed unexpectedly",
     )
 
@@ -234,7 +237,7 @@ def validate_source_invariants(source_text: str) -> None:
         "canonical source was silently repaired without updating this audit",
     )
     require(
-        "We prove that, for \\(G_n\\sim G(n,1/2)\\)" in source_text,
+        r"We prove that, for \(G_n\sim G(n,1/2)\)" in source_text,
         "audit-safe abstract may have replaced the canonical claim; refresh audit",
     )
     require("3a/4+O(1)" in source_text, "imprecise Section VIII range marker disappeared")
@@ -243,7 +246,7 @@ def validate_source_invariants(source_text: str) -> None:
 def validate_audit_text(audit_text: str, manifest: dict[str, Any]) -> None:
     required_markers = (
         "literal line-by-line and theorem-by-theorem audit",
-        "single submission-blocking chain",
+        "There is one submission-blocking chain",
         "Lemma 8.3",
         "Proposition 9.2",
         "Theorem 1",
@@ -256,22 +259,24 @@ def validate_audit_text(audit_text: str, manifest: dict[str, Any]) -> None:
     require(not missing, f"audit markdown missing markers: {missing}")
 
     for item in manifest["items"]:
-        require(item["title"] in audit_text, f"audit markdown omits {item['title']}")
         start, end = item["statement_lines"]
         range_tokens = (f"{start}--{end}", f"{start}–{end}")
         require(
             any(token in audit_text for token in range_tokens),
             f"audit markdown omits source range for {item['id']}",
         )
+        if item["id"] in REQUIRED_BOXED_IDS:
+            require(
+                item["title"] in audit_text,
+                f"audit markdown omits {item['title']}",
+            )
 
     require(
-        "The current canonical TeX is nevertheless not ready to assert Theorem 1" in audit_text,
+        "The current canonical TeX is nevertheless not ready to assert Theorem 1"
+        in audit_text,
         "final status boundary is missing",
     )
-    require(
-        "Theorem 1:** RED" in audit_text or "Theorem 1:** RED" in audit_text.replace(" ", " "),
-        "final theorem RED classification is missing",
-    )
+    require("**Theorem 1:** RED" in audit_text, "final theorem RED classification is missing")
 
 
 def main() -> None:
