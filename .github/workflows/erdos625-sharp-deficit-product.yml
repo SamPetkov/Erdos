@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "625/formalization/Erdos625/Section8SharpDeficitProduct.lean"
+      - "625/formalization/Erdos625/Section8ThreeQuarterDeficitArithmetic.lean"
       - "625/proofs/SECTION8_SHARP_DEFICIT_PRODUCT_AND_REWRITE.md"
       - "625/arxiv/SECTION8_SHARP_DEFICIT_INSERT_V2.tex"
       - "625/experiments/section8_sharp_deficit_product.py"
@@ -62,7 +63,8 @@ jobs:
         run: |
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
-            625/formalization/Erdos625/Section8SharpDeficitProduct.lean; then
+            625/formalization/Erdos625/Section8SharpDeficitProduct.lean \
+            625/formalization/Erdos625/Section8ThreeQuarterDeficitArithmetic.lean; then
               exit 1
           fi
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
@@ -73,16 +75,26 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Build the sharp all-deficit interface warning-fatally
+      - name: Build the sharp all-deficit interfaces warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
-          set +e
-          lake build Erdos625.Section8SharpDeficitProduct --wfail \
-            > /tmp/erdos625-sharp-deficit-product.log 2>&1
-          status=$?
-          tail -n 500 /tmp/erdos625-sharp-deficit-product.log
-          exit $status
+          : > /tmp/erdos625-sharp-deficit-product.log
+          for target in \
+            Erdos625.Section8SharpDeficitProduct \
+            Erdos625.Section8ThreeQuarterDeficitArithmetic; do
+              echo "=== $target ===" | tee -a /tmp/erdos625-sharp-deficit-product.log
+              set +e
+              lake build "$target" --wfail \
+                >> /tmp/erdos625-sharp-deficit-product.log 2>&1
+              status=$?
+              set -e
+              if [[ $status -ne 0 ]]; then
+                tail -n 700 /tmp/erdos625-sharp-deficit-product.log
+                exit $status
+              fi
+          done
+          tail -n 700 /tmp/erdos625-sharp-deficit-product.log
       - name: Upload focused Lean log
         if: always()
         uses: actions/upload-artifact@v4
