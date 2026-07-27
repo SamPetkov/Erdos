@@ -125,6 +125,16 @@ def require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def boxed_token(item_id: str) -> str:
+    if item_id == "T1":
+        return "Theorem 1"
+    if item_id == "P9.2":
+        return "Proposition 9.2"
+    if item_id.startswith("L"):
+        return f"Lemma {item_id[1:]}"
+    raise RuntimeError(f"unknown boxed id: {item_id}")
+
+
 def git_blob_sha(raw: bytes) -> str:
     return hashlib.sha1(f"blob {len(raw)}\0".encode("ascii") + raw).hexdigest()
 
@@ -159,7 +169,7 @@ def check_manifest(manifest: dict[str, Any], raw: bytes, lines: list[str]) -> Co
         statement_text = source_range(lines, item["statement_lines"])
         source_range(lines, item["proof_lines"])
         if item_id in BOXED_IDS:
-            require(item["title"] in statement_text, f"{item_id}: title not in range")
+            require(boxed_token(item_id) in statement_text, f"{item_id}: identifier not in range")
 
     for item_id, expected in EXPECTED_STATUS.items():
         require(by_id[item_id]["status"] == expected, f"{item_id}: status drift")
@@ -221,7 +231,7 @@ def check_audit(audit: str, manifest: dict[str, Any]) -> None:
             f"audit range absent for {item['id']}",
         )
         if item["id"] in BOXED_IDS:
-            require(item["title"] in audit, f"audit title absent for {item['id']}")
+            require(boxed_token(item["id"]) in audit, f"audit identifier absent for {item['id']}")
 
 
 def main() -> None:
