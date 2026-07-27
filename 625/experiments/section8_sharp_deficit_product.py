@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Exact regression checks for the sharp Section VIII deficit product.
 
-The script is standard-library only.  It verifies finite arithmetic and product
-identities used by the concise all-deficit route.  It does not prove the phase
+The script is standard-library only. It verifies finite arithmetic and product
+identities used by the concise all-deficit route. It does not prove the phase
 asymptotics, the attained-demand reindexing, or the random-graph theorem.
 """
 
@@ -77,7 +77,39 @@ def check_two_thirds_charge(max_m: int = 240) -> int:
                     rho = Fraction(n * m, 2 ** ((2 * m) // 3))
                     require(
                         lhs <= rho**h,
-                        f"charged local ratio failed at n={n}, m={m}, d={d}, h={h}",
+                        f"two-thirds charge failed at n={n}, m={m}, d={d}, h={h}",
+                    )
+                    checked += 1
+    return checked
+
+
+def check_three_quarter_charge(max_m: int = 360) -> int:
+    """Verify the sharper floor((3m-1)/4) charged ratio exactly."""
+
+    checked = 0
+    sample_n = (1, 2, 3, 5, 10, 20, 50, 100)
+    for m in range(3, max_m + 1):
+        two_thirds = (2 * m) // 3
+        three_quarters = (3 * m - 1) // 4
+        require(
+            two_thirds <= three_quarters,
+            f"three-quarter exponent is weaker at m={m}",
+        )
+        for d in range(4):
+            for h in range(1, (m - 1) // 2 + 1):
+                if 2 * h >= m:
+                    continue
+                exponent_budget = h * m - h * (h + 1) // 2
+                require(
+                    h * three_quarters <= exponent_budget,
+                    f"three-quarter exponent budget failed at m={m}, h={h}",
+                )
+                for n in sample_n:
+                    lhs = n**h * local_ratio(m, d, h)
+                    rho = Fraction(n * m, 2**three_quarters)
+                    require(
+                        lhs <= rho**h,
+                        f"three-quarter charge failed at n={n}, m={m}, d={d}, h={h}",
                     )
                     checked += 1
     return checked
@@ -102,6 +134,40 @@ def check_finite_geometric_bound() -> int:
                 require(
                     finite_sum <= 2 * rho,
                     f"two-rho majorant failed at rho={rho}, H={cutoff}",
+                )
+                checked += 1
+    return checked
+
+
+def check_head_tail_bound(max_m: int = 120) -> int:
+    """Check an optional first-term plus geometric-tail refinement.
+
+    Whenever the three-quarter charge rho is at most one half,
+
+      sum_{h>=1} n^h R(h) <= n R(1) + rho^2/(1-rho).
+
+    This refinement is not needed by the main PR theorem, but records that the
+    first deficit can be separated without changing the exact local ratio.
+    """
+
+    checked = 0
+    for m in range(3, max_m + 1):
+        exponent = (3 * m - 1) // 4
+        for n in range(1, 21):
+            rho = Fraction(n * m, 2**exponent)
+            if rho > Fraction(1, 2):
+                continue
+            for d in range(4):
+                largest = (m - 1) // 2
+                actual = sum(
+                    (n**h * local_ratio(m, d, h) for h in range(1, largest + 1)),
+                    Fraction(0, 1),
+                )
+                first = n * local_ratio(m, d, 1)
+                tail = rho**2 / (1 - rho)
+                require(
+                    actual <= first + tail,
+                    f"head-tail bound failed at n={n}, m={m}, d={d}",
                 )
                 checked += 1
     return checked
@@ -145,20 +211,26 @@ def check_cellwise_and_uniform_bounds() -> int:
             for numerator in range(1, denominator // 2 + 1):
                 rho = Fraction(numerator, denominator)
                 require(2 * rho <= U * rho, "sharp charge exceeded old charge")
-                require(1 + 2 * rho <= 1 + U * rho, "additive charge comparison failed")
+                require(
+                    1 + 2 * rho <= 1 + U * rho,
+                    "additive charge comparison failed",
+                )
                 checked += 1
     return checked
 
 
 def check_endpoint_type_retention() -> int:
-    """Retaining cellwise charges is at least as sharp as replacing them by max rho."""
+    """Retaining cellwise charges is sharper than replacing them by max rho."""
 
     checked = 0
     for alpha in range(12, 61):
         endpoint_sizes = tuple(alpha - d for d in (2, 3, 4, 5))
         for n in (1, 2, 5, 10, 20):
             charges = [
-                Fraction(n * min(s, t), 2 ** ((2 * min(s, t)) // 3))
+                Fraction(
+                    n * min(s, t),
+                    2 ** ((3 * min(s, t) - 1) // 4),
+                )
                 for s in endpoint_sizes
                 for t in endpoint_sizes
             ]
@@ -170,40 +242,48 @@ def check_endpoint_type_retention() -> int:
     return checked
 
 
-def asymptotic_diagnostics() -> list[tuple[int, Decimal, Decimal, Decimal]]:
-    """Logarithms of sharp, old, and endpoint-transport scale ratios.
+def asymptotic_diagnostics() -> list[
+    tuple[int, Decimal, Decimal, Decimal, Decimal]
+]:
+    """Logarithms of error-scale ratios after division by n/N^4.
 
-    With N=log n, divide each error scale by n/N^4:
+    With N=log n:
 
-      sharp all-deficit: n^(2/3) N^(4/3) -> exp(-N/3) N^(16/3),
-      old U*rho bound:   n^(2/3) N^(7/3) -> exp(-N/3) N^(19/3),
-      endpoint transport: sqrt(nN)        -> exp(-N/2) N^(9/2).
+      three-quarter: sqrt(n) N^(3/2) -> exp(-N/2) N^(11/2),
+      two-thirds:    n^(2/3) N^(4/3) -> exp(-N/3) N^(16/3),
+      old U*rho:     n^(2/3) N^(7/3) -> exp(-N/3) N^(19/3),
+      endpoint:      sqrt(nN)         -> exp(-N/2) N^(9/2).
     """
 
     getcontext().prec = 80
-    rows: list[tuple[int, Decimal, Decimal, Decimal]] = []
-    previous: tuple[Decimal, Decimal, Decimal] | None = None
+    rows: list[tuple[int, Decimal, Decimal, Decimal, Decimal]] = []
+    previous: tuple[Decimal, Decimal, Decimal, Decimal] | None = None
     for nlog in (120, 240, 480, 960, 1920):
         N = Decimal(nlog)
-        sharp = -N / 3 + (Decimal(16) / 3) * N.ln()
+        three_quarter = -N / 2 + (Decimal(11) / 2) * N.ln()
+        two_thirds = -N / 3 + (Decimal(16) / 3) * N.ln()
         old = -N / 3 + (Decimal(19) / 3) * N.ln()
         endpoint = -N / 2 + (Decimal(9) / 2) * N.ln()
+        current = (three_quarter, two_thirds, old, endpoint)
         if previous is not None:
-            require(sharp < previous[0], "sharp scale diagnostic is not decreasing")
-            require(old < previous[1], "old scale diagnostic is not decreasing")
-            require(endpoint < previous[2], "endpoint scale diagnostic is not decreasing")
-        previous = (sharp, old, endpoint)
-        rows.append((nlog, sharp, old, endpoint))
-    require(rows[-1][1] < -100, "sharp scale is not strongly subcritical")
-    require(rows[-1][2] < -100, "old scale is not strongly subcritical")
-    require(rows[-1][3] < -100, "endpoint scale is not strongly subcritical")
+            labels = ("three-quarter", "two-thirds", "old", "endpoint")
+            for label, value, old_value in zip(labels, current, previous):
+                require(value < old_value, f"{label} scale diagnostic is not decreasing")
+        previous = current
+        rows.append((nlog, *current))
+    for index, label in enumerate(
+        ("three-quarter", "two-thirds", "old", "endpoint"), start=1
+    ):
+        require(rows[-1][index] < -100, f"{label} scale is not strongly subcritical")
     return rows
 
 
 def main() -> None:
     local_cases = check_exact_local_ratio()
-    charge_cases = check_two_thirds_charge()
+    two_thirds_cases = check_two_thirds_charge()
+    three_quarter_cases = check_three_quarter_charge()
     geometric_cases = check_finite_geometric_bound()
+    head_tail_cases = check_head_tail_bound()
     factorization_cases = check_partition_function_factorization()
     comparison_cases = check_cellwise_and_uniform_bounds()
     endpoint_cases = check_endpoint_type_retention()
@@ -211,12 +291,17 @@ def main() -> None:
 
     print("ERDOS 625 SHARP DEFICIT PRODUCT: PASS")
     print(f"  exact aggregate local ratios: {local_cases}")
-    print(f"  exact two-thirds charged ratios: {charge_cases}")
+    print(f"  exact two-thirds charged ratios: {two_thirds_cases}")
+    print(f"  exact three-quarter charged ratios: {three_quarter_cases}")
     print(f"  finite geometric sums: {geometric_cases}")
+    print(f"  first-term plus tail checks: {head_tail_cases}")
     print(f"  exact partition-function factorizations: {factorization_cases}")
     print(f"  sharp-vs-cardinality comparisons: {comparison_cases}")
     print(f"  cellwise endpoint-type comparisons: {endpoint_cases}")
-    print("  asymptotic log-ratios (N, sharp, old-cardinality, endpoint):")
+    print(
+        "  asymptotic log-ratios "
+        "(N, three-quarter, two-thirds, old-cardinality, endpoint):"
+    )
     for row in diagnostics:
         print("   ", row)
     print("  scope: exact finite arithmetic and scale diagnostics only")
