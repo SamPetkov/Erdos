@@ -7,6 +7,7 @@ on:
       - "625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean"
       - "625/formalization/Erdos625/Section8PointwiseChargeProduct.lean"
       - "625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean"
+      - "625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean"
       - "625/formalization/Erdos625/Section8DirectReferenceGrouping.lean"
       - "625/formalization/Erdos625/Section8FiniteBareSkeletonReduction.lean"
       - "625/experiments/section8_direct_half_deficit_assembly.py"
@@ -46,6 +47,7 @@ jobs:
             625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean \
             625/formalization/Erdos625/Section8PointwiseChargeProduct.lean \
             625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean \
+            625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean \
             625/formalization/Erdos625/Section8DirectReferenceGrouping.lean \
             625/formalization/Erdos625/Section8FiniteBareSkeletonReduction.lean; then
               exit 1
@@ -65,6 +67,7 @@ jobs:
           : > /tmp/erdos625-direct-half-deficit.log
           for target in \
             Erdos625.Section8PointwiseChargeProduct \
+            Erdos625.Section8CanonicalThreeQuarterRho \
             Erdos625.Section8FiniteBareSkeletonReduction; do
               echo "=== $target ===" | tee -a /tmp/erdos625-direct-half-deficit.log
               set +e
