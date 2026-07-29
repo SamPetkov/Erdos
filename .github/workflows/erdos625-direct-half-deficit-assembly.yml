@@ -1,0 +1,67 @@
+name: Erdős 625 direct half-deficit assembly
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean"
+      - "625/experiments/section8_direct_half_deficit_assembly.py"
+      - "625/proofs/SECTION8_DIRECT_HALF_DEFICIT_SIMPLIFICATION.md"
+      - ".github/workflows/erdos625-direct-half-deficit-assembly.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-direct-half-deficit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  exact-regression:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile exact checker
+        run: python -m py_compile 625/experiments/section8_direct_half_deficit_assembly.py
+      - name: Run exact checker
+        run: python 625/experiments/section8_direct_half_deficit_assembly.py
+      - name: Run exact checker with optimization
+        run: python -O 625/experiments/section8_direct_half_deficit_assembly.py
+
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean; then
+              exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Build the direct half-deficit assembly warning-fatally
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build Erdos625.Section8DirectHalfDeficitAssembly --wfail \
+            > /tmp/erdos625-direct-half-deficit.log 2>&1
+          status=$?
+          tail -n 700 /tmp/erdos625-direct-half-deficit.log
+          exit $status
+      - name: Upload focused Lean log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-direct-half-deficit-log
+          path: /tmp/erdos625-direct-half-deficit.log
+          if-no-files-found: ignore
