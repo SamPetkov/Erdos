@@ -18,6 +18,26 @@ noncomputable section
 
 set_option autoImplicit false
 
+/-- Equality of deficit values determines the finite size coordinate. -/
+theorem profileDeficit_eq_fourDeficit_imp_coordinate_eq
+    (alpha : Nat) (hAlpha : 5 < alpha)
+    (coord : Fin (alpha + 1)) (i : Fin 4)
+    (hdeficit : profileDeficit alpha coord = (fourDeficit i : Real)) :
+    coord = fourDeficitCoordinate alpha hAlpha i := by
+  let target := fourDeficitCoordinate alpha hAlpha i
+  have htarget : profileDeficit alpha target = (fourDeficit i : Real) :=
+    profileDeficit_fourDeficitCoordinate alpha hAlpha i
+  have hsumCoord := profileClassSize_add_profileDeficit alpha coord
+  have hsumTarget := profileClassSize_add_profileDeficit alpha target
+  have hclass : profileClassSize coord = profileClassSize target := by
+    rw [hdeficit] at hsumCoord
+    rw [htarget] at hsumTarget
+    linarith
+  apply Fin.ext
+  unfold profileClassSize at hclass
+  norm_num at hclass
+  omega
+
 /-- A profile supported on the four distinguished deficit coordinates has every
 actual block in one of the four endpoint-size slot families. -/
 theorem isFourEndpointProfileCover_of_isFourDeficitSupported
@@ -32,33 +52,16 @@ theorem isFourEndpointProfileCover_of_isFourDeficitSupported
   obtain ⟨coord, _hcoord, hrep⟩ := haMem
   simp only [Multiset.mem_replicate] at hrep
   obtain ⟨hkpos, hsize⟩ := hrep
-  rcases hsupport coord (by omega) with h0 | hrest
-  · subst coord
-    refine ⟨0, ?_⟩
-    simp only [fourEndpointBlockSlots, Finset.mem_filter,
-      Finset.mem_univ, true_and]
-    change (a.1 : Nat) = fourEndpointSize alpha hAlpha 0
-    simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-  · rcases hrest with h1 | hrest
-    · subst coord
-      refine ⟨1, ?_⟩
-      simp only [fourEndpointBlockSlots, Finset.mem_filter,
-        Finset.mem_univ, true_and]
-      change (a.1 : Nat) = fourEndpointSize alpha hAlpha 1
-      simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-    · rcases hrest with h2 | h3
-      · subst coord
-        refine ⟨2, ?_⟩
-        simp only [fourEndpointBlockSlots, Finset.mem_filter,
-          Finset.mem_univ, true_and]
-        change (a.1 : Nat) = fourEndpointSize alpha hAlpha 2
-        simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
-      · subst coord
-        refine ⟨3, ?_⟩
-        simp only [fourEndpointBlockSlots, Finset.mem_filter,
-          Finset.mem_univ, true_and]
-        change (a.1 : Nat) = fourEndpointSize alpha hAlpha 3
-        simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
+  obtain ⟨i, hdeficit⟩ := hsupport coord hkpos
+  have hcoord : coord = fourDeficitCoordinate alpha hAlpha i :=
+    profileDeficit_eq_fourDeficit_imp_coordinate_eq
+      alpha hAlpha coord i hdeficit
+  subst coord
+  refine ⟨i, ?_⟩
+  simp only [fourEndpointBlockSlots, Finset.mem_filter,
+    Finset.mem_univ, true_and]
+  change (a.1 : Nat) = fourEndpointSize alpha hAlpha i
+  simpa [fourEndpointSize, fourEndpointCoordinate] using hsize
 
 /-- The concrete four-deficit embedding used by the midpoint construction
 satisfies the endpoint-cover hypothesis needed by the Section VIII block
@@ -70,6 +73,7 @@ theorem fourDeficitEmbedding_isFourEndpointProfileCover
   apply isFourEndpointProfileCover_of_isFourDeficitSupported
   exact (fourDeficitEmbedding_profile_invariants alpha hAlpha m).2.2
 
+#print axioms profileDeficit_eq_fourDeficit_imp_coordinate_eq
 #print axioms isFourEndpointProfileCover_of_isFourDeficitSupported
 #print axioms fourDeficitEmbedding_isFourEndpointProfileCover
 
