@@ -125,13 +125,15 @@ theorem fourEndpointSupportDeficitTable_encoding_eq
       alpha hAlpha k hcover slotIndex demand).edges
   · let e : ↥(fourEndpointDemandBlockPairing
         alpha hAlpha k hcover slotIndex demand).1.edges := ⟨(a, b), hab⟩
-    have hrec := fourEndpointCellMultiplicity_demandDeficit_eq
+    have hle := fourEndpointDemandCell_le_fullMultiplicity
       alpha hAlpha k hcover slotIndex demand e
-    simpa [fourEndpointSupportDeficitTable,
+    simp [fourEndpointSupportDeficitTable,
       fourEndpointDemandSupportDeficitEncoding,
       fourEndpointAbstractDemandTable,
+      fourEndpointDemandDeficit,
       fourEndpointCellMultiplicityOfDeficit,
-      fourEndpointCellFullMultiplicity, e, hab] using hrec
+      fourEndpointCellFullMultiplicity, e, hab] at hle ⊢
+    omega
   · have hz : demand.1
         (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex a)
         (fourEndpointActualBlockOfAtom alpha hAlpha k slotIndex b) = 0 := by
