@@ -6,25 +6,17 @@ import Mathlib.Tactic
 /-!
 # Section VIII: direct support/choice assembly over the half-deficit envelope
 
-The exact attained-demand encoding currently uses a dependent subtype carrying
-one deficit in every selected endpoint cell.  The analytic product theorem uses
-`NearSkeletonChoice`, where zero deficit is represented by `none` and every
-positive deficit is represented by `some h`.
+An attained high demand is encoded directly by its abstract block matching and
+one optional positive deficit in each selected cell.  The admissible window is
+enlarged to the local condition `2 h < m`, which every attained high cell
+satisfies.  Because all weights are nonnegative, this enlargement is harmless
+for an upper bound and matches the hypothesis of the three-quarter exponent
+estimate.
 
-This module removes the later conversion burden.  It enlarges the admissible
-window to the simpler condition `2 h < m`, which every attained high cell
-already satisfies, and maps attained demands directly into the same optional
-choice type used by the product expansion.  Since all weights are nonnegative,
-the enlargement is harmless for an upper bound.
-
-The final theorem is a generic finite assembly principle: once one has a
-pointwise comparison of an attained demand with a reference support weight times
-its optional-deficit charge, the entire attained sum is bounded by one sum over
-block supports of reference weight times a product of local partition
-functions.
-
-No pointwise weight comparison, endpoint transportation estimate, or phase
-asymptotic is asserted here.
+The exported assembly theorem has one premise: a pointwise comparison of each
+attained demand with a support reference times its encoded deficit charge.  It
+then sums the full attained family into a product of local partition functions,
+with no additional fibre multiplicity.
 -/
 
 namespace Erdos625
@@ -35,8 +27,7 @@ noncomputable section
 
 set_option autoImplicit false
 
-/-- Every four-endpoint overlap size is at most `alpha`.  This lets us use the
-single ambient deficit type `Fin (alpha+1)` for all selected cells. -/
+/-- Every four-endpoint overlap size is at most `alpha`. -/
 theorem fourEndpointOverlapSize_le_alpha
     (alpha : Nat) (hAlpha : 5 < alpha) (i j : Fin 4) :
     fourEndpointOverlapSize alpha hAlpha i j ≤ alpha := by
@@ -44,8 +35,7 @@ theorem fourEndpointOverlapSize_le_alpha
     simp [fourEndpointOverlapSize, fourEndpointSize,
       fourEndpointCoordinate, fourDeficitCoordinate, fourDeficit] <;> omega
 
-/-- Positive deficits in the enlarged half-deficit envelope.  The original
-strict global cutoff is not needed for the upper bound once `2 h < m` is known. -/
+/-- Positive deficits in the enlarged half-deficit envelope. -/
 def fourEndpointHalfDeficitAllowed
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -54,7 +44,7 @@ def fourEndpointHalfDeficitAllowed
   let m := fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1
   Finset.univ.filter fun deficit => 0 < deficit.1 ∧ 2 * deficit.1 < m
 
-/-- The already charged local ratio used for one positive deficit. -/
+/-- Charged local ratio for one positive deficit. -/
 def fourEndpointHalfDeficitWeight
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -64,9 +54,8 @@ def fourEndpointHalfDeficitWeight
     (fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1)
     (Nat.dist cell.1.1.1.val cell.1.2.1.val) deficit.1
 
-/-- One abstract block matching together with the optional positive deficit in
-every selected cell.  This is the same data structure used by the exact product
-expansion. -/
+/-- One block matching together with one optional positive deficit in each
+selected cell. -/
 abbrev FourEndpointSupportChoiceData
     (alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1)) :=
@@ -74,8 +63,7 @@ abbrev FourEndpointSupportChoiceData
     NearSkeletonChoice (↥P.edges) (FourEndpointDeficit alpha)
       (fourEndpointHalfDeficitAllowed alpha hAlpha P)
 
-/-- Decode optional deficit choices to their multiplicity table.  `none` means
-full containment, while `some h` means multiplicity `m-h`. -/
+/-- Decode optional choices to the corresponding multiplicity table. -/
 noncomputable def fourEndpointSupportChoiceTable
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -90,9 +78,7 @@ noncomputable def fourEndpointSupportChoiceTable
     | some deficit => m - deficit.1.1
   else 0
 
-/-- Convert the older dependent support/deficit data to the optional-choice
-representation.  Zero deficit becomes `none`; a positive deficit becomes the
-corresponding `some` value. -/
+/-- Convert dependent deficit data to the optional-choice representation. -/
 noncomputable def fourEndpointSupportDeficitToChoice
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -111,7 +97,7 @@ noncomputable def fourEndpointSupportDeficitToChoice
         Finset.mem_univ, true_and]
       exact ⟨Nat.pos_of_ne_zero hz, (D.2 cell).2⟩⟩
 
-/-- Support/deficit data regarded as support/optional-choice data. -/
+/-- Support/deficit data viewed as support/optional-choice data. -/
 noncomputable def fourEndpointSupportDeficitToChoiceData
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -119,8 +105,7 @@ noncomputable def fourEndpointSupportDeficitToChoiceData
     FourEndpointSupportChoiceData alpha hAlpha k :=
   ⟨D.1, fourEndpointSupportDeficitToChoice alpha hAlpha D⟩
 
-/-- The optional-choice decoder agrees exactly with the older deficit-table
-decoder. -/
+/-- The optional-choice and dependent-deficit decoders agree. -/
 theorem fourEndpointSupportChoiceTable_toChoice_eq
     (alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -144,7 +129,7 @@ theorem fourEndpointSupportChoiceTable_toChoice_eq
       fourEndpointSupportDeficitToChoiceData,
       fourEndpointSupportDeficitTable, hab]
 
-/-- Direct attained-demand encoding into the analytic optional-choice type. -/
+/-- Direct attained-demand encoding into the optional-choice type. -/
 noncomputable def fourEndpointDemandSupportChoiceEncoding
     (alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
@@ -157,8 +142,7 @@ noncomputable def fourEndpointDemandSupportChoiceEncoding
     (fourEndpointDemandSupportDeficitEncoding
       alpha hAlpha k hcover slotIndex demand)
 
-/-- Decoding the direct optional-choice encoding recovers the attained demand's
-abstract multiplicity table. -/
+/-- Decoding the direct encoding recovers the attained abstract demand table. -/
 theorem fourEndpointSupportChoiceTable_encoding_eq
     (alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
@@ -174,8 +158,7 @@ theorem fourEndpointSupportChoiceTable_encoding_eq
     fourEndpointSupportChoiceTable_toChoice_eq,
     fourEndpointSupportDeficitTable_encoding_eq]
 
-/-- The direct support/optional-choice encoding is injective on attained
-canonical high demands. -/
+/-- The direct support/choice encoding is injective. -/
 theorem fourEndpointDemandSupportChoiceEncoding_injective
     (alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
@@ -191,8 +174,7 @@ theorem fourEndpointDemandSupportChoiceEncoding_injective
     (fourEndpointSupportChoiceTable alpha hAlpha) hdata
   simpa only [fourEndpointSupportChoiceTable_encoding_eq] using hdecoded
 
-/-- A reference support weight times the exact product charge of one optional
-deficit choice. -/
+/-- Reference support weight times the exact optional-deficit charge. -/
 noncomputable def fourEndpointSupportChoiceChargedWeight
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -203,8 +185,7 @@ noncomputable def fourEndpointSupportChoiceChargedWeight
       (fourEndpointHalfDeficitAllowed alpha hAlpha D.1)
       (fourEndpointHalfDeficitWeight n alpha hAlpha D.1) D.2
 
-/-- Summing all support/choice data is exactly a sum over supports of reference
-weight times the product of local deficit partition functions. -/
+/-- The support/choice sum factors exactly into local partition functions. -/
 theorem sum_fourEndpointSupportChoiceChargedWeight_eq
     (n alpha : Nat) (hAlpha : 5 < alpha)
     {k : ColoringProfile (alpha + 1)}
@@ -223,13 +204,22 @@ theorem sum_fourEndpointSupportChoiceChargedWeight_eq
   rw [Fintype.sum_sigma]
   apply Finset.sum_congr rfl
   intro P _
-  unfold fourEndpointSupportChoiceChargedWeight
+  change
+    (∑ choice : NearSkeletonChoice (↥P.edges) (FourEndpointDeficit alpha)
+        (fourEndpointHalfDeficitAllowed alpha hAlpha P),
+      reference P *
+        nearSkeletonChoiceWeight
+          (fourEndpointHalfDeficitAllowed alpha hAlpha P)
+          (fourEndpointHalfDeficitWeight n alpha hAlpha P) choice) =
+      reference P *
+        ∏ cell : ↥P.edges,
+          (1 + ∑ deficit ∈
+            fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
+            fourEndpointHalfDeficitWeight n alpha hAlpha P cell deficit)
   rw [← Finset.mul_sum]
   rw [sum_nearSkeletonChoiceWeight_eq_product]
 
-/-- Generic global assembly theorem.  Any pointwise bound on attained demands by
-their encoded support reference and optional-deficit charge immediately sums to
-the product-form support bound, with no extra multiplicity factor. -/
+/-- A pointwise charged comparison sums with no extra multiplicity factor. -/
 theorem sum_profileCanonicalHighSkeleton_le_directSupportChoiceProduct
     (n alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
