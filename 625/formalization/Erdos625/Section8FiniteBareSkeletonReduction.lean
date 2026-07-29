@@ -5,12 +5,15 @@ import Mathlib.Tactic
 /-!
 # Section VIII: finite bare-skeleton reduction
 
-This module combines the simplified interfaces already available on the branch.
-For an abstract endpoint block support, the number of selected block cells is at
-most the total number of row blocks.  Hence the coarse optional-deficit factor
-may be replaced by one common power.  The direct reference-grouping theorem
-then replaces the remaining support sum by the endpoint-table sum
-`sum_L fourEndpointW(L)`.
+This module combines the simplified finite interfaces.  For an abstract
+endpoint block support, the number of selected block cells is at most the total
+number of row blocks.  Hence the coarse optional-deficit factor may be replaced
+by one common power.
+
+The endpoint-table index is the finite attained image of the support space,
+not the infinite type of all `Nat`-valued four-by-four tables.  Direct reference
+grouping then replaces the remaining support sum by the attained-table sum of
+`fourEndpointW`.
 
 The resulting theorem has only two nontrivial premises:
 
@@ -68,7 +71,7 @@ theorem fourEndpointAbstractBlockSkeleton_edges_card_le
 
 /-- Finite endpoint of the simplified Section VIII argument.  A pointwise
 charged comparison and a common local base imply a single common deficit factor
-multiplying the exact endpoint-table reference sum. -/
+multiplying the exact attained endpoint-table reference sum. -/
 theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
     (n alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
@@ -83,12 +86,13 @@ theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
           (fourEndpointFullSupportReferenceWeight n alpha hAlpha)
           (fourEndpointDemandSupportChoiceEncoding
             alpha hAlpha k hcover slotIndex demand))
-    (hbase : ∀ P (cell : ↥P.edges),
+    (hbase : ∀ (P : FourEndpointAbstractBlockSkeleton alpha hAlpha k)
+        (cell : ↥P.edges),
       threeQuarterCellBase n
         (fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1) ≤ rho) :
     (∑ demand, weightDemand demand) ≤
-      (∑ L : FourEndpointFullTable,
-        fourEndpointW n alpha hAlpha k L) *
+      (∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
+        fourEndpointW n alpha hAlpha k L.1) *
       (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^
         fourEndpointTotalBlockCount alpha hAlpha k := by
   let common : ENNReal :=
@@ -107,15 +111,17 @@ theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P * common := by
       apply Finset.sum_le_sum
       intro P _
-      apply mul_le_mul_left'
-      exact pow_le_pow_right₀ (by simp [common])
-        (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P)
+      simpa [mul_comm] using
+        (mul_le_mul_right
+          (pow_le_pow_right₀ (by simp [common])
+            (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha P))
     _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P) * common := by
       rw [Finset.sum_mul]
-    _ = (∑ L : FourEndpointFullTable,
-          fourEndpointW n alpha hAlpha k L) * common := by
-      rw [sum_fourEndpointFullSupportReferenceWeight_eq_sum_W]
+    _ = (∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
+          fourEndpointW n alpha hAlpha k L.1) * common := by
+      rw [sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W]
     _ = _ := by rfl
 
 #print axioms UnlabelledTypedSkeleton.edges_card_le_rowTotal
