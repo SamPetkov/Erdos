@@ -132,7 +132,9 @@ theorem five_fourths_log_sub_le_q_mul_endpointBudget
       alpha hAlpha i j
   have h19 : 19 ≤ 3 * alpha := by omega
   have hcast : 3 * (alpha : Real) - 19 ≤ 4 * (budget : Real) := by
-    have hcastNat := congrArg (fun x : Nat => (x : Real)) hnat
+    have hcastNat :
+        ((3 * alpha - 19 : Nat) : Real) ≤ ((4 * budget : Nat) : Real) := by
+      exact_mod_cast hnat
     rw [Nat.cast_sub h19] at hcastNat
     norm_num at hcastNat ⊢
     exact hcastNat
@@ -142,7 +144,7 @@ theorem five_fourths_log_sub_le_q_mul_endpointBudget
   have hbudgetNonneg : 0 ≤ (budget : Real) := by positivity
   have hqmul : (2 / 3 : Real) * (budget : Real) ≤ q * (budget : Real) :=
     mul_le_mul_of_nonneg_right hq hbudgetNonneg
-  dsimp only [budget]
+  change (5 / 4 : Real) * logOrder n - 19 / 6 ≤ q * (budget : Real)
   nlinarith
 
 /-- Eventual form simultaneously valid for all sixteen endpoint types.  The
