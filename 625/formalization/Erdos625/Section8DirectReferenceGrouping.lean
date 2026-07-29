@@ -155,7 +155,6 @@ theorem sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W
           ∑ _ : FourEndpointDecoratedBlockPairing alpha hAlpha k L.1,
             fourEndpointDecoratedReferenceAtomWeight n alpha hAlpha L.1 := by
           rw [Fintype.sum_sigma]
-          rfl
     _ = ∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
           fourEndpointW n alpha hAlpha k L.1 := by
       apply Finset.sum_congr rfl
