@@ -29,6 +29,8 @@ noncomputable section
 
 set_option autoImplicit false
 
+local instance : DecidableEq FourEndpointFullTable := Classical.decEq _
+
 /-- The endpoint table carried by one abstract block support. -/
 def fourEndpointSupportTable
     (alpha : Nat) (hAlpha : 5 < alpha)
@@ -67,9 +69,8 @@ abbrev FourEndpointAllDecoratedSupport
 /-- The finite image of the block-support space in the endpoint-table space. -/
 noncomputable def fourEndpointAttainedFullTables
     (alpha : Nat) (hAlpha : 5 < alpha)
-    (k : ColoringProfile (alpha + 1)) : Finset FourEndpointFullTable := by
-  classical
-  exact Finset.univ.image
+    (k : ColoringProfile (alpha + 1)) : Finset FourEndpointFullTable :=
+  Finset.univ.image
     (fun P : FourEndpointAbstractBlockSkeleton alpha hAlpha k =>
       fourEndpointSupportTable alpha hAlpha P)
 
@@ -130,6 +131,10 @@ theorem sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W
         fourEndpointW n alpha hAlpha k L.1 := by
   let equivalence :=
     fourEndpointAllDecoratedSupportEquivSigmaTable alpha hAlpha k
+  let targetWeight :
+      (Σ L : FourEndpointAttainedFullTable alpha hAlpha k,
+        FourEndpointDecoratedBlockPairing alpha hAlpha k L.1) → ENNReal :=
+    fun z => fourEndpointDecoratedReferenceAtomWeight n alpha hAlpha z.1.1
   calc
     (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
         fourEndpointFullSupportReferenceWeight n alpha hAlpha P) =
@@ -137,20 +142,20 @@ theorem sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W
         fourEndpointFullSupportAtomWeight n alpha hAlpha z.1 := by
           rw [Fintype.sum_sigma]
           rfl
+    _ = ∑ z : FourEndpointAllDecoratedSupport alpha hAlpha k,
+          targetWeight (equivalence z) := by
+      apply Finset.sum_congr rfl
+      intro z _
+      rfl
     _ = ∑ z : Σ L : FourEndpointAttainedFullTable alpha hAlpha k,
           FourEndpointDecoratedBlockPairing alpha hAlpha k L.1,
-        fourEndpointDecoratedReferenceAtomWeight n alpha hAlpha z.1.1 := by
-          simpa [equivalence, fourEndpointFullSupportAtomWeight,
-            fourEndpointAllDecoratedSupportEquivSigmaTable] using
-            equivalence.sum_comp
-              (fun z : Σ L : FourEndpointAttainedFullTable alpha hAlpha k,
-                FourEndpointDecoratedBlockPairing alpha hAlpha k L.1 =>
-                  fourEndpointDecoratedReferenceAtomWeight
-                    n alpha hAlpha z.1.1)
+        targetWeight z :=
+      equivalence.sum_comp targetWeight
     _ = ∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
           ∑ _ : FourEndpointDecoratedBlockPairing alpha hAlpha k L.1,
             fourEndpointDecoratedReferenceAtomWeight n alpha hAlpha L.1 := by
           rw [Fintype.sum_sigma]
+          rfl
     _ = ∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
           fourEndpointW n alpha hAlpha k L.1 := by
       apply Finset.sum_congr rfl
