@@ -74,12 +74,6 @@ abbrev FourEndpointSupportChoiceData
     NearSkeletonChoice (↥P.edges) (FourEndpointDeficit alpha)
       (fourEndpointHalfDeficitAllowed alpha hAlpha P)
 
-noncomputable instance instFintypeFourEndpointSupportChoiceData
-    (alpha : Nat) (hAlpha : 5 < alpha)
-    (k : ColoringProfile (alpha + 1)) :
-    Fintype (FourEndpointSupportChoiceData alpha hAlpha k) :=
-  Fintype.ofFinite _
-
 /-- Decode optional deficit choices to their multiplicity table.  `none` means
 full containment, while `some h` means multiplicity `m-h`. -/
 noncomputable def fourEndpointSupportChoiceTable
@@ -226,17 +220,10 @@ theorem sum_fourEndpointSupportChoiceChargedWeight_eq
               fourEndpointHalfDeficitWeight
                 n alpha hAlpha P cell deficit) := by
   classical
-  change
-    (∑ D : Σ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
-        NearSkeletonChoice (↥P.edges) (FourEndpointDeficit alpha)
-          (fourEndpointHalfDeficitAllowed alpha hAlpha P),
-      reference D.1 *
-        nearSkeletonChoiceWeight
-          (fourEndpointHalfDeficitAllowed alpha hAlpha D.1)
-          (fourEndpointHalfDeficitWeight n alpha hAlpha D.1) D.2) = _
   rw [Fintype.sum_sigma]
   apply Finset.sum_congr rfl
   intro P _
+  unfold fourEndpointSupportChoiceChargedWeight
   rw [← Finset.mul_sum]
   rw [sum_nearSkeletonChoiceWeight_eq_product]
 
@@ -292,64 +279,10 @@ theorem sum_profileCanonicalHighSkeleton_le_directSupportChoiceProduct
       sum_fourEndpointSupportChoiceChargedWeight_eq
         n alpha hAlpha reference
 
-/-- Cellwise-bounded form of the direct support assembly. -/
-theorem sum_profileCanonicalHighSkeleton_le_directSupportChoiceBound
-    (n alpha : Nat) (hAlpha : 5 < alpha)
-    (k : ColoringProfile (alpha + 1))
-    (hcover : IsFourEndpointProfileCover alpha hAlpha k)
-    (slotIndex : FourEndpointSlotIndexing alpha hAlpha k)
-    (weightDemand : ProfileCanonicalHighSkeleton k
-      (fourEndpointLargestSize alpha hAlpha) → ENNReal)
-    (reference : FourEndpointAbstractBlockSkeleton alpha hAlpha k → ENNReal)
-    (bound : FourEndpointAbstractBlockSkeleton alpha hAlpha k →
-      FourEndpointBlockAtom alpha hAlpha k ×
-        FourEndpointBlockAtom alpha hAlpha k → ENNReal)
-    (hweight : ∀ demand,
-      weightDemand demand ≤
-        fourEndpointSupportChoiceChargedWeight n alpha hAlpha reference
-          (fourEndpointDemandSupportChoiceEncoding
-            alpha hAlpha k hcover slotIndex demand))
-    (hlocal : ∀ (P : FourEndpointAbstractBlockSkeleton alpha hAlpha k)
-      (cell : ↥P.edges),
-      (∑ deficit ∈ fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
-        fourEndpointHalfDeficitWeight n alpha hAlpha P cell deficit) ≤
-          bound P cell.1) :
-    (∑ demand, weightDemand demand) ≤
-      ∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
-        reference P * ∏ cell : ↥P.edges, (1 + bound P cell.1) := by
-  calc
-    (∑ demand, weightDemand demand) ≤
-        ∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
-          reference P *
-            ∏ cell : ↥P.edges,
-              (1 + ∑ deficit ∈
-                fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
-                fourEndpointHalfDeficitWeight
-                  n alpha hAlpha P cell deficit) :=
-      sum_profileCanonicalHighSkeleton_le_directSupportChoiceProduct
-        n alpha hAlpha k hcover slotIndex weightDemand reference hweight
-    _ ≤ ∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
-          reference P * ∏ cell : ↥P.edges, (1 + bound P cell.1) := by
-      apply Finset.sum_le_sum
-      intro P _
-      have hprod :
-          (∏ cell : ↥P.edges,
-              (1 + ∑ deficit ∈
-                fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
-                fourEndpointHalfDeficitWeight
-                  n alpha hAlpha P cell deficit)) ≤
-            ∏ cell : ↥P.edges, (1 + bound P cell.1) := by
-        apply Finset.prod_le_prod'
-        intro cell _
-        exact add_le_add_left (hlocal P cell) 1
-      simpa [mul_comm] using
-        (mul_le_mul_right hprod (reference P))
-
 #print axioms fourEndpointSupportChoiceTable_toChoice_eq
 #print axioms fourEndpointDemandSupportChoiceEncoding_injective
 #print axioms sum_fourEndpointSupportChoiceChargedWeight_eq
 #print axioms sum_profileCanonicalHighSkeleton_le_directSupportChoiceProduct
-#print axioms sum_profileCanonicalHighSkeleton_le_directSupportChoiceBound
 
 end
 
