@@ -1,4 +1,4 @@
-import Erdos625.Section8CoarseHalfDeficitCharge
+import Erdos625.Section8CanonicalThreeQuarterRho
 import Erdos625.Section8DirectReferenceGrouping
 import Mathlib.Tactic
 
@@ -15,10 +15,11 @@ not the infinite type of all `Nat`-valued four-by-four tables.  Direct reference
 grouping then replaces the remaining support sum by the attained-table sum of
 `fourEndpointW`.
 
-The resulting theorem has only two nontrivial premises:
+The canonical common local base is the sum of the sixteen endpoint-type bases.
+Thus the final canonical theorem has only two nontrivial premises:
 
 * a pointwise charged comparison for one attained demand;
-* a uniform bound on the sixteen local three-quarter bases.
+* smallness of one explicit sixteen-term quantity.
 
 No asymptotic statement is made here.
 -/
@@ -69,9 +70,7 @@ theorem fourEndpointAbstractBlockSkeleton_edges_card_le
   simpa only [fourEndpointTotalBlockCount] using
     P.edges_card_le_rowTotal
 
-/-- Finite endpoint of the simplified Section VIII argument.  A pointwise
-charged comparison and a common local base imply a single common deficit factor
-multiplying the exact attained endpoint-table reference sum. -/
+/-- Generic finite endpoint with an arbitrary common local base. -/
 theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
     (n alpha : Nat) (hAlpha : 5 < alpha)
     (k : ColoringProfile (alpha + 1))
@@ -124,9 +123,63 @@ theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
       rw [sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W]
     _ = _ := by rfl
 
+/-- Canonical finite endpoint.  The support-dependent local-base premise has
+been discharged by the explicit sum of the sixteen endpoint-type bases. -/
+theorem sum_profileCanonicalHighSkeleton_le_canonicalDeficitFactor_mul_sum_W
+    (n alpha : Nat) (hAlpha : 5 < alpha)
+    (k : ColoringProfile (alpha + 1))
+    (hcover : IsFourEndpointProfileCover alpha hAlpha k)
+    (slotIndex : FourEndpointSlotIndexing alpha hAlpha k)
+    (weightDemand : ProfileCanonicalHighSkeleton k
+      (fourEndpointLargestSize alpha hAlpha) → ENNReal)
+    (hrho : fourEndpointThreeQuarterRho n alpha hAlpha ≤ 1)
+    (hweight : ∀ demand,
+      weightDemand demand ≤
+        fourEndpointSupportChoiceChargedWeight n alpha hAlpha
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha)
+          (fourEndpointDemandSupportChoiceEncoding
+            alpha hAlpha k hcover slotIndex demand)) :
+    (∑ demand, weightDemand demand) ≤
+      (∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
+        fourEndpointW n alpha hAlpha k L.1) *
+      (1 + ((alpha + 1 : Nat) : ENNReal) *
+        fourEndpointThreeQuarterRho n alpha hAlpha) ^
+          fourEndpointTotalBlockCount alpha hAlpha k := by
+  let common : ENNReal :=
+    (1 + ((alpha + 1 : Nat) : ENNReal) *
+      fourEndpointThreeQuarterRho n alpha hAlpha) ^
+        fourEndpointTotalBlockCount alpha hAlpha k
+  calc
+    (∑ demand, weightDemand demand) ≤
+        ∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
+          fourEndpointFullSupportReferenceWeight n alpha hAlpha P *
+            (1 + ((alpha + 1 : Nat) : ENNReal) *
+              fourEndpointThreeQuarterRho n alpha hAlpha) ^ P.edges.card :=
+      sum_profileCanonicalHighSkeleton_le_canonicalThreeQuarterRhoSupportSum
+        n alpha hAlpha k hcover slotIndex weightDemand
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha)
+          hrho hweight
+    _ ≤ ∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
+          fourEndpointFullSupportReferenceWeight n alpha hAlpha P * common := by
+      apply Finset.sum_le_sum
+      intro P _
+      simpa [mul_comm] using
+        (mul_le_mul_right
+          (pow_le_pow_right₀ (by simp [common])
+            (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha P))
+    _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
+          fourEndpointFullSupportReferenceWeight n alpha hAlpha P) * common := by
+      rw [Finset.sum_mul]
+    _ = (∑ L : FourEndpointAttainedFullTable alpha hAlpha k,
+          fourEndpointW n alpha hAlpha k L.1) * common := by
+      rw [sum_fourEndpointFullSupportReferenceWeight_eq_sum_attained_W]
+    _ = _ := by rfl
+
 #print axioms UnlabelledTypedSkeleton.edges_card_le_rowTotal
 #print axioms fourEndpointAbstractBlockSkeleton_edges_card_le
 #print axioms sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
+#print axioms sum_profileCanonicalHighSkeleton_le_canonicalDeficitFactor_mul_sum_W
 
 end
 
