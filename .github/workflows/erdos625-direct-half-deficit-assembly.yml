@@ -3,6 +3,7 @@ name: Erdős 625 direct half-deficit assembly
 on:
   pull_request:
     paths:
+      - "625/formalization/Erdos625/Section8FourDeficitProfileCover.lean"
       - "625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean"
       - "625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean"
       - "625/formalization/Erdos625/Section8DirectReferenceGrouping.lean"
@@ -40,6 +41,7 @@ jobs:
         run: |
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/Section8FourDeficitProfileCover.lean \
             625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean \
             625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean \
             625/formalization/Erdos625/Section8DirectReferenceGrouping.lean \
