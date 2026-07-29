@@ -152,18 +152,22 @@ theorem sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
         (fourEndpointHalfDeficitAllowed alpha hAlpha P)
         (fourEndpointHalfDeficitWeight n alpha hAlpha P) choice) ≤
       (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^ P.edges.card := by
-  apply sum_nearSkeletonChoiceWeight_le_uniform_pow
-    (fourEndpointHalfDeficitAllowed alpha hAlpha P)
-    (fourEndpointHalfDeficitWeight n alpha hAlpha P)
-    (fun deficit => deficit.1) (alpha + 1) rho hrho
-  · exact card_fourEndpointHalfDeficitAllowed_le alpha hAlpha P
-  · intro cell deficit hdeficit
-    simpa only [fourEndpointHalfDeficitAllowed, Finset.mem_filter,
-      Finset.mem_univ, true_and] using hdeficit |>.1
-  · intro cell deficit hdeficit
-    exact (fourEndpointHalfDeficitWeight_le_threeQuarterBase_pow_of_mem
-      n alpha hAlpha P cell deficit hdeficit).trans
-        (ENNReal.pow_le_pow_left (hbase cell))
+  have hbound :=
+    sum_nearSkeletonChoiceWeight_le_uniform_pow
+      (fourEndpointHalfDeficitAllowed alpha hAlpha P)
+      (fourEndpointHalfDeficitWeight n alpha hAlpha P)
+      (fun deficit => deficit.1) (alpha + 1) rho hrho
+      (card_fourEndpointHalfDeficitAllowed_le alpha hAlpha P)
+      (by
+        intro cell deficit hdeficit
+        simpa only [fourEndpointHalfDeficitAllowed, Finset.mem_filter,
+          Finset.mem_univ, true_and] using hdeficit |>.1)
+      (by
+        intro cell deficit hdeficit
+        exact (fourEndpointHalfDeficitWeight_le_threeQuarterBase_pow_of_mem
+          n alpha hAlpha P cell deficit hdeficit).trans
+            (ENNReal.pow_le_pow_left (hbase cell)))
+  simpa only [Fintype.card_coe] using hbound
 
 /-- Global attained-demand bound after replacing every support's exact local
 partition function by the same coarse base. -/
@@ -181,7 +185,8 @@ theorem sum_profileCanonicalHighSkeleton_le_uniformHalfDeficitSupportSum
         fourEndpointSupportChoiceChargedWeight n alpha hAlpha reference
           (fourEndpointDemandSupportChoiceEncoding
             alpha hAlpha k hcover slotIndex demand))
-    (hbase : ∀ P (cell : ↥P.edges),
+    (hbase : ∀ (P : FourEndpointAbstractBlockSkeleton alpha hAlpha k)
+        (cell : ↥P.edges),
       threeQuarterCellBase n
         (fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1) ≤ rho) :
     (∑ demand, weightDemand demand) ≤
@@ -204,9 +209,10 @@ theorem sum_profileCanonicalHighSkeleton_le_uniformHalfDeficitSupportSum
             (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^ P.edges.card := by
       apply Finset.sum_le_sum
       intro P _
-      exact mul_le_mul_left'
-        (sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
-          n alpha hAlpha P rho hrho (hbase P)) _
+      simpa [mul_comm] using
+        (mul_le_mul_right
+          (sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
+            n alpha hAlpha P rho hrho (hbase P)) (reference P))
 
 #print axioms nearCellTerm_le_threeQuarterCellBase_pow
 #print axioms sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
