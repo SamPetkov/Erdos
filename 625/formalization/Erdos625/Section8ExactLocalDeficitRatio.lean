@@ -42,7 +42,7 @@ def lowerUpperCellWeightedCount (m d j : Nat) : Nat :=
 
 /-- The consecutive product `(d+1) ... (d+h)` used by the deficit ratio. -/
 def endpointDeficitDenominator (d h : Nat) : Nat :=
-  ∏ t ∈ Finset.Icc 1 h, d + t
+  Finset.prod (Finset.Icc 1 h) (fun t => d + t)
 
 /-- Multiplying the consecutive endpoint-distance factors by `d!` gives the
 factorial at the upper endpoint. -/
@@ -54,7 +54,9 @@ theorem factorial_mul_endpointDeficitDenominator
   | succ h ih =>
       rw [endpointDeficitDenominator,
         Finset.prod_Icc_succ_top (by omega : 1 ≤ h + 1)]
-      rw [← endpointDeficitDenominator, Nat.factorial_succ]
+      change d.factorial *
+          (endpointDeficitDenominator d h * (d + (h + 1))) =
+        (d + (h + 1)).factorial
       calc
         d.factorial *
             (endpointDeficitDenominator d h * (d + (h + 1))) =
@@ -73,7 +75,7 @@ theorem endpointDeficitDenominator_eq_descFactorial
       d.factorial * (d + h).descFactorial h = (d + h).factorial := by
     simpa using
       (Nat.factorial_mul_descFactorial (show h ≤ d + h by omega))
-  exact Nat.mul_left_cancel (hleft.trans hright.symm)
+  exact Nat.mul_left_cancel (Nat.factorial_pos d) (hleft.trans hright.symm)
 
 /-- Closed form for a one-cell matching count when the smaller endpoint is
 `m`. -/
@@ -83,7 +85,7 @@ theorem lowerUpperCellMatchingCount_eq_choose_mul_descFactorial
       m.choose j * (m + d).descFactorial j := by
   have hcard := card_singleCellStubMatching_mul_factorial m (m + d) j
   have hlower : m.descFactorial j = j.factorial * m.choose j :=
-    Nat.descFactorial_eq_factorial_mul_choose
+    Nat.descFactorial_eq_factorial_mul_choose m j
   rw [hlower] at hcard
   have hmul :
       lowerUpperCellMatchingCount m d j * j.factorial =
@@ -93,7 +95,7 @@ theorem lowerUpperCellMatchingCount_eq_choose_mul_descFactorial
           (j.factorial * m.choose j) * (m + d).descFactorial j := hcard
       _ = (m.choose j * (m + d).descFactorial j) * j.factorial := by
         ring
-  exact Nat.mul_right_cancel hmul
+  exact Nat.mul_right_cancel (Nat.factorial_pos j) hmul
 
 /-- Splitting the upper-endpoint descending factorial at deficit `h`. -/
 theorem upperEndpoint_descFactorial_full_split
@@ -101,15 +103,16 @@ theorem upperEndpoint_descFactorial_full_split
     (m + d).descFactorial m =
       (m + d).descFactorial (m - h) * (d + h).descFactorial h := by
   have hgap : m + d - (m - h) = d + h := by omega
-  have hsum : (m - h) + h = m := Nat.sub_add_cancel hh
+  have hremain : m - (m - h) = h := by omega
   calc
     (m + d).descFactorial m =
-        (m + d).descFactorial ((m - h) + h) := by rw [hsum]
-    _ = (m + d).descFactorial (m - h) *
-          (m + d - (m - h)).descFactorial h := by
+        (m + d - (m - h)).descFactorial (m - (m - h)) *
+          (m + d).descFactorial (m - h) := by
       rw [Nat.descFactorial_mul_descFactorial]
+    _ = (d + h).descFactorial h *
+          (m + d).descFactorial (m - h) := by rw [hgap, hremain]
     _ = (m + d).descFactorial (m - h) *
-          (d + h).descFactorial h := by rw [hgap]
+          (d + h).descFactorial h := by rw [mul_comm]
 
 /-- Exact physical matching-count ratio in cross-multiplied form. -/
 theorem lowerUpperCellMatchingCount_deficit_cross_mul
@@ -121,8 +124,8 @@ theorem lowerUpperCellMatchingCount_deficit_cross_mul
       m d (m - h) (Nat.sub_le _ _),
     lowerUpperCellMatchingCount_eq_choose_mul_descFactorial m d m le_rfl,
     Nat.choose_self, one_mul, Nat.choose_symm hh,
-    endpointDeficitDenominator_eq_descFactorial]
-  rw [← upperEndpoint_descFactorial_full_split m d h hh]
+    endpointDeficitDenominator_eq_descFactorial,
+    upperEndpoint_descFactorial_full_split m d h hh]
   ring
 
 /-- One-step identity for the quadratic binary exponent. -/
@@ -146,11 +149,13 @@ theorem localSignRewardNat_pred_mul_pow
   have hpred3 : 3 ≤ x - 1 := by omega
   have hchooseRec :
       x.choose 2 = (x - 1).choose 2 + (x - 1) := by
-    have hxrec : x - 1 + 1 = x := by omega
-    conv_lhs => rw [← hxrec]
-    rw [Nat.choose_succ_succ]
-    simp only [Nat.choose_one_right]
-    omega
+    calc
+      x.choose 2 = (x - 1 + 1).choose (1 + 1) := by congr <;> omega
+      _ = (x - 1).choose 1 + (x - 1).choose 2 := by
+        rw [Nat.choose_succ_succ]
+      _ = (x - 1).choose 2 + (x - 1) := by
+        simp only [Nat.choose_one_right]
+        omega
   have hchoosePred : 1 ≤ (x - 1).choose 2 := by
     have hmono := Nat.choose_le_choose 2 hpred3
     norm_num at hmono
@@ -198,13 +203,23 @@ theorem lowerUpperCellWeightedCount_deficit_cross_mul
           2 ^ (h * m - h * (h + 1) / 2) =
       lowerUpperCellWeightedCount m d m * m.choose h := by
   unfold lowerUpperCellWeightedCount
-  rw [mul_assoc,
-    show lowerUpperCellMatchingCount m d (m - h) *
-        endpointDeficitDenominator d h =
-      lowerUpperCellMatchingCount m d m * m.choose h from
-        lowerUpperCellMatchingCount_deficit_cross_mul m d h hh,
-    localSignRewardNat_deficit_mul_pow m h hh hhigh]
-  ring
+  calc
+    lowerUpperCellMatchingCount m d (m - h) *
+          localSignRewardNat (m - h) *
+            endpointDeficitDenominator d h *
+              2 ^ (h * m - h * (h + 1) / 2) =
+        (lowerUpperCellMatchingCount m d (m - h) *
+          endpointDeficitDenominator d h) *
+            (localSignRewardNat (m - h) *
+              2 ^ (h * m - h * (h + 1) / 2)) := by
+          ring
+    _ = (lowerUpperCellMatchingCount m d m * m.choose h) *
+          localSignRewardNat m := by
+      rw [lowerUpperCellMatchingCount_deficit_cross_mul m d h hh,
+        localSignRewardNat_deficit_mul_pow m h hh hhigh]
+    _ = lowerUpperCellMatchingCount m d m *
+          localSignRewardNat m * m.choose h := by
+      ring
 
 #print axioms endpointDeficitDenominator_eq_descFactorial
 #print axioms lowerUpperCellMatchingCount_deficit_cross_mul
