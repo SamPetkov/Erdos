@@ -145,20 +145,22 @@ theorem five_fourths_log_sub_le_q_mul_endpointBudget
   dsimp only [budget]
   nlinarith
 
-/-- Eventual form simultaneously valid for all sixteen endpoint types. -/
+/-- Eventual form simultaneously valid for all sixteen endpoint types.  The
+finite proof argument `hAlpha` is explicit so no theorem statement depends on a
+hidden tactic-generated proof. -/
 theorem eventually_five_fourths_log_sub_le_q_mul_endpointBudget :
     ∀ᶠ n : Nat in atTop,
-      ∀ i j : Fin 4,
+      ∀ (hAlpha : 5 < phaseNat n) (i j : Fin 4),
         (5 / 4 : Real) * logOrder n - 19 / 6 ≤
           q * (((3 * fourEndpointOverlapSize (phaseNat n)
-            (by omega : 5 < phaseNat n) i j - 1) / 4 : Nat) : Real) := by
+            hAlpha i j - 1) / 4 : Nat) : Real) := by
   filter_upwards
     [eventually_five_halves_logOrder_le_phaseNat,
       eventually_eight_lt_phaseNat]
       with n hphase hHigh
-  intro i j
+  intro hAlpha i j
   exact five_fourths_log_sub_le_q_mul_endpointBudget
-    n (phaseNat n) (by omega) hHigh hphase i j
+    n (phaseNat n) hAlpha hHigh hphase i j
 
 #print axioms eventually_five_halves_logOrder_le_phaseNat
 #print axioms alpha_sub_five_le_fourEndpointOverlapSize
