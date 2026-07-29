@@ -131,7 +131,6 @@ theorem fourEndpointSupportDeficitTable_encoding_eq
       fourEndpointDemandSupportDeficitEncoding,
       fourEndpointAbstractDemandTable,
       fourEndpointDemandDeficit,
-      fourEndpointCellMultiplicityOfDeficit,
       fourEndpointCellFullMultiplicity, e, hab] at hle ⊢
     omega
   · have hz : demand.1
