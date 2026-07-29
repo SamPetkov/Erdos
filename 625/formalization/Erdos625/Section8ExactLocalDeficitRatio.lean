@@ -64,7 +64,7 @@ theorem factorial_mul_endpointDeficitDenominator
             ring
         _ = (d + h).factorial * (d + h + 1) := by rw [ih]
         _ = (d + h + 1).factorial := by
-          rw [Nat.factorial_succ]
+          rw [Nat.factorial_succ, mul_comm]
 
 /-- The consecutive endpoint-distance product is a descending factorial. -/
 theorem endpointDeficitDenominator_eq_descFactorial
@@ -80,7 +80,7 @@ theorem endpointDeficitDenominator_eq_descFactorial
 /-- Closed form for a one-cell matching count when the smaller endpoint is
 `m`. -/
 theorem lowerUpperCellMatchingCount_eq_choose_mul_descFactorial
-    (m d j : Nat) (hj : j ≤ m) :
+    (m d j : Nat) (_hj : j ≤ m) :
     lowerUpperCellMatchingCount m d j =
       m.choose j * (m + d).descFactorial j := by
   have hcard := card_singleCellStubMatching_mul_factorial m (m + d) j
@@ -109,6 +109,7 @@ theorem upperEndpoint_descFactorial_full_split
         (m + d - (m - h)).descFactorial (m - (m - h)) *
           (m + d).descFactorial (m - h) := by
       rw [Nat.descFactorial_mul_descFactorial]
+      omega
     _ = (d + h).descFactorial h *
           (m + d).descFactorial (m - h) := by rw [hgap, hremain]
     _ = (m + d).descFactorial (m - h) *
