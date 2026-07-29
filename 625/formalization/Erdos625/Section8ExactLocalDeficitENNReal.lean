@@ -70,13 +70,13 @@ theorem lowerUpperCellWeightedCount_cast_eq_full_mul_exactRatio
         ((lowerUpperCellWeightedCount m d m : ENNReal) *
           (m.choose h : ENNReal)) / P := by
     apply (ENNReal.eq_div_iff hP0 hPtop).2
-    exact hcross
+    simpa only [mul_comm] using hcross
   have hdivideD :
       (lowerUpperCellWeightedCount m d (m - h) : ENNReal) =
         (((lowerUpperCellWeightedCount m d m : ENNReal) *
           (m.choose h : ENNReal)) / P) / D := by
     apply (ENNReal.eq_div_iff hD0 hDtop).2
-    exact hdivideP
+    simpa only [mul_comm] using hdivideP
   rw [hdivideD]
   unfold exactLocalDeficitRatioENNReal
   dsimp only [D, P]
