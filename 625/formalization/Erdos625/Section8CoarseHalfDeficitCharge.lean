@@ -160,8 +160,12 @@ theorem sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
       (card_fourEndpointHalfDeficitAllowed_le alpha hAlpha P)
       (by
         intro cell deficit hdeficit
-        simpa only [fourEndpointHalfDeficitAllowed, Finset.mem_filter,
-          Finset.mem_univ, true_and] using hdeficit |>.1)
+        have hmem : 0 < deficit.1 ∧
+            2 * deficit.1 <
+              fourEndpointOverlapSize alpha hAlpha cell.1.1.1 cell.1.2.1 := by
+          simpa only [fourEndpointHalfDeficitAllowed, Finset.mem_filter,
+            Finset.mem_univ, true_and] using hdeficit
+        exact hmem.1)
       (by
         intro cell deficit hdeficit
         exact (fourEndpointHalfDeficitWeight_le_threeQuarterBase_pow_of_mem
@@ -209,10 +213,12 @@ theorem sum_profileCanonicalHighSkeleton_le_uniformHalfDeficitSupportSum
             (1 + ((alpha + 1 : Nat) : ENNReal) * rho) ^ P.edges.card := by
       apply Finset.sum_le_sum
       intro P _
+      have hchoice :=
+        sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
+          n alpha hAlpha P rho hrho (hbase P)
+      rw [sum_nearSkeletonChoiceWeight_eq_product] at hchoice
       simpa [mul_comm] using
-        (mul_le_mul_right
-          (sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
-            n alpha hAlpha P rho hrho (hbase P)) (reference P))
+        (mul_le_mul_right hchoice (reference P))
 
 #print axioms nearCellTerm_le_threeQuarterCellBase_pow
 #print axioms sum_fourEndpointHalfDeficitChoiceWeight_le_uniform
