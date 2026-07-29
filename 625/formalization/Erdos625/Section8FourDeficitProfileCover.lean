@@ -33,9 +33,10 @@ theorem profileDeficit_eq_fourDeficit_imp_coordinate_eq
     rw [hdeficit] at hsumCoord
     rw [htarget] at hsumTarget
     linarith
+  have hnat : coord.val + 1 = target.val + 1 := by
+    unfold profileClassSize at hclass
+    exact_mod_cast hclass
   apply Fin.ext
-  unfold profileClassSize at hclass
-  norm_num at hclass
   omega
 
 /-- A profile supported on the four distinguished deficit coordinates has every
