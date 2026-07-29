@@ -111,7 +111,7 @@ theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
       apply Finset.sum_le_sum
       intro P _
       exact mul_le_mul_left
-        (pow_le_pow_right₀ (by simp [common])
+        (pow_le_pow_right₀ bot_le
           (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
         (fourEndpointFullSupportReferenceWeight n alpha hAlpha P)
     _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
@@ -163,7 +163,7 @@ theorem sum_profileCanonicalHighSkeleton_le_canonicalDeficitFactor_mul_sum_W
       apply Finset.sum_le_sum
       intro P _
       exact mul_le_mul_left
-        (pow_le_pow_right₀ (by simp [common])
+        (pow_le_pow_right₀ bot_le
           (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
         (fourEndpointFullSupportReferenceWeight n alpha hAlpha P)
     _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
