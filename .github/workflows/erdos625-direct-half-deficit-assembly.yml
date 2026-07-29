@@ -6,6 +6,7 @@ on:
       - "625/formalization/Erdos625/Section8FourDeficitProfileCover.lean"
       - "625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean"
       - "625/formalization/Erdos625/Section8PointwiseChargeProduct.lean"
+      - "625/formalization/Erdos625/Section8ExactLocalDeficitRatio.lean"
       - "625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean"
       - "625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean"
       - "625/formalization/Erdos625/Section8CoarsePhaseCorridor.lean"
@@ -47,6 +48,7 @@ jobs:
             625/formalization/Erdos625/Section8FourDeficitProfileCover.lean \
             625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean \
             625/formalization/Erdos625/Section8PointwiseChargeProduct.lean \
+            625/formalization/Erdos625/Section8ExactLocalDeficitRatio.lean \
             625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean \
             625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean \
             625/formalization/Erdos625/Section8CoarsePhaseCorridor.lean \
@@ -69,6 +71,7 @@ jobs:
           : > /tmp/erdos625-direct-half-deficit.log
           for target in \
             Erdos625.Section8PointwiseChargeProduct \
+            Erdos625.Section8ExactLocalDeficitRatio \
             Erdos625.Section8CanonicalThreeQuarterRho \
             Erdos625.Section8CoarsePhaseCorridor \
             Erdos625.Section8FiniteBareSkeletonReduction; do
