@@ -6,6 +6,7 @@ on:
       - "625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean"
       - "625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean"
       - "625/formalization/Erdos625/Section8DirectReferenceGrouping.lean"
+      - "625/formalization/Erdos625/Section8FiniteBareSkeletonReduction.lean"
       - "625/experiments/section8_direct_half_deficit_assembly.py"
       - "625/proofs/SECTION8_DIRECT_HALF_DEFICIT_SIMPLIFICATION.md"
       - ".github/workflows/erdos625-direct-half-deficit-assembly.yml"
@@ -41,7 +42,8 @@ jobs:
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization/Erdos625/Section8DirectHalfDeficitAssembly.lean \
             625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean \
-            625/formalization/Erdos625/Section8DirectReferenceGrouping.lean; then
+            625/formalization/Erdos625/Section8DirectReferenceGrouping.lean \
+            625/formalization/Erdos625/Section8FiniteBareSkeletonReduction.lean; then
               exit 1
           fi
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
@@ -52,12 +54,12 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
-      - name: Build the direct reference grouping warning-fatally
+      - name: Build the finite bare-skeleton reduction warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
           set +e
-          lake build Erdos625.Section8DirectReferenceGrouping --wfail \
+          lake build Erdos625.Section8FiniteBareSkeletonReduction --wfail \
             > /tmp/erdos625-direct-half-deficit.log 2>&1
           status=$?
           tail -n 700 /tmp/erdos625-direct-half-deficit.log
