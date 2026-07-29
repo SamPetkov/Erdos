@@ -150,8 +150,10 @@ theorem localSignRewardNat_pred_mul_pow
   have hpred3 : 3 ≤ x - 1 := by omega
   have hchooseRec :
       x.choose 2 = (x - 1).choose 2 + (x - 1) := by
+    have hxrec : x - 1 + 1 = x := by omega
     calc
-      x.choose 2 = (x - 1 + 1).choose (1 + 1) := by congr <;> omega
+      x.choose 2 = (x - 1 + 1).choose (1 + 1) := by
+        simpa only [hxrec]
       _ = (x - 1).choose 1 + (x - 1).choose 2 := by
         rw [Nat.choose_succ_succ]
       _ = (x - 1).choose 2 + (x - 1) := by
