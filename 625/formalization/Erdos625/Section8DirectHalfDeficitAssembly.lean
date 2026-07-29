@@ -225,10 +225,18 @@ theorem sum_fourEndpointSupportChoiceChargedWeight_eq
               fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
               fourEndpointHalfDeficitWeight
                 n alpha hAlpha P cell deficit) := by
+  classical
+  change
+    (∑ D : Σ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
+        NearSkeletonChoice (↥P.edges) (FourEndpointDeficit alpha)
+          (fourEndpointHalfDeficitAllowed alpha hAlpha P),
+      reference D.1 *
+        nearSkeletonChoiceWeight
+          (fourEndpointHalfDeficitAllowed alpha hAlpha D.1)
+          (fourEndpointHalfDeficitWeight n alpha hAlpha D.1) D.2) = _
   rw [Fintype.sum_sigma]
   apply Finset.sum_congr rfl
   intro P _
-  unfold fourEndpointSupportChoiceChargedWeight
   rw [← Finset.mul_sum]
   rw [sum_nearSkeletonChoiceWeight_eq_product]
 
@@ -301,7 +309,8 @@ theorem sum_profileCanonicalHighSkeleton_le_directSupportChoiceBound
         fourEndpointSupportChoiceChargedWeight n alpha hAlpha reference
           (fourEndpointDemandSupportChoiceEncoding
             alpha hAlpha k hcover slotIndex demand))
-    (hlocal : ∀ P (cell : ↥P.edges),
+    (hlocal : ∀ (P : FourEndpointAbstractBlockSkeleton alpha hAlpha k)
+      (cell : ↥P.edges),
       (∑ deficit ∈ fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
         fourEndpointHalfDeficitWeight n alpha hAlpha P cell deficit) ≤
           bound P cell.1) :
@@ -323,10 +332,18 @@ theorem sum_profileCanonicalHighSkeleton_le_directSupportChoiceBound
           reference P * ∏ cell : ↥P.edges, (1 + bound P cell.1) := by
       apply Finset.sum_le_sum
       intro P _
-      apply mul_le_mul_left'
-      apply Finset.prod_le_prod'
-      intro cell _
-      exact add_le_add_left (hlocal P cell) 1
+      have hprod :
+          (∏ cell : ↥P.edges,
+              (1 + ∑ deficit ∈
+                fourEndpointHalfDeficitAllowed alpha hAlpha P cell,
+                fourEndpointHalfDeficitWeight
+                  n alpha hAlpha P cell deficit)) ≤
+            ∏ cell : ↥P.edges, (1 + bound P cell.1) := by
+        apply Finset.prod_le_prod'
+        intro cell _
+        exact add_le_add_left (hlocal P cell) 1
+      simpa [mul_comm] using
+        (mul_le_mul_right hprod (reference P))
 
 #print axioms fourEndpointSupportChoiceTable_toChoice_eq
 #print axioms fourEndpointDemandSupportChoiceEncoding_injective
