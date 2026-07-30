@@ -68,17 +68,21 @@ theorem endpointCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
         nearCellTerm n (min u v) (Nat.dist u v) h := by
   rcases le_total u v with huv | hvu
   · have huvEq : u + (v - u) = v := Nat.add_sub_of_le huv
+    have hhu : h ≤ u := by simpa only [min_eq_left huv] using hh
+    have hhighu : 3 ≤ u - h := by simpa only [min_eq_left huv] using hhigh
     simpa only [min_eq_left huv, Nat.dist_eq_sub_of_le huv,
       endpointCellWeightedCount, lowerUpperCellWeightedCount, huvEq] using
         lowerUpperCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
-          n u (v - u) h hh hhigh
+          n u (v - u) h hhu hhighu
   · have hvuEq : v + (u - v) = u := Nat.add_sub_of_le hvu
+    have hhv : h ≤ v := by simpa only [min_eq_right hvu] using hh
+    have hhighv : 3 ≤ v - h := by simpa only [min_eq_right hvu] using hhigh
     rw [endpointCellWeightedCount_comm u v (min u v - h),
       endpointCellWeightedCount_comm u v (min u v)]
     simpa only [min_eq_right hvu, Nat.dist_eq_sub_of_le_right hvu,
       endpointCellWeightedCount, lowerUpperCellWeightedCount, hvuEq] using
         lowerUpperCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
-          n v (u - v) h hh hhigh
+          n v (u - v) h hhv hhighv
 
 #print axioms card_singleCellStubMatching_comm
 #print axioms endpointCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
