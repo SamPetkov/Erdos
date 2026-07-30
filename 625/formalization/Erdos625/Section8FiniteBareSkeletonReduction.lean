@@ -113,10 +113,11 @@ theorem sum_profileCanonicalHighSkeleton_le_commonDeficitFactor_mul_sum_W
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P * common := by
       apply Finset.sum_le_sum
       intro P _
-      exact mul_le_mul_left
-        (pow_le_pow_right₀ hOne
-          (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
-        (fourEndpointFullSupportReferenceWeight n alpha hAlpha P)
+      have hp := pow_le_pow_right₀ hOne
+        (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P)
+      simpa only [common, mul_comm] using
+        (mul_le_mul_left hp
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha P))
     _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P) * common := by
       rw [Finset.sum_mul]
@@ -169,10 +170,11 @@ theorem sum_profileCanonicalHighSkeleton_le_canonicalDeficitFactor_mul_sum_W
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P * common := by
       apply Finset.sum_le_sum
       intro P _
-      exact mul_le_mul_left
-        (pow_le_pow_right₀ hOne
-          (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P))
-        (fourEndpointFullSupportReferenceWeight n alpha hAlpha P)
+      have hp := pow_le_pow_right₀ hOne
+        (fourEndpointAbstractBlockSkeleton_edges_card_le alpha hAlpha P)
+      simpa only [common, mul_comm] using
+        (mul_le_mul_left hp
+          (fourEndpointFullSupportReferenceWeight n alpha hAlpha P))
     _ = (∑ P : FourEndpointAbstractBlockSkeleton alpha hAlpha k,
           fourEndpointFullSupportReferenceWeight n alpha hAlpha P) * common := by
       rw [Finset.sum_mul]
