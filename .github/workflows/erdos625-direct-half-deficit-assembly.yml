@@ -9,6 +9,7 @@ on:
       - "625/formalization/Erdos625/Section8ExactLocalDeficitRatio.lean"
       - "625/formalization/Erdos625/Section8ExactLocalDeficitENNReal.lean"
       - "625/formalization/Erdos625/Section8SymmetricLocalDeficitRatio.lean"
+      - "625/formalization/Erdos625/Section8SupportProductGrouping.lean"
       - "625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean"
       - "625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean"
       - "625/formalization/Erdos625/Section8CoarsePhaseCorridor.lean"
@@ -53,6 +54,7 @@ jobs:
             625/formalization/Erdos625/Section8ExactLocalDeficitRatio.lean \
             625/formalization/Erdos625/Section8ExactLocalDeficitENNReal.lean \
             625/formalization/Erdos625/Section8SymmetricLocalDeficitRatio.lean \
+            625/formalization/Erdos625/Section8SupportProductGrouping.lean \
             625/formalization/Erdos625/Section8CoarseHalfDeficitCharge.lean \
             625/formalization/Erdos625/Section8CanonicalThreeQuarterRho.lean \
             625/formalization/Erdos625/Section8CoarsePhaseCorridor.lean \
@@ -78,6 +80,7 @@ jobs:
             Erdos625.Section8ExactLocalDeficitRatio \
             Erdos625.Section8ExactLocalDeficitENNReal \
             Erdos625.Section8SymmetricLocalDeficitRatio \
+            Erdos625.Section8SupportProductGrouping \
             Erdos625.Section8CanonicalThreeQuarterRho \
             Erdos625.Section8CoarsePhaseCorridor \
             Erdos625.Section8FiniteBareSkeletonReduction; do
