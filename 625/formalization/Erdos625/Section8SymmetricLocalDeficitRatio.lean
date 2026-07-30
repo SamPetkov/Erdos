@@ -73,8 +73,8 @@ theorem endpointCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
     have hcell (j : Nat) :
         endpointCellWeightedCount u v j =
           lowerUpperCellWeightedCount u (v - u) j := by
-      rw [← huvEq]
-      rfl
+      simp only [endpointCellWeightedCount, lowerUpperCellWeightedCount,
+        lowerUpperCellMatchingCount, huvEq]
     rw [min_eq_left huv, Nat.dist_eq_sub_of_le huv,
       hcell (u - h), hcell u]
     exact lowerUpperCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
@@ -85,8 +85,9 @@ theorem endpointCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
     have hcell (j : Nat) :
         endpointCellWeightedCount u v j =
           lowerUpperCellWeightedCount v (u - v) j := by
-      rw [endpointCellWeightedCount_comm u v j, ← hvuEq]
-      rfl
+      rw [endpointCellWeightedCount_comm u v j]
+      simp only [endpointCellWeightedCount, lowerUpperCellWeightedCount,
+        lowerUpperCellMatchingCount, hvuEq]
     rw [min_eq_right hvu, Nat.dist_eq_sub_of_le_right hvu,
       hcell (v - h), hcell v]
     exact lowerUpperCellWeightedCount_cast_mul_pow_eq_full_mul_nearCellTerm
