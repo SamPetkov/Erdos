@@ -44,9 +44,13 @@ theorem fourEndpointSupport_prod_by_type
   intro j _
   rw [Finset.prod_const]
   apply congrArg (fun count => (f i j) ^ count)
-  change (P.edges.filter fun e => (e.1.1, e.2.1) = (i, j)).card = _
-  change (P.edges.filter fun e => e.1.1 = i ∧ e.2.1 = j).card = _
-  rfl
+  calc
+    (P.edges.filter fun e => (e.1.1, e.2.1) = (i, j)).card =
+        (P.edges.filter fun e => e.1.1 = i ∧ e.2.1 = j).card := by
+      congr 1
+      ext e
+      simp [Prod.ext_iff]
+    _ = P.typeTable i j := rfl
 
 /-- Sum over support edges, grouped by endpoint type. -/
 theorem fourEndpointSupport_sum_by_type
@@ -69,9 +73,13 @@ theorem fourEndpointSupport_sum_by_type
   intro j _
   rw [Finset.sum_const]
   congr 1
-  change (P.edges.filter fun e => (e.1.1, e.2.1) = (i, j)).card = _
-  change (P.edges.filter fun e => e.1.1 = i ∧ e.2.1 = j).card = _
-  rfl
+  calc
+    (P.edges.filter fun e => (e.1.1, e.2.1) = (i, j)).card =
+        (P.edges.filter fun e => e.1.1 = i ∧ e.2.1 = j).card := by
+      congr 1
+      ext e
+      simp [Prod.ext_iff]
+    _ = P.typeTable i j := rfl
 
 /-- Full exposed multiplicity of one support. -/
 def fourEndpointSupportFullTotalMultiplicity
@@ -89,10 +97,10 @@ theorem fourEndpointSupportFullTotalMultiplicity_eq_J
     fourEndpointSupportFullTotalMultiplicity alpha hAlpha P =
       fourEndpointJ alpha hAlpha
         (fourEndpointSupportTable alpha hAlpha P) := by
-  unfold fourEndpointSupportFullTotalMultiplicity fourEndpointJ
-    fourEndpointSupportTable
-  rw [fourEndpointSupport_sum_by_type alpha hAlpha P]
-  simp only [nsmul_eq_mul, mul_comm]
+  simpa [fourEndpointSupportFullTotalMultiplicity, fourEndpointJ,
+    fourEndpointSupportTable, nsmul_eq_mul, Nat.cast_id, mul_comm] using
+      (fourEndpointSupport_sum_by_type alpha hAlpha P
+        (fun i j => fourEndpointOverlapSize alpha hAlpha i j))
 
 /-- Product of full weighted one-cell counts on a support. -/
 def fourEndpointSupportFullCellWeightProduct
@@ -150,6 +158,7 @@ theorem fourEndpointFullSupportReferenceWeight_eq_cellProduct
     fourEndpointFullSupportAtomWeight
     fourEndpointDecoratedReferenceAtomWeight
     fourEndpointSupportFullCellWeightProduct
+    endpointCellWeightedCount
   rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
   rw [card_fourEndpointFullDecorationOfSupport]
   rw [fourEndpointFullRewardProduct_supportTable]
