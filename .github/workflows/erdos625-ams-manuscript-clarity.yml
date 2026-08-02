@@ -41,7 +41,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            latexmk texlive-latex-extra texlive-bibtex-extra texlive-fonts-recommended
+            latexmk lmodern texlive-latex-extra texlive-bibtex-extra \
+            texlive-fonts-recommended
       - name: Build the AMS editorial draft
         working-directory: 625/arxiv
         run: |
