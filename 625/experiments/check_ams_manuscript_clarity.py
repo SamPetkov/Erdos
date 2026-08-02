@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the copy-ready AMS-style Erdős 625 manuscript fragments.
 
-The checks are editorial and structural.  They do not validate any theorem.
+The checks are editorial and structural. They do not validate any theorem.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ BANNED_PROSE = {
 
 REQUIRED_FRONTMATTER = (
     "All graphs in this paper are finite, simple, and undirected.",
-    "A \\emph{cocoloring}",
+    "\\emph{cocoloring} of a graph",
     "with high probability",
     "The proof has three stages.",
     "Exact finite identities, deterministic inequalities, asymptotic estimates",
@@ -72,6 +72,12 @@ def read(path: Path) -> str:
 
 def strip_comments(text: str) -> str:
     return "\n".join(line.split("%", 1)[0] for line in text.splitlines())
+
+
+def normalize_source_whitespace(text: str) -> str:
+    """Collapse TeX source whitespace without altering commands or braces."""
+
+    return re.sub(r"\s+", " ", strip_comments(text)).strip()
 
 
 def strip_tex_for_words(text: str) -> str:
@@ -122,7 +128,12 @@ def check_no_manual_tags(texts: dict[str, str]) -> None:
 
 
 def check_required(text: str, markers: tuple[str, ...], label: str) -> None:
-    missing = [marker for marker in markers if marker not in text]
+    normalized_text = normalize_source_whitespace(text)
+    missing = [
+        marker
+        for marker in markers
+        if normalize_source_whitespace(marker) not in normalized_text
+    ]
     require(not missing, f"{label}: missing clarity markers {missing}")
 
 
