@@ -1,0 +1,266 @@
+% Copy-ready replacement for the high-skeleton part of Section VIII.
+% Promote this text only after the attained-demand encoding, pointwise weight
+% identity, deficit product, weighted reference regrouping, and endpoint
+% transportation have been validated on one integrated branch.
+
+\section{Canonical high cells and the all-deficit sum}
+\label{sec:canonical-high-cells-v2}
+
+This section estimates the contribution of all canonical high cells before any
+residual local or cycle-space factor is charged.  The argument has two finite
+parts.  First, we identify the exact aggregate weight of a high-cell matching
+with prescribed multiplicities.  Second, we compare every multiplicity vector
+with its full-containment reference and sum all admissible deficits.
+
+\subsection{Block supports and physical matching fibers}
+
+Let $U$ be the largest block size in the fixed four-size profile, and put
+$R_0:=\lfloor U/2\rfloor$.  In an overlap table, call a cell \emph{high} if its
+multiplicity exceeds $R_0$.  Two high cells cannot occur in the same row or in
+the same column.  Thus their positive support is a bipartite matching, which we
+denote by $P$.
+
+For $e\in P$, let $s_e$ and $t_e$ be the row and column block sizes.  Define
+\[
+  m_e:=\min\{s_e,t_e\},
+  \qquad
+  d_e:=|s_e-t_e|.
+\]
+If the actual multiplicity is $j_e$, write
+\[
+  j_e=m_e-h_e.
+\]
+The high-cell condition implies $2h_e<m_e$.
+
+For fixed $P$ and $j=(j_e)_{e\in P}$, the physical data in distinct selected
+cells are independent finite partial matchings.  A cell with endpoint sizes
+$s,t$ and multiplicity $j$ has
+\[
+  \frac{(s)_j(t)_j}{j!}
+\]
+physical matchings: choose ordered row stubs, choose ordered column stubs, and
+quotient by the common ordering of the $j$ matched pairs.
+
+\begin{proposition}[Aggregate high-skeleton weight]
+\label{prop:aggregate-high-skeleton-weight-v2}
+Let
+\[
+  J:=\sum_{e\in P}j_e.
+\]
+After summing all physical partial-matching fibers, the bare weight of the
+support $P$ with multiplicity vector $j$ is
+\begin{equation}
+  w(P,j)
+  =
+  \frac{
+    \displaystyle\prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}
+  }{
+    \displaystyle(n)_J\prod_{e\in P}j_e!
+  }
+  \prod_{e\in P}g(j_e).
+  \label{eq:aggregate-high-skeleton-weight-v2}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The product of the one-cell cardinalities counts the complete physical fiber
+because the support is a matching.  The factor $(n)_J^{-1}$ is the probability
+of the prescribed $J$ pairs in the uniform bipartite matching, and
+$\prod_e g(j_e)$ is the signed local reward.  Multiplying these factors gives
+\eqref{eq:aggregate-high-skeleton-weight-v2}.
+\end{proof}
+
+The matching hypothesis is essential.  If two positive cells share a row or a
+column, their stub choices are coupled, and the product of the one-cell counts
+is no longer valid.
+
+\subsection{Comparison with full containment}
+
+For endpoint sizes $m$ and $m+d$, define
+\begin{equation}
+  R_{m,d}(h)
+  :=
+  \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}
+  2^{-hm+h(h+1)/2},
+  \qquad R_{m,d}(0):=1.
+  \label{eq:local-deficit-ratio-ams-v2}
+\end{equation}
+
+\begin{lemma}[Exact local ratio]
+\label{lem:exact-local-ratio-ams-v2}
+The ratio of the aggregate local factor at multiplicity $m-h$ to its
+full-containment value at multiplicity $m$ is $R_{m,d}(h)$.
+\end{lemma}
+
+\begin{proof}
+The ratio of the physical matching counts is
+\[
+  \frac{(m)_{m-h}(m+d)_{m-h}}{(m-h)!}
+        \cdot m!}
+       {(m)_m(m+d)_m}
+  =
+  \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}.
+\]
+The ratio of the signed rewards is
+\[
+  \frac{g(m-h)}{g(m)}
+  =
+  2^{-hm+h(h+1)/2}.
+\]
+Multiplying the two identities proves the lemma.
+\end{proof}
+
+Let
+\[
+  J_*:=\sum_{e\in P}m_e,
+  \qquad
+  H:=J_*-J=\sum_{e\in P}h_e.
+\]
+The only nonlocal change between $w(P,j)$ and the full-containment reference is
+\[
+  \frac{(n)_{J_*}}{(n)_J}
+  =(n-J)_H
+  \le n^H.
+\]
+
+\begin{lemma}[Aggregate deficit comparison]
+\label{lem:aggregate-deficit-comparison-ams-v2}
+For every admissible deficit vector $h=(h_e)_{e\in P}$,
+\begin{equation}
+  w(P,m-h)
+  \le
+  w_{\mathrm{full}}(P)
+  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e).
+  \label{eq:aggregate-deficit-comparison-ams-v2}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:exact-local-ratio-ams-v2} in every selected cell and use
+the preceding global falling-factorial bound.  Finally, write
+$n^H=\prod_e n^{h_e}$.
+\end{proof}
+
+The order of this argument is important: the physical fibers are summed first,
+and the global denominator loss is paid once afterward.
+
+\subsection{The optional-deficit product}
+
+For each selected cell $e$, let
+\[
+  A_e:=\{h\in\mathbb N: h\ge1,\ 2h<m_e\}.
+\]
+All terms are nonnegative, so replacing the exact high-deficit set by $A_e$ is
+a harmless enlargement.
+
+\begin{lemma}[Finite optional-choice identity]
+\label{lem:optional-choice-identity-ams-v2}
+For nonnegative local weights $u_e(h)$,
+\[
+  \sum_{\omega}
+    \prod_{e\in P}u_e(\omega_e)
+  =
+  \prod_{e\in P}
+    \left(1+\sum_{h\in A_e}u_e(h)\right),
+\]
+where $\omega_e$ is either the zero-deficit choice, of weight one, or one
+positive deficit $h\in A_e$.
+\end{lemma}
+
+\begin{proof}
+Expand the finite product.  Each monomial chooses independently, in every
+selected cell, either the constant term or one positive-deficit term.
+\end{proof}
+
+For $2h<m$, the elementary inequality
+\[
+  h\left\lfloor\frac{3m-1}{4}\right\rfloor
+  \le
+  hm-\frac{h(h+1)}2
+\]
+and \eqref{eq:local-deficit-ratio-ams-v2} imply
+\begin{equation}
+  n^hR_{m,d}(h)
+  \le
+  \left(
+    \frac{nm}{2^{\lfloor(3m-1)/4\rfloor}}
+  \right)^h.
+  \label{eq:three-quarter-charge-ams-v2}
+\end{equation}
+Define
+\[
+  \rho_e:=
+  \frac{nm_e}{2^{\lfloor(3m_e-1)/4\rfloor}}.
+\]
+For all sufficiently large $n$, the four endpoint types satisfy
+$\rho_e\le1/2$.  Hence
+\[
+  \sum_{h\in A_e}n^hR_{m_e,d_e}(h)
+  \le
+  \sum_{h\ge1}\rho_e^h
+  \le 2\rho_e.
+\]
+Combining Lemmas~\ref{lem:aggregate-deficit-comparison-ams-v2} and
+\ref{lem:optional-choice-identity-ams-v2} gives
+\begin{equation}
+  \sum_{h:\,m-h\text{ high}}w(P,m-h)
+  \le
+  w_{\mathrm{full}}(P)
+  \prod_{e\in P}(1+2\rho_e).
+  \label{eq:fixed-support-deficit-bound-ams-v2}
+\end{equation}
+
+\subsection{Regrouping by endpoint table}
+
+Let $L(P)$ be the $4\times4$ endpoint-type table of the support $P$.  The
+product in \eqref{eq:fixed-support-deficit-bound-ams-v2} depends on $P$ only
+through $L(P)$:
+\[
+  \prod_{e\in P}(1+2\rho_e)
+  =
+  \prod_{i,j}(1+2\rho_{ij})^{L(P)_{ij}}.
+\]
+The full-support reference also admits an exact weighted regrouping.
+
+\begin{proposition}[Weighted reference regrouping]
+\label{prop:weighted-reference-regrouping-ams-v2}
+For every nonnegative function $F$ on endpoint tables,
+\[
+  \sum_P w_{\mathrm{full}}(P)F(L(P))
+  =
+  \sum_{L\ \mathrm{realized}}W(L)F(L).
+\]
+\end{proposition}
+
+\begin{proof}
+Expand $w_{\mathrm{full}}(P)$ as the finite sum over full physical decorations
+of $P$.  Transport the weighted atom through the exact equivalence between
+fully decorated supports and the dependent sum of realized endpoint tables
+with their decorated-support fibers.  The factor $F(L)$ is constant on each
+fiber and may be pulled outside its finite sum.  The remaining inner sum is
+exactly $W(L)$.
+\end{proof}
+
+Applying the proposition with
+\[
+  F(L):=\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}
+\]
+yields
+\[
+  \sum_{\text{high skeletons}}w_{\mathrm{hi}}
+  \le
+  \sum_{L\ \mathrm{realized}}
+    W(L)\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}.
+\]
+The endpoint transportation estimate absorbs the table-dependent product, and
+Section~7 supplies the corresponding one-sided diagonal sum.  Therefore
+\begin{equation}
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \exp\!\left\{
+    o\!\left(\frac{n}{(\log n)^4}\right)
+  \right\}.
+  \label{eq:bare-skeleton-final-ams-v2}
+\end{equation}
+No residual local factor or cycle-space factor has been charged in this
+section; those factors are treated next.
