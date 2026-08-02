@@ -1,0 +1,188 @@
+% Copy-ready replacement for the residual-attachment section of Version 2.
+% Promote this text only after the literal attained-attachment identity and the
+% q-only two-regime estimate have been validated on one integrated branch.
+
+\section{Residual attachments}
+\label{sec:residual-attachments-v2}
+
+Section~\ref{sec:canonical-high-cells-v2} bounds the sum of the bare
+high-skeleton weights.  It does not include the local rewards of the unexposed
+cells or the binary cycle-space factor of the residual support.  We now bound
+these remaining terms after conditioning on one canonical high skeleton.
+
+Fix a feasible high skeleton with exposed block matching $M$.  Let $m_0$ be the
+number of unexposed row stubs, equivalently the number of unexposed column
+stubs.  Conditional on the exposed pairs, the remaining pairs form a uniform
+bipartite matching with the prescribed residual degrees.
+
+Let $\mathcal A(M)$ denote the conditional residual contribution, including the
+local rewards of unexposed cells, the cycle-space factor, the residual
+multiplicity cap, and the condition that no exposed cell receives another
+pair.  The normalized second moment has the exact decomposition
+\begin{equation}
+  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+  =
+  \sum_M w_{\mathrm{hi}}(M)\,\mathcal A(M),
+  \label{eq:exact-attachment-decomposition-v2}
+\end{equation}
+where the sum runs over the finite family of feasible canonical high
+skeletons.  Thus it remains to bound $\mathcal A(M)$ uniformly.
+
+\subsection{Restriction outside the exposed matching}
+
+The binary cycle-space identity writes the cycle contribution as a sum over
+even residual edge sets.  The following finite lemma replaces a decomposition
+into simple cycles.
+
+\begin{lemma}[Restriction-product bound]
+\label{lem:restriction-product-v2}
+Let $E$ be a finite set, let $\mathcal C$ be a finite family of subsets of
+$E$, and let $I\subseteq E$.  Suppose that the map
+\[
+  A\longmapsto A\setminus I
+\]
+is injective on $\mathcal C$.  For nonnegative activities $(q_e)_{e\in E}$,
+\[
+  \sum_{A\in\mathcal C}
+    \prod_{e\in A\setminus I}q_e
+  \le
+  \prod_{e\in E\setminus I}(1+q_e).
+\]
+\end{lemma}
+
+\begin{proof}
+The sets $A\setminus I$, with $A\in\mathcal C$, form a subfamily of the power
+set of $E\setminus I$ and occur without repetition.  Enlarging the sum to the
+entire power set gives
+\[
+  \sum_{B\subseteq E\setminus I}\prod_{e\in B}q_e
+  =
+  \prod_{e\in E\setminus I}(1+q_e).
+\]
+\end{proof}
+
+Apply the lemma to the family of even edge sets and to the exposed matching
+$I=M$.  The required injectivity is immediate.  If two even edge sets have the
+same restriction outside $M$, then their symmetric difference is an even
+subset of the matching $M$.  A nonempty subset of a matching has a vertex of
+degree one, so no such subset is even.  Therefore the symmetric difference is
+empty.
+
+It follows that
+\begin{equation}
+  \sum_{F\ \mathrm{even}}
+    \prod_{e\in F\setminus M}q_e
+  \le
+  \prod_{e\notin M}(1+q_e).
+  \label{eq:even-family-product-v2}
+\end{equation}
+This estimate is exact at the level of finite supports and does not require a
+choice of cycle decomposition.
+
+\subsection{One activity controls both residual factors}
+
+For a residual cell $e$, let $\lambda_e^{\mathrm{loc}}$ be the contribution of
+local multiplicity increments and let $q_e$ be the total activity used in the
+even-subgraph expansion.  The definitions give the pointwise bound
+\[
+  0\le \lambda_e^{\mathrm{loc}}\le q_e.
+\]
+Consequently
+\[
+  \prod_e(1+\lambda_e^{\mathrm{loc}})
+  \prod_{e\notin M}(1+q_e)
+  \le
+  \exp\!\left(2\sum_e q_e\right).
+\]
+Thus the local rewards and the cycle-space factor are controlled by one
+quantity, namely the total residual activity.
+
+The residual estimate has two regimes.  Let $U$ be the phase cap.
+
+\begin{proposition}[Uniform residual attachment bound]
+\label{prop:q-only-attachment-v2}
+There is an absolute constant $C$ such that the following holds for every
+feasible canonical high skeleton.
+
+If
+\[
+  2^U\le m_0^3,
+\]
+then
+\[
+  \mathcal A(M)\le \exp(CU^2).
+\]
+If $2^U>m_0^3$, then
+\[
+  m_0<2^{\lceil U/3\rceil}
+\]
+and
+\[
+  \mathcal A(M)\le 2^{Um_0/2}.
+\]
+\end{proposition}
+
+\begin{proof}
+In the first regime, the residual degree bounds and the definition of the
+activities give
+\[
+  \sum_e q_e\le C_1U^2.
+\]
+The preceding product estimate yields
+$\mathcal A(M)\le\exp(2C_1U^2)$.
+
+In the second regime, the inequality $2^U>m_0^3$ implies
+$m_0<2^{\lceil U/3\rceil}$.  We discard the residual restrictions and use the
+deterministic bounds
+\[
+  \sum_e\binom{r_e}{2}
+  \le \frac{U-1}{2}m_0,
+  \qquad
+  \beta(H_{\mathrm{res}}\cup M)
+  \le \frac{m_0}{2}.
+\]
+The product of the local and cycle-space factors is therefore at most
+$2^{Um_0/2}$.
+\end{proof}
+
+The two estimates are uniform in the canonical high skeleton.  For the exact
+midpoint profile, they imply the following aggregate form.
+
+\begin{proposition}[Attained attachment sum]
+\label{prop:attained-attachment-sum-v2}
+There is a deterministic sequence $\varepsilon_n\to0$ such that
+\begin{equation}
+  \operatorname{AttachmentSum}_n
+  \le
+  \operatorname{BareSkeletonSum}_n
+  \exp\!\left\{
+    \varepsilon_n\frac{n}{(\log n)^4}
+  \right\}.
+  \label{eq:attained-attachment-sum-v2}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Use the first bound in Proposition~\ref{prop:q-only-attachment-v2} when
+$2^U\le m_0^3$.  Since $U=O(\log n)$, its logarithm is $O((\log n)^2)$.
+In the complementary regime, the inequality
+$m_0<2^{\lceil U/3\rceil}$ and the phase relation imply
+\[
+  Um_0=o\!\left(\frac{n}{(\log n)^4}\right).
+\]
+Taking the larger of the two deterministic errors gives a sequence
+$\varepsilon_n\to0$ that is independent of the skeleton.  Factoring this
+uniform bound from the exact decomposition
+\eqref{eq:exact-attachment-decomposition-v2} proves
+\eqref{eq:attained-attachment-sum-v2}.
+\end{proof}
+
+Combining Proposition~\ref{prop:attained-attachment-sum-v2} with
+\eqref{eq:bare-skeleton-final-ams-v2} yields
+\[
+  \log\frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+  =
+  o\!\left(\frac{n}{(\log n)^4}\right).
+\]
+This is the normalized second-moment estimate used in the amplification
+argument.
