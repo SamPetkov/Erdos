@@ -1,0 +1,63 @@
+name: Erdős 625 AMS manuscript clarity
+
+on:
+  pull_request:
+    paths:
+      - "625/arxiv/AMS_THEOREM_ENVIRONMENTS_V2.tex"
+      - "625/arxiv/FRONTMATTER_INTRODUCTION_POSTCLOSURE_V2.tex"
+      - "625/arxiv/PROOF_ROADMAP_INSERT_V2.tex"
+      - "625/arxiv/SECTION8_ALL_DEFICIT_AMS_V2.tex"
+      - "625/arxiv/SECTION9_Q_ONLY_AMS_V2.tex"
+      - "625/arxiv/AMS_EDITORIAL_DRAFT_V2.tex"
+      - "625/audits/AMS_WRITING_AND_CLARITY_PASS_2026-08-02.md"
+      - "625/experiments/check_ams_manuscript_clarity.py"
+      - ".github/workflows/erdos625-ams-manuscript-clarity.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-ams-clarity-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  editorial-checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile editorial checker
+        run: python -m py_compile 625/experiments/check_ams_manuscript_clarity.py
+      - name: Run editorial checker
+        run: python 625/experiments/check_ams_manuscript_clarity.py
+      - name: Run editorial checker with optimization
+        run: python -O 625/experiments/check_ams_manuscript_clarity.py
+
+  build-editorial-pdf:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Install TeX dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-latex-extra texlive-bibtex-extra texlive-fonts-recommended
+      - name: Build the AMS editorial draft
+        working-directory: 625/arxiv
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error \
+            AMS_EDITORIAL_DRAFT_V2.tex
+      - name: Reject undefined references in final log
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          if grep -E "LaTeX Warning: (Reference|Citation).*undefined|There were undefined references" \
+              AMS_EDITORIAL_DRAFT_V2.log; then
+            exit 1
+          fi
+      - name: Upload editorial PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-ams-editorial-draft
+          path: 625/arxiv/AMS_EDITORIAL_DRAFT_V2.pdf
+          if-no-files-found: error
