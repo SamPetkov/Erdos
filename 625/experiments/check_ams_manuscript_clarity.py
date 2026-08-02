@@ -107,6 +107,21 @@ def check_environment_balance(name: str, text: str) -> None:
     require(begins == ends, f"{name}: unmatched environments: {begins} != {ends}")
 
 
+def check_group_braces(name: str, text: str) -> None:
+    """Check grouping braces, ignoring the printed delimiters ``\{`` and ``\}``."""
+
+    source = strip_comments(text).replace(r"\{", "").replace(r"\}", "")
+    depth = 0
+    for line_number, line in enumerate(source.splitlines(), start=1):
+        for character in line:
+            if character == "{":
+                depth += 1
+            elif character == "}":
+                depth -= 1
+                require(depth >= 0, f"{name}: unmatched closing brace at line {line_number}")
+    require(depth == 0, f"{name}: {depth} unmatched opening grouping brace(s)")
+
+
 def check_labels(texts: dict[str, str]) -> None:
     labels: dict[str, list[str]] = {}
     for name, text in texts.items():
@@ -161,7 +176,7 @@ def main() -> None:
 
     for name, text in draft_texts.items():
         check_environment_balance(name, text)
-        require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
+        check_group_braces(name, text)
         require("TODO" not in text and "TBD" not in text, f"{name}: unresolved placeholder")
 
     canonical = texts["canonical"]
