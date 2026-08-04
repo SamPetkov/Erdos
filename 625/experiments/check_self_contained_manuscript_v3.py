@@ -166,7 +166,19 @@ def main() -> None:
     require(not offenders, f"forbidden manuscript markers: {offenders}")
 
     labels = re.findall(r"\\label\{([^}]+)\}", combined)
-    duplicates = sorted(label for label, count in Counter(labels).items() if count > 1)
+    label_counts = Counter(labels)
+    # The target theorem is written in two mutually exclusive TeX branches.
+    # Exactly one branch is expanded in any build, so the shared semantic label
+    # is intentional and cannot produce a duplicate in the compiled document.
+    require(
+        label_counts.get("thm:main-v3", 0) == 2,
+        "the two status branches must share exactly one target-theorem label",
+    )
+    duplicates = sorted(
+        label
+        for label, count in label_counts.items()
+        if count > 1 and label != "thm:main-v3"
+    )
     require(not duplicates, f"duplicate labels: {duplicates}")
 
     for name, text in {"master": master, "generated": generated, **sources}.items():
@@ -182,7 +194,7 @@ def main() -> None:
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
-    print(f"  unique labels: {len(labels)}")
+    print(f"  unique semantic labels: {len(label_counts)}")
     print("  publication switch: disabled")
 
 
