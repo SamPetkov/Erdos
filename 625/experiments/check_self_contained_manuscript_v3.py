@@ -152,7 +152,7 @@ def main() -> None:
         "Welded",
         "Running",
         "Needs review",
-        "eventually\\_fourEndpointThreeQuarterRho\\_le\\_one",
+        "eventually_fourEndpointThreeQuarterRho_le_one",
         "Publication gate",
         "Recommended theorem-facing Lean organization",
     ):
