@@ -1,0 +1,194 @@
+% Front matter for the self-contained Version 3 manuscript.
+% The compile-time switch \ifErdosProofClosed is defined by the master file.
+% It must remain false until the proof-closure checklist in Appendix A is green
+% on one integrated commit.
+
+\begin{abstract}
+\ifErdosProofClosed
+Let $G_n\sim G(n,1/2)$. We prove that the difference between the chromatic
+number $\chi(G_n)$ and the cochromatic number $\zeta(G_n)$ is bounded below by
+a positive constant times $n/(\log n)^3$ with probability tending to one. The
+argument is uniform across the full rounding phase of the independence-number
+threshold. Its first-moment component compares ordinary colorings with signed
+cocoloring witnesses supported on four consecutive class sizes. For the second
+moment, we derive an exact sign-compatibility identity, encode the large
+overlap cells by a matching with local deficits, sum the corresponding physical
+matching fibers exactly, and control the residual even-subgraph factor by
+injective restriction outside the exposed matching. A bounded-differences
+argument then amplifies the resulting positive-probability seed to a
+high-probability cocoloring.
+\else
+This verification draft assembles a self-contained proof architecture for a
+full-sequence lower bound on $\chi(G_n)-\zeta(G_n)$ in $G(n,1/2)$. It includes
+the complete manuscript argument, the replacement high-skeleton and residual
+attachment sections, and an explicit map to the current Lean formalization.
+The displayed target theorem is not promoted as proved until the remaining
+phase, partial-diagonal, and global assembly gates listed in Appendix~A are
+validated on one integrated commit. This status distinction is part of the
+manuscript rather than being left only in repository metadata.
+\fi
+\end{abstract}
+
+\maketitle
+
+\ifErdosProofClosed\else
+\begin{center}
+\fbox{\parbox{0.91\linewidth}{\small
+\textbf{Verification draft.}
+The finite Section~8 bridge through the realized endpoint-table deficit sum is
+kernel-checked privately, but the full theorem is still conditional on the
+remaining formal gates stated in Appendix~A. The publication switch in the
+master file must remain disabled until those gates close.}}
+\end{center}
+\fi
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+\label{sec:introduction-v3}
+
+All graphs in this paper are finite, simple, and undirected. A
+\emph{cocoloring} of a graph $G$ is a partition of $V(G)$ into nonempty
+classes, each of which is either an independent set or a clique. The least
+number of classes in such a partition is the \emph{cochromatic number}
+$\zeta(G)$. We write $\chi(G)$ for the chromatic number. These are the
+standard graph invariants; the signed objects introduced below are auxiliary
+counting witnesses and do not define a new invariant.
+
+Let $G_n\sim G(n,1/2)$ be the labeled random graph on $[n]$ in which the
+$\binom n2$ possible edges occur independently with probability $1/2$. An
+event holds \emph{with high probability} if its probability tends to one as
+$n\to\infty$.
+
+Erd\H{o}s and Gimbel asked whether
+\[
+  \chi(G_n)-\zeta(G_n)\longrightarrow\infty
+\]
+with high probability \citep[p.~263]{erdos-gimbel-1993}. The problem was
+later restated by Gimbel \citep[Section~7.4]{gimbel-2016} and is cataloged as
+Erd\H{o}s Problem~625 \citep{bloom-erdos625}. The intended final result is the
+following full-sequence quantitative statement.
+
+\ifErdosProofClosed
+\begin{theorem}\label{thm:main-v3}
+For $G_n\sim G(n,1/2)$,
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{8}
+    \log\!\left(\frac{1000}{639}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow 1.
+\]
+In particular, $\chi(G_n)-\zeta(G_n)$ tends to infinity with high probability
+along the full sequence of integers $n$.
+\end{theorem}
+\else
+\begin{theorem}[Target theorem]\label{thm:main-v3}
+Assume the concrete phase package, the signed four-size first-moment assembly,
+the complete partial-diagonal estimate, and the global attachment assembly
+listed in Appendix~A. Then, for $G_n\sim G(n,1/2)$,
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{8}
+    \log\!\left(\frac{1000}{639}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow 1.
+\]
+\end{theorem}
+\fi
+
+The full-sequence quantifier is essential. Near a jump of the
+independence-number threshold, changing the relevant class size by one changes
+the feasible profile. A result proved only on a density-one set of phase
+values therefore need not extend to every integer $n$. Every asymptotic
+estimate below is stated uniformly in the complete phase parameter, including
+sequences approaching either endpoint of a phase interval.
+
+\subsection*{Background}
+
+The chromatic number of dense random graphs has been studied since the work of
+Grimmett and McDiarmid \citep{grimmett-mcdiarmid-1975}. The first-order
+asymptotic was established by Bollob\'as \citep{bollobas-1988}; later
+refinements include \citet{mcdiarmid-1990},
+\citet{panagiotou-steger-2009}, and \citet{heckel-2018}. The cochromatic
+number belongs to the theory of generalized chromatic numbers for hereditary
+graph properties developed by Scheinerman and Bollob\'as--Thomason
+\citep{scheinerman-1992,bollobas-thomason-1995}.
+
+For the chromatic--cochromatic difference, Heckel and, independently, Steiner
+obtained the first quantitative evidence toward divergence
+\citep{heckel-2024-question,steiner-2024}. Heckel subsequently proved a much
+larger lower bound on a phase-dependent set containing approximately $95\%$ of
+the integers \citep{heckel-2025-difference}. The remaining difficulty is to
+control the complete phase uniformly. The present argument uses the signed
+first-moment gain and rare-seed amplification from that work, but replaces the
+pairwise sign bound by an exact overlap identity and treats every phase with
+one four-size profile.
+
+\subsection*{Contributions}
+
+The proof is organized around five results that are mathematically distinct
+and should be read separately.
+
+\begin{enumerate}
+\item A phase-uniform comparison between the ordinary coloring root and a
+four-size signed cocoloring root gives a separation of order
+$n/(\log n)^3$.
+\item The sign compatibility of two witnesses is evaluated exactly. The
+result is a product of local cell rewards multiplied by the cardinality of a
+binary cycle space.
+\item A completion-free high-skeleton theorem identifies every
+matching-supported physical demand fiber with a product of literal one-cell
+partial matching fibers. The ambient falling-factorial loss is then charged
+once, after the fiber sum.
+\item An exact regrouping identity transports full-support reference weights
+through the realized endpoint-table decomposition. The main proof uses a
+coarse common charge, while a sharper table-preserving version is retained as
+a separate reusable statement.
+\item Deletion of the exposed matching is injective on the family of even
+residual edge sets. This gives a direct restriction-product estimate and
+removes the need for a simple-cycle or walk-kernel decomposition in the final
+argument.
+\end{enumerate}
+
+The exact signed-overlap identity, the completion-free matching-fiber
+factorization, the weighted realized-table regrouping, the restriction-product
+lemma, and the rare-seed amplifier are stated as independent propositions or
+lemmas. This separates the reusable finite mathematics from the phase-specific
+random-graph estimates.
+
+\subsection*{Proof structure}
+
+The proof has three layers.
+
+The \emph{location layer} compares the ordinary first-moment root with the
+signed four-size root. The \emph{existence layer} proves a normalized
+second-moment estimate for one tangent-rounded signed profile. The
+\emph{amplification layer} converts the positive-probability signed witness into
+a high-probability upper bound for $\zeta(G_n)$ and intersects it with the
+chromatic lower bound.
+
+The difficult overlap calculation is itself divided into four operations:
+partial diagonals, canonical high cells, residual attachments, and final
+normalization. Each operation has a separate theorem contract. In particular,
+no residual local or cycle-space factor is charged in the high-skeleton
+section, and no high-cell multiplicity is charged again in the residual
+section.
+
+\subsection*{Organization}
+
+Section~1 fixes the phase notation and elementary inequalities. Sections~2--4
+locate the ordinary coloring root and derive an unrestricted lower bound for
+$\chi(G_n)$. Section~5 constructs the signed four-size profile and proves the
+root separation. Section~6 gives the exact signed-overlap identity, and
+Section~7 controls partial diagonals. Section~8 proves the completion-free
+high-skeleton estimate and endpoint transport. Section~9 treats the residual
+attachment by matching restriction. Section~10 proves the rare-seed amplifier,
+and Section~11 assembles the final events and the strengthened constant.
+Appendix~A records the exact paper-to-Lean map and the remaining verification
+gates.
