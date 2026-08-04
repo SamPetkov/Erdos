@@ -1,0 +1,155 @@
+\section*{Conventions and proof objects}
+\addcontentsline{toc}{section}{Conventions and proof objects}
+\label{sec:conventions-v3}
+
+This section fixes the standard graph-theoretic conventions and the
+manuscript-specific proof objects. Its purpose is to prevent the combinatorial,
+configuration-model, and type-level uses of the word \emph{matching} from
+being conflated later.
+
+\begin{convention}[Graphs and partitions]
+All graphs are finite, simple, and undirected. A partition always consists of
+nonempty, pairwise disjoint classes whose union is the whole vertex set. An
+independent set induces an edgeless graph, and a clique induces a complete
+graph. The chromatic number $\chi(G)$ is the least number of independent
+classes in a partition of $V(G)$. The cochromatic number $\zeta(G)$ is the
+least number of classes in a partition of $V(G)$ in which every class is either
+independent or a clique.
+\end{convention}
+
+\begin{definition}[Signed cocoloring witness]
+A \emph{signed cocoloring witness} consists of a vertex partition together
+with an $I$- or $K$-mark on each class. An $I$-marked class must be independent,
+and a $K$-marked class must be a clique. The marks are auxiliary counting data;
+they do not define a new graph invariant. In the four-size construction all
+classes have size at least two for sufficiently large $n$, so a realized class
+cannot be both independent and complete. Forgetting the marks therefore
+recovers the underlying cocoloring without multiplicity.
+\end{definition}
+
+\begin{convention}[Random graph and uniformity]
+The notation $G_n\sim G(n,1/2)$ refers to the labeled random graph on $[n]$ in
+which all $\binom n2$ edge indicators are independent Bernoulli variables of
+parameter $1/2$. All logarithms are natural. A statement holds with high
+probability if its probability tends to one as $n\to\infty$. An error term
+$o(1)$ is uniform in the phase whenever the phase variable is present. The
+phrase \emph{uniformly in the phase} means that one deterministic error
+sequence works for every phase value and every integer sequence approaching a
+phase endpoint.
+\end{convention}
+
+\begin{convention}[Falling factorials]
+For integers $x,r\ge0$, put
+\[
+  (x)_r=x(x-1)\cdots(x-r+1),\qquad (x)_0=1.
+\]
+We set $(x)_r=0$ for $r>x$. Quotient identities involving falling factorials
+are used only after feasibility and nonvanishing of the relevant denominator
+have been established.
+\end{convention}
+
+\begin{definition}[Profiles]
+A profile is a finite sequence $(k_s)$ in which $k_s$ is the number of classes
+of size $s$. It is feasible for $n$ vertices if
+\[
+  \sum_s k_s=k,
+  \qquad
+  \sum_s s k_s=n.
+\]
+The ordinary profile first moment counts partitions into independent classes.
+The signed profile first moment counts the same partitions together with an
+$I/K$ mark on every class.
+\end{definition}
+
+\begin{definition}[Overlap table]
+Let $(A_a)_a$ and $(B_b)_b$ be two ordered profile partitions. Their overlap
+table is
+\[
+  r_{ab}=|A_a\cap B_b|.
+\]
+Its row sums are the sizes of the $A_a$, and its column sums are the sizes of
+the $B_b$. The table is also the cell-count table of a bipartite configuration
+model: the vertices of $A_a$ are the row stubs of type $a$, the vertices of
+$B_b$ are the column stubs of type $b$, and the identity of the underlying
+vertex gives a perfect matching between the two stub families.
+\end{definition}
+
+\begin{definition}[Support graph and cycle rank]
+Given an overlap table $r$, let $H(r)$ be the simple bipartite graph whose edge
+set is
+\[
+  E(H(r))=\{(a,b):r_{ab}\ge2\}.
+\]
+A subset $F\subseteq E(H(r))$ is \emph{even} if every vertex has even degree
+in $(V(H(r)),F)$. Let $c(H)$ denote the number of connected components,
+including isolated vertices, and put
+\[
+  \beta(H)=|E(H)|-|V(H)|+c(H).
+\]
+Then $\beta(H)$ is the dimension of the binary cycle space and
+\[
+  |\{F\subseteq E(H):F\text{ is even}\}|=2^{\beta(H)}.
+\]
+The threshold $r_{ab}\ge2$ is exact: a cell of size zero or one contains no
+internal edge shared by the two partition classes, whereas a cell of size at
+least two contains a common internal edge and forces the two signs to agree.
+\end{definition}
+
+\begin{definition}[Three matching levels]
+Three distinct matching objects occur.
+\begin{enumerate}
+\item The \emph{configuration matching} is the perfect matching of all labeled
+row and column stubs induced by the common vertex set.
+\item A \emph{physical partial matching} is a set of selected individual stub
+pairs inside one or several prescribed overlap cells.
+\item A \emph{block support} is a matching between row-class slots and
+column-class slots. Its edges record which block pairs contain canonical high
+cells.
+\end{enumerate}
+The factorization of physical cell counts is valid only because the positive
+block support is a matching: distinct selected cells then use disjoint row and
+column stub families.
+\end{definition}
+
+\begin{definition}[Canonical high cells]
+Let $U$ be the largest class size in the fixed four-size profile, and put
+$R_0=\lfloor U/2\rfloor$. A cell is \emph{high} if its multiplicity exceeds
+$R_0$. Two high cells cannot share a row or a column, so the collection of all
+high cells is a canonical block matching. For a selected cell $e$, let
+\[
+  s_e,t_e\quad\text{be its endpoint sizes},\qquad
+  m_e=\min\{s_e,t_e\},\qquad
+  j_e=m_e-h_e.
+\]
+Here $m_e$ is the full-containment multiplicity, $j_e$ is the actual
+multiplicity, and $h_e$ is the deficit. The high-cell inequality implies
+$2h_e<m_e$.
+\end{definition}
+
+\begin{definition}[Endpoint table]
+The four consecutive endpoint sizes are indexed by $i,j\in\{0,1,2,3\}$. For a
+block support $P$, its endpoint table $L(P)=(L_{ij})$ records the number of
+support edges joining endpoint types $i$ and $j$. It is a $4\times4$
+nonnegative integer table with row and column margins bounded by the
+corresponding profile multiplicities. The phrase \emph{realized endpoint
+table} means a table attained by at least one finite block support; it does not
+mean an arbitrary element of $\mathbb N^{4\times4}$.
+\end{definition}
+
+\begin{definition}[Bare skeleton and residual attachment]
+The \emph{bare high-skeleton weight} contains the incidence probability of the
+exposed high cells and their local signed rewards. It contains neither the
+local rewards of unexposed cells nor the residual binary cycle-space factor.
+After a high skeleton has been fixed, the conditional expectation of those
+remaining factors is its \emph{residual attachment}. This division of labor is
+maintained throughout Sections~8 and~9; a factor paid in one part is never paid
+again in the other.
+\end{definition}
+
+\begin{remark}[Exact, deterministic, asymptotic, and probabilistic layers]
+Every load-bearing argument below is split into four layers. Finite identities
+are stated before any inequality. Deterministic inequalities are then applied
+to those exact quantities. Phase asymptotics are invoked only after the finite
+summation has been completed. Probability conclusions are deduced last. This
+separation is essential for auditing both the manuscript and the Lean proof.
+\end{remark}
