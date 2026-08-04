@@ -150,17 +150,15 @@ statement in the front matter are mandatory.
 The internal project contains hundreds of fine-grained modules, including both
 legacy and simplified proof routes.  For publication, the formalization should
 export a small curated root:
-\[
-\begin{array}{l}
-\path{Erdos625/Paper/Phase.lean},\\
-\path{Erdos625/Paper/FirstMoment.lean},\\
-\path{Erdos625/Paper/PartialDiagonals.lean},\\
-\path{Erdos625/Paper/HighSkeletons.lean},\\
-\path{Erdos625/Paper/Attachments.lean},\\
-\path{Erdos625/Paper/Amplification.lean},\\
-\path{Erdos625/Paper/Main.lean}.
-\end{array}
-\]
+\begin{itemize}
+\item \path{Erdos625/Paper/Phase.lean};
+\item \path{Erdos625/Paper/FirstMoment.lean};
+\item \path{Erdos625/Paper/PartialDiagonals.lean};
+\item \path{Erdos625/Paper/HighSkeletons.lean};
+\item \path{Erdos625/Paper/Attachments.lean};
+\item \path{Erdos625/Paper/Amplification.lean};
+\item \path{Erdos625/Paper/Main.lean}.
+\end{itemize}
 The paper-facing root should import only the declarations corresponding to
 named manuscript results.  The complete historical development may remain in
 a separate exhaustive root, and the superseded cycle/walk route should be
