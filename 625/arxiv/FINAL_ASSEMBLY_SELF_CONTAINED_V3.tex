@@ -1,0 +1,180 @@
+\section{Final assembly and the quantitative constant}
+\label{sec:final-assembly-v3}
+
+We assemble the ordinary coloring lower bound, the signed cocoloring upper
+bound, and the exact constant ledger. No independence between the two final
+events is required.
+
+Let $r_+(n)$ denote the ordinary first-moment root and let
+$r_4^{\mathrm{co}}(n)$ denote the signed four-size root. Section~5 proves
+\begin{equation}
+  r_+(n)-r_4^{\mathrm{co}}(n)
+  =
+  \left[
+    \frac{(\log2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3},
+  \qquad
+  A_4(\delta):=\log2-D_4(\delta).
+  \label{eq:phase-resolved-root-gap-v3}
+\end{equation}
+The tangent-rounded signed profile is placed at
+\[
+  k_{\mathrm{co}}
+  =
+  \left\lceil
+    \frac{r_4^{\mathrm{co}}(n)+r_+(n)}2
+  \right\rceil+O(1),
+\]
+where the bounded correction enforces the two exact profile conservation laws.
+Consequently
+\begin{equation}
+  r_+(n)-k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+  \label{eq:midpoint-retained-gap-v3}
+\end{equation}
+Indeed, taking the midpoint divides the leading root separation by two, while
+the ceiling and tangent correction contribute only $O(1)$ classes.
+
+Section~4 gives a deterministic integer $k_\chi^-$ such that
+\[
+  \mathbb P\bigl(\chi(G_n)>k_\chi^-\bigr)\longrightarrow1
+\]
+and
+\begin{equation}
+  k_\chi^- - k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+  \label{eq:integer-location-gap-v3}
+\end{equation}
+
+Proposition~\ref{prop:normalized-second-moment-v3} and Paley--Zygmund give a
+signed witness with probability at least $e^{-\Lambda_n}$, where
+\[
+  \Lambda_n=o\!\left(\frac{n}{(\log n)^4}\right).
+\]
+Section~10 applies the rare-seed amplifier and the simultaneous leftover
+coloring theorem. It produces a deterministic $a_n$ such that
+\[
+  a_n=o\!\left(\frac{n}{(\log n)^3}\right)
+\]
+and
+\[
+  \mathbb P\bigl(\zeta(G_n)\le k_{\mathrm{co}}+a_n\bigr)
+  \longrightarrow1.
+\]
+Intersecting the two high-probability events by a union bound and using
+\eqref{eq:integer-location-gap-v3} proves the phase-resolved conclusion
+\begin{equation}
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}A_4(\delta_n)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+  \label{eq:phase-resolved-final-v3}
+\end{equation}
+with high probability.
+
+\subsection{Exact four-support certificate}
+
+For completeness, we record the elementary uniform certificate used to turn
+\eqref{eq:phase-resolved-final-v3} into a fixed constant. Let $\lambda_4$ be
+the tilt of the limiting four-deficit optimizer. Exact rational estimates give
+\[
+  \frac{49}{20}\log2
+  <
+  \lambda_4
+  <
+  \frac{83}{20}\log2.
+\]
+Split the omitted limiting mass at $(29/10)\log2$. If $L(\lambda)$ and
+$H(\lambda)$ denote the omitted low- and high-deficit ratios, respectively,
+the following four bounds hold:
+\[
+  L\!\left(\frac{49}{20}\log2\right)<\frac{263}{1000},
+  \qquad
+  H\!\left(\frac{29}{10}\log2\right)<\frac3{200},
+\]
+\[
+  L\!\left(\frac{29}{10}\log2\right)<\frac{33}{250},
+  \qquad
+  H\!\left(\frac{83}{20}\log2\right)<\frac{29}{200}.
+\]
+Monotonicity of the two omitted tails therefore gives
+\[
+  L(\lambda_4)+H(\lambda_4)<\frac{139}{500}.
+\]
+Evaluating the unrestricted dual objective at the four-support optimizer yields
+\[
+  D_4(\delta)
+  \le
+  \log\bigl(1+L(\lambda_4)+H(\lambda_4)\bigr)
+  <
+  \log\!\left(\frac{639}{500}\right).
+\]
+Hence, uniformly for $0\le\delta\le1$,
+\begin{equation}
+  A_4(\delta)
+  =
+  \log2-D_4(\delta)
+  >
+  \log\!\left(\frac{1000}{639}\right).
+  \label{eq:exact-four-support-certificate-v3}
+\end{equation}
+
+Combining \eqref{eq:phase-resolved-final-v3} and
+\eqref{eq:exact-four-support-certificate-v3} gives
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}
+    \log\!\left(\frac{1000}{639}\right)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability. The fixed coefficient is
+\[
+  \frac{(\log2)^2}{8}
+  \log\!\left(\frac{1000}{639}\right)
+  =0.026896409808379\ldots.
+\]
+
+\ifErdosProofClosed
+This proves Theorem~\ref{thm:main-v3}. Since $n/(\log n)^3\to\infty$, the
+chromatic--cochromatic difference tends to infinity with high probability
+along the full sequence of integers.
+\else
+Equations \eqref{eq:phase-resolved-final-v3} and
+\eqref{eq:exact-four-support-certificate-v3} prove the target theorem
+conditional on the four formal gates stated in Appendix~A. The publication
+switch remains disabled until those gates are independently validated.
+\fi
+
+\begin{corollary}[Simultaneous complement form]
+Under the hypotheses of Theorem~\ref{thm:main-v3},
+\[
+  \min\{\chi(G_n),\chi(\overline{G_n})\}-\zeta(G_n)
+  \ge
+  \left[
+    \frac{(\log2)^2}{8}
+    \log\!\left(\frac{1000}{639}\right)-o(1)
+  \right]
+  \frac{n}{(\log n)^3}
+\]
+with high probability.
+\end{corollary}
+
+\begin{proof}
+The law of $\overline{G_n}$ is again $G(n,1/2)$, and
+$\zeta(\overline G)=\zeta(G)$. Apply the theorem simultaneously to $G_n$ and
+its complement and intersect the two events by a union bound.
+\end{proof}
