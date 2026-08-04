@@ -4,7 +4,7 @@
 \label{app:formalization-status-v3}
 
 This appendix records the relation between the manuscript and the private Lean
-4.31 project. It is part of the verification draft because the size of the
+4.31 project.  It is part of the verification draft because the size of the
 formal code base must not be confused with completion of the top-level theorem.
 A declaration is treated as proof evidence only after exact-signature review,
 warning-fatal replay under the pinned toolchain, a forbidden-shortcut scan, an
@@ -28,40 +28,45 @@ all welded.
 
 \subsection{Section 8 finite chain}
 
-The following finite Section~8 declarations are welded privately:
+The following finite Section~8 declarations are welded privately.  The
+\verb|\path| form is used deliberately so that long theorem names can break at
+underscores without leaving the page.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\linewidth}
-                  >{\raggedright\arraybackslash}p{0.52\linewidth}
-                  >{\raggedright\arraybackslash}p{0.18\linewidth}}
+\begingroup
+\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.19\linewidth}
+                  >{\raggedright\arraybackslash}p{0.58\linewidth}
+                  >{\raggedright\arraybackslash}p{0.12\linewidth}}
 \toprule
 Manuscript role & Lean declaration or DAG node & Status\\
 \midrule
 \endhead
 High-support encoding &
-\texttt{encodeRawNearMiddle\_injective} & Welded\\
+\path{encodeRawNearMiddle_injective} & Welded\\
 Physical fiber and partial weight &
-\texttt{profileHighSkeletonWeight\_eq\_fourEndpointPartialAggregateWeight} & Welded\\
+\path{profileHighSkeletonWeight_eq_fourEndpointPartialAggregateWeight} & Welded\\
 One global deficit charge &
-\texttt{profileHighSkeletonWeight\_le\_fourEndpointFullReference\_mul\_deficitCharge} & Welded\\
+\path{profileHighSkeletonWeight_le_fourEndpointFullReference_mul_deficitCharge} & Welded\\
 Fixed-support deficit product &
-\texttt{sum\_fourEndpointAllHighChoiceWeight\_le\_threeQuarterProduct} & Welded\\
+\path{sum_fourEndpointAllHighChoiceWeight_le_threeQuarterProduct} & Welded\\
 Encoded full-support comparison &
-\texttt{profileHighSkeletonWeight\_le\_fourEndpointEncodedFullSupportCharge} & Welded\\
+\path{profileHighSkeletonWeight_le_fourEndpointEncodedFullSupportCharge} & Welded\\
 Weighted realized-table regrouping &
-\texttt{sum\_fourEndpointFullSupportReferenceWeight\_mul\_tableWeight\_eq\_sum\_realized\_W\_mul\_tableWeight} & Welded\\
+\path{sum_fourEndpointFullSupportReferenceWeight_mul_tableWeight_eq_sum_realized_W_mul_tableWeight} & Welded\\
 Realized-table deficit sum &
-\texttt{sum\_profileHighSkeletonWeight\_le\_realizedTableThreeQuarterProduct} & Welded\\
+\path{sum_profileHighSkeletonWeight_le_realizedTableThreeQuarterProduct} & Welded\\
 Coarse phase corridor &
-\texttt{eventually\_five\_fourths\_log\_sub\_le\_q\_mul\_endpointBudget} & Welded\\
+\path{eventually_five_fourths_log_sub_le_q_mul_endpointBudget} & Welded\\
 Canonical common-charge smallness &
-\texttt{eventually\_fourEndpointThreeQuarterRho\_le\_one} & Running\\
+\path{eventually_fourEndpointThreeQuarterRho_le_one} & Running\\
 \bottomrule
 \end{longtable}
+\endgroup
 
 The welded finite chain verifies the completion-free physical-fiber
 factorization, the exact local-to-full comparison, the single global
 falling-factorial loss, the deficit product, and both unweighted and weighted
-regrouping over realized endpoint tables. The current running theorem is the
+regrouping over realized endpoint tables.  The current running theorem is the
 remaining real-to-\texttt{ENNReal} phase estimate for the explicit sum of the
 sixteen endpoint bases.
 
@@ -71,7 +76,7 @@ The main text uses the coarse common-charge route
   \quad\Longrightarrow\quad
   \left(1+(\alpha+1)\rho_{16}\right)^K.
 \]
-This route is aligned with the private finite reduction. The stronger
+This route is aligned with the private finite reduction.  The stronger
 pointwise hypothesis $\rho_{ij}\le1/2$ yields the table-preserving product
 $\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ and remains a reusable corollary, but it is
 not required for the shortest proof closure.
@@ -105,7 +110,7 @@ nodes. & Conditional adapter welded\\
 \bottomrule
 \end{longtable}
 
-The partial-diagonal node is the largest remaining analytic formalization. It
+The partial-diagonal node is the largest remaining analytic formalization.  It
 should be divided into four exact declarations rather than submitted as one
 broad request:
 \[
@@ -143,25 +148,25 @@ statement in the front matter are mandatory.
 \subsection{Recommended theorem-facing Lean organization}
 
 The internal project contains hundreds of fine-grained modules, including both
-legacy and simplified proof routes. For publication, the formalization should
+legacy and simplified proof routes.  For publication, the formalization should
 export a small curated root:
 \[
 \begin{array}{l}
-\texttt{Erdos625/Paper/Phase.lean},\\
-\texttt{Erdos625/Paper/FirstMoment.lean},\\
-\texttt{Erdos625/Paper/PartialDiagonals.lean},\\
-\texttt{Erdos625/Paper/HighSkeletons.lean},\\
-\texttt{Erdos625/Paper/Attachments.lean},\\
-\texttt{Erdos625/Paper/Amplification.lean},\\
-\texttt{Erdos625/Paper/Main.lean}.
+\path{Erdos625/Paper/Phase.lean},\\
+\path{Erdos625/Paper/FirstMoment.lean},\\
+\path{Erdos625/Paper/PartialDiagonals.lean},\\
+\path{Erdos625/Paper/HighSkeletons.lean},\\
+\path{Erdos625/Paper/Attachments.lean},\\
+\path{Erdos625/Paper/Amplification.lean},\\
+\path{Erdos625/Paper/Main.lean}.
 \end{array}
 \]
 The paper-facing root should import only the declarations corresponding to
-named manuscript results. The complete historical development may remain in a
-separate exhaustive root, and the superseded cycle/walk route should be marked
-as legacy rather than appearing in the main theorem dependency chain.
+named manuscript results.  The complete historical development may remain in
+a separate exhaustive root, and the superseded cycle/walk route should be
+marked as legacy rather than appearing in the main theorem dependency chain.
 
 A machine-readable manifest should map every named paper result to its exact
-Lean declaration, source file, commit, status, and axiom audit. The
+Lean declaration, source file, commit, status, and axiom audit.  The
 formalization appendix and reproducibility table can then be generated from
 that manifest, eliminating manual status drift.
