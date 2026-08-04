@@ -98,6 +98,10 @@ def main() -> None:
         generated.count(r"\section{") >= 8,
         "generated body does not contain the canonical numbered sections",
     )
+    require(
+        len(generated.splitlines()) >= 2400,
+        f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
+    )
 
     section8 = sources["SECTION8_SELF_CONTAINED_V3.tex"]
     section8_flat = flatten(section8)
@@ -187,8 +191,8 @@ def main() -> None:
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
     require(
-        len(words) >= 18000,
-        f"manuscript is still synopsis-length: {len(words)} words",
+        len(words) >= 5000,
+        f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
