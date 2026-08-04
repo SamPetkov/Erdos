@@ -1,0 +1,167 @@
+\appendix
+
+\section{Formalization map and publication gates}
+\label{app:formalization-status-v3}
+
+This appendix records the relation between the manuscript and the private Lean
+4.31 project. It is part of the verification draft because the size of the
+formal code base must not be confused with completion of the top-level theorem.
+A declaration is treated as proof evidence only after exact-signature review,
+warning-fatal replay under the pinned toolchain, a forbidden-shortcut scan, an
+axiom audit, and independent mathematical review.
+
+\subsection{Status vocabulary}
+
+\begin{description}
+\item[Welded.] The exact declaration has passed focused and root replay, its
+axioms have been audited, and it belongs to the canonical private import
+closure.
+\item[Running.] An exact one-hole theorem request has been approved and
+submitted, but no returned candidate is proof evidence until the complete
+independent replay protocol has passed.
+\item[Needs review.] The mathematical task is known, but its exact theorem
+signature, constants, quantifiers, and dependency ledger have not all been
+frozen.
+\item[Blocked.] A downstream theorem whose declared dependencies are not yet
+all welded.
+\end{description}
+
+\subsection{Section 8 finite chain}
+
+The following finite Section~8 declarations are welded privately:
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\linewidth}
+                  >{\raggedright\arraybackslash}p{0.52\linewidth}
+                  >{\raggedright\arraybackslash}p{0.18\linewidth}}
+\toprule
+Manuscript role & Lean declaration or DAG node & Status\\
+\midrule
+\endhead
+High-support encoding &
+\texttt{encodeRawNearMiddle\_injective} & Welded\\
+Physical fiber and partial weight &
+\texttt{profileHighSkeletonWeight\_eq\_fourEndpointPartialAggregateWeight} & Welded\\
+One global deficit charge &
+\texttt{profileHighSkeletonWeight\_le\_fourEndpointFullReference\_mul\_deficitCharge} & Welded\\
+Fixed-support deficit product &
+\texttt{sum\_fourEndpointAllHighChoiceWeight\_le\_threeQuarterProduct} & Welded\\
+Encoded full-support comparison &
+\texttt{profileHighSkeletonWeight\_le\_fourEndpointEncodedFullSupportCharge} & Welded\\
+Weighted realized-table regrouping &
+\texttt{sum\_fourEndpointFullSupportReferenceWeight\_mul\_tableWeight\_eq\_sum\_realized\_W\_mul\_tableWeight} & Welded\\
+Realized-table deficit sum &
+\texttt{sum\_profileHighSkeletonWeight\_le\_realizedTableThreeQuarterProduct} & Welded\\
+Coarse phase corridor &
+\texttt{eventually\_five\_fourths\_log\_sub\_le\_q\_mul\_endpointBudget} & Welded\\
+Canonical common-charge smallness &
+\texttt{eventually\_fourEndpointThreeQuarterRho\_le\_one} & Running\\
+\bottomrule
+\end{longtable}
+
+The welded finite chain verifies the completion-free physical-fiber
+factorization, the exact local-to-full comparison, the single global
+falling-factorial loss, the deficit product, and both unweighted and weighted
+regrouping over realized endpoint tables. The current running theorem is the
+remaining real-to-\texttt{ENNReal} phase estimate for the explicit sum of the
+sixteen endpoint bases.
+
+The main text uses the coarse common-charge route
+\[
+  \rho_{16}\le1
+  \quad\Longrightarrow\quad
+  \left(1+(\alpha+1)\rho_{16}\right)^K.
+\]
+This route is aligned with the private finite reduction. The stronger
+pointwise hypothesis $\rho_{ij}\le1/2$ yields the table-preserving product
+$\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ and remains a reusable corollary, but it is
+not required for the shortest proof closure.
+
+\subsection{Other remaining theorem nodes}
+
+The top-level proof also depends on the following nodes.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.22\linewidth}
+                  >{\raggedright\arraybackslash}p{0.49\linewidth}
+                  >{\raggedright\arraybackslash}p{0.18\linewidth}}
+\toprule
+Paper section & Exact remaining obligation & Status\\
+\midrule
+\endhead
+Sections 2--4 & Freeze the concrete phase center, slope, and root package, then
+export the chromatic lower-tail theorem with the required full-sequence
+quantifiers. & Needs review\\
+Section 5 & Assemble the welded four-support entropy certificate, the root
+separation, tangent rounding, and the positive signed first moment into one
+exact theorem consumed by the final adapter. & Needs review\\
+Section 7 & Split and prove the empty-corner, central-rate, and full-corner
+asymptotic sums uniformly in the phase; only the exact full-corner reindexing is
+currently welded. & Needs review\\
+Sections 8--9 & Combine phase smallness, endpoint transport, the skeleton
+quotient estimate, and the welded residual attachment theorem into the global
+normalized-second-moment hypothesis. & Blocked on the preceding nodes\\
+Sections 10--11 & The conditional rare-seed amplifier and final event adapter
+are welded, but their concrete hypotheses must be instantiated by the preceding
+nodes. & Conditional adapter welded\\
+\bottomrule
+\end{longtable}
+
+The partial-diagonal node is the largest remaining analytic formalization. It
+should be divided into four exact declarations rather than submitted as one
+broad request:
+\[
+  \text{empty corner},\quad
+  \text{central rate},\quad
+  \text{full-corner wrapper},\quad
+  \text{partial-diagonal assembly}.
+\]
+The same discipline should be used for the phase and first-moment nodes.
+
+\subsection{Publication gate}
+
+The compile-time switch \verb|\ErdosProofClosedtrue| may be enabled only after
+all of the following hold on one integrated commit:
+
+\begin{enumerate}
+\item the canonical common-charge smallness theorem is welded;
+\item the skeleton quotient and global attachment sum are welded;
+\item the complete partial-diagonal asymptotic theorem is welded;
+\item the concrete phase/chromatic-tail package is welded;
+\item the signed four-size first-moment assembly is welded;
+\item the conditional final adapter is replayed against those exact outputs;
+\item the public theorem-facing Lean root is regenerated and warning-fatal;
+\item the manuscript constants, quantifiers, bibliography, and theorem names
+are synchronized with that root;
+\item the full TeX source compiles without unresolved references, citations,
+or status placeholders;
+\item an independent mathematical review confirms that no private or public
+staging lemma is being counted twice.
+\end{enumerate}
+
+Until these gates close, the verification banner and conditional theorem
+statement in the front matter are mandatory.
+
+\subsection{Recommended theorem-facing Lean organization}
+
+The internal project contains hundreds of fine-grained modules, including both
+legacy and simplified proof routes. For publication, the formalization should
+export a small curated root:
+\[
+\begin{array}{l}
+\texttt{Erdos625/Paper/Phase.lean},\\
+\texttt{Erdos625/Paper/FirstMoment.lean},\\
+\texttt{Erdos625/Paper/PartialDiagonals.lean},\\
+\texttt{Erdos625/Paper/HighSkeletons.lean},\\
+\texttt{Erdos625/Paper/Attachments.lean},\\
+\texttt{Erdos625/Paper/Amplification.lean},\\
+\texttt{Erdos625/Paper/Main.lean}.
+\end{array}
+\]
+The paper-facing root should import only the declarations corresponding to
+named manuscript results. The complete historical development may remain in a
+separate exhaustive root, and the superseded cycle/walk route should be marked
+as legacy rather than appearing in the main theorem dependency chain.
+
+A machine-readable manifest should map every named paper result to its exact
+Lean declaration, source file, commit, status, and axiom audit. The
+formalization appendix and reproducibility table can then be generated from
+that manifest, eliminating manual status drift.
