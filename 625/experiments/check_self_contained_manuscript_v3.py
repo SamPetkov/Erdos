@@ -31,6 +31,11 @@ def require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def flatten(text: str) -> str:
+    """Normalize TeX source whitespace without changing control sequences."""
+    return re.sub(r"\s+", " ", text)
+
+
 def strip_tex(text: str) -> str:
     text = re.sub(r"%.*", " ", text)
     text = re.sub(r"\\[A-Za-z@]+\*?(?:\[[^]]*\])?", " ", text)
@@ -42,7 +47,10 @@ def strip_tex(text: str) -> str:
 def check_balanced_environments(text: str, name: str) -> None:
     begins = Counter(re.findall(r"\\begin\{([^}]+)\}", text))
     ends = Counter(re.findall(r"\\end\{([^}]+)\}", text))
-    require(begins == ends, f"{name}: unbalanced environments: {begins - ends}, {ends - begins}")
+    require(
+        begins == ends,
+        f"{name}: unbalanced environments: {begins - ends}, {ends - begins}",
+    )
 
 
 def main() -> None:
@@ -59,8 +67,11 @@ def main() -> None:
 
     require(r"\ErdosProofClosedfalse" in master, "publication switch is not fail-closed")
     require(r"\ErdosProofClosedtrue" not in master, "publication mode was enabled")
-    require("Verification draft" in sources["FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"],
-            "visible verification status is missing")
+    require(
+        "Verification draft"
+        in sources["FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"],
+        "visible verification status is missing",
+    )
 
     required_master_inputs = (
         "AMS_THEOREM_ENVIRONMENTS_V3",
@@ -83,10 +94,13 @@ def main() -> None:
     )
     missing_body = [token for token in required_body_markers if token not in generated]
     require(not missing_body, f"generated body missing markers: {missing_body}")
-    require(generated.count(r"\section{") >= 8,
-            "generated body does not contain the canonical numbered sections")
+    require(
+        generated.count(r"\section{") >= 8,
+        "generated body does not contain the canonical numbered sections",
+    )
 
     section8 = sources["SECTION8_SELF_CONTAINED_V3.tex"]
+    section8_flat = flatten(section8)
     for token in (
         "Completion-free aggregate weight",
         "Exact one-cell deficit ratio",
@@ -98,9 +112,10 @@ def main() -> None:
         r"\rho_{16}",
         "canonical finite Lean reduction",
     ):
-        require(token in section8, f"Section 8 missing: {token}")
+        require(token in section8_flat, f"Section 8 missing: {token}")
 
     section9 = sources["SECTION9_SELF_CONTAINED_V3.tex"]
+    section9_flat = flatten(section9)
     for token in (
         r"\theta_{ab}",
         r"\lambda_{ab}",
@@ -111,18 +126,20 @@ def main() -> None:
         "The complementary residual regime",
         "Normalized signed second moment",
     ):
-        require(token in section9, f"Section 9 missing: {token}")
+        require(token in section9_flat, f"Section 9 missing: {token}")
 
     final = sources["FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"]
+    final_flat = flatten(final)
     for token in (
         r"\frac{(\log2)^2}{8}A_4(\delta_n)",
         r"\log\!\left(\frac{1000}{639}\right)",
         "Exact four-support certificate",
         "Simultaneous complement form",
     ):
-        require(token in final, f"final assembly missing: {token}")
+        require(token in final_flat, f"final assembly missing: {token}")
 
     appendix = sources["FORMALIZATION_STATUS_APPENDIX_V3.tex"]
+    appendix_flat = flatten(appendix)
     for token in (
         "Welded",
         "Running",
@@ -131,7 +148,7 @@ def main() -> None:
         "Publication gate",
         "Recommended theorem-facing Lean organization",
     ):
-        require(token in appendix, f"formalization appendix missing: {token}")
+        require(token in appendix_flat, f"formalization appendix missing: {token}")
 
     forbidden = (
         "TODO",
@@ -157,7 +174,10 @@ def main() -> None:
         require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
-    require(len(words) >= 18000, f"manuscript is still synopsis-length: {len(words)} words")
+    require(
+        len(words) >= 18000,
+        f"manuscript is still synopsis-length: {len(words)} words",
+    )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
