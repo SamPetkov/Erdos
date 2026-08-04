@@ -56,7 +56,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             latexmk texlive-latex-extra texlive-bibtex-extra \
-            texlive-fonts-recommended texlive-fonts-extra poppler-utils
+            texlive-fonts-recommended texlive-fonts-extra \
+            texlive-plain-generic poppler-utils
       - name: Generate the complete manuscript body
         run: python 625/scripts/build_self_contained_ams_v3.py
       - name: Build the complete AMS manuscript
