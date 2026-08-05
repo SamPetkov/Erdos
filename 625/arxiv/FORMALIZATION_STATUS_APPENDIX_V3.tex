@@ -81,6 +81,45 @@ pointwise hypothesis $\rho_{ij}\le1/2$ yields the table-preserving product
 $\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ and remains a reusable corollary, but it is
 not required for the shortest proof closure.
 
+\subsection{Section 7 partial-diagonal finite core}
+
+Several finite ingredients of the partial-diagonal argument are already
+welded.  Their presence narrows the unresolved task, but it does not supply the
+uniform asymptotic bridges needed by the manuscript.
+
+\begingroup
+\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}
+                  >{\raggedright\arraybackslash}p{0.55\linewidth}
+                  >{\raggedright\arraybackslash}p{0.11\linewidth}}
+\toprule
+Manuscript role & Lean declaration & Status\\
+\midrule
+\endhead
+Empty-corner cutoff activity &
+\path{sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity} & Welded\\
+Scalar central-rate inequality &
+\path{partialDiagonalRate_uniform_negative} & Welded\\
+Four-deficit structural bridge &
+\path{partialDiagonalRate_uniform_negative_fourDeficit} & Welded\\
+Full-corner complementary reindexing &
+\path{sum_partialDiagonalWeight_fullCorner_eq} & Welded\\
+Uniform empty-corner asymptotic & Exact midpoint activity estimate & Needs review\\
+Uniform central Stirling extraction & Exact finite-to-rate theorem & Needs review\\
+Uniform full-corner ratio estimate & Exact reindexed asymptotic theorem & Needs review\\
+Three-range normalized assembly & Exact partial-diagonal sum theorem & Blocked\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+The scalar rate obstruction is therefore closed: the manuscript and Lean both
+prove the $-(1-R)/5000$ margin from the actual four-deficit structural
+inequalities.  What remains is to transport the exact factorial weights to that
+rate uniformly in the complete phase, prove the empty- and full-corner
+asymptotics for the midpoint profile, and assemble a disjoint and exhaustive
+three-range partition.  The exact rational checker records only the constant
+ledger for the scalar proof; it is not evidence for these asymptotic steps.
+
 \subsection{Other remaining theorem nodes}
 
 The top-level proof also depends on the following nodes.
@@ -98,9 +137,10 @@ quantifiers. & Needs review\\
 Section 5 & Assemble the welded four-support entropy certificate, the root
 separation, tangent rounding, and the positive signed first moment into one
 exact theorem consumed by the final adapter. & Needs review\\
-Section 7 & Split and prove the empty-corner, central-rate, and full-corner
-asymptotic sums uniformly in the phase; only the exact full-corner reindexing is
-currently welded. & Needs review\\
+Section 7 & Prove the uniform empty-corner activity asymptotic, central Stirling
+extraction, full-corner ratio estimate, and their normalized three-range
+assembly.  The finite recurrence, scalar geometry, structural bridge, and
+full-corner reindexing are welded. & Needs review\\
 Sections 8--9 & Combine phase smallness, endpoint transport, the skeleton
 quotient estimate, and the welded residual attachment theorem into the global
 normalized-second-moment hypothesis. & Blocked on the preceding nodes\\
@@ -110,13 +150,12 @@ nodes. & Conditional adapter welded\\
 \bottomrule
 \end{longtable}
 
-The partial-diagonal node is the largest remaining analytic formalization.  It
-should be divided into four exact declarations rather than submitted as one
-broad request:
+The remaining partial-diagonal work should be divided into four exact
+asymptotic declarations rather than submitted as one broad request:
 \[
-  \text{empty corner},\quad
-  \text{central rate},\quad
-  \text{full-corner wrapper},\quad
+  \text{empty-corner bridge},\quad
+  \text{central Stirling bridge},\quad
+  \text{full-corner bridge},\quad
   \text{partial-diagonal assembly}.
 \]
 The same discipline should be used for the phase and first-moment nodes.
