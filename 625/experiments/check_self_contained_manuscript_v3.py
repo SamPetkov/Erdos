@@ -108,8 +108,10 @@ def main() -> None:
         r"\input{SECTION9_SELF_CONTAINED_V3}",
         r"\section{Rare-event amplification}",
         r"\input{FINAL_ASSEMBLY_SELF_CONTAINED_V3}",
-        r"\label{eq:partial-diagonal-log-certificate-v3}",
-        r"check\_partial\_diagonal\_rate\_v3.py",
+        r"\label{eq:partial-diagonal-combined-structural-v3}",
+        r"\frac{13}{8960}",
+        r"\frac1{20}",
+        "check_partial_diagonal_rate_v3.py",
         "Canonical source Git blob: c4d090b73cd5efcdb98cc30f79bb5f53c6c9bc97",
     )
     missing_body = [token for token in required_body_markers if token not in generated]
@@ -221,7 +223,7 @@ def main() -> None:
     print(f"  generated body lines: {len(generated.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
-    print("  exact certificate scripts: constant ledger and partial-diagonal endpoints")
+    print("  exact certificate scripts: constant ledger and partial-diagonal scalar ledger")
     print("  publication switch: disabled")
 
 
