@@ -1,33 +1,26 @@
 \section{Canonical high cells and endpoint transport}
 \label{sec:canonical-high-cells-v3}
 
-This section bounds the contribution of all canonical high cells before any
-residual local reward or cycle-space factor is charged.  The proof has five
-logically separate stages:
+This section estimates the contribution of the large overlap cells. The finite
+combinatorics and the phase asymptotics are kept separate. We first sum the
+entire physical matching fiber for a fixed high-cell demand. We then compare
+realized multiplicities with full containment, sum all positive deficits, and
+regroup the full-containment references by endpoint table. Only in the final
+subsection do we insert the four-size phase estimates. No residual local reward
+or cycle-space factor is charged here; those factors belong to Section~9.
 
-\begin{enumerate}
-\item sum the complete physical matching fiber for a fixed high-cell demand;
-\item compare each actual multiplicity with its full-containment value;
-\item pay the ambient falling-factorial loss once, after the fiber sum;
-\item sum all admissible positive deficits by a finite product;
-\item regroup the full references by endpoint table and transport them to the
-partial-diagonal weights of Section~7.
-\end{enumerate}
+\subsection{The complete physical fiber}
 
-No individual partial matching is assigned a preferred full completion.
-
-\subsection{Canonical support and exact aggregate weight}
-
-Let $U$ be the largest size in the fixed four-size profile and put
+Let $U$ be the largest class size in the fixed four-size profile and put
 \[
   R_0:=\left\lfloor\frac U2\right\rfloor.
 \]
-A cell of an overlap table is \emph{high} if its multiplicity is greater than
-$R_0$.  Two high cells cannot share a row or a column, since either occurrence
-would use more than $U$ stubs in that row or column.  Hence the set of all high
-cells is a canonical bipartite matching, denoted by $P$.
+A cell is \emph{high} if its multiplicity exceeds $R_0$. Two high cells cannot
+share a row or a column: otherwise that row or column would contain more than
+$U$ stubs. Hence all high cells form a canonical bipartite matching, denoted by
+$P$.
 
-For $e\in P$, let $s_e$ and $t_e$ be the endpoint block sizes and define
+For $e\in P$, let $s_e$ and $t_e$ be its endpoint block sizes and set
 \[
   m_e:=\min\{s_e,t_e\},
   \qquad
@@ -35,23 +28,22 @@ For $e\in P$, let $s_e$ and $t_e$ be the endpoint block sizes and define
   \qquad
   j_e:=m_e-h_e.
 \]
-The actual multiplicity is $j_e$ and the deficit is $h_e$.  Since
-$j_e>U/2$ and $m_e\le U$,
+Thus $m_e$ is the full-containment multiplicity, $j_e$ is the realized
+multiplicity, and $h_e$ is the deficit. Since $j_e>U/2$ and $m_e\le U$,
 \begin{equation}
   2h_e<m_e.
   \label{eq:half-deficit-v3}
 \end{equation}
 Put $J:=\sum_{e\in P}j_e$.
 
-A size-$j$ physical partial matching between labeled blocks of sizes $s$ and
-$t$ has cardinality
+A size-$j$ partial matching between labeled blocks of sizes $s$ and $t$ can be
+chosen in
 \[
   \binom sj\binom tj j!
   =
-  \frac{(s)_j(t)_j}{j!}.
+  \frac{(s)_j(t)_j}{j!}
 \]
-Indeed, one chooses the row stubs, the column stubs, and then a bijection
-between the two selected sets.
+ways: choose its two endpoint sets and then the bijection between them.
 
 \begin{proposition}[Completion-free aggregate weight]
 \label{prop:aggregate-high-weight-v3}
@@ -73,22 +65,21 @@ matchings realizing these data is
 
 \begin{proof}
 Because $P$ is a matching, distinct selected cells use disjoint row and column
-stub families.  The complete physical fiber is therefore the Cartesian product
-of the one-cell partial-matching fibers, so its cardinality is the product of
-the one-cell cardinalities displayed above.  A prescribed set of $J$ stub
-pairs has probability $(n)_J^{-1}$ in the uniform bipartite configuration
-matching, and the exposed cells contribute the local signed reward
-$\prod_{e\in P}g(j_e)$.  Multiplication gives
-\eqref{eq:aggregate-high-weight-v3}.
+stub sets. The complete physical fiber is therefore the Cartesian product of
+the one-cell fibers, and its cardinality is the product of the counts above.
+A prescribed set of $J$ stub pairs occurs with probability $(n)_J^{-1}$ in the
+uniform bipartite configuration matching. Multiplying this probability by the
+fiber cardinality and by the exposed reward
+$\prod_{e\in P}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
 \end{proof}
 
 \begin{remark}
-The matching hypothesis is essential.  If two positive cells share a row or a
-column, their choices compete for the same stubs and the product of the
-one-cell cardinalities is false.
+The matching hypothesis is load-bearing. If two selected cells shared a row or
+a column, their endpoint choices would compete for the same stubs and the
+one-cell fiber counts would not multiply.
 \end{remark}
 
-\subsection{Exact local ratio and one global denominator loss}
+\subsection{Deficits and the single ambient loss}
 
 For endpoint sizes $m$ and $m+d$, define
 \begin{equation}
@@ -101,7 +92,7 @@ For endpoint sizes $m$ and $m+d$, define
   R_{m,d}(0):=1.
   \label{eq:local-deficit-ratio-v3}
 \end{equation}
-The empty product is one.
+The product in the denominator is empty when $h=0$.
 
 \begin{lemma}[Exact one-cell deficit ratio]
 \label{lem:exact-local-ratio-v3}
@@ -117,22 +108,25 @@ The ratio of the physical matching counts is
   =
   \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}.
 \]
-The signed local reward satisfies
+The local signed rewards satisfy
 \[
   \frac{g(m-h)}{g(m)}
   =
   2^{-hm+h(h+1)/2}.
 \]
-Multiplying these exact identities proves the lemma.
+Multiplying the two identities proves the claim.
 \end{proof}
 
-Let
+Write
 \[
+  w_{\mathrm{full}}(P):=w(P,(m_e)_{e\in P}),
+  \qquad
   J_*:=\sum_{e\in P}m_e,
   \qquad
   H:=J_*-J=\sum_{e\in P}h_e.
 \]
-The only nonlocal ratio between the actual and full-containment weights is
+After the one-cell ratios have been extracted, the only factor that still
+couples different cells is the ambient denominator:
 \begin{equation}
   \frac{(n)_{J_*}}{(n)_J}
   =(n-J)_H
@@ -153,26 +147,26 @@ For every admissible deficit vector $h=(h_e)_{e\in P}$,
 \end{lemma}
 
 \begin{proof}
-Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell.  Apply
-\eqref{eq:one-global-falling-factorial-v3} once to the ambient denominator,
-and then use $n^H=\prod_e n^{h_e}$.
+Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell, apply
+\eqref{eq:one-global-falling-factorial-v3} once, and use
+$n^H=\prod_{e\in P}n^{h_e}$.
 \end{proof}
 
-Thus the global finite-population loss is paid only after the physical fiber
-has been summed.
+The order of operations matters: the physical fiber is summed first, and the
+finite-population loss is charged only once afterward.
 
-\subsection{The finite all-deficit product}
+\subsection{Summing all positive deficits}
 
-For one selected cell, enlarge the exact positive-deficit set to
+For a selected cell $e$, enlarge the exact positive-deficit range to
 \[
   A_e:=\{h\in\mathbb N:h\ge1,\ 2h<m_e\}.
 \]
-All summands are nonnegative, so this enlargement preserves the upper-bound
-direction.
+All weights are nonnegative, so the enlargement preserves the direction of the
+upper bound.
 
 \begin{lemma}[Optional-choice product]
 \label{lem:optional-choice-product-v3}
-Let $u_e(h)\ge0$ for $e\in P$ and $h\in A_e$.  Then
+Let $u_e(h)\ge0$ for $e\in P$ and $h\in A_e$. Then
 \[
   \sum_{\omega}
     \prod_{e\in P}u_e(\omega_e)
@@ -180,25 +174,32 @@ Let $u_e(h)\ge0$ for $e\in P$ and $h\in A_e$.  Then
   \prod_{e\in P}
     \left(1+\sum_{h\in A_e}u_e(h)\right),
 \]
-where $\omega_e$ is either the zero-deficit choice, of weight one, or one
+where each $\omega_e$ is either the zero-deficit choice, of weight one, or one
 positive deficit $h\in A_e$.
 \end{lemma}
 
 \begin{proof}
-Expand the finite product.  Every monomial chooses independently in each cell
-either the constant term or one positive-deficit term, and every optional
-choice appears exactly once.
+Expand the finite product. Each monomial records exactly one independent choice
+in every selected cell, and every optional-choice vector occurs once.
 \end{proof}
 
-For $2h<m$, the integer inequality
+For $2h<m$, integrality gives $2h+1\le m$. Hence
+\[
+  \frac{h+1}{2}
+  \le
+  \frac{m+1}{4}
+  \le
+  m-\left\lfloor\frac{3m-1}{4}\right\rfloor.
+\]
+Multiplying by $h$ yields
 \begin{equation}
   h\left\lfloor\frac{3m-1}{4}\right\rfloor
   \le
-  hm-\frac{h(h+1)}2
+  hm-\frac{h(h+1)}2.
   \label{eq:three-quarter-budget-v3}
 \end{equation}
-combined with $\binom mh\le m^h$ and
-\eqref{eq:local-deficit-ratio-v3} gives
+Together with $\binom mh\le m^h$ and
+\eqref{eq:local-deficit-ratio-v3}, this gives
 \begin{equation}
   n^hR_{m,d}(h)
   \le
@@ -208,8 +209,8 @@ combined with $\binom mh\le m^h$ and
   \label{eq:three-quarter-charge-v3}
 \end{equation}
 
-Index the four endpoint sizes by $i,j\in\{0,1,2,3\}$, and let $m_{ij}$ be the
-smaller endpoint size for type $(i,j)$.  Put
+Index the four endpoint sizes by $i,j\in\{0,1,2,3\}$, let $m_{ij}$ be the
+smaller endpoint size of type $(i,j)$, and put
 \[
   \rho_{ij}
   :=
@@ -217,11 +218,12 @@ smaller endpoint size for type $(i,j)$.  Put
   \qquad
   \rho_{16}:=\sum_{i,j=0}^{3}\rho_{ij}.
 \]
-Every local base is at most $\rho_{16}$.
+Every local base in \eqref{eq:three-quarter-charge-v3} is at most
+$\rho_{16}$.
 
 \begin{lemma}[Coarse local deficit sum]
 \label{lem:coarse-local-deficit-sum-v3}
-Suppose $\rho_{16}\le1$.  Then, for every selected cell $e$,
+Suppose $\rho_{16}\le1$. Then, for every selected cell $e$,
 \[
   \sum_{h\in A_e}n^hR_{m_e,d_e}(h)
   \le
@@ -230,11 +232,11 @@ Suppose $\rho_{16}\le1$.  Then, for every selected cell $e$,
 \end{lemma}
 
 \begin{proof}
-By \eqref{eq:three-quarter-charge-v3}, each summand is at most
-$\rho_{ij}^h$, where $(i,j)$ is the endpoint type of $e$.  Since
-$\rho_{ij}\le\rho_{16}\le1$ and $h\ge1$, one has
-$\rho_{ij}^h\le\rho_{16}$.  The deficit parameter belongs to a set of at most
-$\alpha+1$ integers, so summing gives the stated bound.
+If $e$ has endpoint type $(i,j)$, then
+\eqref{eq:three-quarter-charge-v3} bounds its term of deficit $h$ by
+$\rho_{ij}^h$. Since $h\ge1$ and
+$\rho_{ij}\le\rho_{16}\le1$, this is at most $\rho_{16}$. Moreover,
+$|A_e|\le m_e\le\alpha+1$. Summation proves the bound.
 \end{proof}
 
 \begin{proposition}[Fixed-support all-deficit bound]
@@ -250,36 +252,41 @@ If $\rho_{16}\le1$, then
 \end{proposition}
 
 \begin{proof}
-Combine Lemma~\ref{lem:aggregate-deficit-comparison-v3}, the harmless
-enlargement to $A_e$, Lemma~\ref{lem:optional-choice-product-v3}, and
-Lemma~\ref{lem:coarse-local-deficit-sum-v3}.
+Use Lemma~\ref{lem:aggregate-deficit-comparison-v3}, enlarge the deficit range
+to $A_e$, and apply Lemmas~\ref{lem:optional-choice-product-v3} and
+\ref{lem:coarse-local-deficit-sum-v3}.
 \end{proof}
 
-The projection of a block matching onto its row endpoint is injective.  If
-$K=\sum_{i=0}^{3}k_i$ is the total number of row block slots, then
+Projection onto the row endpoint is injective on a block matching. Therefore,
+if $K=\sum_{i=0}^{3}k_i$ is the number of row-class slots, then
 \begin{equation}
   |P|\le K.
   \label{eq:support-cardinality-v3}
 \end{equation}
 
-\subsection{Exact reference grouping}
+\subsection{Regrouping by endpoint table}
 
-For a realized endpoint table $L$, let $W(L)$ be the total zero-deficit
-reference weight obtained by summing all full physical decorations of every
-block support with endpoint table $L$.  A realized table belongs to the finite
-image of the block-support space; it is not an arbitrary natural-valued
-$4\times4$ table.
+For a realized endpoint table $L$, define
+\[
+  W(L)
+  :=
+  \sum_{P:\,L(P)=L}w_{\mathrm{full}}(P).
+\]
+Equivalently, $W(L)$ is the sum of the full-containment atoms over all
+physically decorated supports with table $L$. A realized table belongs to the
+finite image of the support map; it is not an arbitrary element of
+$\mathbb N^{4\times4}$.
 
 \begin{proposition}[Reference grouping]
 \label{prop:reference-grouping-v3}
-The full-support references satisfy
+The full-containment references satisfy
 \begin{equation}
   \sum_P w_{\mathrm{full}}(P)
   =
   \sum_{L\ \mathrm{realized}}W(L).
   \label{eq:reference-grouping-v3}
 \end{equation}
-More generally, for every nonnegative endpoint-table function $F$,
+More generally, for every nonnegative function $F$ of the endpoint table,
 \begin{equation}
   \sum_P w_{\mathrm{full}}(P)F(L(P))
   =
@@ -289,14 +296,10 @@ More generally, for every nonnegative endpoint-table function $F$,
 \end{proposition}
 
 \begin{proof}
-Expand the full-support reference as a finite sum over its physical
-decorations.  The disjoint union of all decorated supports is canonically
-equivalent to the dependent sum over realized endpoint tables and their
-decorated-support fibers.  This equivalence preserves both the reference atom
-and the endpoint table.  Transport the finite sum through the equivalence.  The
-factor $F(L)$ is constant on each table fiber and may be pulled outside its
-inner sum; the remaining inner sum is, by definition, $W(L)$.  Taking
-$F\equiv1$ gives \eqref{eq:reference-grouping-v3}.
+Partition the finite set of supports, with their physical decorations, by the
+value of $L(P)$. On each fiber the factor $F(L(P))$ is constant. Summing first
+inside each fiber gives $W(L)$, and then summing over the realized tables gives
+the two identities.
 \end{proof}
 
 Combining Proposition~\ref{prop:fixed-support-all-deficit-v3},
@@ -310,9 +313,9 @@ Combining Proposition~\ref{prop:fixed-support-all-deficit-v3},
   \label{eq:coarse-realized-table-reduction-v3}
 \end{equation}
 
-\begin{remark}[Sharper table-preserving route]
+\begin{remark}[Sharper table-preserving form]
 If every $\rho_{ij}\le1/2$, then
-$\sum_{h\ge1}\rho_{ij}^h\le2\rho_{ij}$.  Applying
+$\sum_{h\ge1}\rho_{ij}^h\le2\rho_{ij}$. Applying
 \eqref{eq:weighted-reference-grouping-v3} with
 $F(L)=\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ gives
 \[
@@ -321,9 +324,18 @@ $F(L)=\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ gives
   \sum_{L\ \mathrm{realized}}
     W(L)\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}.
 \]
-The main proof uses \eqref{eq:coarse-realized-table-reduction-v3}: its single
-hypothesis $\rho_{16}\le1$ is sufficient and matches the canonical finite Lean
-reduction.
+The proof below uses the coarser form
+\eqref{eq:coarse-realized-table-reduction-v3}, which requires only the single
+condition $\rho_{16}\le1$ and cleanly separates the deficit sum from endpoint
+transport.
+\end{remark}
+
+\begin{remark}[Reusable finite core]
+The aggregate-fiber formula, the single ambient-denominator comparison, the
+optional-choice identity, and the endpoint-table regrouping are not specific
+to four endpoint sizes. They apply to any finite endpoint alphabet for which
+the selected cells form a matching. The four consecutive sizes enter only in
+the numerical deficit charge and the transport estimate below.
 \end{remark}
 
 \subsection{Endpoint transport}
@@ -334,7 +346,7 @@ Write the four endpoint sizes as
   \qquad 0\le i\le3,
   \qquad a=\alpha-2.
 \]
-For a full-containment table $L=(\ell_{ij})$, put
+For a full-containment table $L=(\ell_{ij})$, set
 \[
   r_i=\sum_j\ell_{ij},
   \qquad
@@ -365,19 +377,27 @@ For a one-sided margin vector $r$, define
   m_r=\sum_i u_ir_i.
   \label{eq:one-sided-diagonal-weight-v3}
 \end{equation}
-This is the partial-diagonal weight of Section~7.
+This is the partial-diagonal weight from Section~7.
 
-For endpoint types whose sizes differ by $d$, define
+For the endpoint pair $(i,j)$, put
+\[
+  s_{ij}:=\min\{u_i,u_j\},
+  \qquad
+  t_{ij}:=\max\{u_i,u_j\},
+  \qquad
+  d_{ij}:=t_{ij}-s_{ij},
+\]
+and define
 \[
   Q_{ij}:=
-  (n+1)^{d/2}
-  \frac{\sqrt{(t)_d}}{d!}
-  2^{-\{ds+\binom d2\}/2},
-  \qquad t=s+d,
+  (n+1)^{d_{ij}/2}
+  \frac{\sqrt{(t_{ij})_{d_{ij}}}}{d_{ij}!}
+  2^{-\{d_{ij}s_{ij}+\binom{d_{ij}}2\}/2}.
 \]
-and set $Q_{ii}=1$.  Uniformly over the four endpoint types,
+Thus $Q_{ii}=1$. Since $t_{ij}\le a$, $s_{ij}\ge a-3$, and
+$d_{ij}\le3$,
 \begin{equation}
-  Q_{ij}\le\frac{\eta_n^d}{d!},
+  Q_{ij}\le\frac{\eta_n^{d_{ij}}}{d_{ij}!},
   \qquad
   \eta_n=
   2^{3/2}\sqrt{\frac{(n+1)a}{2^a}}
@@ -393,14 +413,59 @@ Let
   \qquad
   Q^L=\prod_{i,j}Q_{ij}^{\ell_{ij}}.
 \]
-The exact falling-factorial transport and local endpoint identities give the
-square-free comparison
+
+\begin{lemma}[Square-free endpoint transport]
+For every feasible endpoint table $L$,
 \begin{equation}
   W(L)^2
   \le
   \bigl(D(r)A_LQ^L\bigr)\bigl(D(c)C_LQ^L\bigr).
   \label{eq:square-free-endpoint-transport-v3}
 \end{equation}
+\end{lemma}
+
+\begin{proof}
+The profile factors and the table factorials cancel exactly in the quotient of
+$W(L)^2$ by $(D(r)A_L)(D(c)C_L)$. It remains to compare the ambient falling
+factorials and the local full-containment atoms.
+
+Fix one endpoint pair and abbreviate $s=s_{ij}$, $t=t_{ij}=s+d$, and
+$x_{ij}=s$. Its local atom in \eqref{eq:endpoint-reference-weight-v3} is
+\[
+  \frac{(s)_s(t)_s}{s!}g(s)
+  =
+  \frac{t!}{d!}g(s).
+\]
+Consequently
+\[
+  \frac{
+    \left[\frac{(s)_s(t)_s}{s!}g(s)\right]^2
+  }{s!g(s)\,t!g(t)}
+  =
+  \frac{(t)_d}{(d!)^2}
+  2^{-ds-\binom d2}
+  =
+  \frac{Q_{ij}^2}{(n+1)^d}.
+\]
+Here we used
+$g(t)/g(s)=2^{ds+\binom d2}$; the identity is also valid for $d=0$.
+
+Moreover, $m_r,m_c\ge J(L)$ and
+\[
+  m_r+m_c-2J(L)
+  =
+  \sum_{i,j}d_{ij}\ell_{ij}.
+\]
+Therefore
+\[
+  \frac{(n)_{m_r}(n)_{m_c}}{(n)_{J(L)}^2}
+  \le
+  (n+1)^{m_r+m_c-2J(L)}.
+\]
+This ambient factor cancels the denominators $(n+1)^{d_{ij}\ell_{ij}}$ from
+the local ratios. Multiplying over all cells gives
+\eqref{eq:square-free-endpoint-transport-v3}.
+\end{proof}
 
 \begin{proposition}[Endpoint-table sum]
 \label{prop:endpoint-table-sum-v3}
@@ -414,8 +479,8 @@ Uniformly in the phase,
   \exp\!\left\{O(\sqrt{n\log n})\right\}.
   \label{eq:endpoint-table-sum-v3}
 \end{equation}
-The sum on the left may be taken over all feasible endpoint tables; enlarging
-from realized tables is harmless.
+The sum on the left may be enlarged from realized tables to all feasible
+endpoint tables.
 \end{proposition}
 
 \begin{proof}
@@ -426,9 +491,9 @@ By the arithmetic--geometric mean inequality and
   \le
   D(r)A_LQ^L+D(c)C_LQ^L.
 \]
-Sum the first term over all tables.  For fixed row margin $r$, discard the
-column-margin constraints.  Since all terms are nonnegative, this enlarges the
-sum.  The multinomial theorem gives
+Consider the first term. For a fixed row margin $r$, discard the column-margin
+constraints; nonnegativity makes this an upper bound. The multinomial theorem
+then gives
 \[
   \sum_{L:\,\operatorname{row}(L)=r}A_LQ^L
   \le
@@ -436,15 +501,14 @@ sum.  The multinomial theorem gives
   \le
   (1+C\eta_n)^K.
 \]
-Thus the first half is at most
-$(1+C\eta_n)^K\sum_rD(r)$.  The second half is identical after exchanging
-rows and columns.  Section~7 proves $\sum_rD(r)=1+o(1)$ uniformly in the
-phase.  Finally, $K=\Theta(n/\log n)$ and
-\eqref{eq:endpoint-eta-v3} give
+After multiplication by $D(r)$ and summation over $r$, the first half is at
+most $(1+C\eta_n)^K\sum_rD(r)$. The second half is identical after exchanging
+rows and columns. Section~7 proves $\sum_rD(r)=1+o(1)$ uniformly in the phase.
+Finally, $K=\Theta(n/\log n)$ and \eqref{eq:endpoint-eta-v3} imply
 $\eta_nK=O(\sqrt{n\log n})$.
 \end{proof}
 
-\subsection{Phase smallness of the common charge}
+\subsection{Insertion of the phase estimates}
 
 The phase satisfies
 \[
@@ -452,7 +516,7 @@ The phase satisfies
   =
   \left(\frac{2}{\log 2}+o(1)\right)\log n.
 \]
-For all sufficiently large $n$,
+In particular, for all sufficiently large $n$,
 \begin{equation}
   \frac52\log n\le\alpha.
   \label{eq:coarse-phase-corridor-v3}
@@ -464,7 +528,7 @@ arithmetic gives
   \le
   4\left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor.
 \]
-Using $\log 2>2/3$ and \eqref{eq:coarse-phase-corridor-v3},
+Using $\log 2>2/3$ and \eqref{eq:coarse-phase-corridor-v3}, we obtain
 \begin{equation}
   \frac54\log n-\frac{19}{6}
   \le
@@ -472,31 +536,20 @@ Using $\log 2>2/3$ and \eqref{eq:coarse-phase-corridor-v3},
   \left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor.
   \label{eq:coarse-log-budget-v3}
 \end{equation}
-Exponentiation yields
+Hence
 \[
   2^{\lfloor(3m_{ij}-1)/4\rfloor}
   \ge
   e^{-19/6}n^{5/4}.
 \]
-Since $m_{ij}=O(\log n)$,
+Since every $m_{ij}=O(\log n)$,
 \begin{equation}
   \rho_{16}
   =O\!\left(\frac{\log n}{n^{1/4}}\right)
   \longrightarrow0.
   \label{eq:rho-sixteen-small-v3}
 \end{equation}
-In particular, $\rho_{16}\le1$ for all sufficiently large $n$.
-
-Moreover,
-\[
-  \log\left(1+(\alpha+1)\rho_{16}\right)^K
-  \le
-  K(\alpha+1)\rho_{16}
-  =O(n^{3/4}\log n)
-  =o\!\left(\frac{n}{(\log n)^4}\right).
-\]
-Combining this estimate, \eqref{eq:coarse-realized-table-reduction-v3}, and
-Proposition~\ref{prop:endpoint-table-sum-v3} proves the required estimate.
+Thus $\rho_{16}\le1$ for all sufficiently large $n$.
 
 \begin{proposition}[Bare high-skeleton estimate]
 \label{prop:bare-high-skeleton-v3}
@@ -511,5 +564,20 @@ There is a deterministic sequence $\varepsilon_n\to0$ such that
 \end{equation}
 \end{proposition}
 
-No residual local factor or binary cycle-space factor has been charged in this
-section.  Those factors are treated in Section~9.
+\begin{proof}
+The deficit factor in \eqref{eq:coarse-realized-table-reduction-v3} satisfies
+\[
+  \log\left(1+(\alpha+1)\rho_{16}\right)^K
+  \le
+  K(\alpha+1)\rho_{16}
+  =O(n^{3/4}\log n).
+\]
+Proposition~\ref{prop:endpoint-table-sum-v3} contributes
+$O(\sqrt{n\log n})$ to the logarithm. Both quantities are
+$o(n/(\log n)^4)$. Combining these estimates with
+\eqref{eq:coarse-realized-table-reduction-v3} proves the proposition.
+\end{proof}
+
+No residual local reward or binary cycle-space factor has been included in
+\operatorname{BareSkeletonSum}_n. Section~9 treats exactly those remaining
+factors.
