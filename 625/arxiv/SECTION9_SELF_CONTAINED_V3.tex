@@ -1,25 +1,25 @@
 \section{Residual attachments by matching restriction}
 \label{sec:residual-attachments-v3}
 
-Section~8 bounded the sum of the bare high-skeleton weights. It deliberately
-did not charge the local rewards of unexposed cells or the binary cycle-space
-factor of the residual support. We now condition on one feasible canonical
-high skeleton and bound exactly these remaining factors.
+Section~8 bounded the sum of the bare high-skeleton weights. It did not include
+the rewards of unexposed cells or the binary cycle-space factor of the residual
+support. We now condition on one feasible high skeleton and estimate precisely
+those remaining factors.
 
-\subsection{Exact conditional decomposition}
+\subsection{Conditional decomposition}
 
 Fix a canonical high skeleton with exposed block matching $M$, exposed
 multiplicities $j$, and total exposed mass $J$. Put
 \[
   m_0:=n-J.
 \]
-Let $(d_a)_a$ and $(d'_b)_b$ be the residual row and column degrees. Both degree
+Let $(d_a)_a$ and $(d'_b)_b$ be the residual row and column degrees. Their two
 sums equal $m_0$, and every degree is at most the phase cap $U$.
 
 The unexposed pairs form a uniform bipartite configuration matching with these
 residual degrees. Let $r'_{ab}$ be its cell counts and let
-$H_{\mathrm{res}}$ be the simple support graph of cells with
-$r'_{ab}\ge2$. The residual event imposes the cap
+$H_{\mathrm{res}}$ be the simple support graph of cells with $r'_{ab}\ge2$.
+The residual event $\mathcal E(M,j)$ imposes the cap
 $r'_{ab}\le\lfloor U/2\rfloor$ and forbids any further pair in a cell of $M$.
 Define
 \begin{equation}
@@ -32,20 +32,20 @@ Define
   \right].
   \label{eq:residual-attachment-v3}
 \end{equation}
-The expectation is only over the residual configuration matching.
+Only the residual configuration matching is random in this expectation.
 
-The exact overlap decomposition gives
+The exact overlap decomposition is
 \begin{equation}
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   =
   \sum_{(M,j)}w_{\mathrm{hi}}(M,j)\,\mathcal A(M,j),
   \label{eq:exact-attachment-decomposition-v3}
 \end{equation}
-where the sum is over the finite family of feasible canonical high skeletons.
-Thus Proposition~\ref{prop:bare-high-skeleton-v3} reduces the second moment to
-a uniform estimate for $\mathcal A(M,j)$.
+where the sum ranges over the finite family of feasible canonical high
+skeletons. In view of Proposition~\ref{prop:bare-high-skeleton-v3}, it remains
+to bound $\mathcal A(M,j)$ uniformly in $(M,j)$.
 
-\subsection{Local threshold activities}
+\subsection{Threshold expansion and cell activities}
 
 For a residual cell $(a,b)$ outside $M$, put
 \begin{equation}
@@ -70,65 +70,110 @@ and define
   \frac{\theta_{ab}^2}{2}+\lambda_{ab}.
   \label{eq:lambda-q-v3}
 \end{equation}
-On the exposed matching $M$, set $\lambda_{ab}=q_{ab}=0$.
+On $M$, set $\lambda_{ab}=q_{ab}=0$.
 
-The local reward has the threshold expansion
+We first record the configuration estimate used in the expansion. For a finite
+array of nonnegative demands $x=(x_{ab})$, write
+$x_a=\sum_bx_{ab}$, $x'_b=\sum_ax_{ab}$, and $X=\sum_{a,b}x_{ab}$. Markov's
+inequality applied to the product of binomial cell counts gives
 \[
-  g(r)=1+\sum_{x=3}^{R}\Delta_x\mathbf 1_{\{r\ge x\}}
-  \qquad(0\le r\le R).
+  \mathbb P_{\mathrm{res}}(r'_{ab}\ge x_{ab}\text{ for all }a,b)
+  \le
+  \frac{
+    \prod_a(d_a)_{x_a}\prod_b(d'_b)_{x'_b}
+  }{
+    (m_0)_X\prod_{a,b}x_{ab}!
+  }.
 \]
-If a residual cell is selected in an even edge set, the base threshold two is
-used once and a higher threshold replaces, rather than duplicates, that base
-demand. Applying the joint prescribed-cell configuration bound to every
-threshold demand in the finite expansion gives the following exact finite
-interface.
+If $X\le m_0$, then $(m_0)_X\ge(m_0/\mathrm e)^X$; if $X>m_0$, the event is
+empty. Hence
+\begin{equation}
+  \mathbb P_{\mathrm{res}}(r'_{ab}\ge x_{ab}\text{ for all }a,b)
+  \le
+  \prod_{a,b}\frac{\theta_{ab}^{x_{ab}}}{x_{ab}!}.
+  \label{eq:prescribed-cell-residual-v3}
+\end{equation}
+This joint estimate is the reason that cells sharing a row or a column may be
+expanded simultaneously.
+
+For $0\le r\le R$,
+\[
+  g(r)=1+\sum_{x=3}^{R}\Delta_x\mathbf 1_{\{r\ge x\}}.
+\]
+Let $E_0$ be the set of all residual cell positions outside $M$, and let
+$\mathcal C(M)$ be the family of even subsets of $M\cup E_0$. For
+$F\in\mathcal C(M)$, define
+\[
+\begin{split}
+  \Phi_F(r')
+  :=
+  &\prod_{e\in F\setminus M}
+  \left(
+    \mathbf 1_{\{r'_e\ge2\}}
+    +
+    \sum_{x=3}^{R}\Delta_x\mathbf 1_{\{r'_e\ge x\}}
+  \right)\\
+  &\times
+  \prod_{e\in E_0\setminus F}
+  \left(
+    1+
+    \sum_{x=3}^{R}\Delta_x\mathbf 1_{\{r'_e\ge x\}}
+  \right).
+\end{split}
+\]
+The first product contains the support threshold required when $e$ belongs to
+the even set. On the event $\mathcal E(M,j)$, expansion of the cycle-space
+cardinality and of all local rewards gives the exact identity
+\[
+  \left(\prod_{a,b}g(r'_{ab})\right)
+  2^{\beta(M\cup H_{\mathrm{res}})}
+  =
+  \sum_{F\in\mathcal C(M)}\Phi_F(r').
+\]
 
 \begin{lemma}[Fixed even-set expansion]
 \label{lem:fixed-even-set-expansion-v3}
-For every residual edge set $F$,
+For every $F\in\mathcal C(M)$,
 \[
-  \mathbb E_{\mathrm{res}}[
-    \text{capped local reward with the thresholds of }F]
+  \mathbb E_{\mathrm{res}}\!\left[
+    \Phi_F(r')\mathbf 1_{\mathcal E(M,j)}
+  \right]
   \le
-  \prod_{a,b}
-  \begin{cases}
-    1,&(a,b)\in M,\\
-    q_{ab},&(a,b)\in F\setminus M,\\
-    1+\lambda_{ab},&(a,b)\notin F\cup M.
-  \end{cases}
+  \prod_{e\in F\setminus M}q_e
+  \prod_{e\in E_0\setminus F}(1+\lambda_e).
 \]
 \end{lemma}
 
 \begin{proof}
-Expand every capped local factor into its nonnegative threshold alternatives.
-For a cell in $F\setminus M$, use either the threshold-two term or one higher
-increment term, but not both in the same monomial. Apply the joint
-configuration-model prescribed-cell estimate once to the complete demand of
-each monomial. The threshold-two contribution is
-$\theta_{ab}^2/2$, the higher-threshold contributions sum to
-$\lambda_{ab}$, and cells outside $F\cup M$ contribute
-$1+\lambda_{ab}$. Dropping the cap and no-return indicator only enlarges the
-nonnegative sum.
+Expand $\Phi_F$ into its nonnegative threshold monomials. In a cell of
+$F\setminus M$, a monomial chooses either the threshold-two term or one higher
+increment; it never chooses both. In a cell outside $F\cup M$, it chooses
+nothing or one higher increment. Apply
+\eqref{eq:prescribed-cell-residual-v3} once to the complete demand of each
+monomial. The threshold-two contribution is $\theta_e^2/2$, the higher
+increments sum to $\lambda_e$, and the empty choice contributes one. Dropping
+the cap and no-return indicator only enlarges the nonnegative expectation.
 \end{proof}
 
-Summing the preceding bound over the binary cycle space yields
+Summing over $F$ and then inserting the missing factors
+$1+\lambda_e\ge1$ gives
 \begin{equation}
   \mathcal A(M,j)
   \le
-  \left(\prod_{a,b}(1+\lambda_{ab})\right)
-  \sum_{F\ \mathrm{even}}
+  \left(\prod_{e\in E_0}(1+\lambda_e)\right)
+  \sum_{F\in\mathcal C(M)}
     \prod_{e\in F\setminus M}q_e.
   \label{eq:lambda-even-factorization-v3}
 \end{equation}
 
 \subsection{Restriction outside the exposed matching}
 
-The following lemma is independent of the random-graph application.
+The next finite lemma is independent of random graphs.
 
 \begin{lemma}[Restriction-product bound]
 \label{lem:restriction-product-v3}
 Let $E$ be a finite set, let $\mathcal C$ be a finite family of subsets of
-$E$, and let $I\subseteq E$. Suppose that the map
+$E$, and let $I\subseteq E$. Suppose that
 \[
   A\longmapsto A\setminus I
 \]
@@ -144,38 +189,41 @@ is injective on $\mathcal C$. For nonnegative activities $(q_e)_{e\in E}$,
 \begin{proof}
 The restrictions $A\setminus I$ form a subfamily of the power set of
 $E\setminus I$ and occur without repetition. Enlarge the sum to the full power
-set and apply the finite product identity
-\[
-  \sum_{B\subseteq E\setminus I}\prod_{e\in B}q_e
-  =
-  \prod_{e\in E\setminus I}(1+q_e).
-\]
+set and expand the finite product.
 \end{proof}
 
-Apply the lemma to the even edge sets of $M\cup H_{\mathrm{res}}$ and to
-$I=M$. The required injectivity is elementary. If two even sets have the same
-restriction outside $M$, their symmetric difference is an even subset of the
-matching $M$. A nonempty subset of a matching has a vertex of degree one, so
-that symmetric difference must be empty. Therefore
+Apply the lemma with $E=M\cup E_0$, $I=M$, and
+$\mathcal C=\mathcal C(M)$. The required injectivity is immediate but
+important. If two even sets have the same restriction outside $M$, their
+symmetric difference is an even subset of the matching $M$. Every nonempty
+subset of a matching has a vertex of degree one, so this symmetric difference
+must be empty. Therefore
 \begin{equation}
-  \sum_{F\ \mathrm{even}}
+  \sum_{F\in\mathcal C(M)}
     \prod_{e\in F\setminus M}q_e
   \le
-  \prod_{e\notin M}(1+q_e).
+  \prod_{e\in E_0}(1+q_e).
   \label{eq:even-family-product-v3}
 \end{equation}
 
-Since $0\le\lambda_{ab}\le q_{ab}$ pointwise, equations
+Since $0\le\lambda_e\le q_e$, equations
 \eqref{eq:lambda-even-factorization-v3} and
-\eqref{eq:even-family-product-v3}, together with $1+x\le e^x$, give
+\eqref{eq:even-family-product-v3}, together with $1+x\le e^x$, imply
 \begin{equation}
   \mathcal A(M,j)
   \le
-  \exp\!\left(2\sum_{a,b}q_{ab}\right).
+  \exp\!\left(2\sum_{e\in E_0}q_e\right).
   \label{eq:q-only-attachment-v3}
 \end{equation}
-Thus the local rewards and the cycle-space factor are controlled by one total
-activity.
+Thus both the local rewards and the cycle-space cardinality are controlled by
+one total residual activity.
+
+\begin{remark}
+Lemma~\ref{lem:restriction-product-v3} applies to any weighted set family whose
+restriction map is injective. Here the family happens to be a binary cycle
+space and injectivity follows solely from the fact that the deleted edge set is
+a matching.
+\end{remark}
 
 \subsection{The intrinsic residual regime}
 
@@ -184,25 +232,68 @@ Assume
   2^U\le m_0^3.
   \label{eq:intrinsic-residual-regime-v3}
 \end{equation}
-The sequence of majorants
+Then $m_0\ge2^{U/3}$ and, by the degree cap,
 \[
-  g(x)\frac{\theta^x}{x!},
-  \qquad 3\le x\le R,
+  \theta_{ab}
+  \le
+  \mathrm e U^2 2^{-U/3}.
 \]
-has consecutive ratio $2^x\theta/(x+1)$ up to the harmless initial values of
-$g$. The ratio increases with $x$. Its decreasing part is bounded by the first
-term, its transition contains only a bounded number of terms, and its
-increasing part is bounded by the endpoint. Under
-\eqref{eq:intrinsic-residual-regime-v3} and the degree cap, the endpoint is
-exponentially smaller than the quadratic term. Consequently there is an
-absolute $C_0$ such that
+
+\begin{lemma}[Quadratic activity bound]
+\label{lem:q-quadratic-v3}
+There is an absolute constant $C_0$ such that, under
+\eqref{eq:intrinsic-residual-regime-v3},
 \begin{equation}
   q_{ab}\le C_0\theta_{ab}^2
   \label{eq:q-quadratic-v3}
 \end{equation}
-uniformly in every residual cell.
+for every residual cell.
+\end{lemma}
 
-The exact second-moment identity for the cell intensities is
+\begin{proof}
+Fix a cell and write $\theta=\theta_{ab}$. The assertion is trivial when
+$\theta=0$. Since $0\le\Delta_x\le g(x)$, it is enough to bound
+\[
+  a_x:=g(x)\frac{\theta^x}{x!},
+  \qquad 3\le x\le R.
+\]
+For $x\ge3$,
+\[
+  \frac{a_{x+1}}{a_x}
+  =
+  \frac{2^x\theta}{x+1},
+  \qquad
+  \frac{a_{x+2}/a_{x+1}}{a_{x+1}/a_x}
+  =
+  2\frac{x+1}{x+2}>1.
+\]
+Thus $(a_x)$ is log-convex, and its maximum on $[3,R]$ occurs at an endpoint.
+Consequently
+\[
+  \lambda_{ab}
+  \le
+  R(a_3+a_R).
+\]
+Now $a_3=(2/3)\theta^3$. Since
+$R\theta=O(U^3 2^{-U/3})$, one has $Ra_3\le\theta^2$ for all sufficiently
+large $U$.
+
+For the other endpoint, using
+$R=\lfloor U/2\rfloor$ and
+$\theta\le\mathrm e U^2 2^{-U/3}$ gives
+\[
+  \log_2\!\left(\frac{a_R}{\theta^2}\right)
+  \le
+  -\frac{U^2}{24}+O(U\log U).
+\]
+Hence $Ra_R\le\theta^2$ for all sufficiently large $U$. It follows that
+$\lambda_{ab}\le2\theta^2$ in that range. For the finitely many remaining
+values of $U$, the quotient $q_{ab}/\theta^2$ is bounded on the compact interval
+$0\le\theta\le\mathrm e U^2 2^{-U/3}$, with limit $1/2$ at $\theta=0$.
+Enlarging the constant proves the lemma.
+\end{proof}
+
+The cell intensities satisfy the exact identity
 \[
   \sum_{a,b}\theta_{ab}^2
   =
@@ -216,12 +307,12 @@ Since every degree is at most $U$ and both degree sums equal $m_0$,
   \qquad
   \sum_b(d'_b)^2\le Um_0.
 \]
-Together with \eqref{eq:q-quadratic-v3}, this yields
+Lemma~\ref{lem:q-quadratic-v3} therefore gives
 \begin{equation}
   \sum_{a,b}q_{ab}\le C_1U^2.
   \label{eq:total-q-v3}
 \end{equation}
-Equation \eqref{eq:q-only-attachment-v3} now gives
+Together with \eqref{eq:q-only-attachment-v3}, this proves
 \begin{equation}
   \mathcal A(M,j)\le\exp(CU^2)
   \qquad\text{if }2^U\le m_0^3.
@@ -230,22 +321,31 @@ Equation \eqref{eq:q-only-attachment-v3} now gives
 
 \subsection{The complementary residual regime}
 
-If \eqref{eq:intrinsic-residual-regime-v3} fails, then
+Suppose instead that $2^U>m_0^3$. Then
 \begin{equation}
   m_0<2^{\lceil U/3\rceil}.
   \label{eq:small-residual-mass-v3}
 \end{equation}
-Indeed, $m_0\ge2^{\lceil U/3\rceil}$ would imply
-$m_0^3\ge2^U$.
-
-In this regime, discard all residual restrictions. The local rewards satisfy
+We may now discard every residual restriction. Since each residual cell count
+is at most $U$,
 \[
-  \sum_{a,b}\binom{r'_{ab}}2
+  \prod_{a,b}g(r'_{ab})
   \le
-  \frac{U-1}{2}m_0,
+  2^{\sum_{a,b}\binom{r'_{ab}}2}
+  \le
+  2^{(U-1)m_0/2}.
 \]
-while the cycle rank of the residual support together with the exposed
-matching is at most $m_0/2$. Hence
+Moreover, every edge of $H_{\mathrm{res}}$ uses at least two residual pairs,
+so $|E(H_{\mathrm{res}})|\le m_0/2$. Equivalently, the restriction argument
+above gives
+\[
+  2^{\beta(M\cup H_{\mathrm{res}})}
+  \le
+  2^{|E(H_{\mathrm{res}})|}
+  \le
+  2^{m_0/2}.
+\]
+Multiplication yields
 \begin{equation}
   \mathcal A(M,j)
   \le
@@ -256,8 +356,8 @@ matching is at most $m_0/2$. Hence
 
 \begin{proposition}[Uniform residual attachment]
 \label{prop:uniform-residual-attachment-v3}
-There is an absolute constant $C$ such that, for every feasible canonical high
-skeleton,
+There is an absolute constant $C$ such that every feasible canonical high
+skeleton satisfies
 \[
   \mathcal A(M,j)
   \le
@@ -268,19 +368,21 @@ skeleton,
 \]
 \end{proposition}
 
-The phase satisfies $U=O(\log n)$ and
+The phase estimates give
 \[
+  U=O(\log n),
+  \qquad
   2^U=\Theta\!\left(\frac{n^2}{(\log n)^2}\right).
 \]
-In the first regime, $CU^2=O((\log n)^2)$. In the second,
+In the intrinsic regime, $CU^2=O((\log n)^2)$. In the complementary regime,
 \eqref{eq:small-residual-mass-v3} gives
 \[
   Um_0
   =
   O\!\left(n^{2/3}(\log n)^{1/3}\right).
 \]
-Both quantities are $o(n/(\log n)^4)$ uniformly in the high skeleton.
-Therefore there is a deterministic sequence $\eta_n\to0$ such that
+Both exponents are $o(n/(\log n)^4)$, uniformly in the high skeleton. Hence
+there is a deterministic sequence $\eta_n\to0$ such that
 \begin{equation}
   \mathcal A(M,j)
   \le
@@ -311,15 +413,16 @@ such that
 \begin{proof}
 Insert \eqref{eq:uniform-attachment-error-v3} into the exact decomposition
 \eqref{eq:exact-attachment-decomposition-v3} and factor out the uniform
-attachment bound. Proposition~\ref{prop:bare-high-skeleton-v3} bounds the
-remaining sum. The lower bound is the nonnegativity of the variance.
+attachment bound. Proposition~\ref{prop:bare-high-skeleton-v3} controls the
+remaining high-skeleton sum. The lower bound follows from nonnegativity of the
+variance.
 \end{proof}
 
-Paley--Zygmund now gives
+Paley--Zygmund now yields
 \[
   \mathbb P(Z>0)
   \ge
   \frac{(\mathbb E Z)^2}{\mathbb E Z^2}
   \ge e^{-\Lambda_n}.
 \]
-This is the rare seed amplified in Section~10.
+Section~10 amplifies this rare seed to a high-probability cocoloring.
