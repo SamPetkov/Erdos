@@ -2,9 +2,10 @@
 """Generate the complete AMS Version 3 manuscript body.
 
 The canonical TeX remains frozen while the proof is incomplete. This script
-extracts the complete Sections 1--7 and 10 from that source, normalizes their
-legacy statement environments, and inserts the audited replacement Sections 8,
-9, and 11. The exact canonical Git-blob SHA is checked before line-independent
+extracts the complete Sections 1--7 and 10 from that source, converts their
+legacy theorem and proof markup to the ordinary AMS hierarchy, applies a small
+set of line-audited prose normalizations, and inserts the replacement Sections
+8, 9, and 11. The canonical Git-blob SHA is checked before line-independent
 section markers are used.
 """
 
@@ -45,7 +46,7 @@ def slice_between(text: str, start: str, end: str) -> str:
 
 def normalize_legacy_section(text: str) -> str:
     # Remove navigation-only commands that are redundant in the generated AMS
-    # draft. Labels immediately following them are retained.
+    # draft. Labels immediately following theorem statements are retained.
     text = re.sub(r"(?m)^\\phantomsection\s*$\n?", "", text)
     text = re.sub(
         r"(?m)^\\addcontentsline\{toc\}\{subsection\}\{[^\n]*\}\s*$\n?",
@@ -74,10 +75,36 @@ def normalize_legacy_section(text: str) -> str:
     text = text.replace(r"\end{propositionbox}", r"\end{proposition}")
     text = text.replace(r"\end{resultbox}", r"\end{theorem}")
 
-    # Normalize the mathematical English and notation without altering any
-    # finite identity, hypothesis, or summation domain.
+    # Convert the legacy paragraph proofs to genuine amsthm proof environments.
+    # Section 7 has one proof divided into three named ranges, so it is handled
+    # separately before the generic proof conversion.
+    text = re.sub(
+        r"\\paragraph\{Proof: the empty corner\.\}\\label\{[^}]+\}\s*",
+        r"\\begin{proof}\n\\displayheading{Empty corner}\n",
+        text,
+    )
+    text = re.sub(
+        r"\\paragraph\{Proof: the central range\.\}\\label\{[^}]+\}\s*",
+        r"\\displayheading{Central range}\n",
+        text,
+    )
+    text = re.sub(
+        r"\\paragraph\{Proof: the full corner\.\}\\label\{[^}]+\}\s*",
+        r"\\displayheading{Full corner}\n",
+        text,
+    )
+    text = re.sub(
+        r"\\paragraph\{Proof\.\}\\label\{[^}]+\}\s*",
+        r"\\begin{proof}\n",
+        text,
+    )
+    text = text.replace(r"\(\square\)", r"\end{proof}")
+
+    # Normalize mathematical English and notation without changing any finite
+    # identity, hypothesis, quantifier, or summation domain.
     replacements = {
         r"\ln": r"\log",
+        r"\log2": r"\log 2",
         "colouring": "coloring",
         "colourings": "colorings",
         "coloured": "colored",
@@ -98,6 +125,51 @@ def normalize_legacy_section(text: str) -> str:
         "\\section{Notation and elementary\nfacts}",
         "\\section{Phase notation and elementary estimates}",
     )
+
+    prose_replacements = {
+        (
+            "The profile optimization has two jobs. It must locate the zero of the\n"
+            "first-moment exponent, and it must compare two different supports at the\n"
+            "same average class size. The affine part of the deficit weight cancels under\n"
+            "the fixed-mean constraint; only the curved part distinguishes the supports.\n"
+            "The following lemma packages both facts, together with the uniform derivative\n"
+            "needed to convert an entropy advantage into a root displacement."
+        ): (
+            "The profile optimization serves two purposes: it locates the first-moment\n"
+            "root and compares two supports at the same mean class size. Under the\n"
+            "fixed-mean constraint the affine deficit term cancels, so only the curved\n"
+            "term distinguishes the supports. The next lemma collects the root corridor,\n"
+            "the uniform slope, and the support comparison used below."
+        ),
+        (
+            "It is proved directly for the four-size signed profile, including both\n"
+            "corners and every intermediate mass, and no tame-profile theorem is invoked."
+        ): (
+            "We prove it directly for the four-size signed profile, uniformly at both\n"
+            "corners and throughout the intermediate range; no external tame-profile\n"
+            "theorem is used."
+        ),
+        (
+            "The proof has three ranges, classified by the vertex mass occupied by the\n"
+            "marked common classes."
+        ): (
+            "We split the common-subprofile sum according to the vertex mass occupied by\n"
+            "the marked classes."
+        ),
+        (
+            "We use the same seed-to-typical strategic principle, but not that theorem as a black box:\n"
+            "Lemma 10.2 proves the quantitative implication needed here for an arbitrary\n"
+            "seed exponent \\(\\Lambda_n\\), and Lemma 10.1 supplies the simultaneous\n"
+            "leftover coloring that controls the added parts."
+        ): (
+            "The amplification follows the same seed-to-typical principle, but the form\n"
+            "needed here is proved inside the paper. Lemma 10.2 treats an arbitrary seed\n"
+            "exponent \\(\\Lambda_n\\), and Lemma 10.1 supplies a simultaneous coloring\n"
+            "bound for every leftover vertex set."
+        ),
+    }
+    for old, new in prose_replacements.items():
+        text = text.replace(old, new)
 
     # Section 10 must point to the replacement normalized-second-moment
     # proposition rather than to the legacy proposition number.
