@@ -17,8 +17,10 @@ on:
       - "625/scripts/build_self_contained_ams_v3.py"
       - "625/experiments/check_self_contained_manuscript_v3.py"
       - "625/experiments/check_constant_ledger_v3.py"
+      - "625/experiments/check_partial_diagonal_rate_v3.py"
       - "625/audits/SELF_CONTAINED_BULLETPROOF_MANUSCRIPT_PASS_2026-08-04.md"
       - "625/audits/REFEREE_READABILITY_AND_TIER_ONE_PASS_2026-08-05.md"
+      - "625/audits/PROOF_CLOSURE_CONTRACTS_2026-08-05.md"
       - ".github/workflows/erdos625-self-contained-manuscript.yml"
   workflow_dispatch:
 
@@ -39,21 +41,27 @@ jobs:
           python -m py_compile 625/scripts/build_self_contained_ams_v3.py
           python -m py_compile 625/experiments/check_self_contained_manuscript_v3.py
           python -m py_compile 625/experiments/check_constant_ledger_v3.py
+          python -m py_compile 625/experiments/check_partial_diagonal_rate_v3.py
       - name: Verify the exact four-support constant
         run: |
           python 625/experiments/check_constant_ledger_v3.py \
             | tee /tmp/erdos625-constant-ledger.txt
+      - name: Verify the partial-diagonal endpoint arithmetic
+        run: |
+          python 625/experiments/check_partial_diagonal_rate_v3.py \
+            | tee /tmp/erdos625-partial-diagonal-endpoints.txt
       - name: Run fail-closed manuscript checker
         run: python 625/experiments/check_self_contained_manuscript_v3.py
       - name: Replay checker with optimized Python
         run: python -O 625/experiments/check_self_contained_manuscript_v3.py
-      - name: Upload generated TeX body and exact ledger
+      - name: Upload generated TeX body and exact ledgers
         uses: actions/upload-artifact@v4
         with:
           name: erdos625-self-contained-generated-body
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             /tmp/erdos625-constant-ledger.txt
+            /tmp/erdos625-partial-diagonal-endpoints.txt
           if-no-files-found: error
 
   build-complete-pdf:
