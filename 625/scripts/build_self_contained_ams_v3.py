@@ -136,6 +136,18 @@ def normalize_legacy_section(text: str) -> str:
         "\\section{Notation and elementary\nfacts}",
         "\\section{Phase notation and elementary estimates}",
     )
+    text = text.replace(
+        "\\section{The complete independence-number\nphase}",
+        "\\section{The complete independence-number phase}",
+    )
+    text = text.replace(
+        "\\section{The four-size signed first-moment\nadvantage}",
+        "\\section{The four-size signed first-moment advantage}",
+    )
+    text = text.replace(
+        "\\section{Exact signed second-moment\nrepresentation}",
+        "\\section{Exact signed second-moment representation}",
+    )
 
     prose_replacements = {
         (
@@ -178,13 +190,6 @@ def normalize_legacy_section(text: str) -> str:
             "estimate in Lemma~3.1 converts it into displacement."
         ),
         (
-            "We first bracket this tilt.  At \\(\\lambda=2{\\log 2}\\), we make the\n"
-            "reindexing completely explicit.  The old summation index ranges over"
-        ): (
-            "We begin by bracketing this tilt. At \\(\\lambda=2{\\log 2}\\), set\n"
-            "\\(j=i-2\\). The original summation index ranges over"
-        ),
-        (
             "For completeness, the first strict inequality in (5.4) has the following\n"
             "direct verification.  Put"
         ): (
@@ -209,9 +214,112 @@ def normalize_legacy_section(text: str) -> str:
     for old, new in prose_replacements.items():
         text = text.replace(old, new)
 
+    text = re.sub(
+        r"We (?:first|begin by) bracket this tilt\..*?Substituting\s+\\\(i=j\+2\\\) in the weight gives",
+        (
+            "We begin by bracketing this tilt. At \\(\\lambda=2{\\log 2}\\), set\n"
+            "\\(j=i-2\\), a bijection from \\(S_4\\) onto \\(\\{0,1,2,3\\}\\).\n"
+            "Substituting \\(i=j+2\\) gives"
+        ),
+        text,
+        count=1,
+        flags=re.S,
+    )
+
     text = text.replace(
-        "We use the same seed-to-typical strategic principle, but not that theorem as a black box:",
-        "We follow the same seed-to-typical principle, but prove the precise form needed here:",
+        "\\gamma_4=\\log\\frac{200}{153}.                            \\tag{5.2}\n\\]",
+        (
+            "\\gamma_4=\\log\\frac{200}{153}.                            \\tag{5.2}\n"
+            "\\]\n"
+            "This coarse certificate is sufficient for the root separation.\n"
+            "Section~11 sharpens it to obtain the displayed numerical constant."
+        ),
+    )
+
+    rate_certificate = r"""Here is an exact endpoint certificate for this split. Put
+$q=\log 2$. The expansion
+\[
+ q=2\sum_{m\ge0}\frac{1}{(2m+1)3^{2m+1}}
+\]
+gives
+\[
+ \frac{69}{100}<q<\frac{7}{10}.
+\]
+Indeed, the first two positive terms give
+$2(1/3+1/81)=56/81>69/100$, while bounding every denominator in the
+tail from $m=1$ below by $3$ gives
+$ q<2(1/3+1/72)=25/36<7/10$.
+
+For $x=100/47$, the same expansion with
+$z=(x-1)/(x+1)=53/147$ yields
+\begin{equation}
+ \log\!\left(\frac{100}{47}\right)
+ >2\left(z+\frac{z^3}{3}\right)
+ =\frac{7169416}{9529569}.
+ \label{eq:partial-diagonal-log-certificate-v3}
+\end{equation}
+
+On $1/64\le R\le47/100$, add $Y/5000=(1-R)/5000$ to the first
+bound in (7.23). The resulting function is convex in $R$, and its
+largest coefficient occurs at $T=2/q$. At $R=1/64$, using
+$\log64=6q$ and $q>2/3$, its value is at most
+\[
+ \frac{-7q/2-1}{64}+\frac{63}{320000}<0.
+\]
+At $R=47/100$, equations above give the upper bound
+\[
+ -\frac{47}{100}\frac{7169416}{9529569}
+ +\frac{141}{400}+\frac{53}{500000}
+ =-\frac{4721156593}{4764784500000}<0.
+\]
+Convexity therefore gives $\Phi_T\le-Y/5000$ throughout this interval.
+
+On $47/100\le R\le1$, use the second bound in (7.23), add $Y/200$,
+and use $T\le1+2/q$. The resulting convex function has value zero at
+$R=1$. At $R=47/100$, the bounds $q>69/100$ and
+\eqref{eq:partial-diagonal-log-certificate-v3} give
+\[
+ -\frac{47}{100}\frac{7169416}{9529569}
+ +\frac{53}{100}\frac{33}{50}
+ =-\frac{180911419}{47647845000}<0.
+\]
+Hence $\Phi_T\le-Y/200$ on the second interval. The companion script
+\texttt{check\_partial\_diagonal\_rate\_v3.py} verifies these rational
+comparisons independently.
+Thus, whenever"""
+    text = re.sub(
+        r"Here is the numerical check used in this split\..*?Thus, whenever",
+        lambda _: rate_certificate,
+        text,
+        count=1,
+        flags=re.S,
+    )
+
+    text = re.sub(
+        r"We use the same\s+seed-to-typical strategic principle, but not that theorem as a black box:\s*"
+        r"Lemma 10\.2 proves the quantitative implication needed here for an arbitrary\s*"
+        r"seed exponent \\(\\Lambda_n\\\), and Lemma 10\.1 supplies the simultaneous\s*"
+        r"leftover coloring that controls the added parts\.",
+        (
+            "We follow the same seed-to-typical principle, but prove the precise form\n"
+            "needed here. Lemma 10.2 treats an arbitrary seed exponent\n"
+            "\\(\\Lambda_n\\), and Lemma 10.1 supplies a simultaneous coloring bound\n"
+            "for every leftover vertex set."
+        ),
+        text,
+        count=1,
+    )
+    text = re.sub(
+        r"The ordinary-coloring concentration argument motivating this amplification\s*"
+        r"appears in \\citet\[Theorem~1\]\{scott-2008-2017\}\. Lemmas 10\.1 and 10\.2 prove the precise\s*"
+        r"simultaneous-leftover and rare-seed forms required here\.",
+        (
+            "The vertex-exposure argument is motivated by\n"
+            "\\citet[Theorem~1]{scott-2008-2017}. Lemma 10.1 gives the simultaneous\n"
+            "leftover bound, and Lemma 10.2 gives the arbitrary-seed amplifier used here."
+        ),
+        text,
+        count=1,
     )
     text = text.replace(
         "We now prove the amplification needed to turn this possibly rare event\n"
