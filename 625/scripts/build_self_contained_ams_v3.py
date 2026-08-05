@@ -216,7 +216,7 @@ def normalize_legacy_section(text: str) -> str:
 
     text = re.sub(
         r"We (?:first|begin by) bracket this tilt\..*?Substituting\s+\\\(i=j\+2\\\) in the weight gives",
-        (
+        lambda _: (
             "We begin by bracketing this tilt. At \\(\\lambda=2{\\log 2}\\), set\n"
             "\\(j=i-2\\), a bijection from \\(S_4\\) onto \\(\\{0,1,2,3\\}\\).\n"
             "Substituting \\(i=j+2\\) gives"
@@ -300,7 +300,7 @@ Thus, whenever"""
         r"Lemma 10\.2 proves the quantitative implication needed here for an arbitrary\s*"
         r"seed exponent \\(\\Lambda_n\\\), and Lemma 10\.1 supplies the simultaneous\s*"
         r"leftover coloring that controls the added parts\.",
-        (
+        lambda _: (
             "We follow the same seed-to-typical principle, but prove the precise form\n"
             "needed here. Lemma 10.2 treats an arbitrary seed exponent\n"
             "\\(\\Lambda_n\\), and Lemma 10.1 supplies a simultaneous coloring bound\n"
@@ -313,7 +313,7 @@ Thus, whenever"""
         r"The ordinary-coloring concentration argument motivating this amplification\s*"
         r"appears in \\citet\[Theorem~1\]\{scott-2008-2017\}\. Lemmas 10\.1 and 10\.2 prove the precise\s*"
         r"simultaneous-leftover and rare-seed forms required here\.",
-        (
+        lambda _: (
             "The vertex-exposure argument is motivated by\n"
             "\\citet[Theorem~1]{scott-2008-2017}. Lemma 10.1 gives the simultaneous\n"
             "leftover bound, and Lemma 10.2 gives the arbitrary-seed amplifier used here."
