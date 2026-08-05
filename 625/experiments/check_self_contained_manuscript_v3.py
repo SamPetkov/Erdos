@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARXIV = ROOT / "arxiv"
 GENERATOR = ROOT / "scripts" / "build_self_contained_ams_v3.py"
 CONSTANT_CHECKER = ROOT / "experiments" / "check_constant_ledger_v3.py"
+PARTIAL_RATE_CHECKER = ROOT / "experiments" / "check_partial_diagonal_rate_v3.py"
 GENERATED = ARXIV / "AMS_SELF_CONTAINED_BODY_V3.generated.tex"
 MASTER = ARXIV / "AMS_SELF_CONTAINED_DRAFT_V3.tex"
 
@@ -64,11 +65,18 @@ def check_control_characters(text: str, name: str) -> None:
 
 
 def main() -> None:
-    for path in [MASTER, GENERATOR, CONSTANT_CHECKER, *SOURCE_FILES]:
+    for path in [
+        MASTER,
+        GENERATOR,
+        CONSTANT_CHECKER,
+        PARTIAL_RATE_CHECKER,
+        *SOURCE_FILES,
+    ]:
         require(path.is_file(), f"missing file: {path}")
 
     subprocess.run(["python", str(GENERATOR)], cwd=ROOT.parent, check=True)
     subprocess.run(["python", str(CONSTANT_CHECKER)], cwd=ROOT.parent, check=True)
+    subprocess.run(["python", str(PARTIAL_RATE_CHECKER)], cwd=ROOT.parent, check=True)
     require(GENERATED.is_file(), "generator did not create the manuscript body")
 
     master = MASTER.read_text(encoding="utf-8")
@@ -100,6 +108,8 @@ def main() -> None:
         r"\input{SECTION9_SELF_CONTAINED_V3}",
         r"\section{Rare-event amplification}",
         r"\input{FINAL_ASSEMBLY_SELF_CONTAINED_V3}",
+        r"\label{eq:partial-diagonal-log-certificate-v3}",
+        r"check\_partial\_diagonal\_rate\_v3.py",
         "Canonical source Git blob: c4d090b73cd5efcdb98cc30f79bb5f53c6c9bc97",
     )
     missing_body = [token for token in required_body_markers if token not in generated]
@@ -208,6 +218,7 @@ def main() -> None:
     print(f"  generated body lines: {len(generated.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
+    print("  exact certificate scripts: constant ledger and partial-diagonal endpoints")
     print("  publication switch: disabled")
 
 
