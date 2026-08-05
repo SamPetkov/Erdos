@@ -236,56 +236,60 @@ def normalize_legacy_section(text: str) -> str:
         ),
     )
 
-    rate_certificate = r"""Here is an exact endpoint certificate for this split. Put
-$q=\log 2$. The expansion
+    rate_certificate = r"""Here is a direct analytic proof of the uniform margin. Put
+$Y=1-R$ and $q=\log 2$. The positive expansion
 \[
  q=2\sum_{m\ge0}\frac{1}{(2m+1)3^{2m+1}}
 \]
 gives
 \[
- \frac{69}{100}<q<\frac{7}{10}.
+ \frac23<q<\frac7{10};
 \]
-Indeed, the first two positive terms give
-$2(1/3+1/81)=56/81>69/100$, while bounding every denominator in the
-tail from $m=1$ below by $3$ gives
-$ q<2(1/3+1/72)=25/36<7/10$.
+for the upper bound, the tail after the first term is less than $1/72$,
+so $q<2(1/3+1/72)=25/36<7/10$.
 
-For $x=100/47$, the same expansion with
-$z=(x-1)/(x+1)=53/147$ yields
+Multiply the first structural inequality in (7.22) by $Y$ and the second
+by $R$, and add. Since $R+Y=1$, this gives
 \begin{equation}
- \log\!\left(\frac{100}{47}\right)
- >2\left(z+\frac{z^3}{3}\right)
- =\frac{7169416}{9529569}.
- \label{eq:partial-diagonal-log-certificate-v3}
+ I_r-TR\le 3RY.
+ \label{eq:partial-diagonal-combined-structural-v3}
 \end{equation}
+For $0<R\le1$,
+\[
+ \log R\le \frac{2(R-1)}{R+1}.
+\]
+Indeed, for $x=(1-R)/R\ge0$, the function
+$\log(1+x)-2x/(2+x)$ has derivative
+$x^2/((1+x)(2+x)^2)\ge0$ and vanishes at zero.
 
-On $1/64\le R\le47/100$, add $Y/5000=(1-R)/5000$ to the first
-bound in (7.23). The resulting function is convex in $R$, and its
-largest coefficient occurs at $T=2/q$. At $R=1/64$, using
-$\log64=6q$ and $q>2/3$, its value is at most
+Suppose first that $1/64\le R\le3/4$. Using
+\eqref{eq:partial-diagonal-combined-structural-v3} and $q<7/10$,
 \[
- \frac{-7q/2-1}{64}+\frac{63}{320000}<0.
+\begin{aligned}
+ \Phi_T
+ &\le -\frac{2R}{1+R}Y+\frac{21}{20}RY\\
+ &=-\left(\frac{2}{1+R}-\frac{21}{20}\right)RY.
+\end{aligned}
 \]
-At $R=47/100$, equations above give the upper bound
+Here $2/(1+R)\ge8/7$, and therefore
 \[
- -\frac{47}{100}\frac{7169416}{9529569}
- +\frac{141}{400}+\frac{53}{500000}
- =-\frac{4721156593}{4764784500000}<0.
+ \Phi_T\le-\frac{13}{140}RY
+ \le-\frac{13}{8960}Y
+ \le-\frac{Y}{5000}.
 \]
-Convexity therefore gives $\Phi_T\le-Y/5000$ throughout this interval.
 
-On $47/100\le R\le1$, use the second bound in (7.23), add $Y/200$,
-and use $T\le1+2/q$. The resulting convex function has value zero at
-$R=1$. At $R=47/100$, the bounds $q>69/100$ and
-\eqref{eq:partial-diagonal-log-certificate-v3} give
+Now suppose that $3/4\le R\le1$. The phase corridor gives
+$T\le1+2/q<4$, so the second structural inequality in (7.22) yields
+$I_r-TR\le2Y$. Using $\log R\le R-1=-Y$,
 \[
- -\frac{47}{100}\frac{7169416}{9529569}
- +\frac{53}{100}\frac{33}{50}
- =-\frac{180911419}{47647845000}<0.
+ \Phi_T\le-RY+qY=(q-R)Y
+ \le-\frac1{20}Y
+ \le-\frac{Y}{5000}.
 \]
-Hence $\Phi_T\le-Y/200$ on the second interval. The companion script
-\texttt{check\_partial\_diagonal\_rate\_v3.py} verifies these rational
-comparisons independently.
+Thus the desired estimate holds on the whole scalar range. The companion
+script \path{check_partial_diagonal_rate_v3.py} independently verifies the
+rational inequalities in this constant ledger; the logarithmic inequality
+and the structural reduction are proved above.
 Thus, whenever"""
     text = re.sub(
         r"Here is the numerical check used in this split\..*?Thus, whenever",
