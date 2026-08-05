@@ -54,6 +54,15 @@ def check_balanced_environments(text: str, name: str) -> None:
     )
 
 
+def check_control_characters(text: str, name: str) -> None:
+    bad = [
+        (index, ord(character))
+        for index, character in enumerate(text)
+        if ord(character) < 32 and character not in "\n\r\t"
+    ]
+    require(not bad, f"{name}: hidden control characters: {bad[:8]}")
+
+
 def main() -> None:
     for path in [MASTER, GENERATOR, CONSTANT_CHECKER, *SOURCE_FILES]:
         require(path.is_file(), f"missing file: {path}")
@@ -185,6 +194,7 @@ def main() -> None:
     require(not duplicates, f"duplicate labels: {duplicates}")
 
     for name, text in {"master": master, "generated": generated, **sources}.items():
+        check_control_characters(text, name)
         check_balanced_environments(text, name)
         require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
 
