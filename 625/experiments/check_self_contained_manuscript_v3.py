@@ -180,6 +180,11 @@ def main() -> None:
         "Running",
         "Needs review",
         "eventually_fourEndpointThreeQuarterRho_le_one",
+        "sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity",
+        "partialDiagonalRate_uniform_negative",
+        "partialDiagonalRate_uniform_negative_fourDeficit",
+        "sum_partialDiagonalWeight_fullCorner_eq",
+        "The scalar rate obstruction is therefore closed",
         "Publication gate",
         "Recommended theorem-facing Lean organization",
     ):
