@@ -22,6 +22,7 @@ on:
       - "625/audits/SELF_CONTAINED_BULLETPROOF_MANUSCRIPT_PASS_2026-08-04.md"
       - "625/audits/REFEREE_READABILITY_AND_TIER_ONE_PASS_2026-08-05.md"
       - "625/audits/PROOF_CLOSURE_CONTRACTS_2026-08-05.md"
+      - "625/audits/PARTIAL_DIAGONAL_CLOSURE_AUDIT_2026-08-05.md"
       - ".github/workflows/erdos625-self-contained-manuscript.yml"
   workflow_dispatch:
 
@@ -52,10 +53,10 @@ jobs:
         run: |
           python 625/experiments/check_constant_ledger_v3.py \
             | tee /tmp/erdos625-constant-ledger.txt
-      - name: Verify the partial-diagonal endpoint arithmetic
+      - name: Verify the partial-diagonal scalar ledger
         run: |
           python 625/experiments/check_partial_diagonal_rate_v3.py \
-            | tee /tmp/erdos625-partial-diagonal-endpoints.txt
+            | tee /tmp/erdos625-partial-diagonal-scalar-ledger.txt
       - name: Run fail-closed manuscript checker
         run: python 625/experiments/check_self_contained_manuscript_v3.py
       - name: Replay checker with optimized Python
@@ -68,7 +69,7 @@ jobs:
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
-            /tmp/erdos625-partial-diagonal-endpoints.txt
+            /tmp/erdos625-partial-diagonal-scalar-ledger.txt
           if-no-files-found: error
 
   build-complete-pdf:
