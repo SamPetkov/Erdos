@@ -1,136 +1,115 @@
-\section*{Proof architecture}
-\addcontentsline{toc}{section}{Proof architecture}
+\section*{Guide to the proof}
+\addcontentsline{toc}{section}{Guide to the proof}
 \label{sec:proof-architecture-v3}
 
-The proof consists of three logically separate stages: location, existence,
-and amplification. This section records only the dependency structure. Every
-identity and estimate is proved in the numbered section where it is used.
+The argument has three stages---location, existence, and amplification---but
+the second stage contains most of the new combinatorics. This guide records the
+role of each estimate before the detailed proof begins.
 
-\subsection*{Location: two first-moment roots}
+\subsection*{1. Locating two first-moment roots}
 
 Let $r_+(n)$ be the continuous root of the ordinary profile first moment, and
 let $r_4^{\mathrm{co}}(n)$ be the root of the signed objective restricted to
-the four deficits $2,3,4,5$. If $\delta_n$ is the phase parameter, write
+the four deficits $2,3,4,5$. If $\delta_n$ denotes the phase, put
 \[
-  A_4(\delta)=\log2-D_4(\delta),
+  A_4(\delta)=\log 2-D_4(\delta),
 \]
-where $D_4(\delta)$ is the entropy loss caused by restricting the limiting
-deficit distribution to four values. The phase-uniform first-moment analysis
-gives
+where $D_4$ is the entropy loss caused by the four-point restriction. The
+phase-uniform analysis gives
 \[
   r_+(n)-r_4^{\mathrm{co}}(n)
   =
   \left[
-    \frac{(\log2)^2}{4}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
 \]
-The signed witness is placed at the tangent-rounded midpoint of these roots.
-Rounding costs $O(1)$ classes and therefore does not alter the scale. The
-retained root gap is
+The signed witness is placed at a tangent-rounded midpoint of these two roots.
+The exact conservation correction costs only $O(1)$ classes, so the retained
+separation is one half of the leading root gap. Section~11 proves the uniform
+certificate
 \[
-  \left[
-    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
-  \right]
-  \frac{n}{(\log n)^3}.
-\]
-The exact four-support certificate gives
-\[
-  A_4(\delta)>\log\!\left(\frac{1000}{639}\right)
+  A_4(\delta)>
+  \log\!\left(\frac{1000}{639}\right)
   \qquad(0\le\delta\le1).
 \]
 
-\subsection*{Existence: one normalized second moment}
+\subsection*{2. Extracting the exact overlap structure}
 
-For two ordered signed witnesses, let $r=(r_{ab})$ be their overlap table.
-The sign sum is evaluated exactly:
+For two ordered signed witnesses, let $r=(r_{ab})$ be their overlap table. The
+sum over compatible sign assignments is evaluated before any estimate is
+made:
 \[
   \operatorname{wt}_{\mathrm{sign}}(r)
   =
   \left(\prod_{a,b}g(r_{ab})\right)2^{\beta(H(r))}.
 \]
-The normalized second moment is then divided into partial diagonals, canonical
-high cells, and residual attachments.
+The product is local; the factor $2^{\beta(H(r))}$ is the cardinality of a
+binary cycle space. This identity is the point at which the signed problem
+separates into cellwise rewards and a topological residual factor.
 
-Section~7 proves that the partial-diagonal contribution is $1+o(1)$. In the
-remaining tables, every cell above half the phase cap is unique in its row and
-column, so the high support is a block matching.
+The normalized second moment is then split by overlap geometry. Section~7
+handles partial diagonals. In every remaining table, a cell above half the
+class-size cap is unique in its row and column, so all high cells form a block
+matching.
 
-For a fixed block support $P$, actual multiplicities $j_e=m_e-h_e$, and
-$J=\sum_ej_e$, the complete physical matching fiber has aggregate weight
+\subsection*{3. Summing high cells before estimating them}
+
+Fix a high-cell support $P$ and realized multiplicities
+$j_e=m_e-h_e$. Because $P$ is a matching, the physical choices in different
+cells are independent at the level of finite counting. Their complete
+aggregate is
 \[
   w(P,j)
   =
   \frac{\prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}}
-       {(n)_J\prod_{e\in P}j_e!}
+       {(n)_{\sum_ej_e}\prod_{e\in P}j_e!}
   \prod_{e\in P}g(j_e).
 \]
-The one-cell partial-to-full ratio is exact, and the only nonlocal change is
-one falling-factorial ratio. Writing $H=\sum_eh_e$,
+Only after this exact fiber has been summed do we compare $j_e$ with the
+full-containment multiplicity $m_e$. The local ratios factor, while the sole
+nonlocal change is
 \[
-  \frac{(n)_{J+H}}{(n)_J}=(n-J)_H\le n^H.
+  \frac{(n)_{\sum_em_e}}{(n)_{\sum_ej_e}}
+  =(n-\textstyle\sum_ej_e)_{\sum_eh_e}
+  \le n^{\sum_eh_e}.
 \]
-The factor $n^H$ is paid once, after the physical fiber has been summed.
+Thus the finite-population loss is paid once rather than once per cell.
 
-The main proof uses the canonical common charge
+The positive deficits are summed by a finite optional-choice product. The
+full-containment references are then partitioned by endpoint table, and the
+resulting table sum is transported to the one-sided partial-diagonal weights
+from Section~7. The four-size phase estimates make the total high-cell cost
 \[
-  \rho_{16}(n,\alpha)
-  :=
-  \sum_{i,j=0}^{3}
-  \frac{n m_{ij}}
-       {2^{\lfloor(3m_{ij}-1)/4\rfloor}},
-  \qquad
-  m_{ij}=\min\{u_i,u_j\}.
+  \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
 \]
-The finite deficit sum is bounded by
+The underlying fiber identity, deficit product, and reference regrouping are
+valid for any finite endpoint alphabet; only the final transport estimate is
+specialized to four consecutive sizes.
+
+\subsection*{4. Restricting residual cycles and amplifying the seed}
+
+After the high cells are exposed, Section~9 assigns one activity $q_{ab}$ to
+each residual cell. Expanding the local rewards produces a weighted sum over
+even residual edge sets. Deleting the exposed matching is injective on this
+family: the symmetric difference of two sets with the same restriction would
+be an even subset of a matching, and hence empty. The residual cycle-space sum
+is therefore bounded by a full product, giving
 \[
-  \sum_{\text{high skeletons}}w_{\mathrm{hi}}
+  \mathcal A(M,j)
   \le
-  \left(\sum_LW(L)\right)
-  \left(1+(\alpha+1)\rho_{16}\right)^K,
+  \exp\!\left(2\sum_{a,b}q_{ab}\right).
 \]
-where $K$ is the total number of four-endpoint block slots. This is the
-canonical route because it needs only $\rho_{16}\le1$ and avoids a separate
-geometric-series theorem. The phase estimates imply
+A two-regime estimate makes the exponent
+$o(n/(\log n)^4)$ uniformly in the exposed skeleton. Together with the
+high-cell estimate, this yields
 \[
-  \rho_{16}=O\!\left(\frac{\log n}{n^{1/4}}\right),
-  \qquad
-  K(\alpha+1)\rho_{16}=O(n^{3/4}\log n)
-  =o\!\left(\frac{n}{(\log n)^4}\right).
-\]
-Endpoint transport and the partial-diagonal theorem then give
-\[
-  \operatorname{BareSkeletonSum}_n
+  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
   \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
 \]
-
-A sharper table-preserving statement is also available. If every local base is
-at most $1/2$, then the complete positive-deficit fiber is at most twice that
-base, and the exact weighted regrouping retains the product
-$\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$. This stronger finite theorem is useful
-independently, but it is not needed for the shortest closure route.
-
-After a high skeleton has been fixed, Section~9 defines one residual activity
-$q_{ab}$. The local increment activity is pointwise at most $q_{ab}$, and
-deleting the exposed matching is injective on the family of even residual edge
-sets. Consequently both residual products are bounded by
-\[
-  \exp\!\left(2\sum_{a,b}q_{ab}\right).
-\]
-A two-regime estimate makes this uniform at the scale
-$o(n/(\log n)^4)$, completing the normalized second-moment estimate.
-
-\subsection*{Amplification and final assembly}
-
-Paley--Zygmund yields a signed witness with probability at least
-$e^{-\Lambda_n}$, where
-\[
-  \Lambda_n=o\!\left(\frac{n}{(\log n)^4}\right).
-\]
-The largest induced subgraph admitting the prescribed number of cocoloring
-classes is one-Lipschitz under vertex-block exposure. A one-sided
-bounded-differences argument moves the rare seed to the mean, and a
-simultaneous leftover-coloring theorem colors the omitted vertices with
-$o(n/(\log n)^3)$ additional classes. Intersecting the resulting cocoloring
-upper bound with the ordinary coloring lower bound proves the final gap.
+Paley--Zygmund supplies a witness with probability $e^{-o(n/(\log n)^4)}$.
+Section~10 then uses vertex-block bounded differences and a simultaneous
+leftover-coloring estimate to turn this rare seed into a high-probability
+cocoloring at a cost $o(n/(\log n)^3)$. Intersecting it with the ordinary
+chromatic lower bound completes the gap estimate.
