@@ -1,21 +1,23 @@
 \section{Final assembly and the quantitative constant}
 \label{sec:final-assembly-v3}
 
-We assemble the ordinary coloring lower bound, the signed cocoloring upper
-bound, and the exact constant ledger. No independence between the two final
-events is required.
+We now combine the chromatic lower location, the signed cocoloring upper
+location, and the amplification estimate. The two final events are intersected
+by a union bound; no independence is used.
 
-Let $r_+(n)$ denote the ordinary first-moment root and let
-$r_4^{\mathrm{co}}(n)$ denote the signed four-size root. Section~5 proves
+\subsection{The phase-resolved gap}
+
+Let $r_+(n)$ be the ordinary first-moment root and let
+$r_4^{\mathrm{co}}(n)$ be the signed four-size root. Section~5 gives
 \begin{equation}
   r_+(n)-r_4^{\mathrm{co}}(n)
   =
   \left[
-    \frac{(\log2)^2}{4}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3},
   \qquad
-  A_4(\delta):=\log2-D_4(\delta).
+  A_4(\delta):=\log 2-D_4(\delta).
   \label{eq:phase-resolved-root-gap-v3}
 \end{equation}
 The tangent-rounded signed profile is placed at
@@ -24,23 +26,26 @@ The tangent-rounded signed profile is placed at
   =
   \left\lceil
     \frac{r_4^{\mathrm{co}}(n)+r_+(n)}2
-  \right\rceil+O(1),
+  \right\rceil+b_n,
+  \qquad
+  |b_n|\le C,
 \]
-where the bounded correction enforces the two exact profile conservation laws.
-Consequently
+where the bounded integer correction enforces the two exact profile
+conservation laws. Hence
 \begin{equation}
   r_+(n)-k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
   \label{eq:midpoint-retained-gap-v3}
 \end{equation}
-Indeed, taking the midpoint divides the leading root separation by two, while
-the ceiling and tangent correction contribute only $O(1)$ classes.
+The factor $1/8$ has only two sources: the root separation in
+\eqref{eq:phase-resolved-root-gap-v3} carries $1/4$, and midpoint placement
+divides it by two. The ceiling and tangent correction contribute $O(1)$.
 
-Section~4 gives a deterministic integer $k_\chi^-$ such that
+Section~4 constructs a deterministic integer $k_\chi^-$ such that
 \[
   \mathbb P\bigl(\chi(G_n)>k_\chi^-\bigr)\longrightarrow1
 \]
@@ -49,7 +54,7 @@ and
   k_\chi^- - k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log2)^2}{8}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
   \label{eq:integer-location-gap-v3}
@@ -60,59 +65,135 @@ signed witness with probability at least $e^{-\Lambda_n}$, where
 \[
   \Lambda_n=o\!\left(\frac{n}{(\log n)^4}\right).
 \]
-Section~10 applies the rare-seed amplifier and the simultaneous leftover
-coloring theorem. It produces a deterministic $a_n$ such that
-\[
-  a_n=o\!\left(\frac{n}{(\log n)^3}\right)
-\]
-and
+The amplifier in Section~10 produces a deterministic sequence
+$a_n=o(n/(\log n)^3)$ such that
 \[
   \mathbb P\bigl(\zeta(G_n)\le k_{\mathrm{co}}+a_n\bigr)
   \longrightarrow1.
 \]
-Intersecting the two high-probability events by a union bound and using
-\eqref{eq:integer-location-gap-v3} proves the phase-resolved conclusion
+Intersecting this event with the chromatic lower event and using
+\eqref{eq:integer-location-gap-v3}, we obtain a deterministic
+$\epsilon_n\to0$ for which
 \begin{equation}
-  \chi(G_n)-\zeta(G_n)
-  \ge
-  \left[
-    \frac{(\log2)^2}{8}A_4(\delta_n)-o(1)
-  \right]
-  \frac{n}{(\log n)^3}
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \left[
+      \frac{(\log 2)^2}{8}A_4(\delta_n)-\epsilon_n
+    \right]
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow1.
   \label{eq:phase-resolved-final-v3}
 \end{equation}
-with high probability.
 
-\subsection{Exact four-support certificate}
+\subsection{An exact four-support certificate}
 
-For completeness, we record the elementary uniform certificate used to turn
-\eqref{eq:phase-resolved-final-v3} into a fixed constant. Let $\lambda_4$ be
-the tilt of the limiting four-deficit optimizer. Exact rational estimates give
+It remains to replace the phase-dependent factor $A_4(\delta)$ by one explicit
+constant. Put $q=\log 2$, let
 \[
-  \frac{49}{20}\log2
-  <
-  \lambda_4
-  <
-  \frac{83}{20}\log2.
-\]
-Split the omitted limiting mass at $(29/10)\log2$. If $L(\lambda)$ and
-$H(\lambda)$ denote the omitted low- and high-deficit ratios, respectively,
-the following four bounds hold:
-\[
-  L\!\left(\frac{49}{20}\log2\right)<\frac{263}{1000},
+  w_i(\lambda)=\exp\!\left(\lambda i-\frac q2i^2\right),
   \qquad
-  H\!\left(\frac{29}{10}\log2\right)<\frac3{200},
+  Z_4(\lambda)=\sum_{i=2}^{5}w_i(\lambda),
 \]
+and write
 \[
-  L\!\left(\frac{29}{10}\log2\right)<\frac{33}{250},
+  M_4(\lambda)
+  =
+  \frac{\sum_{i=2}^{5}i w_i(\lambda)}{Z_4(\lambda)}.
+\]
+For the omitted low and high parts of the unrestricted support, define
+\[
+  L(\lambda)
+  :=
+  \frac{\sum_{i=-1}^{1}w_i(\lambda)}{Z_4(\lambda)},
   \qquad
-  H\!\left(\frac{83}{20}\log2\right)<\frac{29}{200}.
+  H(\lambda)
+  :=
+  \frac{\sum_{i=6}^{\infty}w_i(\lambda)}{Z_4(\lambda)}.
 \]
-Monotonicity of the two omitted tails therefore gives
+The mean $M_4$ is strictly increasing, $L$ is strictly decreasing, and $H$ is
+strictly increasing. Indeed, the derivative of each log partition ratio is the
+difference of the corresponding tilted means, and the three supports are
+ordered as
 \[
-  L(\lambda_4)+H(\lambda_4)<\frac{139}{500}.
+  \{-1,0,1\}<\{2,3,4,5\}<\{6,7,\ldots\}.
 \]
-Evaluating the unrestricted dual objective at the four-support optimizer yields
+
+The following inequalities are exact rational certificates:
+\[
+\begin{array}{c|c|c}
+\lambda & \text{mean certificate} & \text{omitted-mass certificate}\\
+\hline
+\frac{49}{20}q
+  & M_4(\lambda)<\frac2q
+  & L(\lambda)<\frac{263}{1000}\\[2mm]
+\frac{29}{10}q
+  & {}
+  & L(\lambda)<\frac{33}{250},\quad
+    H(\lambda)<\frac3{200}\\[2mm]
+\frac{83}{20}q
+  & M_4(\lambda)>1+\frac2q
+  & H(\lambda)<\frac{29}{200}.
+\end{array}
+\]
+For completeness, here is a fully reproducible verification. Set
+\[
+  r=2^{1/20},
+  \qquad
+  r_-:=\frac{1035264923841377}{10^{15}},
+  \qquad
+  r_+:=\frac{1035264923841378}{10^{15}}.
+\]
+The integer inequalities $r_-^{20}<2<r_+^{20}$ give
+$r_-<r<r_+$. At each tilt in the table, every finite weight is an integral
+power of $r$, so upper and lower bounds follow by substituting $r_+$ or $r_-$
+according to the sign of that power. For the two high tails, sum the first term
+explicitly and bound the remainder geometrically; the ratio
+$w_{i+1}/w_i$ decreases by a factor $1/2$ when $i$ increases by one. Finally,
+\[
+  \sum_{k=1}^{N}\frac1{k2^k}
+  <q<
+  \sum_{k=1}^{N}\frac1{k2^k}
+  +\frac1{(N+1)2^N}
+\]
+with $N=200$ supplies rational bounds for $q$. Substitution reduces every entry
+of the table to an integer comparison. The companion script
+\texttt{check\_constant\_ledger\_v3.py} performs exactly these operations.
+
+Let $\lambda_4$ be the tilt of the four-support optimizer at
+$T_0=1+2/q-\delta$. Since $2/q\le T_0\le1+2/q$, the mean certificates imply
+\[
+  \frac{49}{20}q<\lambda_4<\frac{83}{20}q.
+\]
+If $\lambda_4\le(29/10)q$, monotonicity gives
+\[
+  L(\lambda_4)+H(\lambda_4)
+  <
+  \frac{263}{1000}+rac3{200}
+  =
+  \frac{139}{500}.
+\]
+If $\lambda_4\ge(29/10)q$, then
+\[
+  L(\lambda_4)+H(\lambda_4)
+  <
+  \frac{33}{250}+rac{29}{200}
+  =
+  \frac{277}{1000}
+  <
+  \frac{139}{500}.
+\]
+Thus the same bound holds throughout the phase.
+
+The unrestricted partition function at $\lambda_4$ is
+\[
+  Z_+(\lambda_4)
+  =
+  Z_4(\lambda_4)
+  \bigl(1+L(\lambda_4)+H(\lambda_4)\bigr).
+\]
+Evaluating the unrestricted dual objective at the four-support optimizer gives
 \[
   D_4(\delta)
   \le
@@ -120,52 +201,52 @@ Evaluating the unrestricted dual objective at the four-support optimizer yields
   <
   \log\!\left(\frac{639}{500}\right).
 \]
-Hence, uniformly for $0\le\delta\le1$,
+Consequently, uniformly for $0\le\delta\le1$,
 \begin{equation}
   A_4(\delta)
   =
-  \log2-D_4(\delta)
+  \log 2-D_4(\delta)
   >
   \log\!\left(\frac{1000}{639}\right).
   \label{eq:exact-four-support-certificate-v3}
 \end{equation}
 
-Combining \eqref{eq:phase-resolved-final-v3} and
-\eqref{eq:exact-four-support-certificate-v3} gives
+Combining \eqref{eq:phase-resolved-final-v3} with the strict uniform margin in
+\eqref{eq:exact-four-support-certificate-v3} yields
 \[
-  \chi(G_n)-\zeta(G_n)
-  \ge
-  \left[
-    \frac{(\log2)^2}{8}
-    \log\!\left(\frac{1000}{639}\right)-o(1)
-  \right]
-  \frac{n}{(\log n)^3}
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{8}
+    \log\!\left(\frac{1000}{639}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow1.
 \]
-with high probability. The fixed coefficient is
+The coefficient equals
 \[
-  \frac{(\log2)^2}{8}
+  \frac{(\log 2)^2}{8}
   \log\!\left(\frac{1000}{639}\right)
   =0.026896409808379\ldots.
 \]
 
 \ifErdosProofClosed
-This proves Theorem~\ref{thm:main-v3}. Since $n/(\log n)^3\to\infty$, the
+This proves the main theorem. Since $n/(\log n)^3\to\infty$, the
 chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.
 \else
-Equations \eqref{eq:phase-resolved-final-v3} and
-\eqref{eq:exact-four-support-certificate-v3} prove the target theorem
-conditional on the four formal gates stated in Appendix~A. The publication
-switch remains disabled until those gates are independently validated.
+This proves the conditional verification statement, subject to the closure
+gates listed in Appendix~A. The publication switch remains disabled until
+those gates have been independently replayed together.
 \fi
 
 \begin{corollary}[Simultaneous complement form]
-Under the hypotheses of Theorem~\ref{thm:main-v3},
+Under the hypotheses used above,
 \[
   \min\{\chi(G_n),\chi(\overline{G_n})\}-\zeta(G_n)
   \ge
   \left[
-    \frac{(\log2)^2}{8}
+    \frac{(\log 2)^2}{8}
     \log\!\left(\frac{1000}{639}\right)-o(1)
   \right]
   \frac{n}{(\log n)^3}
@@ -174,7 +255,7 @@ with high probability.
 \end{corollary}
 
 \begin{proof}
-The law of $\overline{G_n}$ is again $G(n,1/2)$, and
-$\zeta(\overline G)=\zeta(G)$. Apply the theorem simultaneously to $G_n$ and
-its complement and intersect the two events by a union bound.
+The complement $\overline{G_n}$ again has law $G(n,1/2)$, and
+$\zeta(\overline G)=\zeta(G)$. Apply the preceding result to $G_n$ and its
+complement and intersect the two events by a union bound.
 \end{proof}
