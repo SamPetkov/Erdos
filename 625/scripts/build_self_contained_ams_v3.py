@@ -44,6 +44,11 @@ def slice_between(text: str, start: str, end: str) -> str:
     return text[begin:finish]
 
 
+def capitalize_theorem_title(match: re.Match[str]) -> str:
+    prefix, first = match.groups()
+    return prefix + first.upper()
+
+
 def normalize_legacy_section(text: str) -> str:
     # Remove navigation-only commands that are redundant in the generated AMS
     # draft. Labels immediately following theorem statements are retained.
@@ -74,6 +79,11 @@ def normalize_legacy_section(text: str) -> str:
     text = text.replace(r"\end{lemmabox}", r"\end{lemma}")
     text = text.replace(r"\end{propositionbox}", r"\end{proposition}")
     text = text.replace(r"\end{resultbox}", r"\end{theorem}")
+    text = re.sub(
+        r"(\\begin\{(?:lemma|proposition|theorem|corollary)\}\[)([a-z])",
+        capitalize_theorem_title,
+        text,
+    )
 
     # Convert the legacy paragraph proofs to genuine amsthm proof environments.
     # Section 7 has one proof divided into three named ranges, so it is handled
@@ -99,6 +109,7 @@ def normalize_legacy_section(text: str) -> str:
         text,
     )
     text = text.replace(r"\(\square\)", r"\end{proof}")
+    text = re.sub(r"[ \t]+\\end\{proof\}", r"\n\\end{proof}", text)
 
     # Normalize mathematical English and notation without changing any finite
     # identity, hypothesis, quantifier, or summation domain.
@@ -142,6 +153,44 @@ def normalize_legacy_section(text: str) -> str:
             "the uniform slope, and the support comparison used below."
         ),
         (
+            "A \\emph{signed cocoloring} is a partition in which every class is\n"
+            "declared either ``independent'' or ``complete''; it is realized when each\n"
+            "class induces the graph specified by its declaration.  Thus the sign is a\n"
+            "two-way declaration attached to a class, and the signed counts below count\n"
+            "witnesses for ordinary cocolorings rather than a new graph invariant."
+        ): (
+            "Recall that a signed cocoloring witness is a profile partition with one\n"
+            "independent-or-complete declaration on each class. It is realized when each\n"
+            "class induces the declared graph. These declarations are auxiliary counting\n"
+            "data, not a new graph invariant."
+        ),
+        (
+            "There are two logically separate tasks. First, restricting the deficits to\n"
+            "\\(S_4=\\{2,3,4,5\\}\\) must cost strictly less than \\(\\log 2\\) per part. Second,\n"
+            "the \\(2^k\\) choices of signs must convert that strict inequality into a\n"
+            "macroscopic separation of the two roots. Lemma~5.1 proves the first point;\n"
+            "the derivative estimate from Lemma~3.1 then proves the second."
+        ): (
+            "The four-size comparison has two steps. Restricting the deficits to\n"
+            "\\(S_4=\\{2,3,4,5\\}\\) must cost strictly less than \\(\\log 2\\) per part. The\n"
+            "\\(2^k\\) sign choices then convert this strict entropy margin into a\n"
+            "macroscopic root separation. Lemma~5.1 proves the margin, and the slope\n"
+            "estimate in Lemma~3.1 converts it into displacement."
+        ),
+        (
+            "We first bracket this tilt.  At \\(\\lambda=2{\\log 2}\\), we make the\n"
+            "reindexing completely explicit.  The old summation index ranges over"
+        ): (
+            "We begin by bracketing this tilt. At \\(\\lambda=2{\\log 2}\\), set\n"
+            "\\(j=i-2\\). The original summation index ranges over"
+        ),
+        (
+            "For completeness, the first strict inequality in (5.4) has the following\n"
+            "direct verification.  Put"
+        ): (
+            "We verify the first strict inequality in (5.4) directly. Put"
+        ),
+        (
             "It is proved directly for the four-size signed profile, including both\n"
             "corners and every intermediate mass, and no tame-profile theorem is invoked."
         ): (
@@ -156,20 +205,19 @@ def normalize_legacy_section(text: str) -> str:
             "We split the common-subprofile sum according to the vertex mass occupied by\n"
             "the marked classes."
         ),
-        (
-            "We use the same seed-to-typical strategic principle, but not that theorem as a black box:\n"
-            "Lemma 10.2 proves the quantitative implication needed here for an arbitrary\n"
-            "seed exponent \\(\\Lambda_n\\), and Lemma 10.1 supplies the simultaneous\n"
-            "leftover coloring that controls the added parts."
-        ): (
-            "The amplification follows the same seed-to-typical principle, but the form\n"
-            "needed here is proved inside the paper. Lemma 10.2 treats an arbitrary seed\n"
-            "exponent \\(\\Lambda_n\\), and Lemma 10.1 supplies a simultaneous coloring\n"
-            "bound for every leftover vertex set."
-        ),
     }
     for old, new in prose_replacements.items():
         text = text.replace(old, new)
+
+    text = text.replace(
+        "We use the same seed-to-typical strategic principle, but not that theorem as a black box:",
+        "We follow the same seed-to-typical principle, but prove the precise form needed here:",
+    )
+    text = text.replace(
+        "We now prove the amplification needed to turn this possibly rare event\n"
+        "into a typical one.",
+        "We next turn this possibly rare event into a typical one.",
+    )
 
     # Section 10 must point to the replacement normalized-second-moment
     # proposition rather than to the legacy proposition number.
