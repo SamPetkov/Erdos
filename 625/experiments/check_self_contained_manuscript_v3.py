@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ARXIV = ROOT / "arxiv"
 GENERATOR = ROOT / "scripts" / "build_self_contained_ams_v3.py"
+CONSTANT_CHECKER = ROOT / "experiments" / "check_constant_ledger_v3.py"
 GENERATED = ARXIV / "AMS_SELF_CONTAINED_BODY_V3.generated.tex"
 MASTER = ARXIV / "AMS_SELF_CONTAINED_DRAFT_V3.tex"
 
@@ -54,10 +55,11 @@ def check_balanced_environments(text: str, name: str) -> None:
 
 
 def main() -> None:
-    for path in [MASTER, GENERATOR, *SOURCE_FILES]:
+    for path in [MASTER, GENERATOR, CONSTANT_CHECKER, *SOURCE_FILES]:
         require(path.is_file(), f"missing file: {path}")
 
     subprocess.run(["python", str(GENERATOR)], cwd=ROOT.parent, check=True)
+    subprocess.run(["python", str(CONSTANT_CHECKER)], cwd=ROOT.parent, check=True)
     require(GENERATED.is_file(), "generator did not create the manuscript body")
 
     master = MASTER.read_text(encoding="utf-8")
@@ -67,11 +69,10 @@ def main() -> None:
 
     require(r"\ErdosProofClosedfalse" in master, "publication switch is not fail-closed")
     require(r"\ErdosProofClosedtrue" not in master, "publication mode was enabled")
-    require(
-        "Verification draft"
-        in sources["FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"],
-        "visible verification status is missing",
-    )
+    front = sources["FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"]
+    require("Verification status" in front, "visible verification status is missing")
+    require(r"\fbox" not in front, "front matter still contains a boxed status banner")
+    require(r"\begin{maintheorem}" in front, "unnumbered main theorem is missing")
 
     required_master_inputs = (
         "AMS_THEOREM_ENVIRONMENTS_V3",
@@ -98,10 +99,10 @@ def main() -> None:
         generated.count(r"\section{") >= 8,
         "generated body does not contain the canonical numbered sections",
     )
-    # The frozen source contributes 1,915 generated lines after the deliberate
-    # removal of the old Sections 8, 9, and 11.  The replacement sections are
-    # separate audited inputs, so this gate checks against that exact source
-    # volume rather than an arbitrary journal-length target.
+    require(
+        generated.count(r"\begin{proof}") >= 10,
+        "legacy proofs were not converted to AMS proof environments",
+    )
     require(
         len(generated.splitlines()) >= 1800,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
@@ -115,12 +116,14 @@ def main() -> None:
         "Aggregate deficit comparison",
         "Optional-choice product",
         "Reference grouping",
+        "Reusable finite core",
+        "Square-free endpoint transport",
         "Endpoint-table sum",
-        "Phase smallness of the common charge",
+        "Insertion of the phase estimates",
         r"\rho_{16}",
-        "canonical finite Lean reduction",
     ):
         require(token in section8_flat, f"Section 8 missing: {token}")
+    require("Lean" not in section8, "Section 8 contains implementation-status prose")
 
     section9 = sources["SECTION9_SELF_CONTAINED_V3.tex"]
     section9_flat = flatten(section9)
@@ -128,8 +131,10 @@ def main() -> None:
         r"\theta_{ab}",
         r"\lambda_{ab}",
         r"q_{ab}",
+        r"\Phi_F",
         "Fixed even-set expansion",
         "Restriction-product bound",
+        "Quadratic activity bound",
         "The intrinsic residual regime",
         "The complementary residual regime",
         "Normalized signed second moment",
@@ -139,9 +144,11 @@ def main() -> None:
     final = sources["FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"]
     final_flat = flatten(final)
     for token in (
-        r"\frac{(\log2)^2}{8}A_4(\delta_n)",
+        r"\frac{(\log 2)^2}{8}A_4(\delta_n)",
         r"\log\!\left(\frac{1000}{639}\right)",
-        "Exact four-support certificate",
+        "exact rational certificates",
+        "1035264923841377",
+        "check\\_constant\\_ledger\\_v3.py",
         "Simultaneous complement form",
     ):
         require(token in final_flat, f"final assembly missing: {token}")
@@ -164,10 +171,13 @@ def main() -> None:
         "proof omitted",
         "details are standard",
         "The endpoint transportation estimate absorbs",
+        "canonically equivalent to the dependent sum",
         r"\exp\!left",
         r"\begin{lemmabox}",
         r"\begin{propositionbox}",
         r"\begin{resultbox}",
+        r"\paragraph{Proof",
+        r"\(\square\)",
         r"\ln",
     )
     offenders = [token for token in forbidden if token in combined]
@@ -175,18 +185,7 @@ def main() -> None:
 
     labels = re.findall(r"\\label\{([^}]+)\}", combined)
     label_counts = Counter(labels)
-    # The target theorem is written in two mutually exclusive TeX branches.
-    # Exactly one branch is expanded in any build, so the shared semantic label
-    # is intentional and cannot produce a duplicate in the compiled document.
-    require(
-        label_counts.get("thm:main-v3", 0) == 2,
-        "the two status branches must share exactly one target-theorem label",
-    )
-    duplicates = sorted(
-        label
-        for label, count in label_counts.items()
-        if count > 1 and label != "thm:main-v3"
-    )
+    duplicates = sorted(label for label, count in label_counts.items() if count > 1)
     require(not duplicates, f"duplicate labels: {duplicates}")
 
     for name, text in {"master": master, "generated": generated, **sources}.items():
