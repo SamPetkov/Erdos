@@ -282,11 +282,27 @@ For the other endpoint, using
 $R=\lfloor U/2\rfloor$ and
 $\theta\le\mathrm e U^2 2^{-U/3}$ gives
 \[
-  \log_2\!\left(\frac{a_R}{\theta^2}\right)
+  \log_2\theta
   \le
-  -\frac{U^2}{24}+O(U\log U).
+  \log_2\mathrm e+2\log_2U-\frac U3.
 \]
-Hence $Ra_R\le\theta^2$ for all sufficiently large $U$. It follows that
+Since $g(R)=2^{\binom R2}$,
+\[
+\begin{aligned}
+  \log_2\!\left(\frac{a_R}{\theta^2}\right)
+  &=
+  \binom R2+(R-2)\log_2\theta-\log_2(R!)\\
+  &\le
+  \left(\frac{U^2}{8}+O(U)\right)
+  -\left(\frac{U^2}{6}+O(U)\right)
+  +O(U\log U)\\
+  &=
+  -\frac{U^2}{24}+O(U\log U).
+\end{aligned}
+\]
+The two quadratic terms come respectively from the local reward $g(R)$ and
+from the factor $\theta^{R-2}$; the factorial term only improves the upper
+bound. Hence $Ra_R\le\theta^2$ for all sufficiently large $U$. It follows that
 $\lambda_{ab}\le2\theta^2$ in that range. For the finitely many remaining
 values of $U$, the quotient $q_{ab}/\theta^2$ is bounded on the compact interval
 $0\le\theta\le\mathrm e U^2 2^{-U/3}$, with limit $1/2$ at $\theta=0$.
