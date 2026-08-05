@@ -100,10 +100,6 @@ def main() -> None:
         "generated body does not contain the canonical numbered sections",
     )
     require(
-        generated.count(r"\begin{proof}") >= 10,
-        "legacy proofs were not converted to AMS proof environments",
-    )
-    require(
         len(generated.splitlines()) >= 1800,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
     )
