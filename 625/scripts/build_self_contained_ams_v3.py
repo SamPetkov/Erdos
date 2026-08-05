@@ -298,7 +298,7 @@ Thus, whenever"""
     text = re.sub(
         r"We use the same\s+seed-to-typical strategic principle, but not that theorem as a black box:\s*"
         r"Lemma 10\.2 proves the quantitative implication needed here for an arbitrary\s*"
-        r"seed exponent \\(\\Lambda_n\\\), and Lemma 10\.1 supplies the simultaneous\s*"
+        r"seed exponent \\\(\\Lambda_n\\\), and Lemma 10\.1 supplies the simultaneous\s*"
         r"leftover coloring that controls the added parts\.",
         lambda _: (
             "We follow the same seed-to-typical principle, but prove the precise form\n"
