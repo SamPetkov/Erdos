@@ -7,6 +7,7 @@ on:
       - "625/arxiv/FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"
       - "625/arxiv/CONVENTIONS_AND_PROOF_OBJECTS_V3.tex"
       - "625/arxiv/PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex"
+      - "625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex"
       - "625/arxiv/SECTION8_SELF_CONTAINED_V3.tex"
       - "625/arxiv/SECTION9_SELF_CONTAINED_V3.tex"
       - "625/arxiv/FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"
@@ -23,6 +24,7 @@ on:
       - "625/audits/REFEREE_READABILITY_AND_TIER_ONE_PASS_2026-08-05.md"
       - "625/audits/PROOF_CLOSURE_CONTRACTS_2026-08-05.md"
       - "625/audits/PARTIAL_DIAGONAL_CLOSURE_AUDIT_2026-08-05.md"
+      - "625/audits/MATHEMATICAL_CLARITY_AND_CLOSURE_PASS_2026-08-06.md"
       - ".github/workflows/erdos625-self-contained-manuscript.yml"
   workflow_dispatch:
 
@@ -49,7 +51,7 @@ jobs:
         run: |
           python 625/experiments/check_generator_regexes_v3.py \
             | tee /tmp/erdos625-generator-regexes.txt
-      - name: Verify the exact four-support constant
+      - name: Verify the exact four-support constant and fixed slack
         run: |
           python 625/experiments/check_constant_ledger_v3.py \
             | tee /tmp/erdos625-constant-ledger.txt
@@ -61,12 +63,13 @@ jobs:
         run: python 625/experiments/check_self_contained_manuscript_v3.py
       - name: Replay checker with optimized Python
         run: python -O 625/experiments/check_self_contained_manuscript_v3.py
-      - name: Upload generated TeX body and exact ledgers
+      - name: Upload generated TeX body, central proof, and exact ledgers
         uses: actions/upload-artifact@v4
         with:
           name: erdos625-self-contained-generated-body
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
             /tmp/erdos625-partial-diagonal-scalar-ledger.txt
@@ -138,8 +141,10 @@ jobs:
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           pdftoppm -f 1 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-001
-          pdftoppm -f 25 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-025
+          pdftoppm -f 22 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-022
+          pdftoppm -f 27 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-027
           pdftoppm -f 32 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-032
           pdftoppm -f "$pages" -singlefile -png -r 144 \
@@ -151,9 +156,11 @@ jobs:
           path: |
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
             /tmp/erdos625-renders/page-001.png
-            /tmp/erdos625-renders/page-025.png
+            /tmp/erdos625-renders/page-022.png
+            /tmp/erdos625-renders/page-027.png
             /tmp/erdos625-renders/page-032.png
             /tmp/erdos625-renders/page-last.png
           if-no-files-found: error
