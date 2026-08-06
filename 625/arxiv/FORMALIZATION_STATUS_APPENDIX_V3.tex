@@ -113,12 +113,13 @@ ordering in the quantifier order required by the signed first-moment assembly.
 Until that declaration has been independently reviewed and replayed, this
 interface remains part of E625-08/E625-10 and has status \emph{needs review}.
 
-\subsection{Section 7 partial-diagonal finite core}
+\subsection{Section 7 partial-diagonal package}
 
 Several finite ingredients of the partial-diagonal argument are already
-welded. Their presence narrows the unresolved task, but a complete asymptotic
-node is accepted only after its manuscript proof, exact Lean statement, and
-uniformity ledger have been reviewed together.
+welded. The manuscript now also contains standalone candidate proofs of all
+three asymptotic ranges and their normalized assembly. A paper proof is not
+promoted merely because it has been isolated cleanly: the exact Lean statements
+and the independent mathematical replay remain mandatory.
 
 \begingroup
 \small
@@ -137,30 +138,39 @@ Four-deficit structural bridge &
 \path{partialDiagonalRate_uniform_negative_fourDeficit} & Welded\\
 Full-corner complementary reindexing &
 \path{sum_partialDiagonalWeight_fullCorner_eq} & Welded\\
-Uniform empty-corner asymptotic & Exact midpoint activity estimate & Needs review\\
+Uniform empty-corner asymptotic &
+\path{SECTION7_EMPTY_CORNER_V3.tex}; exact Lean theorem not frozen & Needs review\\
 Uniform central Stirling extraction &
 \path{SECTION7_CENTRAL_EXTRACTION_V3.tex}; exact Lean theorem not frozen & Needs review\\
-Uniform full-corner ratio estimate & Exact reindexed asymptotic theorem & Needs review\\
-Three-range normalized assembly & Exact partial-diagonal sum theorem & Blocked\\
+Uniform full-corner ratio estimate &
+\path{SECTION7_FULL_CORNER_V3.tex}; exact Lean theorem not frozen & Needs review\\
+Three-range normalized assembly &
+\path{SECTION7_FULL_CORNER_V3.tex}; exact Lean theorem not frozen & Needs review\\
 \bottomrule
 \end{longtable}
 \endgroup
 
-The scalar rate obstruction is therefore closed: the manuscript and Lean both
-prove the $-(1-R)/5000$ margin from the actual four-deficit structural
-inequalities. The manuscript now also isolates a candidate uniform central
-Stirling extraction. It starts from the exact factorial identity, uses one
-phase-independent Stirling remainder, proves the entropy bound at zero
-coordinates, controls the $\rho$-to-$R$ transport explicitly, and records a
-deterministic error ratio $\varepsilon_n^{\mathrm{diag}}\to0$.
+The scalar rate obstruction is closed: the manuscript and Lean both prove the
+$-(1-R)/5000$ margin from the actual four-deficit structural inequalities. The
+empty-corner source now iterates the exact recurrence against a uniform
+intermediate-denominator bound and records one deterministic error sequence
+$\varepsilon_n^{\mathrm{empty}}\to0$. The central source starts from the exact
+factorial identity, proves the boundary entropy estimate and the
+$\rho$-to-$R$ transport, and records deterministic errors
+$\varepsilon_n^{\mathrm{diag}}$ and
+$\varepsilon_n^{\mathrm{central}}$. The full-corner source keeps every reverse
+recurrence step inside residual mass $n/32$, obtains
+$\varepsilon_n^{\mathrm{full}}\to0$, and partitions the coordinate box into
+disjoint empty, central, and full ranges before adding the three bounds.
 
-That addition materially narrows E625-11B, but it does not promote the node by
-itself. The exact theorem signature still has to be frozen against the midpoint
-profile, checked line by line independently, formalized, and replayed with the
-corner interfaces. The empty-corner activity asymptotic, the full-corner local
-ratio estimate, and the normalized disjoint three-range assembly also remain
-open. The exact rational checker records only the constant ledger for the
-scalar proof; it is not evidence for these asymptotic steps.
+These additions form a complete candidate manuscript proof of E625-11A--D,
+conditional on the exact midpoint profile and positive signed first-moment
+margin exported by E625-10. They materially narrow the mathematical closure
+boundary, but they do not make E625-11 welded. Each standalone source must be
+checked line by line independently, frozen as an exact theorem declaration,
+formalized against the actual midpoint-profile objects, and replayed together
+with the finite recurrence and reindexing lemmas. The rational checker records
+only the scalar constant ledger; it does not certify the asymptotic bridges.
 
 \subsection{Other remaining theorem nodes}
 
@@ -180,9 +190,9 @@ Section 5 & Independently verify and formalize the finite-target root transport
 in \path{SECTION5_ROOT_TRANSPORT_V3.tex}; then assemble it with the welded
 four-support entropy certificate, tangent rounding, and the positive signed
 first moment into the exact theorem consumed by the final adapter. & Needs review\\
-Section 7 & Independently verify and formalize the explicit central Stirling
-extraction; prove the uniform empty-corner activity and full-corner ratio
-asymptotics; then close their normalized disjoint three-range assembly. The
+Section 7 & Independently verify and formalize the complete candidate
+three-range package in the three standalone sources; freeze one normalized
+partial-diagonal theorem with one phase-uniform eventuality threshold. The
 finite recurrence, scalar geometry, structural bridge, and full-corner
 reindexing are welded. & Needs review\\
 Sections 8--9 & Combine phase smallness, endpoint transport, the skeleton
@@ -194,8 +204,7 @@ nodes. & Conditional adapter welded\\
 \bottomrule
 \end{longtable}
 
-The remaining partial-diagonal work should be divided into four exact
-asymptotic declarations rather than submitted as one broad request:
+The partial-diagonal formalization should retain four exact declarations:
 \[
   \text{empty-corner bridge},\quad
   \text{central Stirling bridge},\quad
