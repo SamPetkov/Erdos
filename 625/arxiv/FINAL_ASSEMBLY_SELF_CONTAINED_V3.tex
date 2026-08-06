@@ -20,18 +20,22 @@ $r_4^{\mathrm{co}}(n)$ be the signed four-size root. Section~5 gives
   A_4(\delta):=\log 2-D_4(\delta).
   \label{eq:phase-resolved-root-gap-v3}
 \end{equation}
-The tangent-rounded signed profile is placed at
+The signed profile is placed at the rounded midpoint
 \[
   k_{\mathrm{co}}
   =
   \left\lceil
     \frac{r_4^{\mathrm{co}}(n)+r_+(n)}2
-  \right\rceil+b_n,
-  \qquad
-  |b_n|\le C,
+  \right\rceil.
 \]
-where the bounded integer correction enforces the two exact profile
-conservation laws. Hence
+At this fixed value of $k_{\mathrm{co}}$, the tangent correction in Section~5
+changes only the four type multiplicities by $O(1)$. It preserves exactly both
+\[
+  \sum_i k_i=k_{\mathrm{co}}
+  \qquad\text{and}\qquad
+  \sum_i u_i k_i=n.
+\]
+Thus there is no additional correction to the total number of classes. Hence
 \begin{equation}
   r_+(n)-k_{\mathrm{co}}
   =
@@ -43,7 +47,8 @@ conservation laws. Hence
 \end{equation}
 The factor $1/8$ has only two sources: the root separation in
 \eqref{eq:phase-resolved-root-gap-v3} carries $1/4$, and midpoint placement
-divides it by two. The ceiling and tangent correction contribute $O(1)$.
+divides it by two. The ceiling contributes $O(1)$; the tangent correction
+preserves $k_{\mathrm{co}}$ itself.
 
 Section~4 constructs a deterministic integer $k_\chi^-$ such that
 \[
@@ -87,10 +92,11 @@ $\epsilon_n\to0$ for which
   \label{eq:phase-resolved-final-v3}
 \end{equation}
 
-\subsection{An exact four-support certificate}
+\subsection{An exact four-support certificate with fixed slack}
 
 It remains to replace the phase-dependent factor $A_4(\delta)$ by one explicit
-constant. Put $q=\log 2$, let
+constant and, crucially, to retain a fixed positive margin over the coefficient
+stated in the theorem. Put $q=\log 2$, let
 \[
   w_i(\lambda)=\exp\!\left(\lambda i-\frac q2i^2\right),
   \qquad
@@ -127,14 +133,14 @@ The following inequalities are exact rational certificates:
 \hline
 \frac{49}{20}q
   & M_4(\lambda)<\frac{2}{q}
-  & L(\lambda)<\frac{263}{1000}\\[2mm]
+  & L(\lambda)<\frac{2629}{10000}\\[2mm]
 \frac{29}{10}q
   & {}
-  & L(\lambda)<\frac{33}{250},\quad
-    H(\lambda)<\frac{3}{200}\\[2mm]
+  & L(\lambda)<\frac{329}{2500},\quad
+    H(\lambda)<\frac{37}{2500}\\[2mm]
 \frac{83}{20}q
   & M_4(\lambda)>1+\frac{2}{q}
-  & H(\lambda)<\frac{29}{200}.
+  & H(\lambda)<\frac{357}{2500}.
 \end{array}
 \]
 For completeness, here is a fully reproducible verification. Set
@@ -170,21 +176,21 @@ If $\lambda_4\le(29/10)q$, monotonicity gives
 \[
   L(\lambda_4)+H(\lambda_4)
   <
-  \frac{263}{1000}+\frac{3}{200}
+  \frac{2629}{10000}+\frac{37}{2500}
   =
-  \frac{139}{500}.
+  \frac{2777}{10000}.
 \]
 If $\lambda_4\ge(29/10)q$, then
 \[
   L(\lambda_4)+H(\lambda_4)
   <
-  \frac{33}{250}+\frac{29}{200}
+  \frac{329}{2500}+\frac{357}{2500}
   =
-  \frac{277}{1000}
+  \frac{2744}{10000}
   <
-  \frac{139}{500}.
+  \frac{2777}{10000}.
 \]
-Thus the same bound holds throughout the phase.
+Thus the same strict rational bound holds throughout the phase.
 
 The unrestricted partition function at $\lambda_4$ is
 \[
@@ -199,7 +205,7 @@ Evaluating the unrestricted dual objective at the four-support optimizer gives
   \le
   \log\bigl(1+L(\lambda_4)+H(\lambda_4)\bigr)
   <
-  \log\!\left(\frac{639}{500}\right).
+  \log\!\left(\frac{12777}{10000}\right).
 \]
 Consequently, uniformly for $0\le\delta\le1$,
 \begin{equation}
@@ -207,12 +213,27 @@ Consequently, uniformly for $0\le\delta\le1$,
   =
   \log 2-D_4(\delta)
   >
-  \log\!\left(\frac{1000}{639}\right).
+  \log\!\left(\frac{20000}{12777}\right).
   \label{eq:exact-four-support-certificate-v3}
 \end{equation}
+The strengthened certificate has an explicit fixed margin over the constant in
+the theorem:
+\begin{equation}
+  \log\!\left(\frac{20000}{12777}\right)
+  =
+  \log\!\left(\frac{1000}{639}\right)
+  +
+  \underbrace{\log\!\left(\frac{12780}{12777}\right)}_{=:~\sigma_4>0}.
+  \label{eq:fixed-four-support-slack-v3}
+\end{equation}
 
-Combining \eqref{eq:phase-resolved-final-v3} with the strict uniform margin in
-\eqref{eq:exact-four-support-certificate-v3} yields
+Combining \eqref{eq:phase-resolved-final-v3} with
+\eqref{eq:exact-four-support-certificate-v3}, and then taking $n$ large enough
+that
+\[
+  \epsilon_n<\frac{(\log 2)^2}{8}\sigma_4,
+\]
+yields
 \[
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
@@ -223,11 +244,17 @@ Combining \eqref{eq:phase-resolved-final-v3} with the strict uniform margin in
   \right)
   \longrightarrow1.
 \]
-The coefficient equals
+The displayed coefficient equals
 \[
   \frac{(\log 2)^2}{8}
   \log\!\left(\frac{1000}{639}\right)
   =0.026896409808379\ldots.
+\]
+The stronger certificate before absorbing the asymptotic error has coefficient
+\[
+  \frac{(\log 2)^2}{8}
+  \log\!\left(\frac{20000}{12777}\right)
+  =0.026910509263013\ldots.
 \]
 
 \ifErdosProofClosed
