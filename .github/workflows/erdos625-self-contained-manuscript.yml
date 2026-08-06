@@ -7,6 +7,7 @@ on:
       - "625/arxiv/FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"
       - "625/arxiv/CONVENTIONS_AND_PROOF_OBJECTS_V3.tex"
       - "625/arxiv/PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex"
+      - "625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
       - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
       - "625/arxiv/SECTION7_EMPTY_CORNER_V3.tex"
       - "625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex"
@@ -72,6 +73,7 @@ jobs:
           name: erdos625-self-contained-generated-body
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
             625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
@@ -155,6 +157,8 @@ jobs:
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           pdftoppm -f 1 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-001
+          pdftoppm -f 12 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-012
           pdftoppm -f 16 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-016
           pdftoppm -f 21 -singlefile -png -r 144 \
@@ -174,12 +178,14 @@ jobs:
           path: |
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
             625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
             625/arxiv/SECTION7_FULL_CORNER_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
             /tmp/erdos625-renders/page-001.png
+            /tmp/erdos625-renders/page-012.png
             /tmp/erdos625-renders/page-016.png
             /tmp/erdos625-renders/page-021.png
             /tmp/erdos625-renders/page-023.png
