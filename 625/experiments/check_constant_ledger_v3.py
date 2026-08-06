@@ -11,6 +11,17 @@ R_LO = Fraction(1035264923841377, DEN)
 R_HI = Fraction(1035264923841378, DEN)
 LOG_SERIES_TERMS = 200
 
+# These slightly sharper rational cutoffs leave a visible fixed margin in the
+# final theorem rather than relying on an unspecified strict inequality.
+L49_MAX = Fraction(2629, 10000)
+H58_MAX = Fraction(37, 2500)
+L58_MAX = Fraction(329, 2500)
+H83_MAX = Fraction(357, 2500)
+UNIFORM_OMITTED_MAX = Fraction(2777, 10000)
+STRONG_RATIO = Fraction(20000, 12777)
+TARGET_RATIO = Fraction(1000, 639)
+SLACK_RATIO = Fraction(12780, 12777)
+
 
 def require(condition: bool, message: str) -> None:
     if not condition:
@@ -117,29 +128,43 @@ def main() -> None:
     h83_hi = high_tail_upper(83)
 
     require(
-        l49_hi < Fraction(263, 1000),
-        "L(49 log 2 / 20) certificate failed",
+        l49_hi < L49_MAX,
+        "L(49 log 2 / 20) sharpened certificate failed",
     )
     require(
-        h58_hi < Fraction(3, 200),
-        "H(29 log 2 / 10) certificate failed",
+        h58_hi < H58_MAX,
+        "H(29 log 2 / 10) sharpened certificate failed",
     )
     require(
-        l58_hi < Fraction(33, 250),
-        "L(29 log 2 / 10) certificate failed",
+        l58_hi < L58_MAX,
+        "L(29 log 2 / 10) sharpened certificate failed",
     )
     require(
-        h83_hi < Fraction(29, 200),
-        "H(83 log 2 / 20) certificate failed",
+        h83_hi < H83_MAX,
+        "H(83 log 2 / 20) sharpened certificate failed",
     )
 
+    first_split = L49_MAX + H58_MAX
+    second_split = L58_MAX + H83_MAX
     require(
-        Fraction(263, 1000) + Fraction(3, 200) == Fraction(139, 500),
+        first_split == UNIFORM_OMITTED_MAX,
         "first split ledger failed",
     )
     require(
-        Fraction(33, 250) + Fraction(29, 200) < Fraction(139, 500),
+        second_split < UNIFORM_OMITTED_MAX,
         "second split ledger failed",
+    )
+    require(
+        1 + UNIFORM_OMITTED_MAX == Fraction(12777, 10000),
+        "partition-ratio ledger failed",
+    )
+    require(
+        Fraction(2, 1 + UNIFORM_OMITTED_MAX) == STRONG_RATIO,
+        "strong entropy-ratio ledger failed",
+    )
+    require(
+        STRONG_RATIO / TARGET_RATIO == SLACK_RATIO > 1,
+        "fixed final-constant slack failed",
     )
 
     print("ERDOS 625 CONSTANT LEDGER: PASS")
@@ -149,6 +174,9 @@ def main() -> None:
     print(f"  L(29 log 2 / 10) upper: {float(l58_hi):.15f}")
     print(f"  H(29 log 2 / 10) upper: {float(h58_hi):.15f}")
     print(f"  H(83 log 2 / 20) upper: {float(h83_hi):.15f}")
+    print(f"  uniform omitted-mass cap: {UNIFORM_OMITTED_MAX}")
+    print(f"  strong entropy ratio: {STRONG_RATIO}")
+    print(f"  fixed slack ratio over target: {SLACK_RATIO}")
 
 
 if __name__ == "__main__":
