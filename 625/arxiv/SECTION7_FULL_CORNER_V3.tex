@@ -1,0 +1,125 @@
+% Replacement full-corner proof and range assembly for Section 7.
+% This file is inserted inside the proof of Lemma 7.1.
+
+\displayheading{Full corner}
+
+Put $h=k-\ell$ and write
+\[
+  v(h):=\sum_i u_i h_i=n-m.
+\]
+The full corner is the range
+\begin{equation*}
+  v(h)\le\frac n{32}.
+  \tag{7.26a}
+\end{equation*}
+We use the exact reverse recurrence (7.6) without replacing any ambient
+falling factorial.
+
+First make the uniform smallness of the residual first moments explicit. For
+any $0\le w\le n$ and every one of the four block sizes,
+\[
+  \frac{\mu_{u_i}(w)}{\mu_{u_i}(n)}
+  =\frac{(w)_{u_i}}{(n)_{u_i}}
+  \le\left(\frac wn\right)^{u_i}.
+\]
+Equations (2.2) and (2.8) give
+$\mu_{u_i}(n)\le n^{6+o(1)}$ uniformly in the phase. Moreover,
+$u_i=(2/\log 2+o(1))\log n$, and
+$\log32=5\log2$. Consequently, uniformly for $w\le n/32$,
+\begin{equation*}
+  \mu_{u_i}(w)
+  \le
+  n^{6+o(1)}32^{-u_i}
+  =n^{-4+o(1)}.
+  \tag{7.26}
+\end{equation*}
+In particular, there is one phase-independent threshold after which
+\begin{equation*}
+  \mu_{u_i}(w)\le n^{-3}
+  \qquad
+  (w\le n/32,\ 2\le i\le5).
+  \tag{7.26b}
+\end{equation*}
+The relaxed exponent $-3$ leaves a fixed margin and is all that the recurrence
+requires.
+
+Fix a final residual profile $h$ satisfying (7.26a), and expose its blocks in
+any order. Let $a$ be the current residual profile and
+$v(a)=\sum_i u_i a_i$. If the next block has type $i$, then
+$a_i<h_i$ and therefore
+\[
+  v(a)+u_i\le v(h)\le n/32.
+\]
+The exact recurrence (7.6), $k_i-a_i\le k_i\le n$, and (7.26b) now give
+\[
+  \frac{B(a+e_i)}{B(a)}
+  =
+  \frac{2(k_i-a_i)\mu_{u_i}(v(a)+u_i)}{(a_i+1)^2}
+  \le2n^{-2}<1
+\]
+for all sufficiently large $n$. Hence $B$ never increases along the path from
+$0$ to $h$, and
+\begin{equation*}
+  B(h)\le B(0)=1.
+  \tag{7.27a}
+\end{equation*}
+By the exact complementary identity (7.5) and the phase-uniform first-moment
+margin (5.19),
+\begin{equation*}
+  D(k-h)
+  =\frac{B(h)}{\Exp{Z_k^{\mathrm{sgn}}}}
+  \le e^{-c_Zk_{\mathrm{co}}}.
+  \tag{7.27}
+\end{equation*}
+There are at most $(k_{\mathrm{co}}+1)^4$ residual profiles. Therefore
+\[
+  \sum_{v(h)\le n/32}D(k-h)
+  \le
+  \exp\{4\log(k_{\mathrm{co}}+1)-c_Zk_{\mathrm{co}}\}
+  =o(1)
+\]
+uniformly in the phase. Equivalently, this sum is bounded by one deterministic
+sequence $\varepsilon_n^{\mathrm{full}}\to0$.
+
+\displayheading{Disjoint three-range assembly}
+
+For sufficiently large $n$, one has $\eta<31/32$. The coordinate box of all
+partial subprofiles is then the disjoint union of
+\[
+\begin{aligned}
+  \mathcal E_n&:=\{\ell:m\le\eta n\},\\
+  \mathcal C_n&:=\{\ell:m>\eta n,\ n-m>n/32\},\\
+  \mathcal F_n&:=\{\ell:n-m\le n/32\}.
+\end{aligned}
+\]
+Indeed, if $\ell\in\mathcal F_n$, then
+$m\ge31n/32>\eta n$, so the full corner cannot meet the empty corner; after
+excluding those two cases, the two strict inequalities defining
+$\mathcal C_n$ are automatic. Thus no boundary term is counted twice and no
+subprofile is omitted.
+
+The three estimates proved above have the form
+\[
+\begin{aligned}
+  1&\le\sum_{\ell\in\mathcal E_n}D(\ell)
+      \le e^{\varepsilon_n^{\mathrm{empty}}},\\
+  0&\le\sum_{\ell\in\mathcal C_n}D(\ell)
+      \le\varepsilon_n^{\mathrm{central}},\\
+  0&\le\sum_{\ell\in\mathcal F_n}D(\ell)
+      \le\varepsilon_n^{\mathrm{full}},
+\end{aligned}
+\]
+where every error sequence is deterministic, phase-independent, and tends to
+zero. The lower bound in the first line is the term $D(0)=1$. Adding the three
+disjoint sums gives
+\[
+  1
+  \le
+  \sum_{0\le\ell_i\le k_i}D(\ell)
+  \le
+  e^{\varepsilon_n^{\mathrm{empty}}}
+  +\varepsilon_n^{\mathrm{central}}
+  +\varepsilon_n^{\mathrm{full}}
+  =1+o(1),
+\]
+which proves (7.7) with one eventuality threshold for the complete phase.
