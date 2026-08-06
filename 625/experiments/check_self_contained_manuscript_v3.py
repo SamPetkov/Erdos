@@ -22,7 +22,9 @@ SOURCE_FILES = [
     ARXIV / "CONVENTIONS_AND_PROOF_OBJECTS_V3.tex",
     ARXIV / "PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex",
     ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex",
+    ARXIV / "SECTION7_EMPTY_CORNER_V3.tex",
     ARXIV / "SECTION7_CENTRAL_EXTRACTION_V3.tex",
+    ARXIV / "SECTION7_FULL_CORNER_V3.tex",
     ARXIV / "SECTION8_SELF_CONTAINED_V3.tex",
     ARXIV / "SECTION9_SELF_CONTAINED_V3.tex",
     ARXIV / "FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex",
@@ -107,7 +109,9 @@ def main() -> None:
     required_body_markers = (
         r"\section{Phase notation and elementary estimates}",
         r"\input{SECTION5_ROOT_TRANSPORT_V3}",
+        r"\input{SECTION7_EMPTY_CORNER_V3}",
         r"\input{SECTION7_CENTRAL_EXTRACTION_V3}",
+        r"\input{SECTION7_FULL_CORNER_V3}",
         r"\input{SECTION8_SELF_CONTAINED_V3}",
         r"\input{SECTION9_SELF_CONTAINED_V3}",
         r"\section{Rare-event amplification}",
@@ -121,7 +125,7 @@ def main() -> None:
         "generated body does not contain the canonical numbered sections",
     )
     require(
-        len(generated.splitlines()) >= 1425,
+        len(generated.splitlines()) >= 1280,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
     )
 
@@ -136,6 +140,8 @@ def main() -> None:
         "This equality is finite and contains no limiting substitution",
         "one deterministic error sequence valid across the complete phase",
         "integer sequences approaching either endpoint",
+        r"r_4^{\mathrm{co}}<r_+",
+        "orientation fixed",
     ):
         require(token in section5_flat, f"Section 5 root transport missing: {token}")
     require(
@@ -147,8 +153,25 @@ def main() -> None:
         "compressed Section 5 target transport remains in generated source",
     )
 
-    section7 = sources["SECTION7_CENTRAL_EXTRACTION_V3.tex"]
-    section7_flat = flatten(section7)
+    empty = sources["SECTION7_EMPTY_CORNER_V3.tex"]
+    empty_flat = flatten(empty)
+    for token in (
+        "in any order",
+        r"(1-2\eta)^{-u_i}",
+        r"-\log(1-2\eta)\le4\eta",
+        r"\frac{111}{56}",
+        r"\varepsilon_n^{\mathrm{empty}}",
+        "one phase-independent constant",
+        "Every threshold in this estimate is independent of the phase",
+    ):
+        require(token in empty_flat, f"Section 7 empty corner missing: {token}")
+    require(
+        r"\begin{equation}" not in empty,
+        "Section 7 empty corner uses numbered equations with manual tags",
+    )
+
+    central = sources["SECTION7_CENTRAL_EXTRACTION_V3.tex"]
+    central_flat = flatten(central)
     for token in (
         "Uniform Stirling extraction",
         r"C_{\mathrm S}",
@@ -162,14 +185,33 @@ def main() -> None:
         "one eventuality threshold for the complete phase",
         "check_partial_diagonal_rate_v3.py",
     ):
-        require(token in section7_flat, f"Section 7 central extraction missing: {token}")
+        require(token in central_flat, f"Section 7 central extraction missing: {token}")
     require(
-        len(section7.splitlines()) >= 250,
-        f"Section 7 central extraction is unexpectedly short: {len(section7.splitlines())} lines",
+        len(central.splitlines()) >= 250,
+        f"Section 7 central extraction is unexpectedly short: {len(central.splitlines())} lines",
     )
     require(
-        r"\begin{equation}" not in section7,
+        r"\begin{equation}" not in central,
         "Section 7 central extraction uses numbered equations with manual tags",
+    )
+
+    full = sources["SECTION7_FULL_CORNER_V3.tex"]
+    full_flat = flatten(full)
+    for token in (
+        r"v(a)+u_i\le v(h)",
+        r"\mu_{u_i}(w)\le n^{-3}",
+        r"2n^{-2}<1",
+        r"\varepsilon_n^{\mathrm{full}}",
+        "Disjoint three-range assembly",
+        r"\eta<31/32",
+        "no boundary term is counted twice",
+        r"\varepsilon_n^{\mathrm{central}}",
+        "one eventuality threshold for the complete phase",
+    ):
+        require(token in full_flat, f"Section 7 full corner missing: {token}")
+    require(
+        r"\begin{equation}" not in full,
+        "Section 7 full corner uses numbered equations with manual tags",
     )
 
     section8 = sources["SECTION8_SELF_CONTAINED_V3.tex"]
@@ -241,6 +283,7 @@ def main() -> None:
         "Running",
         "Needs review",
         "eventually_fourEndpointThreeQuarterRho_le_one",
+        "SECTION5_ROOT_TRANSPORT_V3.tex",
         "sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity",
         "partialDiagonalRate_uniform_negative",
         "partialDiagonalRate_uniform_negative_fourDeficit",
@@ -282,18 +325,20 @@ def main() -> None:
         require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
-    # The generated body delegates two theorem-facing passages to checked
-    # source files, so this threshold measures the assembled source set rather
-    # than the length of one monolithic generated file.
+    # The generated body delegates theorem-facing passages to checked source
+    # files, so this threshold measures the assembled source set rather than
+    # the length of one monolithic generated file.
     require(
-        len(words) >= 5100,
+        len(words) >= 5550,
         f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
     print(f"  Section 5 root-transport source lines: {len(section5.splitlines())}")
-    print(f"  Section 7 central source lines: {len(section7.splitlines())}")
+    print(f"  Section 7 empty source lines: {len(empty.splitlines())}")
+    print(f"  Section 7 central source lines: {len(central.splitlines())}")
+    print(f"  Section 7 full source lines: {len(full.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
     print("  exact certificates: four-support slack and partial-diagonal scalar ledger")
