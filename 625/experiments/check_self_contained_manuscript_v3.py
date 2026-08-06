@@ -21,6 +21,7 @@ SOURCE_FILES = [
     ARXIV / "FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex",
     ARXIV / "CONVENTIONS_AND_PROOF_OBJECTS_V3.tex",
     ARXIV / "PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex",
+    ARXIV / "SECTION4_CHROMATIC_LOWER_TAIL_V3.tex",
     ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex",
     ARXIV / "SECTION7_EMPTY_CORNER_V3.tex",
     ARXIV / "SECTION7_CENTRAL_EXTRACTION_V3.tex",
@@ -108,6 +109,7 @@ def main() -> None:
 
     required_body_markers = (
         r"\section{Phase notation and elementary estimates}",
+        r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}",
         r"\input{SECTION5_ROOT_TRANSPORT_V3}",
         r"\input{SECTION7_EMPTY_CORNER_V3}",
         r"\input{SECTION7_CENTRAL_EXTRACTION_V3}",
@@ -121,12 +123,36 @@ def main() -> None:
     missing_body = [token for token in required_body_markers if token not in generated]
     require(not missing_body, f"generated body missing markers: {missing_body}")
     require(
-        generated.count(r"\section{") >= 8,
-        "generated body does not contain the canonical numbered sections",
+        generated.count(r"\section{") >= 7,
+        "generated body does not contain the expected numbered sections",
     )
     require(
-        len(generated.splitlines()) >= 1280,
+        len(generated.splitlines()) >= 1120,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
+    )
+
+    section4 = sources["SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"]
+    section4_flat = flatten(section4)
+    for token in (
+        "A uniform lower location",
+        r"\Delta_n:=r_+(n)-k_\chi^-",
+        r"\frac{n}{k^2}",
+        r"c_*(\log n)^2",
+        r"\varepsilon_n^{\mathrm{prof}}",
+        r"\varepsilon_n^{\mathrm{cap}}",
+        "Splitting such a class into two nonempty subsets preserves independence",
+        "The direction is strict",
+        r"o\!\left(\frac{n}{(\log n)^3}\right)",
+        "full sequence of integers",
+    ):
+        require(token in section4_flat, f"Section 4 lower tail missing: {token}")
+    require(
+        r"\begin{equation}" not in section4,
+        "Section 4 lower tail uses numbered equations with manual tags",
+    )
+    require(
+        "By Lemma 3.1 and (1.2)" not in generated,
+        "compressed chromatic lower-tail proof remains in generated source",
     )
 
     section5 = sources["SECTION5_ROOT_TRANSPORT_V3.tex"]
@@ -182,12 +208,13 @@ def main() -> None:
         r"\frac{13}{8960}",
         r"\frac1{20}",
         r"\varepsilon_n^{\mathrm{diag}}",
+        r"\varepsilon_n^{\mathrm{central}}",
         "one eventuality threshold for the complete phase",
         "check_partial_diagonal_rate_v3.py",
     ):
         require(token in central_flat, f"Section 7 central extraction missing: {token}")
     require(
-        len(central.splitlines()) >= 250,
+        len(central.splitlines()) >= 260,
         f"Section 7 central extraction is unexpectedly short: {len(central.splitlines())} lines",
     )
     require(
@@ -271,6 +298,7 @@ def main() -> None:
         "1035264923841377",
         "check\\_constant\\_ledger\\_v3.py",
         "Simultaneous complement form",
+        "no further asymptotic loss is introduced",
     ):
         require(token in final_flat, f"final assembly missing: {token}")
     require("+b_n" not in final, "final assembly reintroduced a class-count correction")
@@ -284,11 +312,14 @@ def main() -> None:
         "Needs review",
         "eventually_fourEndpointThreeQuarterRho_le_one",
         "SECTION5_ROOT_TRANSPORT_V3.tex",
+        "SECTION7_EMPTY_CORNER_V3.tex",
+        "SECTION7_CENTRAL_EXTRACTION_V3.tex",
+        "SECTION7_FULL_CORNER_V3.tex",
         "sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity",
         "partialDiagonalRate_uniform_negative",
         "partialDiagonalRate_uniform_negative_fourDeficit",
         "sum_partialDiagonalWeight_fullCorner_eq",
-        "The scalar rate obstruction is therefore closed",
+        "complete candidate manuscript proof of E625-11A--D",
         "Publication gate",
         "Recommended theorem-facing Lean organization",
     ):
@@ -329,12 +360,13 @@ def main() -> None:
     # files, so this threshold measures the assembled source set rather than
     # the length of one monolithic generated file.
     require(
-        len(words) >= 5550,
+        len(words) >= 5700,
         f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
+    print(f"  Section 4 lower-tail source lines: {len(section4.splitlines())}")
     print(f"  Section 5 root-transport source lines: {len(section5.splitlines())}")
     print(f"  Section 7 empty source lines: {len(empty.splitlines())}")
     print(f"  Section 7 central source lines: {len(central.splitlines())}")
