@@ -1,0 +1,177 @@
+\section{\texorpdfstring{A uniform lower location for
+$\chi$}{A uniform lower location for chi}}
+\label{a-valid-unrestricted-lower-location-for-chi}
+
+Let $r_+(n)=r_{S_+,0}$ be the unrestricted zero from Lemma~3.1, and put
+\begin{equation*}
+  k_\chi^-:=\lfloor r_+(n)\rfloor-\lceil\log n\rceil.
+  \tag{4.1}
+\end{equation*}
+This is a deterministic integer. Since
+$r_+(n)=\Theta(n/\log n)$ uniformly in the phase, one has
+$1\le k_\chi^-<n$ for all sufficiently large $n$.
+
+For an integer profile
+$\mathbf k=(k_i)_{-1\le i\le\alpha-1}$, let
+$X_{\mathbf k}$ be the number of unordered proper colorings having exactly
+$k_i$ classes of size $\alpha-i$. Direct enumeration gives
+\begin{equation*}
+  \Exp{X_{\mathbf k}}
+  =\frac{n!}{\prod_i((\alpha-i)!)^{k_i}k_i!}
+   2^{-\sum_i k_i\binom{\alpha-i}{2}}.
+  \tag{4.2}
+\end{equation*}
+For an integer $k$, let $\mathcal K_{n,k,\alpha+1}$ be the set of these
+profiles satisfying
+\[
+  \sum_i k_i=k,
+  \qquad
+  \sum_i(\alpha-i)k_i=n,
+\]
+and define
+\[
+  E_{n,k,\alpha+1}
+  :=\sum_{\mathbf k\in\mathcal K_{n,k,\alpha+1}}
+    \Exp{X_{\mathbf k}}.
+\]
+Thus $E_{n,k,\alpha+1}$ is the expected number of unordered proper colorings
+with exactly $k$ nonempty parts, each of size at most $\alpha+1$.
+
+\subsection*{The profile sum}
+
+There are $\alpha+1=O(\log n)$ profile coordinates, and each coordinate lies
+between zero and $n$. Hence
+\begin{equation*}
+  |\mathcal K_{n,k,\alpha+1}|
+  \le(n+1)^{\alpha+1}
+  =\exp\{O((\log n)^2)\}
+  \tag{4.3a}
+\end{equation*}
+uniformly in $k$ and in the phase. Applying the uniform factorial estimate
+(1.2) to (4.2), with the convention $0\log0=0$, gives
+\[
+  \log\Exp{X_{\mathbf k}}
+  \le L_{\mathbf k}+O((\log n)^2).
+\]
+The error is uniform even when some $k_i=0$: only $O(\log n)$ factorials
+occur, and every one contributes $O(\log n)$. Maximizing over the feasible
+profile and then summing (4.3a) yields
+\begin{equation*}
+  \log E_{n,k,\alpha+1}
+  \le L_+(n,k)+O((\log n)^2).
+  \tag{4.3}
+\end{equation*}
+
+\subsection*{Displacement below the root}
+
+Set
+\[
+  \Delta_n:=r_+(n)-k_\chi^-.
+\]
+The floor and ceiling in (4.1) give the deterministic bounds
+\begin{equation*}
+  \log n\le\Delta_n<\log n+2.
+  \tag{4.3b}
+\end{equation*}
+We next verify that the entire interval
+$[k_\chi^-,r_+(n)]$ lies in the derivative corridor of Lemma~3.1. Write
+$s(k)=n/k$. Uniformly on this interval,
+$k=\Theta(n/\log n)$ and $s(k)=\Theta(\log n)$. Therefore
+\[
+  |s(k_\chi^-)-s(r_+)|
+  \le
+  \sup_{k\in[k_\chi^-,r_+]}
+  \frac{n}{k^2}\,\Delta_n
+  =O\!\left(\frac{(\log n)^3}{n}\right)
+  =o\!\left(\frac{\log\log n}{\log n}\right).
+\]
+Thus, after one phase-independent threshold, every point of the interval lies
+inside the common corridor used in (3.7).
+
+Equation (3.7), with $S=S_+$ and $c=0$, consequently gives an absolute
+$c_*>0$ such that
+\begin{equation*}
+  \frac{d}{dk}L_+(n,k)\ge c_*(\log n)^2
+  \qquad
+  (k_\chi^-\le k\le r_+)
+  \tag{4.3c}
+\end{equation*}
+for all sufficiently large $n$, uniformly in the phase. Since
+$L_+(n,r_+)=0$, the mean-value theorem and (4.3b) imply
+\begin{equation*}
+  L_+(n,k_\chi^-)
+  \le-c_*(\log n)^2\Delta_n
+  \le-c_*(\log n)^3.
+  \tag{4.4}
+\end{equation*}
+Combining (4.3) and (4.4), and decreasing the constant once, gives a
+deterministic sequence
+\[
+  \varepsilon_n^{\mathrm{prof}}
+  :=
+  \exp\{-c_\chi(\log n)^3\}
+  \longrightarrow0
+\]
+such that
+\begin{equation*}
+  E_{n,k_\chi^-,\alpha+1}
+  \le\varepsilon_n^{\mathrm{prof}}.
+  \tag{4.4a}
+\end{equation*}
+
+\subsection*{Removing the size cap}
+
+Let
+\[
+  \mathcal A_n:=\{\alpha(G_n)\le\alpha+1\}.
+\]
+Equation (2.9) gives a deterministic phase-uniform sequence
+$\varepsilon_n^{\mathrm{cap}}\to0$ such that
+\[
+  \Prob{\mathcal A_n^c}
+  \le\varepsilon_n^{\mathrm{cap}}.
+\]
+On $\mathcal A_n$, every class of every proper coloring has size at most
+$\alpha+1$.
+
+Suppose that $\chi(G_n)\le k_\chi^-$ and choose a proper coloring with
+$h\le k_\chi^-$ nonempty classes. If $h<k_\chi^-$, then some class contains at
+least two vertices: otherwise $h=n$, contradicting $h<k_\chi^-<n$. Splitting
+such a class into two nonempty subsets preserves independence. Repeating this
+operation produces a proper coloring with exactly $k_\chi^-$ nonempty classes.
+The size cap is preserved under splitting. Therefore
+\[
+  \{\chi(G_n)\le k_\chi^-\}\cap\mathcal A_n
+  \subseteq
+  \{\text{an exactly $k_\chi^-$, $(\alpha+1)$-bounded coloring exists}\}.
+\]
+Markov's inequality and (4.4a) now give
+\begin{equation*}
+\begin{aligned}
+  \Prob{\chi(G_n)\le k_\chi^-}
+  &\le
+  \Prob{\mathcal A_n^c}
+  +E_{n,k_\chi^-,\alpha+1}\\
+  &\le
+  \varepsilon_n^{\mathrm{cap}}
+  +\varepsilon_n^{\mathrm{prof}}
+  \longrightarrow0.
+\end{aligned}
+  \tag{4.5}
+\end{equation*}
+Equivalently,
+\begin{equation*}
+  \Prob{\chi(G_n)>k_\chi^-}\longrightarrow1.
+  \tag{4.6}
+\end{equation*}
+The direction is strict, as required by the final event intersection.
+
+Finally, (4.3b) also records the location precision:
+\begin{equation*}
+  |k_\chi^--r_+(n)|
+  <\log n+2
+  =o\!\left(\frac{n}{(\log n)^3}\right).
+  \tag{4.7}
+\end{equation*}
+Thus both the probability statement and the location error hold with one set
+of phase-independent thresholds along the full sequence of integers.
