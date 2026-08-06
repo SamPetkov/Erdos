@@ -222,8 +222,9 @@ def normalize_legacy_section(text: str) -> str:
         (
             "The recurrence (7.4) controls the empty corner, the continuous rate\n"
             "function controls the central range, and the reverse recurrence (7.6)\n"
-            "controls the full corner. As written, the three ranges are disjoint:\n"
-            "\\(m\\le\\eta n\\); \\(m>\\eta n\\) and \\(n-m>n/32\\); or\n"
+            "controls the full corner. For all sufficiently large \\(n\\), when\n"
+            "\\(\\eta<31/32\\), the three ranges are the disjoint sets\n"
+            "\\(m\\le\\eta n\\); \\(m>\\eta n\\) and \\(n-m>n/32\\); and\n"
             "\\(n-m\\le n/32\\). They are exhaustive, so no inclusion--exclusion or\n"
             "boundary convention is hidden in the assembly."
         ),
@@ -273,12 +274,26 @@ Then \(\Phi_n(r_4^{\mathrm{co}})=0\) by definition, while at
         1,
     )
 
-    # Replace the entire generated central-range proof by a standalone source
-    # file. This keeps the uniform Stirling ledger readable and independently
-    # auditable instead of burying it in a long regex replacement.
+    # Replace all three Section 7 ranges by standalone sources. The exact
+    # counting identities and lemma statement remain in the generated body;
+    # each asymptotic range can now be audited without a generator-sized diff.
+    text = re.sub(
+        r"\\displayheading\{Empty corner\}.*?(?=\\displayheading\{Central range\})",
+        lambda _: "\\input{SECTION7_EMPTY_CORNER_V3}\n\n",
+        text,
+        count=1,
+        flags=re.S,
+    )
     text = re.sub(
         r"\\displayheading\{Central range\}.*?(?=\\displayheading\{Full corner\})",
         lambda _: "\\input{SECTION7_CENTRAL_EXTRACTION_V3}\n\n",
+        text,
+        count=1,
+        flags=re.S,
+    )
+    text = re.sub(
+        r"\\displayheading\{Full corner\}.*?(?=\\end\{proof\})",
+        lambda _: "\\input{SECTION7_FULL_CORNER_V3}\n",
         text,
         count=1,
         flags=re.S,
