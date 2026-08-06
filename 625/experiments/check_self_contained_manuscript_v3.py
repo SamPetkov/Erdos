@@ -21,6 +21,7 @@ SOURCE_FILES = [
     ARXIV / "FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex",
     ARXIV / "CONVENTIONS_AND_PROOF_OBJECTS_V3.tex",
     ARXIV / "PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex",
+    ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex",
     ARXIV / "SECTION7_CENTRAL_EXTRACTION_V3.tex",
     ARXIV / "SECTION8_SELF_CONTAINED_V3.tex",
     ARXIV / "SECTION9_SELF_CONTAINED_V3.tex",
@@ -105,6 +106,7 @@ def main() -> None:
 
     required_body_markers = (
         r"\section{Phase notation and elementary estimates}",
+        r"\input{SECTION5_ROOT_TRANSPORT_V3}",
         r"\input{SECTION7_CENTRAL_EXTRACTION_V3}",
         r"\input{SECTION8_SELF_CONTAINED_V3}",
         r"\input{SECTION9_SELF_CONTAINED_V3}",
@@ -119,8 +121,30 @@ def main() -> None:
         "generated body does not contain the canonical numbered sections",
     )
     require(
-        len(generated.splitlines()) >= 1450,
+        len(generated.splitlines()) >= 1425,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
+    )
+
+    section5 = sources["SECTION5_ROOT_TRANSPORT_V3.tex"]
+    section5_flat = flatten(section5)
+    for token in (
+        "finite-$n$ support loss",
+        r"D_{4,n}(T)",
+        r"T_+(n)=T_0",
+        r"\mathcal F_S'(T)=-\lambda_S(T)",
+        r"\omega_n^{\mathrm{root}}",
+        "This equality is finite and contains no limiting substitution",
+        "one deterministic error sequence valid across the complete phase",
+        "integer sequences approaching either endpoint",
+    ):
+        require(token in section5_flat, f"Section 5 root transport missing: {token}")
+    require(
+        r"\begin{equation}" not in section5,
+        "Section 5 root transport uses a numbered equation with a manual tag",
+    )
+    require(
+        "Lemma 3.1 and (5.2) give" not in generated,
+        "compressed Section 5 target transport remains in generated source",
     )
 
     section7 = sources["SECTION7_CENTRAL_EXTRACTION_V3.tex"]
@@ -142,6 +166,10 @@ def main() -> None:
     require(
         len(section7.splitlines()) >= 250,
         f"Section 7 central extraction is unexpectedly short: {len(section7.splitlines())} lines",
+    )
+    require(
+        r"\begin{equation}" not in section7,
+        "Section 7 central extraction uses numbered equations with manual tags",
     )
 
     section8 = sources["SECTION8_SELF_CONTAINED_V3.tex"]
@@ -254,16 +282,17 @@ def main() -> None:
         require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
-    # The generated body now delegates the central proof to a checked source
-    # file, so this threshold measures the assembled source set rather than the
-    # length of one monolithic generated file.
+    # The generated body delegates two theorem-facing passages to checked
+    # source files, so this threshold measures the assembled source set rather
+    # than the length of one monolithic generated file.
     require(
-        len(words) >= 5000,
+        len(words) >= 5100,
         f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
+    print(f"  Section 5 root-transport source lines: {len(section5.splitlines())}")
     print(f"  Section 7 central source lines: {len(section7.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
