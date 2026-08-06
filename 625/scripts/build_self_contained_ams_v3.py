@@ -4,9 +4,9 @@
 The canonical TeX remains frozen while the proof is incomplete. This script
 extracts the complete Sections 1--7 and 10 from that source, converts their
 legacy theorem and proof markup to the ordinary AMS hierarchy, applies a small
-set of line-audited prose normalizations, and inserts the replacement Sections
-8, 9, and 11. The canonical Git-blob SHA is checked before line-independent
-section markers are used.
+set of line-audited prose normalizations, and inserts theorem-facing replacement
+sources for the arguments under active proof closure. The canonical Git-blob
+SHA is checked before line-independent section markers are used.
 """
 
 from __future__ import annotations
@@ -42,6 +42,16 @@ def slice_between(text: str, start: str, end: str) -> str:
     require(finish >= 0, f"missing end marker: {end}")
     require(begin < finish, f"reversed markers: {start!r}, {end!r}")
     return text[begin:finish]
+
+
+def replace_between(text: str, start: str, end: str, replacement: str) -> str:
+    """Replace one marker-delimited block, retaining the end marker."""
+    begin = text.find(start)
+    finish = text.find(end, begin + 1)
+    require(begin >= 0, f"missing replacement start marker: {start}")
+    require(finish >= 0, f"missing replacement end marker: {end}")
+    require(begin < finish, f"reversed replacement markers: {start!r}, {end!r}")
+    return text[:begin] + replacement + text[finish:]
 
 
 def capitalize_theorem_title(match: re.Match[str]) -> str:
@@ -250,6 +260,14 @@ def normalize_legacy_section(text: str) -> str:
             "This coarse certificate is sufficient for the root separation.\n"
             "Section~11 sharpens it to obtain the displayed numerical constant."
         ),
+    )
+
+    # Replace the complete chromatic lower-tail section by a standalone source.
+    text = replace_between(
+        text,
+        r"\section{\texorpdfstring{A valid unrestricted lower location for",
+        r"\section{The four-size signed first-moment advantage}",
+        r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}" + "\n\n",
     )
 
     root_transport_old = r"""Put
