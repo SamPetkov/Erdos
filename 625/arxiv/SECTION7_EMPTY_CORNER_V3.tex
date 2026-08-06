@@ -1,0 +1,101 @@
+% Replacement empty-corner proof for Section 7.
+% This file is inserted inside the proof of Lemma 7.1.
+
+\displayheading{Empty corner}
+
+Let
+\[
+  \eta=\frac{\log\log n}{32\log n},
+  \qquad
+  \xi_i=\frac{k_i^2}{2\mu_{u_i}(n)},
+  \qquad
+  \Xi_{\mathrm{empty}}=\sum_i\xi_i.
+  \tag{7.8}
+\]
+Equations (2.4), (2.8), and
+$k_i=\Theta(n/\log n)$ imply, with one phase-independent constant,
+\begin{equation*}
+  \Xi_{\mathrm{empty}}
+  =O\!\left((\log n)^{-(2/\log 2-1/2)}\right).
+  \tag{7.9}
+\end{equation*}
+We now state explicitly how this activity at ambient size $n$ controls every
+intermediate denominator in the selected-mass range.
+
+Fix a final subprofile $\ell$ with selected mass $m\le\eta n$, and expose its
+blocks in any order. At an intermediate selected mass $m'\le m$, the exact
+ratio of first moments is
+\[
+  \frac{\mu_{u_i}(n)}{\mu_{u_i}(n-m')}
+  =rac{(n)_{u_i}}{(n-m')_{u_i}}
+  =\prod_{r=0}^{u_i-1}
+    \frac{n-r}{n-m'-r}.
+\]
+Uniformly in the phase, $u_i=O(\log n)$ whereas
+$\eta n\gg\log n$. Hence, for all sufficiently large $n$,
+$m'+r\le2\eta n$ throughout this product, and therefore
+\[
+  \frac{\mu_{u_i}(n)}{\mu_{u_i}(n-m')}
+  \le(1-2\eta)^{-u_i}.
+\]
+The phase expansion and $\log 2>2/3$ give $u_i\le3\log n$ eventually. Since
+$\eta\le1/4$ and $-\log(1-2\eta)\le4\eta$,
+\begin{equation*}
+  (1-2\eta)^{-u_i}
+  \le\exp(4\eta u_i)
+  \le\exp\!\left(\frac38\log\log n\right)
+  =(\log n)^{3/8}.
+  \tag{7.10}
+\end{equation*}
+Every threshold in this estimate is independent of the phase.
+
+Suppose the current partial profile is $a$ and the next selected block has type
+$i$. The exact recurrence (7.4), the inequality
+$(k_i-a_i)^2\le k_i^2$, and (7.10) give
+\[
+  \frac{D(a+e_i)}{D(a)}
+  \le
+  \frac{(\log n)^{3/8}\xi_i}{a_i+1}.
+\]
+Multiplication along any exposure order gives the order-independent bound
+\[
+  D(\ell)
+  \le
+  \prod_i
+  \frac{\bigl((\log n)^{3/8}\xi_i\bigr)^{\ell_i}}
+       {\ell_i!}.
+\]
+All summands are nonnegative, so enlarging from the selected-mass range to the
+whole nonnegative four-dimensional lattice and expanding the exponential
+series yields
+\begin{equation*}
+  1
+  \le
+  \sum_{m\le\eta n}D(\ell)
+  \le
+  \exp\!\left((\log n)^{3/8}\Xi_{\mathrm{empty}}\right).
+  \tag{7.11}
+\end{equation*}
+The lower bound is the empty marked subprofile.
+
+For clarity, the exponent tends to zero with a fixed power margin. Indeed,
+put $q=\log 2$. By (7.9),
+\[
+  (\log n)^{3/8}\Xi_{\mathrm{empty}}
+  =O\!\left((\log n)^{-(2/q-7/8)}\right),
+\]
+and $q<7/10$ gives
+\[
+  \frac2q-\frac78
+  >\frac{20}{7}-\frac78
+  =\frac{111}{56}>0.
+\]
+Thus, for one deterministic sequence
+$\varepsilon_n^{\mathrm{empty}}\to0$ independent of the phase,
+\[
+  1
+  \le
+  \sum_{m\le\eta n}D(\ell)
+  \le e^{\varepsilon_n^{\mathrm{empty}}}
+  =1+o(1).
+\]
