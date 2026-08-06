@@ -8,7 +8,9 @@ on:
       - "625/arxiv/CONVENTIONS_AND_PROOF_OBJECTS_V3.tex"
       - "625/arxiv/PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex"
       - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
+      - "625/arxiv/SECTION7_EMPTY_CORNER_V3.tex"
       - "625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex"
+      - "625/arxiv/SECTION7_FULL_CORNER_V3.tex"
       - "625/arxiv/SECTION8_SELF_CONTAINED_V3.tex"
       - "625/arxiv/SECTION9_SELF_CONTAINED_V3.tex"
       - "625/arxiv/FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"
@@ -71,7 +73,9 @@ jobs:
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
+            625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
+            625/arxiv/SECTION7_FULL_CORNER_V3.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
             /tmp/erdos625-partial-diagonal-scalar-ledger.txt
@@ -153,8 +157,10 @@ jobs:
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-001
           pdftoppm -f 16 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-016
-          pdftoppm -f 22 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-022
+          pdftoppm -f 21 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-021
+          pdftoppm -f 23 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-023
           pdftoppm -f 27 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-027
           pdftoppm -f 32 -singlefile -png -r 144 \
@@ -169,11 +175,14 @@ jobs:
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
+            625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
+            625/arxiv/SECTION7_FULL_CORNER_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
             /tmp/erdos625-renders/page-001.png
             /tmp/erdos625-renders/page-016.png
-            /tmp/erdos625-renders/page-022.png
+            /tmp/erdos625-renders/page-021.png
+            /tmp/erdos625-renders/page-023.png
             /tmp/erdos625-renders/page-027.png
             /tmp/erdos625-renders/page-032.png
             /tmp/erdos625-renders/page-last.png
