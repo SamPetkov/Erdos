@@ -59,9 +59,9 @@ where
 \end{equation}
 
 The entropy term in (7.14) is uniform even at the boundary of the coordinate
-box. More precisely, the lower bound $p_i\ge c_p>0$ from (5.15) implies that
-there is an absolute $C_{\mathrm H}$ such that, for
-$c_p\le p\le1$ and $0\le y\le p$,
+box. By (5.15) and the bounded tangent-rounding displacement, the exact integer
+profile satisfies $p_i\ge c_p>0$ after decreasing $c_p$ once. Hence there is an
+absolute $C_{\mathrm H}$ such that, for $c_p\le p\le1$ and $0\le y\le p$,
 \begin{equation}
   2p\log p-2(p-y)\log(p-y)-y\log y-y
   \le C_{\mathrm H}y\log\!\left(\frac{\mathrm e}{y}\right).
@@ -70,8 +70,14 @@ $c_p\le p\le1$ and $0\le y\le p$,
 Indeed, when $y\le p/2$, the mean-value theorem bounds
 $p\log p-(p-y)\log(p-y)$ by $Cy$, while $-y\log y$ supplies the only
 singular term. When $y\ge p/2$, one has $y\ge c_p/2$, and the assertion follows
-by compactness. Summing (7.14a) over the four coordinates gives the required
-$O(Y\log(\mathrm e/Y))$ bound.
+by compactness. Finally,
+\[
+  \sum_i y_i\log\!\left(\frac{\mathrm e}{y_i}\right)
+  \le
+  Y\log\!\left(\frac{4\mathrm e}{Y}\right),
+\]
+by the entropy bound on four coordinates. This is
+$O(Y\log(\mathrm e/Y))$ uniformly.
 
 Since $u_{i+1}=u_i-1$, exact subtraction in (7.15) gives
 \begin{equation}
@@ -90,7 +96,7 @@ Let $\bar E=\sum_i p_iE_i$. Applying Stirling once to the complete signed
 first moment gives
 \begin{equation}
  -\frac1{k_{\mathrm{co}}}
-   \log\mathbb E Z_k^{\mathrm{sgn}}
+   \log \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
  =\sum_i p_i\log p_i-1+\bar E+o(1).
  \tag{7.17}
 \end{equation}
@@ -126,9 +132,10 @@ so (7.13) gives
 \[
   |\rho-R|\le\frac{3Y}{\alpha-T}=O(Y/\alpha).
 \]
-If $\rho\ge1/32$, then $R\ge1/64$ for all sufficiently large $n$. Hence
-$x\mapsto x\log x$ is uniformly Lipschitz on the interval between $R$ and
-$\rho$. Moreover, $-R\log R\le1-R=Y$. Thus
+If $\rho\ge1/32$, then $Y\le1$ and the preceding bound implies
+$R\ge1/64$ for all sufficiently large $n$. Hence $x\mapsto x\log x$ is
+uniformly Lipschitz on the interval between $R$ and $\rho$. Moreover,
+$-R\log R\le1-R=Y$. Thus
 \[
 \begin{aligned}
 &\left|n\rho\log\rho
@@ -183,7 +190,7 @@ For $0<R\le1$,
 Indeed, for $x=(1-R)/R\ge0$, the function
 $\log(1+x)-2x/(2+x)$ has derivative
 $x^2/((1+x)(2+x)^2)\ge0$ and vanishes at zero. The positive expansion for
-$\log2$ gives
+$\log 2$ gives
 \[
   \frac23<q<\frac7{10}.
 \]
