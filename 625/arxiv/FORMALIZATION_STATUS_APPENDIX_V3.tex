@@ -21,7 +21,7 @@ submitted, but no returned candidate is proof evidence until the complete
 independent replay protocol has passed.
 \item[Needs review.] The mathematical task is known, but its exact theorem
 signature, constants, quantifiers, and dependency ledger have not all been
-frozen.
+frozen and replayed.
 \item[Blocked.] A downstream theorem whose declared dependencies are not yet
 all welded.
 \end{description}
@@ -84,8 +84,9 @@ not required for the shortest proof closure.
 \subsection{Section 7 partial-diagonal finite core}
 
 Several finite ingredients of the partial-diagonal argument are already
-welded.  Their presence narrows the unresolved task, but it does not supply the
-uniform asymptotic bridges needed by the manuscript.
+welded. Their presence narrows the unresolved task, but a complete asymptotic
+node is accepted only after its manuscript proof, exact Lean statement, and
+uniformity ledger have been reviewed together.
 
 \begingroup
 \small
@@ -93,7 +94,7 @@ uniform asymptotic bridges needed by the manuscript.
                   >{\raggedright\arraybackslash}p{0.55\linewidth}
                   >{\raggedright\arraybackslash}p{0.11\linewidth}}
 \toprule
-Manuscript role & Lean declaration & Status\\
+Manuscript role & Lean declaration or theorem-facing evidence & Status\\
 \midrule
 \endhead
 Empty-corner cutoff activity &
@@ -105,7 +106,8 @@ Four-deficit structural bridge &
 Full-corner complementary reindexing &
 \path{sum_partialDiagonalWeight_fullCorner_eq} & Welded\\
 Uniform empty-corner asymptotic & Exact midpoint activity estimate & Needs review\\
-Uniform central Stirling extraction & Exact finite-to-rate theorem & Needs review\\
+Uniform central Stirling extraction &
+\path{SECTION7_CENTRAL_EXTRACTION_V3.tex}; exact Lean theorem not frozen & Needs review\\
 Uniform full-corner ratio estimate & Exact reindexed asymptotic theorem & Needs review\\
 Three-range normalized assembly & Exact partial-diagonal sum theorem & Blocked\\
 \bottomrule
@@ -114,11 +116,19 @@ Three-range normalized assembly & Exact partial-diagonal sum theorem & Blocked\\
 
 The scalar rate obstruction is therefore closed: the manuscript and Lean both
 prove the $-(1-R)/5000$ margin from the actual four-deficit structural
-inequalities.  What remains is to transport the exact factorial weights to that
-rate uniformly in the complete phase, prove the empty- and full-corner
-asymptotics for the midpoint profile, and assemble a disjoint and exhaustive
-three-range partition.  The exact rational checker records only the constant
-ledger for the scalar proof; it is not evidence for these asymptotic steps.
+inequalities. The manuscript now also isolates a candidate uniform central
+Stirling extraction. It starts from the exact factorial identity, uses one
+phase-independent Stirling remainder, proves the entropy bound at zero
+coordinates, controls the $\rho$-to-$R$ transport explicitly, and records a
+deterministic error ratio $\varepsilon_n^{\mathrm{diag}}\to0$.
+
+That addition materially narrows E625-11B, but it does not promote the node by
+itself. The exact theorem signature still has to be frozen against the midpoint
+profile, checked line by line independently, formalized, and replayed with the
+corner interfaces. The empty-corner activity asymptotic, the full-corner local
+ratio estimate, and the normalized disjoint three-range assembly also remain
+open. The exact rational checker records only the constant ledger for the
+scalar proof; it is not evidence for these asymptotic steps.
 
 \subsection{Other remaining theorem nodes}
 
@@ -137,13 +147,14 @@ quantifiers. & Needs review\\
 Section 5 & Assemble the welded four-support entropy certificate, the root
 separation, tangent rounding, and the positive signed first moment into one
 exact theorem consumed by the final adapter. & Needs review\\
-Section 7 & Prove the uniform empty-corner activity asymptotic, central Stirling
-extraction, full-corner ratio estimate, and their normalized three-range
-assembly.  The finite recurrence, scalar geometry, structural bridge, and
-full-corner reindexing are welded. & Needs review\\
+Section 7 & Independently verify and formalize the explicit central Stirling
+extraction; prove the uniform empty-corner activity and full-corner ratio
+asymptotics; then close their normalized disjoint three-range assembly. The
+finite recurrence, scalar geometry, structural bridge, and full-corner
+reindexing are welded. & Needs review\\
 Sections 8--9 & Combine phase smallness, endpoint transport, the skeleton
-quotient estimate, and the welded residual attachment theorem into the global
-normalized-second-moment hypothesis. & Blocked on the preceding nodes\\
+quotient estimate, the zero-residual case, and the conditioned two-regime
+attachment estimate into the global normalized-second-moment hypothesis. & Blocked on the preceding nodes\\
 Sections 10--11 & The conditional rare-seed amplifier and final event adapter
 are welded, but their concrete hypotheses must be instantiated by the preceding
 nodes. & Conditional adapter welded\\
@@ -187,7 +198,7 @@ statement in the front matter are mandatory.
 \subsection{Recommended theorem-facing Lean organization}
 
 The internal project contains hundreds of fine-grained modules, including both
-legacy and simplified proof routes.  For publication, the formalization should
+legacy and simplified proof routes. For publication, the formalization should
 export a small curated root:
 \begin{itemize}
 \item \path{Erdos625/Paper/Phase.lean};
@@ -199,11 +210,11 @@ export a small curated root:
 \item \path{Erdos625/Paper/Main.lean}.
 \end{itemize}
 The paper-facing root should import only the declarations corresponding to
-named manuscript results.  The complete historical development may remain in
-a separate exhaustive root, and the superseded cycle/walk route should be
-marked as legacy rather than appearing in the main theorem dependency chain.
+named manuscript results. The complete historical development may remain in a
+separate exhaustive root, and the superseded cycle/walk route should be marked
+as legacy rather than appearing in the main theorem dependency chain.
 
 A machine-readable manifest should map every named paper result to its exact
-Lean declaration, source file, commit, status, and axiom audit.  The
+Lean declaration, source file, commit, status, and axiom audit. The
 formalization appendix and reproducibility table can then be generated from
 that manifest, eliminating manual status drift.
