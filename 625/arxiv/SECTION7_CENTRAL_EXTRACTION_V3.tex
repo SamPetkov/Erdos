@@ -271,6 +271,16 @@ $c>0$ such that
   \exp\{-c k_{\mathrm{co}}\log\log n\}.
   \tag{7.25}
 \end{equation*}
-There are at most $(k_{\mathrm{co}}+1)^4=\exp(O(\log n))$ subprofiles, whereas
-$k_{\mathrm{co}}\log\log n\gg\log n$. Their total central-range contribution
-is therefore $o(1)$, with one eventuality threshold for the complete phase.
+Define
+\[
+  \varepsilon_n^{\mathrm{central}}
+  :=
+  (k_{\mathrm{co}}+1)^4
+  \exp\{-c k_{\mathrm{co}}\log\log n\}.
+\]
+There are at most $(k_{\mathrm{co}}+1)^4$ subprofiles, so the total
+central-range contribution is at most
+$\varepsilon_n^{\mathrm{central}}$. Since
+$k_{\mathrm{co}}\log\log n\gg\log n$, this deterministic sequence tends to
+zero, uniformly in the phase and with one eventuality threshold for the
+complete phase.
