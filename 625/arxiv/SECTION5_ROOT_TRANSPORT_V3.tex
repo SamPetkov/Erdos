@@ -1,0 +1,68 @@
+% Replacement root-transport passage for Section 5.
+
+Put
+\[
+  \Phi_n(k):=L_{S_4}(n,k)+(\log 2)k.
+\]
+Then $\Phi_n(r_4^{\mathrm{co}})=0$ by definition. To evaluate the same
+function at the unrestricted root, let
+\[
+  T_+(n):=\alpha-\frac{n}{r_+(n)}
+\]
+and introduce the finite-$n$ support loss
+\[
+  D_{4,n}(T):=
+  \mathcal F_{n,S_+}(T)-\mathcal F_{n,S_4}(T).
+\]
+Since $L_{S_+}(n,r_+)=0$, the exact support-comparison identity (3.8) gives
+\begin{equation*}
+\begin{aligned}
+  \Phi_n(r_+)
+  &=L_{S_4}(n,r_+)-L_{S_+}(n,r_+)+(\log 2)r_+\\
+  &=r_+\{\log 2-D_{4,n}(T_+(n))\}.
+\end{aligned}
+\tag{5.9a}
+\end{equation*}
+This equality is finite and contains no limiting substitution.
+
+We now transport its target mean to the phase center. Equation (3.6) gives
+\begin{equation*}
+  T_+(n)=T_0+O\!\left(\frac{\log\log n}{\log n}\right)
+  \tag{5.9b}
+\end{equation*}
+uniformly in the phase. On the compact interval $K_*$, equation (3.9) gives
+uniform convergence of both finite dual values. The limiting dual value is
+differentiable, with
+\[
+  \mathcal F_S'(T)=-\lambda_S(T),
+\]
+because the envelope theorem cancels the derivative of the optimizing tilt.
+The tilts are uniformly bounded on $K_*$, so both $\mathcal F_{S_+}$ and
+$\mathcal F_{S_4}$ are uniformly Lipschitz there.
+
+More explicitly, choose a deterministic sequence
+\[
+\begin{split}
+  \omega_n^{\mathrm{root}}:=
+  &\sup_{T\in K_*}
+   |\mathcal F_{n,S_+}(T)-\mathcal F_{S_+}(T)|\\
+  &+\sup_{T\in K_*}
+   |\mathcal F_{n,S_4}(T)-\mathcal F_{S_4}(T)|
+   +C|T_+(n)-T_0|,
+\end{split}
+\]
+where $C$ is a common Lipschitz constant for the two limiting dual values.
+Then $\omega_n^{\mathrm{root}}\to0$ uniformly in the phase, and
+\[
+  |D_{4,n}(T_+(n))-D_4(\delta)|
+  \le \omega_n^{\mathrm{root}}.
+\]
+Substitution into (5.9a) yields the theorem-facing estimate
+\begin{equation}
+  L_{S_4}(n,r_+)+(\log 2)r_+
+  =r_+\{\log 2-D_4(\delta)+O(\omega_n^{\mathrm{root}})\}
+  =r_+\{\log 2-D_4(\delta)+o(1)\}.
+  \tag{5.10}
+\end{equation}
+Thus the $o(1)$ in (5.10) is one deterministic error sequence valid across
+the complete phase, including integer sequences approaching either endpoint.
