@@ -102,6 +102,14 @@ jobs:
               AMS_SELF_CONTAINED_DRAFT_V3.log; then
             exit 1
           fi
+      - name: Reject duplicate PDF destinations
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          if grep -F "destination with the same identifier" \
+              AMS_SELF_CONTAINED_DRAFT_V3.log; then
+            exit 1
+          fi
       - name: Reject material overfull boxes
         working-directory: 625/arxiv
         shell: bash
