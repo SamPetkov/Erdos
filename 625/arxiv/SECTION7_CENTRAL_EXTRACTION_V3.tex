@@ -1,0 +1,268 @@
+% Replacement central-range proof for Section 7.
+% This file is inserted inside the proof of Lemma 7.1.
+
+\displayheading{Central range}
+
+Write
+\[\begin{gathered}
+p_i=k_i/k_{\mathrm{co}},\quad y_i=\ell_i/k_{\mathrm{co}},\quad
+ Y=\sum_i y_i,\quad I=\sum_i i y_i,\\
+z_i=p_i-y_i,\quad R=\sum_i z_i=1-Y,\quad
+ I_r=\sum_i i z_i=T-I.
+\end{gathered}
+\tag{7.12}\]
+The residual vertex fraction is
+\begin{equation}
+ \rho=\frac{n-m}{n}
+ =R+\frac{I-TY}{\alpha-T}.
+ \tag{7.13}
+\end{equation}
+
+\displayheading{Uniform Stirling extraction}
+Before approximating any factorial, equations (7.2) and (7.3) give the exact
+identity
+\[
+\begin{split}
+\log D(\ell)={}&
+2\sum_i\{\log(k_i!)-\log(\ell_i!)-\log((k_i-\ell_i)!)\}\\
+&-\ell_\bullet\log 2-\log(n!)+\log((n-m)!)
+ +\sum_i\ell_i\log(u_i!)+\sum_i\log(\ell_i!)
+ +(\log 2)b_\ell.
+\end{split}
+\]
+We use the uniform form of Stirling's estimate
+\[
+  \log(t!)=t\log t-t+\sigma(t),
+  \qquad
+  |\sigma(t)|\le C_{\mathrm S}\log(t+2)
+  \qquad(t\in\mathbb N_0),
+\]
+with the convention $0\log0=0$. Only a fixed number of factorials occurs in
+the preceding identity, and every argument is at most $n$. Therefore the total
+remainder is $O(\!\log n)$ uniformly, including when some $\ell_i$ or
+$k_i-\ell_i$ is zero. Using $n=k_{\mathrm{co}}(\alpha-T)$ gives
+\begin{equation}
+\begin{split}
+ \log D(\ell)={}&n\rho\log\rho\\
+ &+k_{\mathrm{co}}\sum_i\{2p_i\log p_i
+     -2(p_i-y_i)\log(p_i-y_i)
+     -y_i\log y_i-y_i+y_iE_i\}
+     +O(\!\log n),
+\end{split}
+ \tag{7.14}
+\end{equation}
+where
+\begin{equation}
+ E_i=\log k_{\mathrm{co}}+\log(u_i!)+u_i-u_i\log n
+       +(\log 2)\binom{u_i}{2}-\log 2.
+ \tag{7.15}
+\end{equation}
+
+The entropy term in (7.14) is uniform even at the boundary of the coordinate
+box. More precisely, the lower bound $p_i\ge c_p>0$ from (5.15) implies that
+there is an absolute $C_{\mathrm H}$ such that, for
+$c_p\le p\le1$ and $0\le y\le p$,
+\begin{equation}
+  2p\log p-2(p-y)\log(p-y)-y\log y-y
+  \le C_{\mathrm H}y\log\!\left(\frac{\mathrm e}{y}\right).
+  \tag{7.14a}
+\end{equation}
+Indeed, when $y\le p/2$, the mean-value theorem bounds
+$p\log p-(p-y)\log(p-y)$ by $Cy$, while $-y\log y$ supplies the only
+singular term. When $y\ge p/2$, one has $y\ge c_p/2$, and the assertion follows
+by compactness. Summing (7.14a) over the four coordinates gives the required
+$O(Y\log(\mathrm e/Y))$ bound.
+
+Since $u_{i+1}=u_i-1$, exact subtraction in (7.15) gives
+\begin{equation}
+\begin{aligned}
+ E_{i+1}-E_i
+ &=\log n-\log(\alpha-i)-(\log 2)(\alpha-i)+\log 2-1\\
+ &=-\frac{\log 2}{2}\alpha+O(1),
+\end{aligned}
+ \tag{7.16}
+\end{equation}
+uniformly for $2\le i\le4$. For the second line, use
+$(\log 2)\alpha/2=\log n-\log\log n+O(1)$ and
+$\log(\alpha-i)=\log\log n+O(1)$.
+
+Let $\bar E=\sum_i p_iE_i$. Applying Stirling once to the complete signed
+first moment gives
+\begin{equation}
+ -\frac1{k_{\mathrm{co}}}
+   \log\mathbb E Z_k^{\mathrm{sgn}}
+ =\sum_i p_i\log p_i-1+\bar E+o(1).
+ \tag{7.17}
+\end{equation}
+The phase-uniform margin (5.19) implies $\bar E\le C_E$. To expose the affine
+structure in (7.16), set
+\[
+  F_i:=E_i+\frac{(\log 2)\alpha}{2}i.
+\]
+Then $F_{i+1}-F_i=O(1)$. Because the support has only four consecutive
+indices,
+\[
+  F_i=\sum_jp_jF_j+O(1)
+     =\bar E+\frac{(\log 2)\alpha}{2}T+O(1).
+\]
+Consequently
+\[
+  E_i=\bar E-\frac{(\log 2)\alpha}{2}(i-T)+O(1),
+\]
+and therefore
+\begin{equation}
+ \sum_i y_iE_i
+ \le\frac{(\log 2)\alpha}{2}(TY-I)+O(Y).
+ \tag{7.18}
+\end{equation}
+Only the upper bound on $\bar E$ is used here.
+
+It remains to replace the true residual fraction $\rho$ by the profile
+fraction $R$. Since $2\le i,T\le5$,
+\[
+  |I-TY|=\left|\sum_i(i-T)y_i\right|\le3Y,
+\]
+so (7.13) gives
+\[
+  |\rho-R|\le\frac{3Y}{\alpha-T}=O(Y/\alpha).
+\]
+If $\rho\ge1/32$, then $R\ge1/64$ for all sufficiently large $n$. Hence
+$x\mapsto x\log x$ is uniformly Lipschitz on the interval between $R$ and
+$\rho$. Moreover, $-R\log R\le1-R=Y$. Thus
+\[
+\begin{aligned}
+&\left|n\rho\log\rho
+      -k_{\mathrm{co}}\alpha R\log R\right|\\
+&\qquad\le
+ k_{\mathrm{co}}(\alpha-T)C|\rho-R|
+ +k_{\mathrm{co}}T|R\log R|
+ \le Ck_{\mathrm{co}}Y,
+\end{aligned}
+\]
+which proves
+\begin{equation}
+ n\rho\log\rho
+ =k_{\mathrm{co}}\alpha R\log R+O(k_{\mathrm{co}}Y).
+ \tag{7.19}
+\end{equation}
+Combining (7.14), (7.14a), (7.18), and (7.19) yields one absolute constant
+$C$ such that
+\begin{equation}
+ \log D(\ell)
+ \le k_{\mathrm{co}}\alpha\Phi_T(z)
+     +Ck_{\mathrm{co}}Y\log\!\left(\frac{\mathrm e}{Y}\right)
+     +C\log n,
+ \tag{7.20}
+\end{equation}
+where
+\begin{equation}
+ \Phi_T(z)=R\log R+\frac{\log 2}{2}(I_r-TR).
+ \tag{7.21}
+\end{equation}
+All constants and eventuality thresholds in this extraction are independent of
+the phase.
+
+\displayheading{Uniform rate negativity}
+The four-deficit geometry gives
+\begin{equation}
+ I_r-TR\le(5-T)R,
+ \qquad
+ I_r-TR=\sum_i(T-i)y_i\le(T-2)(1-R).
+ \tag{7.22}
+\end{equation}
+Put $q=\log 2$ and recall that $Y=1-R$. Multiplying the first inequality in
+(7.22) by $Y$, the second by $R$, and adding gives
+\begin{equation}
+ I_r-TR\le3RY.
+ \label{eq:partial-diagonal-combined-structural-v3}
+\end{equation}
+For $0<R\le1$,
+\[
+ \log R\le\frac{2(R-1)}{R+1}.
+\]
+Indeed, for $x=(1-R)/R\ge0$, the function
+$\log(1+x)-2x/(2+x)$ has derivative
+$x^2/((1+x)(2+x)^2)\ge0$ and vanishes at zero. The positive expansion for
+$\log2$ gives
+\[
+  \frac23<q<\frac7{10}.
+\]
+
+If $1/64\le R\le3/4$, then
+\[
+\begin{aligned}
+ \Phi_T
+ &\le-\frac{2R}{1+R}Y+\frac{21}{20}RY\\
+ &=-\left(\frac{2}{1+R}-\frac{21}{20}\right)RY
+ \le-\frac{13}{8960}Y.
+\end{aligned}
+\]
+Here $2/(1+R)\ge8/7$ and $R\ge1/64$. If $3/4\le R\le1$, then the phase
+corridor gives $T<4$, so the second inequality in (7.22) implies
+$I_r-TR\le2Y$. Since $\log R\le R-1=-Y$,
+\[
+  \Phi_T\le-RY+qY=(q-R)Y\le-\frac1{20}Y.
+\]
+Thus, throughout the scalar range,
+\begin{equation}
+  \Phi_T(z)\le-\frac{Y}{5000}.
+  \tag{7.23}
+\end{equation}
+The rational inequalities in this two-range ledger are independently checked
+by \path{check_partial_diagonal_rate_v3.py}; the logarithmic inequality and the
+four-deficit reduction are proved above.
+
+\displayheading{Uniform summation over the central range}
+Assume
+\begin{equation}
+  m>\eta n,
+  \qquad
+  n-m>n/32.
+  \tag{7.24}
+\end{equation}
+Then $\rho>1/32$, and
+\[
+  \frac mn=\frac{\alpha Y-I}{\alpha-T}
+  \le\frac{\alpha Y}{\alpha-T}
+\]
+implies
+\[
+  Y>\eta\frac{\alpha-T}{\alpha}\ge\frac\eta2
+\]
+for all sufficiently large $n$. Define the deterministic error ratio
+\begin{equation}
+  \varepsilon_n^{\mathrm{diag}}
+  :=
+  \frac{C\log(2\mathrm e/\eta)}{\alpha}
+  +
+  \frac{2C\log n}{k_{\mathrm{co}}\alpha\eta}.
+  \tag{7.24a}
+\end{equation}
+Since
+\[
+  \alpha=\Theta(\log n),
+  \qquad
+  k_{\mathrm{co}}=\Theta(n/\log n),
+  \qquad
+  \eta=\Theta(\log\log n/\log n),
+\]
+one has $\varepsilon_n^{\mathrm{diag}}\to0$, uniformly in the phase. Because
+$Y\ge\eta/2$, equations (7.20) and (7.23) give
+\[
+  \log D(\ell)
+  \le
+  -k_{\mathrm{co}}\alpha Y
+   \left(\frac1{5000}-\varepsilon_n^{\mathrm{diag}}\right).
+\]
+For all sufficiently large $n$, the parenthesis is at least $1/10000$.
+Moreover, $\alpha\eta=\Theta(\log\log n)$. Hence there is a phase-independent
+$c>0$ such that
+\begin{equation}
+  D(\ell)
+  \le
+  \exp\{-c k_{\mathrm{co}}\log\log n\}.
+  \tag{7.25}
+\end{equation}
+There are at most $(k_{\mathrm{co}}+1)^4=\exp(O(\log n))$ subprofiles, whereas
+$k_{\mathrm{co}}\log\log n\gg\log n$. Their total central-range contribution
+is therefore $o(1)$, with one eventuality threshold for the complete phase.
