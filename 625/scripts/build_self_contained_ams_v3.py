@@ -251,67 +251,26 @@ def normalize_legacy_section(text: str) -> str:
         ),
     )
 
-    rate_certificate = r"""Here is a direct analytic proof of the uniform margin. Put
-$Y=1-R$ and $q=\log 2$. The positive expansion
+    root_transport_old = r"""Put
 \[
- q=2\sum_{m\ge0}\frac{1}{(2m+1)3^{2m+1}}
+ \Phi_n(k):=L_{S_4}(n,k)+{\log 2}k.
 \]
-gives
-\[
- \frac23<q<\frac7{10};
-\]
-for the upper bound, the tail after the first term is less than $1/72$,
-so $q<2(1/3+1/72)=25/36<7/10$.
+Then \(\Phi_n(r_4^{\mathrm{co}})=0\) by definition, while at
+\(k=r_+\), Lemma 3.1 and (5.2) give
 
-Multiply the first structural inequality in (7.22) by $Y$ and the second
-by $R$, and add. Since $R+Y=1$, this gives
-\begin{equation}
- I_r-TR\le 3RY.
- \label{eq:partial-diagonal-combined-structural-v3}
-\end{equation}
-For $0<R\le1$,
 \[
- \log R\le \frac{2(R-1)}{R+1}.
+ L_{S_4}(n,r_+)+{\log 2}r_+
+ =r_+\{{\log 2}-D_4(\delta)+o(1)\}.                             \tag{5.10}
 \]
-Indeed, for $x=(1-R)/R\ge0$, the function
-$\log(1+x)-2x/(2+x)$ has derivative
-$x^2/((1+x)(2+x)^2)\ge0$ and vanishes at zero.
-
-Suppose first that $1/64\le R\le3/4$. Using
-\eqref{eq:partial-diagonal-combined-structural-v3} and $q<7/10$,
-\[
-\begin{aligned}
- \Phi_T
- &\le -\frac{2R}{1+R}Y+\frac{21}{20}RY\\
- &=-\left(\frac{2}{1+R}-\frac{21}{20}\right)RY.
-\end{aligned}
-\]
-Here $2/(1+R)\ge8/7$, and therefore
-\[
- \Phi_T\le-\frac{13}{140}RY
- \le-\frac{13}{8960}Y
- \le-\frac{Y}{5000}.
-\]
-
-Now suppose that $3/4\le R\le1$. The phase corridor gives
-$T\le1+2/q<4$, so the second structural inequality in (7.22) yields
-$I_r-TR\le2Y$. Using $\log R\le R-1=-Y$,
-\[
- \Phi_T\le-RY+qY=(q-R)Y
- \le-\frac1{20}Y
- \le-\frac{Y}{5000}.
-\]
-Thus the desired estimate holds on the whole scalar range. The companion
-script \path{check_partial_diagonal_rate_v3.py} independently verifies the
-rational inequalities in this constant ledger; the logarithmic inequality
-and the structural reduction are proved above.
-Thus, whenever"""
-    text = re.sub(
-        r"Here is the numerical check used in this split\..*?Thus, whenever",
-        lambda _: rate_certificate,
-        text,
-        count=1,
-        flags=re.S,
+"""
+    require(
+        root_transport_old in text,
+        "missing canonical Section 5 root-transport block",
+    )
+    text = text.replace(
+        root_transport_old,
+        r"\input{SECTION5_ROOT_TRANSPORT_V3}" + "\n",
+        1,
     )
 
     # Replace the entire generated central-range proof by a standalone source
