@@ -214,6 +214,21 @@ def normalize_legacy_section(text: str) -> str:
     for old, new in prose_replacements.items():
         text = text.replace(old, new)
 
+    text = text.replace(
+        "The recurrence (7.4) controls the empty corner, the\n"
+        "continuous rate function controls the central range, and the reverse\n"
+        "recurrence (7.6) controls the full corner. The ranges overlap only at their\n"
+        "boundaries and together exhaust every common subprofile.",
+        (
+            "The recurrence (7.4) controls the empty corner, the continuous rate\n"
+            "function controls the central range, and the reverse recurrence (7.6)\n"
+            "controls the full corner. As written, the three ranges are disjoint:\n"
+            "\\(m\\le\\eta n\\); \\(m>\\eta n\\) and \\(n-m>n/32\\); or\n"
+            "\\(n-m\\le n/32\\). They are exhaustive, so no inclusion--exclusion or\n"
+            "boundary convention is hidden in the assembly."
+        ),
+    )
+
     text = re.sub(
         r"We (?:first|begin by) bracket this tilt\..*?Substituting\s+\\\(i=j\+2\\\) in the weight gives",
         lambda _: (
@@ -294,6 +309,17 @@ Thus, whenever"""
     text = re.sub(
         r"Here is the numerical check used in this split\..*?Thus, whenever",
         lambda _: rate_certificate,
+        text,
+        count=1,
+        flags=re.S,
+    )
+
+    # Replace the entire generated central-range proof by a standalone source
+    # file. This keeps the uniform Stirling ledger readable and independently
+    # auditable instead of burying it in a long regex replacement.
+    text = re.sub(
+        r"\\displayheading\{Central range\}.*?(?=\\displayheading\{Full corner\})",
+        lambda _: "\\input{SECTION7_CENTRAL_EXTRACTION_V3}\n\n",
         text,
         count=1,
         flags=re.S,
