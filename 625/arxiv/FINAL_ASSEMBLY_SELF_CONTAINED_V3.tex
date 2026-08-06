@@ -272,10 +272,8 @@ Under the hypotheses used above,
 \[
   \min\{\chi(G_n),\chi(\overline{G_n})\}-\zeta(G_n)
   \ge
-  \left[
-    \frac{(\log 2)^2}{8}
-    \log\!\left(\frac{1000}{639}\right)-o(1)
-  \right]
+  \frac{(\log 2)^2}{8}
+  \log\!\left(\frac{1000}{639}\right)
   \frac{n}{(\log n)^3}
 \]
 with high probability.
@@ -283,6 +281,7 @@ with high probability.
 
 \begin{proof}
 The complement $\overline{G_n}$ again has law $G(n,1/2)$, and
-$\zeta(\overline G)=\zeta(G)$. Apply the preceding result to $G_n$ and its
-complement and intersect the two events by a union bound.
+$\zeta(\overline G)=\zeta(G)$. The preceding result gives the same exact
+coefficient for $G_n$ and for $\overline{G_n}$. Intersect the two events by a
+union bound; no further asymptotic loss is introduced.
 \end{proof}
