@@ -21,6 +21,7 @@ SOURCE_FILES = [
     ARXIV / "FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex",
     ARXIV / "CONVENTIONS_AND_PROOF_OBJECTS_V3.tex",
     ARXIV / "PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex",
+    ARXIV / "SECTION7_CENTRAL_EXTRACTION_V3.tex",
     ARXIV / "SECTION8_SELF_CONTAINED_V3.tex",
     ARXIV / "SECTION9_SELF_CONTAINED_V3.tex",
     ARXIV / "FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex",
@@ -104,14 +105,11 @@ def main() -> None:
 
     required_body_markers = (
         r"\section{Phase notation and elementary estimates}",
+        r"\input{SECTION7_CENTRAL_EXTRACTION_V3}",
         r"\input{SECTION8_SELF_CONTAINED_V3}",
         r"\input{SECTION9_SELF_CONTAINED_V3}",
         r"\section{Rare-event amplification}",
         r"\input{FINAL_ASSEMBLY_SELF_CONTAINED_V3}",
-        r"\label{eq:partial-diagonal-combined-structural-v3}",
-        r"\frac{13}{8960}",
-        r"\frac1{20}",
-        "check_partial_diagonal_rate_v3.py",
         "Canonical source Git blob: c4d090b73cd5efcdb98cc30f79bb5f53c6c9bc97",
     )
     missing_body = [token for token in required_body_markers if token not in generated]
@@ -121,8 +119,29 @@ def main() -> None:
         "generated body does not contain the canonical numbered sections",
     )
     require(
-        len(generated.splitlines()) >= 1800,
+        len(generated.splitlines()) >= 1450,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
+    )
+
+    section7 = sources["SECTION7_CENTRAL_EXTRACTION_V3.tex"]
+    section7_flat = flatten(section7)
+    for token in (
+        "Uniform Stirling extraction",
+        r"C_{\mathrm S}",
+        r"\tag{7.14a}",
+        r"\sum_i y_i\log",
+        "Only the upper bound on $\\bar E$ is used here",
+        r"\label{eq:partial-diagonal-combined-structural-v3}",
+        r"\frac{13}{8960}",
+        r"\frac1{20}",
+        r"\varepsilon_n^{\mathrm{diag}}",
+        "one eventuality threshold for the complete phase",
+        "check_partial_diagonal_rate_v3.py",
+    ):
+        require(token in section7_flat, f"Section 7 central extraction missing: {token}")
+    require(
+        len(section7.splitlines()) >= 250,
+        f"Section 7 central extraction is unexpectedly short: {len(section7.splitlines())} lines",
     )
 
     section8 = sources["SECTION8_SELF_CONTAINED_V3.tex"]
@@ -137,6 +156,9 @@ def main() -> None:
         "Square-free endpoint transport",
         "Endpoint-table sum",
         "Insertion of the phase estimates",
+        r"w_{\mathrm{hi}}(P,j):=w(P,j)",
+        "one-sided reference measure",
+        "not a deletion of common-class overlaps",
         r"\rho_{16}",
     ):
         require(token in section8_flat, f"Section 8 missing: {token}")
@@ -149,6 +171,10 @@ def main() -> None:
         r"\lambda_{ab}",
         r"q_{ab}",
         r"\Phi_F",
+        r"\label{eq:zero-residual-attachment-v3}",
+        "the unique empty matching",
+        "no independence between cells is asserted",
+        "no overlap is assigned to two skeletons",
         r"\frac{U^2}{8}",
         r"\frac{U^2}{6}",
         "factorial term only improves the upper bound",
@@ -166,12 +192,19 @@ def main() -> None:
     for token in (
         r"\frac{(\log 2)^2}{8}A_4(\delta_n)",
         r"\log\!\left(\frac{1000}{639}\right)",
+        r"\frac{2777}{10000}",
+        r"\frac{20000}{12777}",
+        r"\frac{12780}{12777}",
+        r"\sigma_4>0",
+        "there is no additional correction to the total number of classes",
         "exact rational certificates",
         "1035264923841377",
         "check\\_constant\\_ledger\\_v3.py",
         "Simultaneous complement form",
     ):
         require(token in final_flat, f"final assembly missing: {token}")
+    require("+b_n" not in final, "final assembly reintroduced a class-count correction")
+    require("|b_n|" not in final, "final assembly reintroduced an untracked correction")
 
     appendix = sources["FORMALIZATION_STATUS_APPENDIX_V3.tex"]
     appendix_flat = flatten(appendix)
@@ -197,12 +230,14 @@ def main() -> None:
         "details are standard",
         "The endpoint transportation estimate absorbs",
         "canonically equivalent to the dependent sum",
+        "after Section~7 has removed",
         r"\exp\!left",
         r"\begin{lemmabox}",
         r"\begin{propositionbox}",
         r"\begin{resultbox}",
         r"\paragraph{Proof",
         r"\(\square\)",
+        r"\log2",
         r"\ln",
     )
     offenders = [token for token in forbidden if token in combined]
@@ -220,15 +255,16 @@ def main() -> None:
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
     require(
-        len(words) >= 5000,
+        len(words) >= 5200,
         f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
+    print(f"  Section 7 central source lines: {len(section7.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
-    print("  exact certificate scripts: constant ledger and partial-diagonal scalar ledger")
+    print("  exact certificates: four-support slack and partial-diagonal scalar ledger")
     print("  publication switch: disabled")
 
 
