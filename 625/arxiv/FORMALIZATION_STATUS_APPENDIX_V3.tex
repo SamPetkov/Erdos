@@ -4,7 +4,7 @@
 \label{app:formalization-status-v3}
 
 This appendix records the relation between the manuscript and the private Lean
-4.31 project.  It is part of the verification draft because the size of the
+4.31 project. It is part of the verification draft because the size of the
 formal code base must not be confused with completion of the top-level theorem.
 A declaration is treated as proof evidence only after exact-signature review,
 warning-fatal replay under the pinned toolchain, a forbidden-shortcut scan, an
@@ -28,7 +28,7 @@ all welded.
 
 \subsection{Section 8 finite chain}
 
-The following finite Section~8 declarations are welded privately.  The
+The following finite Section~8 declarations are welded privately. The
 \verb|\path| form is used deliberately so that long theorem names can break at
 underscores without leaving the page.
 
@@ -66,7 +66,7 @@ Canonical common-charge smallness &
 The welded finite chain verifies the completion-free physical-fiber
 factorization, the exact local-to-full comparison, the single global
 falling-factorial loss, the deficit product, and both unweighted and weighted
-regrouping over realized endpoint tables.  The current running theorem is the
+regrouping over realized endpoint tables. The current running theorem is the
 remaining real-to-\texttt{ENNReal} phase estimate for the explicit sum of the
 sixteen endpoint bases.
 
@@ -76,10 +76,42 @@ The main text uses the coarse common-charge route
   \quad\Longrightarrow\quad
   \left(1+(\alpha+1)\rho_{16}\right)^K.
 \]
-This route is aligned with the private finite reduction.  The stronger
+This route is aligned with the private finite reduction. The stronger
 pointwise hypothesis $\rho_{ij}\le1/2$ yields the table-preserving product
 $\prod_{i,j}(1+2\rho_{ij})^{L_{ij}}$ and remains a reusable corollary, but it is
 not required for the shortest proof closure.
+
+\subsection{Section 5 root-transport interface}
+
+The manuscript now separates the exact finite support comparison at the
+unrestricted root from the asymptotic transport to the phase center. The
+standalone source
+\path{SECTION5_ROOT_TRANSPORT_V3.tex} defines
+\[
+  T_+(n)=\alpha-\frac{n}{r_+(n)},
+  \qquad
+  D_{4,n}(T)=\mathcal F_{n,S_+}(T)-\mathcal F_{n,S_4}(T),
+\]
+and first proves the finite identity
+\[
+  \Phi_n(r_+)=r_+\{\log 2-D_{4,n}(T_+(n))\}.
+\]
+It then uses the uniform dual convergence on $K_*$, the bounded limiting
+tilts, and the displacement $T_+(n)-T_0$ to define one deterministic error
+sequence $\omega_n^{\mathrm{root}}\to0$. The resulting comparison is
+\[
+  \Phi_n(r_+)
+  =r_+\{\log 2-D_4(\delta)+O(\omega_n^{\mathrm{root}})\}.
+\]
+The positive entropy margin and the positive corridor derivative also make the
+ordering $r_4^{\mathrm{co}}<r_+$ explicit.
+
+This is a theorem-facing candidate proof, not a status promotion. The exact
+Lean declaration must still bind the finite dual values, the two roots, the
+common compact target interval, one phase-uniform error sequence, and the root
+ordering in the quantifier order required by the signed first-moment assembly.
+Until that declaration has been independently reviewed and replayed, this
+interface remains part of E625-08/E625-10 and has status \emph{needs review}.
 
 \subsection{Section 7 partial-diagonal finite core}
 
@@ -144,9 +176,10 @@ Paper section & Exact remaining obligation & Status\\
 Sections 2--4 & Freeze the concrete phase center, slope, and root package, then
 export the chromatic lower-tail theorem with the required full-sequence
 quantifiers. & Needs review\\
-Section 5 & Assemble the welded four-support entropy certificate, the root
-separation, tangent rounding, and the positive signed first moment into one
-exact theorem consumed by the final adapter. & Needs review\\
+Section 5 & Independently verify and formalize the finite-target root transport
+in \path{SECTION5_ROOT_TRANSPORT_V3.tex}; then assemble it with the welded
+four-support entropy certificate, tangent rounding, and the positive signed
+first moment into the exact theorem consumed by the final adapter. & Needs review\\
 Section 7 & Independently verify and formalize the explicit central Stirling
 extraction; prove the uniform empty-corner activity and full-corner ratio
 asymptotics; then close their normalized disjoint three-range assembly. The
@@ -187,7 +220,7 @@ all of the following hold on one integrated commit:
 \item the manuscript constants, quantifiers, bibliography, and theorem names
 are synchronized with that root;
 \item the full TeX source compiles without unresolved references, citations,
-or status placeholders;
+duplicate PDF destinations, or status placeholders;
 \item an independent mathematical review confirms that no private or public
 staging lemma is being counted twice.
 \end{enumerate}
