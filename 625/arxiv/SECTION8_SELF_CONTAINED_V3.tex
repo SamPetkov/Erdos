@@ -9,6 +9,11 @@ regroup the full-containment references by endpoint table. Only in the final
 subsection do we insert the four-size phase estimates. No residual local reward
 or cycle-space factor is charged here; those factors belong to Section~9.
 
+Section~7 has not subtracted or conditioned away overlaps containing common
+whole classes. Instead, its weights provide a normalized one-sided reference
+measure for the endpoint transport below. Every overlap matrix remains present
+and is represented exactly once by its canonical high-cell skeleton.
+
 \subsection{The complete physical fiber}
 
 Let $U$ be the largest class size in the fixed four-size profile and put
@@ -72,6 +77,13 @@ uniform bipartite configuration matching. Multiplying this probability by the
 fiber cardinality and by the exposed reward
 $\prod_{e\in P}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
 \end{proof}
+
+From now on we write
+\[
+  w_{\mathrm{hi}}(P,j):=w(P,j).
+\]
+This is the same bare high-skeleton weight that appears in the exact
+conditional decomposition of Section~9.
 
 \begin{remark}
 The matching hypothesis is load-bearing. If two selected cells shared a row or
@@ -368,7 +380,7 @@ Its exact reference weight is
   \right]^{\ell_{ij}}.
   \label{eq:endpoint-reference-weight-v3}
 \end{equation}
-For a one-sided margin vector $r$, define
+For a one-sided margin vector $r$ satisfying $0\le r_i\le k_i$, define
 \begin{equation}
   D(r)=
   \frac{\prod_i(k_i)_{r_i}^2}{\prod_i r_i!}
@@ -377,7 +389,8 @@ For a one-sided margin vector $r$, define
   m_r=\sum_i u_ir_i.
   \label{eq:one-sided-diagonal-weight-v3}
 \end{equation}
-This is the partial-diagonal weight from Section~7.
+This is the partial-diagonal weight from Section~7. Every sum over $r$ below is
+over this finite coordinate box; no value outside it is used.
 
 For the endpoint pair $(i,j)$, put
 \[
@@ -504,7 +517,9 @@ then gives
 After multiplication by $D(r)$ and summation over $r$, the first half is at
 most $(1+C\eta_n)^K\sum_rD(r)$. The second half is identical after exchanging
 rows and columns. Section~7 proves $\sum_rD(r)=1+o(1)$ uniformly in the phase.
-Finally, $K=\Theta(n/\log n)$ and \eqref{eq:endpoint-eta-v3} imply
+This is a domination by a reference sum, not a deletion of common-class
+overlaps. Finally, $K=\Theta(n/\log n)$ and
+\eqref{eq:endpoint-eta-v3} imply
 $\eta_nK=O(\sqrt{n\log n})$.
 \end{proof}
 
@@ -580,4 +595,5 @@ $o(n/(\log n)^4)$. Combining these estimates with
 
 No residual local reward or binary cycle-space factor has been included in
 $\operatorname{BareSkeletonSum}_n$. Section~9 treats exactly those remaining
-factors.
+factors. All overlap matrices, including those containing whole common
+classes, remain part of the exact conditional decomposition there.
