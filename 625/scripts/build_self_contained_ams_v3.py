@@ -47,8 +47,8 @@ def slice_between(text: str, start: str, end: str) -> str:
 def replace_between(text: str, start: str, end: str, replacement: str) -> str:
     """Replace one marker-delimited block, retaining the end marker."""
     begin = text.find(start)
-    finish = text.find(end, begin + 1)
     require(begin >= 0, f"missing replacement start marker: {start}")
+    finish = text.find(end, begin + len(start))
     require(finish >= 0, f"missing replacement end marker: {end}")
     require(begin < finish, f"reversed replacement markers: {start!r}, {end!r}")
     return text[:begin] + replacement + text[finish:]
@@ -262,13 +262,24 @@ def normalize_legacy_section(text: str) -> str:
         ),
     )
 
-    # Replace the complete chromatic lower-tail section by a standalone source.
-    text = replace_between(
-        text,
-        r"\section{\texorpdfstring{A valid unrestricted lower location for",
-        r"\section{The four-size signed first-moment advantage}",
-        r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}" + "\n\n",
+    # The normalizer is applied separately to Sections 1--7 and to Section 10.
+    # Replace Section 4 only in the former slice, while failing if exactly one
+    # of its boundary markers is present.
+    section4_start = r"\section{\texorpdfstring{A valid unrestricted lower location for"
+    section4_end = r"\section{The four-size signed first-moment advantage}"
+    has_section4_start = section4_start in text
+    has_section4_end = section4_end in text
+    require(
+        has_section4_start == has_section4_end,
+        "partial canonical Section 4 markers",
     )
+    if has_section4_start:
+        text = replace_between(
+            text,
+            section4_start,
+            section4_end,
+            r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}" + "\n\n",
+        )
 
     root_transport_old = r"""Put
 \[
