@@ -13,11 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 ARXIV = ROOT / "arxiv"
 BUILDER = ROOT / "scripts" / "build_phase_root_self_contained_v3.py"
 GENERATED = ARXIV / "AMS_SELF_CONTAINED_BODY_V3.generated.tex"
+MASTER = ARXIV / "AMS_SELF_CONTAINED_DRAFT_V3.tex"
 SECTION2 = ARXIV / "SECTION2_PHASE_PACKAGE_V3.tex"
 SECTION3 = ARXIV / "SECTION3_ROOT_GEOMETRY_V3.tex"
 SECTION4 = ARXIV / "SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
 SECTION5 = ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex"
 GLOBAL_LEDGER = ARXIV / "SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"
+STATUS_ADDENDUM = ARXIV / "FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex"
 
 
 def require(condition: bool, message: str) -> None:
@@ -48,21 +50,33 @@ def check_control_characters(text: str, name: str) -> None:
 
 
 def main() -> None:
-    for path in (BUILDER, SECTION2, SECTION3, SECTION4, SECTION5, GLOBAL_LEDGER):
+    for path in (
+        BUILDER,
+        MASTER,
+        SECTION2,
+        SECTION3,
+        SECTION4,
+        SECTION5,
+        GLOBAL_LEDGER,
+        STATUS_ADDENDUM,
+    ):
         require(path.is_file(), f"missing theorem-facing package file: {path}")
 
     subprocess.run(["python", str(BUILDER)], cwd=ROOT.parent, check=True)
     require(GENERATED.is_file(), "theorem-facing builder did not create the body")
 
     generated = GENERATED.read_text(encoding="utf-8")
+    master = MASTER.read_text(encoding="utf-8")
     section2 = SECTION2.read_text(encoding="utf-8")
     section3 = SECTION3.read_text(encoding="utf-8")
     section4 = SECTION4.read_text(encoding="utf-8")
     section5 = SECTION5.read_text(encoding="utf-8")
     global_ledger = GLOBAL_LEDGER.read_text(encoding="utf-8")
+    status_addendum = STATUS_ADDENDUM.read_text(encoding="utf-8")
     section2_flat = flatten(section2)
     section3_flat = flatten(section3)
     ledger_flat = flatten(global_ledger)
+    addendum_flat = flatten(status_addendum)
 
     for token in (
         r"\input{SECTION2_PHASE_PACKAGE_V3}",
@@ -73,6 +87,16 @@ def main() -> None:
         r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}",
     ):
         require(generated.count(token) == 1, f"generated body marker drift: {token}")
+
+    require(
+        r"\input{FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3}" in master,
+        "master file does not include the theorem-facing status addendum",
+    )
+    require(
+        master.index(r"\input{FORMALIZATION_STATUS_APPENDIX_V3}")
+        < master.index(r"\input{FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3}"),
+        "status addendum is not placed after the original formalization map",
+    )
 
     require(
         generated.index(r"\input{SECTION9_SELF_CONTAINED_V3}")
@@ -130,6 +154,17 @@ def main() -> None:
     ):
         require(token in ledger_flat, f"global second-moment ledger missing: {token}")
 
+    for token in (
+        "Theorem-facing closure addendum",
+        "Current candidate interfaces",
+        "Deterministic error chain",
+        "Exact formalization targets",
+        "The arrows denote theorem dependency, not equality",
+        "Unchanged publication gate",
+        "status of the main theorem remains fail-closed",
+    ):
+        require(token in addendum_flat, f"status addendum missing: {token}")
+
     require(
         r"\varepsilon_n^{\mathrm{cap}}" in section4,
         "Section 4 no longer consumes the Section 2 cap error",
@@ -145,6 +180,7 @@ def main() -> None:
         "Section 2": section2,
         "Section 3": section3,
         "global ledger": global_ledger,
+        "status addendum": status_addendum,
     }
     for name, text in checked_sources.items():
         check_control_characters(text, name)
@@ -193,11 +229,16 @@ def main() -> None:
         len(global_ledger.splitlines()) >= 180,
         f"global ledger unexpectedly short: {len(global_ledger.splitlines())} lines",
     )
+    require(
+        len(status_addendum.splitlines()) >= 110,
+        f"status addendum unexpectedly short: {len(status_addendum.splitlines())} lines",
+    )
 
     print("ERDOS 625 THEOREM-FACING PACKAGE CHECK: PASS")
     print(f"  Section 2 source lines: {len(section2.splitlines())}")
     print(f"  Section 3 source lines: {len(section3.splitlines())}")
     print(f"  global ledger source lines: {len(global_ledger.splitlines())}")
+    print(f"  status addendum source lines: {len(status_addendum.splitlines())}")
     print(f"  equation tags guarded: {len(tag_counts)}")
     print("  deterministic interfaces: phase, cap, dual, slope, root, skeleton, attachment")
     print("  publication status: fail-closed")
