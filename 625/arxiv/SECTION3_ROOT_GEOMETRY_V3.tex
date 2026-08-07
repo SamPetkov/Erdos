@@ -53,7 +53,7 @@ Let
   \tag{3.5}
 \end{equation*}
 There is a fixed $A_*>0$ such that, for
-$S\in\{S_+,S_4\}$ and $0\le c\le\log2$, the equation
+$S\in\{S_+,S_4\}$ and $0\le c\le\log 2$, the equation
 \[
   L_S(n,k)+ck=0
 \]
@@ -77,7 +77,7 @@ For every fixed $A>0$, uniformly when
 $|n/k-s_0|\le A\log\log n/\log n$,
 \begin{equation*}
   \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
-  =\frac2{\log2}(\log n)^2
+  =\frac2{\log 2}(\log n)^2
    +O_A((\log n)(\log\log n)).
   \tag{3.7}
 \end{equation*}
@@ -85,12 +85,12 @@ Equivalently, the deterministic normalized slope error
 \[
   \varepsilon_{n,A}^{\mathrm{slope}}
   :=
-  \max_{\substack{S\in\{S_+,S_4\}\\0\le c\le\log2}}
+  \max_{\substack{S\in\{S_+,S_4\}\\0\le c\le\log 2}}
   \sup_{|n/k-s_0|\le A\log\log n/\log n}
   \left|
     \frac{1}{(\log n)^2}
     \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
-    -\frac2{\log2}
+    -\frac2{\log 2}
   \right|
 \]
 satisfies $\varepsilon_{n,A}^{\mathrm{slope}}\to0$.
@@ -115,8 +115,8 @@ Fix the compact target interval
 \begin{equation*}
   K_*:=
   \left[
-    \frac2{\log2}-\frac1{10},
-    1+\frac2{\log2}+\frac1{10}
+    \frac2{\log 2}-\frac1{10},
+    1+\frac2{\log 2}+\frac1{10}
   \right]
   \subset(2,5).
   \tag{3.9a}
@@ -130,7 +130,7 @@ Then, uniformly for $T\in K_*$,
   \max_{\substack{\sum_i p_i=1\\\sum_i i p_i=T}}
   \left[
     -\sum_i p_i\log p_i
-    -\frac{\log2}{2}\sum_i i^2p_i
+    -\frac{\log 2}{2}\sum_i i^2p_i
   \right].
   \tag{3.9}
 \end{equation*}
@@ -166,7 +166,7 @@ $\delta$.
 \end{lemma}
 
 \begin{proof}
-Put $q:=\log2$, $L:=\log n$, and $\ell:=\log\log n$.
+Put $q:=\log 2$, $L:=\log n$, and $\ell:=\log\log n$.
 Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
 \[
   \frac{L_S(n,n/s)}{n/s}
