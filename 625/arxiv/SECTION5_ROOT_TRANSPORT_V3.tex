@@ -25,37 +25,55 @@ Since $L_{S_+}(n,r_+)=0$, the exact support-comparison identity (3.8) gives
 \end{equation*}
 This equality is finite and contains no limiting substitution.
 
-We now transport its target mean to the phase center. Equation (3.6) gives
+We now transport its target mean to the phase center. Define the deterministic
+target-displacement error
+\[
+  \varepsilon_n^{\mathrm{target}}
+  :=|T_+(n)-T_0|.
+\]
+Equation (3.6) gives
 \begin{equation*}
-  T_+(n)=T_0+O\!\left(\frac{\log\log n}{\log n}\right)
+  \varepsilon_n^{\mathrm{target}}
+  =O\!\left(\frac{\log\log n}{\log n}\right)
+  \longrightarrow0
   \tag{5.9b}
 \end{equation*}
-uniformly in the phase. On the compact interval $K_*$, equation (3.9) gives
-uniform convergence of both finite dual values. The limiting dual value is
-differentiable, with
+uniformly in the phase. The common corridor lies inside the fixed compact
+interval $K_*$ for all sufficiently large $n$.
+
+The limiting dual value is differentiable, with
 \[
   \mathcal F_S'(T)=-\lambda_S(T),
 \]
 because the envelope theorem cancels the derivative of the optimizing tilt.
-The tilts are uniformly bounded on $K_*$, so both $\mathcal F_{S_+}$ and
-$\mathcal F_{S_4}$ are uniformly Lipschitz there.
-
-More explicitly, choose a deterministic sequence
+Section~3 bounds the limiting tilts by one constant on $K_*$, so the two
+limiting dual values have a common Lipschitz constant $C_{\mathrm{Lip}}$.
+The deterministic finite-dual error from Section~3 satisfies
 \[
-\begin{split}
-  \omega_n^{\mathrm{root}}:=
-  &\sup_{T\in K_*}
-   |\mathcal F_{n,S_+}(T)-\mathcal F_{S_+}(T)|\\
-  &+\sup_{T\in K_*}
-   |\mathcal F_{n,S_4}(T)-\mathcal F_{S_4}(T)|
-   +C|T_+(n)-T_0|,
-\end{split}
+  \sup_{T\in K_*}
+  |\mathcal F_{n,S}(T)-\mathcal F_S(T)|
+  \le\varepsilon_n^{\mathrm{dual}}
+  \qquad(S=S_+,S_4).
 \]
-where $C$ is a common Lipschitz constant for the two limiting dual values.
-Then $\omega_n^{\mathrm{root}}\to0$ uniformly in the phase, and
+Consequently the single theorem-facing root error
+\begin{equation*}
+  \omega_n^{\mathrm{root}}
+  :=2\varepsilon_n^{\mathrm{dual}}
+    +2C_{\mathrm{Lip}}\varepsilon_n^{\mathrm{target}}
+  \longrightarrow0
+  \tag{5.9c}
+\end{equation*}
+is deterministic and phase-uniform. Indeed,
 \[
+\begin{aligned}
   |D_{4,n}(T_+(n))-D_4(\delta)|
-  \le \omega_n^{\mathrm{root}}.
+  \le{}&
+  |\mathcal F_{n,S_+}(T_+)-\mathcal F_{S_+}(T_+)|\\
+  &+|\mathcal F_{n,S_4}(T_+)-\mathcal F_{S_4}(T_+)|\\
+  &+|\mathcal F_{S_+}(T_+)-\mathcal F_{S_+}(T_0)|\\
+  &+|\mathcal F_{S_4}(T_+)-\mathcal F_{S_4}(T_0)|\\
+  \le{}&\omega_n^{\mathrm{root}}.
+\end{aligned}
 \]
 Substitution into (5.9a) yields the theorem-facing estimate
 \begin{equation*}
@@ -64,15 +82,17 @@ Substitution into (5.9a) yields the theorem-facing estimate
   =r_+\{\log 2-D_4(\delta)+o(1)\}.
   \tag{5.10}
 \end{equation*}
-Thus the $o(1)$ in (5.10) is one deterministic error sequence valid across
-the complete phase, including integer sequences approaching either endpoint.
+Thus the $o(1)$ in (5.10) is not an independent asymptotic convention: it is
+controlled by the explicit sum of the finite-dual and target-displacement
+errors, uniformly across the complete phase and along sequences approaching
+either endpoint.
 
 Finally, Lemma~5.1 gives
 $\log 2-D_4(\delta)\ge\gamma_4>0$. Hence (5.10) implies
 $\Phi_n(r_+)>0$ for all sufficiently large $n$, uniformly in the phase. The
-derivative estimate (3.7) is positive throughout the common root corridor, so
-$\Phi_n$ is strictly increasing there. Since
-$\Phi_n(r_4^{\mathrm{co}})=0$, this proves
+normalized slope error in (3.7) tends to zero, so the derivative of $\Phi_n$
+is positive throughout the common root corridor after one phase-independent
+threshold. Since $\Phi_n(r_4^{\mathrm{co}})=0$, this proves
 \[
   r_4^{\mathrm{co}}<r_+.
 \]
