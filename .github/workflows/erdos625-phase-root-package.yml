@@ -8,6 +8,7 @@ on:
       - "625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
       - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
       - "625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"
+      - "625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex"
       - "625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.tex"
       - "625/arxiv/AMS_THEOREM_ENVIRONMENTS_V3.tex"
       - "625/arxiv/main.tex"
@@ -69,6 +70,7 @@ jobs:
             625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
             625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
+            625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
             /tmp/erdos625-partial-diagonal-ledger.txt
@@ -168,6 +170,7 @@ jobs:
             625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
             625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
             625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
+            625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
             /tmp/erdos625-theorem-facing-renders/page-001.png
             /tmp/erdos625-theorem-facing-renders/page-010.png
