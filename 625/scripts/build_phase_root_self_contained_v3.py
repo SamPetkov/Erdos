@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Insert theorem-facing Sections 2 and 3 into the Version 3 manuscript.
+"""Assemble the theorem-facing Version 3 manuscript.
 
-The canonical source and the existing Version 3 generator remain frozen. This
-wrapper first invokes that generator, then replaces the generated legacy phase
-and root sections by independently auditable source files.
+The canonical source remains frozen. This wrapper first invokes the existing
+Version 3 generator, replaces the legacy phase and root sections by auditable
+sources, and inserts the explicit Section 8--9 logarithmic ledger before the
+amplification section.
 """
 
 from __future__ import annotations
@@ -40,6 +41,7 @@ def generate(source: Path, output: Path) -> None:
         LEGACY_GENERATOR,
         ROOT / "arxiv" / "SECTION2_PHASE_PACKAGE_V3.tex",
         ROOT / "arxiv" / "SECTION3_ROOT_GEOMETRY_V3.tex",
+        ROOT / "arxiv" / "SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex",
     ):
         require(path.is_file(), f"missing theorem-facing source: {path}")
 
@@ -70,6 +72,19 @@ def generate(source: Path, output: Path) -> None:
         r"\input{SECTION3_ROOT_GEOMETRY_V3}" + "\n\n",
     )
 
+    section9_anchor = r"\input{SECTION9_SELF_CONTAINED_V3}"
+    require(
+        text.count(section9_anchor) == 1,
+        "expected one Section 9 source marker",
+    )
+    text = text.replace(
+        section9_anchor,
+        section9_anchor
+        + "\n\n"
+        + r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}",
+        1,
+    )
+
     require(
         text.count(r"\input{SECTION2_PHASE_PACKAGE_V3}") == 1,
         "Section 2 replacement was not inserted exactly once",
@@ -77,6 +92,10 @@ def generate(source: Path, output: Path) -> None:
     require(
         text.count(r"\input{SECTION3_ROOT_GEOMETRY_V3}") == 1,
         "Section 3 replacement was not inserted exactly once",
+    )
+    require(
+        text.count(r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}") == 1,
+        "global second-moment ledger was not inserted exactly once",
     )
     require(
         r"\section{The complete independence-number phase}" not in text,
@@ -88,7 +107,7 @@ def generate(source: Path, output: Path) -> None:
     )
 
     output.write_text(text, encoding="utf-8")
-    print(f"generated phase-root manuscript body: {output}")
+    print(f"generated theorem-facing manuscript body: {output}")
 
 
 def main() -> None:
