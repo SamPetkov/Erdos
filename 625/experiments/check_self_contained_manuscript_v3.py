@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ARXIV = ROOT / "arxiv"
-GENERATOR = ROOT / "scripts" / "build_self_contained_ams_v3.py"
+GENERATOR = ROOT / "scripts" / "build_phase_root_self_contained_v3.py"
 CONSTANT_CHECKER = ROOT / "experiments" / "check_constant_ledger_v3.py"
 PARTIAL_RATE_CHECKER = ROOT / "experiments" / "check_partial_diagonal_rate_v3.py"
 GENERATED = ARXIV / "AMS_SELF_CONTAINED_BODY_V3.generated.tex"
@@ -21,6 +21,8 @@ SOURCE_FILES = [
     ARXIV / "FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex",
     ARXIV / "CONVENTIONS_AND_PROOF_OBJECTS_V3.tex",
     ARXIV / "PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex",
+    ARXIV / "SECTION2_PHASE_PACKAGE_V3.tex",
+    ARXIV / "SECTION3_ROOT_GEOMETRY_V3.tex",
     ARXIV / "SECTION4_CHROMATIC_LOWER_TAIL_V3.tex",
     ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex",
     ARXIV / "SECTION7_EMPTY_CORNER_V3.tex",
@@ -28,8 +30,10 @@ SOURCE_FILES = [
     ARXIV / "SECTION7_FULL_CORNER_V3.tex",
     ARXIV / "SECTION8_SELF_CONTAINED_V3.tex",
     ARXIV / "SECTION9_SELF_CONTAINED_V3.tex",
+    ARXIV / "SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex",
     ARXIV / "FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex",
     ARXIV / "FORMALIZATION_STATUS_APPENDIX_V3.tex",
+    ARXIV / "FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex",
 ]
 
 
@@ -103,12 +107,15 @@ def main() -> None:
         "PROOF_ARCHITECTURE_SELF_CONTAINED_V3",
         "AMS_SELF_CONTAINED_BODY_V3.generated",
         "FORMALIZATION_STATUS_APPENDIX_V3",
+        "FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3",
     )
     missing_inputs = [token for token in required_master_inputs if token not in master]
     require(not missing_inputs, f"master file missing inputs: {missing_inputs}")
 
     required_body_markers = (
         r"\section{Phase notation and elementary estimates}",
+        r"\input{SECTION2_PHASE_PACKAGE_V3}",
+        r"\input{SECTION3_ROOT_GEOMETRY_V3}",
         r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}",
         r"\input{SECTION5_ROOT_TRANSPORT_V3}",
         r"\input{SECTION7_EMPTY_CORNER_V3}",
@@ -116,6 +123,7 @@ def main() -> None:
         r"\input{SECTION7_FULL_CORNER_V3}",
         r"\input{SECTION8_SELF_CONTAINED_V3}",
         r"\input{SECTION9_SELF_CONTAINED_V3}",
+        r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}",
         r"\section{Rare-event amplification}",
         r"\input{FINAL_ASSEMBLY_SELF_CONTAINED_V3}",
         "Canonical source Git blob: c4d090b73cd5efcdb98cc30f79bb5f53c6c9bc97",
@@ -123,12 +131,44 @@ def main() -> None:
     missing_body = [token for token in required_body_markers if token not in generated]
     require(not missing_body, f"generated body missing markers: {missing_body}")
     require(
-        generated.count(r"\section{") >= 7,
+        generated.count(r"\section{") >= 5,
         "generated body does not contain the expected numbered sections",
     )
     require(
-        len(generated.splitlines()) >= 1120,
+        len(generated.splitlines()) >= 700,
         f"generated body is unexpectedly short: {len(generated.splitlines())} lines",
+    )
+
+    section2 = sources["SECTION2_PHASE_PACKAGE_V3.tex"]
+    section2_flat = flatten(section2)
+    for token in (
+        "Uniform phase expansion and adjacent-size control",
+        r"\varepsilon_n^{\mathrm{ph}}",
+        r"|E_n(\delta)|\le\varepsilon_n^{\mathrm{ph}}",
+        r"\varepsilon_n^{\mathrm{cap}}",
+        r"2^\alpha",
+        "one eventuality threshold valid for the complete phase",
+    ):
+        require(token in section2_flat, f"Section 2 phase package missing: {token}")
+    require(
+        r"\begin{equation}" not in section2,
+        "Section 2 uses numbered equations with manual tags",
+    )
+
+    section3 = sources["SECTION3_ROOT_GEOMETRY_V3.tex"]
+    section3_flat = flatten(section3)
+    for token in (
+        "Uniform root, slope, and finite-dual package",
+        r"S_+^{(n)}",
+        r"\varepsilon_n^{\mathrm{dual}}",
+        r"\varepsilon_{n,A}^{\mathrm{slope}}",
+        "No limiting replacement is used in this cancellation",
+        "one eventuality threshold for the complete phase",
+    ):
+        require(token in section3_flat, f"Section 3 root package missing: {token}")
+    require(
+        r"\begin{equation}" not in section3,
+        "Section 3 uses numbered equations with manual tags",
     )
 
     section4 = sources["SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"]
@@ -162,6 +202,7 @@ def main() -> None:
         r"D_{4,n}(T)",
         r"T_+(n)=T_0",
         r"\mathcal F_S'(T)=-\lambda_S(T)",
+        r"\varepsilon_n^{\mathrm{target}}",
         r"\omega_n^{\mathrm{root}}",
         "This equality is finite and contains no limiting substitution",
         "one deterministic error sequence valid across the complete phase",
@@ -284,6 +325,24 @@ def main() -> None:
     ):
         require(token in section9_flat, f"Section 9 missing: {token}")
 
+    global_ledger = sources["SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"]
+    global_ledger_flat = flatten(global_ledger)
+    for token in (
+        "Explicit global logarithmic ledger",
+        r"\varepsilon_n^{\mathrm{pd}}",
+        r"\Gamma_n^{\mathrm{skel}}",
+        r"\varepsilon_n^{\mathrm{skel}}",
+        r"\Gamma_n^{\mathrm{att}}",
+        r"\varepsilon_n^{\mathrm{att}}",
+        r"\Lambda_n",
+        "No factor is charged in both ledgers",
+    ):
+        require(token in global_ledger_flat, f"global second-moment ledger missing: {token}")
+    require(
+        r"\begin{equation}" not in global_ledger,
+        "global ledger uses numbered equations with manual tags",
+    )
+
     final = sources["FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"]
     final_flat = flatten(final)
     for token in (
@@ -325,6 +384,17 @@ def main() -> None:
     ):
         require(token in appendix_flat, f"formalization appendix missing: {token}")
 
+    addendum = sources["FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex"]
+    addendum_flat = flatten(addendum)
+    for token in (
+        "Theorem-facing closure addendum",
+        "Deterministic error chain",
+        "Exact formalization targets",
+        "The arrows denote theorem dependency, not equality",
+        "status of the main theorem remains fail-closed",
+    ):
+        require(token in addendum_flat, f"formalization addendum missing: {token}")
+
     forbidden = (
         "TODO",
         "TBD",
@@ -357,20 +427,22 @@ def main() -> None:
 
     words = re.findall(r"[A-Za-z][A-Za-z'-]+", strip_tex(combined))
     # The generated body delegates theorem-facing passages to checked source
-    # files, so this threshold measures the assembled source set rather than
-    # the length of one monolithic generated file.
+    # files. Measure the complete assembled source set, not only the wrapper.
     require(
-        len(words) >= 5700,
+        len(words) >= 6500,
         f"manuscript prose extraction is unexpectedly short: {len(words)} words",
     )
 
     print("ERDOS 625 SELF-CONTAINED MANUSCRIPT CHECK: PASS")
     print(f"  generated body lines: {len(generated.splitlines())}")
+    print(f"  Section 2 phase source lines: {len(section2.splitlines())}")
+    print(f"  Section 3 root source lines: {len(section3.splitlines())}")
     print(f"  Section 4 lower-tail source lines: {len(section4.splitlines())}")
     print(f"  Section 5 root-transport source lines: {len(section5.splitlines())}")
     print(f"  Section 7 empty source lines: {len(empty.splitlines())}")
     print(f"  Section 7 central source lines: {len(central.splitlines())}")
     print(f"  Section 7 full source lines: {len(full.splitlines())}")
+    print(f"  global ledger source lines: {len(global_ledger.splitlines())}")
     print(f"  approximate prose words: {len(words)}")
     print(f"  unique semantic labels: {len(label_counts)}")
     print("  exact certificates: four-support slack and partial-diagonal scalar ledger")
