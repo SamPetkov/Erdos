@@ -293,15 +293,17 @@ Then \(\Phi_n(r_4^{\mathrm{co}})=0\) by definition, while at
  =r_+\{{\log 2}-D_4(\delta)+o(1)\}.                             \tag{5.10}
 \]
 """
-    require(
-        root_transport_old in text,
-        "missing canonical Section 5 root-transport block",
-    )
-    text = text.replace(
-        root_transport_old,
-        r"\input{SECTION5_ROOT_TRANSPORT_V3}" + "\n",
-        1,
-    )
+    section5_marker = r"\section{The four-size signed first-moment advantage}"
+    if section5_marker in text:
+        require(
+            root_transport_old in text,
+            "missing canonical Section 5 root-transport block",
+        )
+        text = text.replace(
+            root_transport_old,
+            r"\input{SECTION5_ROOT_TRANSPORT_V3}" + "\n",
+            1,
+        )
 
     # Replace all three Section 7 ranges by standalone sources. The exact
     # counting identities and lemma statement remain in the generated body;
