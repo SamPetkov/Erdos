@@ -43,6 +43,42 @@ jobs:
           python -m py_compile 625/experiments/check_generator_regexes_v3.py
           python -m py_compile 625/experiments/check_constant_ledger_v3.py
           python -m py_compile 625/experiments/check_partial_diagonal_rate_v3.py
+      - name: Generate the legacy body and report forbidden notation by file
+        run: |
+          python 625/scripts/build_self_contained_ams_v3.py
+          python - <<'PY'
+          from pathlib import Path
+
+          paths = [
+              Path("625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.tex"),
+              Path("625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex"),
+              Path("625/arxiv/FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"),
+              Path("625/arxiv/CONVENTIONS_AND_PROOF_OBJECTS_V3.tex"),
+              Path("625/arxiv/PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex"),
+              Path("625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"),
+              Path("625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"),
+              Path("625/arxiv/SECTION7_EMPTY_CORNER_V3.tex"),
+              Path("625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex"),
+              Path("625/arxiv/SECTION7_FULL_CORNER_V3.tex"),
+              Path("625/arxiv/SECTION8_SELF_CONTAINED_V3.tex"),
+              Path("625/arxiv/SECTION9_SELF_CONTAINED_V3.tex"),
+              Path("625/arxiv/FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"),
+              Path("625/arxiv/FORMALIZATION_STATUS_APPENDIX_V3.tex"),
+          ]
+          needles = (r"\log2", r"\ln")
+          offenders = []
+          for path in paths:
+              text = path.read_text(encoding="utf-8")
+              for lineno, line in enumerate(text.splitlines(), start=1):
+                  for needle in needles:
+                      if needle in line:
+                          offenders.append((path, lineno, needle, line.strip()))
+          if offenders:
+              for path, lineno, needle, line in offenders:
+                  print(f"{path}:{lineno}: contains {needle}: {line}")
+              raise SystemExit("forbidden logarithm notation remains")
+          print("file-qualified logarithm notation scan: PASS")
+          PY
       - name: Replay the existing exact manuscript checks
         run: |
           python 625/experiments/check_generator_regexes_v3.py \
