@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed checks for the theorem-facing Sections 2 and 3 package."""
+"""Fail-closed checks for the theorem-facing Erdős 625 manuscript package."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ SECTION2 = ARXIV / "SECTION2_PHASE_PACKAGE_V3.tex"
 SECTION3 = ARXIV / "SECTION3_ROOT_GEOMETRY_V3.tex"
 SECTION4 = ARXIV / "SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
 SECTION5 = ARXIV / "SECTION5_ROOT_TRANSPORT_V3.tex"
+GLOBAL_LEDGER = ARXIV / "SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"
 
 
 def require(condition: bool, message: str) -> None:
@@ -47,27 +48,38 @@ def check_control_characters(text: str, name: str) -> None:
 
 
 def main() -> None:
-    for path in (BUILDER, SECTION2, SECTION3, SECTION4, SECTION5):
-        require(path.is_file(), f"missing phase-root package file: {path}")
+    for path in (BUILDER, SECTION2, SECTION3, SECTION4, SECTION5, GLOBAL_LEDGER):
+        require(path.is_file(), f"missing theorem-facing package file: {path}")
 
     subprocess.run(["python", str(BUILDER)], cwd=ROOT.parent, check=True)
-    require(GENERATED.is_file(), "phase-root builder did not create the body")
+    require(GENERATED.is_file(), "theorem-facing builder did not create the body")
 
     generated = GENERATED.read_text(encoding="utf-8")
     section2 = SECTION2.read_text(encoding="utf-8")
     section3 = SECTION3.read_text(encoding="utf-8")
     section4 = SECTION4.read_text(encoding="utf-8")
     section5 = SECTION5.read_text(encoding="utf-8")
+    global_ledger = GLOBAL_LEDGER.read_text(encoding="utf-8")
     section2_flat = flatten(section2)
     section3_flat = flatten(section3)
+    ledger_flat = flatten(global_ledger)
 
     for token in (
         r"\input{SECTION2_PHASE_PACKAGE_V3}",
         r"\input{SECTION3_ROOT_GEOMETRY_V3}",
         r"\input{SECTION4_CHROMATIC_LOWER_TAIL_V3}",
         r"\input{SECTION5_ROOT_TRANSPORT_V3}",
+        r"\input{SECTION9_SELF_CONTAINED_V3}",
+        r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}",
     ):
         require(generated.count(token) == 1, f"generated body marker drift: {token}")
+
+    require(
+        generated.index(r"\input{SECTION9_SELF_CONTAINED_V3}")
+        < generated.index(r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}")
+        < generated.index(r"\section{Rare-event amplification}"),
+        "global ledger is not placed between Sections 9 and 10",
+    )
 
     for token in (
         r"\section{The complete independence-number phase}",
@@ -104,20 +116,37 @@ def main() -> None:
     ):
         require(token in section3_flat, f"Section 3 package missing: {token}")
 
+    for token in (
+        "Explicit global logarithmic ledger",
+        r"\varepsilon_n^{\mathrm{pd}}",
+        r"1+3\tau_n^{\mathrm{end}}",
+        r"\Gamma_n^{\mathrm{skel}}",
+        r"\varepsilon_n^{\mathrm{skel}}",
+        r"\Gamma_n^{\mathrm{att}}",
+        r"\varepsilon_n^{\mathrm{att}}",
+        r"\Lambda_n",
+        r"\eqref{eq:exact-attachment-decomposition-v3}",
+        "No factor is charged in both ledgers",
+    ):
+        require(token in ledger_flat, f"global second-moment ledger missing: {token}")
+
     require(
         r"\varepsilon_n^{\mathrm{cap}}" in section4,
         "Section 4 no longer consumes the Section 2 cap error",
     )
     require(
         r"\varepsilon_n^{\mathrm{dual}}" in section3
+        and r"\varepsilon_n^{\mathrm{target}}" in section5
         and r"\omega_n^{\mathrm{root}}" in section5,
         "the finite-dual to root-transport error chain is incomplete",
     )
 
-    for name, text in {
+    checked_sources = {
         "Section 2": section2,
         "Section 3": section3,
-    }.items():
+        "global ledger": global_ledger,
+    }
+    for name, text in checked_sources.items():
         check_control_characters(text, name)
         check_balanced_environments(text, name)
         require(text.count("{") == text.count("}"), f"{name}: unbalanced braces")
@@ -135,19 +164,22 @@ def main() -> None:
         ):
             require(forbidden not in text, f"{name}: forbidden marker {forbidden}")
 
-    tags = re.findall(r"\\tag\{([^}]+)\}", section2 + "\n" + section3)
+    tagged_sources = section2 + "\n" + section3 + "\n" + global_ledger
+    tags = re.findall(r"\\tag\{([^}]+)\}", tagged_sources)
     tag_counts = Counter(tags)
     duplicate_tags = sorted(tag for tag, count in tag_counts.items() if count > 1)
-    require(not duplicate_tags, f"duplicate phase-root equation tags: {duplicate_tags}")
+    require(not duplicate_tags, f"duplicate theorem-facing equation tags: {duplicate_tags}")
 
     expected_tags = {
         "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.8a", "2.9",
         "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.8a",
         "3.9a", "3.9", "3.9b", "3.10", "3.11", "3.12", "3.13", "3.14",
         "3.15", "3.15a", "3.16", "3.17", "3.18", "3.19",
+        "9.31", "9.32", "9.33", "9.34", "9.35", "9.36",
+        "9.37", "9.38", "9.39", "9.40", "9.41", "9.42",
     }
     missing_tags = sorted(expected_tags - set(tags))
-    require(not missing_tags, f"phase-root package missing equation tags: {missing_tags}")
+    require(not missing_tags, f"theorem-facing package missing equation tags: {missing_tags}")
 
     require(
         len(section2.splitlines()) >= 190,
@@ -157,12 +189,17 @@ def main() -> None:
         len(section3.splitlines()) >= 340,
         f"Section 3 source unexpectedly short: {len(section3.splitlines())} lines",
     )
+    require(
+        len(global_ledger.splitlines()) >= 180,
+        f"global ledger unexpectedly short: {len(global_ledger.splitlines())} lines",
+    )
 
-    print("ERDOS 625 PHASE-ROOT PACKAGE CHECK: PASS")
+    print("ERDOS 625 THEOREM-FACING PACKAGE CHECK: PASS")
     print(f"  Section 2 source lines: {len(section2.splitlines())}")
     print(f"  Section 3 source lines: {len(section3.splitlines())}")
+    print(f"  global ledger source lines: {len(global_ledger.splitlines())}")
     print(f"  equation tags guarded: {len(tag_counts)}")
-    print("  deterministic interfaces: phase, cap, dual, slope, and root transport")
+    print("  deterministic interfaces: phase, cap, dual, slope, root, skeleton, attachment")
     print("  publication status: fail-closed")
 
 
