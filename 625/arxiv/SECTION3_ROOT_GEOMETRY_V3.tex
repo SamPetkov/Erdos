@@ -1,0 +1,436 @@
+% Theorem-facing replacement for Section 3.
+
+\section{Continuous profile roots}
+\label{continuous-profile-roots}
+
+For a positive class size $u$, put
+\[
+  d_u:=2^{\binom u2}u!.
+\]
+Write $u=\alpha-i$, so $i$ is the deficit from the phase center $\alpha$.
+We use
+\begin{equation*}
+  S_+:=\{-1,0,1,2,\ldots\},
+  \qquad
+  S_4:=\{2,3,4,5\}.
+  \tag{3.1}
+\end{equation*}
+At finite $n$, the unrestricted support is
+$S_+^{(n)}:=\{-1,0,\ldots,\alpha-1\}$, because all class sizes are
+positive. Whenever a finite-$n$ sum is indexed by $S_+$, this cutoff is
+understood.
+
+For a real class count $k>0$, define
+\begin{equation*}
+  L_{\mathbf k}
+  :=n\log n-n+k-\sum_i k_i\log(k_i d_{\alpha-i}),
+  \tag{3.2}
+\end{equation*}
+with the convention $0\log0=0$, and let $L_S(n,k)$ be its maximum over
+real $k_i\ge0$ satisfying
+\begin{equation*}
+  \sum_{i\in S}k_i=k,
+  \qquad
+  \sum_{i\in S}(\alpha-i)k_i=n.
+  \tag{3.3}
+\end{equation*}
+For a feasible $k$, set
+\begin{equation*}
+  s:=\frac nk,
+  \qquad
+  T:=\alpha-s=\alpha-\frac nk.
+  \tag{3.4}
+\end{equation*}
+Thus $T$ is the mean deficit of the normalized profile.
+
+\begin{lemma}[Uniform root, slope, and finite-dual package]
+Let
+\begin{equation*}
+  s_0:=\alpha_0-1-\frac2{\log 2},
+  \qquad
+  T_0:=\alpha-s_0
+      =1+\frac2{\log 2}-\delta.
+  \tag{3.5}
+\end{equation*}
+There is a fixed $A_*>0$ such that, for
+$S\in\{S_+,S_4\}$ and $0\le c\le\log2$, the equation
+\[
+  L_S(n,k)+ck=0
+\]
+has, for all sufficiently large $n$, a unique zero $r_{S,c}$ in the
+corridor
+\[
+  \left|\frac nk-s_0\right|
+  \le A_*\frac{\log\log n}{\log n}.
+\]
+Uniformly in $S$, $c$, and the phase,
+\begin{equation*}
+  \frac n{r_{S,c}}
+  =s_0+O\!\left(\frac{\log\log n}{\log n}\right),
+  \qquad
+  \alpha-\frac n{r_{S,c}}
+  =T_0+O\!\left(\frac{\log\log n}{\log n}\right).
+  \tag{3.6}
+\end{equation*}
+
+For every fixed $A>0$, uniformly when
+$|n/k-s_0|\le A\log\log n/\log n$,
+\begin{equation*}
+  \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+  =\frac2{\log2}(\log n)^2
+   +O_A((\log n)(\log\log n)).
+  \tag{3.7}
+\end{equation*}
+Equivalently, the deterministic normalized slope error
+\[
+  \varepsilon_{n,A}^{\mathrm{slope}}
+  :=
+  \max_{\substack{S\in\{S_+,S_4\}\\0\le c\le\log2}}
+  \sup_{|n/k-s_0|\le A\log\log n/\log n}
+  \left|
+    \frac{1}{(\log n)^2}
+    \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+    -\frac2{\log2}
+  \right|
+\]
+satisfies $\varepsilon_{n,A}^{\mathrm{slope}}\to0$.
+
+For two supports $R,S\in\{S_+,S_4\}$ at the same feasible $k$,
+\begin{equation*}
+  \frac{L_R(n,k)-L_S(n,k)}{k}
+  =\mathcal F_{n,R}(T)-\mathcal F_{n,S}(T),
+  \tag{3.8}
+\end{equation*}
+where
+\begin{equation*}
+  \mathcal F_{n,S}(T)
+  :=
+  \max_{\substack{\sum_i p_i=1\\\sum_i i p_i=T}}
+  \left[
+    -\sum_i p_i\log p_i+\sum_i p_i h_n(i)
+  \right].
+  \tag{3.8a}
+\end{equation*}
+Fix the compact target interval
+\begin{equation*}
+  K_*:=
+  \left[
+    \frac2{\log2}-\frac1{10},
+    1+\frac2{\log2}+\frac1{10}
+  \right]
+  \subset(2,5).
+  \tag{3.9a}
+\end{equation*}
+Then, uniformly for $T\in K_*$,
+\begin{equation*}
+  \mathcal F_{n,S}(T)
+  \longrightarrow
+  \mathcal F_S(T)
+  :=
+  \max_{\substack{\sum_i p_i=1\\\sum_i i p_i=T}}
+  \left[
+    -\sum_i p_i\log p_i
+    -\frac{\log2}{2}\sum_i i^2p_i
+  \right].
+  \tag{3.9}
+\end{equation*}
+If $\lambda_{n,S}(T)$ and $\lambda_S(T)$ are the finite and limiting
+effective tilts, then there is a fixed $\Lambda>0$ such that
+\[
+  |\lambda_{n,S}(T)|+|\lambda_S(T)|\le2\Lambda
+\]
+for all sufficiently large $n$, and the deterministic dual error
+\[
+\begin{split}
+  \varepsilon_n^{\mathrm{dual}}
+  :=\max_{S\in\{S_+,S_4\}}
+  \sup_{T\in K_*}
+  \bigl(&|\mathcal F_{n,S}(T)-\mathcal F_S(T)|\\
+        &+|\lambda_{n,S}(T)-\lambda_S(T)|\bigr)
+\end{split}
+\]
+satisfies $\varepsilon_n^{\mathrm{dual}}\to0$.
+
+For $S_4$, if $p_{n,i}(T)$ and $p_i(T)$ denote the finite and limiting
+optimizers, then
+\begin{equation*}
+  \sup_{T\in K_*}\max_{2\le i\le5}
+  |p_{n,i}(T)-p_i(T)|\longrightarrow0,
+  \qquad
+  \inf_{\substack{n\ \mathrm{large}\\T\in K_*}}
+  \min_{2\le i\le5}p_{n,i}(T)>0.
+  \tag{3.9b}
+\end{equation*}
+All error sequences and eventuality thresholds above are independent of
+$\delta$.
+\end{lemma}
+
+\begin{proof}
+Put $q:=\log2$, $L:=\log n$, and $\ell:=\log\log n$.
+Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
+\[
+  \frac{L_S(n,n/s)}{n/s}
+  =(s-1)L-s+1+\log s
+   +\max_p\left[-\sum_i p_i\log p_i
+                 -\sum_i p_i\log d_{\alpha-i}\right].
+\]
+There is an exact affine-plus-curved decomposition
+\begin{equation*}
+  -\log d_{\alpha-i}=A_n+B_ni+h_n(i),
+  \tag{3.11}
+\end{equation*}
+where
+\begin{equation*}
+  A_n:=-\log d_\alpha,
+  \qquad
+  B_n:=q\alpha-\frac q2+\log\alpha,
+  \tag{3.12}
+\end{equation*}
+and, for $i\ge0$,
+\begin{equation*}
+  h_n(i)
+  :=-\frac q2i^2
+    +\sum_{r=0}^{i-1}\log\!\left(1-\frac r\alpha\right).
+  \tag{3.13}
+\end{equation*}
+For $i=-1$, direct subtraction gives
+\[
+  h_n(-1)=-\frac q2+\log\!\left(\frac{\alpha}{\alpha+1}\right).
+\]
+Thus
+\begin{equation*}
+  h_n(i)=-\frac q2i^2+O(i^2/\alpha)
+  \quad\text{for every fixed }i,
+  \qquad
+  h_n(i)\le-\frac q2i^2
+  \quad(i\ge-1).
+  \tag{3.14}
+\end{equation*}
+The first estimate is uniform on every fixed finite set of deficits; the
+second is global on the finite support.
+
+\displayheading{Finite duals and optimizing tilts}
+For $S\in\{S_+,S_4\}$, define
+\[
+  Z_{n,S}(\lambda)
+  :=\sum_{i\in S}
+    \exp\{\lambda i+h_n(i)\},
+  \qquad
+  M_{n,S}(\lambda)
+  :=\frac{d}{d\lambda}\log Z_{n,S}(\lambda),
+\]
+with the cutoff $S_+^{(n)}$ in the finite unrestricted sum. Define the
+limiting functions by
+\[
+  Z_S(\lambda)
+  :=\sum_{i\in S}
+    \exp\!\left(\lambda i-\frac q2i^2\right),
+  \qquad
+  M_S(\lambda):=\frac{d}{d\lambda}\log Z_S(\lambda).
+\]
+The target center satisfies
+\begin{equation*}
+  \frac2q\le T_0\le1+\frac2q,
+  \tag{3.15}
+\end{equation*}
+so it lies in the interior of $K_*$. The same is true of every target in
+$K_*$ relative to both supports.
+
+Choose $\Lambda>0$ so that
+\[
+  M_S(-\Lambda)<\min K_*<\max K_*<M_S(\Lambda)
+  \qquad(S=S_+,S_4).
+\]
+Such a choice exists because the limiting mean maps are strictly increasing
+and their endpoint limits bracket $K_*$. For $m=0,1,2$ and
+$|\lambda|\le\Lambda$, (3.14) gives the summable majorant
+\[
+  |i|^m\exp\!\left(\Lambda|i|-\frac q2i^2\right).
+\]
+On every fixed finite set of indices, the weights converge by (3.14). The
+majorant makes the remaining Gaussian tail uniformly small, and the omitted
+tail beyond the finite cutoff $\alpha-1$ is bounded by the same series.
+Consequently the zeroth, first, and second tilted moments converge uniformly
+on $[-\Lambda,\Lambda]$. In particular,
+\[
+  Z_{n,S}\to Z_S,
+  \qquad
+  M_{n,S}\to M_S,
+  \qquad
+  M'_{n,S}\to M'_S
+\]
+uniformly there.
+
+Now
+$M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$. By continuity and
+compactness,
+\[
+  v_*:=\frac12
+  \min_{\substack{S\in\{S_+,S_4\}\\|\lambda|\le\Lambda}}
+  M'_S(\lambda)>0.
+\]
+For all sufficiently large $n$, one has
+$M'_{n,S}(\lambda)\ge v_*$ on the same interval, and the finite mean maps
+also bracket $K_*$. Hence, for every $T\in K_*$, the equations
+\[
+  M_{n,S}(\lambda_{n,S}(T))=T,
+  \qquad
+  M_S(\lambda_S(T))=T
+\]
+have unique solutions in $[-\Lambda,\Lambda]$. The inverse mean maps are
+uniformly $v_*^{-1}$-Lipschitz, and therefore
+\[
+  \sup_{T\in K_*}
+  |\lambda_{n,S}(T)-\lambda_S(T)|
+  \le
+  v_*^{-1}\sup_{|\lambda|\le\Lambda}
+  |M_{n,S}(\lambda)-M_S(\lambda)|
+  \longrightarrow0.
+\]
+
+The entropy functional in (3.8a) is strictly concave on its feasible
+simplex. Its unique optimizer is
+\[
+  p_{n,S,T}(i)
+  =\frac{
+    \exp\{\lambda_{n,S}(T)i+h_n(i)\}
+  }{Z_{n,S}(\lambda_{n,S}(T))},
+\]
+and the dual value is exactly
+\[
+  \mathcal F_{n,S}(T)
+  =\log Z_{n,S}(\lambda_{n,S}(T))
+   -\lambda_{n,S}(T)T.
+\]
+The corresponding formulas hold in the limit. Uniform convergence of the
+partition functions and tilts proves (3.9) and
+$\varepsilon_n^{\mathrm{dual}}\to0$. On the finite support $S_4$, the optimizer
+formula also gives uniform coordinatewise convergence. The limiting
+coordinates are positive and continuous in $T$ on the compact set $K_*$;
+this proves (3.9b).
+
+\displayheading{Exact cancellation between supports}
+Substituting (3.11) into the normalized exponent gives the exact identity
+\begin{equation*}
+\begin{split}
+  \Psi_{n,S}(s)
+  &:=\frac{L_S(n,n/s)}{n/s}\\
+  &=(s-1)L-s+1+\log s
+    +A_n+B_n(\alpha-s)
+    +\mathcal F_{n,S}(\alpha-s).
+\end{split}
+  \tag{3.10}
+\end{equation*}
+At a fixed feasible $k$, the values of $s$ and $T=\alpha-s$ are the same for
+both supports. Every term in (3.10) except the final dual value is therefore
+common, which proves the exact difference identity (3.8). No limiting
+replacement is used in this cancellation.
+
+\displayheading{The value and derivative at the phase center}
+At $s=s_0$, let $T_0=\alpha-s_0$. Applying Stirling once to $A_n$ in
+(3.10), and then simplifying the affine terms exactly, gives the scalar
+expression
+\begin{equation*}
+\begin{split}
+  &s_0\left(
+    L-\log\alpha-\frac q2s_0+\frac q2
+  \right)-L+T_0+1+\log s_0+\frac q2T_0^2\\
+  &\hspace{42mm}
+  -\frac12\log(2\pi\alpha)+O(1/L).
+\end{split}
+  \tag{3.15a}
+\end{equation*}
+Equation (2.1) gives the exact identity
+\[
+  \frac{qs_0}{2}=L-\ell+\log q-q.
+\]
+Since $\alpha=s_0+T_0$ and $T_0$ is uniformly bounded,
+\[
+  \log\alpha
+  =\log s_0+\frac{T_0}{s_0}+O(L^{-2}),
+  \qquad
+  \log s_0=\ell+q-\log q+O(\ell/L).
+\]
+Consequently
+\[
+\begin{split}
+  s_0\left(
+    L-\log\alpha-\frac q2s_0+\frac q2
+  \right)
+  &=-T_0+\frac q2s_0+O(\ell)\\
+  &=-T_0+L-\ell+\log q-q+O(\ell).
+\end{split}
+\]
+Substitution in (3.15a) cancels the terms $L$ and $T_0$ and leaves
+$O(\ell)$ uniformly in the phase. The dual term in (3.10) is $O(1)$ uniformly
+on $K_*$, by the Gaussian majorant above. Therefore
+\begin{equation*}
+  \Psi_{n,S}(s_0)=O(\ell)
+  \tag{3.16}
+\end{equation*}
+uniformly for both supports.
+
+The phase formula for $\alpha$ and the expansion of $\log\alpha$ also give
+\begin{equation*}
+  B_n=2L-\ell+O(1)
+  \tag{3.17}
+\end{equation*}
+uniformly in $\delta$. Strict concavity and the optimizer formula imply
+\[
+  \frac{d}{dT}\mathcal F_{n,S}(T)=-\lambda_{n,S}(T).
+\]
+Differentiating (3.10), with $T=\alpha-s$, yields
+\begin{equation*}
+  \Psi'_{n,S}(s)
+  =L-1+s^{-1}-B_n+\lambda_{n,S}(T)
+  =-L+O_A(\ell)
+  \tag{3.18}
+\end{equation*}
+uniformly whenever $|s-s_0|\le A\ell/L$. Indeed, this corridor lies inside
+$K_*$ for all sufficiently large $n$, because $K_*$ has a fixed margin around
+the complete range of $T_0$.
+
+\displayheading{Existence, uniqueness, and slope of the roots}
+Set
+\[
+  \Psi_{n,S,c}(s):=\Psi_{n,S}(s)+c.
+\]
+By (3.16), there is an absolute $C_0$ such that
+$|\Psi_{n,S,c}(s_0)|\le C_0\ell$ for both supports and every
+$0\le c\le q$. By (3.18), after one phase-independent eventuality threshold,
+\[
+  \Psi'_{n,S,c}(s)\le-\frac12L
+\]
+throughout each fixed corridor. Choose $A_*>2C_0$. Integration gives
+\[
+\begin{aligned}
+  \Psi_{n,S,c}\!\left(s_0-A_*\frac\ell L\right)
+  &\ge\left(\frac{A_*}{2}-C_0\right)\ell>0,\\
+  \Psi_{n,S,c}\!\left(s_0+A_*\frac\ell L\right)
+  &\le\left(C_0-\frac{A_*}{2}\right)\ell<0.
+\end{aligned}
+\]
+The function is strictly decreasing in $s$ on this interval, so it has one and
+only one zero there. Since $k=n/s>0$, this is equivalent to the unique root
+$r_{S,c}$ of $L_S(n,k)+ck=0$, and proves (3.6).
+
+Finally,
+\[
+  L_S(n,k)+ck=k\Psi_{n,S,c}(s),
+  \qquad
+  \frac{ds}{dk}=-\frac sk.
+\]
+Hence
+\begin{equation*}
+\begin{split}
+  \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+  &=\Psi_{n,S,c}(s)-s\Psi'_{n,S}(s)\\
+  &=\frac2qL^2+O_A(L\ell),
+\end{split}
+  \tag{3.19}
+\end{equation*}
+because $s=(2/q)L+O_A(\ell)$, (3.18) holds, and
+$\Psi_{n,S,c}(s)=O_A(\ell)$ throughout the corridor. This proves (3.7) and
+$\varepsilon_{n,A}^{\mathrm{slope}}\to0$ with one eventuality threshold for
+the complete phase.
+\end{proof}
