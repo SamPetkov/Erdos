@@ -1,0 +1,171 @@
+name: Erdős 625 phase-root package
+
+on:
+  pull_request:
+    paths:
+      - "625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex"
+      - "625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex"
+      - "625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
+      - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
+      - "625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.tex"
+      - "625/arxiv/AMS_THEOREM_ENVIRONMENTS_V3.tex"
+      - "625/arxiv/main.tex"
+      - "625/scripts/build_self_contained_ams_v3.py"
+      - "625/scripts/build_phase_root_self_contained_v3.py"
+      - "625/experiments/check_self_contained_manuscript_v3.py"
+      - "625/experiments/check_phase_root_package_v3.py"
+      - "625/experiments/check_generator_regexes_v3.py"
+      - "625/experiments/check_constant_ledger_v3.py"
+      - "625/experiments/check_partial_diagonal_rate_v3.py"
+      - ".github/workflows/erdos625-phase-root-package.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: erdos625-phase-root-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  structural-replay:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Compile manuscript and validation tools
+        run: |
+          python -m py_compile 625/scripts/build_self_contained_ams_v3.py
+          python -m py_compile 625/scripts/build_phase_root_self_contained_v3.py
+          python -m py_compile 625/experiments/check_self_contained_manuscript_v3.py
+          python -m py_compile 625/experiments/check_phase_root_package_v3.py
+          python -m py_compile 625/experiments/check_generator_regexes_v3.py
+          python -m py_compile 625/experiments/check_constant_ledger_v3.py
+          python -m py_compile 625/experiments/check_partial_diagonal_rate_v3.py
+      - name: Replay the existing exact manuscript checks
+        run: |
+          python 625/experiments/check_generator_regexes_v3.py \
+            | tee /tmp/erdos625-generator-regexes.txt
+          python 625/experiments/check_constant_ledger_v3.py \
+            | tee /tmp/erdos625-constant-ledger.txt
+          python 625/experiments/check_partial_diagonal_rate_v3.py \
+            | tee /tmp/erdos625-partial-diagonal-ledger.txt
+          python 625/experiments/check_self_contained_manuscript_v3.py
+          python -O 625/experiments/check_self_contained_manuscript_v3.py
+      - name: Replay the phase-root package normally and with optimized Python
+        run: |
+          python 625/experiments/check_phase_root_package_v3.py \
+            | tee /tmp/erdos625-phase-root-check.txt
+          python -O 625/experiments/check_phase_root_package_v3.py \
+            | tee /tmp/erdos625-phase-root-check-optimized.txt
+      - name: Upload theorem-facing sources and exact ledgers
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-phase-root-sources
+          path: |
+            625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
+            625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
+            625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
+            625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
+            /tmp/erdos625-generator-regexes.txt
+            /tmp/erdos625-constant-ledger.txt
+            /tmp/erdos625-partial-diagonal-ledger.txt
+            /tmp/erdos625-phase-root-check.txt
+            /tmp/erdos625-phase-root-check-optimized.txt
+          if-no-files-found: error
+
+  build-complete-pdf:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Install TeX and PDF inspection dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-latex-extra texlive-bibtex-extra \
+            texlive-fonts-recommended texlive-fonts-extra \
+            texlive-plain-generic poppler-utils
+      - name: Generate the complete phase-root manuscript body
+        run: python 625/scripts/build_phase_root_self_contained_v3.py
+      - name: Build the complete AMS manuscript
+        working-directory: 625/arxiv
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error \
+            AMS_SELF_CONTAINED_DRAFT_V3.tex
+      - name: Reject unresolved references and citations
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          if grep -E \
+              "LaTeX Warning: (Reference|Citation).*undefined|There were undefined references|There were undefined citations" \
+              AMS_SELF_CONTAINED_DRAFT_V3.log; then
+            exit 1
+          fi
+      - name: Reject duplicate PDF destinations
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          if grep -F "destination with the same identifier" \
+              AMS_SELF_CONTAINED_DRAFT_V3.log; then
+            exit 1
+          fi
+      - name: Reject material overfull boxes
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          log = Path("AMS_SELF_CONTAINED_DRAFT_V3.log").read_text(errors="replace")
+          widths = [float(x) for x in re.findall(r"Overfull \\hbox \(([0-9.]+)pt too wide\)", log)]
+          bad = [x for x in widths if x > 5.0]
+          if bad:
+              raise SystemExit(f"material overfull boxes: {bad}")
+          print(f"overfull boxes above 5pt: {len(bad)}")
+          PY
+      - name: Verify full-paper size and extractability
+        working-directory: 625/arxiv
+        shell: bash
+        run: |
+          pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
+          test -n "$pages"
+          if [ "$pages" -lt 30 ]; then
+            echo "expected a full paper, found only $pages pages"
+            exit 1
+          fi
+          pdftotext AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root.txt
+          words=$(wc -w < /tmp/erdos625-phase-root.txt)
+          if [ "$words" -lt 16000 ]; then
+            echo "expected at least 16000 extracted words, found $words"
+            exit 1
+          fi
+          echo "pages: $pages"
+          echo "extracted words: $words"
+      - name: Render representative phase and root pages
+        working-directory: 625/arxiv
+        run: |
+          mkdir -p /tmp/erdos625-phase-root-renders
+          pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
+          pdftoppm -f 1 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-001
+          pdftoppm -f 10 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-010
+          pdftoppm -f 15 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-015
+          pdftoppm -f "$pages" -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-last
+      - name: Upload complete manuscript artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos625-phase-root-manuscript
+          path: |
+            625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
+            625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
+            625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
+            625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
+            /tmp/erdos625-phase-root-renders/page-001.png
+            /tmp/erdos625-phase-root-renders/page-010.png
+            /tmp/erdos625-phase-root-renders/page-015.png
+            /tmp/erdos625-phase-root-renders/page-last.png
+          if-no-files-found: error
