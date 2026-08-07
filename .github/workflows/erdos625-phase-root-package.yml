@@ -1,4 +1,4 @@
-name: Erdős 625 phase-root package
+name: Erdős 625 theorem-facing package
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - "625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex"
       - "625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
       - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
+      - "625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"
       - "625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.tex"
       - "625/arxiv/AMS_THEOREM_ENVIRONMENTS_V3.tex"
       - "625/arxiv/main.tex"
@@ -21,7 +22,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: erdos625-phase-root-${{ github.event.pull_request.number || github.ref }}
+  group: erdos625-theorem-facing-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -51,27 +52,28 @@ jobs:
             | tee /tmp/erdos625-partial-diagonal-ledger.txt
           python 625/experiments/check_self_contained_manuscript_v3.py
           python -O 625/experiments/check_self_contained_manuscript_v3.py
-      - name: Replay the phase-root package normally and with optimized Python
+      - name: Replay the theorem-facing package normally and with optimized Python
         run: |
           python 625/experiments/check_phase_root_package_v3.py \
-            | tee /tmp/erdos625-phase-root-check.txt
+            | tee /tmp/erdos625-theorem-facing-check.txt
           python -O 625/experiments/check_phase_root_package_v3.py \
-            | tee /tmp/erdos625-phase-root-check-optimized.txt
+            | tee /tmp/erdos625-theorem-facing-check-optimized.txt
       - name: Upload theorem-facing sources and exact ledgers
         uses: actions/upload-artifact@v4
         with:
-          name: erdos625-phase-root-sources
+          name: erdos625-theorem-facing-sources
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
             625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
             625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
+            625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
             /tmp/erdos625-partial-diagonal-ledger.txt
-            /tmp/erdos625-phase-root-check.txt
-            /tmp/erdos625-phase-root-check-optimized.txt
+            /tmp/erdos625-theorem-facing-check.txt
+            /tmp/erdos625-theorem-facing-check-optimized.txt
           if-no-files-found: error
 
   build-complete-pdf:
@@ -85,7 +87,7 @@ jobs:
             latexmk texlive-latex-extra texlive-bibtex-extra \
             texlive-fonts-recommended texlive-fonts-extra \
             texlive-plain-generic poppler-utils
-      - name: Generate the complete phase-root manuscript body
+      - name: Generate the complete theorem-facing manuscript body
         run: python 625/scripts/build_phase_root_self_contained_v3.py
       - name: Build the complete AMS manuscript
         working-directory: 625/arxiv
@@ -129,43 +131,47 @@ jobs:
         run: |
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           test -n "$pages"
-          if [ "$pages" -lt 30 ]; then
-            echo "expected a full paper, found only $pages pages"
+          if [ "$pages" -lt 34 ]; then
+            echo "expected a full theorem-facing paper, found only $pages pages"
             exit 1
           fi
-          pdftotext AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root.txt
-          words=$(wc -w < /tmp/erdos625-phase-root.txt)
-          if [ "$words" -lt 16000 ]; then
-            echo "expected at least 16000 extracted words, found $words"
+          pdftotext AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing.txt
+          words=$(wc -w < /tmp/erdos625-theorem-facing.txt)
+          if [ "$words" -lt 17000 ]; then
+            echo "expected at least 17000 extracted words, found $words"
             exit 1
           fi
           echo "pages: $pages"
           echo "extracted words: $words"
-      - name: Render representative phase and root pages
+      - name: Render representative theorem-facing pages
         working-directory: 625/arxiv
         run: |
-          mkdir -p /tmp/erdos625-phase-root-renders
+          mkdir -p /tmp/erdos625-theorem-facing-renders
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           pdftoppm -f 1 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-001
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing-renders/page-001
           pdftoppm -f 10 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-010
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing-renders/page-010
           pdftoppm -f 15 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-015
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing-renders/page-015
+          pdftoppm -f 36 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing-renders/page-036
           pdftoppm -f "$pages" -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-phase-root-renders/page-last
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-theorem-facing-renders/page-last
       - name: Upload complete manuscript artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: erdos625-phase-root-manuscript
+          name: erdos625-theorem-facing-manuscript
           path: |
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
             625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
             625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
+            625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
-            /tmp/erdos625-phase-root-renders/page-001.png
-            /tmp/erdos625-phase-root-renders/page-010.png
-            /tmp/erdos625-phase-root-renders/page-015.png
-            /tmp/erdos625-phase-root-renders/page-last.png
+            /tmp/erdos625-theorem-facing-renders/page-001.png
+            /tmp/erdos625-theorem-facing-renders/page-010.png
+            /tmp/erdos625-theorem-facing-renders/page-015.png
+            /tmp/erdos625-theorem-facing-renders/page-036.png
+            /tmp/erdos625-theorem-facing-renders/page-last.png
           if-no-files-found: error
