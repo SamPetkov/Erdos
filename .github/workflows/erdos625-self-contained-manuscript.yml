@@ -7,6 +7,8 @@ on:
       - "625/arxiv/FRONTMATTER_INTRODUCTION_SELF_CONTAINED_V3.tex"
       - "625/arxiv/CONVENTIONS_AND_PROOF_OBJECTS_V3.tex"
       - "625/arxiv/PROOF_ARCHITECTURE_SELF_CONTAINED_V3.tex"
+      - "625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex"
+      - "625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex"
       - "625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex"
       - "625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex"
       - "625/arxiv/SECTION7_EMPTY_CORNER_V3.tex"
@@ -14,13 +16,17 @@ on:
       - "625/arxiv/SECTION7_FULL_CORNER_V3.tex"
       - "625/arxiv/SECTION8_SELF_CONTAINED_V3.tex"
       - "625/arxiv/SECTION9_SELF_CONTAINED_V3.tex"
+      - "625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex"
       - "625/arxiv/FINAL_ASSEMBLY_SELF_CONTAINED_V3.tex"
       - "625/arxiv/FORMALIZATION_STATUS_APPENDIX_V3.tex"
+      - "625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex"
       - "625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.tex"
       - "625/arxiv/main.tex"
       - "625/arxiv/references.bib"
       - "625/scripts/build_self_contained_ams_v3.py"
+      - "625/scripts/build_phase_root_self_contained_v3.py"
       - "625/experiments/check_self_contained_manuscript_v3.py"
+      - "625/experiments/check_phase_root_package_v3.py"
       - "625/experiments/check_generator_regexes_v3.py"
       - "625/experiments/check_constant_ledger_v3.py"
       - "625/experiments/check_partial_diagonal_rate_v3.py"
@@ -29,6 +35,7 @@ on:
       - "625/audits/PROOF_CLOSURE_CONTRACTS_2026-08-05.md"
       - "625/audits/PARTIAL_DIAGONAL_CLOSURE_AUDIT_2026-08-05.md"
       - "625/audits/MATHEMATICAL_CLARITY_AND_CLOSURE_PASS_2026-08-06.md"
+      - "625/audits/PHASE_ROOT_CLOSURE_AUDIT_2026-08-07.md"
       - ".github/workflows/erdos625-self-contained-manuscript.yml"
   workflow_dispatch:
 
@@ -47,7 +54,9 @@ jobs:
       - name: Compile manuscript tools
         run: |
           python -m py_compile 625/scripts/build_self_contained_ams_v3.py
+          python -m py_compile 625/scripts/build_phase_root_self_contained_v3.py
           python -m py_compile 625/experiments/check_self_contained_manuscript_v3.py
+          python -m py_compile 625/experiments/check_phase_root_package_v3.py
           python -m py_compile 625/experiments/check_generator_regexes_v3.py
           python -m py_compile 625/experiments/check_constant_ledger_v3.py
           python -m py_compile 625/experiments/check_partial_diagonal_rate_v3.py
@@ -67,20 +76,32 @@ jobs:
         run: python 625/experiments/check_self_contained_manuscript_v3.py
       - name: Replay checker with optimized Python
         run: python -O 625/experiments/check_self_contained_manuscript_v3.py
-      - name: Upload generated TeX body, theorem-facing sources, and exact ledgers
+      - name: Replay theorem-facing package checker
+        run: |
+          python 625/experiments/check_phase_root_package_v3.py \
+            | tee /tmp/erdos625-theorem-facing-check.txt
+          python -O 625/experiments/check_phase_root_package_v3.py \
+            | tee /tmp/erdos625-theorem-facing-check-optimized.txt
+      - name: Upload generated body, theorem-facing sources, and exact ledgers
         uses: actions/upload-artifact@v4
         with:
           name: erdos625-self-contained-generated-body
           path: |
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
+            625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
             625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
             625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
             625/arxiv/SECTION7_FULL_CORNER_V3.tex
+            625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
+            625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex
             /tmp/erdos625-generator-regexes.txt
             /tmp/erdos625-constant-ledger.txt
             /tmp/erdos625-partial-diagonal-scalar-ledger.txt
+            /tmp/erdos625-theorem-facing-check.txt
+            /tmp/erdos625-theorem-facing-check-optimized.txt
           if-no-files-found: error
 
   build-complete-pdf:
@@ -94,8 +115,8 @@ jobs:
             latexmk texlive-latex-extra texlive-bibtex-extra \
             texlive-fonts-recommended texlive-fonts-extra \
             texlive-plain-generic poppler-utils
-      - name: Generate the complete manuscript body
-        run: python 625/scripts/build_self_contained_ams_v3.py
+      - name: Generate the complete theorem-facing manuscript body
+        run: python 625/scripts/build_phase_root_self_contained_v3.py
       - name: Build the complete AMS manuscript
         working-directory: 625/arxiv
         run: |
@@ -138,14 +159,14 @@ jobs:
         run: |
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           test -n "$pages"
-          if [ "$pages" -lt 30 ]; then
-            echo "expected a full paper, found only $pages pages"
+          if [ "$pages" -lt 34 ]; then
+            echo "expected a full theorem-facing paper, found only $pages pages"
             exit 1
           fi
           pdftotext AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-v3.txt
           words=$(wc -w < /tmp/erdos625-v3.txt)
-          if [ "$words" -lt 15000 ]; then
-            echo "expected at least 15000 extracted words, found $words"
+          if [ "$words" -lt 17000 ]; then
+            echo "expected at least 17000 extracted words, found $words"
             exit 1
           fi
           echo "pages: $pages"
@@ -157,18 +178,16 @@ jobs:
           pages=$(pdfinfo AMS_SELF_CONTAINED_DRAFT_V3.pdf | awk '/^Pages:/ {print $2}')
           pdftoppm -f 1 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-001
-          pdftoppm -f 12 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-012
-          pdftoppm -f 16 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-016
+          pdftoppm -f 10 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-010
+          pdftoppm -f 15 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-015
           pdftoppm -f 21 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-021
-          pdftoppm -f 23 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-023
           pdftoppm -f 27 -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-027
-          pdftoppm -f 32 -singlefile -png -r 144 \
-            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-032
+          pdftoppm -f 36 -singlefile -png -r 144 \
+            AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-036
           pdftoppm -f "$pages" -singlefile -png -r 144 \
             AMS_SELF_CONTAINED_DRAFT_V3.pdf /tmp/erdos625-renders/page-last
       - name: Upload complete manuscript artifacts
@@ -178,18 +197,21 @@ jobs:
           path: |
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.pdf
             625/arxiv/AMS_SELF_CONTAINED_BODY_V3.generated.tex
+            625/arxiv/SECTION2_PHASE_PACKAGE_V3.tex
+            625/arxiv/SECTION3_ROOT_GEOMETRY_V3.tex
             625/arxiv/SECTION4_CHROMATIC_LOWER_TAIL_V3.tex
             625/arxiv/SECTION5_ROOT_TRANSPORT_V3.tex
             625/arxiv/SECTION7_EMPTY_CORNER_V3.tex
             625/arxiv/SECTION7_CENTRAL_EXTRACTION_V3.tex
             625/arxiv/SECTION7_FULL_CORNER_V3.tex
+            625/arxiv/SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex
+            625/arxiv/FORMALIZATION_STATUS_ADDENDUM_2026_08_07_V3.tex
             625/arxiv/AMS_SELF_CONTAINED_DRAFT_V3.log
             /tmp/erdos625-renders/page-001.png
-            /tmp/erdos625-renders/page-012.png
-            /tmp/erdos625-renders/page-016.png
+            /tmp/erdos625-renders/page-010.png
+            /tmp/erdos625-renders/page-015.png
             /tmp/erdos625-renders/page-021.png
-            /tmp/erdos625-renders/page-023.png
             /tmp/erdos625-renders/page-027.png
-            /tmp/erdos625-renders/page-032.png
+            /tmp/erdos625-renders/page-036.png
             /tmp/erdos625-renders/page-last.png
           if-no-files-found: error
