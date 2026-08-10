@@ -19,8 +19,9 @@ Two avoidable losses were identified.
 2. The residual argument splits at `m_0 = 2^(U/3)`. The exponent `1/3` is a
    convenient interior point, not the structural threshold. The local reward
    at the endpoint `R=floor(U/2)` has quadratic exponent `U^2/8`, so the true
-   exponential boundary is `m_0` of order `2^(U/4)`, with a polynomial cushion
-   needed to control the factorial remainder.
+   exponential boundary is `m_0` of order `2^(U/4)`, with a fixed
+   multiplicative buffer and only one factor of `U` needed to control the
+   factorial remainder.
 
 The refinement preserves the fail-closed status. It is a candidate paper
 argument and a proposed simplification of the future Lean interface.
@@ -160,20 +161,24 @@ Gamma_skel^sharp
 
 The previous coarse deficit contribution was `O(n^(3/4) log n)`.
 
-## Result 4: critical-quarter residual split
+## Result 4: fixed-buffer critical-quarter residual split
 
 Set
 
 ```text
-T_U = U^2 2^(U/4).
+T_U = 64 U 2^(U/4).
 ```
+
+The constant `64` is a convenient fixed buffer. It is not optimized; its role
+is to leave a transparent negative linear margin after the quadratic endpoint
+terms cancel.
 
 ### Large residual mass
 
 If `m_0 >= T_U`, then every cell intensity satisfies
 
 ```text
-theta_ab <= e 2^(-U/4).
+theta_ab <= (eU/64) 2^(-U/4).
 ```
 
 For
@@ -189,31 +194,39 @@ endpoints `a_3` and `a_R`.
 The first endpoint obeys
 
 ```text
-R a_3 / theta^2 <= (eU/3)2^(-U/4) -> 0.
+R a_3 / theta^2 <= (eU^2/192)2^(-U/4) -> 0.
 ```
 
 At the other endpoint,
 
 ```text
 log_2(R a_R/theta^2)
- <= log_2 R + binom(R,2) - 1
-    + (R-2)(log_2 e-U/4) - log_2(R!).
+ <= log_2 R + binom(R,2) - 1 - log_2(R!)
+    + (R-2)(log_2 e + log_2 U - 6 - U/4).
 ```
 
-The exact cancellation
+Here `U` is either `2R` or `2R+1`. Hence
 
 ```text
-binom(R,2) - U(R-2)/4 <= U/2
+binom(R,2) - U(R-2)/4 <= R/2,
+U <= (7/3)R  for R>=3.
 ```
 
-removes the quadratic term. The factorial lower bound
+The integral estimate for the factorial gives
 
 ```text
-log_2(R!) >= (R/2) log_2(R/2)
+log_2(R!) >= R log_2 R - R log_2 e.
 ```
 
-then forces the remaining expression to minus infinity. Consequently
-`q_ab <= C theta_ab^2`, and the exact intensity-square identity gives
+Using `1<log_2 e<3/2` and `1<log_2(7/3)<5/4`, the endpoint logarithm is at
+most
+
+```text
+7 - 5R/4 - log_2 R,
+```
+
+which is negative for `R>=6`. Consequently `q_ab <= C theta_ab^2`, and the
+exact intensity-square identity gives
 
 ```text
 sum_e q_e <= C U^2,
@@ -226,7 +239,7 @@ If `m_0<T_U`, the existing crude estimate gives
 
 ```text
 A(M,j) <= 2^(U m_0/2)
-        <= exp((log 2) U^3 2^(U/4)/2).
+        <= exp(32 (log 2) U^2 2^(U/4)).
 ```
 
 The case `m_0=0` contributes one and is included.
@@ -235,14 +248,14 @@ Thus one may take
 
 ```text
 Gamma_att^sharp
-  = max(C U^2, (log 2) U^3 2^(U/4)/2).
+  = max(C U^2, 32 (log 2) U^2 2^(U/4)).
 ```
 
 Since `2^U=Theta(n^2/(log n)^2)` and `U=O(log n)`,
 
 ```text
 Gamma_att^sharp
-  = O(sqrt(n) (log n)^(5/2)).
+  = O(sqrt(n) (log n)^(3/2)).
 ```
 
 This replaces the previous complementary exponent
@@ -255,14 +268,14 @@ gives a fixed constant `C_sharp` such that
 
 ```text
 1 <= E[Z^2]/E[Z]^2
-  <= exp(C_sharp sqrt(n) (log n)^(5/2)).
+  <= exp(C_sharp sqrt(n) (log n)^(3/2)).
 ```
 
 Therefore
 
 ```text
 P(Z>0)
-  >= exp(-C_sharp sqrt(n) (log n)^(5/2)).
+  >= exp(-C_sharp sqrt(n) (log n)^(3/2)).
 ```
 
 The main theorem only needs an exponent `o(n/(log n)^4)`, so this is strictly
@@ -278,10 +291,10 @@ following fail-closed checks.
   `(9.43)--(9.57)`.
 - It checks environment, brace, control-byte, and notation hygiene.
 - It verifies the exact integer inequality
-  `binom(R,2)-U(R-2)/4 <= U/2` for `8<=U<=4096`.
-- It evaluates both endpoint ratios at the critical intensity
-  `theta=e 2^(-U/4)` and confirms that they are at most one for
-  `15<=U<=4096`; smaller `U` is absorbed into the absolute constant.
+  `binom(R,2)-U(R-2)/4 <= R/2` for `8<=U<=4096`.
+- It evaluates both endpoint ratios at the buffered critical intensity
+  `theta=(eU/64)2^(-U/4)` and confirms that they are at most one for
+  `12<=U<=4096`; smaller `U` is absorbed into the absolute constant.
 - It verifies the exponent arithmetic for the fused skeleton and
   critical-quarter attachment rates.
 
@@ -297,7 +310,8 @@ The refinement suggests three declarations.
    multiplicative cell perturbations `B`, prove the row-sum bound
    `sum_L W(L)B^L <= Sigma^K sum_r D(r)`.
 2. **Critical-quarter scalar lemma.** For `R=floor(U/2)` and
-   `theta<=e 2^(-U/4)`, prove `sum_{x=3}^R Delta_x theta^x/x! <= C theta^2`.
+   `theta<=(eU/64)2^(-U/4)`, prove
+   `sum_{x=3}^R Delta_x theta^x/x! <= C theta^2`.
 3. **Sharp ledger adapter.** Combine the fused skeleton exponent and the
    critical-quarter attachment exponent in the exact conditional
    decomposition.
