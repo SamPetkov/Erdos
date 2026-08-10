@@ -3,7 +3,7 @@
 
 The canonical source remains frozen. This wrapper first invokes the existing
 Version 3 generator, replaces the legacy phase and root sections by auditable
-sources, and inserts the explicit Section 8--9 logarithmic ledger before the
+sources, and inserts the explicit and sharpened Section 8--9 ledgers before the
 amplification section.
 """
 
@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_GENERATOR = ROOT / "scripts" / "build_self_contained_ams_v3.py"
+SHARP_CHECKER = ROOT / "experiments" / "check_sharpened_transport_attachment_v4.py"
 DEFAULT_SOURCE = ROOT / "arxiv" / "main.tex"
 DEFAULT_OUTPUT = ROOT / "arxiv" / "AMS_SELF_CONTAINED_BODY_V3.generated.tex"
 
@@ -39,12 +40,19 @@ def replace_once(text: str, start: str, end: str, replacement: str) -> str:
 def generate(source: Path, output: Path) -> None:
     for path in (
         LEGACY_GENERATOR,
+        SHARP_CHECKER,
         ROOT / "arxiv" / "SECTION2_PHASE_PACKAGE_V3.tex",
         ROOT / "arxiv" / "SECTION3_ROOT_GEOMETRY_V3.tex",
         ROOT / "arxiv" / "SECTION9_EXPLICIT_GLOBAL_LEDGER_V3.tex",
+        ROOT / "arxiv" / "SECTION9_SHARPENED_TRANSPORT_ATTACHMENT_V4.tex",
     ):
         require(path.is_file(), f"missing theorem-facing source: {path}")
 
+    subprocess.run(
+        [sys.executable, str(SHARP_CHECKER)],
+        cwd=ROOT.parent,
+        check=True,
+    )
     subprocess.run(
         [
             sys.executable,
@@ -81,7 +89,9 @@ def generate(source: Path, output: Path) -> None:
         section9_anchor,
         section9_anchor
         + "\n\n"
-        + r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}",
+        + r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}"
+        + "\n\n"
+        + r"\input{SECTION9_SHARPENED_TRANSPORT_ATTACHMENT_V4}",
         1,
     )
 
@@ -96,6 +106,17 @@ def generate(source: Path, output: Path) -> None:
     require(
         text.count(r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}") == 1,
         "global second-moment ledger was not inserted exactly once",
+    )
+    require(
+        text.count(r"\input{SECTION9_SHARPENED_TRANSPORT_ATTACHMENT_V4}") == 1,
+        "sharpened transport/attachment refinement was not inserted exactly once",
+    )
+    require(
+        text.index(r"\input{SECTION9_SELF_CONTAINED_V3}")
+        < text.index(r"\input{SECTION9_EXPLICIT_GLOBAL_LEDGER_V3}")
+        < text.index(r"\input{SECTION9_SHARPENED_TRANSPORT_ATTACHMENT_V4}")
+        < text.index(r"\section{Rare-event amplification}"),
+        "Section 8--9 refinements are not ordered before amplification",
     )
     require(
         r"\section{The complete independence-number phase}" not in text,
