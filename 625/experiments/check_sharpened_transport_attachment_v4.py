@@ -75,7 +75,7 @@ def check_critical_quarter_endpoint() -> int:
     for u in range(8, 4097):
         r = u // 2
         cancellation = Fraction(r * (r - 1), 2) - Fraction(u * (r - 2), 4)
-        require(cancellation <= Fraction(u, 2), f"critical-quarter cancellation failed at U={u}")
+        require(cancellation <= Fraction(r, 2), f"critical-quarter cancellation failed at U={u}")
 
         if u < first_uniform_u:
             continue
