@@ -1,0 +1,291 @@
+% Sharpened theorem-facing refinement of the Section 8--9 ledger.
+% Inserted after SECTION9_EXPLICIT_GLOBAL_LEDGER_V3 and before Section 10.
+
+\subsection{Fused endpoint transport and a critical-quarter residual split}
+\label{subsec:fused-quarter-refinement-v4}
+
+The preceding ledger is sufficient for the main theorem.  We record here a
+stronger form that also shortens the formalization interface.  The first
+refinement keeps the endpoint type during the deficit sum and then fuses that
+sum with endpoint transport.  The second replaces the auxiliary cubic split
+$2^U\le m_0^3$ by the critical scale $U^2 2^{U/4}$.  Together they give an
+explicit seed exponent of order $\sqrt n(\log n)^{5/2}$.
+
+For all sufficiently large $n$, every $\rho_{ij}$ is smaller than $1/2$.
+Put
+\begin{equation*}
+  B_{ij}:=\frac1{1-\rho_{ij}},
+  \qquad
+  B^L:=\prod_{i,j}B_{ij}^{\ell_{ij}}.
+  \tag{9.43}
+\end{equation*}
+
+\begin{lemma}[Type-preserving deficit product]
+\label{lem:type-preserving-deficit-product-v4}
+For every fixed high-cell support $P$,
+\begin{equation*}
+  \sum_{h:\,m-h\text{ high}} w(P,m-h)
+  \le
+  w_{\mathrm{full}}(P)
+  \prod_{e\in P}B_{\tau(e)},
+  \tag{9.44}
+\end{equation*}
+where $\tau(e)=(i,j)$ is the endpoint type of $e$.
+\end{lemma}
+
+\begin{proof}
+For a cell of type $(i,j)$, equations
+\eqref{eq:aggregate-deficit-comparison-v3} and
+\eqref{eq:three-quarter-charge-v3} give
+\[
+  n^hR_{m_e,d_e}(h)\le \rho_{ij}^h.
+\]
+The optional-choice identity may therefore be bounded cell by cell by
+\[
+  1+\sum_{h\in A_e}\rho_{ij}^h
+  \le
+  1+\sum_{h\ge1}\rho_{ij}^h
+  =\frac1{1-\rho_{ij}}
+  =B_{ij}.
+\]
+Multiplication over the matching support proves the claim.  In contrast with
+\eqref{eq:fixed-support-all-deficit-v3}, no factor $\alpha+1$ is introduced.
+\end{proof}
+
+Weighted regrouping by the realized endpoint table gives immediately
+\begin{equation*}
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \sum_{L\ \mathrm{realized}}W(L)B^L.
+  \tag{9.45}
+\end{equation*}
+Define the fused kernel and its maximal row sum by
+\begin{equation*}
+  \widetilde Q_{ij}:=B_{ij}Q_{ij},
+  \qquad
+  \Sigma_n:=\max_{0\le i\le3}\sum_{j=0}^{3}\widetilde Q_{ij}.
+  \tag{9.46}
+\end{equation*}
+
+\begin{proposition}[Fused deficit--endpoint transport]
+\label{prop:fused-deficit-endpoint-transport-v4}
+For all sufficiently large $n$,
+\begin{equation*}
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \Sigma_n^K\sum_rD(r)
+  \le
+  \Sigma_n^K\bigl(1+\varepsilon_n^{\mathrm{pd}}\bigr).
+  \tag{9.47}
+\end{equation*}
+\end{proposition}
+
+\begin{proof}
+Multiplying \eqref{eq:square-free-endpoint-transport-v3} by $(B^L)^2$ gives
+\[
+  \bigl(W(L)B^L\bigr)^2
+  \le
+  \bigl(D(r)A_L\widetilde Q^L\bigr)
+  \bigl(D(c)C_L\widetilde Q^L\bigr).
+\]
+After the arithmetic--geometric mean inequality, sum the first term at fixed
+row margin $r$ and discard the column-margin constraint.  The multinomial
+theorem gives
+\[
+  \sum_{L:\,\operatorname{row}(L)=r}A_L\widetilde Q^L
+  \le
+  \prod_i\left(\sum_j\widetilde Q_{ij}\right)^{r_i}
+  \le
+  \Sigma_n^{\sum_i r_i}
+  \le
+  \Sigma_n^K.
+\]
+The column term is identical because $B$ and $Q$ are symmetric.  Summation over
+the two one-sided margins proves the first inequality in (9.47), and
+(9.32) proves the second.  Thus the support-cardinality estimate and
+the endpoint transport are consumed in one kernel bound.
+\end{proof}
+
+The exact phase formula from Section~2 sharpens the deficit scale.  Put
+$q:=\log 2$, $L:=\log n$, $\ell:=\log\log n$, and
+$C:=1+\log q-q$.  Since
+\[
+  \alpha=\frac{2(L-\ell+C)}q+b,
+  \qquad 0\le b\le1,
+\]
+and every endpoint minimum satisfies $m_{ij}\ge\alpha-5$, one has
+\[
+  \left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor
+  \ge
+  \frac{3\alpha-20}{4}.
+\]
+Consequently
+\[
+  q\left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor
+  \ge
+  \frac32(L-\ell+C)-5q,
+\]
+and therefore
+\begin{equation*}
+  2^{\lfloor(3m_{ij}-1)/4\rfloor}
+  \ge
+  c_0\frac{n^{3/2}}{(\log n)^{3/2}},
+  \qquad
+  c_0:=\exp\!\left(\frac32C-5q\right)>0.
+  \tag{9.48}
+\end{equation*}
+Since $m_{ij}=O(L)$ uniformly in the phase,
+\begin{equation*}
+  \rho_{16}
+  =O\!\left(\frac{L^{5/2}}{\sqrt n}\right),
+  \qquad
+  \Sigma_n
+  =1+O\!\left(\frac{L^{5/2}}{\sqrt n}\right).
+  \tag{9.49}
+\end{equation*}
+Indeed, $B_{ij}=1+O(\rho_{ij})$, while $Q_{ii}=1$ and the total off-diagonal
+mass in each row is $O(\eta_n)=O(L^{3/2}/\sqrt n)$.
+
+Define the sharpened skeleton exponent
+\begin{equation*}
+  \Gamma_n^{\mathrm{skel},\sharp}
+  :=K\log\Sigma_n+
+    \log\!\left(1+\varepsilon_n^{\mathrm{pd}}\right).
+  \tag{9.50}
+\end{equation*}
+Since $K=\Theta(n/L)$, equations (9.47)--(9.49) give
+\begin{equation*}
+  \Gamma_n^{\mathrm{skel},\sharp}
+  =O\!\left(\sqrt n\,L^{3/2}\right),
+  \qquad
+  \operatorname{BareSkeletonSum}_n
+  \le e^{\Gamma_n^{\mathrm{skel},\sharp}}.
+  \tag{9.51}
+\end{equation*}
+This improves the earlier coarse deficit contribution
+$O(n^{3/4}\log n)$ and removes the artificial factor $\alpha+1$.
+
+We now sharpen the residual split.  Put
+\begin{equation*}
+  T_U:=U^2 2^{U/4}.
+  \tag{9.52}
+\end{equation*}
+
+\begin{proposition}[Critical-quarter residual attachment]
+\label{prop:critical-quarter-residual-attachment-v4}
+There is an absolute constant $C_\mathrm{q}>0$ such that every feasible
+canonical high skeleton satisfies
+\begin{equation*}
+  \mathcal A(M,j)
+  \le
+  \begin{cases}
+    \exp(C_\mathrm{q}U^2),&m_0\ge T_U,\\[2mm]
+    \displaystyle
+    \exp\!\left(\frac{\log 2}{2}U^3 2^{U/4}\right),&m_0<T_U.
+  \end{cases}
+  \tag{9.53}
+\end{equation*}
+The second line includes $m_0=0$.
+\end{proposition}
+
+\begin{proof}
+Assume first that $m_0\ge T_U$.  The residual degree cap gives
+\[
+  \theta_{ab}
+  =\frac{\mathrm e\,d_ad'_b}{m_0}
+  \le \mathrm e\,2^{-U/4}.
+\]
+The proof of Lemma~\ref{lem:q-quadratic-v3} now applies with a stronger
+endpoint estimate.  For completeness, put
+$a_x=g(x)\theta^x/x!$ and $R=\lfloor U/2\rfloor$.  Log-convexity again gives
+$\lambda_{ab}\le R(a_3+a_R)$.  The first endpoint satisfies
+\[
+  \frac{Ra_3}{\theta^2}
+  =\frac{2R}{3}\theta
+  \le \frac{\mathrm e U}{3}2^{-U/4}
+  \longrightarrow0.
+\]
+For the other endpoint, using $g(R)=2^{\binom R2-1}$ for $R\ge3$,
+\[
+\begin{aligned}
+  \log_2\!\left(\frac{Ra_R}{\theta^2}\right)
+  \le{}&
+  \log_2R+\binom R2-1
+  +(R-2)\left(\log_2\mathrm e-\frac U4\right)
+  -\log_2(R!).
+\end{aligned}
+\]
+Because $R\le U/2$,
+\[
+  \binom R2-\frac U4(R-2)\le\frac U2.
+\]
+Moreover,
+$\log_2(R!)\ge(R/2)\log_2(R/2)$ for $R\ge4$.  Hence the displayed logarithm
+tends to $-\infty$, and $Ra_R\le\theta^2$ for all sufficiently large $U$.
+The finitely many remaining values are absorbed into one absolute constant.
+Thus $q_{ab}\le C_0\theta_{ab}^2$.  The exact identity for
+$\sum_{a,b}\theta_{ab}^2$ and the degree cap then give
+$\sum_e q_e\le C_1U^2$, so \eqref{eq:q-only-attachment-v3} yields the first
+line of (9.53).
+
+If $m_0=0$, the conclusion follows from
+\eqref{eq:zero-residual-attachment-v3}.  If $0<m_0<T_U$, the crude estimate
+\eqref{eq:complementary-attachment-v3} gives
+\[
+  \mathcal A(M,j)
+  \le2^{Um_0/2}
+  \le2^{U^3 2^{U/4}/2},
+\]
+which is the second line.
+\end{proof}
+
+Define
+\begin{equation*}
+  \Gamma_n^{\mathrm{att},\sharp}
+  :=
+  \max\!\left\{
+    C_\mathrm{q}U^2,
+    \frac{\log 2}{2}U^3 2^{U/4}
+  \right\}.
+  \tag{9.54}
+\end{equation*}
+The phase relation $2^U=\Theta(n^2/L^2)$ implies
+\begin{equation*}
+  \Gamma_n^{\mathrm{att},\sharp}
+  =O\!\left(\sqrt n\,L^{5/2}\right).
+  \tag{9.55}
+\end{equation*}
+
+\begin{corollary}[Explicit sharpened seed exponent]
+\label{cor:sharpened-seed-exponent-v4}
+There is an absolute constant $C_\sharp>0$ such that, uniformly in the phase,
+\begin{equation*}
+  1
+  \le
+  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+  \le
+  \exp\!\left(C_\sharp\sqrt n\,(\log n)^{5/2}\right).
+  \tag{9.56}
+\end{equation*}
+Consequently
+\begin{equation*}
+  \mathbb P(Z>0)
+  \ge
+  \exp\!\left(-C_\sharp\sqrt n\,(\log n)^{5/2}\right).
+  \tag{9.57}
+\end{equation*}
+\end{corollary}
+
+\begin{proof}
+Insert the uniform attachment factor
+$e^{\Gamma_n^{\mathrm{att},\sharp}}$ into the exact decomposition
+\eqref{eq:exact-attachment-decomposition-v3}, and use (9.51) for the remaining
+bare-skeleton sum.  Equations (9.51) and (9.55) give (9.56).  The final claim is
+Paley--Zygmund.
+\end{proof}
+
+The refinement leaves the main theorem and its coefficient unchanged.  Its
+formal advantage is that the high-skeleton calculation is reduced to one
+finite kernel row-sum theorem, while the residual calculation is reduced to
+one scalar threshold $m_0\gtreqless U^2 2^{U/4}$.  Neither interface requires
+the arbitrary exponent $1/3$ or the factor $\alpha+1$ from the coarser ledger.
