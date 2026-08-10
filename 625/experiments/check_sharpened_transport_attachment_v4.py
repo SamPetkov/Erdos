@@ -34,11 +34,11 @@ def check_source() -> tuple[int, int]:
         r"B_{ij}:=\frac1{1-\rho_{ij}}",
         r"\widetilde Q_{ij}:=B_{ij}Q_{ij}",
         r"\Gamma_n^{\mathrm{skel},\sharp}",
-        r"T_U:=U^2 2^{U/4}",
+        r"T_U:=64U2^{U/4}",
         "Critical-quarter residual attachment",
         r"\Gamma_n^{\mathrm{att},\sharp}",
         "Explicit sharpened seed exponent",
-        r"\sqrt n\,(\log n)^{5/2}",
+        r"\sqrt n\,(\log n)^{3/2}",
         "Neither interface requires the arbitrary exponent $1/3$",
     ):
         require(token in flat, f"sharpened source missing semantic token: {token}")
@@ -55,14 +55,7 @@ def check_source() -> tuple[int, int]:
     require(begins == ends, f"unbalanced environments: {begins - ends}, {ends - begins}")
     require(text.count("{") == text.count("}"), "unbalanced braces")
 
-    for forbidden in (
-        "TODO",
-        "TBD",
-        "proof omitted",
-        "details are standard",
-        r"\ln",
-        r"\log2",
-    ):
+    for forbidden in ("TODO", "TBD", "proof omitted", "details are standard", r"\ln", r"\log2"):
         require(forbidden not in text, f"forbidden marker in sharpened source: {forbidden}")
 
     tags = re.findall(r"\\tag\{([^}]+)\}", text)
@@ -78,18 +71,15 @@ def check_source() -> tuple[int, int]:
 
 def check_critical_quarter_endpoint() -> int:
     """Check the exact scalar cancellation and a conservative finite threshold."""
-    first_uniform_u = 15
+    first_uniform_u = 12
     for u in range(8, 4097):
         r = u // 2
         cancellation = Fraction(r * (r - 1), 2) - Fraction(u * (r - 2), 4)
-        require(
-            cancellation <= Fraction(u, 2),
-            f"critical-quarter cancellation failed at U={u}",
-        )
+        require(cancellation <= Fraction(u, 2), f"critical-quarter cancellation failed at U={u}")
 
         if u < first_uniform_u:
             continue
-        theta_log2 = math.log2(math.e) - u / 4.0
+        theta_log2 = math.log2(math.e) + math.log2(u) - 6.0 - u / 4.0
         first_endpoint = (2.0 * r / 3.0) * 2.0**theta_log2
         require(first_endpoint <= 1.0, f"cubic endpoint exceeds theta^2 at U={u}")
 
@@ -101,10 +91,7 @@ def check_critical_quarter_endpoint() -> int:
                 + (r - 2) * theta_log2
                 - log2_factorial(r)
             )
-            require(
-                second_endpoint_log2 <= 0.0,
-                f"full endpoint exceeds theta^2 at U={u}",
-            )
+            require(second_endpoint_log2 <= 0.0, f"full endpoint exceeds theta^2 at U={u}")
     return first_uniform_u
 
 
@@ -113,22 +100,13 @@ def check_rate_ledger() -> None:
     rho = (Fraction(-1, 2), Fraction(5, 2))
     class_count = (Fraction(1), Fraction(-1))
     eta = (Fraction(-1, 2), Fraction(3, 2))
-    quarter_attachment = (Fraction(1, 2), Fraction(5, 2))
+    quarter_attachment = (Fraction(1, 2), Fraction(3, 2))
 
     fused_deficit = (rho[0] + class_count[0], rho[1] + class_count[1])
     endpoint_transport = (eta[0] + class_count[0], eta[1] + class_count[1])
-    require(
-        fused_deficit == (Fraction(1, 2), Fraction(3, 2)),
-        "fused deficit rate mismatch",
-    )
-    require(
-        endpoint_transport == (Fraction(1, 2), Fraction(1, 2)),
-        "endpoint rate mismatch",
-    )
-    require(
-        quarter_attachment == (Fraction(1, 2), Fraction(5, 2)),
-        "attachment rate mismatch",
-    )
+    require(fused_deficit == (Fraction(1, 2), Fraction(3, 2)), "fused deficit rate mismatch")
+    require(endpoint_transport == (Fraction(1, 2), Fraction(1, 2)), "endpoint rate mismatch")
+    require(quarter_attachment == (Fraction(1, 2), Fraction(3, 2)), "attachment rate mismatch")
 
     target_n_power = Fraction(1)
     for name, (n_power, _) in {
@@ -147,7 +125,7 @@ def main() -> None:
     print(f"  source lines: {source_lines}")
     print(f"  guarded equation tags: {tags}")
     print("  fused skeleton exponent: O(sqrt(n) (log n)^(3/2))")
-    print("  critical-quarter attachment: O(sqrt(n) (log n)^(5/2))")
+    print("  critical-quarter attachment: O(sqrt(n) (log n)^(3/2))")
     print(f"  numerical endpoint threshold checked from U={threshold} through U=4096")
     print("  finite U below the threshold is absorbed into the absolute activity constant")
 
