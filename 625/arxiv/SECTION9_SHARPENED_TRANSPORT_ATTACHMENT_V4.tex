@@ -8,8 +8,8 @@ The preceding ledger is sufficient for the main theorem.  We record here a
 stronger form that also shortens the formalization interface.  The first
 refinement keeps the endpoint type during the deficit sum and then fuses that
 sum with endpoint transport.  The second replaces the auxiliary cubic split
-$2^U\le m_0^3$ by the critical scale $U^2 2^{U/4}$.  Together they give an
-explicit seed exponent of order $\sqrt n(\log n)^{5/2}$.
+$2^U\le m_0^3$ by the fixed-buffer critical scale $64U2^{U/4}$.  Together they give an
+explicit seed exponent of order $\sqrt n(\log n)^{3/2}$.
 
 For all sufficiently large $n$, every $\rho_{ij}$ is smaller than $1/2$.
 Put
@@ -167,7 +167,7 @@ $O(n^{3/4}\log n)$ and removes the artificial factor $\alpha+1$.
 
 We now sharpen the residual split.  Put
 \begin{equation*}
-  T_U:=U^2 2^{U/4}.
+  T_U:=64U2^{U/4}.
   \tag{9.52}
 \end{equation*}
 
@@ -180,8 +180,7 @@ canonical high skeleton satisfies
   \le
   \begin{cases}
     \exp(C_\mathrm{q}U^2),&m_0\ge T_U,\\[2mm]
-    \displaystyle
-    \exp\!\left(\frac{\log 2}{2}U^3 2^{U/4}\right),&m_0<T_U.
+    \displaystyle\exp\!\left(32(\log 2)U^2 2^{U/4}\right),&m_0<T_U.
   \end{cases}
   \tag{9.53}
 \end{equation*}
@@ -193,7 +192,7 @@ Assume first that $m_0\ge T_U$.  The residual degree cap gives
 \[
   \theta_{ab}
   =\frac{\mathrm e\,d_ad'_b}{m_0}
-  \le \mathrm e\,2^{-U/4}.
+  \le \frac{\mathrm e U}{64}2^{-U/4}.
 \]
 The proof of Lemma~\ref{lem:q-quadratic-v3} now applies with a stronger
 endpoint estimate.  For completeness, put
@@ -202,7 +201,7 @@ $\lambda_{ab}\le R(a_3+a_R)$.  The first endpoint satisfies
 \[
   \frac{Ra_3}{\theta^2}
   =\frac{2R}{3}\theta
-  \le \frac{\mathrm e U}{3}2^{-U/4}
+  \le \frac{\mathrm e U^2}{192}2^{-U/4}
   \longrightarrow0.
 \]
 For the other endpoint, using $g(R)=2^{\binom R2-1}$ for $R\ge3$,
@@ -210,19 +209,31 @@ For the other endpoint, using $g(R)=2^{\binom R2-1}$ for $R\ge3$,
 \begin{aligned}
   \log_2\!\left(\frac{Ra_R}{\theta^2}\right)
   \le{}&
-  \log_2R+\binom R2-1
-  +(R-2)\left(\log_2\mathrm e-\frac U4\right)
-  -\log_2(R!).
+  \log_2R+\binom R2-1-\log_2(R!)\\
+  &+(R-2)\left(
+    \log_2\mathrm e+\log_2U-6-\frac U4
+  \right).
 \end{aligned}
 \]
-Because $R\le U/2$,
+Here $U\in\{2R,2R+1\}$.  Therefore, for $R\ge3$,
 \[
-  \binom R2-\frac U4(R-2)\le\frac U2.
+  \binom R2-\frac U4(R-2)\le\frac R2,
+  \qquad
+  U\le\frac73R.
 \]
-Moreover, $R\ge(U-1)/2$ and
-$\log_2(R!)\ge(R/2)\log_2(R/2)$ for $R\ge4$.  Hence the displayed logarithm
-tends to $-\infty$, and $Ra_R\le\theta^2$ for all sufficiently large $U$.
-The finitely many remaining values are absorbed into one absolute constant.
+Moreover, the integral bound for the factorial gives
+\[
+  \log_2(R!)
+  \ge R\log_2R-R\log_2\mathrm e.
+\]
+Using the elementary estimates
+$1<\log_2\mathrm e<3/2$ and
+$1<\log_2(7/3)<5/4$, the displayed endpoint logarithm is at most
+\[
+  7-\frac54R-\log_2R,
+\]
+which is negative for $R\ge6$.  The finitely many remaining values are
+absorbed into one absolute constant.
 Thus $q_{ab}\le C_0\theta_{ab}^2$.  The exact identity for
 $\sum_{a,b}\theta_{ab}^2$ and the degree cap then give
 $\sum_e q_e\le C_1U^2$, so \eqref{eq:q-only-attachment-v3} yields the first
@@ -234,7 +245,7 @@ If $m_0=0$, the conclusion follows from
 \[
   \mathcal A(M,j)
   \le2^{Um_0/2}
-  \le2^{U^3 2^{U/4}/2},
+  \le2^{32U^2 2^{U/4}},
 \]
 which is the second line.
 \end{proof}
@@ -245,14 +256,14 @@ Define
   :=
   \max\!\left\{
     C_\mathrm{q}U^2,
-    \frac{\log 2}{2}U^3 2^{U/4}
+    32(\log 2)U^2 2^{U/4}
   \right\}.
   \tag{9.54}
 \end{equation*}
 The phase relation $2^U=\Theta(n^2/L^2)$ implies
 \begin{equation*}
   \Gamma_n^{\mathrm{att},\sharp}
-  =O\!\left(\sqrt n\,L^{5/2}\right).
+  =O\!\left(\sqrt n\,L^{3/2}\right).
   \tag{9.55}
 \end{equation*}
 
@@ -264,14 +275,14 @@ There is an absolute constant $C_\sharp>0$ such that, uniformly in the phase,
   \le
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
-  \exp\!\left(C_\sharp\sqrt n\,(\log n)^{5/2}\right).
+  \exp\!\left(C_\sharp\sqrt n\,(\log n)^{3/2}\right).
   \tag{9.56}
 \end{equation*}
 Consequently
 \begin{equation*}
   \mathbb P(Z>0)
   \ge
-  \exp\!\left(-C_\sharp\sqrt n\,(\log n)^{5/2}\right).
+  \exp\!\left(-C_\sharp\sqrt n\,(\log n)^{3/2}\right).
   \tag{9.57}
 \end{equation*}
 \end{corollary}
@@ -287,6 +298,6 @@ Paley--Zygmund.
 The refinement leaves the main theorem and its coefficient unchanged.  Its
 formal advantage is that the high-skeleton calculation is reduced to one
 finite kernel row-sum theorem, while the residual calculation is reduced to
-the two explicit cases $m_0\ge U^2 2^{U/4}$ and
-$m_0<U^2 2^{U/4}$.  Neither interface requires
+the two explicit cases $m_0\ge64U2^{U/4}$ and
+$m_0<64U2^{U/4}$.  Neither interface requires
 the arbitrary exponent $1/3$ or the factor $\alpha+1$ from the coarser ledger.
