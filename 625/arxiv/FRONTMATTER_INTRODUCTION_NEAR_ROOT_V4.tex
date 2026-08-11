@@ -1,0 +1,216 @@
+% Front matter for the near-root Version 4 verification manuscript.
+% The compile-time switch \ifErdosProofClosed is defined by the master file.
+
+\begin{abstract}
+\ifErdosProofClosed
+Let $G_n\sim G(n,1/2)$. We prove, along the full sequence of integers, that
+\[
+  \chi(G_n)-\zeta(G_n)
+  \ge
+  \frac{(\log 2)^2}{4}
+  \log\!\left(\frac{1000}{639}\right)
+  \frac{n}{(\log n)^3}
+\]
+with probability tending to one. The proof compares the ordinary coloring
+root with a signed four-size cocoloring root. A one-part buffer above the signed
+root gives a first-moment margin of order $(\log n)^2$, which is already enough
+for the full-corner second-moment estimate and therefore retains the complete
+leading root separation. Exact sign compatibility, completion-free high-cell
+fibers, a fused endpoint kernel, and a critical-quarter residual split give a
+seed exponent $O(\sqrt n(\log n)^{3/2})$; bounded differences then amplify the
+seed at negligible cost.
+\else
+Let $G_n\sim G(n,1/2)$. This verification draft gives a self-contained
+candidate derivation of a full-sequence lower bound of order
+$n/(\log n)^3$ for $\chi(G_n)-\zeta(G_n)$, conditional on the exact review and
+formal-replay obligations stated in the appendices. Its new point is that
+midpoint placement is unnecessary: the integer
+$\lceil r_4^{\mathrm{co}}\rceil+1$ has signed first moment
+$\exp(\Theta((\log n)^2))$, which dominates the only polynomial full-corner
+multiplicity and retains the full first-moment root separation. The manuscript
+keeps the publication switch disabled until this one-part-buffer interface and
+the existing phase, partial-diagonal, skeleton, and attachment packages are
+replayed together.
+\fi
+\end{abstract}
+
+\maketitle
+
+\ifErdosProofClosed\else
+\begin{center}
+\small\emph{Verification status.} The one-part-buffer placement and doubled
+coefficient are complete candidate paper interfaces, not yet independently
+certified. The theorem remains conditional until the exact declarations,
+private Lean replay, and integrated dependency audit listed in the appendices
+have all passed on one commit.
+\end{center}
+\fi
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+\label{sec:introduction-near-root-v4}
+
+A \emph{cocoloring} of a graph $G$ is a partition of $V(G)$ into nonempty
+classes, each inducing either an empty graph or a complete graph. The least
+number of classes in such a partition is the \emph{cochromatic number}
+$\zeta(G)$. Since an ordinary proper coloring is a cocoloring using only empty
+classes, $\zeta(G)\le\chi(G)$.
+
+Let $G_n\sim G(n,1/2)$ be the labeled random graph on $[n]$. Erd\H{o}s and
+Gimbel asked whether
+\[
+  \chi(G_n)-\zeta(G_n)\longrightarrow\infty
+\]
+with high probability \citep[p.~263]{erdos-gimbel-1993}. The question was
+restated by Gimbel \citep[Section~7.4]{gimbel-2016} and is cataloged as
+Erd\H{o}s Problem~625 \citep{bloom-erdos625}.
+
+\ifErdosProofClosed
+\begin{maintheorem}
+For $G_n\sim G(n,1/2)$,
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{4}
+    \log\!\left(\frac{1000}{639}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow1.
+\]
+In particular, the difference tends to infinity with high probability along
+the full sequence of integers.
+\end{maintheorem}
+\else
+\begin{maintheorem}[Conditional verification statement]
+Assume the phase and finite-dual package, the one-part-buffer signed profile,
+the complete partial-diagonal estimate, and the global
+skeleton--attachment assembly listed in the appendices. Then
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{4}
+    \log\!\left(\frac{1000}{639}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow1.
+\]
+\end{maintheorem}
+\fi
+
+The full-sequence quantifier is substantive because the natural class-size
+cutoff jumps when the independence-number phase crosses an integer. Every
+asymptotic estimate below is uniform up to both endpoints of each phase
+interval. The phase, finite-dual, target-transport, partial-diagonal, endpoint,
+and residual errors are named separately so that the same overlap feature is
+not charged twice.
+
+\subsection*{Relation to previous work}
+
+The first-order asymptotic for the chromatic number of a dense random graph was
+proved by Bollob\'as \citep{bollobas-1988}, following the early work of
+Grimmett and McDiarmid \citep{grimmett-mcdiarmid-1975}; later refinements
+include \citet{mcdiarmid-1990}, \citet{panagiotou-steger-2009}, and
+\citet{heckel-2018}. The cochromatic number belongs to the theory of generalized
+chromatic numbers associated with hereditary graph properties
+\citep{scheinerman-1992,bollobas-thomason-1995}.
+
+For the difference $\chi(G_n)-\zeta(G_n)$, phase-dependent progress was
+obtained through the nonconcentration of the chromatic number
+\citep{heckel-2024-question,steiner-2024,heckel-2025-difference}. The present
+candidate proof uses a four-size signed profile that remains valid through the
+complete phase, evaluates sign compatibility exactly, and carries the rare
+second-moment seed to high probability by a quantitative exposure argument.
+
+\subsection*{Why one extra class is enough}
+
+Let $r_+(n)$ be the ordinary first-moment root and
+$r_4^{\mathrm{co}}(n)$ the signed four-size root. Their separation is
+\[
+  r_+-r_4^{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3},
+\]
+where $A_4(\delta)=\log 2-D_4(\delta)$ is uniformly positive. The earlier
+verification draft placed the signed profile at the midpoint and consequently
+retained one half of this separation.
+
+The stronger placement is
+\[
+  k_{\mathrm{co}}
+  =\left\lceil r_4^{\mathrm{co}}\right\rceil+1.
+\]
+Its distance from the signed root lies in $[1,2)$. Since the derivative of the
+signed objective is uniformly of order $(\log n)^2$, the resulting exact
+integer profile has
+\[
+  \log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+  =\Theta((\log n)^2).
+\]
+This is smaller than the midpoint margin, but it is sufficient. The central
+partial-diagonal range needs only
+$k_{\mathrm{co}}^{-1}\log\mathbb E Z=o(1)$, and the full corner has only
+$(k_{\mathrm{co}}+1)^4$ residual profiles. Hence
+\[
+  (k_{\mathrm{co}}+1)^4
+  \bigl(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\bigr)^{-1}
+  =o(1).
+\]
+No other part of the second-moment argument consumes a macroscopic distance
+from the signed root. The complete leading root separation is therefore
+available in the final gap.
+
+\subsection*{Proof components}
+
+The proof has four components.
+
+\begin{enumerate}
+\item \textbf{Uniform root geometry.} The finite support comparison is exact
+before passage to the limiting Gaussian dual. The signed profile is then
+placed one integer part above the signed root and tangent-rounded while
+preserving both conservation laws.
+
+\item \textbf{Exact signed overlap.} For two signed witnesses, compatibility
+factors into local cell rewards and the cardinality of a binary cycle space.
+
+\item \textbf{Fused high-cell transport.} High cells form a matching. Their
+complete physical fibers are summed before estimates are taken. Deficit
+summation and endpoint transport are fused into one nonnegative $4\times4$
+kernel, giving a logarithmic skeleton cost
+$O(\sqrt n(\log n)^{3/2})$.
+
+\item \textbf{Critical-quarter attachments and amplification.} A fixed-buffer
+threshold at the intrinsic scale $2^{U/4}$ bounds the residual attachment by
+$\exp\{O(\sqrt n(\log n)^{3/2})\}$. Paley--Zygmund supplies a rare witness,
+and bounded differences amplify it while adding only
+$O(n^{3/4}(\log n)^{-1/4})=o(n/(\log n)^3)$ classes.
+\end{enumerate}
+
+The exact four-support ledger proves
+\[
+  A_4(\delta)
+  >
+  \log\!\left(\frac{20000}{12777}\right)
+  =
+  \log\!\left(\frac{1000}{639}\right)
+  +
+  \log\!\left(\frac{12780}{12777}\right).
+\]
+The last term is fixed slack. Retaining the full root separation gives the
+coefficient
+\[
+  \frac{(\log 2)^2}{4}
+  \log\!\left(\frac{1000}{639}\right)
+  =0.053792819616758\ldots.
+\]
+
+Sections~1--5 establish the phase and one-part-buffer profile. Section~6 gives
+the exact signed-overlap identity, and Section~7 proves the partial-diagonal
+estimate with the revised full corner. Sections~8--9 contain the fused endpoint
+and critical-quarter residual bounds. Section~10 proves the amplifier, the
+final section performs the coefficient ledger, and the appendices record the
+paper-to-Lean interfaces and remaining gates.
