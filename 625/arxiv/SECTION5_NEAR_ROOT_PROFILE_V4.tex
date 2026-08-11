@@ -1,0 +1,188 @@
+% One-part-buffer replacement for the midpoint profile in Section 5.
+% Inserted after the continuous root-gap calculation and before Section 6.
+
+Choose the one-part-buffer integer
+\begin{equation*}
+  k_{\mathrm{co}}
+  :=\left\lceil r_4^{\mathrm{co}}\right\rceil+1,
+  \qquad
+  d_n:=k_{\mathrm{co}}-r_4^{\mathrm{co}}.
+  \tag{5.13}
+\end{equation*}
+Then
+\[
+  1\le d_n<2.
+\]
+The root separation in (5.12) tends to infinity, so
+$k_{\mathrm{co}}<r_+$ for all sufficiently large $n$.
+
+This placement retains the complete leading root separation.  The additional
+class is not used to create a macroscopic first-moment buffer; it supplies the
+smallest phase-uniform positive displacement from the real signed root.  That
+constant displacement is enough because the slope at the root is of order
+$(\log n)^2$.
+
+We first verify that the complete interval
+$[r_4^{\mathrm{co}},k_{\mathrm{co}}]$ remains in the common root corridor.  If
+$k$ lies in this interval, then $k,r_4^{\mathrm{co}}=\Theta(n/\log n)$ and
+\[
+  \left|\frac nk-\frac{n}{r_4^{\mathrm{co}}}\right|
+  =
+  \frac{n|k-r_4^{\mathrm{co}}|}{k r_4^{\mathrm{co}}}
+  =O\!\left(\frac{(\log n)^2}{n}\right)
+  =o\!\left(\frac{\log\log n}{\log n}\right).
+\]
+Hence the normalized slope estimate (3.7) applies throughout the interval.
+Writing
+\[
+  \Phi_n(k):=L_{S_4}(n,k)+(\log 2)k,
+\]
+there are phase-independent constants $0<c_{\mathrm s}<C_{\mathrm s}$ such
+that, for all sufficiently large $n$,
+\[
+  c_{\mathrm s}(\log n)^2
+  \le \Phi_n'(k)
+  \le C_{\mathrm s}(\log n)^2
+  \qquad
+  (r_4^{\mathrm{co}}\le k\le k_{\mathrm{co}}).
+\]
+Since $\Phi_n(r_4^{\mathrm{co}})=0$ and $1\le d_n<2$, integration gives
+\begin{equation*}
+  c_{\mathrm s}(\log n)^2
+  \le \Phi_n(k_{\mathrm{co}})
+  \le 2C_{\mathrm s}(\log n)^2.
+  \tag{5.13a}
+\end{equation*}
+
+At this exact $k_{\mathrm{co}}$, let $p_i^{(n)}$ be the finite-$n$ optimizer
+of $L_{S_4}$.  Let $\lambda_{n,\mathrm{def}}$ be the Lagrange multiplier for
+the deficit-mean constraint, with sign convention
+$e^{\lambda_{n,\mathrm{def}}i}$.  The Lagrange equations and the decomposition
+(3.11) give
+\begin{equation*}
+  p_i^{(n)}
+  \propto d_{\alpha-i}^{-1}e^{\lambda_{n,\mathrm{def}}i}
+  \propto e^{\widehat\lambda_n i+h_n(i)},
+  \qquad
+  \widehat\lambda_n:=B_n+\lambda_{n,\mathrm{def}}.
+  \tag{5.14}
+\end{equation*}
+The target deficit mean is
+$\alpha-n/k_{\mathrm{co}}$.  The root corridor and the preceding
+$O((\log n)^2/n)$ displacement show that this target differs from $T_0$ by
+$O(\log\log n/\log n)$.  The finite-dual package therefore gives uniform
+convergence to the four-point limiting optimizer and, after decreasing one
+constant if necessary,
+\begin{equation*}
+  \min_{2\le i\le5}p_i^{(n)}\ge c_p>0
+  \tag{5.15}
+\end{equation*}
+throughout the complete phase.
+
+Round $k_{\mathrm{co}}p_i^{(n)}$ to preliminary integers
+$\widetilde k_i$.  Define
+\[
+  e_0:=\sum_i\widetilde k_i-k_{\mathrm{co}},
+  \qquad
+  e_1:=\sum_i i\widetilde k_i-(\alpha k_{\mathrm{co}}-n).
+\]
+Then $e_0,e_1=O(1)$.  Apply the bounded correction
+\begin{equation*}
+  \Delta k_2=e_1-3e_0,
+  \qquad
+  \Delta k_3=2e_0-e_1,
+  \qquad
+  \Delta k_4=\Delta k_5=0.
+  \tag{5.16}
+\end{equation*}
+It satisfies
+\[
+  \sum_i\Delta k_i=-e_0,
+  \qquad
+  \sum_i i\Delta k_i=-e_1,
+\]
+so the corrected vector obeys the two exact conservation laws.  Its
+coordinates remain positive by (5.15).
+
+Let
+\[
+  \mathbf k^*:=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^{5},
+  \qquad
+  \Delta^{\mathrm{tot}}:=\mathbf k-\mathbf k^*.
+\]
+The displacement has bounded norm and satisfies both homogeneous constraint
+equations.  It is therefore tangent to the feasible affine plane.  At the
+optimizer the linear term vanishes, and the entropy Hessian is
+$-\operatorname{diag}(1/k_i)$.  Consequently
+\[
+  L_{\mathbf k^*+\Delta^{\mathrm{tot}}}
+  -L_{\mathbf k^*}
+  =O\!\left(
+    \sum_i\frac{(\Delta_i^{\mathrm{tot}})^2}{k_i^*}
+  \right)
+  =O(1/k_{\mathrm{co}}).
+\]
+We have obtained the exact integer profile
+\begin{equation*}
+  \mathbf k=(k_2,k_3,k_4,k_5),
+  \qquad
+  u_i=\alpha-i,
+  \qquad
+  k_i=\Theta(n/\log n).
+  \tag{5.17}
+\end{equation*}
+
+Its exact signed first moment is
+\begin{equation*}
+  \mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+  =
+  2^{k_{\mathrm{co}}}
+  \frac{n!}{\prod_i(u_i!)^{k_i}k_i!}
+  2^{-\sum_i k_i\binom{u_i}{2}}.
+  \tag{5.18}
+\end{equation*}
+Stirling's formula, the tangent estimate above, and (5.13a) give one
+phase-uniform logarithmic margin: there are constants
+$0<c_{\mathrm{nr}}<C_{\mathrm{nr}}$ such that
+\begin{equation*}
+  c_{\mathrm{nr}}(\log n)^2
+  \le
+  \log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+  \le
+  C_{\mathrm{nr}}(\log n)^2
+  \tag{5.19}
+\end{equation*}
+for all sufficiently large $n$.  Indeed, the exact integer-profile exponent
+differs from $\Phi_n(k_{\mathrm{co}})$ by $O(\log n)$, which is absorbed by
+the $(\log n)^2$ margin.
+
+This is the only scale change relative to midpoint placement.  The
+partial-diagonal central range uses only that
+$k_{\mathrm{co}}^{-1}\log\mathbb E Z=o(1)$, while the full corner needs the
+reciprocal first moment to dominate the polynomial number of residual
+profiles.  Both follow from (5.19):
+\[
+  \frac{(\log n)^2}{k_{\mathrm{co}}}=o(1),
+  \qquad
+  (k_{\mathrm{co}}+1)^4
+  e^{-c_{\mathrm{nr}}(\log n)^2}=o(1).
+\]
+Every $u_i$ tends to infinity, so the independent and complete declarations
+of a class are disjoint.  Therefore
+$Z_{\mathbf k}^{\mathrm{sgn}}>0$ implies a genuine cocoloring with exactly
+$k_{\mathrm{co}}$ classes.
+
+Finally, the chromatic threshold of Section~4 satisfies
+$k_\chi^-=r_++O(\log n)$, whereas
+$k_{\mathrm{co}}=r_4^{\mathrm{co}}+O(1)$.  Since
+$\log n=o(n/(\log n)^3)$, equation (5.11) yields
+\begin{equation*}
+  k_\chi^- - k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+  \tag{5.20}
+\end{equation*}
+Thus the one-part buffer retains the full leading root separation.
