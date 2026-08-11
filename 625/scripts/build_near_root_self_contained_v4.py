@@ -63,6 +63,17 @@ def generate(source: Path, output: Path) -> None:
         r"\input{SECTION5_NEAR_ROOT_PROFILE_V4}" + "\n\n",
     )
 
+    stale_profile_reference = "For the exact midpoint profile,"
+    require(
+        text.count(stale_profile_reference) == 1,
+        "expected one inherited midpoint reference in the partial-diagonal setup",
+    )
+    text = text.replace(
+        stale_profile_reference,
+        "For the exact one-part-buffer profile,",
+        1,
+    )
+
     old_full = r"\input{SECTION7_FULL_CORNER_V3}"
     new_full = r"\input{SECTION7_FULL_CORNER_NEAR_ROOT_V4}"
     require(text.count(old_full) == 1, "expected one Version 3 full-corner input")
