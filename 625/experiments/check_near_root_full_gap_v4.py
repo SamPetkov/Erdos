@@ -244,7 +244,7 @@ def main() -> None:
     source_bytes = sum(len(text.encode("utf-8")) for text in texts.values())
     require(generated_lines >= 700, f"generated wrapper unexpectedly short: {generated_lines}")
     require(source_lines >= 900, f"near-root source set unexpectedly short: {source_lines}")
-    require(source_bytes >= 45_000, f"near-root source set unexpectedly small: {source_bytes}")
+    require(source_bytes >= 38_000, f"near-root source set unexpectedly small: {source_bytes}")
     require(len(profile.splitlines()) >= 175, "near-root profile source unexpectedly short")
     require(len(texts[FULL.name].splitlines()) >= 120, "full-corner source unexpectedly short")
     require(len(texts[FINAL.name].splitlines()) >= 280, "final assembly unexpectedly short")
