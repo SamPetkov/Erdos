@@ -1,0 +1,179 @@
+\section*{Guide to the strengthened proof}
+\addcontentsline{toc}{section}{Guide to the strengthened proof}
+\label{sec:proof-architecture-near-root-v4}
+
+The argument has three stages---location, existence, and amplification. The
+new simplification occurs at their interface: the signed profile needs only a
+one-part buffer above its continuous root. This retains the entire leading
+root separation while leaving every second-moment estimate valid.
+
+\subsection*{1. Root separation and minimal integer buffering}
+
+Let $r_+(n)$ be the continuous root of the unrestricted coloring objective and
+$r_4^{\mathrm{co}}(n)$ the root of the signed objective on deficits
+$\{2,3,4,5\}$. The phase and finite-dual packages give, uniformly in the
+complete phase,
+\[
+  r_+-r_4^{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3},
+  \qquad
+  A_4(\delta)=\log 2-D_4(\delta).
+\]
+Instead of taking the midpoint, define
+\[
+  k_{\mathrm{co}}=\lceil r_4^{\mathrm{co}}\rceil+1.
+\]
+The displacement $d_n=k_{\mathrm{co}}-r_4^{\mathrm{co}}$ lies in $[1,2)$.
+Moving by fewer than two classes changes $n/k$ by
+$O((\log n)^2/n)$, so the full segment from the real root to
+$k_{\mathrm{co}}$ stays in the same derivative corridor. The slope theorem
+therefore gives
+\[
+  \Phi_n(k_{\mathrm{co}})
+  =\Theta((\log n)^2),
+  \qquad
+  \Phi_n(k)=L_{S_4}(n,k)+(\log 2)k.
+\]
+After exact tangent rounding and Stirling extraction,
+\[
+  \log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+  =\Theta((\log n)^2).
+\]
+The profile remains uniformly positive in all four coordinates and satisfies
+both integer conservation laws exactly.
+
+Because $k_{\mathrm{co}}=r_4^{\mathrm{co}}+O(1)$ and the chromatic threshold is
+$r_++O(\log n)$, the deterministic location gap retains the full coefficient:
+\[
+  k_\chi^- - k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+\]
+
+\subsection*{2. Why the smaller first moment is sufficient}
+
+The partial-diagonal proof is the only part of the normalized second moment
+that uses the size of the signed first moment.
+
+In the central range, equation (7.17) divides its logarithm by
+$k_{\mathrm{co}}=\Theta(n/\log n)$. Thus
+\[
+  \frac{\log\mathbb E Z}{k_{\mathrm{co}}}
+  =O\!\left(\frac{(\log n)^3}{n}\right)=o(1),
+\]
+which is exactly what the affine extraction requires.
+
+In the full corner, the reverse recurrence gives $B(h)\le1$, hence
+\[
+  D(k-h)
+  \le
+  \bigl(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\bigr)^{-1}
+  \le e^{-c(\log n)^2}.
+\]
+There are at most $(k_{\mathrm{co}}+1)^4$ residual profiles, whose logarithm
+is $O(\log n)$. Therefore their total contribution tends to zero. The
+midpoint-scale margin $\Theta(n/\log n)$ was stronger than needed by a wide
+margin.
+
+The empty corner, central rate negativity, endpoint transport, and residual
+attachment use only the same phase corridor, coordinate positivity, and
+$k_i=\Theta(n/\log n)$. They are unchanged.
+
+\subsection*{3. Fusing deficits with endpoint transport}
+
+For endpoint type $(i,j)$, let
+\[
+  B_{ij}=(1-\rho_{ij})^{-1},
+  \qquad
+  \widetilde Q_{ij}=B_{ij}Q_{ij}.
+\]
+The complete positive-deficit fiber is summed geometrically before endpoint
+tables are aggregated. Multiplying the square-free transport inequality by the
+table factor $(B^L)^2$ and applying arithmetic--geometric mean gives
+\[
+  \operatorname{BareSkeletonSum}_n
+  \le
+  \Sigma_n^K\sum_rD(r),
+  \qquad
+  \Sigma_n:=\max_i\sum_j\widetilde Q_{ij}.
+\]
+The exact phase identity yields
+\[
+  \rho_{16}=O\!\left(\frac{(\log n)^{5/2}}{\sqrt n}\right),
+  \qquad
+  \Sigma_n=1+O\!\left(\frac{(\log n)^{5/2}}{\sqrt n}\right),
+\]
+and hence
+\[
+  \log\operatorname{BareSkeletonSum}_n
+  =O\!\left(\sqrt n(\log n)^{3/2}\right).
+\]
+One kernel theorem now consumes the deficit product, support size, endpoint
+regrouping, and transport row sum.
+
+\subsection*{4. Critical-quarter residual attachments}
+
+For residual mass $m_0$ and class-size cap $U$, use the threshold
+\[
+  T_U=64U2^{U/4}.
+\]
+When $m_0\ge T_U$, every residual intensity satisfies
+\[
+  \theta_{ab}
+  \le\frac{\mathrm eU}{64}2^{-U/4}.
+\]
+The log-convex endpoint estimate then gives
+$q_{ab}\le C\theta_{ab}^2$, and the exact square-intensity identity yields an
+attachment factor $e^{O(U^2)}$. When $m_0<T_U$, the crude factor
+$2^{Um_0/2}$ gives
+\[
+  \log\mathcal A(M,j)
+  =O(U^2 2^{U/4}).
+\]
+Since $2^U=\Theta(n^2/(\log n)^2)$, both the fused skeleton and residual
+attachment costs are bounded by
+\[
+  O\!\left(\sqrt n(\log n)^{3/2}\right).
+\]
+Thus
+\[
+  1
+  \le
+  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+  \le
+  \exp\!\left(C_\sharp\sqrt n(\log n)^{3/2}\right).
+\]
+
+\subsection*{5. Explicit amplification loss}
+
+Paley--Zygmund supplies a seed with probability at least
+\[
+  \exp\!\left\{-C_\sharp\sqrt n(\log n)^{3/2}\right\}.
+\]
+Applying the arbitrary-seed amplifier with $r=\log n$ adds
+\[
+  O\!\left(n^{3/4}(\log n)^{-1/4}\right)
+  =o\!\left(\frac{n}{(\log n)^3}\right)
+\]
+classes with failure probability tending to zero. The amplifier therefore
+consumes none of the leading root-gap coefficient.
+
+Finally, the exact four-support certificate
+\[
+  A_4(\delta)
+  >
+  \log\!\left(\frac{20000}{12777}\right)
+\]
+contains fixed slack over $\log(1000/639)$. The retained uniform coefficient is
+\[
+  \frac{(\log 2)^2}{4}
+  \log\!\left(\frac{1000}{639}\right)
+  =0.053792819616758\ldots.
+\]
