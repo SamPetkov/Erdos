@@ -35,13 +35,17 @@ jobs:
           python -m py_compile 625/experiments/check_near_root_full_gap_v4.py
           python -m py_compile 625/experiments/check_sharpened_transport_attachment_v4.py
       - name: Replay sharpened Section 8--9 checker
+        shell: bash
         run: |
+          set -o pipefail
           python 625/experiments/check_sharpened_transport_attachment_v4.py \
             | tee /tmp/erdos625-sharp-section9.txt
           python -O 625/experiments/check_sharpened_transport_attachment_v4.py \
             | tee /tmp/erdos625-sharp-section9-optimized.txt
       - name: Replay near-root checker
+        shell: bash
         run: |
+          set -o pipefail
           python 625/experiments/check_near_root_full_gap_v4.py \
             | tee /tmp/erdos625-near-root.txt
           python -O 625/experiments/check_near_root_full_gap_v4.py \
