@@ -1,0 +1,136 @@
+\section{Near-root strengthening addendum}
+\label{app:near-root-strengthening-v4}
+
+This addendum records the theorem-facing change introduced after the Version~3
+status maps were assembled. It supersedes every earlier statement that the
+signed profile must be placed at the midpoint of the ordinary and signed
+first-moment roots. It does not promote the main theorem or any new declaration
+to welded status.
+
+\subsection{Candidate replacement interface}
+
+The strengthened profile is defined by
+\[
+  k_{\mathrm{co}}
+  =\left\lceil r_4^{\mathrm{co}}\right\rceil+1.
+\]
+The exact output required from the replacement Section~5 theorem is:
+\begin{enumerate}
+\item the displacement bound
+$1\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<2$;
+\item inclusion of the complete interval
+$[r_4^{\mathrm{co}},k_{\mathrm{co}}]$ in the uniform slope corridor;
+\item phase-independent constants $0<c_{\mathrm{nr}}<C_{\mathrm{nr}}$ with
+\[
+  c_{\mathrm{nr}}(\log n)^2
+  \le
+  \log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+  \le
+  C_{\mathrm{nr}}(\log n)^2;
+\]
+\item an exact positive integer four-size profile satisfying both conservation
+laws and having all coordinates of order $n/\log n$;
+\item the full location asymptotic
+\[
+  k_\chi^- - k_{\mathrm{co}}
+  =
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+  \right]
+  \frac{n}{(\log n)^3}.
+\]
+\end{enumerate}
+
+The replacement full-corner theorem consumes only the lower first-moment bound
+and returns
+\[
+  \sum_{v(h)\le n/32}D(k-h)
+  \le
+  (k_{\mathrm{co}}+1)^4
+  e^{-c_{\mathrm{nr}}(\log n)^2}
+  =o(1).
+\]
+All other Section~7, Section~8, and Section~9 interfaces are unchanged.
+
+\subsection{Dependency reduction}
+
+The previous midpoint route used a displacement of order
+$n/(\log n)^3$ to manufacture a first-moment exponent of order
+$n/\log n$. The proof itself does not require that scale. Its two actual
+consumers are:
+\[
+  \frac{1}{k_{\mathrm{co}}}
+  \log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}=o(1)
+  \quad\text{and}\quad
+  (k_{\mathrm{co}}+1)^4
+  \bigl(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\bigr)^{-1}=o(1).
+\]
+A one-part displacement gives a $(\log n)^2$ exponent and proves both. The
+formal dependency graph therefore no longer needs a midpoint-selection theorem
+or a theorem transporting half of the root gap.
+
+The strengthened closure chain is
+\[
+\begin{gathered}
+  \text{uniform slope corridor}
+  \longrightarrow
+  \text{one-part objective margin},\\
+  \text{finite optimizer positivity}
+  \longrightarrow
+  \text{exact tangent-rounded profile},\\
+  \text{one-part margin}
+  \longrightarrow
+  \text{near-root full corner},\\
+  \text{full root separation}
+  +\text{sharpened seed exponent}
+  \longrightarrow
+  \text{doubled final coefficient}.
+\end{gathered}
+\]
+The arrows denote theorem dependency, not equality.
+
+\subsection{Recommended exact Lean sequence}
+
+\begin{enumerate}
+\item Prove the elementary ceiling lemma
+$1\le\lceil x\rceil+1-x<2$.
+\item Prove that a bounded class-count displacement changes $n/k$ by
+$O((\log n)^2/n)$ throughout the root corridor.
+\item Integrate the existing normalized slope estimate over a displacement in
+$[1,2)$ to obtain two-sided $(\log n)^2$ bounds for the continuous signed
+objective.
+\item Reuse the finite optimizer and tangent-rounding declarations at
+$k_{\mathrm{co}}=\lceil r_4^{\mathrm{co}}\rceil+1$.
+\item Combine the objective estimate, tangent loss, and Stirling remainder into
+the exact integer-profile first-moment theorem.
+\item Replace the full-corner denominator theorem by the
+$e^{-c(\log n)^2}$ estimate and replay the disjoint three-range assembly.
+\item Consume the existing fused-kernel and critical-quarter attachment theorem
+to obtain
+$\Lambda_n\le C\sqrt n(\log n)^{3/2}$.
+\item Formalize the amplification monomial calculation
+$\sqrt{n\Lambda_n}/\log n
+ =O(n^{3/4}(\log n)^{-1/4})$ and the full coefficient adapter.
+\end{enumerate}
+
+\subsection{Unchanged publication gate}
+
+The coefficient
+\[
+  \frac{(\log 2)^2}{4}
+  \log\!\left(\frac{1000}{639}\right)
+\]
+is a candidate theorem-facing strengthening. It must not be advertised as an
+independently certified theorem until the following have all occurred on one
+integrated commit:
+\begin{itemize}
+\item independent line-by-line review of the one-part-buffer argument;
+\item exact Lean replay of the bounded-displacement slope integration and the
+revised full corner;
+\item replay of the fused skeleton and residual attachment packages against the
+same exact integer profile;
+\item warning-fatal build, axiom audit, and final theorem-root replay;
+\item synchronization of the manuscript coefficient with the final replayed
+declaration.
+\end{itemize}
+Accordingly, the publication switch remains false.
