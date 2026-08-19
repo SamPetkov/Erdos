@@ -1,0 +1,35 @@
+name: Erdős 625 E625-10 first-moment contract
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/E625_10_SIGNED_FOUR_SIZE_FIRST_MOMENT_PACKAGE_2026-08-19.md"
+      - "625/audits/E625_10_SIGNED_FIRST_MOMENT_ADVERSARIAL_AUDIT_2026-08-19.md"
+      - "625/audits/PROOF_CLOSURE_CONTRACTS_2026-08-05.md"
+      - "625/experiments/check_e625_10_first_moment_contract.py"
+      - ".github/workflows/erdos625-e625-10-first-moment-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-contract-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile checker
+        run: python -m py_compile 625/experiments/check_e625_10_first_moment_contract.py
+
+      - name: Run exact contract regression
+        run: python 625/experiments/check_e625_10_first_moment_contract.py
+
+      - name: Run with optimized Python
+        run: python -O 625/experiments/check_e625_10_first_moment_contract.py
