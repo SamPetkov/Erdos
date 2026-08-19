@@ -1,8 +1,9 @@
 # Erdős 625 proof-closure contracts
 
 **Date:** 2026-08-05  
+**E625-10 revision:** 2026-08-19  
 **Scope:** public manuscript and theorem-facing interface  
-**Branch:** `agent/625-referee-readable-tier-one-pass`  
+**Branch:** `agent/625-e625-10-first-moment-expansion`  
 **Status:** fail-closed planning document; no unresolved node is promoted by this file
 
 ## Purpose
@@ -96,38 +97,137 @@ uniformly across the phase. The theorem must use the same ordinary root and phas
 
 ## E625-10 — signed four-size first-moment assembly
 
+### Exact design source
+
+The frozen theorem package is
+
+```text
+625/formalization/E625_10_SIGNED_FOUR_SIZE_FIRST_MOMENT_PACKAGE_2026-08-19.md
+```
+
+and its adversarial review is
+
+```text
+625/audits/E625_10_SIGNED_FIRST_MOMENT_ADVERSARIAL_AUDIT_2026-08-19.md.
+```
+
+These files design the node; they do not promote it to welded status.
+
+### Canonical objects
+
+The total class count is exactly
+
+```text
+K_n = ceil((r_4^co(n) + r_+(n))/2),
+```
+
+after the eventual nonnegativity proof needed for `Int.toNat`. The tangent
+correction changes the four multiplicities but preserves their total exactly.
+There is no second bounded correction to `K_n`.
+
+Let `m_n : Fin 4 -> Nat` be the exact tangent-rounded multiplicity vector and
+let
+
+```text
+M_n = partialSignedFirstMoment n
+        (fun i => phaseNat n - fourDeficit i) m_n.
+```
+
+The full embedded profile must be the literal four-deficit embedding in
+`ColoringProfile (phaseNat n + 1)`.
+
 ### Required output
 
-For the tangent-rounded midpoint profile, one theorem-facing chain must establish:
+The manuscript-facing theorem must prove all of the following with one common
+eventuality threshold.
 
-- an integer class count
+1. **Exact finite admissibility.**
 
-  ```text
-  k_co(n) = ceil((r_4^co(n) + r_+(n))/2) + b_n,
-  |b_n| <= C,
-  ```
+   ```text
+   MidpointRoundingAdmissible n (phaseNat n) K_n.
+   ```
 
-  for an absolute constant `C`;
-- nonnegative integer multiplicities on the four prescribed class sizes;
-- exact conservation of the class count and the vertex count;
-- the uniform finite-support entropy certificate and the resulting root displacement;
-- a positive exponential first-moment margin of the form
+2. **Exact integer conservation and support.**
 
-  ```text
-  log Z_sgn(k_co) >= c K
-  ```
+   ```text
+   sum_i m_i = K_n,
+   sum_i (i+2)m_i = phaseNat n * K_n - n,
+   vertexMass(k_n) = n,
+   IsFourDeficitSupported (phaseNat n) k_n.
+   ```
 
-  for one phase-independent `c > 0`, where `K` is the number of classes;
-- the retained midpoint gap
+3. **Exact graph-expectation bridge.**
 
-  ```text
-  r_+(n) - k_co(n)
-    = [((log 2)^2/8) A_4(delta_n) + o(1)] n/(log n)^3.
-  ```
+   ```text
+   (signedProfileExpectation n k_n).toReal = M_n,
+   signedProfileExpectation n k_n
+     = 2^K_n * profileColoringExpectation n k_n.
+   ```
+
+4. **Exact finite optimizer-rounding loss.** The actual rounded profile must be
+   compared with the exact finite Gibbs optimizer at the exact midpoint target,
+   yielding
+
+   ```text
+   0 <= K_n * KL(r_n || p_n) <= 50/7.
+   ```
+
+5. **Four-coordinate Stirling bridge.** Since only four profile coordinates are
+   active,
+
+   ```text
+   |log M_n - phaseSignedFourSizeObjective n K_n|
+     <= 4 * factorialLogErrorBound n + 50/7.
+   ```
+
+6. **Phase-resolved normalized first moment.**
+
+   ```text
+   log M_n / K_n - A_4(delta_n)/2 -> 0.
+   ```
+
+7. **Uniform positive exponential margin.** For every fixed
+
+   ```text
+   0 < c < (1/2) log(200/153),
+   ```
+
+   the theorem must prove eventually
+
+   ```text
+   log M_n >= c K_n.
+   ```
+
+   If a stronger exact finite certificate is welded, the endpoint may be
+   replaced by `(1/2) log(1000/639)` without changing the rest of the package.
+
+### Required upstream input
+
+E625-10 consumes, but does not restate, the E625-08 root selectors, common
+corridor, phase-resolved root separation, class-count derivative estimate,
+midpoint target transport, and `K_n ~ (log 2/2)n/log n`.
+
+The retained midpoint location relative to the roots is therefore an E625-08
+corollary used internally by the normalized objective proof, not an additional
+probabilistic conclusion of E625-10.
 
 ### Rejection conditions
 
-The node is not closed by the limiting optimizer alone, by an `O(1)` correction whose conservation identities are not checked, or by a positive first moment without a phase-uniform exponential margin.
+The node remains open if any of the following occurs:
+
+- the limiting optimizer replaces `midpointOptimizer`;
+- the phase-center target replaces the exact midpoint target by equality;
+- an `O(1)` correction is used without exact count and mass conservation;
+- `Int.toNat` is used before midpoint nonnegativity is proved;
+- the exact expectation is not identified with `partialSignedFirstMoment`;
+- multiplicity factorials are omitted;
+- the finite KL loss `50/7` is replaced by a hidden equally difficult
+  hypothesis;
+- the normalized result is only pointwise in a fixed phase;
+- the closed endpoint `(1/2)log(200/153)` is asserted without a quantified
+  uniform slack;
+- any partial-diagonal, skeleton, residual, or second-moment theorem appears as
+  an input.
 
 ## E625-11 — complete partial-diagonal package
 
