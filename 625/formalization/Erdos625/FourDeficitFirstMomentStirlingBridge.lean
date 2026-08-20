@@ -35,17 +35,7 @@ theorem profileLogWeight_sub_discreteObjective_eq_factorialRemainders
   unfold profileLogWeight profileDiscreteObjective coloringClassLogCost
   rw [ColoringProfile.forbiddenEdges_eq_sum]
   push_cast
-  have hClassSum :
-      (∑ x : Fin b,
-          (Real.log 2 * (k x : Real) * (((1 + x.1).choose 2 : Nat) : Real) +
-            (k x : Real) *
-              Real.log (Nat.factorial (1 + x.1) : Real))) =
-        (∑ x : Fin b,
-          Real.log 2 * (k x : Real) * (((1 + x.1).choose 2 : Nat) : Real)) +
-        ∑ x : Fin b,
-          (k x : Real) * Real.log (Nat.factorial (1 + x.1) : Real) := by
-    exact Finset.sum_add_distrib
-  rw [hClassSum]
+  simp only [Finset.sum_add_distrib, Finset.sum_mul, mul_add]
   ring
 
 /-- The coarse factorial error is monotone in its natural argument. -/
@@ -189,7 +179,18 @@ theorem abs_log_signedProfileExpectation_fourDeficit_sub_discreteObjective_le
       signedProfileExpectation n k by rfl,
     log_signedProfileExpectation_toReal_eq k hProfileMass,
     hCountCast]
-  simpa only [k] using hBound
+  have hCancel :
+      ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
+          profileLogWeight n (fourDeficitEmbedding alpha hAlpha m)) -
+        ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
+          profileDiscreteObjective n
+            (fourDeficitEmbedding alpha hAlpha m)) =
+      profileLogWeight n (fourDeficitEmbedding alpha hAlpha m) -
+        profileDiscreteObjective n
+          (fourDeficitEmbedding alpha hAlpha m) := by
+    ring
+  rw [hCancel]
+  exact hBound
 
 /-- The same bound in the exact real first-moment convention consumed by the
 Section VII partial-diagonal denominator. -/
@@ -216,7 +217,18 @@ theorem abs_log_partialSignedFirstMoment_fourDeficit_sub_discreteObjective_le
     abs_profileLogWeight_sub_discreteObjective_fourDeficitEmbedding_le
       n alpha hAlpha m hMass
   rw [hLog, hCountCast]
-  simpa using hBound
+  have hCancel :
+      ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
+          profileLogWeight n (fourDeficitEmbedding alpha hAlpha m)) -
+        ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
+          profileDiscreteObjective n
+            (fourDeficitEmbedding alpha hAlpha m)) =
+      profileLogWeight n (fourDeficitEmbedding alpha hAlpha m) -
+        profileDiscreteObjective n
+          (fourDeficitEmbedding alpha hAlpha m) := by
+    ring
+  rw [hCancel]
+  exact hBound
 
 #print axioms profileLogWeight_sub_discreteObjective_eq_factorialRemainders
 #print axioms factorialLogErrorBound_mono
