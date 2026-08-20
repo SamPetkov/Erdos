@@ -28,7 +28,7 @@ jobs:
           lake-package-directory: 625/formalization
           auto-config: false
           build: true
-          build-args: --wfail
+          build-args: --wfail Erdos625.SignedFourFirstMomentNormalization
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
