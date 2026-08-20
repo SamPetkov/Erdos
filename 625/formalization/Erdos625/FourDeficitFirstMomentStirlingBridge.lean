@@ -33,8 +33,7 @@ theorem profileLogWeight_sub_discreteObjective_eq_factorialRemainders
         ((∑ i : Fin b, Real.log (Nat.factorial (k i) : Real)) -
           ∑ i : Fin b, factorialEntropyMain (k i)) := by
   rw [← profileStirlingUpperMain_eq_profileDiscreteObjective]
-  unfold profileLogWeight profileStirlingUpperMain
-    profileLogFactorialSum profileFactorialEntropyMain
+  unfold profileLogWeight profileStirlingUpperMain profileFactorialEntropyMain
   ring
 
 /-- The coarse factorial error is monotone in its natural argument. -/
