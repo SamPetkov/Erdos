@@ -36,7 +36,7 @@ theorem mul_log_div_le_sq_div_add_sub
     {x y : Real} (hx : 0 ≤ x) (hy : 0 < y) :
     x * Real.log (x / y) ≤ (x - y) ^ 2 / y + (x - y) := by
   rcases eq_or_lt_of_le hx with rfl | hxpos
-  · field_simp [hy.ne']
+  · simp
   · have hlog := Real.log_le_sub_one_of_pos (div_pos hxpos hy)
     have hscaled := mul_le_mul_of_nonneg_left hlog hx
     calc
@@ -277,7 +277,6 @@ theorem midpointRoundedFourSizeEntropy_loss_le
       unfold midpointRoundedProportion
       dsimp only [d]
       field_simp [hKReal, (hpPos i).ne']
-      ring
     rw [hEq]
     rw [div_le_iff₀ (mul_pos hKPos (hpPos i))]
     nlinarith [hLower i]
