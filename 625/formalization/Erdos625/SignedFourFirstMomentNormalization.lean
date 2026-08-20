@@ -133,7 +133,8 @@ theorem sum_apply_fourDeficitEmbedding
             ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
           intro i hij
           apply hnot
-          simp [c, hij]
+          refine Finset.mem_image.mpr ?_
+          exact ⟨i, Finset.mem_univ i, by simpa [c] using hij⟩
         rw [hoff j hnone, hf]
     _ = Finset.sum (Finset.univ : Finset (Fin 4)) (fun i => f (m i)) := by
       rw [Finset.sum_image hc.injOn]
@@ -192,9 +193,12 @@ theorem log_partialSignedFirstMoment_eq
         (selectedInternalEdgeCount u m : Real) * q := by
   have hBlockPow : (2 : Real) ^ selectedBlockCount m ≠ 0 := by positivity
   have hNFactorial : (Nat.factorial n : Real) ≠ 0 := by positivity
+  have hProfileFactorialNat : partialProfileFactorialProduct u m ≠ 0 := by
+    unfold partialProfileFactorialProduct
+    positivity
   have hProfileFactorial :
       (partialProfileFactorialProduct u m : Real) ≠ 0 := by
-    positivity
+    exact_mod_cast hProfileFactorialNat
   have hInternalPow :
       (2 : Real) ^ selectedInternalEdgeCount u m ≠ 0 := by
     positivity
