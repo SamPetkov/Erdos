@@ -91,7 +91,7 @@ theorem sum_midpointMultiplicity_mul_log_eq
         have hrPos : 0 < midpointRoundedProportion n alpha K i := by
           unfold midpointRoundedProportion
           exact div_pos (by exact_mod_cast hmPos) hKReal
-        rw [← Real.log_mul hKReal.ne' hrPos.ne',
+        rw [← Real.log_mul (ne_of_gt hKReal) (ne_of_gt hrPos),
           ← midpointMultiplicity_cast_eq_mul_roundedProportion n alpha K hK i]
     _ = (K : Real) * Real.log (K : Real) *
           (∑ i : Fin 4, midpointRoundedProportion n alpha K i) +
@@ -160,8 +160,8 @@ theorem profileDiscreteObjective_fourDeficitEmbedding_eq
   have hInvariants := fourDeficitEmbedding_profile_invariants alpha hAlpha m
   have hEntropy := sum_apply_fourDeficitEmbedding alpha hAlpha m
     (fun t : Nat => (t : Real) * Real.log (t : Real)) (by simp)
-  have hCost := sum_fourDeficitEmbedding_cast_mul alpha hAlpha m
-    (fun j : Fin (alpha + 1) => coloringClassLogCost (j.1 + 1))
+  have hCost := sum_fourDeficitEmbedding_cast_mul alpha hAlpha
+    (fun j : Fin (alpha + 1) => coloringClassLogCost (j.1 + 1)) m
   have hCost' :
       (∑ j : Fin (alpha + 1),
           (k j : Real) * coloringClassLogCost (j.1 + 1)) =
@@ -212,13 +212,13 @@ theorem profileDiscreteObjective_fourDeficitEmbedding_eq
         apply Finset.sum_congr rfl
         intro i _hi
         ring
-  rw [profileDiscreteObjective_eq_profileManuscriptObjective]
+  rw [profileDiscreteObjective_eq_profileManuscriptObjective n k]
   unfold profileManuscriptObjective
   rw [show (ColoringProfile.partCount k : Real) =
       (((∑ i : Fin 4, m i : Nat) : Real)) by
         exact_mod_cast hInvariants.1,
     hSum]
-  rfl
+  ring
 
 /-- The negative class-cost sum of the midpoint multiplicities is exactly the
 affine target contribution plus the rounded residual-score contribution. -/
@@ -238,23 +238,36 @@ theorem neg_sum_midpointMultiplicity_mul_coloringClassLogCost_eq
   have hAlpha : 5 < alpha := h.1
   have hK : 0 < K := h.2.1
   have hn : n ≤ alpha * K := h.2.2.1
+  have hKRealNe : (K : Real) ≠ 0 := by exact_mod_cast hK.ne'
   have hConservation :=
     midpointMultiplicity_count_deficit_intDisplacement n alpha K h
   have hCountReal :
       (∑ i : Fin 4,
         (midpointMultiplicity n alpha K i : Real)) = (K : Real) := by
+    rw [← Nat.cast_sum]
     exact_mod_cast hConservation.1
+  have hMomentNat :
+      (∑ i : Fin 4,
+        fourDeficit i * midpointMultiplicity n alpha K i) =
+        midpointDeficit n alpha K := by
+    simpa [tangentDeficitNat, fourDeficit] using hConservation.2.1
   have hMomentReal :
       (∑ i : Fin 4,
         (fourDeficit i : Real) *
           (midpointMultiplicity n alpha K i : Real)) =
         (midpointDeficit n alpha K : Real) := by
-    have hMomentNat := hConservation.2.1
-    simpa only [tangentDeficitNat, fourDeficit] using
-      (show (∑ i : Fin 4,
-        ((tangentDeficitNat i : Nat) : Real) *
+    calc
+      (∑ i : Fin 4,
+        (fourDeficit i : Real) *
           (midpointMultiplicity n alpha K i : Real)) =
-        (midpointDeficit n alpha K : Real) by exact_mod_cast hMomentNat)
+        ((∑ i : Fin 4,
+          fourDeficit i * midpointMultiplicity n alpha K i : Nat) : Real) := by
+            rw [Nat.cast_sum]
+            apply Finset.sum_congr rfl
+            intro i _hi
+            norm_cast
+      _ = (midpointDeficit n alpha K : Real) := by
+        exact_mod_cast hMomentNat
   have hDeficitReal :
       (midpointDeficit n alpha K : Real) =
         (K : Real) * fourSizeTarget n alpha (K : Real) := by
@@ -293,7 +306,10 @@ theorem neg_sum_midpointMultiplicity_mul_coloringClassLogCost_eq
             fourDeficitScore alpha i := by
               simp only [Finset.sum_add_distrib, Finset.mul_sum]
               ring
-    _ = _ := by rw [hCountReal, hMomentReal, hDeficitReal, hScore]; ring
+    _ = _ := by
+      rw [hCountReal, hMomentReal, hDeficitReal, hScore]
+      field_simp [fourSizeTarget, hKRealNe]
+      <;> ring
 
 /-- Exact identity: the finite signed objective exceeds the rounded discrete
 objective by precisely `K` times the four-size entropy loss of the rounded
@@ -309,6 +325,8 @@ theorem signedFourSizeObjective_sub_midpointDiscrete_eq_entropyLoss
         (fourSizeFiniteEntropy alpha
             (fourSizeTarget n alpha (K : Real)) -
           midpointRoundedFourSizeEntropyScore n alpha K) := by
+  have hK : 0 < K := h.2.1
+  have hKRealNe : (K : Real) ≠ 0 := by exact_mod_cast hK.ne'
   have hCount :=
     (midpointMultiplicity_count_deficit_intDisplacement n alpha K h).1
   have hLog := sum_midpointMultiplicity_mul_log_eq n alpha K h
@@ -338,7 +356,8 @@ theorem signedFourSizeObjective_sub_midpointDiscrete_eq_entropyLoss
               fourDeficitScore alpha i) := by
     linarith [hClass]
   rw [hClass']
-  ring
+  field_simp [fourSizeTarget, hKRealNe]
+  <;> ring
 
 /-- The exact signed objective/discrete objective gap is nonnegative and at
 most `50 / 7`. -/
@@ -364,6 +383,7 @@ theorem midpointMultiplicity_vertexMass
     (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
     (∑ i : Fin 4,
       (alpha - fourDeficit i) * midpointMultiplicity n alpha K i) = n := by
+  have hAlpha : 5 < alpha := h.1
   have hK : 0 < K := h.2.1
   have hn : n ≤ alpha * K := h.2.2.1
   have hConservation :=
@@ -371,22 +391,36 @@ theorem midpointMultiplicity_vertexMass
   have hCountReal :
       (∑ i : Fin 4,
         (midpointMultiplicity n alpha K i : Real)) = (K : Real) := by
+    rw [← Nat.cast_sum]
     exact_mod_cast hConservation.1
+  have hMomentNat :
+      (∑ i : Fin 4,
+        fourDeficit i * midpointMultiplicity n alpha K i) =
+        midpointDeficit n alpha K := by
+    simpa [tangentDeficitNat, fourDeficit] using hConservation.2.1
   have hMomentReal :
       (∑ i : Fin 4,
         (fourDeficit i : Real) *
           (midpointMultiplicity n alpha K i : Real)) =
         (midpointDeficit n alpha K : Real) := by
-    have hMomentNat := hConservation.2.1
-    simpa only [tangentDeficitNat, fourDeficit] using
-      (show (∑ i : Fin 4,
-        ((tangentDeficitNat i : Nat) : Real) *
+    calc
+      (∑ i : Fin 4,
+        (fourDeficit i : Real) *
           (midpointMultiplicity n alpha K i : Real)) =
-        (midpointDeficit n alpha K : Real) by exact_mod_cast hMomentNat)
+        ((∑ i : Fin 4,
+          fourDeficit i * midpointMultiplicity n alpha K i : Nat) : Real) := by
+            rw [Nat.cast_sum]
+            apply Finset.sum_congr rfl
+            intro i _hi
+            norm_cast
+      _ = (midpointDeficit n alpha K : Real) := by
+        exact_mod_cast hMomentNat
   have hDeficitCast :
       (midpointDeficit n alpha K : Real) =
         (alpha : Real) * (K : Real) - (n : Real) := by
     unfold midpointDeficit
+    change ((alpha * K - n : Nat) : Real) =
+      (alpha : Real) * (K : Real) - (n : Real)
     rw [Nat.cast_sub hn]
     push_cast
   have hMassReal :
@@ -441,7 +475,9 @@ theorem abs_log_midpointPartialSignedFirstMoment_sub_signedFourSizeObjective_le
     (midpointMultiplicity_count_deficit_intDisplacement n alpha K h).1
   have hCountCast :
       ((((∑ i : Fin 4, midpointMultiplicity n alpha K i : Nat) : Real))) =
-        (K : Real) := by exact_mod_cast hCount
+        (K : Real) := by
+    rw [← Nat.cast_sum]
+    exact_mod_cast hCount
   rw [hCountCast] at hStirling
   have hGap :=
     signedFourSizeObjective_sub_midpointDiscrete_nonneg_and_le n alpha K h
