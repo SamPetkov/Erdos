@@ -32,10 +32,9 @@ theorem profileLogWeight_sub_discreteObjective_eq_factorialRemainders
       (Real.log (Nat.factorial n : Real) - factorialEntropyMain n) -
         ((∑ i : Fin b, Real.log (Nat.factorial (k i) : Real)) -
           ∑ i : Fin b, factorialEntropyMain (k i)) := by
-  unfold profileLogWeight profileDiscreteObjective coloringClassLogCost
-  rw [ColoringProfile.forbiddenEdges_eq_sum]
-  push_cast
-  simp only [Finset.sum_add_distrib, Finset.sum_mul, mul_add]
+  rw [← profileStirlingUpperMain_eq_profileDiscreteObjective]
+  unfold profileLogWeight profileStirlingUpperMain
+    profileLogFactorialSum profileFactorialEntropyMain
   ring
 
 /-- The coarse factorial error is monotone in its natural argument. -/
@@ -177,7 +176,7 @@ theorem abs_log_signedProfileExpectation_fourDeficit_sub_discreteObjective_le
   rw [show signedProfileExpectation n
       (fourDeficitEmbedding alpha hAlpha m) =
       signedProfileExpectation n k by rfl,
-    log_signedProfileExpectation_toReal_eq k hProfileMass,
+    log_signedProfileExpectation_toReal_eq n k hProfileMass,
     hCountCast]
   have hCancel :
       ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
