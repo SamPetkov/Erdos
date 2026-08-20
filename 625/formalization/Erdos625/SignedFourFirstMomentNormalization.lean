@@ -47,7 +47,6 @@ theorem log_signedProfileExpectation_toReal_eq
   · rw [Real.log_pow,
       log_profileColoringExpectation_toReal_eq_profileLogWeight n k hMass]
     unfold q
-    push_cast
     ring
   · positivity
   · exact hUnsignedRealPos.ne'
@@ -79,6 +78,7 @@ theorem sum_fourDeficitEmbedding_cast_mul
         (m i : Real) * g (fourDeficitCoordinate alpha hAlpha i) := by
   unfold fourDeficitEmbedding
   push_cast
+  simp only [Finset.sum_mul]
   rw [Finset.sum_comm]
   apply Finset.sum_congr rfl
   intro i _hi
@@ -107,6 +107,7 @@ theorem sum_apply_fourDeficitEmbedding
     (∑ j : Fin (alpha + 1),
         f (fourDeficitEmbedding alpha hAlpha m j)) =
       ∑ i : Fin 4, f (m i) := by
+  classical
   let c : Fin 4 → Fin (alpha + 1) :=
     fourDeficitCoordinate alpha hAlpha
   have hc : Function.Injective c := by
@@ -115,22 +116,30 @@ theorem sum_apply_fourDeficitEmbedding
     (fourDeficitEmbedding_eval_and_off_image alpha hAlpha m).1
   have hoff :=
     (fourDeficitEmbedding_eval_and_off_image alpha hAlpha m).2
-  change (∑ j in (Finset.univ : Finset (Fin (alpha + 1))),
-      f (fourDeficitEmbedding alpha hAlpha m j)) =
-    ∑ i in (Finset.univ : Finset (Fin 4)), f (m i)
-  rw [← Finset.sum_subset
-    (show Finset.univ.image c ⊆
-        (Finset.univ : Finset (Fin (alpha + 1))) by simp)
-    (fun j _hj hnot ↦ by
-      have hnone : ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
-        intro i hij
-        apply hnot
-        simp [c, hij]
-      rw [hoff j hnone, hf])]
-  rw [Finset.sum_image hc.injOn]
-  apply Finset.sum_congr rfl
-  intro i _hi
-  rw [heval i]
+  change
+    Finset.sum (Finset.univ : Finset (Fin (alpha + 1)))
+        (fun j => f (fourDeficitEmbedding alpha hAlpha m j)) =
+      Finset.sum (Finset.univ : Finset (Fin 4)) (fun i => f (m i))
+  calc
+    Finset.sum (Finset.univ : Finset (Fin (alpha + 1)))
+        (fun j => f (fourDeficitEmbedding alpha hAlpha m j)) =
+      Finset.sum ((Finset.univ : Finset (Fin 4)).image c)
+        (fun j => f (fourDeficitEmbedding alpha hAlpha m j)) := by
+      symm
+      apply Finset.sum_subset
+      · simp
+      · intro j _hj hnot
+        have hnone :
+            ∀ i : Fin 4, fourDeficitCoordinate alpha hAlpha i ≠ j := by
+          intro i hij
+          apply hnot
+          simp [c, hij]
+        rw [hoff j hnone, hf]
+    _ = Finset.sum (Finset.univ : Finset (Fin 4)) (fun i => f (m i)) := by
+      rw [Finset.sum_image hc.injOn]
+      apply Finset.sum_congr rfl
+      intro i _hi
+      rw [heval i]
 
 /-- The equal-size multiplicity factorial-log term has exactly four active
 coordinates. -/
@@ -152,11 +161,21 @@ theorem log_partialProfileFactorialProduct_eq
       ∑ i : Fin 4, Real.log (Nat.factorial (m i) : Real) := by
   unfold partialProfileFactorialProduct
   rw [Nat.cast_prod, Real.log_prod]
-  · rw [Finset.sum_add_distrib]
-    apply Finset.sum_congr rfl
-    intro i _hi
-    rw [Nat.cast_mul, Nat.cast_pow,
-      Real.log_mul (by positivity) (by positivity), Real.log_pow]
+  · calc
+      (∑ i : Fin 4,
+          Real.log
+            ((Nat.factorial (u i)) ^ m i * Nat.factorial (m i) : Nat)) =
+        ∑ i : Fin 4,
+          ((m i : Real) * Real.log (Nat.factorial (u i) : Real) +
+            Real.log (Nat.factorial (m i) : Real)) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          rw [Nat.cast_mul, Nat.cast_pow,
+            Real.log_mul (by positivity) (by positivity), Real.log_pow]
+      _ = (∑ i : Fin 4,
+            (m i : Real) * Real.log (Nat.factorial (u i) : Real)) +
+          ∑ i : Fin 4, Real.log (Nat.factorial (m i) : Real) := by
+        rw [Finset.sum_add_distrib]
   · intro i _hi
     positivity
 
@@ -171,12 +190,21 @@ theorem log_partialSignedFirstMoment_eq
           (m i : Real) * Real.log (Nat.factorial (u i) : Real)) -
         (∑ i : Fin 4, Real.log (Nat.factorial (m i) : Real)) -
         (selectedInternalEdgeCount u m : Real) * q := by
+  have hBlockPow : (2 : Real) ^ selectedBlockCount m ≠ 0 := by positivity
+  have hNFactorial : (Nat.factorial n : Real) ≠ 0 := by positivity
+  have hProfileFactorial :
+      (partialProfileFactorialProduct u m : Real) ≠ 0 := by
+    positivity
+  have hInternalPow :
+      (2 : Real) ^ selectedInternalEdgeCount u m ≠ 0 := by
+    positivity
   unfold partialSignedFirstMoment
   rw [hMass, Nat.sub_self]
   norm_num only [Nat.factorial_zero, Nat.cast_one, one_mul]
-  rw [Real.log_div (by positivity) (by positivity),
-    Real.log_mul (by positivity) (by positivity),
-    Real.log_mul (by positivity) (by positivity),
+  rw [Real.log_div (mul_ne_zero hBlockPow hNFactorial)
+      (mul_ne_zero hProfileFactorial hInternalPow),
+    Real.log_mul hBlockPow hNFactorial,
+    Real.log_mul hProfileFactorial hInternalPow,
     Real.log_pow, Real.log_pow,
     log_partialProfileFactorialProduct_eq]
   unfold q
@@ -206,6 +234,15 @@ theorem log_partialSignedFirstMoment_fourDeficitEmbedding
   have hMultiplicityLog :=
     sum_log_factorial_fourDeficitEmbedding alpha hAlpha m
   have hForbidden := forbiddenEdges_fourDeficitEmbedding alpha hAlpha m
+  have hSelectedInternalCast :
+      (selectedInternalEdgeCount u m : Real) =
+        ∑ i : Fin 4,
+          (m i : Real) * ((u i).choose 2 : Real) := by
+    unfold selectedInternalEdgeCount
+    push_cast
+    apply Finset.sum_congr rfl
+    intro i _hi
+    ring
   rw [show partialSignedFirstMoment n
       (fun i : Fin 4 ↦ alpha - fourDeficit i) m =
       partialSignedFirstMoment n u m by rfl,
@@ -237,8 +274,9 @@ theorem log_partialSignedFirstMoment_fourDeficitEmbedding
       simpa only [k] using hMultiplicityLog,
     show ColoringProfile.forbiddenEdges k =
       ∑ i : Fin 4, m i * (u i).choose 2 by
-      simpa only [k, u] using hForbidden]
-  simp only [selectedBlockCount, selectedInternalEdgeCount, u]
+      simpa only [k, u] using hForbidden,
+    hSelectedInternalCast]
+  simp only [selectedBlockCount, u]
   unfold q
   push_cast
   ring
