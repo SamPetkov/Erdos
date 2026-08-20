@@ -35,7 +35,17 @@ theorem profileLogWeight_sub_discreteObjective_eq_factorialRemainders
   unfold profileLogWeight profileDiscreteObjective coloringClassLogCost
   rw [ColoringProfile.forbiddenEdges_eq_sum]
   push_cast
-  simp only [Finset.sum_add_distrib, Finset.sum_mul]
+  have hClassSum :
+      (∑ x : Fin b,
+          (Real.log 2 * (k x : Real) * (((1 + x.1).choose 2 : Nat) : Real) +
+            (k x : Real) *
+              Real.log (Nat.factorial (1 + x.1) : Real))) =
+        (∑ x : Fin b,
+          Real.log 2 * (k x : Real) * (((1 + x.1).choose 2 : Nat) : Real)) +
+        ∑ x : Fin b,
+          (k x : Real) * Real.log (Nat.factorial (1 + x.1) : Real) := by
+    exact Finset.sum_add_distrib
+  rw [hClassSum]
   ring
 
 /-- The coarse factorial error is monotone in its natural argument. -/
@@ -65,7 +75,9 @@ theorem fourDeficitMultiplicity_le_n
       (alpha - fourDeficit i) * m i ≤
         ∑ j : Fin 4, (alpha - fourDeficit j) * m j := by
     exact Finset.single_le_sum
-      (fun j (_hj : j ∈ (Finset.univ : Finset (Fin 4))) => Nat.zero_le _)
+      (s := (Finset.univ : Finset (Fin 4)))
+      (f := fun j : Fin 4 => (alpha - fourDeficit j) * m j)
+      (fun j _hj => Nat.zero_le _)
       (Finset.mem_univ i)
   exact hMul.trans (hTerm.trans_eq hMass)
 
@@ -177,7 +189,7 @@ theorem abs_log_signedProfileExpectation_fourDeficit_sub_discreteObjective_le
       signedProfileExpectation n k by rfl,
     log_signedProfileExpectation_toReal_eq k hProfileMass,
     hCountCast]
-  convert hBound using 1 <;> ring
+  simpa only [k] using hBound
 
 /-- The same bound in the exact real first-moment convention consumed by the
 Section VII partial-diagonal denominator. -/
@@ -204,7 +216,7 @@ theorem abs_log_partialSignedFirstMoment_fourDeficit_sub_discreteObjective_le
     abs_profileLogWeight_sub_discreteObjective_fourDeficitEmbedding_le
       n alpha hAlpha m hMass
   rw [hLog, hCountCast]
-  convert hBound using 1 <;> ring
+  simpa using hBound
 
 #print axioms profileLogWeight_sub_discreteObjective_eq_factorialRemainders
 #print axioms factorialLogErrorBound_mono
