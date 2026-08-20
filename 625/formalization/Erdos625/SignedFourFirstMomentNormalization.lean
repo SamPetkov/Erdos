@@ -212,7 +212,6 @@ theorem log_partialSignedFirstMoment_eq
     Real.log_pow, Real.log_pow,
     log_partialProfileFactorialProduct_eq]
   unfold q
-  push_cast
   ring
 
 /-- The logarithm of the exact four-size factorial first moment is the signed
