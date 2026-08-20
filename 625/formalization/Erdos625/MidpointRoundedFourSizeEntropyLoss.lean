@@ -37,8 +37,8 @@ theorem mul_log_div_le_sq_div_add_sub
     x * Real.log (x / y) ≤ (x - y) ^ 2 / y + (x - y) := by
   rcases eq_or_lt_of_le hx with rfl | hxpos
   · have hyEq : y ^ 2 / y = y := by
-      field_simp [hy.ne'] <;> ring
-    simpa [hyEq]
+      field_simp [hy.ne']
+    simp [hyEq]
   · have hlog := Real.log_le_sub_one_of_pos (div_pos hxpos hy)
     have hscaled := mul_le_mul_of_nonneg_left hlog hx
     calc
