@@ -176,7 +176,7 @@ theorem abs_log_signedProfileExpectation_fourDeficit_sub_discreteObjective_le
   rw [show signedProfileExpectation n
       (fourDeficitEmbedding alpha hAlpha m) =
       signedProfileExpectation n k by rfl,
-    log_signedProfileExpectation_toReal_eq n k hProfileMass,
+    log_signedProfileExpectation_toReal_eq (n := n) k hProfileMass,
     hCountCast]
   have hCancel :
       ((((∑ i : Fin 4, m i : Nat) : Real) * q) +
