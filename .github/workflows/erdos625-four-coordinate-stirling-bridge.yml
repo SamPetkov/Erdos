@@ -23,7 +23,9 @@ jobs:
             625/formalization/Erdos625/FourDeficitFirstMomentStirlingBridge.lean; then
             exit 1
           fi
-      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+      - id: lean_build
+        continue-on-error: true
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: 625/formalization
           auto-config: false
@@ -32,3 +34,30 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
+      - name: Capture concise Lean diagnostics
+        if: steps.lean_build.outcome == 'failure'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build --wfail Erdos625.FourDeficitFirstMomentStirlingBridge \
+            > lean-build.log 2>&1
+          status=$?
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses' \
+            lean-build.log > lean-errors.txt || true
+          tail -n 240 lean-build.log > lean-tail.txt
+          printf '%s\n' "$status" > lean-status.txt
+          cat lean-errors.txt
+      - name: Upload Lean diagnostics
+        if: always() && steps.lean_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: four-coordinate-stirling-lean-diagnostics
+          path: |
+            625/formalization/lean-build.log
+            625/formalization/lean-errors.txt
+            625/formalization/lean-tail.txt
+            625/formalization/lean-status.txt
+      - name: Stop after Lean failure
+        if: steps.lean_build.outcome == 'failure'
+        run: exit 1
