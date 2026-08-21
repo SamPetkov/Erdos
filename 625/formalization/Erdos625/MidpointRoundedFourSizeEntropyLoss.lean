@@ -8,12 +8,16 @@ import Mathlib.Tactic
 This module proves the finite rounding seam needed by E625-10.  The exact
 finite Gibbs optimizer on the four deficits is rounded by the existing tangent
 correction.  Both the optimizer and the rounded proportions satisfy the same
-total-mass and deficit-moment constraints.  Their entropy-score gap is a
-relative entropy and is bounded by a coordinatewise chi-square estimate.
+total-mass and deficit-moment constraints.  Their entropy-score gap is exactly
+a relative entropy and is bounded by a coordinatewise chi-square estimate.
 
 The final constant is explicit:
 
 `4 * 5^2 / 14 = 50 / 7`.
+
+The exported API includes the exact KL identity, the scaled coordinate and
+aggregate chi-square bounds, and an absolute-error wrapper suitable for the
+finite first-moment bridge.
 
 No phase asymptotic, root theorem, probability estimate, partial-diagonal
 bound, or final Erdős statement is used here.
@@ -136,6 +140,21 @@ theorem midpointRoundedProportion_nonneg
   unfold midpointRoundedProportion
   positivity
 
+/-- Admissibility makes every normalized rounded coordinate strictly positive.
+This is useful downstream when splitting logarithms of multiplicities. -/
+theorem midpointRoundedProportion_pos_of_admissible
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K)
+    (i : Fin 4) :
+    0 < midpointRoundedProportion n alpha K i := by
+  have hDisp := midpointMultiplicity_uniform_displacement n alpha K h i
+  have hLower := h.2.2.2.2 i
+  rcases abs_le.mp hDisp with ⟨hDispLower, _hDispUpper⟩
+  have hmPos :
+      (0 : Real) < (midpointMultiplicity n alpha K i : Real) := by
+    linarith [hDispLower, hLower]
+  unfold midpointRoundedProportion
+  exact div_pos hmPos (by exact_mod_cast h.2.1)
+
 /-- Exact total mass of the rounded proportions. -/
 theorem sum_midpointRoundedProportion
     (n alpha K : Nat)
@@ -205,6 +224,106 @@ theorem sum_midpointRoundedProportion_mul_support
     _ = fourSizeTarget n alpha (K : Real) := by
       field_simp [hKReal]
 
+/-- The unscaled finite entropy-score loss of the actual rounded profile. -/
+noncomputable def midpointRoundedFourSizeEntropyLoss
+    (n alpha K : Nat) : Real :=
+  fourSizeFiniteEntropy alpha (fourSizeTarget n alpha (K : Real)) -
+    (-(∑ i : Fin 4,
+        midpointRoundedProportion n alpha K i *
+          Real.log (midpointRoundedProportion n alpha K i)) +
+      ∑ i : Fin 4,
+        midpointRoundedProportion n alpha K i * fourDeficitScore alpha i)
+
+/-- Exact KL representation of the finite rounded entropy loss.  The
+orientation is rounded competitor relative to the exact finite optimizer. -/
+theorem midpointRoundedFourSizeEntropyLoss_eq_sum_mul_log_div
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
+    midpointRoundedFourSizeEntropyLoss n alpha K =
+      ∑ i : Fin 4,
+        midpointRoundedProportion n alpha K i *
+          Real.log
+            (midpointRoundedProportion n alpha K i /
+              midpointOptimizer n alpha K i) := by
+  unfold midpointRoundedFourSizeEntropyLoss
+  simpa [fourSizeFiniteEntropy, midpointOptimizer] using
+    ProfileEntropyS4.optimizedValue_sub_entropyScore_eq_sum_mul_log_div
+      (fourDeficitScore alpha)
+      (midpointRoundedProportion n alpha K)
+      (sum_midpointRoundedProportion n alpha K h)
+      (sum_midpointRoundedProportion_mul_support n alpha K h)
+
+/-- Exact conversion of one scaled normalized chi-square coordinate to the
+integer displacement divided by the optimizer mass. -/
+theorem mul_midpointRoundedProportion_sub_optimizer_sq_div_eq
+    (n alpha K : Nat) (hK : 0 < K) (i : Fin 4) :
+    (K : Real) *
+        ((midpointRoundedProportion n alpha K i -
+            midpointOptimizer n alpha K i) ^ 2 /
+          midpointOptimizer n alpha K i) =
+      ((midpointMultiplicity n alpha K i : Real) -
+          (K : Real) * midpointOptimizer n alpha K i) ^ 2 /
+        ((K : Real) * midpointOptimizer n alpha K i) := by
+  have hKReal : (K : Real) ≠ 0 := by exact_mod_cast hK.ne'
+  have hpPos : 0 < midpointOptimizer n alpha K i := by
+    unfold midpointOptimizer
+    exact ProfileEntropyS4.optimizer_pos _ _ _
+  unfold midpointRoundedProportion
+  field_simp [hKReal, hpPos.ne']
+
+/-- Each scaled normalized chi-square coordinate is at most `25 / 14`. -/
+theorem mul_midpointRoundedProportion_sub_optimizer_sq_div_le
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K)
+    (i : Fin 4) :
+    (K : Real) *
+        ((midpointRoundedProportion n alpha K i -
+            midpointOptimizer n alpha K i) ^ 2 /
+          midpointOptimizer n alpha K i) ≤
+      (25 / 14 : Real) := by
+  have hK : 0 < K := h.2.1
+  have hKPos : 0 < (K : Real) := by exact_mod_cast hK
+  have hpPos : 0 < midpointOptimizer n alpha K i := by
+    unfold midpointOptimizer
+    exact ProfileEntropyS4.optimizer_pos _ _ _
+  have hDisp := midpointMultiplicity_uniform_displacement n alpha K h i
+  rcases abs_le.mp hDisp with ⟨hDispLower, hDispUpper⟩
+  have hSquare :
+      ((midpointMultiplicity n alpha K i : Real) -
+          (K : Real) * midpointOptimizer n alpha K i) ^ 2 ≤
+        (25 : Real) := by
+    nlinarith
+  rw [mul_midpointRoundedProportion_sub_optimizer_sq_div_eq n alpha K hK i]
+  rw [div_le_iff₀ (mul_pos hKPos hpPos)]
+  nlinarith [hSquare, h.2.2.2.2 i]
+
+/-- The complete scaled chi-square distance is at most `50 / 7`. -/
+theorem mul_sum_midpointRoundedProportion_sub_optimizer_sq_div_le
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
+    (K : Real) *
+        (∑ i : Fin 4,
+          (midpointRoundedProportion n alpha K i -
+              midpointOptimizer n alpha K i) ^ 2 /
+            midpointOptimizer n alpha K i) ≤
+      (50 / 7 : Real) := by
+  calc
+    (K : Real) *
+        (∑ i : Fin 4,
+          (midpointRoundedProportion n alpha K i -
+              midpointOptimizer n alpha K i) ^ 2 /
+            midpointOptimizer n alpha K i) =
+      ∑ i : Fin 4,
+        (K : Real) *
+          ((midpointRoundedProportion n alpha K i -
+              midpointOptimizer n alpha K i) ^ 2 /
+            midpointOptimizer n alpha K i) := by
+        rw [Finset.mul_sum]
+    _ ≤ ∑ _i : Fin 4, (25 / 14 : Real) := by
+      apply Finset.sum_le_sum
+      intro i _hi
+      exact mul_midpointRoundedProportion_sub_optimizer_sq_div_le
+        n alpha K h i
+    _ = (50 / 7 : Real) := by
+      norm_num [Fin.sum_univ_four]
+
 /-- The tangent-rounded four-size entropy loss is nonnegative and at most
 `50 / 7`, after multiplication by the number of parts. -/
 theorem midpointRoundedFourSizeEntropy_loss_le
@@ -229,84 +348,15 @@ theorem midpointRoundedFourSizeEntropy_loss_le
             midpointRoundedProportion n alpha K i *
               fourDeficitScore alpha i)) ≤
       (50 / 7 : Real) := by
-  have hK : 0 < K := h.2.1
-  have hTarget :
-      fourSizeTarget n alpha (K : Real) ∈ Set.Ioo (2 : Real) 5 :=
-    h.2.2.2.1
-  have hLower : ∀ i : Fin 4,
-      (14 : Real) ≤
-        (K : Real) * midpointOptimizer n alpha K i :=
-    h.2.2.2.2
-  have hKPos : 0 < (K : Real) := by exact_mod_cast hK
-  have hKReal : (K : Real) ≠ 0 := hKPos.ne'
-  have hpPos : ∀ i : Fin 4, 0 < midpointOptimizer n alpha K i := by
-    intro i
-    unfold midpointOptimizer
-    exact ProfileEntropyS4.optimizer_pos _ _ _
+  have hKPos : 0 < (K : Real) := by exact_mod_cast h.2.1
   have hGap :=
     ProfileEntropyS4.optimizedValue_sub_entropyScore_nonneg_and_le_chiSquare
       (fourDeficitScore alpha)
       (midpointRoundedProportion n alpha K)
-      hTarget
+      h.2.2.2.1
       (midpointRoundedProportion_nonneg n alpha K)
       (sum_midpointRoundedProportion n alpha K h)
       (sum_midpointRoundedProportion_mul_support n alpha K h)
-  have hTerm : ∀ i : Fin 4,
-      (K : Real) *
-          ((midpointRoundedProportion n alpha K i -
-              midpointOptimizer n alpha K i) ^ 2 /
-            midpointOptimizer n alpha K i) ≤
-        (25 / 14 : Real) := by
-    intro i
-    have hDisp := midpointMultiplicity_uniform_displacement n alpha K h i
-    have hBounds := (abs_le.mp hDisp)
-    let d : Real :=
-      (midpointMultiplicity n alpha K i : Real) -
-        (K : Real) * midpointOptimizer n alpha K i
-    have hdLower : (-5 : Real) ≤ d := by simpa [d] using hBounds.1
-    have hdUpper : d ≤ 5 := by simpa [d] using hBounds.2
-    have hProd : 0 ≤ (5 - d) * (5 + d) :=
-      mul_nonneg (by linarith) (by linarith)
-    have hSquare : d ^ 2 ≤ (25 : Real) := by
-      nlinarith
-    have hEq :
-        (K : Real) *
-            ((midpointRoundedProportion n alpha K i -
-                midpointOptimizer n alpha K i) ^ 2 /
-              midpointOptimizer n alpha K i) =
-          d ^ 2 /
-            ((K : Real) * midpointOptimizer n alpha K i) := by
-      unfold midpointRoundedProportion
-      dsimp only [d]
-      field_simp [hKReal, (hpPos i).ne']
-    rw [hEq]
-    rw [div_le_iff₀ (mul_pos hKPos (hpPos i))]
-    nlinarith [hLower i]
-  have hChiSquare :
-      (K : Real) *
-          (∑ i : Fin 4,
-            (midpointRoundedProportion n alpha K i -
-                midpointOptimizer n alpha K i) ^ 2 /
-              midpointOptimizer n alpha K i) ≤
-        (50 / 7 : Real) := by
-    calc
-      (K : Real) *
-          (∑ i : Fin 4,
-            (midpointRoundedProportion n alpha K i -
-                midpointOptimizer n alpha K i) ^ 2 /
-              midpointOptimizer n alpha K i) =
-        ∑ i : Fin 4,
-          (K : Real) *
-            ((midpointRoundedProportion n alpha K i -
-                midpointOptimizer n alpha K i) ^ 2 /
-              midpointOptimizer n alpha K i) := by
-          rw [Finset.mul_sum]
-      _ ≤ ∑ _i : Fin 4, (25 / 14 : Real) := by
-        apply Finset.sum_le_sum
-        intro i _hi
-        exact hTerm i
-      _ = (50 / 7 : Real) := by
-        norm_num [Fin.sum_univ_four]
   constructor
   · apply mul_nonneg hKPos.le
     simpa [fourSizeFiniteEntropy, midpointOptimizer] using hGap.1
@@ -327,13 +377,44 @@ theorem midpointRoundedFourSizeEntropy_loss_le
               midpointOptimizer n alpha K i) := by
           apply mul_le_mul_of_nonneg_left _ hKPos.le
           simpa [fourSizeFiniteEntropy, midpointOptimizer] using hGap.2
-      _ ≤ (50 / 7 : Real) := hChiSquare
+      _ ≤ (50 / 7 : Real) :=
+        mul_sum_midpointRoundedProportion_sub_optimizer_sq_div_le
+          n alpha K h
+
+/-- Concise nonnegativity wrapper for the named finite loss. -/
+theorem mul_midpointRoundedFourSizeEntropyLoss_nonneg
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
+    0 ≤ (K : Real) * midpointRoundedFourSizeEntropyLoss n alpha K := by
+  simpa [midpointRoundedFourSizeEntropyLoss] using
+    (midpointRoundedFourSizeEntropy_loss_le n alpha K h).1
+
+/-- Concise upper-bound wrapper for the named finite loss. -/
+theorem mul_midpointRoundedFourSizeEntropyLoss_le
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
+    (K : Real) * midpointRoundedFourSizeEntropyLoss n alpha K ≤
+      (50 / 7 : Real) := by
+  simpa [midpointRoundedFourSizeEntropyLoss] using
+    (midpointRoundedFourSizeEntropy_loss_le n alpha K h).2
+
+/-- Absolute-error form consumed directly by a finite first-moment bridge. -/
+theorem abs_mul_midpointRoundedFourSizeEntropyLoss_le
+    (n alpha K : Nat) (h : MidpointRoundingAdmissible n alpha K) :
+    |(K : Real) * midpointRoundedFourSizeEntropyLoss n alpha K| ≤
+      (50 / 7 : Real) := by
+  rw [abs_of_nonneg
+    (mul_midpointRoundedFourSizeEntropyLoss_nonneg n alpha K h)]
+  exact mul_midpointRoundedFourSizeEntropyLoss_le n alpha K h
 
 #print axioms ProfileEntropyS4.mul_log_div_le_sq_div_add_sub
 #print axioms ProfileEntropyS4.sum_mul_log_div_le_chiSquare
 #print axioms ProfileEntropyS4.optimizedValue_sub_entropyScore_eq_sum_mul_log_div
 #print axioms ProfileEntropyS4.optimizedValue_sub_entropyScore_nonneg_and_le_chiSquare
+#print axioms midpointRoundedProportion_pos_of_admissible
+#print axioms midpointRoundedFourSizeEntropyLoss_eq_sum_mul_log_div
+#print axioms mul_midpointRoundedProportion_sub_optimizer_sq_div_le
+#print axioms mul_sum_midpointRoundedProportion_sub_optimizer_sq_div_le
 #print axioms midpointRoundedFourSizeEntropy_loss_le
+#print axioms abs_mul_midpointRoundedFourSizeEntropyLoss_le
 
 end
 
