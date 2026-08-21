@@ -486,7 +486,7 @@ theorem midpointMultiplicity_vertexMass
               have hDeficit : fourDeficit i ≤ alpha := by
                 have hDeficitFive : fourDeficit i ≤ 5 := by
                   fin_cases i <;> norm_num [fourDeficit]
-                omega
+                exact hDeficitFive.trans (Nat.le_of_lt h.1)
               rw [Nat.cast_mul, Nat.cast_sub hDeficit]
       _ = ∑ i : Fin 4,
           ((alpha : Real) *
