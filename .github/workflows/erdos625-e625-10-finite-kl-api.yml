@@ -1,0 +1,35 @@
+name: Erdős 625 finite KL rounding API
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/MidpointRoundedFourSizeEntropyLoss.lean"
+      - "625/formalization/Erdos625/E62510FiniteKLRoundingAPI.lean"
+      - ".github/workflows/erdos625-e625-10-finite-kl-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/E62510FiniteKLRoundingAPI.lean; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail Erdos625.E62510FiniteKLRoundingAPI
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
