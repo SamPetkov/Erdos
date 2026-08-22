@@ -1,0 +1,91 @@
+name: Erdős 625 signed first-moment positive rate
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/SignedFourFirstMomentPositiveRate.lean"
+      - ".github/workflows/erdos625-signed-first-moment-positive-rate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/SignedFourFirstMomentPositiveRate.lean; then
+            exit 1
+          fi
+      - id: lean_build
+        continue-on-error: true
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail Erdos625.SignedFourFirstMomentPositiveRate
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Capture concise Lean diagnostics
+        if: steps.lean_build.outcome == 'failure'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build --wfail Erdos625.SignedFourFirstMomentPositiveRate \
+            > lean-build.log 2>&1
+          status=$?
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses' \
+            lean-build.log > lean-errors.txt || true
+          tail -n 300 lean-build.log > lean-tail.txt
+          printf '%s\n' "$status" > lean-status.txt
+          cat lean-errors.txt
+      - name: Replay and audit theorem axioms
+        if: steps.lean_build.outcome == 'success'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake env lean Erdos625/SignedFourFirstMomentPositiveRate.lean \
+            > lean-axioms.log 2>&1
+          status=$?
+          set -e
+          cat lean-axioms.log
+          test "$status" -eq 0
+          if grep -Fq 'sorryAx' lean-axioms.log; then
+            echo 'forbidden sorryAx dependency detected'
+            exit 1
+          fi
+          for declaration in \
+            signedFourCertifiedFirstMomentRate_pos \
+            tendsto_signedFourRootMidpointFirstMoment_div_parts_sub_margin_half_of_rootCorridor \
+            eventually_signedFourCertifiedFirstMomentRate_lt_normalized_log \
+            eventually_exp_certifiedRate_mul_parts_lt_signedFourRootMidpointFirstMoment \
+            eventually_one_lt_signedFourRootMidpointFirstMoment \
+            eventually_exp_certifiedRate_mul_parts_lt_signedFourRootMidpointFirstMoment_of_rootCorridor; do
+            grep -Fq "$declaration" lean-axioms.log || {
+              echo "missing axiom report for $declaration"
+              exit 1
+            }
+          done
+      - name: Upload Lean diagnostics
+        if: always() && steps.lean_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-first-moment-positive-rate-diagnostics
+          path: |
+            625/formalization/lean-build.log
+            625/formalization/lean-errors.txt
+            625/formalization/lean-tail.txt
+            625/formalization/lean-status.txt
+      - name: Stop after validation failure
+        if: steps.lean_build.outcome == 'failure'
+        run: exit 1
