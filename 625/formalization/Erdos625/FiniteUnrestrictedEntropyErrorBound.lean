@@ -188,8 +188,8 @@ theorem abs_finiteUnrestrictedEntropyError_le
               (extendedGaussianPartition q
                 (extendedGaussianTilt q target))|) +
           |(extendedGaussianTilt q target -
-              profileDeficitTilt alpha target) * target| :=
-        add_le_add_right (abs_add_le _ _) _
+              profileDeficitTilt alpha target) * target| := by
+        exact add_le_add (abs_add_le _ _) (le_refl _)
       _ = _ := by ring
   calc
     _ ≤
@@ -236,8 +236,14 @@ theorem abs_finiteUnrestrictedEntropyError_le
         |target| *
           |profileDeficitTilt alpha target -
             extendedGaussianTilt q target| := by
-      rw [abs_mul, abs_sub_comm]
-      ring
+      have hAbs :
+          |extendedGaussianTilt q target -
+              profileDeficitTilt alpha target| =
+            |profileDeficitTilt alpha target -
+              extendedGaussianTilt q target| :=
+        abs_sub_comm _ _
+      rw [abs_mul, hAbs]
+      ac_rfl
 
 #print axioms abs_log_sub_log_le_abs_sub_of_one_le
 #print axioms abs_log_profileDeficitPartition_sub_log_extendedGaussianPartition_le
