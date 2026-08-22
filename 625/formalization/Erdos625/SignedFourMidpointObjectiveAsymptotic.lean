@@ -89,7 +89,6 @@ theorem tendsto_logOrder_sq_div_signedFourNaturalPartScale_zero :
   have hnReal : (n : ℝ) ≠ 0 := by positivity
   unfold signedFourNaturalPartScale
   field_simp [hlog, hnReal]
-  ring
 
 /-- Inversion of the normalized part-count asymptotic. -/
 theorem tendsto_inv_signedFourNormalizedPartCount
@@ -99,10 +98,11 @@ theorem tendsto_inv_signedFourNormalizedPartCount
     Tendsto
       (fun n : ℕ ↦ (signedFourNormalizedPartCount K n)⁻¹)
       atTop (𝓝 (2 / q)) := by
-  have hne : q / 2 ≠ 0 := by positivity
+  have hne : q / 2 ≠ 0 := div_ne_zero q_ne_zero (by norm_num)
   have h := hParts.inv₀ hne
-  convert h using 1
-  field_simp [q_ne_zero]
+  have hlimit : (q / 2)⁻¹ = 2 / q := by
+    field_simp [q_ne_zero]
+  simpa only [hlimit] using h
 
 /-- The normalized multiplicative core converges to one half of the varying
 phase margin.  The root-gap input is an error relative to the actual sequence
@@ -123,13 +123,12 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
         signedFourNormalizedMidpointCore rCo rPlus slope K n -
           signedFourPhaseMargin n / 2)
       atTop (𝓝 0) := by
+  have hConstSlope : Tendsto (fun _n : ℕ ↦ (2 / q : ℝ))
+      atTop (𝓝 (2 / q)) := tendsto_const_nhds
   have hSlopeErr : Tendsto
       (fun n : ℕ ↦ signedFourNormalizedSlope slope n - 2 / q)
       atTop (𝓝 0) := by
-    have h := hSlope.sub
-      (tendsto_const_nhds : Tendsto (fun _n : ℕ ↦ (2 / q : ℝ))
-        atTop (𝓝 (2 / q)))
-    simpa using h
+    simpa using hSlope.sub hConstSlope
   have hMarginSlopeErr : Tendsto
       (fun n : ℕ ↦ signedFourPhaseMargin n *
         (signedFourNormalizedSlope slope n - 2 / q))
@@ -155,11 +154,10 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
       atTop (𝓝 0) := by
     have h := hSlopeGapErr.add
       (hMarginSlopeErr.const_mul (q ^ 2 / 4))
-    simp only [add_zero] at h
-    refine h.congr' ?_
-    filter_upwards with n
-    field_simp [q_ne_zero]
-    ring
+    convert h using 1
+    · funext n
+      ring
+    · ring
   have hNumeratorErr : Tendsto
       (fun n : ℕ ↦
         signedFourNormalizedSlope slope n *
@@ -167,19 +165,18 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
           q / 4 * signedFourPhaseMargin n)
       atTop (𝓝 0) := by
     have h := hProductErr.const_mul (1 / 2 : ℝ)
-    simpa only [zero_mul] at h
-    refine h.congr' ?_
-    filter_upwards with n
-    ring
+    convert h using 1
+    · funext n
+      ring
+    · ring
   have hPartsInv := tendsto_inv_signedFourNormalizedPartCount K hParts
+  have hConstInv : Tendsto (fun _n : ℕ ↦ (2 / q : ℝ))
+      atTop (𝓝 (2 / q)) := tendsto_const_nhds
   have hPartsInvErr : Tendsto
       (fun n : ℕ ↦
         (signedFourNormalizedPartCount K n)⁻¹ - 2 / q)
       atTop (𝓝 0) := by
-    have h := hPartsInv.sub
-      (tendsto_const_nhds : Tendsto (fun _n : ℕ ↦ (2 / q : ℝ))
-        atTop (𝓝 (2 / q)))
-    simpa using h
+    simpa using hPartsInv.sub hConstInv
   have hMarginInvErr : Tendsto
       (fun n : ℕ ↦ signedFourPhaseMargin n *
         ((signedFourNormalizedPartCount K n)⁻¹ - 2 / q))
@@ -193,12 +190,11 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
   have hFirst := hNumeratorErr.mul hPartsInv
   have hSecond := hMarginInvErr.const_mul (q / 4)
   have h := hFirst.add hSecond
-  simp only [zero_mul, add_zero] at h
-  refine h.congr' ?_
-  filter_upwards with n
-  unfold signedFourNormalizedMidpointCore
-  field_simp [q_ne_zero]
-  ring
+  convert h using 1
+  · funext n
+    unfold signedFourNormalizedMidpointCore
+    ring
+  · ring
 
 /-- Exact conversion of the normalized core to the literal objective lower
 corridor term. -/
@@ -232,7 +228,6 @@ theorem tendsto_signedFourMidpointCore_div_parts_sub_margin_half
     signedFourNormalizedRootGap signedFourNormalizedPartCount
     signedFourNaturalRootGapScale signedFourNaturalPartScale
   field_simp [hKReal, hlog, hnReal]
-  ring
 
 /-- The additive ceiling unit contributes negligibly after normalization by
 an `n/log n` part count. -/
@@ -258,7 +253,6 @@ theorem tendsto_signedFourSlope_div_parts_zero
   unfold signedFourNormalizedSlope signedFourNormalizedPartCount
     signedFourNaturalPartScale
   field_simp [hKReal, hlog, hnReal]
-  ring
 
 /-- Upper corridor term, including the exact ceiling `+1`, has the same
 phase-varying normalized limit. -/
@@ -284,7 +278,6 @@ theorem tendsto_signedFourMidpointUpper_div_parts_sub_margin_half
   have hCeiling := tendsto_signedFourSlope_div_parts_zero
     slope K hKPos hSlope hParts
   have h := hCore.add hCeiling
-  simp only [add_zero] at h
   refine h.congr' ?_
   filter_upwards with n
   ring
@@ -383,7 +376,6 @@ theorem tendsto_signedFourRootMidpointFirstMoment_div_parts_sub_margin_half
       rCo rPlus slopeLower slopeUpper hKPos hObjectiveBounds
       hSlopeLower hSlopeUpper hRootGap hParts
   have h := hFinite.add hObjective
-  simp only [add_zero] at h
   refine h.congr' ?_
   filter_upwards with n
   ring
