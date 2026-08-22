@@ -137,9 +137,22 @@ theorem tendsto_extendedGaussianReferenceMomentTruncation
         extendedGaussianMean q tilt := by
     unfold extendedGaussianMean extendedGaussianFirstNumerator
     field_simp [extendedGaussianPartition_ne_zero q_pos]
-    ring
   rw [← hlimit]
-  simpa only [extendedGaussianReferenceMomentTruncation] using hadd
+  change Tendsto
+    (fun N : ℕ ↦
+      -extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt +
+        (∑ d ∈ Finset.range N,
+          (d : ℝ) * extendedGaussianNaturalTerm q tilt d) /
+            extendedGaussianPartition q tilt)
+    atTop
+    (𝓝
+      (-extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt +
+        (∑' d : ℕ,
+          (d : ℝ) * extendedGaussianNaturalTerm q tilt d) /
+            extendedGaussianPartition q tilt))
+  exact hadd
 
 /-- The normalized Gibbs moment truncations converge to the limiting mean. -/
 theorem tendsto_extendedGaussianMomentTruncation_normalized
