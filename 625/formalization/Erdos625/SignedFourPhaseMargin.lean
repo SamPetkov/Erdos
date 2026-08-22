@@ -57,9 +57,9 @@ theorem log_200_div_153_lt_signedFourPhaseMargin (n : ℕ) :
 
 /-- The phase margin is strictly positive. -/
 theorem signedFourPhaseMargin_pos (n : ℕ) :
-    0 < signedFourPhaseMargin n := by
-  exact (log_200_div_153_pos.trans
-    (log_200_div_153_lt_signedFourPhaseMargin n))
+    0 < signedFourPhaseMargin n :=
+  log_200_div_153_pos.trans
+    (log_200_div_153_lt_signedFourPhaseMargin n)
 
 /-- Positivity of the entropy loss bounds the phase margin strictly below
 `q`. -/
