@@ -56,7 +56,7 @@ theorem logOrder_isLittleO_signedFourNaturalPartScale :
     (hMul.congr_left fun n ↦ by
       by_cases hlog : logOrder n = 0
       · simp [hlog]
-      · field_simp [hlog] <;> ring).congr_right fun n ↦ by
+      · field_simp [hlog]).congr_right fun n ↦ by
         simp [signedFourNaturalPartScale, div_eq_mul_inv]
 
 /-- Any part-count sequence which is at least of the natural manuscript scale
