@@ -90,12 +90,18 @@ theorem extendedGaussianMomentTruncation_normalized_eq_reference
     extendedGaussianNormalizedExceptional
     extendedGaussianNormalizedNatural
     extendedGaussianReferenceMomentTruncation
-  rw [Finset.sum_div]
-  apply congrArg (fun x : ℝ ↦
-    -extendedGaussianExceptionalAtom q tilt /
-        extendedGaussianPartition q tilt + x)
-  apply Finset.sum_congr rfl
-  intro d _
+  have hsum :
+      (∑ d ∈ Finset.range N,
+          (d : ℝ) *
+            (extendedGaussianNaturalTerm q tilt d /
+              extendedGaussianPartition q tilt)) =
+        ∑ d ∈ Finset.range N,
+          ((d : ℝ) * extendedGaussianNaturalTerm q tilt d) /
+            extendedGaussianPartition q tilt := by
+    apply Finset.sum_congr rfl
+    intro d _
+    ring
+  rw [hsum, Finset.sum_div]
   ring
 
 /-- The normalized reference first moment converges to the extended-Gaussian
@@ -113,15 +119,27 @@ theorem tendsto_extendedGaussianReferenceMomentTruncation
         (d : ℝ) * extendedGaussianNaturalTerm q tilt d)) :=
     (summable_extendedGaussianFirstMoment q_pos).hasSum.tendsto_sum_nat
   have hdiv := hsum.div_const (extendedGaussianPartition q tilt)
-  have hadd :=
-    tendsto_const_nhds.add hdiv
-  refine hadd.congr' ?_
-  filter_upwards with N
-  constructor
-  · rfl
-  · unfold extendedGaussianReferenceMomentTruncation
-      extendedGaussianMean extendedGaussianFirstNumerator
-    rfl
+  have hconst : Tendsto
+      (fun _N : ℕ ↦
+        -extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt)
+      atTop
+      (𝓝 (-extendedGaussianExceptionalAtom q tilt /
+        extendedGaussianPartition q tilt)) :=
+    tendsto_const_nhds
+  have hadd := hconst.add hdiv
+  have hlimit :
+      -extendedGaussianExceptionalAtom q tilt /
+          extendedGaussianPartition q tilt +
+        (∑' d : ℕ,
+          (d : ℝ) * extendedGaussianNaturalTerm q tilt d) /
+            extendedGaussianPartition q tilt =
+        extendedGaussianMean q tilt := by
+    unfold extendedGaussianMean extendedGaussianFirstNumerator
+    field_simp [extendedGaussianPartition_ne_zero q_pos]
+    ring
+  rw [← hlimit]
+  simpa only [extendedGaussianReferenceMomentTruncation] using hadd
 
 /-- The normalized Gibbs moment truncations converge to the limiting mean. -/
 theorem tendsto_extendedGaussianMomentTruncation_normalized
@@ -149,23 +167,42 @@ theorem extendedGaussianEntropyTruncation_normalized_eq
         tilt * extendedGaussianMomentTruncation
           (extendedGaussianNormalizedExceptional tilt)
           (extendedGaussianNormalizedNatural tilt) N := by
-  unfold extendedGaussianEntropyTruncation
-  rw [show Real.log (extendedGaussianNormalizedExceptional tilt) =
-      -tilt + extendedGaussianExceptionalScore q -
-        Real.log (extendedGaussianPartition q tilt) by
-    simpa [extendedGaussianNormalizedExceptional] using
-      log_normalized_extendedGaussianExceptionalAtom tilt]
-  simp_rw [show ∀ d : ℕ,
-      Real.log (extendedGaussianNormalizedNatural tilt d) =
+  have hExceptional :
+      -extendedGaussianNormalizedExceptional tilt *
+          Real.log (extendedGaussianNormalizedExceptional tilt) +
+        extendedGaussianNormalizedExceptional tilt *
+          extendedGaussianExceptionalScore q =
+      Real.log (extendedGaussianPartition q tilt) *
+          extendedGaussianNormalizedExceptional tilt +
+        tilt * extendedGaussianNormalizedExceptional tilt := by
+    rw [show Real.log (extendedGaussianNormalizedExceptional tilt) =
+        -tilt + extendedGaussianExceptionalScore q -
+          Real.log (extendedGaussianPartition q tilt) by
+      simpa [extendedGaussianNormalizedExceptional] using
+        log_normalized_extendedGaussianExceptionalAtom tilt]
+    ring
+  have hNatural : ∀ d : ℕ,
+      -extendedGaussianNormalizedNatural tilt d *
+          Real.log (extendedGaussianNormalizedNatural tilt d) +
+        extendedGaussianNormalizedNatural tilt d *
+          extendedGaussianNaturalScore q d =
+      Real.log (extendedGaussianPartition q tilt) *
+          extendedGaussianNormalizedNatural tilt d -
+        tilt * ((d : ℝ) *
+          extendedGaussianNormalizedNatural tilt d) := by
+    intro d
+    rw [show Real.log (extendedGaussianNormalizedNatural tilt d) =
         tilt * (d : ℝ) + extendedGaussianNaturalScore q d -
           Real.log (extendedGaussianPartition q tilt) by
-    intro d
-    simpa [extendedGaussianNormalizedNatural] using
-      log_normalized_extendedGaussianNaturalTerm tilt d]
+      simpa [extendedGaussianNormalizedNatural] using
+        log_normalized_extendedGaussianNaturalTerm tilt d]
+    ring
+  unfold extendedGaussianEntropyTruncation
+  rw [hExceptional]
+  simp_rw [hNatural]
   unfold extendedGaussianMassTruncation
     extendedGaussianMomentTruncation
-  simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib,
-    Finset.mul_sum]
+  rw [Finset.sum_sub_distrib, ← Finset.mul_sum, ← Finset.mul_sum]
   ring
 
 /-- The entropy truncations of the normalized Gibbs profile converge to its
@@ -191,9 +228,15 @@ theorem tendsto_extendedGaussianEntropyTruncation_normalized
       (extendedGaussianMassTruncation_normalized_eq_reference tilt N).symm
   have hMoment :=
     tendsto_extendedGaussianMomentTruncation_normalized tilt
+  have hLogConst : Tendsto
+      (fun _N : ℕ ↦ Real.log (extendedGaussianPartition q tilt))
+      atTop (𝓝 (Real.log (extendedGaussianPartition q tilt))) :=
+    tendsto_const_nhds
+  have hTiltConst : Tendsto (fun _N : ℕ ↦ tilt)
+      atTop (𝓝 tilt) :=
+    tendsto_const_nhds
   have hLimit :=
-    (tendsto_const_nhds.mul hMass).sub
-      (tendsto_const_nhds.mul hMoment)
+    (hLogConst.mul hMass).sub (hTiltConst.mul hMoment)
   have hLimit' : Tendsto
       (fun N : ℕ ↦
         Real.log (extendedGaussianPartition q tilt) *
@@ -262,7 +305,6 @@ theorem selectedExtendedGaussianDualValue_mem_candidateSet
 /-- Every entropy candidate is bounded above by the selected dual value. -/
 theorem entropyCandidate_le_selectedExtendedGaussianDualValue
     {target value : ℝ}
-    (htarget : -1 < target)
     (hvalue : value ∈ extendedGaussianEntropyCandidateSet target) :
     value ≤ extendedGaussianDualTestValue target
       (extendedGaussianTilt q target) := by
@@ -289,8 +331,7 @@ theorem extendedGaussianEntropyValue_eq_selectedDual
     refine ⟨extendedGaussianDualTestValue target
       (extendedGaussianTilt q target), ?_⟩
     intro value hvalue
-    exact entropyCandidate_le_selectedExtendedGaussianDualValue
-      htargetLower hvalue
+    exact entropyCandidate_le_selectedExtendedGaussianDualValue hvalue
   have hLower :
       extendedGaussianDualTestValue target
           (extendedGaussianTilt q target) ≤
