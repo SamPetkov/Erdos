@@ -280,7 +280,7 @@ theorem
             signedFourNaturalRootGapScale n :=
         (div_le_div_iff_of_pos_right hScalePos).2 hDistance
       _ = _ := by
-        field_simp [hnSlopePos.ne', hScalePos.ne'] <;> ring
+        field_simp [hnSlopePos.ne', hScalePos.ne']
   have hNormDisplacement :
       ‖signedFourNormalizedRightRootCenterDisplacement rPlus n‖ =
         |rPlus n - phaseRootCenter n| /
@@ -298,7 +298,7 @@ theorem
     rw [Real.norm_eq_abs, abs_div, abs_of_pos hnCenterPos,
       abs_div, abs_of_pos hnCenterPos,
       abs_of_pos (mul_pos hnSlopePos hScalePos)]
-    field_simp [hnCenterPos.ne', hnSlopePos.ne', hScalePos.ne'] <;> ring
+    field_simp [hnCenterPos.ne', hnSlopePos.ne', hScalePos.ne']
   rw [hNormDisplacement]
   calc
     _ ≤ |unrestrictedPhaseObjective n (phaseRootCenter n)| /
