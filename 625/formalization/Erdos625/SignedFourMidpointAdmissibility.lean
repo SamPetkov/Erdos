@@ -117,7 +117,7 @@ theorem midpointRoundingAdmissible_of_optimizer_lower
 /-- A normalized part-count limit makes `K_n` eventually large enough for any
 fixed positive optimizer floor. -/
 theorem eventually_fourteen_div_le_parts_of_normalized_tendsto
-    (K : ℕ → ℕ) (c : ℝ) (hc : 0 < c)
+    (K : ℕ → ℕ) (c : ℝ) (_hc : 0 < c)
     (hParts : Tendsto (signedFourNormalizedPartCount K)
       atTop (𝓝 (q / 2))) :
     ∀ᶠ n : ℕ in atTop, 14 / c ≤ (K n : ℝ) := by
