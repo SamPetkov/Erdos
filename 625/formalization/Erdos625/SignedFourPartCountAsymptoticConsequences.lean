@@ -50,7 +50,8 @@ theorem eventually_signedFourNormalizedPartCount_pos_of_tendsto
     (hParts : Tendsto (signedFourNormalizedPartCount K)
       atTop (𝓝 (q / 2))) :
     ∀ᶠ n : ℕ in atTop, 0 < signedFourNormalizedPartCount K n := by
-  have hLimitPos : (0 : ℝ) < q / 2 := by positivity
+  have hLimitPos : (0 : ℝ) < q / 2 :=
+    div_pos q_pos (by norm_num)
   simpa only [mem_Ioi] using hParts.eventually (Ioi_mem_nhds hLimitPos)
 
 /-- The natural part count itself is eventually positive. -/
@@ -105,7 +106,8 @@ theorem signedFourNaturalPartScale_isBigO_parts_of_normalized_tendsto
     have h := mul_le_mul_of_nonneg_right hNormalized.le hScale.le
     rw [hIdentity] at h
     exact h
-  have hQuarterPos : 0 < q / 4 := by positivity
+  have hQuarterPos : 0 < q / 4 :=
+    div_pos q_pos (by norm_num)
   rw [Real.norm_eq_abs, Real.norm_eq_abs,
     abs_of_pos hScale, abs_of_nonneg (Nat.cast_nonneg (K n))]
   calc
@@ -122,7 +124,8 @@ theorem eventually_logOrder_sq_le_parts_of_normalized_tendsto
     (hParts : Tendsto (signedFourNormalizedPartCount K)
       atTop (𝓝 (q / 2))) :
     ∀ᶠ n : ℕ in atTop, (logOrder n) ^ 2 ≤ (K n : ℝ) := by
-  have hQuarterPos : 0 < q / 4 := by positivity
+  have hQuarterPos : 0 < q / 4 :=
+    div_pos q_pos (by norm_num)
   have hSmall : ∀ᶠ n : ℕ in atTop,
       (logOrder n) ^ 2 / signedFourNaturalPartScale n < q / 4 := by
     simpa only [mem_Iio] using
