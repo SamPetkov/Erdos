@@ -79,14 +79,17 @@ theorem tendstoUniformlyOn_finiteSignedFourMargin
   rw [Real.dist_eq, abs_sub_comm, hMarginIdentity]
   calc
     |-finiteFourScoreEntropyError alpha target -
-        finiteUnrestrictedEntropyError alpha target| ≤
-      |finiteFourScoreEntropyError alpha target| +
-        |finiteUnrestrictedEntropyError alpha target| := by
-      calc
-        _ ≤ |-finiteFourScoreEntropyError alpha target| +
-            |finiteUnrestrictedEntropyError alpha target| :=
-          abs_sub_le _ _
-        _ = _ := by rw [abs_neg]
+        finiteUnrestrictedEntropyError alpha target| =
+      |finiteFourScoreEntropyError alpha target +
+        finiteUnrestrictedEntropyError alpha target| := by
+      rw [show -finiteFourScoreEntropyError alpha target -
+          finiteUnrestrictedEntropyError alpha target =
+        -(finiteFourScoreEntropyError alpha target +
+          finiteUnrestrictedEntropyError alpha target) by ring,
+        abs_neg]
+    _ ≤ |finiteFourScoreEntropyError alpha target| +
+        |finiteUnrestrictedEntropyError alpha target| :=
+      abs_add_le _ _
     _ < delta + delta :=
       add_lt_add (hFourAlpha target htarget) hUnrestrictedError
     _ = epsilon := by
