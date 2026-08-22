@@ -1,4 +1,4 @@
-import Erdos625.SignedFourMidpointTargetFromLogLogCenter
+import Erdos625.SignedFourMidpointTargetFromCenter
 import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.ColoringProfileDualOptimalValue
 import Mathlib.Tactic
@@ -73,7 +73,7 @@ theorem slope_mul_abs_root_sub_center_le_abs_center_value
       linarith
     rw [abs_of_nonneg (sub_nonneg.mpr hCenterRoot),
       abs_of_nonpos hCenterNonpos]
-    exact hIncrement
+    simpa using hIncrement
   · have hCont' : ContinuousOn F (Icc root center) := by
       simpa [min_eq_right hRootCenter, max_eq_left hRootCenter] using hCont
     have hDiff' : DifferentiableOn ℝ F (Ioo root center) := by
@@ -91,7 +91,7 @@ theorem slope_mul_abs_root_sub_center_le_abs_center_value
       linarith
     rw [abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr hRootCenter),
       abs_of_nonneg hCenterNonneg]
-    exact hIncrement
+    simpa using hIncrement
 
 /-- Finite specialization of the absolute localization inequality to the
 unrestricted phase objective.  Feasibility supplies continuity and
@@ -125,9 +125,12 @@ theorem slope_mul_abs_unrestrictedRoot_sub_phaseRootCenter_le
         (max (phaseRootCenter n) root)) := by
     intro s hs
     have hsData := hFeasible s hs
-    simpa only [unrestrictedPhaseObjective] using
-      ((hasDerivAt_profileDualOptimalValue_parts hb
-        hsData.1 hsData.2).continuousAt.continuousWithinAt)
+    change ContinuousWithinAt
+      (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
+      (Icc (min (phaseRootCenter n) root)
+        (max (phaseRootCenter n) root)) s
+    exact (hasDerivAt_profileDualOptimalValue_parts hb
+      hsData.1 hsData.2).continuousAt.continuousWithinAt
   have hDiff : DifferentiableOn ℝ (unrestrictedPhaseObjective n)
       (Ioo (min (phaseRootCenter n) root)
         (max (phaseRootCenter n) root)) := by
@@ -137,9 +140,12 @@ theorem slope_mul_abs_unrestrictedRoot_sub_phaseRootCenter_le
           (max (phaseRootCenter n) root) :=
       Ioo_subset_Icc_self hs
     have hsData := hFeasible s hsClosed
-    simpa only [unrestrictedPhaseObjective] using
-      ((hasDerivAt_profileDualOptimalValue_parts hb
-        hsData.1 hsData.2).differentiableAt.differentiableWithinAt)
+    change DifferentiableWithinAt ℝ
+      (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
+      (Ioo (min (phaseRootCenter n) root)
+        (max (phaseRootCenter n) root)) s
+    exact (hasDerivAt_profileDualOptimalValue_parts hb
+      hsData.1 hsData.2).differentiableAt.differentiableWithinAt
   exact slope_mul_abs_root_sub_center_le_abs_center_value
     hSlope hCont hDiff hDerivLower hRoot
 
@@ -159,7 +165,8 @@ theorem tendsto_phaseRootCenter_div_slope_mul_rootGapScale
     (div_ne_zero (by norm_num : (2 : ℝ) ≠ 0) q_ne_zero)
   have hRaw := tendsto_signedFourNormalizedPhaseRootCenter.mul hSlopeInv
   have hLimit : (q / 2) * (2 / q)⁻¹ = q ^ 2 / 4 := by
-    field_simp [q_ne_zero] <;> ring
+    field_simp [q_ne_zero]
+    ring
   rw [hLimit] at hRaw
   have hSlopePos : ∀ᶠ n : ℕ in atTop,
       0 < signedFourNormalizedSlope slope n :=
@@ -180,7 +187,7 @@ theorem tendsto_phaseRootCenter_div_slope_mul_rootGapScale
     · exact (not_lt_of_ge (sq_nonneg (logOrder n)) h.2).elim
   unfold signedFourNormalizedPhaseRootCenter signedFourNormalizedSlope
     signedFourNaturalPartScale signedFourNaturalRootGapScale
-  field_simp [hnReal, hlog, hslopePos.ne'] <;> ring
+  field_simp [hnReal, hlog, hslopePos.ne']
 
 /-- The existing `O(log log n)` center residual and a positive normalized
 slope corridor imply `O(log log n)` localization of any unrestricted root on
@@ -222,7 +229,11 @@ theorem
     rw [abs_le]
     dsimp only [B]
     constructor
-    · nlinarith [sq_nonneg q]
+    · calc
+        -(q ^ 2 / 4 + 1) ≤ q ^ 2 / 4 - 1 := by
+          nlinarith [sq_nonneg q]
+        _ ≤ phaseRootCenter n /
+            (slope n * signedFourNaturalRootGapScale n) := hn.1.le
     · exact hn.2.le
   rcases (isBigO_iff.mp
     unrestrictedPhaseObjective_center_div_isBigO_logLogOrder) with
