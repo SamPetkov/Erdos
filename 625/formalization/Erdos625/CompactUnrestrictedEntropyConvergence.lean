@@ -76,8 +76,7 @@ theorem abs_extendedGaussianPartition_sub_le_on_Icc
         HasDerivWithinAt (extendedGaussianPartition q)
           (extendedGaussianFirstNumerator q x) (Ici x) x := by
       intro x _
-      exact (hasDerivAt_extendedGaussianPartition q x q_pos).hasDerivWithinAt.mono
-        (inter_subset_right)
+      exact (hasDerivAt_extendedGaussianPartition q x q_pos).hasDerivWithinAt
     have hBound : ∀ x ∈ Ico u v,
         ‖extendedGaussianFirstNumerator q x‖ ≤ C := by
       intro x hx
@@ -86,8 +85,11 @@ theorem abs_extendedGaussianPartition_sub_le_on_Icc
         hx.2.le.trans hv.2⟩
     have h := norm_image_sub_le_of_norm_deriv_right_le_segment
       hCont hDeriv hBound v (right_mem_Icc.mpr huv)
-    rw [Real.norm_eq_abs, abs_sub_comm,
-      abs_of_nonpos (sub_nonpos.mpr huv)] at h
+    rw [Real.norm_eq_abs, abs_sub_comm] at h
+    have habs : |u - v| = v - u := by
+      rw [abs_of_nonpos (sub_nonpos.mpr huv)]
+      ring
+    rw [habs]
     simpa only [C] using h
   · have hCont : ContinuousOn (extendedGaussianPartition q) (Icc v u) := by
       intro x _
@@ -96,8 +98,7 @@ theorem abs_extendedGaussianPartition_sub_le_on_Icc
         HasDerivWithinAt (extendedGaussianPartition q)
           (extendedGaussianFirstNumerator q x) (Ici x) x := by
       intro x _
-      exact (hasDerivAt_extendedGaussianPartition q x q_pos).hasDerivWithinAt.mono
-        inter_subset_right
+      exact (hasDerivAt_extendedGaussianPartition q x q_pos).hasDerivWithinAt
     have hBound : ∀ x ∈ Ico v u,
         ‖extendedGaussianFirstNumerator q x‖ ≤ C := by
       intro x hx
@@ -106,8 +107,10 @@ theorem abs_extendedGaussianPartition_sub_le_on_Icc
         hx.2.le.trans hu.2⟩
     have h := norm_image_sub_le_of_norm_deriv_right_le_segment
       hCont hDeriv hBound u (right_mem_Icc.mpr hvu)
-    rw [Real.norm_eq_abs,
-      abs_of_nonneg (sub_nonneg.mpr hvu)] at h
+    rw [Real.norm_eq_abs] at h
+    have habs : |u - v| = u - v := by
+      rw [abs_of_nonneg (sub_nonneg.mpr hvu)]
+    rw [habs]
     simpa only [C] using h
 
 /-- The limiting log-partition inherits the same Lipschitz bound because the
@@ -155,8 +158,9 @@ theorem tendstoUniformlyOn_finiteUnrestrictedDeficitEntropy
     tendstoUniformlyOn_profileDeficitPartition M
   have hTiltUniform :=
     tendstoUniformlyOn_profileDeficitTilt hAneg hAB
-  rw [Metric.tendstoUniformlyOn_iff] at
-    hPartitionUniform hTiltUniform ⊢
+  rw [Metric.tendstoUniformlyOn_iff] at hPartitionUniform
+  rw [Metric.tendstoUniformlyOn_iff] at hTiltUniform
+  rw [Metric.tendstoUniformlyOn_iff]
   intro epsilon hepsilon
   let scale : ℝ := 1 + C + Tbound
   have hscale : 0 < scale := by
