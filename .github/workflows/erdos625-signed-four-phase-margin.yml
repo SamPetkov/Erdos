@@ -69,7 +69,7 @@ jobs:
             signedFourPhaseTarget_mem_Ioo \
             log_200_div_153_lt_signedFourPhaseMargin \
             signedFourPhaseMargin_pos \
-            signedFourPhaseMargin_lt_q \
+            signedFourPhaseMargin_le_q \
             signedFourPhaseMargin_mem_Icc \
             abs_signedFourPhaseMargin_le_q \
             signedFourPhaseMargin_uniform_lower_pos; do

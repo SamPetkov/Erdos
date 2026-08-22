@@ -43,17 +43,32 @@ theorem phaseDelta_mem_Icc (n : ℕ) :
 /-- The phase target lies in the exact four-size mean domain. -/
 theorem signedFourPhaseTarget_mem_Ioo (n : ℕ) :
     signedFourPhaseTarget n ∈ Ioo (2 : ℝ) 5 := by
-  have h := uniform_limiting_four_entropy_certificate
-    (phaseDelta n) (phaseDelta_mem_Icc n)
-  simpa only [signedFourPhaseTarget] using h.1
+  have hq_lt_one : q < 1 := by
+    have h := Real.log_lt_sub_one_of_pos (by norm_num : (0 : ℝ) < 2)
+      (by norm_num : (2 : ℝ) ≠ 1)
+    norm_num [q] at h ⊢
+    exact h
+  have hq_gt_half : (1 / 2 : ℝ) < q := by
+    have h := Real.log_two_gt_d9
+    unfold q
+    norm_num at h ⊢
+    linarith
+  have htwo_div_q_lower : 2 < 2 / q := by
+    rw [lt_div_iff₀ q_pos]
+    linarith
+  have htwo_div_q_upper : 2 / q < 4 := by
+    rw [div_lt_iff₀ q_pos]
+    linarith
+  unfold signedFourPhaseTarget
+  constructor <;> linarith [phaseDelta_nonneg n, (phaseDelta_lt_one n).le]
 
-/-- The finite certificate gives the explicit uniform positive margin used in
-the manuscript. -/
+/-- The limiting certificate gives the explicit uniform positive margin used
+in the manuscript. -/
 theorem log_200_div_153_lt_signedFourPhaseMargin (n : ℕ) :
     Real.log ((200 : ℝ) / 153) < signedFourPhaseMargin n := by
-  have h := uniform_limiting_four_entropy_certificate
+  have h := uniform_limiting_entropy_certificate_for_delta
     (phaseDelta n) (phaseDelta_mem_Icc n)
-  simpa only [signedFourPhaseMargin, signedFourPhaseTarget] using h.2.2.2.2
+  simpa only [signedFourPhaseMargin, signedFourPhaseTarget] using h.2.2
 
 /-- The phase margin is strictly positive. -/
 theorem signedFourPhaseMargin_pos (n : ℕ) :
@@ -61,22 +76,21 @@ theorem signedFourPhaseMargin_pos (n : ℕ) :
   log_200_div_153_pos.trans
     (log_200_div_153_lt_signedFourPhaseMargin n)
 
-/-- Positivity of the entropy loss bounds the phase margin strictly below
-`q`. -/
-theorem signedFourPhaseMargin_lt_q (n : ℕ) :
-    signedFourPhaseMargin n < q := by
-  have h := uniform_limiting_four_entropy_certificate
+/-- Nonnegativity of the entropy loss bounds the phase margin above by `q`. -/
+theorem signedFourPhaseMargin_le_q (n : ℕ) :
+    signedFourPhaseMargin n ≤ q := by
+  have h := uniform_limiting_entropy_certificate_for_delta
     (phaseDelta n) (phaseDelta_mem_Icc n)
+  have hLoss : 0 ≤ fourEntropyLoss (signedFourPhaseTarget n) := by
+    simpa only [signedFourPhaseTarget] using h.1
   unfold signedFourPhaseMargin
-  have hLoss : 0 < fourEntropyLoss (signedFourPhaseTarget n) := by
-    simpa only [signedFourPhaseTarget] using h.2.1
   linarith
 
 /-- Closed uniform interval for the phase margin. -/
 theorem signedFourPhaseMargin_mem_Icc (n : ℕ) :
     signedFourPhaseMargin n ∈ Icc (0 : ℝ) q :=
   ⟨(signedFourPhaseMargin_pos n).le,
-    (signedFourPhaseMargin_lt_q n).le⟩
+    signedFourPhaseMargin_le_q n⟩
 
 /-- Absolute boundedness form used when multiplying a vanishing uniform error
 by the varying phase margin. -/
@@ -94,7 +108,7 @@ theorem signedFourPhaseMargin_uniform_lower_pos :
 #print axioms signedFourPhaseTarget_mem_Ioo
 #print axioms log_200_div_153_lt_signedFourPhaseMargin
 #print axioms signedFourPhaseMargin_pos
-#print axioms signedFourPhaseMargin_lt_q
+#print axioms signedFourPhaseMargin_le_q
 #print axioms signedFourPhaseMargin_mem_Icc
 #print axioms abs_signedFourPhaseMargin_le_q
 #print axioms signedFourPhaseMargin_uniform_lower_pos
