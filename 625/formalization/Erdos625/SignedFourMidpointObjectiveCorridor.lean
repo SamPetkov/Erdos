@@ -130,7 +130,7 @@ theorem value_at_rootCochromaticIndex_bounds
 
 /-- Manuscript-facing specialization to the signed finite four-size objective.
 The feasibility hypothesis is exactly what supplies continuity and
- differentiability throughout the root corridor. -/
+differentiability throughout the root corridor. -/
 theorem phaseSignedFourSizeObjective_at_rootCochromaticIndex_bounds
     (n : ℕ) (rCo rPlus slopeLower slopeUpper : ℝ)
     (hGap : 2 ≤ rPlus - rCo)
@@ -159,8 +159,8 @@ theorem phaseSignedFourSizeObjective_at_rootCochromaticIndex_bounds
     intro s hs
     have hsClosed : s ∈ Icc rCo rPlus := Ioo_subset_Icc_self hs
     exact (hasDerivAt_phaseSignedFourSizeObjective n
-      (hFeasible s hsClosed).1 (hFeasible s hsClosed).2).differentiableAt
-        .differentiableWithinAt
+      (hFeasible s hsClosed).1
+      (hFeasible s hsClosed).2).differentiableAt.differentiableWithinAt
   have hLower : ∀ s ∈ Ioo rCo rPlus,
       slopeLower ≤ deriv (phaseSignedFourSizeObjective n) s := by
     intro s hs
