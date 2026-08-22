@@ -49,13 +49,17 @@ theorem tendsto_finiteSignedFourMargin_sub_limiting_along_compactTarget
   have hAlong : ∀ᶠ n : ℕ in atTop,
       ∀ target' ∈ Icc A B,
         dist
-          (finiteSignedFourMargin (alpha n) target')
-          (q - fourEntropyLoss target') < epsilon :=
-    hAlpha hClose
-  filter_upwards [hAlong, hTarget] with n hn htarget
-  have hn' := hn (target n) htarget
+          (q - fourEntropyLoss target')
+          (finiteSignedFourMargin (alpha n) target') < epsilon :=
+    hAlpha.eventually hClose
+  have hBoth := hAlong.and hTarget
+  rcases eventually_atTop.1 hBoth with ⟨N, hN⟩
+  refine ⟨N, ?_⟩
+  intro n hn
+  rcases hN n hn with ⟨hnMargin, hnTarget⟩
+  have hn' := hnMargin (target n) hnTarget
   rw [Real.dist_eq] at hn' ⊢
-  simpa only [sub_zero] using hn'
+  simpa only [sub_zero, abs_sub_comm] using hn'
 
 /-- Absolute-value form of the moving-target convergence. -/
 theorem tendsto_abs_finiteSignedFourMargin_sub_limiting_along_compactTarget
