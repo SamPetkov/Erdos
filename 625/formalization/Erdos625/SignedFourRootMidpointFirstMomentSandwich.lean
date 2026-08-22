@@ -54,8 +54,13 @@ midpoint nonnegative. -/
 theorem rootCochromaticIndex_nonneg_of_left_nonneg_gap
     {rCo rPlus : ℝ} (hCo : 0 ≤ rCo) (hGap : 2 ≤ rPlus - rCo) :
     0 ≤ rootCochromaticIndex rCo rPlus := by
-  have hPlus : 0 ≤ rPlus := by linarith
-  exact rootCochromaticIndex_nonneg_of_nonneg_roots hCo hPlus
+  have hMid : 0 ≤ (rCo + rPlus) / 2 := by
+    linarith
+  have hCeilReal :
+      (0 : ℝ) ≤ ((Int.ceil ((rCo + rPlus) / 2) : ℤ) : ℝ) := by
+    linarith [Int.le_ceil ((rCo + rPlus) / 2)]
+  unfold rootCochromaticIndex
+  exact_mod_cast hCeilReal
 
 /-- Safe cast of the natural midpoint count back to the exact integer ceiling
 midpoint. -/
@@ -65,8 +70,12 @@ theorem signedFourRootMidpointPartCount_cast_eq
     (signedFourRootMidpointPartCount rCo rPlus n : ℝ) =
       ((rootCochromaticIndex (rCo n) (rPlus n) : ℤ) : ℝ) := by
   unfold signedFourRootMidpointPartCount
-  exact rootCochromaticIndex_toNat_cast
-    (rootCochromaticIndex_nonneg_of_left_nonneg_gap hCo hGap)
+  have hInt :
+      (((rootCochromaticIndex (rCo n) (rPlus n)).toNat : ℕ) : ℤ) =
+        rootCochromaticIndex (rCo n) (rPlus n) :=
+    Int.toNat_of_nonneg
+      (rootCochromaticIndex_nonneg_of_left_nonneg_gap hCo hGap)
+  exact_mod_cast hInt
 
 /-- Signed-objective bounds at the natural root-midpoint part count. -/
 theorem phaseSignedFourSizeObjective_at_rootMidpointPartCount_bounds
