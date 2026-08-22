@@ -1,3 +1,4 @@
+# Replays the explicit corridor after all stacked dependencies are warning-clean.
 name: Erdős 625 explicit midpoint target corridor
 
 on:
