@@ -243,7 +243,7 @@ theorem abs_finiteUnrestrictedEntropyError_le
               extendedGaussianTilt q target| :=
         abs_sub_comm _ _
       rw [abs_mul, hAbs]
-      ac_rfl
+      ring
 
 #print axioms abs_log_sub_log_le_abs_sub_of_one_le
 #print axioms abs_log_profileDeficitPartition_sub_log_extendedGaussianPartition_le
