@@ -174,10 +174,9 @@ theorem eventually_signedFour_leftRoot_nonneg
     unfold signedFourNaturalPartScale
     exact div_pos hnPos hlogPos
   unfold signedFourNormalizedRealPartCount at hnNorm
-  have hrPos : 0 < rCo n :=
-    (div_pos_iff.mp hnNorm).resolve_right
-      (not_lt_of_ge hPartPos.le)
-  exact hrPos.le
+  rcases div_pos_iff.mp hnNorm with h | h
+  · exact h.1.le
+  · exact (not_lt_of_ge hPartPos.le h.2).elim
 
 /-- A fixed positive lower coefficient inherited from the welded phase-margin
 certificate. -/
@@ -227,9 +226,11 @@ theorem eventually_two_le_signedFourRootGapUniformLower_mul_scale :
   have hOne :
       (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop]
         signedFourNaturalRootGapScale := by
-    simpa only [signedFourNaturalRootGapScale, logOrder] using
-      one_isLittleO_gapScale
-  have hBound := hOne.bound (hc / 2) (div_pos hc (by norm_num))
+    change (fun _n : ℕ ↦ (1 : ℝ)) =o[atTop]
+      (fun n : ℕ ↦ (n : ℝ) / (Real.log (n : ℝ)) ^ 3)
+    exact one_isLittleO_gapScale
+  have hBound := hOne.bound
+    (div_pos hc (by norm_num : (0 : ℝ) < 2))
   filter_upwards [hBound, eventually_gt_atTop (1 : ℕ)] with n hnBound hn
   have hnPos : 0 < (n : ℝ) := by
     exact_mod_cast Nat.zero_lt_of_lt hn
