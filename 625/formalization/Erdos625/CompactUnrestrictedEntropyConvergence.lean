@@ -263,7 +263,6 @@ theorem tendstoUniformlyOn_finiteUnrestrictedDeficitEntropy
     _ = epsilon := by
       dsimp only [delta, scale]
       field_simp [hscale.ne']
-      ring
 
 #print axioms extendedGaussianPartitionLipschitzBound_pos
 #print axioms abs_extendedGaussianPartition_sub_le_on_Icc
