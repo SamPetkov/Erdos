@@ -467,8 +467,6 @@ theorem midpointMultiplicity_vertexMass
       (midpointDeficit n alpha K : Real) =
         (alpha : Real) * (K : Real) - (n : Real) := by
     unfold midpointDeficit
-    change ((alpha * K - n : Nat) : Real) =
-      (alpha : Real) * (K : Real) - (n : Real)
     rw [Nat.cast_sub hn, Nat.cast_mul]
   have hMassReal :
       ((∑ i : Fin 4,
