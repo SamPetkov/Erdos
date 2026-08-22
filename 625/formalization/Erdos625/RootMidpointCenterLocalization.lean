@@ -71,7 +71,7 @@ theorem signedFourNormalizedRootGap_isBigO_one
     _ ≤ |signedFourNormalizedRootGap rCo rPlus n -
             q ^ 2 / 4 * signedFourPhaseMargin n| +
           |q ^ 2 / 4 * signedFourPhaseMargin n| :=
-      abs_add _ _
+      abs_add_le _ _
     _ ≤ 1 + |q ^ 2 / 4| * q := add_le_add hn hMargin
 
 /-- The normalized root gap is therefore also `O(log log n)`. -/
@@ -129,10 +129,10 @@ theorem norm_signedFourNormalizedCenterDisplacement_rootMidpoint_le
         ring
       _ ≤ |(signedFourRootMidpointPartCount rCo rPlus n : ℝ) -
               rPlus n| + |rPlus n - phaseRootCenter n| :=
-        abs_add _ _
+        abs_add_le _ _
       _ ≤ |rPlus n - rCo n| / 2 +
             |rPlus n - phaseRootCenter n| :=
-        add_le_add_right hMidToRight _
+        add_le_add hMidToRight (le_refl _)
       _ = |rPlus n - phaseRootCenter n| +
             |rPlus n - rCo n| / 2 := by ring
   unfold signedFourNormalizedCenterDisplacement
@@ -151,7 +151,6 @@ theorem norm_signedFourNormalizedCenterDisplacement_rootMidpoint_le
         (|rPlus n - rCo n| /
           signedFourNaturalRootGapScale n) / 2 := by
       field_simp [hScalePos.ne']
-      ring
 
 /-- Right-root localization plus the normalized root-gap expansion gives the
 `O(log log n)` center localization required for the natural root midpoint. -/
