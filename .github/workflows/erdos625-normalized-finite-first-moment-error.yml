@@ -1,0 +1,84 @@
+name: Erdős 625 normalized finite first-moment error
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean"
+      - ".github/workflows/erdos625-normalized-finite-first-moment-error.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean; then
+            exit 1
+          fi
+      - id: lean_build
+        continue-on-error: true
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail Erdos625.SignedFourFirstMomentFiniteErrorAsymptotic
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Capture concise Lean diagnostics
+        if: steps.lean_build.outcome == 'failure'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build --wfail Erdos625.SignedFourFirstMomentFiniteErrorAsymptotic \
+            > lean-build.log 2>&1
+          status=$?
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses' \
+            lean-build.log > lean-errors.txt || true
+          tail -n 240 lean-build.log > lean-tail.txt
+          printf '%s\n' "$status" > lean-status.txt
+          cat lean-errors.txt
+      - name: Replay and audit theorem axioms
+        if: steps.lean_build.outcome == 'success'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          lake env lean Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean \
+            > lean-axioms.log 2>&1
+          cat lean-axioms.log
+          if grep -Fq 'sorryAx' lean-axioms.log; then
+            echo 'forbidden sorryAx dependency detected'
+            exit 1
+          fi
+          for declaration in \
+            signedFourFiniteFirstMomentErrorBound_isLittleO_of_logOrder \
+            midpointPartialSignedFirstMomentLogError_isLittleO_of_logOrder \
+            tendsto_midpointPartialSignedFirstMomentLogError_div_parts_zero; do
+            grep -Fq "$declaration" lean-axioms.log || {
+              echo "missing axiom report for $declaration"
+              exit 1
+            }
+          done
+      - name: Upload Lean diagnostics
+        if: always() && steps.lean_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: normalized-finite-first-moment-error-diagnostics
+          path: |
+            625/formalization/lean-build.log
+            625/formalization/lean-errors.txt
+            625/formalization/lean-tail.txt
+            625/formalization/lean-status.txt
+      - name: Stop after validation failure
+        if: steps.lean_build.outcome == 'failure'
+        run: exit 1
