@@ -156,6 +156,7 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
       (hMarginSlopeErr.const_mul (q ^ 2 / 4))
     convert h using 1
     · funext n
+      field_simp [q_ne_zero]
       ring
     · ring
   have hNumeratorErr : Tendsto
@@ -193,6 +194,7 @@ theorem tendsto_signedFourNormalizedMidpointCore_sub_margin_half
   convert h using 1
   · funext n
     unfold signedFourNormalizedMidpointCore
+    field_simp [q_ne_zero]
     ring
   · ring
 
@@ -278,6 +280,7 @@ theorem tendsto_signedFourMidpointUpper_div_parts_sub_margin_half
   have hCeiling := tendsto_signedFourSlope_div_parts_zero
     slope K hKPos hSlope hParts
   have h := hCore.add hCeiling
+  simp only [add_zero] at h
   refine h.congr' ?_
   filter_upwards with n
   ring
@@ -376,6 +379,7 @@ theorem tendsto_signedFourRootMidpointFirstMoment_div_parts_sub_margin_half
       rCo rPlus slopeLower slopeUpper hKPos hObjectiveBounds
       hSlopeLower hSlopeUpper hRootGap hParts
   have h := hFinite.add hObjective
+  simp only [add_zero] at h
   refine h.congr' ?_
   filter_upwards with n
   ring
