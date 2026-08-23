@@ -48,7 +48,7 @@ theorem tendsto_extendedGaussianTilt_of_target
       calc
         extendedGaussianMean q lower <
             extendedGaussianMean q (extendedGaussianTilt q target₀) :=
-          strictMono_extendedGaussianMean q_pos hlower
+          strictMono_extendedGaussianMean q q_pos hlower
         _ = target₀ :=
           extendedGaussianMean_extendedGaussianTilt q_pos htarget₀
     have hCompare : ∀ᶠ a in l,
@@ -58,7 +58,7 @@ theorem tendsto_extendedGaussianTilt_of_target
       htarget (Ioi_mem_nhds htarget₀)
     filter_upwards [hCompare, hInterior] with a ha hTa
     rw [← extendedGaussianMean_extendedGaussianTilt q_pos hTa] at ha
-    exact (strictMono_extendedGaussianMean q_pos).lt_iff_lt.mp ha
+    exact (strictMono_extendedGaussianMean q q_pos).lt_iff_lt.mp ha
   · intro upper hupper
     have hMeanUpper : target₀ < extendedGaussianMean q upper := by
       calc
@@ -66,7 +66,7 @@ theorem tendsto_extendedGaussianTilt_of_target
             extendedGaussianMean q (extendedGaussianTilt q target₀) :=
           (extendedGaussianMean_extendedGaussianTilt q_pos htarget₀).symm
         _ < extendedGaussianMean q upper :=
-          strictMono_extendedGaussianMean q_pos hupper
+          strictMono_extendedGaussianMean q q_pos hupper
     have hCompare : ∀ᶠ a in l,
         target a < extendedGaussianMean q upper :=
       (htarget.eventually_lt tendsto_const_nhds) hMeanUpper
@@ -74,7 +74,7 @@ theorem tendsto_extendedGaussianTilt_of_target
       htarget (Ioi_mem_nhds htarget₀)
     filter_upwards [hCompare, hInterior] with a ha hTa
     rw [← extendedGaussianMean_extendedGaussianTilt q_pos hTa] at ha
-    exact (strictMono_extendedGaussianMean q_pos).lt_iff_lt.mp ha
+    exact (strictMono_extendedGaussianMean q q_pos).lt_iff_lt.mp ha
 
 /-- The selected extended-Gaussian tilt is continuous at every target above
 its lower support endpoint. -/
@@ -214,18 +214,28 @@ theorem tendsto_fourEntropyLoss_sub_of_compact_targets
       atTop (𝓝 0) := by
   have hUniform := uniformContinuousOn_fourEntropyLoss_Icc hA hB
   rw [Metric.uniformContinuousOn_iff] at hUniform
-  refine Metric.tendsto_atTop.2 ?_
+  rw [Metric.tendsto_atTop]
   intro epsilon hepsilon
   obtain ⟨delta, hdelta, hControl⟩ := hUniform epsilon hepsilon
-  have hClose : ∀ᶠ n : ℕ in atTop,
-      dist (left n) (right n) < delta := by
-    have h := Metric.tendsto_atTop.1 hTargets delta hdelta
-    filter_upwards [h] with n hn
-    rw [Real.dist_eq, sub_zero] at hn
-    simpa only [Real.dist_eq] using hn
-  filter_upwards [hLeft, hRight, hClose] with n hnLeft hnRight hnClose
+  rw [eventually_atTop] at hLeft hRight
+  obtain ⟨NLeft, hNLeft⟩ := hLeft
+  obtain ⟨NRight, hNRight⟩ := hRight
+  rw [Metric.tendsto_atTop] at hTargets
+  obtain ⟨NTarget, hNTarget⟩ := hTargets delta hdelta
+  refine ⟨max NLeft (max NRight NTarget), ?_⟩
+  intro n hn
+  have hnLeftIndex : NLeft ≤ n := by omega
+  have hnRightIndex : NRight ≤ n := by omega
+  have hnTargetIndex : NTarget ≤ n := by omega
+  have hnLeft := hNLeft n hnLeftIndex
+  have hnRight := hNRight n hnRightIndex
+  have hnTarget := hNTarget n hnTargetIndex
+  have hnClose : dist (left n) (right n) < delta := by
+    rw [Real.dist_eq, sub_zero] at hnTarget
+    simpa only [Real.dist_eq] using hnTarget
   have hout := hControl hnLeft hnRight hnClose
-  rw [Real.dist_eq, sub_zero] at hout ⊢
+  rw [Real.dist_eq] at hout
+  rw [Real.dist_eq, sub_zero]
   exact hout
 
 /-- Target transport in the exact form consumed by the normalized root-gap
@@ -248,8 +258,13 @@ theorem tendsto_limitingMargin_sub_phaseMargin_of_target
     tendsto_fourEntropyLoss_sub_of_compact_targets
       hA hB target signedFourPhaseTarget
       hTarget hPhaseTarget hTargets
-  refine hLoss.neg.congr' ?_
-  filter_upwards with n
+  have hNeg : Tendsto
+      (fun n : ℕ ↦
+        -(fourEntropyLoss (target n) -
+          fourEntropyLoss (signedFourPhaseTarget n)))
+      atTop (𝓝 0) := by
+    simpa only [neg_zero] using hLoss.neg
+  refine hNeg.congr' (Filter.Eventually.of_forall fun n ↦ ?_)
   unfold signedFourPhaseMargin
   ring
 
