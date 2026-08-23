@@ -77,7 +77,6 @@ theorem signedFourNormalizedSecant_mul_gap_eq_right_mul_finiteMargin
       unfold signedFourNormalizedRootSecantSlope
         signedFourNormalizedRootGap signedFourNaturalRootGapScale
       field_simp [hnReal, hlog]
-      ring
     _ = (logOrder n / (n : ℝ)) *
         (rPlus n * finiteSignedFourMargin (phaseNat n)
           (fourSizeTarget n (phaseNat n) (rPlus n))) := by
@@ -88,7 +87,6 @@ theorem signedFourNormalizedSecant_mul_gap_eq_right_mul_finiteMargin
       unfold signedFourNormalizedRightRootPartCount
         signedFourNaturalPartScale
       field_simp [hnReal, hlog]
-      ring
 
 /-- Exact finite margin convergence to the phase margin can be assembled from
 compact-uniform finite-margin convergence and a separate limiting-target
