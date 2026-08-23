@@ -233,7 +233,7 @@ theorem tendsto_fourEntropyLoss_sub_of_compact_targets
   have hnClose : dist (left n) (right n) < delta := by
     rw [Real.dist_eq, sub_zero] at hnTarget
     simpa only [Real.dist_eq] using hnTarget
-  have hout := hControl hnLeft hnRight hnClose
+  have hout := hControl (left n) hnLeft (right n) hnRight hnClose
   rw [Real.dist_eq] at hout
   rw [Real.dist_eq, sub_zero]
   exact hout
