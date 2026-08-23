@@ -139,10 +139,23 @@ theorem tendsto_signedFourNormalizedRootSecantSlope_of_derivativeCorridor
     eventually_signedFourNormalizedRootSecantSlope_bounds
       rCo rPlus slopeLower slopeUpper
       hGap hFeasible hDerivLower hDerivUpper
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le
-    hSlopeLower hSlopeUpper
-    (hBounds.mono fun _ hn ↦ hn.1)
-    (hBounds.mono fun _ hn ↦ hn.2)
+  rw [Metric.tendsto_atTop] at hSlopeLower hSlopeUpper ⊢
+  intro epsilon hepsilon
+  obtain ⟨NLower, hNLower⟩ := hSlopeLower epsilon hepsilon
+  obtain ⟨NUpper, hNUpper⟩ := hSlopeUpper epsilon hepsilon
+  rw [eventually_atTop] at hBounds
+  obtain ⟨NBounds, hNBounds⟩ := hBounds
+  refine ⟨max NLower (max NUpper NBounds), ?_⟩
+  intro n hn
+  have hLowerClose := hNLower n (by omega)
+  have hUpperClose := hNUpper n (by omega)
+  have hBand := hNBounds n (by omega)
+  rw [Real.dist_eq] at hLowerClose hUpperClose ⊢
+  rw [abs_lt] at hLowerClose hUpperClose ⊢
+  constructor <;>
+    linarith [hBand.1, hBand.2,
+      hLowerClose.1, hLowerClose.2,
+      hUpperClose.1, hUpperClose.2]
 
 /-- Root-gap wrapper with the secant asymptotic discharged internally from the
 finite derivative corridor and its lower/upper normalized limits. -/
@@ -197,7 +210,7 @@ theorem
     filter_upwards [hFeasible, hGap] with n hnFeasible hnGap
     exact
       (hnFeasible (rPlus n)
-        (right_mem_Icc.mpr hnGap.le)).1.ne'
+        (right_mem_Icc.mpr (sub_nonneg.mp hnGap.le))).1.ne'
   exact
     tendsto_signedFourNormalizedRootGap_sub_phaseMargin_of_target_and_secant
       hA hAB hB rCo rPlus hPhase hTarget hPhaseTarget
