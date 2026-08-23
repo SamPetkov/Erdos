@@ -68,12 +68,27 @@ theorem signedFourNormalizedSecant_mul_gap_eq_right_mul_finiteMargin
     exact_mod_cast (Nat.zero_lt_of_lt hn).ne'
   have hlog : logOrder n ≠ 0 :=
     (Real.log_pos (by exact_mod_cast hn)).ne'
-  unfold signedFourNormalizedRootSecantSlope
-    signedFourNormalizedRootGap
-    signedFourNormalizedRightRootPartCount
-    signedFourNaturalRootGapScale signedFourNaturalPartScale
-  field_simp [hnReal, hlog]
-  linear_combination (logOrder n) * hExact
+  calc
+    signedFourNormalizedRootSecantSlope rCo rPlus n *
+        signedFourNormalizedRootGap rCo rPlus n =
+      (logOrder n / (n : ℝ)) *
+        (phaseSignedFourRootSecantSlope n (rCo n) (rPlus n) *
+          (rPlus n - rCo n)) := by
+      unfold signedFourNormalizedRootSecantSlope
+        signedFourNormalizedRootGap signedFourNaturalRootGapScale
+      field_simp [hnReal, hlog]
+      ring
+    _ = (logOrder n / (n : ℝ)) *
+        (rPlus n * finiteSignedFourMargin (phaseNat n)
+          (fourSizeTarget n (phaseNat n) (rPlus n))) := by
+      rw [hExact]
+    _ = signedFourNormalizedRightRootPartCount rPlus n *
+        finiteSignedFourMargin (phaseNat n)
+          (fourSizeTarget n (phaseNat n) (rPlus n)) := by
+      unfold signedFourNormalizedRightRootPartCount
+        signedFourNaturalPartScale
+      field_simp [hnReal, hlog]
+      ring
 
 /-- Exact finite margin convergence to the phase margin can be assembled from
 compact-uniform finite-margin convergence and a separate limiting-target
@@ -189,9 +204,19 @@ theorem tendsto_signedFourNormalizedRootGap_sub_phaseMargin_of_secant
       signedFourNormalizedRootGap rCo rPlus n =
         coeff n * finiteSignedFourMargin (phaseNat n)
           (fourSizeTarget n (phaseNat n) (rPlus n)) := by
-    unfold coeff
-    apply (eq_mul_inv_iff_mul_eq₀ hnSecant).2
-    simpa only [mul_comm] using hExact.symm
+    calc
+      signedFourNormalizedRootGap rCo rPlus n =
+          (signedFourNormalizedRightRootPartCount rPlus n *
+            finiteSignedFourMargin (phaseNat n)
+              (fourSizeTarget n (phaseNat n) (rPlus n))) /
+            signedFourNormalizedRootSecantSlope rCo rPlus n := by
+        apply (eq_div_iff hnSecant).2
+        simpa only [mul_comm] using hExact
+      _ = coeff n * finiteSignedFourMargin (phaseNat n)
+          (fourSizeTarget n (phaseNat n) (rPlus n)) := by
+        dsimp only [coeff]
+        rw [div_eq_mul_inv]
+        ring
   rw [hSolved]
 
 /-- Manuscript-facing root-gap wrapper: compact finite-margin convergence is
