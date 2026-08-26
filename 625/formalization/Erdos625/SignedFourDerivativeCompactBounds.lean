@@ -42,6 +42,10 @@ interior target. -/
 theorem ProfileEntropyS4.continuousAt_tilt_fixed_score
     (g : Fin 4 → ℝ) {T : ℝ} (hT : T ∈ Ioo (2 : ℝ) 5) :
     ContinuousAt (fun T' ↦ ProfileEntropyS4.tilt g T') T := by
+  change Tendsto
+    (fun T' ↦ ProfileEntropyS4.tilt g T')
+    (𝓝 T)
+    (𝓝 (ProfileEntropyS4.tilt g T))
   simpa only [id_eq] using
     (ProfileEntropyS4.tendsto_tilt_of_scores_and_target
       (h := fun _ : ℝ ↦ g) g (T' := id)
@@ -65,14 +69,23 @@ theorem continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor :
       (ProfileEntropyS4.optimizedValue fourGaussianScore)
       signedFourAdmissibilityTargetCorridor := by
   intro T hT
-  exact
-    (tendsto_fourGaussianOptimizedValue_of_target id tendsto_id
-      (signedFourAdmissibilityTargetCorridor_subset_Ioo hT)).continuousWithinAt
+  have hContinuousAt :
+      ContinuousAt
+        (ProfileEntropyS4.optimizedValue fourGaussianScore) T := by
+    change Tendsto
+      (ProfileEntropyS4.optimizedValue fourGaussianScore)
+      (𝓝 T)
+      (𝓝 (ProfileEntropyS4.optimizedValue fourGaussianScore T))
+    simpa only [id_eq] using
+      (tendsto_fourGaussianOptimizedValue_of_target id tendsto_id
+        (signedFourAdmissibilityTargetCorridor_subset_Ioo hT))
+  exact hContinuousAt.continuousWithinAt
 
-private theorem signedFourAdmissibilityTargetCorridor_nonempty :
+/-- The explicit compact manuscript target corridor is nonempty. -/
+theorem signedFourAdmissibilityTargetCorridor_nonempty :
     signedFourAdmissibilityTargetCorridor.Nonempty := by
   refine ⟨5 / 2, ?_⟩
-  simp [signedFourAdmissibilityTargetCorridor]
+  norm_num [signedFourAdmissibilityTargetCorridor]
 
 /-- The limiting selected tilt has one finite absolute bound on the fixed
 corridor. -/
@@ -84,13 +97,13 @@ theorem exists_uniform_abs_fourGaussianTilt_bound :
       (fun T ↦ |ProfileEntropyS4.tilt fourGaussianScore T|)
       signedFourAdmissibilityTargetCorridor :=
     continuousOn_fourGaussianTilt_admissibilityTargetCorridor.abs
-  obtain ⟨T₀, hT₀, hMax⟩ :=
+  obtain ⟨T₀, _hT₀, hMax⟩ :=
     signedFourAdmissibilityTargetCorridor_compact.exists_isMaxOn
       signedFourAdmissibilityTargetCorridor_nonempty hContinuous
   refine ⟨|ProfileEntropyS4.tilt fourGaussianScore T₀|,
     abs_nonneg _, ?_⟩
   intro T hT
-  exact hMax T hT
+  exact hMax hT
 
 /-- The limiting optimized value has one finite absolute bound on the fixed
 corridor. -/
@@ -102,13 +115,13 @@ theorem exists_uniform_abs_fourGaussianOptimizedValue_bound :
       (fun T ↦ |ProfileEntropyS4.optimizedValue fourGaussianScore T|)
       signedFourAdmissibilityTargetCorridor :=
     continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor.abs
-  obtain ⟨T₀, hT₀, hMax⟩ :=
+  obtain ⟨T₀, _hT₀, hMax⟩ :=
     signedFourAdmissibilityTargetCorridor_compact.exists_isMaxOn
       signedFourAdmissibilityTargetCorridor_nonempty hContinuous
   refine ⟨|ProfileEntropyS4.optimizedValue fourGaussianScore T₀|,
     abs_nonneg _, ?_⟩
   intro T hT
-  exact hMax T hT
+  exact hMax hT
 
 /-- Uniform score convergence transfers compact bounds for both the selected
 tilt and the logarithm of the finite partition function.  One threshold works
@@ -254,6 +267,7 @@ theorem
 #print axioms ProfileEntropyS4.continuousAt_tilt_fixed_score
 #print axioms continuousOn_fourGaussianTilt_admissibilityTargetCorridor
 #print axioms continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor
+#print axioms signedFourAdmissibilityTargetCorridor_nonempty
 #print axioms exists_uniform_abs_fourGaussianTilt_bound
 #print axioms exists_uniform_abs_fourGaussianOptimizedValue_bound
 #print axioms exists_eventually_uniform_fourDeficit_tilt_and_logPartition_bound
