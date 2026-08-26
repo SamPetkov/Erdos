@@ -61,7 +61,9 @@ theorem hasDerivAt_unrestrictedPhaseObjective_of_target_mem_admissibilityCorrido
         (phaseNat n)
         (profileDeficitTarget (phaseNat n) (n : ℝ) parts)).mp
         hDeficitInterior
-    convert h using 1 <;> ring
+    convert h using 1
+    unfold profileDeficitTarget
+    ring
   have hb : 2 ≤ phaseNat n + 1 := by omega
   change HasDerivAt
     (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
@@ -111,12 +113,14 @@ theorem existsUnique_unrestrictedPhaseRoot_of_center_and_deriv_lower
     have hsIcc : s ∈ Icc (s0 - Delta) (s0 + Delta) :=
       Ioo_subset_Icc_self hs
     have hsData := hfeasible s hsIcc
-    have hderiv :=
-      (hasDerivAt_unrestrictedPhaseObjective_of_target_mem_admissibilityCorridor
-        n hPhase hsData.1 hsData.2).neg
+    have hObjectiveDeriv :=
+      hasDerivAt_unrestrictedPhaseObjective_of_target_mem_admissibilityCorridor
+        n hPhase hsData.1 hsData.2
+    have hLower := hderivLower s hs
+    rw [hObjectiveDeriv.deriv] at hLower
     change deriv (-unrestrictedPhaseObjective n) s ≤ -D
-    rw [hderiv.deriv]
-    exact neg_le_neg (hderivLower s hs)
+    rw [hObjectiveDeriv.neg.deriv]
+    exact neg_le_neg hLower
   have hcenterPsi : |psi s0| ≤ E := by
     simpa [psi] using hcenter
   obtain ⟨r, hr, hunique⟩ :=
