@@ -1,10 +1,11 @@
-name: Erdős 625 signed four derivative compact bounds
+name: Erdős 625 concrete signed four derivative corridor
 
 on:
   pull_request:
     paths:
       - "625/formalization/Erdos625/SignedFourDerivativeMainReduction.lean"
       - "625/formalization/Erdos625/SignedFourDerivativeCompactBounds.lean"
+      - "625/formalization/Erdos625/SignedFourDerivativeCorridor.lean"
       - ".github/workflows/erdos625-signed-four-derivative-main-reduction.yml"
   workflow_dispatch:
 
@@ -22,7 +23,8 @@ jobs:
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
             625/formalization/Erdos625/SignedFourDerivativeMainReduction.lean \
-            625/formalization/Erdos625/SignedFourDerivativeCompactBounds.lean; then
+            625/formalization/Erdos625/SignedFourDerivativeCompactBounds.lean \
+            625/formalization/Erdos625/SignedFourDerivativeCorridor.lean; then
             exit 1
           fi
       - id: lean_build
@@ -32,7 +34,7 @@ jobs:
           lake-package-directory: 625/formalization
           auto-config: false
           build: true
-          build-args: --wfail Erdos625.SignedFourDerivativeCompactBounds
+          build-args: --wfail Erdos625.SignedFourDerivativeCorridor
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
@@ -42,12 +44,12 @@ jobs:
         shell: bash
         run: |
           set +e
-          lake build --wfail Erdos625.SignedFourDerivativeCompactBounds \
+          lake build --wfail Erdos625.SignedFourDerivativeCorridor \
             > lean-build.log 2>&1
           status=$?
           grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses|unused variable|unexpected token' \
             lean-build.log > lean-errors.txt || true
-          tail -n 720 lean-build.log > lean-tail.txt
+          tail -n 900 lean-build.log > lean-tail.txt
           printf '%s\n' "$status" > lean-status.txt
           cat lean-errors.txt
       - name: Replay and audit theorem axioms
@@ -56,7 +58,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          lake env lean Erdos625/SignedFourDerivativeCompactBounds.lean \
+          lake env lean Erdos625/SignedFourDerivativeCorridor.lean \
             > lean-axioms.log 2>&1
           status=$?
           set -e
@@ -76,7 +78,19 @@ jobs:
             exists_uniform_abs_fourGaussianTilt_bound \
             exists_uniform_abs_fourGaussianOptimizedValue_bound \
             exists_eventually_uniform_fourDeficit_tilt_and_logPartition_bound \
-            exists_eventually_uniform_phaseFourDeficit_tilt_and_logPartition_bound; do
+            exists_eventually_uniform_phaseFourDeficit_tilt_and_logPartition_bound \
+            one_le_parts_and_parts_le_natCast_of_fourSizeTarget_mem_admissibilityCorridor \
+            abs_log_parts_le_logOrder_of_range \
+            factorialLogErrorBound_le_cast_add_four \
+            abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le_corridorRadius \
+            exists_eventually_uniform_signedFourDerivative_corridorRadius \
+            tendsto_phaseNat_cast_div_logOrder \
+            tendsto_signedFourNormalizedDerivativeQuadraticMain \
+            tendsto_signedFourNormalizedDerivativeCorridorRadius_zero \
+            tendsto_signedFourNormalizedDerivativeSlopeLower \
+            tendsto_signedFourNormalizedDerivativeSlopeUpper \
+            exists_signedFourDerivativeCorridor \
+            eventually_exp_certifiedRate_mul_parts_lt_signedFourRootMidpointFirstMoment_of_positiveGap_rootEquations_centerLocalization_and_compactFeasibility; do
             grep -Fq "$declaration" lean-axioms.log || {
               echo "missing axiom report for $declaration"
               exit 1
@@ -86,7 +100,7 @@ jobs:
         if: always() && steps.lean_build.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: signed-four-derivative-compact-bounds-diagnostics
+          name: signed-four-derivative-corridor-diagnostics
           path: |
             625/formalization/lean-build.log
             625/formalization/lean-errors.txt
