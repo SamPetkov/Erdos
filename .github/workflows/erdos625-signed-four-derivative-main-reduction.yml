@@ -57,11 +57,39 @@ jobs:
         working-directory: 625/formalization
         shell: bash
         run: |
+          cat > SignedFourDerivativeCorridorAxiomAudit.lean <<'EOF'
+          import Erdos625.SignedFourDerivativeCorridor
+
+          #print axioms Erdos625.signedFourSizeObjectiveDerivative_eq_quadraticMain_add_errors
+          #print axioms Erdos625.abs_signedFourDerivativeRemainder_le
+          #print axioms Erdos625.abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le
+          #print axioms Erdos625.ProfileEntropyS4.continuousAt_tilt_fixed_score
+          #print axioms Erdos625.continuousOn_fourGaussianTilt_admissibilityTargetCorridor
+          #print axioms Erdos625.continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor
+          #print axioms Erdos625.signedFourAdmissibilityTargetCorridor_nonempty
+          #print axioms Erdos625.exists_uniform_abs_fourGaussianTilt_bound
+          #print axioms Erdos625.exists_uniform_abs_fourGaussianOptimizedValue_bound
+          #print axioms Erdos625.exists_eventually_uniform_fourDeficit_tilt_and_logPartition_bound
+          #print axioms Erdos625.exists_eventually_uniform_phaseFourDeficit_tilt_and_logPartition_bound
+          #print axioms Erdos625.one_le_parts_and_parts_le_natCast_of_fourSizeTarget_mem_admissibilityCorridor
+          #print axioms Erdos625.abs_log_parts_le_logOrder_of_range
+          #print axioms Erdos625.factorialLogErrorBound_le_cast_add_four
+          #print axioms Erdos625.abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le_corridorRadius
+          #print axioms Erdos625.exists_eventually_uniform_signedFourDerivative_corridorRadius
+          #print axioms Erdos625.tendsto_phaseNat_cast_div_logOrder
+          #print axioms Erdos625.tendsto_signedFourNormalizedDerivativeQuadraticMain
+          #print axioms Erdos625.tendsto_signedFourNormalizedDerivativeCorridorRadius_zero
+          #print axioms Erdos625.tendsto_signedFourNormalizedDerivativeSlopeLower
+          #print axioms Erdos625.tendsto_signedFourNormalizedDerivativeSlopeUpper
+          #print axioms Erdos625.exists_signedFourDerivativeCorridor
+          #print axioms Erdos625.eventually_exp_certifiedRate_mul_parts_lt_signedFourRootMidpointFirstMoment_of_positiveGap_rootEquations_centerLocalization_and_compactFeasibility
+          EOF
           set +e
-          lake env lean Erdos625/SignedFourDerivativeCorridor.lean \
+          lake env lean SignedFourDerivativeCorridorAxiomAudit.lean \
             > lean-axioms.log 2>&1
           status=$?
           set -e
+          rm -f SignedFourDerivativeCorridorAxiomAudit.lean
           cat lean-axioms.log
           test "$status" -eq 0
           if grep -Fq 'sorryAx' lean-axioms.log; then
