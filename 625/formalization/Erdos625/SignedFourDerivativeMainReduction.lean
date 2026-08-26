@@ -64,17 +64,16 @@ private theorem abs_sub_sub_add_add_le
     (a b c d e : ℝ) :
     |a - b - c + d + e| ≤ |a| + |b| + |c| + |d| + |e| := by
   calc
-    |a - b - c + d + e| = |(((a + -b) + -c) + d) + e| := by ring
-    _ ≤ |((a + -b) + -c) + d| + |e| := abs_add_le _ _
-    _ ≤ (|(a + -b) + -c| + |d|) + |e| :=
+    |a - b - c + d + e| ≤ |a - b - c + d| + |e| :=
+      abs_add_le _ _
+    _ ≤ (|a - b - c| + |d|) + |e| :=
       add_le_add_right (abs_add_le _ _) _
-    _ ≤ ((|a + -b| + |-c|) + |d|) + |e| :=
-      add_le_add_right (add_le_add_right (abs_add_le _ _) _) _
-    _ ≤ (((|a| + |-b|) + |-c|) + |d|) + |e| :=
+    _ ≤ ((|a - b| + |c|) + |d|) + |e| :=
+      add_le_add_right (add_le_add_right (abs_sub _ _) _) _
+    _ ≤ (((|a| + |b|) + |c|) + |d|) + |e| :=
       add_le_add_right
-        (add_le_add_right (add_le_add_right (abs_add_le _ _) _) _) _
-    _ = |a| + |b| + |c| + |d| + |e| := by
-      simp only [abs_neg]
+        (add_le_add_right (add_le_add_right (abs_sub _ _) _) _) _
+    _ = |a| + |b| + |c| + |d| + |e| := rfl
 
 /-- Unconditional finite envelope for the lower-order derivative remainder. -/
 theorem abs_signedFourDerivativeRemainder_le
