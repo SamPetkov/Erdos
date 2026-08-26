@@ -65,17 +65,16 @@ private theorem abs_sub_sub_add_add_le
     |a - b - c + d + e| ≤ |a| + |b| + |c| + |d| + |e| := by
   calc
     |a - b - c + d + e| = |(((a + -b) + -c) + d) + e| := by ring
-    _ ≤ |((a + -b) + -c) + d| + |e| := abs_add _ _
+    _ ≤ |((a + -b) + -c) + d| + |e| := abs_add_le _ _
     _ ≤ (|(a + -b) + -c| + |d|) + |e| :=
-      add_le_add_right (abs_add _ _) _
+      add_le_add_right (abs_add_le _ _) _
     _ ≤ ((|a + -b| + |-c|) + |d|) + |e| :=
-      add_le_add_right (add_le_add_right (abs_add _ _) _) _
+      add_le_add_right (add_le_add_right (abs_add_le _ _) _) _
     _ ≤ (((|a| + |-b|) + |-c|) + |d|) + |e| :=
       add_le_add_right
-        (add_le_add_right (add_le_add_right (abs_add _ _) _) _) _
+        (add_le_add_right (add_le_add_right (abs_add_le _ _) _) _) _
     _ = |a| + |b| + |c| + |d| + |e| := by
       simp only [abs_neg]
-      ring
 
 /-- Unconditional finite envelope for the lower-order derivative remainder. -/
 theorem abs_signedFourDerivativeRemainder_le
@@ -97,7 +96,8 @@ theorem abs_signedFourDerivativeRemainder_le
       (ProfileEntropyS4.partition (fourDeficitScore alpha)
         (ProfileEntropyS4.tilt (fourDeficitScore alpha)
           (fourSizeTarget n alpha parts)))) q
-  simpa only [abs_mul, abs_of_nonneg (Nat.cast_nonneg alpha)] using h
+  have hAlphaNonneg : 0 ≤ (alpha : ℝ) := by positivity
+  simpa only [abs_mul, abs_of_nonneg hAlphaNonneg] using h
 
 /-- Finite quadratic-main bound for the signed four-size derivative. The first
 summand is the explicit factorial-log error; the remaining displayed terms are
@@ -133,7 +133,7 @@ theorem abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le
       |profileDeficitAffineA alpha +
           profileDeficitAffineB alpha * (alpha : ℝ) -
             (q / 2 * (alpha : ℝ) ^ 2 + (alpha : ℝ))| +
-        |signedFourDerivativeRemainder n alpha parts| := abs_add _ _
+        |signedFourDerivativeRemainder n alpha parts| := abs_add_le _ _
     _ ≤
       factorialLogErrorBound alpha +
         ((alpha : ℝ) + |Real.log parts| +
