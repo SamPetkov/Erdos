@@ -240,6 +240,11 @@ theorem
       |finiteUnrestrictedDeficitEntropy alpha T| ≤ Mentropy + 1 := by
     have hLimitBound := hEntropyLimit T hT
     rw [Real.dist_eq] at hEntropyAlpha
+    have hEntropyDifference :
+        |finiteUnrestrictedDeficitEntropy alpha T -
+            extendedGaussianEntropyValue T| < 1 := by
+      rw [abs_sub_comm]
+      exact hEntropyAlpha
     calc
       |finiteUnrestrictedDeficitEntropy alpha T| =
           |(finiteUnrestrictedDeficitEntropy alpha T -
@@ -251,7 +256,8 @@ theorem
           |finiteUnrestrictedDeficitEntropy alpha T -
             extendedGaussianEntropyValue T| +
           |extendedGaussianEntropyValue T| := abs_add_le _ _
-      _ ≤ Mentropy + 1 := by linarith
+      _ ≤ Mentropy + 1 := by
+        linarith [hEntropyDifference, hLimitBound]
   have hTargetAbs : |T| ≤ (9 / 2 : ℝ) := by
     have hT' := hT
     simp only [signedFourAdmissibilityTargetCorridor, mem_Icc] at hT'
@@ -341,7 +347,7 @@ theorem deriv_unrestrictedPhaseObjective_eq_expression
         (phaseNat n)
         (profileDeficitTarget (phaseNat n) (n : ℝ) parts)).mp
         hDeficitInterior
-    simpa only [profileDeficitTarget] using h
+    convert h using 1 <;> ring
   have hb : 2 ≤ phaseNat n + 1 := by omega
   change deriv
       (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
