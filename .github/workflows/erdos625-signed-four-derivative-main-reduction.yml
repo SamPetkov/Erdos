@@ -1,9 +1,10 @@
-name: Erdős 625 signed four derivative main reduction
+name: Erdős 625 signed four derivative compact bounds
 
 on:
   pull_request:
     paths:
       - "625/formalization/Erdos625/SignedFourDerivativeMainReduction.lean"
+      - "625/formalization/Erdos625/SignedFourDerivativeCompactBounds.lean"
       - ".github/workflows/erdos625-signed-four-derivative-main-reduction.yml"
   workflow_dispatch:
 
@@ -20,7 +21,8 @@ jobs:
         run: |
           if grep -nE \
             '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
-            625/formalization/Erdos625/SignedFourDerivativeMainReduction.lean; then
+            625/formalization/Erdos625/SignedFourDerivativeMainReduction.lean \
+            625/formalization/Erdos625/SignedFourDerivativeCompactBounds.lean; then
             exit 1
           fi
       - id: lean_build
@@ -30,7 +32,7 @@ jobs:
           lake-package-directory: 625/formalization
           auto-config: false
           build: true
-          build-args: --wfail Erdos625.SignedFourDerivativeMainReduction
+          build-args: --wfail Erdos625.SignedFourDerivativeCompactBounds
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
@@ -40,12 +42,12 @@ jobs:
         shell: bash
         run: |
           set +e
-          lake build --wfail Erdos625.SignedFourDerivativeMainReduction \
+          lake build --wfail Erdos625.SignedFourDerivativeCompactBounds \
             > lean-build.log 2>&1
           status=$?
-          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses|unused variable' \
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses|unused variable|unexpected token' \
             lean-build.log > lean-errors.txt || true
-          tail -n 620 lean-build.log > lean-tail.txt
+          tail -n 720 lean-build.log > lean-tail.txt
           printf '%s\n' "$status" > lean-status.txt
           cat lean-errors.txt
       - name: Replay and audit theorem axioms
@@ -54,7 +56,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          lake env lean Erdos625/SignedFourDerivativeMainReduction.lean \
+          lake env lean Erdos625/SignedFourDerivativeCompactBounds.lean \
             > lean-axioms.log 2>&1
           status=$?
           set -e
@@ -67,7 +69,14 @@ jobs:
           for declaration in \
             signedFourSizeObjectiveDerivative_eq_quadraticMain_add_errors \
             abs_signedFourDerivativeRemainder_le \
-            abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le; do
+            abs_signedFourSizeObjectiveDerivative_sub_quadraticMain_le \
+            ProfileEntropyS4.continuousAt_tilt_fixed_score \
+            continuousOn_fourGaussianTilt_admissibilityTargetCorridor \
+            continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor \
+            exists_uniform_abs_fourGaussianTilt_bound \
+            exists_uniform_abs_fourGaussianOptimizedValue_bound \
+            exists_eventually_uniform_fourDeficit_tilt_and_logPartition_bound \
+            exists_eventually_uniform_phaseFourDeficit_tilt_and_logPartition_bound; do
             grep -Fq "$declaration" lean-axioms.log || {
               echo "missing axiom report for $declaration"
               exit 1
@@ -77,7 +86,7 @@ jobs:
         if: always() && steps.lean_build.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: signed-four-derivative-main-reduction-diagnostics
+          name: signed-four-derivative-compact-bounds-diagnostics
           path: |
             625/formalization/lean-build.log
             625/formalization/lean-errors.txt
