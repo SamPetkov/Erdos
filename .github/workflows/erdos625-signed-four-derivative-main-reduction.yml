@@ -75,6 +75,7 @@ jobs:
             ProfileEntropyS4.continuousAt_tilt_fixed_score \
             continuousOn_fourGaussianTilt_admissibilityTargetCorridor \
             continuousOn_fourGaussianOptimizedValue_admissibilityTargetCorridor \
+            signedFourAdmissibilityTargetCorridor_nonempty \
             exists_uniform_abs_fourGaussianTilt_bound \
             exists_uniform_abs_fourGaussianOptimizedValue_bound \
             exists_eventually_uniform_fourDeficit_tilt_and_logPartition_bound \
