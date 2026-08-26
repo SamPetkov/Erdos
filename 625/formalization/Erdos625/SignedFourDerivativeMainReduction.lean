@@ -70,9 +70,8 @@ private theorem abs_sub_sub_add_add_le
       add_le_add_right (abs_add_le _ _) _
     _ ≤ ((|a - b| + |c|) + |d|) + |e| :=
       add_le_add_right (add_le_add_right (abs_sub _ _) _) _
-    _ ≤ (((|a| + |b|) + |c|) + |d|) + |e| :=
-      add_le_add_right
-        (add_le_add_right (add_le_add_right (abs_sub _ _) _) _) _
+    _ ≤ (((|a| + |b|) + |c|) + |d|) + |e| := by
+      linarith [abs_sub a b]
     _ = |a| + |b| + |c| + |d| + |e| := rfl
 
 /-- Unconditional finite envelope for the lower-order derivative remainder. -/
