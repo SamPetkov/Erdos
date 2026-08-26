@@ -276,7 +276,6 @@ theorem tendsto_signedFourNormalizedDerivativeCorridorRadius_zero
     (Real.log_pos (by exact_mod_cast hn)).ne'
   unfold signedFourNormalizedSlope signedFourDerivativeCorridorRadius
   field_simp [hlog]
-  ring
 
 /-- Both explicit derivative corridor slopes have the required normalized
 limit. -/
