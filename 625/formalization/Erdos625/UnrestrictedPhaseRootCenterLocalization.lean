@@ -1,3 +1,4 @@
+import Erdos625.UnrestrictedRootTargetFromCenter
 import Erdos625.SignedFourMidpointTargetFromCenter
 import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.ColoringProfileDualOptimalValue
@@ -33,13 +34,6 @@ open scoped Topology
 noncomputable section
 
 set_option autoImplicit false
-
-/-- Displacement of an unrestricted root from the exact phase center,
-normalized by the manuscript root-gap scale. -/
-noncomputable def signedFourNormalizedRightRootCenterDisplacement
-    (rPlus : ℕ → ℝ) (n : ℕ) : ℝ :=
-  (rPlus n - phaseRootCenter n) /
-    signedFourNaturalRootGapScale n
 
 /-- A derivative lower bound between a center and a root controls the absolute
 root displacement by the residual at the center.  The interval is written
