@@ -1,0 +1,106 @@
+name: Erdős 625 unrestricted root construction
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/UnrestrictedPhaseRootConstruction.lean"
+      - ".github/workflows/erdos625-unrestricted-root-construction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/UnrestrictedPhaseRootConstruction.lean; then
+            exit 1
+          fi
+      - id: lean_build
+        continue-on-error: true
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail Erdos625.UnrestrictedPhaseRootConstruction
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Capture concise Lean diagnostics
+        if: steps.lean_build.outcome == 'failure'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build --wfail Erdos625.UnrestrictedPhaseRootConstruction \
+            > lean-build.log 2>&1
+          status=$?
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses|unused variable|unexpected token|linarith failed|nlinarith failed' \
+            lean-build.log > lean-errors.txt || true
+          tail -n 1000 lean-build.log > lean-tail.txt
+          printf '%s\n' "$status" > lean-status.txt
+          cat lean-errors.txt
+      - name: Replay and audit theorem axioms
+        if: steps.lean_build.outcome == 'success'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          cat > UnrestrictedPhaseRootConstructionAxiomAudit.lean <<'EOF'
+          import Erdos625.UnrestrictedPhaseRootConstruction
+
+          #print axioms Erdos625.unrestrictedPhaseObjective_center_div_isLittleO_logOrder
+          #print axioms Erdos625.eventually_abs_unrestrictedPhaseObjective_center_le_envelope
+          #print axioms Erdos625.eventually_unrestrictedPhaseRootCenterEnvelope_lt_slopeLower_mul_radius
+          #print axioms Erdos625.eventually_existsUnique_unrestrictedPhaseRootData
+          #print axioms Erdos625.unrestrictedPhaseRoot_spec_of_exists
+          #print axioms Erdos625.eventually_unrestrictedPhaseRootData
+          #print axioms Erdos625.eventually_unrestrictedPhaseRoot_equation
+          #print axioms Erdos625.unrestrictedPhaseRoot_centerLocalization
+          EOF
+          set +e
+          lake env lean UnrestrictedPhaseRootConstructionAxiomAudit.lean \
+            > lean-axioms.log 2>&1
+          status=$?
+          set -e
+          rm -f UnrestrictedPhaseRootConstructionAxiomAudit.lean
+          cat lean-axioms.log
+          test "$status" -eq 0
+          if grep -Fq 'sorryAx' lean-axioms.log; then
+            echo 'forbidden sorryAx dependency detected'
+            exit 1
+          fi
+          for declaration in \
+            unrestrictedPhaseObjective_center_div_isLittleO_logOrder \
+            eventually_abs_unrestrictedPhaseObjective_center_le_envelope \
+            eventually_unrestrictedPhaseRootCenterEnvelope_lt_slopeLower_mul_radius \
+            eventually_existsUnique_unrestrictedPhaseRootData \
+            unrestrictedPhaseRoot_spec_of_exists \
+            eventually_unrestrictedPhaseRootData \
+            eventually_unrestrictedPhaseRoot_equation \
+            unrestrictedPhaseRoot_centerLocalization; do
+            grep -Fq "$declaration" lean-axioms.log || {
+              echo "missing axiom report for $declaration"
+              exit 1
+            }
+          done
+      - name: Upload Lean diagnostics
+        if: always() && steps.lean_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unrestricted-root-construction-diagnostics
+          path: |
+            625/formalization/lean-build.log
+            625/formalization/lean-errors.txt
+            625/formalization/lean-tail.txt
+            625/formalization/lean-status.txt
+      - name: Stop after validation failure
+        if: steps.lean_build.outcome == 'failure'
+        run: exit 1
