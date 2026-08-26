@@ -14,7 +14,7 @@ part count, and the standard phase range force
 `1 ≤ parts ≤ n`,
 
 so `|log parts| ≤ log n`.  The complete finite error is then bounded by one
-constant multiple of `log n`, whereas the quadratic main term is of order
+fixed multiple of `log n`, whereas the quadratic main term is of order
 `(log n)^2`.
 
 This module constructs explicit lower and upper slope sequences, proves that
