@@ -32,6 +32,12 @@ noncomputable section
 
 set_option autoImplicit false
 
+/-- A real unrestricted-root sequence, centered at the exact phase center and
+normalized by the manuscript root-gap scale `n/(log n)^3`. -/
+noncomputable def signedFourNormalizedRightRootCenterDisplacement
+    (rPlus : ℕ → ℝ) (n : ℕ) : ℝ :=
+  (rPlus n - phaseRootCenter n) / signedFourNaturalRootGapScale n
+
 /-- `O(log log n)` right-root displacement from the exact phase center implies
 the ordinary unrestricted-root part-count asymptotic. -/
 theorem
