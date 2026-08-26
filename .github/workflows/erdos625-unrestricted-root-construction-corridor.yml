@@ -58,6 +58,7 @@ jobs:
 
           #print axioms Erdos625.unrestrictedPhaseRootConstructionRadius_pos_and_feasible
           #print axioms Erdos625.eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible
+          #print axioms Erdos625.eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center
           EOF
           set +e
           lake env lean UnrestrictedPhaseRootConstructionCorridorAxiomAudit.lean \
@@ -73,7 +74,8 @@ jobs:
           fi
           for declaration in \
             unrestrictedPhaseRootConstructionRadius_pos_and_feasible \
-            eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible; do
+            eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible \
+            eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center; do
             grep -Fq "$declaration" lean-axioms.log || {
               echo "missing axiom report for $declaration"
               exit 1
