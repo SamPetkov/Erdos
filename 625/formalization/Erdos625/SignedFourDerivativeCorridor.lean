@@ -246,7 +246,6 @@ theorem tendsto_signedFourNormalizedDerivativeQuadraticMain :
   have h := (tendsto_phaseNat_cast_div_logOrder.pow 2).const_mul (q / 2)
   have hLimit : q / 2 * (2 / q) ^ 2 = 2 / q := by
     field_simp [q_ne_zero]
-    ring
   rw [hLimit] at h
   refine h.congr' ?_
   filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
@@ -254,7 +253,6 @@ theorem tendsto_signedFourNormalizedDerivativeQuadraticMain :
     (Real.log_pos (by exact_mod_cast hn)).ne'
   unfold signedFourNormalizedSlope signedFourDerivativeQuadraticMain
   field_simp [hlog]
-  ring
 
 /-- The normalized corridor radius vanishes. -/
 theorem tendsto_signedFourNormalizedDerivativeCorridorRadius_zero
@@ -266,8 +264,13 @@ theorem tendsto_signedFourNormalizedDerivativeCorridorRadius_zero
   have hInv : Tendsto (fun n : ℕ ↦ (logOrder n)⁻¹)
       atTop (𝓝 0) :=
     tendsto_logOrder_atTop.inv_tendsto_atTop
-  have h := hInv.const_mul (13 + 5 * C + |q|)
-  refine h.congr' ?_
+  have hScaled :
+      Tendsto
+        (fun n : ℕ ↦ (13 + 5 * C + |q|) * (logOrder n)⁻¹)
+        atTop (𝓝 0) := by
+    simpa only [mul_zero] using
+      hInv.const_mul (13 + 5 * C + |q|)
+  refine hScaled.congr' ?_
   filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
   have hlog : logOrder n ≠ 0 :=
     (Real.log_pos (by exact_mod_cast hn)).ne'
@@ -293,7 +296,6 @@ theorem tendsto_signedFourNormalizedDerivativeSlopeLower
   unfold signedFourNormalizedSlope signedFourDerivativeSlopeLower
     signedFourDerivativeQuadraticMain signedFourDerivativeCorridorRadius
   field_simp [hlog]
-  ring
 
 theorem tendsto_signedFourNormalizedDerivativeSlopeUpper
     (C : ℝ) :
@@ -311,7 +313,6 @@ theorem tendsto_signedFourNormalizedDerivativeSlopeUpper
   unfold signedFourNormalizedSlope signedFourDerivativeSlopeUpper
     signedFourDerivativeQuadraticMain signedFourDerivativeCorridorRadius
   field_simp [hlog]
-  ring
 
 /-- Concrete lower and upper derivative corridors, with matching normalized
 limits, valid uniformly throughout the compact manuscript target corridor. -/
@@ -344,7 +345,6 @@ theorem exists_signedFourDerivativeCorridor :
   have hAbs := hn parts hparts hTarget
   rw [abs_le] at hAbs
   unfold signedFourDerivativeSlopeLower signedFourDerivativeSlopeUpper
-    signedFourDerivativeQuadraticMain signedFourDerivativeCorridorRadius
   constructor <;> linarith [hAbs.1, hAbs.2]
 
 /-- E625-10 with the derivative corridor and both slope limits constructed
