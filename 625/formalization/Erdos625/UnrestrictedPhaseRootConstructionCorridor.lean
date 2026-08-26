@@ -82,6 +82,7 @@ theorem unrestrictedPhaseRootConstructionRadius_pos_and_feasible
       dsimp only [alpha] at hDenomPos
       simpa only [alpha] using hDenomPos)]
     have hMul := mul_lt_mul_of_pos_left hDenomGtOne hCenterPos
+    dsimp only [alpha] at hMul
     simpa only [one_mul] using hMul
   have hFracLower :
       (alpha - 5 / 2) / (10 * alpha) ≤ (1 / 10 : ℝ) := by
@@ -148,15 +149,21 @@ theorem unrestrictedPhaseRootConstructionRadius_pos_and_feasible
   have hOrderLeLowerMulS :
       (n : ℝ) ≤ (alpha - 5 / 2) * s := by
     have hScale := mul_le_mul_of_nonneg_left hs.1 hLowerCoefficient
-    exact hLeftProduct.trans (by
-      dsimp only [center] at hScale
-      exact hScale)
+    have hScale' :
+        (alpha - 5 / 2) *
+            (center - unrestrictedPhaseRootConstructionRadius n) ≤
+          (alpha - 5 / 2) * s := by
+      simpa only [center] using hScale
+    exact hLeftProduct.trans hScale'
   have hUpperMulSLeOrder :
       (alpha - 9 / 2) * s ≤ (n : ℝ) := by
     have hScale := mul_le_mul_of_nonneg_left hs.2 hUpperCoefficient
-    exact (by
-      dsimp only [center] at hScale
-      exact hScale).trans hRightProduct
+    have hScale' :
+        (alpha - 9 / 2) * s ≤
+          (alpha - 9 / 2) *
+            (center + unrestrictedPhaseRootConstructionRadius n) := by
+      simpa only [center] using hScale
+    exact hScale'.trans hRightProduct
   have hRatioUpper :
       (n : ℝ) / s ≤ alpha - 5 / 2 :=
     (div_le_iff₀ hsPos).2 hOrderLeLowerMulS
