@@ -47,13 +47,26 @@ corridor. -/
 noncomputable def unrestrictedPhaseRootCenterEnvelope (n : ℕ) : ℝ :=
   phaseRootCenter n * ((1 / (100 * q)) * logOrder n)
 
+private theorem unrestrictedPhaseRootCenterCoefficient_pos :
+    0 < (1 / (100 * q) : ℝ) := by
+  exact one_div_pos.mpr (mul_pos (by norm_num) q_pos)
+
+private theorem unrestrictedPhaseRootCenterEnvelope_nonneg
+    (n : ℕ) (hCenter : 0 ≤ phaseRootCenter n)
+    (hLog : 0 ≤ logOrder n) :
+    0 ≤ unrestrictedPhaseRootCenterEnvelope n := by
+  unfold unrestrictedPhaseRootCenterEnvelope
+  exact mul_nonneg hCenter
+    (mul_nonneg unrestrictedPhaseRootCenterCoefficient_pos.le hLog)
+
 /-- The exact unrestricted objective at the center is eventually bounded by
 the explicit construction envelope. -/
 theorem eventually_abs_unrestrictedPhaseObjective_center_le_envelope :
     ∀ᶠ n : ℕ in atTop,
       |unrestrictedPhaseObjective n (phaseRootCenter n)| ≤
         unrestrictedPhaseRootCenterEnvelope n := by
-  have hEpsilon : 0 < (1 / (100 * q) : ℝ) := by positivity
+  have hEpsilon : 0 < (1 / (100 * q) : ℝ) :=
+    unrestrictedPhaseRootCenterCoefficient_pos
   have hBound :=
     unrestrictedPhaseObjective_center_div_isLittleO_logOrder.bound hEpsilon
   filter_upwards [hBound, eventually_phaseRootCenter_pos,
@@ -117,22 +130,44 @@ theorem
         unrestrictedDerivativeSlopeLower C n := by
     unfold signedFourNormalizedSlope at hnSlope
     exact (lt_div_iff₀ hlogSqPos).mp hnSlope
+  have hPhaseDenomPos : 0 < 10 * (phaseNat n : ℝ) :=
+    mul_pos (by norm_num) hAlphaPos
+  have hRatio :
+      (1 / 40 : ℝ) ≤
+        logOrder n / (10 * (phaseNat n : ℝ)) := by
+    rw [le_div_iff₀ hPhaseDenomPos]
+    nlinarith [hnPhaseLog.2]
+  have hBaseNonneg :
+      0 ≤ phaseRootCenter n * logOrder n / q :=
+    div_nonneg (mul_nonneg hCenterPos.le hlogPos.le) q_pos.le
   have hGeometric :
       phaseRootCenter n * logOrder n / (40 * q) ≤
         ((1 / q) * (logOrder n) ^ 2) *
           unrestrictedPhaseRootConstructionRadius n := by
-    unfold unrestrictedPhaseRootConstructionRadius
-    field_simp [q_ne_zero, hAlphaPos.ne', hlogPos.ne']
-    nlinarith [hnPhaseLog.2, hCenterPos.le]
+    calc
+      phaseRootCenter n * logOrder n / (40 * q) =
+          (phaseRootCenter n * logOrder n / q) * (1 / 40) := by
+        field_simp [q_ne_zero] <;> ring
+      _ ≤ (phaseRootCenter n * logOrder n / q) *
+          (logOrder n / (10 * (phaseNat n : ℝ))) :=
+        mul_le_mul_of_nonneg_left hRatio hBaseNonneg
+      _ = ((1 / q) * (logOrder n) ^ 2) *
+          unrestrictedPhaseRootConstructionRadius n := by
+        unfold unrestrictedPhaseRootConstructionRadius
+        field_simp [q_ne_zero, hAlphaPos.ne'] <;> ring
   have hIntegrated :
       phaseRootCenter n * logOrder n / (40 * q) <
         unrestrictedDerivativeSlopeLower C n *
           unrestrictedPhaseRootConstructionRadius n := by
     exact hGeometric.trans_lt
       (mul_lt_mul_of_pos_right hSlopeMain hnConstruction.1)
+  have h100qPos : 0 < (100 : ℝ) * q :=
+    mul_pos (by norm_num) q_pos
+  have h40qPos : 0 < (40 : ℝ) * q :=
+    mul_pos (by norm_num) q_pos
   have hCoefficient :
       (1 / (100 * q) : ℝ) < 1 / (40 * q) := by
-    field_simp [q_ne_zero]
+    rw [div_lt_div_iff₀ h100qPos h40qPos]
     nlinarith [q_pos]
   have hBasePos : 0 < phaseRootCenter n * logOrder n :=
     mul_pos hCenterPos hlogPos
@@ -178,9 +213,9 @@ theorem eventually_existsUnique_unrestrictedPhaseRootData :
   have hlogPos : 0 < logOrder n :=
     Real.log_pos (by exact_mod_cast hnOne)
   have hEnvelopeNonneg :
-      0 ≤ unrestrictedPhaseRootCenterEnvelope n := by
-    unfold unrestrictedPhaseRootCenterEnvelope
-    positivity
+      0 ≤ unrestrictedPhaseRootCenterEnvelope n :=
+    unrestrictedPhaseRootCenterEnvelope_nonneg
+      n hCenterPos.le hlogPos.le
   have hProductPos :
       0 < unrestrictedDerivativeSlopeLower C n *
         unrestrictedPhaseRootConstructionRadius n :=
@@ -209,8 +244,9 @@ theorem eventually_existsUnique_unrestrictedPhaseRootData :
 
 /-- A total selected unrestricted root, with the phase center used only as a
 fallback outside the eventual construction range. -/
-noncomputable def unrestrictedPhaseRoot (n : ℕ) : ℝ :=
-  if h : ∃ r : ℝ, UnrestrictedPhaseRootData n r then
+noncomputable def unrestrictedPhaseRoot (n : ℕ) : ℝ := by
+  classical
+  exact if h : ∃ r : ℝ, UnrestrictedPhaseRootData n r then
     Classical.choose h
   else
     phaseRootCenter n
@@ -219,6 +255,7 @@ noncomputable def unrestrictedPhaseRoot (n : ℕ) : ℝ :=
 theorem unrestrictedPhaseRoot_spec_of_exists
     (n : ℕ) (h : ∃ r : ℝ, UnrestrictedPhaseRootData n r) :
     UnrestrictedPhaseRootData n (unrestrictedPhaseRoot n) := by
+  classical
   rw [unrestrictedPhaseRoot, dif_pos h]
   exact Classical.choose_spec h
 
