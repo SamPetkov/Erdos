@@ -40,7 +40,7 @@ theorem tendsto_phaseFiniteSignedFourMargin_sub_phaseMargin :
   have hTarget : ∀ᶠ n : ℕ in atTop,
       signedFourPhaseTarget n ∈ Icc (5 / 2 : ℝ) (9 / 2 : ℝ) :=
     Filter.Eventually.of_forall
-      signedFourPhaseTarget_mem_admissibilityCorridor_pointwise
+      signedFourPhaseTarget_mem_admissibilityTargetCorridor
   have hLimiting : Tendsto
       (fun n : ℕ ↦
         (q - fourEntropyLoss (signedFourPhaseTarget n)) -
@@ -73,7 +73,19 @@ theorem eventually_abs_phaseFiniteSignedFourMargin_le_q_add_one :
   filter_upwards [hClose] with n hn
   have hPhase := signedFourPhaseMargin_mem_Icc n
   rw [abs_le]
-  constructor <;> nlinarith [q_pos]
+  constructor
+  · have hFiniteLower :
+        (-1 : ℝ) <
+          finiteSignedFourMargin (phaseNat n) (signedFourPhaseTarget n) := by
+      linarith [hn.1, hPhase.1]
+    have hEnvelopeLower : -(q + 1) ≤ (-1 : ℝ) := by
+      linarith [q_pos]
+    exact hEnvelopeLower.trans hFiniteLower.le
+  · have hFiniteUpper :
+        finiteSignedFourMargin (phaseNat n) (signedFourPhaseTarget n) <
+          q + 1 := by
+      linarith [hn.2, hPhase.2]
+    exact hFiniteUpper.le
 
 /-- Exact finite signed objective at the phase center: unrestricted residual
 plus the phase-center part count times the finite signed margin. -/
@@ -245,9 +257,11 @@ theorem eventually_signedPhaseRootCenterEnvelope_lt_slopeLower_mul_radius
       (1 / (100 * q)) * logOrder n + (q + 1) =
           logOrder n / (100 * q) + (q + 1) := by ring
       _ < logOrder n / (100 * q) +
-          logOrder n / (100 * q) := add_lt_add_left hSmall _
+          logOrder n / (100 * q) := by
+        linarith [hSmall]
       _ = logOrder n / (50 * q) := by
         field_simp [q_ne_zero]
+        norm_num
       _ < logOrder n / (40 * q) := h50lt40
   calc
     signedPhaseRootCenterEnvelope n =
@@ -292,10 +306,19 @@ theorem eventually_existsUnique_signedPhaseRootData :
       hnPhase hnOne
   have hlogPos : 0 < logOrder n :=
     Real.log_pos (by exact_mod_cast hnOne)
+  have hCoefficientNonneg : 0 ≤ (1 / (100 * q) : ℝ) := by
+    exact (one_div_pos.mpr (mul_pos (by norm_num) q_pos)).le
+  have hUnrestrictedEnvelopeNonneg :
+      0 ≤ unrestrictedPhaseRootCenterEnvelope n := by
+    unfold unrestrictedPhaseRootCenterEnvelope
+    exact mul_nonneg hCenterPos.le
+      (mul_nonneg hCoefficientNonneg hlogPos.le)
+  have hQAddOneNonneg : 0 ≤ q + 1 := by
+    linarith [q_pos]
   have hEnvelopeNonneg : 0 ≤ signedPhaseRootCenterEnvelope n := by
     unfold signedPhaseRootCenterEnvelope
-      unrestrictedPhaseRootCenterEnvelope
-    positivity
+    exact add_nonneg hUnrestrictedEnvelopeNonneg
+      (mul_nonneg hCenterPos.le hQAddOneNonneg)
   have hProductPos :
       0 < signedFourDerivativeSlopeLower C n *
         unrestrictedPhaseRootConstructionRadius n :=
