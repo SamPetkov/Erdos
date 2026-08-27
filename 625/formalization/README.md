@@ -57,3 +57,12 @@ generator on every platform) is
 The proof sources contain no `sorry`, `admit`, project-defined axiom,
 `unsafe`, `native_decide`, or `implemented_by`. The final theorem's axiom
 audit reports only `propext`, `Classical.choice`, and `Quot.sound`.
+
+## Public cloud replay evidence
+
+The exact standalone file at source commit
+`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8` was independently replayed in a
+clean Aristotle cloud workspace. The complete merged stdout/stderr, exit code,
+source and toolchain revisions, file checksums, and audit report are preserved
+at immutable public commit `1eb0aeba305327d383496b912a1e6e1a8fa71947` in
+[`replay/aristotle-76792321-4b5f-4367-8885-d1470db80091`](https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091).

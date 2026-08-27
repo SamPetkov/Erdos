@@ -14,6 +14,7 @@
 
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
+\numberwithin{equation}{section}
 \setlength{\parindent}{1.45em}
 \setlength{\parskip}{0pt}
 \setlist[itemize]{leftmargin=2.05em,itemsep=0.12em,topsep=0.32em}
@@ -2181,8 +2182,13 @@ Therefore the exact \emph{marked} common-subprofile weight is
 
 \[
  D(\ell)=\frac{\prod_i\binom{k_i}{\ell_i}^2}
-                 {Y_\ell^{\mathrm{sgn}}}.                         \tag{7.3}
+                  {Y_\ell^{\mathrm{sgn}}}.                         \tag{7.3}
 \]
+
+The quantity $D(\ell)$ is the aggregate exposed incidence and local signed
+reward of the marked whole blocks. It is not the complete second-moment
+contribution conditional on those blocks: all unexposed local rewards and the
+residual cycle-space factor remain to be accounted for in Sections~8--9.
 
 Different marked choices need not be disjoint: an overlap containing several
 common blocks contributes to each corresponding marked choice. The sums below
@@ -2853,6 +2859,28 @@ whole classes. Instead, its weights provide a normalized one-sided reference
 measure for the endpoint-table comparison below. Every overlap matrix remains present
 and is represented exactly once by its canonical high-cell skeleton.
 
+The exact decomposition used across Sections~8--9 is summarized by the
+following diagram. The first arrow is a finite bijective extraction, while the
+second line separates the two factors that are bounded independently:
+\[
+\begin{gathered}
+  \text{full overlap matching }\Pi
+  \quad\longmapsto\quad
+  \left(
+    \underbrace{M,j,S}_{\text{canonical exposed high cells}},
+    \underbrace{\Pi_{\mathrm{res}}}_{\text{capped residual matching}}
+  \right)
+  \\
+  \Big\downarrow\ \text{sum the physical high-cell fiber and condition on the residual law}
+  \\
+  \underbrace{w_{\mathrm{hi}}(M,j)}_{\text{bare skeleton}}
+  \quad\times\quad
+  \underbrace{\mathcal A(M,j)}_{\text{residual attachment}}.
+\end{gathered}
+\]
+Thus the endpoint-table estimate pays only the bare-skeleton factor, and the
+matching-restriction estimate pays only the residual attachment.
+
 \subsection{All labeled realizations of a high skeleton}
 
 Let $U$ be the largest class size in the fixed four-size profile and put
@@ -3073,9 +3101,9 @@ Together with $\binom mh\le m^h$ and
   \label{eq:three-quarter-charge-v3}
 \end{equation}
 
-For the remainder of this section, let $q=i+2$. The map
-$i\mapsto q$ is a bijection from $\{0,1,2,3\}$ to the deficit labels
-$\{2,3,4,5\}$ used in Sections~5--7, with inverse $q\mapsto q-2$. Define
+For the remainder of this section, reindex the deficit labels by the bijection
+$i\mapsto d=i+2$ from $\{0,1,2,3\}$ to $\{2,3,4,5\}$, with inverse
+$d\mapsto d-2$. Define
 \[
   \kappa_i:=k_{i+2},
   \qquad
@@ -3703,6 +3731,12 @@ cardinality and of all local rewards gives the exact identity
   \sum_{F\in\mathcal C(M)}\Phi_F(r').
 \]
 
+This reward expansion is exact only on $\mathcal E(M,j)$, where every residual
+multiplicity is at most $R$. After multiplication by
+$\mathbf 1_{\mathcal E(M,j)}$, we may remove the indicator to obtain an upper
+bound for the nonnegative truncated expansion; no identity with the uncapped
+reward is used outside $\mathcal E(M,j)$.
+
 \begin{lemma}[Fixed even-set expansion]
 \label{lem:fixed-even-set-expansion-v3}
 For every $F\in\mathcal C(M)$,
@@ -3825,7 +3859,9 @@ for every residual cell outside $M$.
 
 \begin{proof}
 Fix a cell and write $\theta=\theta_{ab}$. If $\theta=0$, then
-$q_{ab}=0$, so the claim holds. Assume $\theta>0$. Since
+$q_{ab}=0$, so the claim holds. Assume $\theta>0$. If $R<3$, the
+higher-reward sum is empty, so $q_{ab}=\theta^2/2$ and the claim is immediate.
+We may therefore assume $R\ge3$. Since
 $0\le\Delta_x\le g(x)$, it is enough to bound
 \[
   a_x:=g(x)\frac{\theta^x}{x!},
@@ -3989,20 +4025,20 @@ bound. We now record their error terms in a form that can be consumed directly
 by the amplification theorem and by a theorem-facing formalization.
 
 First combine the three deterministic partial-diagonal errors from Section~7:
-\begin{equation*}
+\begin{equation}
   \varepsilon_n^{\mathrm{pd}}
   :=
   e^{\varepsilon_n^{\mathrm{empty}}}-1
   +\varepsilon_n^{\mathrm{central}}
   +\varepsilon_n^{\mathrm{full}}.
-  \tag{9.31}
-\end{equation*}
+  \label{eq:partial-diagonal-ledger-v3}
+\end{equation}
 Then $\varepsilon_n^{\mathrm{pd}}\to0$ uniformly in the phase, and the disjoint
 three-range assembly gives
-\begin{equation*}
+\begin{equation}
   \sum_rD(r)\le1+\varepsilon_n^{\mathrm{pd}}.
-  \tag{9.32}
-\end{equation*}
+  \label{eq:partial-diagonal-ledger-sum-v3}
+\end{equation}
 Here and below every sum has the finite combinatorial domain specified in its
 original definition.
 
@@ -4017,28 +4053,28 @@ This is the same $\tau_n^{\mathrm{end}}$ as in
 $\tau_n^{\mathrm{end}}\le1$. Since $Q_{ii}=1$ and each row has only three
 off-diagonal positions, \eqref{eq:endpoint-eta-v3} gives the explicit row
 bound
-\begin{equation*}
+\begin{equation}
   \sum_jQ_{ij}
   \le1+3\tau_n^{\mathrm{end}}.
-  \tag{9.33}
-\end{equation*}
+  \label{eq:explicit-endpoint-row-bound-v3}
+\end{equation}
 Indeed, for $i\ne j$ one has
 $Q_{ij}\le(\tau_n^{\mathrm{end}})^{d_{ij}}/d_{ij}!
 \le\tau_n^{\mathrm{end}}$.
 
 Repeating the two arithmetic--geometric-mean sums in the proof of
 Proposition~\ref{prop:endpoint-table-sum-v3}, now with the explicit constant in
-(9.33), gives
-\begin{equation*}
+\eqref{eq:explicit-endpoint-row-bound-v3}, gives
+\begin{equation}
   \sum_LW(L)
   \le
   (1+3\tau_n^{\mathrm{end}})^K
   (1+\varepsilon_n^{\mathrm{pd}}).
-  \tag{9.34}
-\end{equation*}
+  \label{eq:explicit-endpoint-table-sum-v3}
+\end{equation}
 Combining this with the one-charge deficit reduction
 \eqref{eq:coarse-realized-table-reduction-v3}, define
-\begin{equation*}
+\begin{equation}
 \begin{split}
   \Gamma_n^{\mathrm{skel}}
   :={}&
@@ -4046,17 +4082,17 @@ Combining this with the one-charge deficit reduction
   &+K\log\!\left(1+3\tau_n^{\mathrm{end}}\right)
   +\log\!\left(1+\varepsilon_n^{\mathrm{pd}}\right).
 \end{split}
-  \tag{9.35}
-\end{equation*}
+  \label{eq:explicit-skeleton-ledger-v3}
+\end{equation}
 With the notation $M=P$, the skeleton sum in
 \eqref{eq:exact-attachment-decomposition-v3} is precisely the
 $\operatorname{BareSkeletonSum}_n$ defined in Section~8. For all sufficiently
 large $n$,
-\begin{equation*}
+\begin{equation}
   \operatorname{BareSkeletonSum}_n
   \le e^{\Gamma_n^{\mathrm{skel}}}.
-  \tag{9.36}
-\end{equation*}
+  \label{eq:explicit-bare-skeleton-bound-v3}
+\end{equation}
 This inequality displays separately the unique ambient deficit charge, the
 off-diagonal endpoint-table charge, and the partial-diagonal reference mass.
 
@@ -4073,31 +4109,31 @@ The phase estimates from Section~8 imply
 \end{split}
 \]
 Consequently the deterministic normalized skeleton error
-\begin{equation*}
+\begin{equation}
   \varepsilon_n^{\mathrm{skel}}
   :=
   \frac{(\log n)^4}{n}\Gamma_n^{\mathrm{skel}}
   \longrightarrow0.
-  \tag{9.37}
-\end{equation*}
+  \label{eq:normalized-skeleton-error-v3}
+\end{equation}
 
 Let $C_{\mathrm{att}}$ be an absolute constant for which
 \eqref{eq:intrinsic-attachment-v3} holds, and put $q:=\log 2$. Define
-\begin{equation*}
+\begin{equation}
   \Gamma_n^{\mathrm{att}}
   :=
   \max\!\left\{
     C_{\mathrm{att}}U^2,
     \frac q2U2^{U/3}
   \right\}.
-  \tag{9.38}
-\end{equation*}
+  \label{eq:attachment-ledger-v3}
+\end{equation}
 Proposition~\ref{prop:uniform-residual-attachment-v3} implies the uniform
 bound
-\begin{equation*}
+\begin{equation}
   \mathcal A(M,j)\le e^{\Gamma_n^{\mathrm{att}}}
-  \tag{9.39}
-\end{equation*}
+  \label{eq:uniform-attachment-exponential-v3}
+\end{equation}
 for every feasible high skeleton. In the intrinsic regime this is precisely
 \eqref{eq:intrinsic-attachment-v3}. In the complementary regime,
 $m_0<2^{U/3}$ and
@@ -4123,18 +4159,18 @@ one has
   =o\!\left(\frac{n}{(\log n)^4}\right).
 \]
 Thus the deterministic normalized attachment error
-\begin{equation*}
+\begin{equation}
   \varepsilon_n^{\mathrm{att}}
   :=
   \frac{(\log n)^4}{n}\Gamma_n^{\mathrm{att}}
   \longrightarrow0.
-  \tag{9.40}
-\end{equation*}
+  \label{eq:normalized-attachment-error-v3}
+\end{equation}
 
 \begin{proposition}[Explicit normalized second-moment ledger]
 \label{prop:explicit-normalized-second-moment-ledger-v3}
 Define
-\begin{equation*}
+\begin{equation}
   \Lambda_n
   :=
   \Gamma_n^{\mathrm{skel}}+\Gamma_n^{\mathrm{att}}
@@ -4144,27 +4180,27 @@ Define
     +\varepsilon_n^{\mathrm{att}}
   \right)
   \frac{n}{(\log n)^4}.
-  \tag{9.41}
-\end{equation*}
+  \label{eq:explicit-lambda-ledger-v3}
+\end{equation}
 Then
 \[
   \Lambda_n=o\!\left(\frac{n}{(\log n)^4}\right)
 \]
 and
-\begin{equation*}
+\begin{equation}
   1
   \le
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le e^{\Lambda_n}.
-  \tag{9.42}
-\end{equation*}
+  \label{eq:explicit-second-moment-ledger-v3}
+\end{equation}
 \end{proposition}
 
 \begin{proof}
-Insert (9.39) into the exact decomposition
+Insert \eqref{eq:uniform-attachment-exponential-v3} into the exact decomposition
 \eqref{eq:exact-attachment-decomposition-v3}. Because all summands are
 nonnegative, the uniform attachment factor may be taken outside the finite
-skeleton sum. Equation (9.36) then gives
+skeleton sum. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
 \[
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
@@ -4174,8 +4210,9 @@ skeleton sum. Equation (9.36) then gives
   e^{\Gamma_n^{\mathrm{att}}+\Gamma_n^{\mathrm{skel}}}
   =e^{\Lambda_n}.
 \]
-The lower bound is the nonnegativity-of-variance inequality. Equations (9.37)
-and (9.40) give the stated order of $\Lambda_n$.
+The lower bound is the nonnegativity-of-variance inequality. Equations
+\eqref{eq:normalized-skeleton-error-v3} and
+\eqref{eq:normalized-attachment-error-v3} give the stated order of $\Lambda_n$.
 \end{proof}
 
 Thus the global second-moment exponent is not an unspecified new error. It is
@@ -4605,7 +4642,11 @@ pinned toolchain by running
 \texttt{lake env lean -DwarningAsError=true Erdos625SelfContained.lean}; Lean
 returned exit code zero. The final
 \texttt{\#print axioms Erdos625.erdos625} output lists exactly
-\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The
+complete merged standard-output and standard-error transcript, exit code,
+source and toolchain revisions, file checksums, and audit report are preserved
+at the immutable public replay commit
+\url{https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091}.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup

@@ -29,7 +29,8 @@ probability along the full sequence of integers.
 generated one-file proof [`Erdos625SelfContained.lean`](formalization/Erdos625SelfContained.lean).
 Both prove the same theorem and use the repository-pinned Lean/mathlib v4.31.0
 toolchain. See [`formalization/README.md`](formalization/README.md) for exact
-reproduction commands and the trust boundary.
+reproduction commands, the trust boundary, and the immutable cloud replay
+transcript.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These

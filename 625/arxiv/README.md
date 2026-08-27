@@ -20,6 +20,10 @@ On 2026-08-27 this exact file was replayed in a clean cloud environment under
 the pinned Lean/Mathlib v4.31.0 toolchain with
 `lake env lean -DwarningAsError=true Erdos625SelfContained.lean`; the command
 exited 0, and `#print axioms Erdos625.erdos625` reported exactly `propext`,
-`Classical.choice`, and `Quot.sound`.
+`Classical.choice`, and `Quot.sound`. The complete merged stdout/stderr,
+exit code, exact toolchain revisions, checksums, and audit report are preserved
+in the public replay bundle at immutable commit
+`1eb0aeba305327d383496b912a1e6e1a8fa71947`:
+<https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091>.
 `Erdos625_source.zip` contains the four files needed for submission:
 `main.tex`, `main.bbl`, `references.bib`, and this README.
