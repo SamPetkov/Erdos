@@ -147,14 +147,14 @@ theorem
     calc
       phaseRootCenter n * logOrder n / (40 * q) =
           (phaseRootCenter n * logOrder n / q) * (1 / 40) := by
-        field_simp [q_ne_zero] <;> ring
+        field_simp [q_ne_zero]
       _ ≤ (phaseRootCenter n * logOrder n / q) *
           (logOrder n / (10 * (phaseNat n : ℝ))) :=
         mul_le_mul_of_nonneg_left hRatio hBaseNonneg
       _ = ((1 / q) * (logOrder n) ^ 2) *
           unrestrictedPhaseRootConstructionRadius n := by
         unfold unrestrictedPhaseRootConstructionRadius
-        field_simp [q_ne_zero, hAlphaPos.ne'] <;> ring
+        field_simp [q_ne_zero, hAlphaPos.ne']
   have hIntegrated :
       phaseRootCenter n * logOrder n / (40 * q) <
         unrestrictedDerivativeSlopeLower C n *
