@@ -83,7 +83,7 @@ theorem unrestrictedPhaseRootConstructionRadius_pos_and_feasible
       simpa only [alpha] using hDenomPos)]
     have hMul := mul_lt_mul_of_pos_left hDenomGtOne hCenterPos
     dsimp only [alpha] at hMul
-    simpa only [one_mul] using hMul
+    simpa only [mul_one] using hMul
   have hFracLower :
       (alpha - 5 / 2) / (10 * alpha) ≤ (1 / 10 : ℝ) := by
     rw [div_le_iff₀ hDenomPos]
