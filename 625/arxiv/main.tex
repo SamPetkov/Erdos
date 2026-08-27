@@ -202,6 +202,33 @@ converts phase dependence into a full-sequence theorem.
 
 \subsection*{Guide to the argument}
 
+At the level of dependencies, the proof has the following shape:
+\[
+\begin{gathered}
+\text{phase-uniform roots}
+\longrightarrow
+\text{tangent-rounded signed midpoint}
+\longrightarrow
+\text{exact signed-overlap law}
+\\[-1pt]
+\Big\downarrow
+\\[-1pt]
+\text{partial diagonals}
+\;+\;
+\text{canonical high skeleton}
+\;+\;
+\text{residual attachments}
+\\[-1pt]
+\Big\downarrow
+\\[-1pt]
+\text{rare signed witness}
+\longrightarrow
+\text{amplification}
+\longrightarrow
+\text{full-sequence gap}.
+\end{gathered}
+\]
+
 The \emph{location step} identifies two continuous first-moment roots. The
 signed witness is placed at a tangent-rounded midpoint, retaining half of their
 leading separation while satisfying the exact profile conservation laws. The
@@ -1803,21 +1830,36 @@ $2\le i\le5$, and $\mathbf k:=(k_2,k_3,k_4,k_5)$.
 
 Indeed, \(\Delta k_2+\Delta k_3=-e_0\) and
 \(2\Delta k_2+3\Delta k_3=-e_1\). This enforces both constraints
-exactly, changes only \(O(1)\) counts, and preserves positivity by
-(5.15).  Put
+exactly and changes only \(O(1)\) counts.  Put
 \(\mathbf k^*=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^5\) and let
 \(\Delta^{\mathrm{tot}}=\mathbf k-\mathbf k^*\) be the total rounding
-and correction displacement.  It has bounded norm and satisfies both
-homogeneous constraint equations, because \(\mathbf k^*\) and
-\(\mathbf k\) obey the same two constraints.  Thus it is tangent to the
-feasible affine plane.  At the exact optimizer the linear term vanishes, while
-the Hessian of the entropy term is
-\(-\operatorname{diag}(1/k_i)\).  Hence
+and correction displacement.  There is a phase-independent constant
+$C_\Delta$ such that
+$\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$.  Moreover,
+$\Delta^{\mathrm{tot}}$ satisfies both homogeneous constraint equations,
+because $\mathbf k^*$ and $\mathbf k$ obey the same two constraints; thus it
+is tangent to the feasible affine plane.
+
+We also record why the whole rounding segment remains in the positive
+orthant. By (5.15), $k_i^*\ge c_pk_{\mathrm{co}}$, and hence, uniformly in
+$t\in[0,1]$ and in the phase,
+\[
+  k_i^*+t\Delta_i^{\mathrm{tot}}
+  \ge c_pk_{\mathrm{co}}-C_\Delta
+  \ge \frac{c_p}{2}k_{\mathrm{co}}
+\]
+for all sufficiently large $n$. In particular the correction preserves
+positivity. At the exact constrained optimizer the linear term in every
+tangent direction vanishes, while at a positive vector $x$ the Hessian of the
+entropy term is $-\operatorname{diag}(1/x_i)$. Its operator norm along the
+rounding segment is therefore at most $2/(c_pk_{\mathrm{co}})$. Taylor's
+formula with integral remainder gives
 
 \[
- L_{\mathbf k^*+\Delta^{\mathrm{tot}}}
- -L_{\mathbf k^*}
- =O\!\left(\sum_i\frac{(\Delta_i^{\mathrm{tot}})^2}{k_i^*}\right)
+ \left|L_{\mathbf k^*+\Delta^{\mathrm{tot}}}-L_{\mathbf k^*}\right|
+ \le \frac12\sup_{0\le t\le1}
+ \left\|\nabla^2L_{\mathbf k^*+t\Delta^{\mathrm{tot}}}\right\|_{\mathrm{op}}
+ \|\Delta^{\mathrm{tot}}\|_2^2
  =O(1/k_{\mathrm{co}}).
 \]
 
@@ -2232,6 +2274,22 @@ controls the full corner. For all sufficiently large \(n\), when
 \(n-m\le n/32\). They are exhaustive, so no inclusion--exclusion or
 boundary convention is hidden in the assembly.
 
+For reference, the proof assigns one tool and one target estimate to each
+range:
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.30\linewidth}p{0.30\linewidth}p{0.27\linewidth}@{}}
+\hline
+Selected-mass range & Controlling device & Contribution to (7.7) \\
+\hline
+$m\le\eta n$ & forward recurrence (7.4) & $1+o(1)$ \\
+$m>\eta n$, $n-m>n/32$ & rate function $\Phi_T$ & $o(1)$ \\
+$n-m\le n/32$ & reverse recurrence (7.6) & $o(1)$ \\
+\hline
+\end{tabular}
+\end{center}
+
 \begin{proof}
 
 
@@ -2376,7 +2434,39 @@ We use the uniform form of Stirling's estimate
 with the convention $0\log0=0$. Only a fixed number of factorials occur in
 the preceding identity, and every argument is at most $n$. Therefore the total
 remainder is $O(\!\log n)$ uniformly, including when some $\ell_i$ or
-$k_i-\ell_i$ is zero. Using $n=k_{\mathrm{co}}(\alpha-T)$ gives
+$k_i-\ell_i$ is zero.
+
+Here is the complete cancellation ledger. Put $K=k_{\mathrm{co}}$, so
+$k_i=Kp_i$, $\ell_i=Ky_i$, and $k_i-\ell_i=Kz_i$. The factorials involving
+the profile multiplicities contribute
+\[
+\begin{split}
+ &2\sum_i\log(k_i!)-\sum_i\log(\ell_i!)
+      -2\sum_i\log((k_i-\ell_i)!)\\
+ &\quad={}
+ K\!\left[
+  2\sum_i p_i\log p_i-\sum_i y_i\log y_i
+  -2\sum_i z_i\log z_i-Y+Y\log K
+ \right]+O(\!\log n).
+\end{split}
+\]
+Since $m=K(\alpha Y-I)=K\sum_i u_i y_i$, $n=K(\alpha-T)$, and
+$n-m=n\rho$, the two ambient factorials contribute
+\[
+ -\log(n!)+\log((n-m)!)
+ =n\rho\log\rho
+   +K\sum_i y_i\bigl(u_i-u_i\log n\bigr)+O(\!\log n).
+\]
+Finally, $\ell_\bullet=K\sum_i y_i$ and
+$b_\ell=K\sum_i y_i\binom{u_i}{2}$, so the class-size and sign terms are
+exactly
+\[
+ K\sum_i y_i\left[
+   \log(u_i!)+(\log 2)\binom{u_i}{2}-\log 2
+ \right].
+\]
+Adding these three displayed contributions and distributing
+$Y\log K=\sum_i y_i\log K$ gives
 \begin{equation*}
 \begin{split}
  \log D(\ell)={}&n\rho\log\rho\\
@@ -3457,7 +3547,15 @@ stubs realize the exposed pairs. Define
 \end{equation}
 Only the residual configuration matching is random in this expectation.
 
-The exact overlap decomposition is
+By itself, $w_{\mathrm{hi}}(M,j)$ is the aggregate weight of the partial
+matchings in $\mathfrak F(M,j)$; it is not the probability of the event that
+these and only these cells have the prescribed full multiplicities. The
+indicator $\mathbf 1_{\mathcal E(M,j)}$ in the residual expectation supplies
+the missing cap and no-return conditions.
+
+\begin{proposition}[Canonical exact overlap decomposition]
+\label{prop:canonical-exact-overlap-decomposition-v3}
+For every finite $n$ and every fixed signed profile,
 \begin{equation}
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   =
@@ -3465,16 +3563,46 @@ The exact overlap decomposition is
   \label{eq:exact-attachment-decomposition-v3}
 \end{equation}
 where the sum ranges over the finite family of feasible canonical high
-skeletons. To justify the word \emph{exact}, start with an overlap matrix $r$.
-Its cells above $\lfloor U/2\rfloor$ determine one and only one matching $M$
-and multiplicity vector $j$. Removing the exposed pairs leaves one residual
-matrix $r'$ satisfying $\mathcal E(M,j)$. Conversely, a feasible skeleton and
-a residual matching satisfying $\mathcal E(M,j)$ reconstruct one overlap
-matrix. The configuration-model cancellation proved in Section~8 factors its
-probability and exposed local reward into $w_{\mathrm{hi}}(M,j)$ times the
-residual law in \eqref{eq:residual-attachment-v3}; the remaining sign factor is
-exactly $2^{\beta(M\cup H_{\mathrm{res}})}$. Thus no overlap is omitted and no
-overlap is assigned to two skeletons.
+skeletons.
+\end{proposition}
+
+\begin{proof}
+Let $\Pi$ be a full bipartite configuration matching and let $r_{ab}(\Pi)$ be
+its cell counts. Define
+\[
+  M(\Pi):=\{(a,b):r_{ab}(\Pi)>R_0\},
+  \qquad
+  j_{ab}(\Pi):=r_{ab}(\Pi)\quad((a,b)\in M(\Pi)).
+\]
+The degree cap makes $M(\Pi)$ a matching. Let $S(\Pi)$ be the set of all stub
+pairs of $\Pi$ lying in cells of $M(\Pi)$, and put
+$\Pi_{\mathrm{res}}:=\Pi\setminus S(\Pi)$. Then
+\[
+  \Pi\longmapsto
+  \bigl(M(\Pi),j(\Pi),S(\Pi),\Pi_{\mathrm{res}}\bigr)
+\]
+takes values in the feasible skeletons, their physical fibers, and residual
+matchings satisfying $\mathcal E(M,j)$. It is injective because
+$\Pi=S(\Pi)\cup\Pi_{\mathrm{res}}$.
+
+Conversely, take a feasible $(M,j)$, an $S\in\mathfrak F(M,j)$, and a perfect
+matching of the unused stubs satisfying $\mathcal E(M,j)$. Their disjoint union
+is a full matching. The no-return condition leaves multiplicity $j_e>R_0$ in
+each $e\in M$, and the residual cap leaves every cell outside $M$ with
+multiplicity at most $R_0$. Thus its canonical high-cell data are exactly
+$(M,j)$, and this construction is the inverse of the displayed map.
+
+For each fixed $S$, the exposed-residual factorization
+\eqref{eq:exposed-residual-factorization-v3} contributes $(n)_J^{-1}$ and the
+residual configuration law. Summing over $S\in\mathfrak F(M,j)$ and including
+the exposed local rewards gives $w_{\mathrm{hi}}(M,j)$ by
+Proposition~\ref{prop:aggregate-high-weight-v3}. The unexposed local rewards
+and the remaining sign factor are exactly the integrand defining
+$\mathcal A(M,j)$, with support factor
+$2^{\beta(M\cup H_{\mathrm{res}})}$. The bijection therefore yields
+\eqref{eq:exact-attachment-decomposition-v3}, with neither omissions nor
+double counting.
+\end{proof}
 
 The case $m_0=0$ is complete without introducing cell activities. The residual
 matching is empty, every residual local factor is one, and
@@ -3749,10 +3877,26 @@ For sufficiently large $U$, one has $R\ge3$ and $g(R)=2^{\binom R2-1}$. Hence
 The two quadratic terms come respectively from the local reward $g(R)$ and
 from the factor $\theta^{R-2}$; the factorial term only improves the upper
 bound. Hence $Ra_R\le\theta^2$ for all sufficiently large $U$. It follows that
-$\lambda_{ab}\le2\theta^2$ in that range. For the finitely many remaining
-values of $U$, the quotient $q_{ab}/\theta^2$ is bounded on the compact interval
-$0\le\theta\le\mathrm e U^2 2^{-U/3}$, with limit $1/2$ at $\theta=0$.
-Enlarging the constant proves the lemma.
+$\lambda_{ab}\le2\theta^2$ in that range, and hence
+$q_{ab}\le(5/2)\theta^2$.
+
+For completeness, choose an integer $U_0$ beyond which the preceding two
+endpoint bounds hold. For $1\le U<U_0$, define
+\[
+ q_U(\theta):=\frac{\theta^2}{2}
+   +\sum_{x=3}^{\lfloor U/2\rfloor}
+      \Delta_x\frac{\theta^x}{x!},
+ \qquad
+ \Theta_U:=\mathrm e U^2 2^{-U/3},
+\]
+where an empty sum is zero. The quotient $q_U(\theta)/\theta^2$ extends
+continuously to $\theta=0$ with value $1/2$. Therefore
+\[
+ C_{\mathrm{small}}
+ :=\max_{1\le U<U_0}\ \max_{0\le\theta\le\Theta_U}
+     \frac{q_U(\theta)}{\theta^2}<\infty.
+\]
+Taking $C_0=\max\{5/2,C_{\mathrm{small}}\}$ proves the lemma for every $U$.
 \end{proof}
 
 Because $\theta_{ab}$ was defined for every pair, the cell intensities satisfy
@@ -4262,6 +4406,50 @@ Lemma~\ref{lemma-10.2-amplification-from-a-seed} give
  \le e^{-r_n}+\varepsilon_n\longrightarrow0.            \tag{10.13}
 \]
 
+\subsection{Uniformity dependency ledger}
+
+The final assembly uses the preceding estimates simultaneously over every
+admissible phase, integer profile, skeleton, and residual degree sequence. The
+following ledger records where that uniformity enters.
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.16}
+\begin{tabular}{@{}p{0.22\linewidth}p{0.69\linewidth}@{}}
+\hline
+Input & Uniform data passed to later sections \\
+\hline
+Phase and root package &
+$\delta\in[0,1]$ and $T\in K_*$; the inverse mean maps have
+$M'_{n,S}\ge v_*>0$, and $\omega_n^{\mathrm{root}}\to0$ is independent of
+the phase. \\
+Midpoint profile &
+$A_4(\delta)>\gamma_4$, $p_i\ge c_p$, and
+$\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$, with the same constants for
+all phases. \\
+Partial diagonals &
+The three disjoint mass ranges in the Section~7 roadmap cover every
+$0\le\ell_i\le k_i$, and $\varepsilon_n^{\mathrm{pd}}\to0$ uniformly. \\
+High skeletons &
+After one common threshold,
+$\alpha\ge(5/2)\log n$, $\rho_{16}\le1$, and
+$\tau_n^{\mathrm{end}}\le1$; hence
+$\Gamma_n^{\mathrm{skel}}=o(n/(\log n)^4)$ uniformly over feasible skeletons.
+\\
+Residual attachments &
+The cases $m_0=0$, $2^U\le m_0^3$, and $2^U>m_0^3$ are exhaustive, and one
+$\Gamma_n^{\mathrm{att}}=o(n/(\log n)^4)$ works for every residual degree
+sequence and skeleton. \\
+Amplification &
+The event $\mathcal E_n$ controls every leftover vertex set simultaneously;
+the constants and $\varepsilon_n$ in Lemma~10.2 are independent of
+$k_n$, $\Lambda_n$, and $r$. \\
+\hline
+\end{tabular}
+\end{center}
+Only finitely many eventuality thresholds occur in this ledger. Taking their
+maximum gives one deterministic, phase-independent threshold for the final
+argument.
+
 \section{Final assembly and the quantitative constant}
 \label{sec:final-assembly-v3}
 
@@ -4401,14 +4589,22 @@ chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.
 
 \section*{Formal verification}
-The exact theorem stated above is proved in Lean~4 by
-\texttt{Erdos625.erdos625 : Erdos625Statement}. The formalization uses the
-displayed constant
-\((\log 2)^2\log(200/153)/32\), the full sequence of natural numbers, and the
-finite uniform model of \(G(n,1/2)\). The modular project and a generated
-single-file proof are publicly available at
-\url{https://github.com/SamPetkov/Erdos/tree/main/625/formalization}; both use
-the pinned Lean and Mathlib version \texttt{v4.31.0}. The final axiom audit reports only
+An accompanying Lean~4 source formalization defines the finite uniform
+$G(n,1/2)$ model and contains the theorem
+\texttt{Erdos625.erdos625 : Erdos625Statement}. Its statement uses the
+displayed constant $(\log 2)^2\log(200/153)/32$ and quantifies along the full
+sequence of natural numbers. The modular project and its deterministic
+single-file closure are archived at the immutable repository commit
+\url{https://github.com/SamPetkov/Erdos/tree/86c4422f9b41c4ce50e7c920dc7349a9f07f24a8/625/formalization}
+with Lean and Mathlib pinned to \texttt{v4.31.0}. The generated file contains
+475 local modules, 86 external imports, and 88,563 logical lines; its SHA-256
+is \url{0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30}.
+The deterministic generator check establishes source closure. On 27 August
+2026, that exact file was also replayed in a clean cloud environment with the
+pinned toolchain by running
+\texttt{lake env lean -DwarningAsError=true Erdos625SelfContained.lean}; Lean
+returned exit code zero. The final
+\texttt{\#print axioms Erdos625.erdos625} output lists exactly
 \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
 
 \renewcommand{\bibsection}{\section*{References}}
