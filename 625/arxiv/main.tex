@@ -10,6 +10,7 @@
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
+\usepackage{fancyhdr}
 
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
@@ -20,6 +21,15 @@
 \setlength{\emergencystretch}{3em}
 \allowdisplaybreaks
 \providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Use unobtrusive outside folios without running heads: lower left on even
+% pages and lower right on odd pages.
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[LE,RO]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\footskip}{24pt}
 
 \newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
 \newcommand{\Exp}[1]{\mathbb{E}\!\left[#1\right]}
@@ -70,6 +80,7 @@ witness to a high-probability cocoloring.
 \end{abstract}
 
 \maketitle
+\thispagestyle{fancy}
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
@@ -136,12 +147,13 @@ related divergence to the nonconcentration of the chromatic number
 \citep{heckel-2024-question,steiner-2024}. Heckel subsequently proved a
 near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers \citep{heckel-2025-difference}. The unresolved part is
-precisely the exceptional phase. Our argument retains the signed first-moment
-idea and the rare-seed amplification from that work, but replaces the pairwise
-sign estimate by an exact overlap identity and uses one four-size profile that
-remains valid throughout the complete phase interval.
+precisely the exceptional phase. We retain the signed first-moment idea and
+rare-seed amplification from that work, but replace the pairwise sign estimate
+by an exact overlap identity. One four-size profile covers every phase; exact
+endpoint-table summation and residual cycle-space restriction make its second
+moment uniform.
 
-\subsection*{Main ideas}
+\subsection*{Contributions and main ideas}
 
 The proof has four reusable components.
 
@@ -149,8 +161,9 @@ The proof has four reusable components.
 \item \textbf{Uniform root separation.} We compare the ordinary coloring root
 with the signed cocoloring root supported on four consecutive class sizes. The
 finite support comparison is exact before passing to the limiting Gaussian
-dual, and the finite target is transported to the phase center through one
-uniform error. The resulting separation has order $n/(\log n)^3$.
+dual. We then compare the finite target with the phase-center target through
+one explicit, phase-uniform error. The resulting separation has order
+$n/(\log n)^3$.
 
 \item \textbf{Exact sign compatibility.} For two signed witnesses, the sum over
 all compatible sign assignments factors into local cell rewards and the size
@@ -159,9 +172,9 @@ identity has been extracted.
 
 \item \textbf{Large cells without chosen completions.} Cells above half the
 class-size cap form a matching. We sum the entire physical matching fiber,
-compare it with full containment, and pay the ambient falling-factorial loss
-once. The resulting reference weights are regrouped exactly by their endpoint
-tables.
+compare it with full containment, and apply the ambient falling-factorial
+bound once to the total deficit. The resulting reference weights are regrouped
+exactly by their endpoint tables.
 
 \item \textbf{Residual restriction and amplification.} After the large cells
 have been exposed, deletion outside their matching is injective on even
@@ -320,14 +333,16 @@ sizes and let $j_e$ be its realized multiplicity. Set
 Here $m_e$ is the full-containment multiplicity, $j_e$ is the realized
 multiplicity, and $h_e$ is the deficit. Highness implies $2h_e<m_e$.
 
-In the shifted four-size indexing used in Section~8, the endpoint sizes are
-$u_i=\alpha-2-i$ for $i\in\{0,1,2,3\}$, and
-$\kappa_i:=k_{i+2}$ is the number of available blocks of type $i$. For a block
-support $P$, the endpoint table $L(P)=(L_{ij})$ records how many support edges
-join types $i$ and $j$. A table is \emph{feasible} when its type-$i$ row sum
-and type-$j$ column sum are at most $\kappa_i$ and $\kappa_j$, respectively.
-Every block support has a feasible table, and every feasible table is attained
-by a block-slot matching.
+Section~8 uses the bijection $i\mapsto i+2$ from $\{0,1,2,3\}$ to the deficit
+labels $\{2,3,4,5\}$. For $i\in\{0,1,2,3\}$, define
+$u_i:=\alpha-(i+2)$ and $\kappa_i:=k_{i+2}$.
+Thus $u_i$ is the endpoint size and $\kappa_i$ is the number of available
+blocks corresponding to deficit label $i+2$. For a block support $P$, the
+endpoint table $L(P)=(L_{ij})$ records how many support edges join types $i$
+and $j$. A table is \emph{feasible} when its type-$i$ row sum and type-$j$
+column sum are at most $\kappa_i$ and $\kappa_j$, respectively. Every block
+support has a feasible table, and every feasible table is attained by a
+block-slot matching.
 
 \paragraph{Separation of accounts.}
 The \emph{bare high-skeleton weight} contains the incidence probability and
@@ -358,9 +373,9 @@ We use the following standard inequalities in their stated forms.
 \item
   For integers \(m\ge 1\), \[
    \log(m!)=m\log m-m+\frac12\log(2\pi m)+O(1/m).          \tag{1.2}
-  \] In particular, uniformly for \(m\ge 0\), with
-  \(0\log 0=0\), the last two terms may be replaced by
-  \(O(\log(m+1))\).
+  \] Consequently, with \(0\log 0=0\), one has
+  \(\log(m!)=m\log m-m+O(\log(m+1))\) uniformly for
+  \(m\in\mathbb N_0\), with an absolute implied constant.
 \item
   If a random variable \(Y\) is a function of \(r\)
   independent blocks and changing one block changes \(Y\) by at
@@ -563,9 +578,11 @@ Thus (2.2) holds with
 \end{split}
   \tag{2.7}
 \end{equation*}
-This function is continuous, hence bounded, on $[0,1]$. Choosing
-$C_{\mathrm{ph}}$ sufficiently large absorbs all displayed remainders into
-$\varepsilon_n^{\mathrm{ph}}$.
+This function is continuous, hence bounded, on $[0,1]$. The combined remainder
+in (2.5)--(2.7) has absolute value at most
+$C'(1+\ell^2)/L$ for an absolute $C'$. Taking
+$C_{\mathrm{ph}}\ge C'$ gives
+$|E_n(\delta)|\le\varepsilon_n^{\mathrm{ph}}$ in (2.2).
 
 For integers $1\le s<n$, the adjacent-size ratios are exact:
 \begin{equation*}
@@ -1614,8 +1631,9 @@ Since $L_{S_+}(n,r_+)=0$, the exact support-comparison identity (3.8) gives
 \end{equation*}
 This equality is finite and contains no limiting substitution.
 
-We now transport its target mean to the phase center. Define the deterministic
-target-displacement error
+We next compare the finite support loss at $T_+(n)$ with the limiting support
+loss at the phase-center target $T_0$. Define the deterministic target
+displacement
 \[
   \varepsilon_n^{\mathrm{target}}
   :=|T_+(n)-T_0|.
@@ -1744,9 +1762,12 @@ decomposition (3.10) then give
  \widehat\lambda_n:=B_n+\lambda_{n,\mathrm{def}}.          \tag{5.14}
 \]
 
-Thus \(\lambda_{n,\mathrm{def}}\) is the multiplier before the affine
-term \(B_ni\) is absorbed, while \(\widehat\lambda_n\) is the effective
-tilt in the limiting Gaussian coordinates.  (If a size-coordinate
+Since
+$e^{B_ni}e^{\lambda_{n,\mathrm{def}}i}
+=e^{(B_n+\lambda_{n,\mathrm{def}})i}=e^{\widehat\lambda_ni}$,
+the quantity \(\lambda_{n,\mathrm{def}}\) is the multiplier in the exact
+finite-$n$ coordinates, whereas \(\widehat\lambda_n\) is the tilt in the
+limiting Gaussian coordinates. (If a size-coordinate
 multiplier \(\tau_n\) is used instead, then
 \(\lambda_{n,\mathrm{def}}=-\tau_n\).)
 The target deficit mean is \(\alpha-n/k_{\mathrm{co}}\). Lemma 3.1 makes these proportions
@@ -1952,9 +1973,9 @@ gives
 which is the first expression in (6.4).
 
 Formula (6.4) separates two effects that will be estimated by different
-methods. The product of the \(g(r_{ab})\) is purely local and is trivial for
-cell sizes at most two; the factor \(2^{\beta(H)}\) is topological and counts
-the independent cycle choices of the support graph.
+methods. The product of the \(g(r_{ab})\) is purely local, with
+$g(0)=g(1)=g(2)=1$; the factor \(2^{\beta(H)}\) is topological and counts the
+independent cycle choices of the support graph.
 
 For every support edge, split \(\binom{r}{2}\) as
 \((\binom{r}{2}-1)+1\). Since
@@ -2431,8 +2452,8 @@ and therefore
 \end{equation*}
 Only the upper bound on $\bar E$ is used here.
 
-It remains to replace the true residual fraction $\rho$ by the profile
-fraction $R$. Since $2\le i,T\le5$,
+It remains to compare the vertex fraction $\rho$ with the profile fraction
+$R$. Since $2\le i,T\le5$,
 \[
   |I-TY|=\left|\sum_i(i-T)y_i\right|\le3Y,
 \]
@@ -2886,8 +2907,9 @@ Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell, apply
 $n^H=\prod_{e\in P}n^{h_e}$.
 \end{proof}
 
-The order of operations matters: the physical fiber is summed first, and the
-finite-population loss is charged only once afterward.
+The order of operations matters: first sum the physical fiber, and then apply
+the single aggregate bound $(n-J)_H\le n^H$ from
+\eqref{eq:one-global-falling-factorial-v3}.
 
 \subsection{Summing all positive deficits}
 
@@ -2943,8 +2965,9 @@ Together with $\binom mh\le m^h$ and
   \label{eq:three-quarter-charge-v3}
 \end{equation}
 
-For the remainder of this section, reindex the profile from the deficit labels
-$2,3,4,5$ used in Sections~5--7 by
+For the remainder of this section, let $q=i+2$. The map
+$i\mapsto q$ is a bijection from $\{0,1,2,3\}$ to the deficit labels
+$\{2,3,4,5\}$ used in Sections~5--7, with inverse $q\mapsto q-2$. Define
 \[
   \kappa_i:=k_{i+2},
   \qquad
@@ -3092,8 +3115,8 @@ the numerical deficit charge and the transport estimate below.
 
 \subsection{Endpoint transport}
 
-Recall the shifted notation $u_i=a-i$, $\kappa_i=k_{i+2}$ for
-$0\le i\le3$, where $a=\alpha-2$.
+Recall that $u_i=a-i$ and $\kappa_i=k_{i+2}$ for $0\le i\le3$, where
+$a=\alpha-2$ and the corresponding deficit label is $i+2$.
 For a full-containment table $L=(\ell_{ij})$, set
 \[
   r_i=\sum_j\ell_{ij},
@@ -3125,9 +3148,13 @@ For a one-sided margin vector $v$ satisfying $0\le v_i\le\kappa_i$, define
   m(v)=\sum_i u_iv_i.
   \label{eq:one-sided-diagonal-weight-v3}
 \end{equation}
-Under the reindexing $r_i=\ell_{i+2}$, this is exactly the partial-diagonal
-weight from Section~7. Every sum over $r$ below is over this finite coordinate
-box; no value outside it is used.
+For comparison with Section~7, denote its common-subprofile vector by
+$\ell^{\mathrm{pd}}=(\ell_q^{\mathrm{pd}})_{q=2}^{5}$. Under the bijection
+$\ell_{i+2}^{\mathrm{pd}}=v_i$, the multiplicity and block size are
+$k_{i+2}=\kappa_i$ and $\alpha-(i+2)=u_i$; hence (7.3) gives
+$D(\ell^{\mathrm{pd}})=D(v)$. Below, $D(r)$ and $D(c)$ evaluate
+\eqref{eq:one-sided-diagonal-weight-v3} on the margins in
+$0\le v_i\le\kappa_i$.
 
 For the endpoint pair $(i,j)$, put
 \[
@@ -3241,12 +3268,16 @@ By the arithmetic--geometric mean inequality and
   \le
   D(r)A_LQ^L+D(c)C_LQ^L.
 \]
-Consider the first term. For a fixed row margin $r$, discard the column-margin
-constraints; nonnegativity makes this an upper bound. The multinomial theorem
-then gives
+Consider the first term. For a fixed row margin $r$, feasible tables form a
+subset of all nonnegative integer tables with row margin $r$. Since
+$A_LQ^L\ge0$, the multinomial theorem gives
 \[
-  \sum_{L:\,\operatorname{row}(L)=r}A_LQ^L
+  \sum_{\substack{L\ \mathrm{feasible}\\
+                  \operatorname{row}(L)=r}}A_LQ^L
   \le
+  \sum_{\substack{L\in\mathbb N_0^{4\times4}\\
+                  \operatorname{row}(L)=r}}A_LQ^L
+  =
   \prod_i\left(\sum_jQ_{ij}\right)^{r_i}
   \le
   (1+C\tau_n^{\mathrm{end}})^K.
@@ -3534,8 +3565,9 @@ increment; it never chooses both. In a cell outside $F\cup M$, it chooses
 nothing or one higher increment. Apply
 \eqref{eq:prescribed-cell-residual-v3} once to the complete demand of each
 monomial. The threshold-two contribution is $\theta_e^2/2$, the higher
-increments sum to $\lambda_e$, and the empty choice contributes one. Dropping
-the cap and no-return indicator only enlarges the nonnegative expectation.
+increments sum to $\lambda_e$, and the empty choice contributes one. Every
+monomial is nonnegative and $\mathbf 1_{\mathcal E(M,j)}\le1$, so omitting
+the cap and no-return indicator can only increase the expectation.
 \end{proof}
 
 Summing over $F$ and then inserting the missing factors
@@ -3634,8 +3666,9 @@ for every residual cell outside $M$.
 \end{lemma}
 
 \begin{proof}
-Fix a cell and write $\theta=\theta_{ab}$. The assertion is trivial when
-$\theta=0$. Since $0\le\Delta_x\le g(x)$, it is enough to bound
+Fix a cell and write $\theta=\theta_{ab}$. If $\theta=0$, then
+$q_{ab}=0$, so the claim holds. Assume $\theta>0$. Since
+$0\le\Delta_x\le g(x)$, it is enough to bound
 \[
   a_x:=g(x)\frac{\theta^x}{x!},
   \qquad 3\le x\le R.
@@ -3727,9 +3760,10 @@ Suppose instead that $2^U>m_0^3$. Then
   m_0<2^{U/3}\le2^{\lceil U/3\rceil}.
   \label{eq:small-residual-mass-v3}
 \end{equation}
-We first bound the integrand pointwise; after that bound is established, the
-indicator of every residual restriction may be replaced by one. Since each
-residual cell count is at most $U$,
+We first bound the integrand pointwise. Since the integrand is nonnegative and
+$0\le\mathbf 1_{\mathcal E(M,j)}\le1$, equation
+\eqref{eq:residual-attachment-v3} remains bounded above after the indicator is
+omitted. Each residual cell count is at most $U$, so
 \[
   \prod_{a,b}g(r'_{ab})
   \le
@@ -3993,7 +4027,8 @@ the seed implies
 \]
 
 This event may still be rare. We turn it into a high-probability cocoloring
-event while adding fewer parts than the root separation can absorb. The
+event by adding the quantity displayed in (10.5), which is later shown to be
+$o(n/(\log n)^3)$ and hence smaller than the root separation. The
 argument follows the seed-to-typical principle of
 \citet[Theorem~1]{heckel-2025-difference}, using vertex-exposure concentration
 as in \citet[Theorem~1]{scott-2008-2017}. The first lemma controls every
@@ -4030,21 +4065,19 @@ probability \(1-o(1)\), every \(u_0\)-set has density at
 least \(1/4\). By averaging over its \(u_0\)-subsets, the
 same is then true of every larger set.
 
-Start with any vertex set of size at least \(n^{1/3}\). While
-its current size is at least \(u_0\), choose a vertex of maximum
-\(H\)-degree and replace the current set by its
-\(H\)-neighborhood there. Density at least \(1/4\) implies
-that this neighborhood has size at least one quarter of the current
-size, up to an additive one. If \(s_t\) is the current size after \(t\)
-choices, then
+Let $S_0$ be any vertex set of size at least \(n^{1/3}\). While
+$|S_t|\ge u_0$, choose $v_t\in S_t$ of maximum degree in $H[S_t]$, define
+$S_{t+1}:=N_H(v_t)\cap S_t$, and put $s_t:=|S_t|$.
+Density at least \(1/4\) implies
+$|N_H(v_t)\cap S_t|\ge(s_t-1)/4$. Hence
 
 \[
  s_{t+1}\ge(s_t-1)/4,\qquad s_t\ge4^{-t}s_0-1/3.         \tag{10.3a}
 \]
 
-The chosen vertices form a clique in \(H\): after a vertex is chosen, the
-current set is replaced by its \(H\)-neighborhood, so every later choice is
-adjacent in \(H\) to every earlier one. Starting from any
+The sets are nested and $S_{t+1}\subseteq N_H(v_t)$, so every later choice is
+adjacent in $H$ to every earlier one. Thus the chosen vertices form a clique
+in $H$. Starting from any
 \(\lceil n^{1/3}\rceil\)-subset, (10.3a) stays above \(n^{1/4}\) for at
 least \(\lfloor {\log n}/(13\log4)\rfloor\) steps. Thus the procedure constructs
 at least \(c{\log n}\) vertices for an absolute \(c>0\), and these vertices form
@@ -4236,9 +4269,12 @@ Thus there is no additional correction to the total number of classes. Hence
   \frac{n}{(\log n)^3}.
   \label{eq:midpoint-retained-gap-v3}
 \end{equation}
-The factor $1/8$ has only two sources: the root separation in
-\eqref{eq:phase-resolved-root-gap-v3} carries $1/4$, and midpoint placement
-divides it by two. The ceiling contributes $O(1)$; the tangent correction
+Indeed, (5.13) gives
+$r_+(n)-k_{\mathrm{co}}
+=\tfrac12(r_+(n)-r_4^{\mathrm{co}})+O(1)$.
+The coefficient $1/4$ in
+\eqref{eq:phase-resolved-root-gap-v3} is therefore multiplied by $1/2$, giving
+$1/8$. The ceiling contributes the displayed $O(1)$; the tangent correction
 preserves $k_{\mathrm{co}}$ itself.
 
 Section~\ref{a-valid-unrestricted-lower-location-for-chi} constructs a
@@ -4332,7 +4368,10 @@ the pinned Lean and Mathlib version \texttt{v4.31.0}. The final axiom audit repo
 \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
 
 \renewcommand{\bibsection}{\section*{References}}
+\begingroup
+\small
 \bibliographystyle{plainnat}
 \bibliography{references}
+\endgroup
 
 \end{document}
