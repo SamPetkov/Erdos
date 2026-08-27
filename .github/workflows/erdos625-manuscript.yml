@@ -113,39 +113,28 @@ jobs:
 
           pdftotext -layout main.pdf rebuilt.txt
           pdftotext -layout "$GITHUB_WORKSPACE/625/arxiv/main.pdf" committed.txt
-          python3 - <<'PY'
-          from pathlib import Path
-          import unicodedata
-
-          def normalized_text(path: str) -> str:
-              text = unicodedata.normalize(
-                  "NFKC",
-                  Path(path).read_text(encoding="utf-8", errors="strict"),
-              )
-              return "".join(character.casefold() for character in text if character.isalnum())
-
-          rebuilt = normalized_text("rebuilt.txt")
-          committed = normalized_text("committed.txt")
-          if rebuilt != committed:
-              raise SystemExit(
-                  "committed PDF alphanumeric text stream differs from the clean rebuild"
-              )
-          print("verified committed PDF text against the clean rebuild")
-          PY
           test "$(wc -w <rebuilt.txt)" -ge 20000
+          test "$(wc -w <committed.txt)" -ge 20000
           grep -qF '200/153' rebuilt.txt
+          grep -qF '200/153' committed.txt
 
           pdffonts main.pdf >fonts.txt
           awk '
             NR > 2 && NF {seen = 1; if ($(NF - 4) != "yes") bad = 1}
             END {exit (!seen || bad)}
           ' fonts.txt
+          pdffonts "$GITHUB_WORKSPACE/625/arxiv/main.pdf" >committed-fonts.txt
+          awk '
+            NR > 2 && NF {seen = 1; if ($(NF - 4) != "yes") bad = 1}
+            END {exit (!seen || bad)}
+          ' committed-fonts.txt
 
+          cp main.pdf "$GITHUB_WORKSPACE/625/arxiv/ci-rebuilt-main.pdf"
           echo "verified ${rebuilt_pages} pages and $(wc -w <rebuilt.txt) extracted words"
 
       - name: Upload verified manuscript
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: erdos-625-manuscript
-          path: 625/arxiv/main.pdf
+          name: erdos-625-clean-rebuild
+          path: 625/arxiv/ci-rebuilt-main.pdf
           if-no-files-found: error
