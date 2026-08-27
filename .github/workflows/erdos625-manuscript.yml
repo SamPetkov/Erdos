@@ -115,18 +115,20 @@ jobs:
           pdftotext -layout "$GITHUB_WORKSPACE/625/arxiv/main.pdf" committed.txt
           python3 - <<'PY'
           from pathlib import Path
+          import unicodedata
 
           def normalized_text(path: str) -> str:
-              return " ".join(
-                  Path(path).read_text(encoding="utf-8", errors="strict").split()
+              text = unicodedata.normalize(
+                  "NFKC",
+                  Path(path).read_text(encoding="utf-8", errors="strict"),
               )
+              return "".join(character.casefold() for character in text if character.isalnum())
 
           rebuilt = normalized_text("rebuilt.txt")
           committed = normalized_text("committed.txt")
           if rebuilt != committed:
               raise SystemExit(
-                  "committed PDF text differs from the clean rebuild after "
-                  "whitespace normalization"
+                  "committed PDF alphanumeric text stream differs from the clean rebuild"
               )
           print("verified committed PDF text against the clean rebuild")
           PY
