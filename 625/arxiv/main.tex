@@ -3102,8 +3102,8 @@ Together with $\binom mh\le m^h$ and
 \end{equation}
 
 For the remainder of this section, reindex the deficit labels by the bijection
-$i\mapsto d=i+2$ from $\{0,1,2,3\}$ to $\{2,3,4,5\}$, with inverse
-$d\mapsto d-2$. Define
+$i\mapsto \nu=i+2$ from $\{0,1,2,3\}$ to $\{2,3,4,5\}$, with inverse
+$\nu\mapsto \nu-2$. Define
 \[
   \kappa_i:=k_{i+2},
   \qquad
@@ -3328,7 +3328,7 @@ Let
 \]
 
 \begin{lemma}[Endpoint-table product comparison]
-For every feasible endpoint table $L$,
+Assume $\alpha>8$. Then every feasible endpoint table $L$ satisfies
 \begin{equation}
   W(L)^2
   \le
@@ -3361,8 +3361,8 @@ Consequently
   =
   \frac{Q_{ij}^2}{(n+1)^d}.
 \]
-For all sufficiently large $n$, one has $s\ge\alpha-5\ge2$. Hence we may use
-$g(t)/g(s)=2^{ds+\binom d2}$; the identity is also valid for $d=0$.
+Under the hypothesis, $s\ge\alpha-5>3$, so in particular $s\ge2$. Hence we
+may use $g(t)/g(s)=2^{ds+\binom d2}$; the identity is also valid for $d=0$.
 
 Moreover, $m(r),m(c)\ge J(L)$ and
 \[
@@ -3400,7 +3400,7 @@ For all sufficiently large $n$, uniformly in the phase,
   \sum_{L\ \mathrm{feasible}}W(L)
   \le
   \exp\!\left\{O(\tau_n^{\mathrm{end}}K)\right\}
-  \sum_rD(r)
+  \sum_v D(v)
   \le
   \exp\!\left\{O(\sqrt{n\log n})\right\}.
   \label{eq:endpoint-table-sum-v3}
@@ -3431,8 +3431,9 @@ $A_LQ^L\ge0$, the multinomial theorem gives
   (1+C\tau_n^{\mathrm{end}})^K.
 \]
 After multiplication by $D(r)$ and summation over $r$, the first half is at
-most $(1+C\tau_n^{\mathrm{end}})^K\sum_rD(r)$. The second half is identical after exchanging
-rows and columns. Section~7 proves $\sum_rD(r)=1+o(1)$ uniformly in the phase.
+most $(1+C\tau_n^{\mathrm{end}})^K\sum_v D(v)$, where $v$ is now a dummy
+subprofile variable. The second half is identical after exchanging rows and
+columns. Section~7 proves $\sum_v D(v)=1+o(1)$ uniformly in the phase.
 This is a domination by a reference sum, not a deletion of common-class
 overlaps. Finally, $K=\Theta(n/\log n)$ and
 \eqref{eq:endpoint-eta-v3} imply
@@ -3583,7 +3584,8 @@ the missing cap and no-return conditions.
 
 \begin{proposition}[Canonical exact overlap decomposition]
 \label{prop:canonical-exact-overlap-decomposition-v3}
-For every finite $n$ and every fixed signed profile,
+Let $n$ be finite and let the fixed signed profile be feasible, with phase cap
+$U\ge2$. Then
 \begin{equation}
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   =
@@ -3602,8 +3604,10 @@ its cell counts. Define
   \qquad
   j_{ab}(\Pi):=r_{ab}(\Pi)\quad((a,b)\in M(\Pi)).
 \]
-The degree cap makes $M(\Pi)$ a matching. Let $S(\Pi)$ be the set of all stub
-pairs of $\Pi$ lying in cells of $M(\Pi)$, and put
+The degree cap makes $M(\Pi)$ a matching. Moreover,
+$j_{ab}>\lfloor U/2\rfloor$ and $U\ge2$ imply $j_{ab}\ge2$, so every cell of
+$M(\Pi)$ is an edge of the signed support graph from Section~6. Let $S(\Pi)$
+be the set of all stub pairs of $\Pi$ lying in cells of $M(\Pi)$, and put
 $\Pi_{\mathrm{res}}:=\Pi\setminus S(\Pi)$. Then
 \[
   \Pi\longmapsto
@@ -4036,7 +4040,7 @@ First combine the three deterministic partial-diagonal errors from Section~7:
 Then $\varepsilon_n^{\mathrm{pd}}\to0$ uniformly in the phase, and the disjoint
 three-range assembly gives
 \begin{equation}
-  \sum_rD(r)\le1+\varepsilon_n^{\mathrm{pd}}.
+  \sum_v D(v)\le1+\varepsilon_n^{\mathrm{pd}}.
   \label{eq:partial-diagonal-ledger-sum-v3}
 \end{equation}
 Here and below every sum has the finite combinatorial domain specified in its
@@ -4468,7 +4472,7 @@ The three disjoint mass ranges in the Section~7 roadmap cover every
 $0\le\ell_i\le k_i$, and $\varepsilon_n^{\mathrm{pd}}\to0$ uniformly. \\
 High skeletons &
 After one common threshold,
-$\alpha\ge(5/2)\log n$, $\rho_{16}\le1$, and
+$\alpha>8$, $U\ge2$, $\alpha\ge(5/2)\log n$, $\rho_{16}\le1$, and
 $\tau_n^{\mathrm{end}}\le1$; hence
 $\Gamma_n^{\mathrm{skel}}=o(n/(\log n)^4)$ uniformly over feasible skeletons.
 \\
