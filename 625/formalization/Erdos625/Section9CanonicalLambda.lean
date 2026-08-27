@@ -5,10 +5,9 @@ import Mathlib.Tactic
 # Section IX: canonical finite exponent
 
 This module packages the literal attained-demand polymer sum into an explicit
-canonical exponent. Its pointwise self-envelope is finite algebra, not the
-missing asymptotic estimate. The central analytic obligation remains to prove
-that this concrete exponent is little-o on the intended midpoint profile
-sequence, for example through the direct polymer bound stated below.
+canonical exponent. Its pointwise self-envelope is finite algebra; the
+little-o estimate on the intended midpoint profile sequence is expressed by
+the direct polymer bound stated below.
 -/
 
 namespace Erdos625

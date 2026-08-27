@@ -4,7 +4,7 @@ import Mathlib.Tactic
 /-!
 # Section VIII--IX: generic tagged finite-sum transport
 
-This isolated target transports an arbitrary nonnegative observable through the
+This module transports an arbitrary nonnegative observable through the
 exact configuration-matching equivalence to the *dependent* tagged
 `demand/witness/residual` Section IX family.  It deliberately retains both
 tags.  In particular, it neither identifies a common residual PMF nor

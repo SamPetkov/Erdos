@@ -282,7 +282,7 @@ theorem card_labeledProfilePartition_eq_orderedProfilePartition_all
       exact ⟨fun P => hmass P.vertexMass_eq⟩
     rw [hleft, hright]
 
-/-- The requested block-label-only equivalence.  Its existence is obtained
+/-- The block-label-only equivalence.  Its existence is obtained
 from the two independent exact cardinality computations above; no internal
 vertex orders enter either side. -/
 noncomputable def labeledProfilePartitionEquivOrdered

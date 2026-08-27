@@ -9,10 +9,7 @@ This deterministic lemma converts the strict half-cap condition on every
 positive demand cell into a support-cardinality bound. It keeps the literal
 natural-number floor `U / 2`, including odd `U` and `U = 0`.
 
-The proof was returned by Aristotle project
-`87d795da-d6da-4927-8304-72b93c103dd7`, task
-`ec2ec257-3c4a-42d6-a69d-790f13dcc42d`, and independently audited before
-integration.
+The proof treats the natural-number floor exactly, including boundary cases.
 -/
 
 namespace Erdos625

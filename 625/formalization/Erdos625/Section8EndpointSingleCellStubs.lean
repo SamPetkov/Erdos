@@ -2,7 +2,7 @@ import Erdos625.Section8EndpointFoundation
 import Mathlib.Tactic
 
 /-!
-# Target F2: one full-cell stub-matching count
+# One full-cell stub-matching count
 
 This is the literal single-cell factor
 `(u)_x (v)_x / x!`; it makes no claim about selecting or pairing profile

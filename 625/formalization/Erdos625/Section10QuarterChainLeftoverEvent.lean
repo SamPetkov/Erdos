@@ -107,7 +107,7 @@ theorem quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEve
       (quarterChainStart n)).trans hq)
 
 /-- Sequence-level deterministic adapter: any eventual numerical bound on the
-ceiling expression turns the accepted independent-block probability limit
+ceiling expression turns the proved independent-block probability limit
 into the required simultaneous leftover-colouring probability limit. -/
 theorem simultaneousLeftoverColoringEvent_probability_tendsto_one_of_eventually_bound
     (d q : ℕ → ℕ)

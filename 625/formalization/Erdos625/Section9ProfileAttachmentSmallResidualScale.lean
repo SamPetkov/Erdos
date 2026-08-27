@@ -9,10 +9,7 @@ to the literal capped/no-return attachment of one attained profile skeleton.
 It deliberately does not replace that attachment by the unrestricted polymer
 majorant and does not cancel any skeleton prefactor.
 
-The proof was returned by Aristotle project
-`0bbb4854-fb14-46ef-bb74-ae248f1e371f`, task
-`0b4f1097-24f9-4024-932e-44491d77da1c`, and independently audited before
-integration.
+The estimate is specialized directly to the attained-profile attachment.
 -/
 
 namespace Erdos625

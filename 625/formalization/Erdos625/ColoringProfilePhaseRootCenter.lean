@@ -9,12 +9,8 @@ the raw attained unrestricted-profile objective.  The reference center is
 not asserted here to be a zero of that objective, and the unrestricted
 objective is not identified with the signed four-size objective.
 
-The exact objective decomposition and eventual center corridor were returned
-by Aristotle projects `d6b5395c-0535-4eb3-b8cf-0ebcf1d4f6ba` and
-`e7c1b257-9afe-4344-9e0b-a62f9ba5065a`, tasks
-`a6e0e6c8-82e7-4d8a-b67d-641aacca5284` and
-`f8127c71-676f-41b8-84f4-48f08e32ad2b`, and independently audited before
-integration.
+The exact objective decomposition and eventual center corridor are proved
+here in forms compatible with the pinned Lean toolchain.
 -/
 
 namespace Erdos625
@@ -51,12 +47,7 @@ theorem profilePhaseObjective_eq_profileBoxTerm_add_unrestricted
 
 /-- Exact finite target identity at the phase center. `PhaseDomain` is used
 both to identify the natural phase with the floor and to make the graph-order
-denominator nonzero. No assumption `phaseRootS0 n ≠ 0` is needed.
-
-The proof was returned by Aristotle project
-`22c01ff7-472b-475a-90fd-445cab08eca8`, task
-`3130c2d8-4abe-43e3-bc51-754fc6836146`, and independently audited before
-integration. -/
+denominator nonzero. No assumption `phaseRootS0 n ≠ 0` is needed. -/
 theorem phaseRoot_target_identity {n : ℕ} (hn : PhaseDomain n) :
     (phaseNat n : ℝ) - (n : ℝ) / phaseRootCenter n =
       1 + 2 / q - phaseDelta n := by

@@ -11,7 +11,7 @@ name, the same exact local weight applies to every endpoint deficit above the
 high-cell cutoff.
 
 The main result charges one physical deficit `e` by a single geometric base.
-It does not yet multiply the bound over an endpoint block pairing or perform
+It does not multiply the bound over an endpoint block pairing or perform
 the phase asymptotics.
 -/
 

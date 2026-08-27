@@ -109,7 +109,7 @@ theorem randomGraphMeasure_chromaticNumberAtMost_le_expectation_add_independence
 /-- Fully finite form of the Section 4 first-moment reduction.  Once every
 admissible profile has the displayed common logarithmic upper bound, the
 chromatic event is bounded by the explicit profile-box exponential term plus
-the independent-set first moment.  The later analytic task is to provide `L`
+the independent-set first moment.  The analytic input provides `L`
 that tends sufficiently far to `-∞` at the manuscript's chosen parameters. -/
 theorem randomGraphMeasure_chromaticNumberAtMost_le_box_mul_exp_add_mu
     {n b parts : ℕ} (L : ℝ) (hparts : parts ≤ n)

@@ -2,7 +2,7 @@ import Erdos625.Section9CycleSpaceCardinality
 import Mathlib.Tactic
 
 /-!
-# E3: compatible Boolean signs and connected components
+# Compatible Boolean signs and connected components
 
 This file isolates the exact finite component-sign count used in the signed
 overlap argument.  It contains no probability or asymptotic assertion.

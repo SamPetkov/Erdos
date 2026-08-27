@@ -6,7 +6,7 @@ import Mathlib.Probability.Moments.SubGaussian
 /-!
 # Elementary probability tools for Erdős Problem 625
 
-This module gives kernel-checked versions of the elementary probability
+This module gives formally proved versions of the elementary probability
 inequalities invoked in Section 1 of the manuscript.  It uses `Measure.real`
 for real-valued probabilities, Bochner integrals for real expectations, and
 Lebesgue integrals for the extended-nonnegative Paley--Zygmund statement.
@@ -115,8 +115,8 @@ variable {Omega : Type*} [MeasurableSpace Omega] {mu : Measure Omega}
 
 /-- Two-sided tail bound supplied by the sub-Gaussian analytic core of
 McDiarmid's inequality.  For a function of `r` independent blocks with
-coordinate oscillations at most one, the missing independent-block bridge
-would instantiate `c` with `r / 4`. -/
+coordinate oscillations at most one, an independent-block hypothesis
+instantiates `c` with `r / 4`. -/
 theorem subgaussian_two_sided {X : Omega → ℝ} {c : ℝ≥0}
     (hX : HasSubgaussianMGF X c mu) {t : ℝ} (ht : 0 ≤ t) :
     mu.real {ω | t ≤ |X ω|} ≤ 2 * Real.exp (-t ^ 2 / (2 * c)) := by
@@ -164,7 +164,7 @@ section BinomialTail
 open ProbabilityTheory
 
 /-- Moment-generating function of the real-valued binomial distribution.
-Mathlib v4.31 defines this distribution but does not yet supply this finite
+Mathlib v4.31 defines this distribution; the following theorem supplies the finite
 identity. -/
 theorem mgf_id_mapCastBinomial (m : ℕ) (p : unitInterval) (t : ℝ) :
     mgf id Bin(ℝ, m, p) t = (p * Real.exp t + (1 - p)) ^ m := by

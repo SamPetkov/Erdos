@@ -11,8 +11,7 @@ finite table sum occurring on the right hand side of (6.6). It deliberately
 does not identify this table sum with the graph-level second moment; that
 remaining bridge requires the exact joint mass of two fixed signed witnesses.
 
-The previously suggested `OrderedSignedProfileBridge` import is intentionally
-absent: none of the declarations below uses that unfinished quotient bridge.
+The module imports only the finite overlap-table interfaces used below.
 -/
 
 namespace Erdos625

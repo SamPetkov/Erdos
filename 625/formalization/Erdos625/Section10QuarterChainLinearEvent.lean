@@ -106,7 +106,7 @@ theorem
     quarterChainIndependentBlockEvent_subset_linearColoringEvent
       n C hblock hCostN
 
-/-- Eventual enlargement of the accepted independent-block event transfers
+/-- Eventual enlargement of the proved independent-block event transfers
 its probability-one limit to the uniform linear-cost event. -/
 theorem quarterChainLinearColoringEvent_probability_tendsto_one_of_subset
     (C : ℝ)

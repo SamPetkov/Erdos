@@ -4,11 +4,11 @@ import Mathlib.Data.Fintype.Perm
 /-!
 # Enumeration of unordered coloring profiles
 
-This module develops the missing finite counting bridge isolated in
+This module develops the finite counting bridge used by
 `ColoringProfileFirstMoment`.  The basic counting device is the type of
 canonical labelled slots associated to a multiset of positive block sizes.
-It is kept separate from the first-moment foundation so that the latter
-remains independently auditable.
+It is kept separate from the first-moment foundation to isolate the
+combinatorial construction.
 -/
 
 namespace Erdos625
@@ -558,7 +558,7 @@ theorem count_partitionShape_slotKernelPartition
       card_shapeBlockIndexOfSize (ColoringProfile.sizes k) s
 
 /-- Forgetting labels and within-block positions from a slot equivalence
-reconstructs an unordered partition with exactly the requested shape. -/
+reconstructs an unordered partition with exactly the specified shape. -/
 theorem partitionShape_slotKernelPartition
     {b n : ℕ} {k : ColoringProfile b}
     (e : Fin n ≃ ShapeSlot (ColoringProfile.sizes k)) :

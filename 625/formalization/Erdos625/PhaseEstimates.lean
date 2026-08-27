@@ -88,8 +88,7 @@ theorem phaseB_isLittleO_logOrder :
   exact hBounded.trans_isLittleO hOne
 
 /-- The natural phase is asymptotic to `(2 / log 2) log n`.  The floor is
-handled through the bounded offset `phaseB`, rather than by an unproved
-rounding heuristic. -/
+handled exactly through the bounded offset `phaseB`. -/
 theorem phaseNat_isEquivalent_scaled_logOrder :
     (fun n : ℕ ↦ (phaseNat n : ℝ)) ~[atTop]
       (fun n : ℕ ↦ (2 / q) * logOrder n) := by

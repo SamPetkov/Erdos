@@ -73,7 +73,7 @@ theorem uniform_canonicalDemandEventSubtype_map_sigmaResidual
 
 /-- Conditioning the ambient uniform configuration law on the nonempty
 canonical-demand event is exactly reconstruction from the uniform joint sigma
-law of its witness and residual configuration.  This does not yet identify a
+law of its witness and residual configuration.  This does not identify a
 fixed residual marginal or establish any global canonical-event estimate. -/
 theorem uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction
     {A B : Type*}

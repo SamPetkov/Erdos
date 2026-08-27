@@ -8,10 +8,7 @@ This factors a uniform pointwise bound out of the exact attained-demand
 attachment sum.  The left side remains the literal event-restricted
 attachment sum, not the unrestricted polymer majorant.
 
-The proof was returned by Aristotle project
-`a4d1d2c3-582b-45bc-a5b6-14e3b2fb0040`, task
-`cc53e112-8b47-4a3d-bda9-74d2950c2913`, and independently audited before
-integration.
+The aggregation is kept at the literal event-restricted level.
 -/
 
 namespace Erdos625

@@ -2,7 +2,7 @@ import Erdos625.Section8EndpointFoundation
 import Mathlib.Tactic
 
 /-!
-# Target B: exact endpoint mass identities
+# Exact endpoint mass identities
 
 The conclusion combines the two monotonicity facts and the exact identity
 equivalent to manuscript (8.11). No `Q_ij` inequality is asserted.

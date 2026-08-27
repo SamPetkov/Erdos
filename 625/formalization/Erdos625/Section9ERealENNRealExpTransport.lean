@@ -7,10 +7,7 @@ This module supplies the coercion bridge needed after the large-residual
 attachment exponent has been proved finite.  It contains no asymptotic or
 probabilistic estimate by itself.
 
-The proof was returned by Aristotle project
-`15e91c74-dfdb-4770-a7dc-62e52b3c98b3`, task
-`34d791e3-60c3-4dec-8499-5d8a69732926`, and independently audited before
-integration.
+The bridge is stated directly in the coercion form needed downstream.
 -/
 
 namespace Erdos625
@@ -32,12 +29,7 @@ theorem ennreal_le_of_coe_le_ereal_exp_toReal
   exact EReal.coe_ennreal_le_coe_ennreal_iff.mp h
 
 /-- The coarse Section IX large-residual exponent is finite whenever its
-absolute constants are finite and the residual mass is positive.
-
-The proof was returned by Aristotle project
-`b887515e-44b4-4ec2-97ab-dd94cb29b641`, task
-`1df65d4f-00b0-4af2-9ca4-68c8c65ba85f`, and independently audited before
-integration. -/
+absolute constants are finite and the residual mass is positive. -/
 theorem residualLargeEnvelope_ne_top
     (kappaLambda kappaQ : ENNReal)
     (cardA matchingCard U m : ℕ)

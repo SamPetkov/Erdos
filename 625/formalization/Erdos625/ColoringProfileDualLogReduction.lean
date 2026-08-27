@@ -81,8 +81,8 @@ theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_du
   apply tendsto_neg_atBot_iff.mpr
   exact Real.tendsto_log_atTop.comp hadd
 
-/-- If the logarithmic envelope normalized by `log n` tends to a negative
-constant, then the chromatic tail tends to zero. -/
+/-- If the logarithmic envelope normalized by `log n` has a negative limit,
+then the chromatic tail tends to zero. -/
 theorem randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual
     (parts : ℕ → ℕ) (t : ℕ → ℝ) (c : ℝ)
     (hc : c < 0)

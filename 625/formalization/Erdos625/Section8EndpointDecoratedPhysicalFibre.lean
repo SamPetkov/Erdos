@@ -5,7 +5,7 @@ import Erdos625.Section8EndpointDecoratedBlockPairings
 
 This is the statement-faithful inverse-map half of the endpoint fibre equivalence.
 It reconstructs the physical stub edges selected by the literal decorations and
-does not depend on the separately generated forward map.
+does not depend on the separately constructed forward map.
 -/
 
 namespace Erdos625

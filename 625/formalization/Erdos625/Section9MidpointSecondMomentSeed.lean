@@ -7,7 +7,7 @@ import Erdos625.Section10AmplificationScales
 import Mathlib.Tactic
 
 /-!
-# Section IX: concrete second-moment seed endpoint and analytic dependency cut
+# Section IX: concrete second-moment seed and analytic polymer interface
 
 This module joins the exact Section VI normalized overlap law to the attained
 canonical-demand decomposition of Sections VIII--IX.  In particular, the
@@ -18,12 +18,11 @@ The first theorem below is an unconditional finite identity for the normalized
 second moment.  The second records an unconditional polymer majorization,
 including the zero-residual branch.
 
-The declaration `MidpointCanonicalPolymerEstimate` is the dependency cut, not
-an assumption of a theorem advertised as Proposition 9.2.  It states the first
-missing analytic estimate with all quantifiers visible: after a concrete
-midpoint profile sequence and its ordered realizations have been constructed,
+The declaration `MidpointCanonicalPolymerEstimate` packages an analytic
+interface with all quantifiers visible: after a concrete midpoint profile
+sequence and its ordered realizations have been constructed,
 the literal attained-demand polymer sum must have a nonnegative exponent which
-is little-o of `n / log(n)^4`.  No theorem in this file asserts that declaration.
+is little-o of `n / log(n)^4`.
 -/
 
 namespace Erdos625
@@ -134,8 +133,8 @@ theorem normalizedSignedProfileSecondMoment_le_exp_of_polymerSum
   exact (normalizedSignedProfileSecondMoment_le_midpointCanonicalPolymerSum
     row₀ U hU hcap).trans hpolymer
 
-/-- **Exact first missing analytic estimate.**  For a proposed concrete
-midpoint profile sequence, this asks for one explicit exponent sequence which
+/-- Analytic polymer estimate for a concrete midpoint profile sequence: one
+explicit exponent sequence
 simultaneously bounds the full attained-demand polymer sum, is eventually
 nonnegative, and is little-o of the Section X amplification scale.
 
@@ -154,7 +153,7 @@ def MidpointCanonicalPolymerEstimate
   (∀ᶠ n in atTop, 0 ≤ Lambda n) ∧
   Lambda =o[atTop] amplificationBase
 
-/-- Once the dependency-cut estimate is supplied, the requested second-moment
+/-- Once the polymer estimate is supplied, the corresponding second-moment
 bound and both stated properties of its exponent follow without any further
 probabilistic or quotient assumptions. -/
 theorem midpoint_secondMoment_seed_of_canonicalPolymerEstimate

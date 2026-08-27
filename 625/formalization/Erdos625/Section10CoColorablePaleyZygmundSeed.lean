@@ -3,9 +3,9 @@ import Erdos625.Target
 import Mathlib.Tactic
 
 /-!
-# Sections IX--X D4: count-to-cocolourable real seed
+# Sections IX--X: count-to-cocolourable real seed
 
-This task is a generic second-moment adapter.  The construction and moment
+This module is a generic second-moment adapter.  The construction and moment
 estimates for the count remain entirely external inputs.
 -/
 

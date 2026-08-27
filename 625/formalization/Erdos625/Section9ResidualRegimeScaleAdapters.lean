@@ -8,7 +8,7 @@ import Mathlib.Tactic
 This module converts the exact finite small-residual power bound into the
 manuscript exponential scale and transports it to one attained canonical
 demand.  It also supplies the elementary eventual logarithmic inequalities
-needed to instantiate the accepted large-residual arithmetic envelope.
+needed to instantiate the proved large-residual arithmetic envelope.
 
 It does not estimate the skeleton/incidence sum or prove Lemma 9.1.
 -/
@@ -106,7 +106,7 @@ theorem eventually_log_growth_bounds :
   exact ⟨hpos, hsq, h28.trans (by
     exact_mod_cast Nat.le_self_pow (by norm_num) n)⟩
 
-/-- The accepted finite large-residual arithmetic envelope specializes
+/-- The finite large-residual arithmetic envelope specializes
 uniformly to `O((log n)^8)` once `L = log n`. -/
 theorem eventually_largeResidualEnvelope_logScale
     (kappaLambda kappaQ C_U : ℝ)

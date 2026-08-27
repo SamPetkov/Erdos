@@ -3,10 +3,10 @@ import Erdos625.ProfileValueUniformS4
 import Mathlib.Tactic
 
 /-!
-# E1: exact four-deficit scores and uniform convergence
+# Exact four-deficit scores and uniform convergence
 
 The four coordinates are the manuscript deficits `2,3,4,5`.  This file
-bridges their exact finite descending-factorial scores to the accepted
+bridges their exact finite descending-factorial scores to the established
 four-point optimized-value stability theorem.
 -/
 

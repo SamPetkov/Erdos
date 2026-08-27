@@ -7,8 +7,8 @@ material in this repository is made available under the
 [Creative Commons Attribution 4.0 International License](LICENSE)
 ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). This includes,
 to the extent that Samuil Petkov holds the relevant licensable rights, the
-original manuscripts, proof notes, audits, documentation, Lean and Python
-source code, project figures, animations, and repository metadata.
+original manuscripts, documentation, Lean and Python source code, project
+figures, animations, and repository metadata.
 
 ## Attribution
 
@@ -16,7 +16,7 @@ When the license requires attribution, identify the creator as **Samuil
 Petkov**, link to the repository when reasonably practicable, identify CC BY
 4.0, and indicate whether changes were made. A suitable attribution is:
 
-> Samuil Petkov, *Erdős Problem 625: Proof Dossier and Lean Formalization*,
+> Samuil Petkov, *Erdős Problem 625: Manuscript and Lean Formalization*,
 > <https://github.com/SamPetkov/Erdos>, licensed under CC BY 4.0. Changes were
 > made.
 

@@ -9,7 +9,7 @@ actual-residual polymer-product estimate.  It reconstructs the finite
 even-subgraph decomposition locally: an even edge set is written as a
 recoverable, pairwise edge-disjoint family of inclusion-minimal even edge
 sets.  The actual residual family is then embedded into the unrestricted
-even-edge family using the already checked literal-family inclusion.
+even-edge family using the proved literal-family inclusion.
 
 The result is only a finite algebraic estimate.  It does not identify the
 conditioned residual law, connect the weights to `residualQ`, bound the

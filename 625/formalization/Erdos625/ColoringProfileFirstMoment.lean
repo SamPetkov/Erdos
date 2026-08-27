@@ -21,8 +21,8 @@ partitions times this probability.  This foundational module isolates the
 replacement of that cardinality by the factorial quotient in (4.2) as
 `ProfileEnumerationStatement`; the downstream
 `ColoringProfileEnumerationInjective` module proves it by an explicit finite
-bijection.  Mathlib's `Multiset.bell` supplies the arithmetic quotient, but no
-unproved interpretation of it as a partition count is assumed.
+bijection.  Mathlib's `Multiset.bell` supplies the arithmetic quotient without
+being treated directly as a partition count.
 -/
 
 namespace Erdos625
@@ -419,7 +419,7 @@ theorem randomGraphMeasure_partitionColoringEvent {b n : ℕ}
     randomGraphMeasure_le_compl,
     P.ncard_partitionInternalGraph]
 
-/-! ## Exact first moment and the isolated enumeration bridge -/
+/-! ## Exact first moment and the separate enumeration bridge -/
 
 /-- Indicator that a fixed profile partition is a proper coloring. -/
 noncomputable def profilePartitionIndicator {b n : ℕ}
@@ -482,7 +482,7 @@ theorem profileColoringExpectation_eq_card_mul {b : ℕ}
     randomGraphMeasure_partitionColoringEvent]
   simp [Finset.sum_const, nsmul_eq_mul, Nat.card_eq_fintype_card]
 
-/-- The combinatorial bridge isolated at this layer: `Multiset.bell` is to
+/-- The combinatorial bridge stated at this layer: `Multiset.bell` is to
 equal the cardinality of unordered `Finpartition`s of the prescribed shape.
 This definition is a proposition, not an axiom; the downstream enumeration
 modules construct and prove an inhabitant under the necessary mass equation. -/
@@ -503,7 +503,7 @@ theorem profileColoringExpectation_eq_enumerativeCoefficient_mul_of
   rw [profileColoringExpectation_eq_card_mul, h]
 
 /-- Conditional exact spelling of (4.2), with positive sizes indexed as
-`i + 1`.  The only hypothesis is the explicitly isolated set-partition
+`i + 1`.  The only hypothesis is the explicit set-partition
 enumeration bridge. -/
 theorem profileColoringExpectation_eq_coordinateFactorialQuotient_mul_of
     {b : ℕ} (n : ℕ) (k : ColoringProfile b)

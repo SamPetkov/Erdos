@@ -1,9 +1,30 @@
-\begin{thebibliography}{17}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bloom(2026)]{bloom-erdos625}
+Thomas~F. Bloom.
+\newblock Erd{\H{o}}s problem \#625.
+\newblock \url{https://www.erdosproblems.com/625}, 2026.
+\newblock Accessed 16 July 2026.
+
+\bibitem[Bollob{\'{a}}s(1988)]{bollobas-1988}
+B{\'{e}}la Bollob{\'{a}}s.
+\newblock The chromatic number of random graphs.
+\newblock \emph{Combinatorica}, 8\penalty0 (1):\penalty0 49--55, 1988.
+\newblock \doi{10.1007/BF02122551}.
+\newblock URL \url{https://doi.org/10.1007/BF02122551}.
+
+\bibitem[Bollob{\'{a}}s and Thomason(1995)]{bollobas-thomason-1995}
+B{\'{e}}la Bollob{\'{a}}s and Andrew Thomason.
+\newblock Generalized chromatic numbers of random graphs.
+\newblock \emph{Random Structures \& Algorithms}, 6\penalty0 (2--3):\penalty0
+  353--356, 1995.
+\newblock \doi{10.1002/rsa.3240060222}.
+\newblock URL \url{https://doi.org/10.1002/rsa.3240060222}.
 
 \bibitem[Erd{\H{o}}s and Gimbel(1993)]{erdos-gimbel-1993}
 Paul Erd{\H{o}}s and John Gimbel.
@@ -24,12 +45,6 @@ John Gimbel.
 \newblock \doi{10.1007/978-3-319-31940-7_7}.
 \newblock URL \url{https://doi.org/10.1007/978-3-319-31940-7_7}.
 
-\bibitem[Bloom(2026)]{bloom-erdos625}
-Thomas~F. Bloom.
-\newblock Erd{\H{o}}s problem \#625.
-\newblock \url{https://www.erdosproblems.com/625}, 2026.
-\newblock Accessed 16 July 2026.
-
 \bibitem[Grimmett and McDiarmid(1975)]{grimmett-mcdiarmid-1975}
 Geoffrey~R. Grimmett and Colin J.~H. McDiarmid.
 \newblock On colouring random graphs.
@@ -38,20 +53,43 @@ Geoffrey~R. Grimmett and Colin J.~H. McDiarmid.
 \newblock \doi{10.1017/S0305004100051124}.
 \newblock URL \url{https://doi.org/10.1017/S0305004100051124}.
 
-\bibitem[Matula(1987)]{matula-1987}
-David~W. Matula.
-\newblock Expose-and-merge exploration and the chromatic number of a random
-  graph.
-\newblock \emph{Combinatorica}, 7\penalty0 (3):\penalty0 275--284, 1987.
-\newblock \doi{10.1007/BF02579304}.
-\newblock URL \url{https://doi.org/10.1007/BF02579304}.
+\bibitem[Heckel(2018)]{heckel-2018}
+Annika Heckel.
+\newblock The chromatic number of dense random graphs.
+\newblock \emph{Random Structures \& Algorithms}, 53\penalty0 (1):\penalty0
+  140--182, 2018.
+\newblock \doi{10.1002/rsa.20757}.
+\newblock URL \url{https://doi.org/10.1002/rsa.20757}.
 
-\bibitem[Bollob{\'{a}}s(1988)]{bollobas-1988}
-B{\'{e}}la Bollob{\'{a}}s.
-\newblock The chromatic number of random graphs.
-\newblock \emph{Combinatorica}, 8\penalty0 (1):\penalty0 49--55, 1988.
-\newblock \doi{10.1007/BF02122551}.
-\newblock URL \url{https://doi.org/10.1007/BF02122551}.
+\bibitem[Heckel(2024)]{heckel-2024-question}
+Annika Heckel.
+\newblock On a question of {Erd{\H{o}}s and Gimbel} on the cochromatic number.
+\newblock \emph{The Electronic Journal of Combinatorics}, 31\penalty0
+  (4):\penalty0 P4.72, 2024.
+\newblock \doi{10.37236/13346}.
+\newblock URL \url{https://doi.org/10.37236/13346}.
+
+\bibitem[Heckel(2025)]{heckel-2025-difference}
+Annika Heckel.
+\newblock The difference between the chromatic and the cochromatic number of a
+  random graph, 2025.
+\newblock URL \url{https://arxiv.org/abs/2409.17614}.
+\newblock Version 2, revised 19 February 2025; first submitted in 2024.
+
+\bibitem[Heckel and Panagiotou(2023)]{heckel-panagiotou-2023}
+Annika Heckel and Konstantinos Panagiotou.
+\newblock Colouring random graphs: Tame colourings, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.07253}.
+\newblock arXiv:2306.07253.
+
+\bibitem[McDiarmid(1989)]{mcdiarmid-1989}
+Colin McDiarmid.
+\newblock On the method of bounded differences.
+\newblock In Johannes Siemons, editor, \emph{Surveys in Combinatorics, 1989},
+  volume 141 of \emph{London Mathematical Society Lecture Note Series}, pages
+  148--188. Cambridge University Press, 1989.
+\newblock \doi{10.1017/CBO9781107359949.008}.
+\newblock URL \url{https://doi.org/10.1017/CBO9781107359949.008}.
 
 \bibitem[McDiarmid(1990)]{mcdiarmid-1990}
 Colin McDiarmid.
@@ -69,28 +107,19 @@ Konstantinos Panagiotou and Angelika Steger.
 \newblock \doi{10.1016/j.disc.2008.09.019}.
 \newblock URL \url{https://doi.org/10.1016/j.disc.2008.09.019}.
 
-\bibitem[Heckel(2018)]{heckel-2018}
-Annika Heckel.
-\newblock The chromatic number of dense random graphs.
-\newblock \emph{Random Structures \& Algorithms}, 53\penalty0 (1):\penalty0
-  140--182, 2018.
-\newblock \doi{10.1002/rsa.20757}.
-\newblock URL \url{https://doi.org/10.1002/rsa.20757}.
+\bibitem[Scheinerman(1992)]{scheinerman-1992}
+Edward~R. Scheinerman.
+\newblock Generalized chromatic numbers of random graphs.
+\newblock \emph{SIAM Journal on Discrete Mathematics}, 5\penalty0 (1):\penalty0
+  74--80, 1992.
+\newblock \doi{10.1137/0405006}.
+\newblock URL \url{https://doi.org/10.1137/0405006}.
 
-\bibitem[Janson et~al.(2000)Janson, {\L}uczak, and
-  Ruci{\'{n}}ski]{janson-luczak-rucinski-2000}
-Svante Janson, Tomasz {\L}uczak, and Andrzej Ruci{\'{n}}ski.
-\newblock \emph{Random Graphs}.
-\newblock John Wiley \& Sons, New York, 2000.
-\newblock ISBN 0-471-17541-2.
-
-\bibitem[Heckel(2024)]{heckel-2024-question}
-Annika Heckel.
-\newblock On a question of {Erd{\H{o}}s and Gimbel} on the cochromatic number.
-\newblock \emph{The Electronic Journal of Combinatorics}, 31\penalty0
-  (4):\penalty0 P4.72, 2024.
-\newblock \doi{10.37236/13346}.
-\newblock URL \url{https://doi.org/10.37236/13346}.
+\bibitem[Scott(2017)]{scott-2008-2017}
+Alex Scott.
+\newblock On the concentration of the chromatic number of random graphs, 2017.
+\newblock URL \url{https://arxiv.org/abs/0806.0178}.
+\newblock Version 2; first submitted in 2008.
 
 \bibitem[Steiner(2025)]{steiner-2024}
 Raphael Steiner.
@@ -100,47 +129,5 @@ Raphael Steiner.
 \newblock \doi{10.1137/24M1715180}.
 \newblock URL \url{https://doi.org/10.1137/24M1715180}.
 \newblock Published online 17 November 2025; arXiv:2408.02400.
-
-\bibitem[Heckel(2025)]{heckel-2025-difference}
-Annika Heckel.
-\newblock The difference between the chromatic and the cochromatic number of a
-  random graph, 2025.
-\newblock URL \url{https://arxiv.org/abs/2409.17614}.
-\newblock Version 2, revised 19 February 2025; first submitted in 2024.
-
-\bibitem[McDiarmid(1989)]{mcdiarmid-1989}
-Colin McDiarmid.
-\newblock On the method of bounded differences.
-\newblock In Johannes Siemons, editor, \emph{Surveys in Combinatorics, 1989},
-  volume 141 of \emph{London Mathematical Society Lecture Note Series}, pages
-  148--188. Cambridge University Press, 1989.
-\newblock \doi{10.1017/CBO9781107359949.008}.
-\newblock URL \url{https://doi.org/10.1017/CBO9781107359949.008}.
-
-\bibitem[Heckel and Panagiotou(2023)]{heckel-panagiotou-2023}
-Annika Heckel and Konstantinos Panagiotou.
-\newblock Colouring random graphs: Tame colourings, 2023.
-\newblock URL \url{https://arxiv.org/abs/2306.07253}.
-\newblock arXiv:2306.07253.
-
-\bibitem[Scott(2017)]{scott-2008-2017}
-Alex Scott.
-\newblock On the concentration of the chromatic number of random graphs, 2017.
-\newblock URL \url{https://arxiv.org/abs/0806.0178}.
-\newblock Version 2; first submitted in 2008.
-
-\bibitem[Achim et~al.(2025)Achim, Best, Der, F{\'e}d{\'e}rico, Gukov,
-  Halpern-Leistner, Henningsgard, Kudryashov, Meiburg, Michelsen, Patterson,
-  Rodriguez, Scharff, Shanker, Sicca, Sowrirajan, Swope, Tamas, Tenev, Thomm,
-  Williams, and Wu]{achim-et-al-2025}
-Tudor Achim, Alex Best, Kevin Der, Math{\"i}s F{\'e}d{\'e}rico, Sergei Gukov,
-  Daniel Halpern-Leistner, Kirsten Henningsgard, Yury Kudryashov, Alexander
-  Meiburg, Martin Michelsen, Riley Patterson, Eric Rodriguez, Laura Scharff,
-  Vikram Shanker, Vladimir Sicca, Hari Sowrirajan, Aidan Swope, Matyas Tamas,
-  Vlad Tenev, Jonathan Thomm, Harold Williams, and Lawrence Wu.
-\newblock {Aristotle}: {IMO}-level automated theorem proving, 2025.
-\newblock URL \url{https://doi.org/10.48550/arXiv.2510.01346}.
-\newblock arXiv:2510.01346; version 2, revised 10 October 2025; DOI
-  10.48550/arXiv.2510.01346.
 
 \end{thebibliography}

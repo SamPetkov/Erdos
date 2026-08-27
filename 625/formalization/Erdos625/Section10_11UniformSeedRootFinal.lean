@@ -4,10 +4,10 @@ import Erdos625.Section11ThresholdFinalAssembly
 import Mathlib.Tactic
 
 /-!
-# Sections X--XI D3: uniform seed/root final wrapper
+# Sections X--XI: uniform seed/root final wrapper
 
 The substantive seed, chromatic at-most tail, and root separation remain
-explicit hypotheses.  This task only composes accepted amplification and
+explicit hypotheses.  This module composes the proved amplification and
 event-assembly theorems.
 -/
 

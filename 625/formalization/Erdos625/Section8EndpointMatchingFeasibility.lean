@@ -3,9 +3,9 @@ import Erdos625.Section8TypeTableFeasibility
 import Mathlib.Tactic
 
 /-!
-# Target D: full-table feasibility from block matching
+# Full-table feasibility from block matching
 
-The block matching is an explicit input. This target must not identify the
+The block matching is an explicit input. This theorem does not identify the
 full-cell table with a raw stub aggregate or infer matching from stub
 uniqueness without the canonical-high bridge.
 -/

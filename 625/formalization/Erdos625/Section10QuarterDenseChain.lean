@@ -5,7 +5,7 @@ import Mathlib.Tactic
 /-!
 # Section 10: abstract quarter-dense neighbourhood chain
 
-This module turns the checked one-step neighbourhood lemma into a finite
+This module turns the one-step neighbourhood lemma into a finite
 deterministic clique-and-residual chain.  Its hypotheses deliberately include
 the numerical survival condition needed to make every intermediate residual
 large enough for the quarter-density assumption.  It does not prove that
@@ -20,7 +20,7 @@ namespace Erdos625
 noncomputable section
 
 /-- Repeating the deterministic quarter-dense neighbourhood step produces a
-clique of the requested finite length and a common-neighbour residual set.
+clique of the specified finite length and a common-neighbour residual set.
 
 The shifted potential `4⁻¹^i * (|S| + 1/3) - 1/3` is used because it is
 preserved exactly by the recurrence `|T| ≥ (|S| - 1) / 4`.  The hypothesis

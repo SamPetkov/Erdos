@@ -96,7 +96,7 @@ theorem sum_fourEndpointAllHighChoiceWeight_eq_product
     (fourEndpointAllHighWeight n alpha hAlpha P)
 
 /-- Uniform finite product bound for all literal high deficits decorating one
-endpoint block pairing. The phase-dependent task is reduced to proving that
+endpoint block pairing. The phase-dependent estimate reduces to proving that
 `rho ≤ 1` and that it dominates every local `allHighCellBase`. -/
 theorem sum_fourEndpointAllHighChoiceWeight_le_uniform
     (n alpha : Nat) (hAlpha : 5 < alpha) (hHigh : 8 < alpha)

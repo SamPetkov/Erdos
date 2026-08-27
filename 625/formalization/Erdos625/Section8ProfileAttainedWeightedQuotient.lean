@@ -73,7 +73,7 @@ noncomputable def profileMajorizedPhysicalTableWeight
   else 0
 
 /-- The physical fibre cardinality as an `ENNReal` quotient.  This is the
-endpoint-safe specialization missing from the semifield-valued generic
+endpoint-safe specialization of the semifield-valued generic
 quotient: the factorial denominator is a finite positive natural cast, hence
 is neither zero nor top. -/
 theorem ennreal_card_unlabelledSkeleton_fibre_eq_descendingProducts_div_cellFactorials

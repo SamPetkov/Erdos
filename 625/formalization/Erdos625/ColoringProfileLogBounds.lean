@@ -8,7 +8,7 @@ This module combines the exact logarithmic first-moment identity with the
 zero-safe factorial estimates.  It isolates the discrete upper expression
 that precedes the variational maximization in manuscript (4.3).
 
-The result is finite and explicit.  It does not yet identify the constrained
+The result is finite and explicit.  It does not identify the constrained
 maximum with `L_+(n,k)` or make an asymptotic claim.
 -/
 

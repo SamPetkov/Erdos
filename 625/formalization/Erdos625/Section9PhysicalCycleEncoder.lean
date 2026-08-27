@@ -11,7 +11,7 @@ original cycle, and derives injectivity solely from that reconstruction.
 
 The chosen target code still contains no source cycle or reconstruction
 certificate.  This module also transports the exact physical residual weight
-to the chosen code.  It does not yet package the dependent marked-start and
+to the chosen code.  It does not package the dependent marked-start and
 block-count indices or compare the resulting family sum with the complete
 relaxed traversal enumeration.
 -/

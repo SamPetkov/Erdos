@@ -11,7 +11,7 @@ to the deterministic radius
 
 The seed exponent remains an arbitrary nonnegative sequence satisfying the
 explicit little-`o` hypothesis from the manuscript.  No concrete Section IX
-estimate is proved or imported here.
+estimate is used in this specialization.
 -/
 
 namespace Erdos625

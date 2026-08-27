@@ -182,9 +182,8 @@ theorem residualWalkRatio_lt_one
   exact (ENNReal.div_lt_iff (Or.inl hdenom.ne') (Or.inl (by simp))).mpr
     (by simpa using (lt_tsub_iff_right.mpr hsum))
 
-/-- Finite algebraic form of (9.17)--(9.18) after a positive residual-block
-kernel has been constructed.  The missing cycle-cutting injection is not an
-assumption or conclusion of this theorem. -/
+/-- Finite algebraic form of (9.17)--(9.18) for a positive residual-block
+kernel.  The cycle-cutting injection is handled separately. -/
 theorem finite_relaxed_matchingTraversal_enumeration
     {A B : Type*} [Fintype A] [Fintype B]
     [DecidableEq A] [DecidableEq B]

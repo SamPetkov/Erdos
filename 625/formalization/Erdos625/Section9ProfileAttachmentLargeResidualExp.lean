@@ -10,11 +10,7 @@ canonical reference witness of an attained profile high skeleton.  The bound
 retains the literal cap/no-return numerator and does not substitute a polymer
 majorant.
 
-The proof was returned by Aristotle project
-`1905d738-1618-4c53-9677-b32ad19fdc8d`, task
-`5aefcfe9-65cc-44ad-bcc2-043872f7a980`, and independently audited before
-integration.  Only its proof body and a necessary closing parenthesis were
-ported.
+The endpoint is stated directly for the canonical attained-profile witness.
 -/
 
 namespace Erdos625

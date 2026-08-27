@@ -3,10 +3,10 @@ import Erdos625.ConfigurationModelProbability
 import Mathlib.Tactic
 
 /-!
-# E5: physical-skeleton fibre grouping by type table
+# Physical-skeleton fibre grouping by type table
 
 This file groups the finite physical unlabelled skeleton space by the literal
-`typeTable` map and applies the accepted one-factorial fibre identity.  No
+`typeTable` map and applies the proved one-factorial fibre identity.  No
 additional ordering or factorial quotient is introduced.
 -/
 
@@ -61,7 +61,7 @@ theorem sum_unlabelledSkeleton_weight_eq_sum_typeTables
   simp +contextual [ Finset.sum_filter ];
   simp +decide [ Finset.sum_ite ]
 
-/-- Casted form of the accepted cross-multiplied fibre cardinality.  It has
+/-- Casted form of the proved cross-multiplied fibre cardinality.  It has
 exactly one cell-factorial product. -/
 theorem cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
     {I J R : Type*}
@@ -79,7 +79,7 @@ theorem cast_card_unlabelledSkeleton_fibre_mul_cellFactorials
     (card_unlabelledTypedSkeleton_typeTable_mul_factorials L k ell)
 
 /-- Combined weighted grouping after the exact fibre-cardinality rewrite.
-The source contains the same single cell-factorial product as the accepted
+The source contains the same single cell-factorial product as the proved
 cross-multiplied theorem and no additional multiplicity. -/
 theorem sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts
     {I J R : Type*}

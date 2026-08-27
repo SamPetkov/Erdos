@@ -3,7 +3,7 @@ import Erdos625.ProfileValueUniformS4
 /-!
 # Sequential continuity of the four-point tilt and optimizer
 
-This module proves the finite-support parameter-continuity brick needed for
+This module proves the finite-support parameter-continuity result needed for
 the profile analysis.  Coordinatewise convergence of the four score
 coordinates and convergence of an interior target imply convergence of the
 unique exponential tilt and of every optimizer coordinate.

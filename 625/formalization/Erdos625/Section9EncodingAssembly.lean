@@ -8,7 +8,7 @@ This module gives the deterministic seam needed by the small-residual branch
 of Section IX.  Any finite family that admits an injective encoding by even
 `ZMod 2` matrices supported on a row matching plus an explicit residual
 relation inherits the verified `2 ^ |R|` bound.  For the actual configuration
-residual-support relation, the accepted mass estimate then bounds the exponent
+residual-support relation, the proved mass estimate then bounds the exponent
 by half the total row-stub mass.
 
 The existence, injectivity, evenness, and support properties of the concrete
@@ -23,7 +23,7 @@ open scoped BigOperators
 noncomputable section
 
 /-- An explicit injective even-matrix encoding supported on `M ∪ R` turns the
-accepted restriction injection into a cardinality bound for the source
+proved restriction injection into a cardinality bound for the source
 family. -/
 theorem card_family_le_pow_residualCells_of_even_encoding
     {X A B : Type*} [Finite X] [Fintype A] [Fintype B]

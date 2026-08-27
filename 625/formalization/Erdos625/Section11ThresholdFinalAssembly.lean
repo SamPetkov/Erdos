@@ -2,9 +2,9 @@ import Erdos625.Section11AsymptoticAssembly
 import Mathlib.Tactic
 
 /-!
-# Section XI D2: two-tail threshold assembly
+# Section XI: two-tail threshold assembly
 
-This task closes only the generic final event seam.  Both probability-one
+This module closes the generic final event seam.  Both probability-one
 tails and the exact eventual threshold separation remain explicit inputs.
 -/
 

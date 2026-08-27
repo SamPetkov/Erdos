@@ -6,10 +6,7 @@ import Erdos625.PhaseEstimates
 This module supplies the eventual natural-number inequality required by the
 large-residual finite attachment estimate.
 
-The proof was returned by Aristotle project
-`0b21c723-27c0-44f3-a7d3-a52530bad0fe`, task
-`15a8d5cc-f68f-4998-a111-cc9597b58011`, and independently audited before
-integration.
+The result is stated as the eventual natural-number corridor used downstream.
 -/
 
 namespace Erdos625

@@ -292,7 +292,7 @@ noncomputable def shapeBlockIndexOfSizeEquivOrderedSlotPartsOfSize
   rw [card_orderedSlotPart]
   rfl
 
-/-- The kernel partition has the requested multiplicity of every block
+/-- The kernel partition has the specified multiplicity of every block
 size. -/
 theorem count_partitionShape_orderedSlotKernelPartition
     {b n : ℕ} {k : ColoringProfile b}

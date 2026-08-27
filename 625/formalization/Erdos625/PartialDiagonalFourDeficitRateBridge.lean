@@ -6,7 +6,7 @@ import Mathlib.Tactic
 # Section VII four-deficit partial-diagonal rate bridge
 
 The sole proof obligation derives the two scalar structural inequalities from
-the actual four-deficit profile geometry and invokes the already checked scalar
+the actual four-deficit profile geometry and invokes the proved scalar
 rate bound.  It is a finite deterministic bridge only; it does not assert a
 Stirling estimate, a midpoint construction, or an asymptotic diagonal-mass
 limit.
