@@ -1,0 +1,104 @@
+name: Erdős 625 selected-root first moment
+
+on:
+  pull_request:
+    paths:
+      - "625/formalization/Erdos625/SelectedPhaseRootFirstMoment.lean"
+      - ".github/workflows/erdos625-selected-root-first-moment.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-lean-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Reject placeholders and project axioms
+        shell: bash
+        run: |
+          if grep -nE \
+            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+            625/formalization/Erdos625/SelectedPhaseRootFirstMoment.lean; then
+            exit 1
+          fi
+      - id: lean_build
+        continue-on-error: true
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
+        with:
+          lake-package-directory: 625/formalization
+          auto-config: false
+          build: true
+          build-args: --wfail Erdos625.SelectedPhaseRootFirstMoment
+          use-mathlib-cache: true
+          use-github-cache: false
+          nanoda: false
+      - name: Capture concise Lean diagnostics
+        if: steps.lean_build.outcome == 'failure'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set +e
+          lake build --wfail Erdos625.SelectedPhaseRootFirstMoment \
+            > lean-build.log 2>&1
+          status=$?
+          grep -nE 'error:|unsolved goals|type mismatch|application type mismatch|unknown constant|declaration uses|unused variable|unexpected token|linarith failed|nlinarith failed|No goals to be solved' \
+            lean-build.log > lean-errors.txt || true
+          tail -n 1400 lean-build.log > lean-tail.txt
+          printf '%s\n' "$status" > lean-status.txt
+          cat lean-errors.txt
+      - name: Replay and audit theorem axioms
+        if: steps.lean_build.outcome == 'success'
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          cat > SelectedPhaseRootFirstMomentAxiomAudit.lean <<'EOF'
+          import Erdos625.SelectedPhaseRootFirstMoment
+
+          #print axioms Erdos625.tendsto_finiteSignedFourMargin_at_unrestrictedPhaseRoot_sub_phaseMargin
+          #print axioms Erdos625.eventually_finiteSignedFourMargin_at_unrestrictedPhaseRoot_pos
+          #print axioms Erdos625.eventually_phaseSignedFourSizeObjective_unrestrictedPhaseRoot_pos
+          #print axioms Erdos625.eventually_signedPhaseRoot_lt_unrestrictedPhaseRoot
+          #print axioms Erdos625.eventually_selectedPhaseRootCorridor_feasible
+          #print axioms Erdos625.tendsto_selectedPhaseRootGap_sub_phaseMargin
+          #print axioms Erdos625.eventually_selectedPhaseRoot_firstMoment_lowerBound
+          EOF
+          set +e
+          lake env lean SelectedPhaseRootFirstMomentAxiomAudit.lean \
+            > lean-axioms.log 2>&1
+          status=$?
+          set -e
+          rm -f SelectedPhaseRootFirstMomentAxiomAudit.lean
+          cat lean-axioms.log
+          test "$status" -eq 0
+          if grep -Fq 'sorryAx' lean-axioms.log; then
+            echo 'forbidden sorryAx dependency detected'
+            exit 1
+          fi
+          for declaration in \
+            tendsto_finiteSignedFourMargin_at_unrestrictedPhaseRoot_sub_phaseMargin \
+            eventually_finiteSignedFourMargin_at_unrestrictedPhaseRoot_pos \
+            eventually_phaseSignedFourSizeObjective_unrestrictedPhaseRoot_pos \
+            eventually_signedPhaseRoot_lt_unrestrictedPhaseRoot \
+            eventually_selectedPhaseRootCorridor_feasible \
+            tendsto_selectedPhaseRootGap_sub_phaseMargin \
+            eventually_selectedPhaseRoot_firstMoment_lowerBound; do
+            grep -Fq "$declaration" lean-axioms.log || {
+              echo "missing axiom report for $declaration"
+              exit 1
+            }
+          done
+      - name: Upload Lean diagnostics
+        if: always() && steps.lean_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: selected-root-first-moment-diagnostics
+          path: |
+            625/formalization/lean-build.log
+            625/formalization/lean-errors.txt
+            625/formalization/lean-tail.txt
+            625/formalization/lean-status.txt
+      - name: Stop after validation failure
+        if: steps.lean_build.outcome == 'failure'
+        run: exit 1
