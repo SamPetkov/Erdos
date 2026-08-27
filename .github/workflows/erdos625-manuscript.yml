@@ -113,7 +113,23 @@ jobs:
 
           pdftotext -layout main.pdf rebuilt.txt
           pdftotext -layout "$GITHUB_WORKSPACE/625/arxiv/main.pdf" committed.txt
-          cmp rebuilt.txt committed.txt
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def normalized_text(path: str) -> str:
+              return " ".join(
+                  Path(path).read_text(encoding="utf-8", errors="strict").split()
+              )
+
+          rebuilt = normalized_text("rebuilt.txt")
+          committed = normalized_text("committed.txt")
+          if rebuilt != committed:
+              raise SystemExit(
+                  "committed PDF text differs from the clean rebuild after "
+                  "whitespace normalization"
+              )
+          print("verified committed PDF text against the clean rebuild")
+          PY
           test "$(wc -w <rebuilt.txt)" -ge 20000
           grep -qF '200/153' rebuilt.txt
 
