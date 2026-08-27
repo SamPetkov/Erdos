@@ -347,7 +347,9 @@ theorem deriv_unrestrictedPhaseObjective_eq_expression
         (phaseNat n)
         (profileDeficitTarget (phaseNat n) (n : ℝ) parts)).mp
         hDeficitInterior
-    convert h using 1 <;> ring
+    convert h using 1
+    unfold profileDeficitTarget
+    ring
   have hb : 2 ≤ phaseNat n + 1 := by omega
   change deriv
       (fun k ↦ profileDualOptimalValue (phaseNat n + 1) (n : ℝ) k)
