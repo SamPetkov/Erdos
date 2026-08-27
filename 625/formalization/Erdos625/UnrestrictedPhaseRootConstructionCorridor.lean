@@ -194,28 +194,8 @@ theorem
   exact unrestrictedPhaseRootConstructionRadius_pos_and_feasible
     n hn hCenter (by omega)
 
-/-- The construction radius is eventually strictly smaller than the positive
-phase center, so both endpoints of the symmetric corridor are positive. -/
-theorem
-    eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center :
-    ∀ᶠ n : ℕ in atTop,
-      0 < unrestrictedPhaseRootConstructionRadius n ∧
-        unrestrictedPhaseRootConstructionRadius n < phaseRootCenter n := by
-  filter_upwards
-    [eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible]
-      with n hn
-  have hEndpoints :
-      phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n ≤
-        phaseRootCenter n + unrestrictedPhaseRootConstructionRadius n := by
-    linarith [hn.1]
-  have hLeft := hn.2
-    (phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n)
-    (left_mem_Icc.mpr hEndpoints)
-  exact ⟨hn.1, by linarith [hLeft.1]⟩
-
 #print axioms unrestrictedPhaseRootConstructionRadius_pos_and_feasible
 #print axioms eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible
-#print axioms eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center
 
 end
 
