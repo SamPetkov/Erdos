@@ -1,6 +1,7 @@
 import Erdos625.UnrestrictedPhaseRootConstructionCorridor
 import Erdos625.PhaseRootObjectiveCenterBound
 import Erdos625.UnrestrictedPhaseRootCenterLocalization
+import Erdos625.DeficitTargetDomain
 import Mathlib.Tactic
 
 /-!
@@ -101,17 +102,16 @@ theorem
           (unrestrictedDerivativeSlopeLower C) n :=
     hSlope.eventually (Ioi_mem_nhds hLimitLower)
   filter_upwards [hSlopeBand,
-    eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center,
+    eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible,
+    eventually_phaseRootCenter_pos,
     eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
     eventually_five_lt_phaseNat, eventually_gt_atTop (1 : ℕ)] with
-    n hnSlope hnRadius hnPhaseLog hnPhase hnOne
+    n hnSlope hnConstruction hCenterPos hnPhaseLog hnPhase hnOne
   have hlogPos : 0 < logOrder n :=
     Real.log_pos (by exact_mod_cast hnOne)
   have hlogSqPos : 0 < (logOrder n) ^ 2 := pow_pos hlogPos 2
   have hAlphaPos : 0 < (phaseNat n : ℝ) := by
     exact_mod_cast (show 0 < phaseNat n by omega)
-  have hCenterPos : 0 < phaseRootCenter n :=
-    lt_trans hnRadius.1 hnRadius.2
   have hSlopeMain :
       (1 / q) * (logOrder n) ^ 2 <
         unrestrictedDerivativeSlopeLower C n := by
@@ -129,7 +129,7 @@ theorem
         unrestrictedDerivativeSlopeLower C n *
           unrestrictedPhaseRootConstructionRadius n := by
     exact hGeometric.trans_lt
-      (mul_lt_mul_of_pos_right hSlopeMain hnRadius.1)
+      (mul_lt_mul_of_pos_right hSlopeMain hnConstruction.1)
   have hCoefficient :
       (1 / (100 * q) : ℝ) < 1 / (40 * q) := by
     field_simp [q_ne_zero]
@@ -169,16 +169,14 @@ theorem eventually_existsUnique_unrestrictedPhaseRootData :
       C hSlopeLower
   filter_upwards [
     eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible,
-    eventually_unrestrictedPhaseRootConstructionRadius_pos_lt_center,
+    eventually_phaseRootCenter_pos,
     eventually_abs_unrestrictedPhaseObjective_center_le_envelope,
     hDerivative, hMargin, eventually_five_lt_phaseNat,
     eventually_gt_atTop (1 : ℕ)] with
-    n hnConstruction hnRadiusCenter hnCenter hnDerivative hnMargin
+    n hnConstruction hCenterPos hnCenter hnDerivative hnMargin
       hnPhase hnOne
   have hlogPos : 0 < logOrder n :=
     Real.log_pos (by exact_mod_cast hnOne)
-  have hCenterPos : 0 < phaseRootCenter n :=
-    lt_trans hnRadiusCenter.1 hnRadiusCenter.2
   have hEnvelopeNonneg :
       0 ≤ unrestrictedPhaseRootCenterEnvelope n := by
     unfold unrestrictedPhaseRootCenterEnvelope
@@ -245,15 +243,15 @@ theorem unrestrictedPhaseRoot_centerLocalization :
       =O[atTop] logLogOrder := by
   obtain ⟨C, _hC, hDerivative, hSlopeLower, _hSlopeUpper⟩ :=
     exists_unrestrictedDerivativeCorridor
-  have hFeasible : ∀ᶠ n : ℕ in atTop,
+  have hSegmentData : ∀ᶠ n : ℕ in atTop,
       ∀ s ∈ Icc (min (phaseRootCenter n) (unrestrictedPhaseRoot n))
           (max (phaseRootCenter n) (unrestrictedPhaseRoot n)),
         0 < s ∧
-          (n : ℝ) / s ∈
-            Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ)) := by
+          profileDeficitTarget (phaseNat n) (n : ℝ) s ∈
+            signedFourAdmissibilityTargetCorridor := by
     filter_upwards [eventually_unrestrictedPhaseRootData,
-      eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible,
-      eventually_five_lt_phaseNat] with n hnRoot hnConstruction hnPhase
+      eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible]
+      with n hnRoot hnConstruction
     intro s hs
     have hLower :
         phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n ≤
@@ -265,11 +263,18 @@ theorem unrestrictedPhaseRoot_centerLocalization :
           phaseRootCenter n + unrestrictedPhaseRootConstructionRadius n := by
       exact max_le
         (by linarith [hnConstruction.1]) hnRoot.1.2.le
-    have hsConstruction : s ∈ Icc
-        (phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n)
-        (phaseRootCenter n + unrestrictedPhaseRootConstructionRadius n) :=
+    exact hnConstruction.2 s
       ⟨hLower.trans hs.1, hs.2.trans hUpper⟩
-    have hsData := hnConstruction.2 s hsConstruction
+  have hFeasible : ∀ᶠ n : ℕ in atTop,
+      ∀ s ∈ Icc (min (phaseRootCenter n) (unrestrictedPhaseRoot n))
+          (max (phaseRootCenter n) (unrestrictedPhaseRoot n)),
+        0 < s ∧
+          (n : ℝ) / s ∈
+            Ioo (1 : ℝ) ((((phaseNat n) + 1 : ℕ) : ℝ)) := by
+    filter_upwards [hSegmentData, eventually_five_lt_phaseNat] with
+      n hnSegment hnPhase
+    intro s hs
+    have hsData := hnSegment s hs
     have hDeficitInterior :
         profileDeficitTarget (phaseNat n) (n : ℝ) s ∈
           Ioo (-1 : ℝ) ((phaseNat n : ℝ) - 1) := by
@@ -278,39 +283,17 @@ theorem unrestrictedPhaseRoot_centerLocalization :
       have hPhaseReal : (6 : ℝ) ≤ (phaseNat n : ℝ) := by
         exact_mod_cast (show 6 ≤ phaseNat n by omega)
       constructor <;> linarith
-    have hSize :=
-      (deficitTarget_mem_Ioo_iff_sizeTarget_mem_Ioo
-        (phaseNat n)
-        (profileDeficitTarget (phaseNat n) (n : ℝ) s)).mp
-        hDeficitInterior
-    refine ⟨hsData.1, ?_⟩
-    convert hSize using 1
-    unfold profileDeficitTarget
-    ring
+    exact ⟨hsData.1,
+      (phaseDeficitTarget_domain_coordinates hDeficitInterior).1⟩
   have hDerivLower : ∀ᶠ n : ℕ in atTop,
       ∀ s ∈ Ioo (min (phaseRootCenter n) (unrestrictedPhaseRoot n))
           (max (phaseRootCenter n) (unrestrictedPhaseRoot n)),
         unrestrictedDerivativeSlopeLower C n ≤
           deriv (unrestrictedPhaseObjective n) s := by
-    filter_upwards [eventually_unrestrictedPhaseRootData,
-      eventually_unrestrictedPhaseRootConstructionRadius_pos_and_feasible,
-      hDerivative] with n hnRoot hnConstruction hnDerivative
+    filter_upwards [hSegmentData, hDerivative] with
+      n hnSegment hnDerivative
     intro s hs
-    have hLower :
-        phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n ≤
-          min (phaseRootCenter n) (unrestrictedPhaseRoot n) := by
-      exact le_min
-        (by linarith [hnConstruction.1]) hnRoot.1.1.le
-    have hUpper :
-        max (phaseRootCenter n) (unrestrictedPhaseRoot n) ≤
-          phaseRootCenter n + unrestrictedPhaseRootConstructionRadius n := by
-      exact max_le
-        (by linarith [hnConstruction.1]) hnRoot.1.2.le
-    have hsConstruction : s ∈ Icc
-        (phaseRootCenter n - unrestrictedPhaseRootConstructionRadius n)
-        (phaseRootCenter n + unrestrictedPhaseRootConstructionRadius n) :=
-      ⟨hLower.trans hs.1.le, hs.2.le.trans hUpper⟩
-    have hsData := hnConstruction.2 s hsConstruction
+    have hsData := hnSegment s (Ioo_subset_Icc_self hs)
     exact (hnDerivative s hsData.1 hsData.2).1
   exact
     signedFourNormalizedRightRootCenterDisplacement_isBigO_logLogOrder
