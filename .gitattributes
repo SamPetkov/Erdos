@@ -16,13 +16,6 @@ LICENSE_SCOPE.md text eol=lf
 625/**/lake-manifest.json text eol=lf
 625/**/lean-toolchain text eol=lf
 .github/workflows/*.yml text eol=lf
-625/proofs/COMPLETE_PROOF_SELF_CONTAINED.md text eol=lf
-625/verification/erdos625_verification_report.md text eol=lf
-625/verification/erdos625_independent_checks.py text eol=lf
-625/output/tex/* text eol=lf
-625/releases/*.txt text eol=lf
-625/experiments/EXACT_EXPERIMENTS.csv text eol=lf
-625/experiments/render_erdos625_animation.py text eol=lf
 625/assets/animations/*.json text eol=lf
 625/assets/animations/*.md text eol=lf
 

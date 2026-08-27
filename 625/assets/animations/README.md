@@ -34,30 +34,6 @@ The full edge list, witnesses, render settings, hashes, and output sizes are
 machine-readable in
 [`erdos625-coloring-example.json`](erdos625-coloring-example.json).
 
-## Rebuild
-
-From the repository root, use Python 3.10 or newer with Pillow installed and
-either FFmpeg on `PATH` or the `imageio-ffmpeg` package available:
-
-```powershell
-python 625/experiments/render_erdos625_animation.py
-```
-
-If FFmpeg is not on `PATH`, pass it explicitly:
-
-```powershell
-python 625/experiments/render_erdos625_animation.py --ffmpeg C:\path\to\ffmpeg.exe
-```
-
-The script imports the repository's exact solver, reconstructs and validates
-the fixed graph and all witnesses, then renders both formats. It uses no
-random layout state and records both the generator-script hash and imported
-exact-solver hash in the JSON sidecar. The sidecar stores the FFmpeg executable
-basename, discovery source, version, Python and Pillow versions, and font
-basenames, not machine-specific paths. Graph generation and layout are
-deterministic; byte-identical media also depend on the recorded fonts, Pillow,
-and FFmpeg implementation.
-
 ## Current media
 
 - GIF: 960×540, 10 frames/s, 20 seconds, 530,838 bytes,

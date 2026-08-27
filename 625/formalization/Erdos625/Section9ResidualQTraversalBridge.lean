@@ -4,8 +4,8 @@ import Erdos625.Section9TraversalKernel
 /-!
 # Section IX: residual `q` as a bipartite traversal kernel
 
-This module composes the accepted degree-cap residual-q row/column estimate
-with the accepted generic bipartite-kernel interface.  It is a deterministic
+This module composes the proved degree-cap residual-q row/column estimate
+with the established generic bipartite-kernel interface.  It is a deterministic
 finite kernel-norm bridge only: it neither identifies a conditioned residual
 law, encodes cycles as walks, nor proves an attachment estimate.
 -/

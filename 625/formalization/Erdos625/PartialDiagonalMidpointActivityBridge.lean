@@ -5,9 +5,7 @@ import Mathlib.Tactic
 # Section VII empty-corner cutoff activity
 
 This module records the exact finite cutoff activity used by the
-partial-diagonal iteration.  It is a local port of the useful part of the
-Aristotle S7 activity return, with the proof written out using ordinary Lean
-tactics and no automation-with-suggestions source.
+partial-diagonal iteration.  The proof is written using ordinary Lean tactics.
 -/
 
 namespace Erdos625

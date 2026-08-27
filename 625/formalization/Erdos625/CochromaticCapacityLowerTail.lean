@@ -5,7 +5,7 @@ import Erdos625.CochromaticSeedGap
 
 This module closes the one-sided lower-tail step corresponding to manuscript
 display (10.8).  The concentration estimate is derived from the negation of
-the audited sub-Gaussian MGF on the exact vertex-block product space and then
+the proved sub-Gaussian MGF on the exact vertex-block product space and then
 transported to `G(n, 1/2)`.  Combining it with the rare-seed endpoint gap
 gives an explicit failure-probability estimate with no two-sided factor.
 -/

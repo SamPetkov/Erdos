@@ -446,7 +446,7 @@ theorem jointPrescribedCellBound_cellwise_of_totalDemand_le
       symm
       exact configurationCellWeight_product_eq_global demand row col m hm
 
-/-- If the total requested cell demand exceeds the number of row stubs, the
+/-- If the total prescribed cell demand exceeds the number of row stubs, the
 prescribed-cell event is empty. -/
 theorem not_mem_prescribedCellEvent_of_total_lt
     {A B : Type*}

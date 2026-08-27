@@ -5,7 +5,7 @@ import Mathlib.Tactic
 /-!
 # Section IX: universal residual-q quadratic bound
 
-This module transports the accepted finite real endpoint estimate to the
+This module transports the proved finite real endpoint estimate to the
 literal `ENNReal` residual kernel. It is a pointwise analytic bridge only: it
 does not identify a conditioned residual event, prove an attachment estimate,
 or assemble Lemma 9.1.

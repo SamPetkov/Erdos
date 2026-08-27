@@ -8,10 +8,7 @@ This is the exact finite induction used at the full corner of Section VII.
 It assumes the ratio bound only along coordinate prefixes of the particular
 residual profile; it does not assume or prove the later midpoint asymptotics.
 
-The proof was returned by Aristotle project
-`48c50b13-4409-4141-8c8f-ecf2d88249b9`, task
-`b2eec47e-ff64-4d64-bbb7-d94b558ba392`, and independently audited before
-integration.
+The induction is stated directly at the finite level needed downstream.
 -/
 
 namespace Erdos625

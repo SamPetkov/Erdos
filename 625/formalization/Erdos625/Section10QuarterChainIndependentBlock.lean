@@ -9,11 +9,11 @@ import Mathlib.Tactic
 /-!
 # Section X: uniform independent blocks from the quarter-density event
 
-This module composes the accepted all-larger complement-density event, finite
+This module composes the proved all-larger complement-density event, finite
 quarter-dense clique chain, and shifted-potential survival estimate.  On one
 event, every sufficiently large vertex set contains an independent block of
 the same deterministic cardinality.  The final theorem then exposes the exact
-uniform hypothesis consumed by the accepted greedy-colouring recursion.
+uniform hypothesis consumed by the established greedy-colouring recursion.
 
 This is still a deterministic/probability-event bridge.  It does not prove the
 numerical `O(|U| / log n) + n^(1/3)` estimate, the simultaneous leftover event
@@ -92,7 +92,7 @@ theorem quarterChainIndependentBlockEvent_probability_tendsto_one :
           measure_mono (Set.subset_univ _)
         _ = 1 := measure_univ
 
-/-- On the independent-block event, the accepted greedy recursion gives one
+/-- On the independent-block event, the established greedy recursion gives one
 chromatic bound simultaneously for every induced vertex set. -/
 theorem chromaticNumberNat_induce_le_of_independentBlockEvent
     (n : ℕ) (G : LabeledGraph n)

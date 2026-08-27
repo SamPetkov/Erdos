@@ -3,9 +3,9 @@ import Erdos625.Section11EventAssembly
 import Mathlib.Tactic
 
 /-!
-# Section XI D1: graph-specific chromatic-tail adapter
+# Section XI: graph-specific chromatic-tail adapter
 
-This task specializes the accepted generic strict-lower-tail complement lemma
+This module specializes the generic strict-lower-tail complement lemma
 to the actual random-graph chromatic number and Section XI event.
 -/
 

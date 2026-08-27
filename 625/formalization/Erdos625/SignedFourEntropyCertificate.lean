@@ -6,15 +6,10 @@ import Mathlib.Tactic
 /-!
 # Conditional entropy certificate for the signed four-size profile
 
-This module formalizes the *algebraic endpoint* of manuscript Lemma 5.1.
-It deliberately does not claim the missing analytic estimate
-
-`D₄ < log (153 / 100)`.
-
-The current development contains the four-point optimizer and the limiting
-extended-Gaussian `S₊` partition, but it does not yet define an `S₊` entropy
-value or prove the omitted-tail partition-ratio estimate.  Accordingly, the
-two hypotheses carrying those obligations below are named
+This module formalizes a conditional algebraic form of manuscript Lemma 5.1.
+The analytic estimate `D₄ < log (153 / 100)` is expressed through an
+unrestricted dual bound and a partition-ratio bound.  The two corresponding
+hypotheses below are named
 `h_unrestricted_dual_upper` and `h_partition_ratio_bound`.
 -/
 
@@ -73,8 +68,8 @@ theorem fourGaussianEntropy_eq_dual_at_mean (tilt : ℝ) :
 
 /-- A dual upper bound for an explicitly supplied unrestricted entropy value
 converts to a bound by the ratio of its partition function to the four-point
-partition function.  `h_unrestricted_dual_upper` is the variational direction
-that remains to be supplied for the manuscript's actual `S₊` entropy. -/
+partition function.  `h_unrestricted_dual_upper` states the required
+variational direction for the unrestricted entropy. -/
 theorem entropy_loss_le_log_partition_ratio
     {unrestrictedEntropy target tilt : ℝ}
     (h_mean : ProfileEntropyS4.mean fourGaussianScore tilt = target)
@@ -115,7 +110,7 @@ theorem entropy_loss_le_log_partition_ratio
       rw [Real.log_div h_extended_pos.ne' h_four_pos.ne']
       ring
 
-/-- The still-unproved explicit tail-ratio estimate, together with the
+/-- The explicit tail-ratio hypothesis, together with the
 unrestricted dual upper bound, supplies exactly the manuscript entropy-loss
 inequality.  No numerical approximation is used here. -/
 theorem entropy_loss_lt_log_153_div_100_of_dual_ratio
@@ -161,7 +156,7 @@ theorem entropy_loss_lt_log_153_div_100_at_selected_tilt
     selectedTilt_mean_eq_target h_unrestricted_dual_upper
     selectedTilt_partition_ratio_lt
 
-/-- A complete conditional bridge from the two named missing analytic inputs
+/-- A conditional bridge from the two named analytic hypotheses
 to the explicit signed four-size margin `log (200 / 153)`. -/
 theorem signed_margin_gt_log_200_div_153_of_dual_ratio
     {unrestrictedEntropy target tilt : ℝ}

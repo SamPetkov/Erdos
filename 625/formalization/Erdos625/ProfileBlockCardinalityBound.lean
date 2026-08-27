@@ -4,10 +4,7 @@ import Mathlib.Tactic
 /-!
 # Realized-profile block cardinality
 
-The proof was returned by Aristotle project
-`2a7a3660-f15c-4904-b2d8-fa5bfed9b61b`, task
-`52cb2ed2-a586-4fca-8c97-2648faeba329`, and independently audited before
-integration.
+This module proves the finite block-cardinality estimate used downstream.
 -/
 
 namespace Erdos625

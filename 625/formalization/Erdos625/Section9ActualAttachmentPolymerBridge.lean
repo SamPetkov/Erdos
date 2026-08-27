@@ -11,8 +11,8 @@ Both conclusions concern the **event-restricted expectation** in manuscript
 (9.1): the cap/no-return indicator remains inside the uniform residual
 matching expectation.  No division by its event probability belongs in the
 (9.1)--(9.2) route.  The cycle-space cardinality, full-table reward/support
-split, tagged incidence integration, and final Lemma 9.1 estimate remain
-separate.
+split, tagged incidence integration, and final Lemma 9.1 estimate are handled
+separately.
 -/
 
 namespace Erdos625
@@ -42,7 +42,7 @@ theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum
 /-- The event-restricted attachment numerator is bounded by the common local-threshold
 product times the simple-cycle polymer product.
 
-It does not yet identify the even-family cardinality with the manuscript
+It does not identify the even-family cardinality with the manuscript
 cycle-space factor or integrate the demand-dependent residual estimate over
 the global tagged law. -/
 theorem residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct

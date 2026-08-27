@@ -7,7 +7,7 @@ import Erdos625.Section8CanonicalSkeleton
 For a fixed configuration matching, retain the complete cell precisely when
 its multiplicity is above the canonical cutoff.  The resulting demand has one
 and only one labelled prescribed-demand witness extended by that matching.
-This is the missing labelled-witness identification before manuscript (8.3).
+This module proves the labelled-witness identification used in manuscript (8.3).
 -/
 
 namespace Erdos625

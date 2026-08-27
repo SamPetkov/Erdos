@@ -2,7 +2,7 @@ import Erdos625.Section8EndpointFoundation
 import Mathlib.Tactic
 
 /-!
-# Target A: four-endpoint profile indexing
+# Four-endpoint profile indexing
 
 This is the exact finite bridge from `fourDeficitCoordinate` to the endpoint
 labels used by the Section VIII table. It contains no canonical-demand or

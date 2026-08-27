@@ -3,8 +3,8 @@ import Erdos625.Section10QuarterDenseChain
 /-!
 # Section X: quarter-chain graph adapters
 
-Small deterministic adapters used to connect the accepted complement
-quarter-density chain to the accepted greedy-colouring interface.
+Small deterministic adapters connect the proved complement quarter-density
+chain to the established greedy-colouring interface.
 
 For exact-start subset selection, Mathlib already provides the exact statement
 needed downstream:

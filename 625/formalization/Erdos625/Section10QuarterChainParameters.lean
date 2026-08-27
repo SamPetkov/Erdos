@@ -39,7 +39,7 @@ theorem quarterChainSteps_tendsto_atTop :
     (Tendsto.atTop_div_const (by positivity)
       (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop))
 
-/-- Eventually, at least one quarter-neighbourhood step is requested. -/
+/-- Eventually, the quarter-neighbourhood chain has at least one step. -/
 theorem one_le_quarterChainSteps_eventually :
     ∀ᶠ n : ℕ in atTop, 1 ≤ quarterChainSteps n :=
   quarterChainSteps_tendsto_atTop.eventually_ge_atTop 1

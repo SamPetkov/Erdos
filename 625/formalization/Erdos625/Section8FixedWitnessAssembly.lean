@@ -4,7 +4,7 @@ import Erdos625.UniformConditionalLaw
 /-!
 # Section VIII fixed-witness assembly
 
-This module composes the accepted deterministic and finite-uniform pieces for
+This module composes the proved deterministic and finite-uniform pieces for
 one fixed labelled prescribed-demand witness.  It packages:
 
 * conditioning the ambient finite uniform law on the extension event;
@@ -44,7 +44,7 @@ noncomputable instance instFintypeFixedWitnessExtensionEvent
     Fintype (fixedWitnessExtensionEvent witness) :=
   Fintype.ofFinite _
 
-/-- The extension-event subtype is the domain of the accepted exact residual
+/-- The extension-event subtype is the domain of the exact residual
 configuration equivalence. -/
 def fixedWitnessExtensionEquivResidual
     {A B : Type*} [Fintype A] [Fintype B]

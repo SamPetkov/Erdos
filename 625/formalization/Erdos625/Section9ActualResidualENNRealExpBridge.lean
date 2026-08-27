@@ -4,7 +4,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 /-!
 # Section IX: actual-residual `ENNReal` exponential endpoint
 
-This isolated module turns the finite `ENNReal` polymer product into an
+This module turns the finite `ENNReal` polymer product into an
 extended-real exponential bound.  Writing the exponent in `EReal` is
 intentional: it remains meaningful when a finite polymer weight is `∞`.
 

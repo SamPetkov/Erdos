@@ -7,9 +7,8 @@ import Mathlib.Probability.Combinatorics.BinomialRandomGraph.Defs
 # Exact formal target
 
 The proposition `Erdos625Statement` is the exact full-sequence probability
-claim from the manuscript.  It is deliberately a `def`, not a theorem: this
-milestone states the goal without pretending that the analytic and
-probabilistic proof chain has already been formalized.
+claim from the manuscript.  The final theorem proving it is
+`Erdos625.erdos625`.
 -/
 
 namespace Erdos625
@@ -86,7 +85,7 @@ theorem measurableSet_gapEvent (n : ℕ) : MeasurableSet (gapEvent n) :=
 noncomputable def gapProbability (n : ℕ) : ENNReal :=
   randomGraphMeasure n (gapEvent n)
 
-/-- Exact formal statement of the proposed positive resolution of Erdős
+/-- Exact formal statement of the positive resolution of Erdős
 Problem 625: the displayed event has probability tending to one along the
 full sequence of natural numbers. -/
 def Erdos625Statement : Prop :=

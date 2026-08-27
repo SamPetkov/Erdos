@@ -6,7 +6,7 @@ import Mathlib.Tactic
 # Section IX: phase-controlled `ENNReal` tau corridor
 
 This is only the numerical bridge needed to supply the strict tau hypothesis
-of the accepted actual-attachment large-residual envelope.
+of the proved actual-attachment large-residual envelope.
 -/
 
 namespace Erdos625

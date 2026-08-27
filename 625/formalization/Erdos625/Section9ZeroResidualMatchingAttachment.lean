@@ -101,12 +101,7 @@ theorem residualActualAttachmentNumerator_eq_one_of_total_zero_of_matching
     (uniformConfigurationMatching row col htotal).tsum_coe
 
 /-- A zero-residual canonical raw attachment term is exactly its bare
-reward-incidence factor when the exposed positive support is a matching.
-
-The proof was returned by Aristotle project
-`0b749129-9b66-4f12-b932-6dabeb7a7c81`, task
-`cad19486-ee21-4bcf-ae17-9b123954453b`, and independently audited before
-integration. -/
+reward-incidence factor when the exposed positive support is a matching. -/
 theorem canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching
     {A B : Type*}
     [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B]

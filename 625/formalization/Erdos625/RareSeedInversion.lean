@@ -10,7 +10,7 @@ sub-Gaussian with variance proxy `v`, then its endpoint-to-mean gap is at
 most `sqrt (2 * v * Lambda)`.
 
 The proof is split into deterministic inversion, expectation comparison, and
-event inclusion lemmas so that each bridge can be audited independently.
+event inclusion lemmas so that each bridge is stated separately.
 -/
 
 open MeasureTheory ProbabilityTheory Set

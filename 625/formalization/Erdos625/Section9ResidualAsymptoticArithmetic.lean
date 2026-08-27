@@ -5,9 +5,8 @@ import Mathlib
 
 This module contains three exact finite arithmetic bridges used when the
 large- and small-residual estimates are specialized to the manuscript scale.
-The first two proofs were returned by isolated Aristotle projects.  The third
-was revised after a second Aristotle consultation exposed a Lean 4.31
-portability failure in an orientation-sensitive `convert` step.
+The third proof avoids an orientation-sensitive `convert` step for portability
+with the pinned Lean toolchain.
 
 No probabilistic estimate, skeleton bound, seed estimate, or final theorem is
 claimed in this file.

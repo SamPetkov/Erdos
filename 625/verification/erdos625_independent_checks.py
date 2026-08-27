@@ -2,8 +2,8 @@
 """Independent finite checks for the Erdős 625 proof dossier.
 
 These checks test exact identities and small finite instances used in
-Sections 6 and 8 of COMPLETE_PROOF_SELF_CONTAINED.md.  They are diagnostic;
-they do not prove the asymptotic estimates.
+Sections 6 and 8 of the canonical manuscript in ``625/arxiv/main.tex``. They
+are diagnostic; they do not prove the asymptotic estimates.
 
 Run:
     python erdos625_independent_checks.py

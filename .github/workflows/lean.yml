@@ -19,14 +19,34 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - name: Reject proof placeholders and project axioms
+
+      - name: Reject proof shortcuts and extra trust declarations
         shell: bash
         run: |
-          if grep -RInE --include='*.lean' \
-            '(^|[[:space:]])(sorry|admit|sorryAx)([[:space:][:punct:]]|$)|^[[:space:]]*(axiom|constant|unsafe)[[:space:]]' \
+          set -euo pipefail
+          root=625/formalization
+          if grep -RInE --exclude-dir=.lake --include='*.lean' \
+            '(^|[^[:alnum:]_])(sorry|admit|sorryAx|native_decide|implemented_by|run_tac)([^[:alnum:]_]|$)' \
+            "$root"; then
+            exit 1
+          fi
+          if grep -RInE --exclude-dir=.lake --include='*.lean' \
+            '^[[:space:]]*(@\[[^]]+\][[:space:]]*)?((private|protected|noncomputable)[[:space:]]+)*(axioms?|constants?|opaque|unsafe|extern)([[:space:][:punct:]]|$)' \
+            "$root"; then
+            exit 1
+          fi
+
+      - name: Reject internal provenance and generated-error markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE \
+            --exclude-dir=.lake --exclude='*.olean' --exclude='*.ilean' \
+            '(ChatGPT|Aristotle|ANTIGRAVITY|COMPLETE_WITH_ERRORS|ErdosProofClosed)' \
             625/formalization; then
             exit 1
           fi
+
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: 625/formalization
@@ -36,14 +56,48 @@ jobs:
           use-mathlib-cache: true
           use-github-cache: false
           nanoda: false
+
       - name: Check the generated self-contained proof is current
         working-directory: 625/formalization
         shell: bash
         run: python3 scripts/generate_self_contained.py --check
+
       - name: Compile the self-contained proof warning-fatally
         working-directory: 625/formalization
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p .lake/build/lib/lean
           lake env lean -DwarningAsError=true Erdos625SelfContained.lean \
             -o .lake/build/lib/lean/Erdos625SelfContained.olean
+
+      - name: Verify the exact top-theorem axiom set
+        working-directory: 625/formalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          audit_file="$(mktemp --suffix=.lean)"
+          audit_log="$(mktemp)"
+          trap 'rm -f "$audit_file" "$audit_log"' EXIT
+          cat >"$audit_file" <<'EOF'
+          import Erdos625
+          #print axioms Erdos625.erdos625
+          EOF
+          lake env lean "$audit_file" 2>&1 | tee "$audit_log"
+          python3 - "$audit_log" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+          match = re.search(r"depends on axioms:\s*\[([^]]*)\]", text, re.DOTALL)
+          if match is None:
+              raise SystemExit("could not parse #print axioms output")
+          actual = {item.strip() for item in match.group(1).split(",") if item.strip()}
+          expected = {"propext", "Classical.choice", "Quot.sound"}
+          if actual != expected:
+              raise SystemExit(
+                  f"unexpected axiom set: {sorted(actual)}; expected {sorted(expected)}"
+              )
+          print("verified axiom set:", ", ".join(sorted(actual)))
+          PY

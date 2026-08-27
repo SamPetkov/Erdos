@@ -10,10 +10,7 @@ ratio estimates uniformly over the full phase interval.  The separate module
 the direct manuscript primal supremum: its older finite all-tilts field follows
 automatically from coordinatewise Gibbs inequalities and nonnegativity.
 
-The proof was returned by Aristotle project
-`f916811d-4971-44ae-9c9b-c1d731298958`, task
-`d4d1264a-d9da-4673-b646-ff82a272aa71`, and independently audited before
-integration.
+This module assembles the verified finite and limiting estimates.
 -/
 
 namespace Erdos625

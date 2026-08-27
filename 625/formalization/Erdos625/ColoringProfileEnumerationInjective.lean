@@ -282,7 +282,7 @@ noncomputable def totalProfileDecorationEquiv
     ⟨totalProfileDecorationMap_injective,
       totalProfileDecorationMap_surjective⟩
 
-/-- The combinatorial bijection obligation isolated by the enumeration
+/-- The combinatorial bijection used by the enumeration
 module is fully discharged. -/
 theorem profileDecorationBijectionStatement
     {b : ℕ} (n : ℕ) (k : ColoringProfile b) :

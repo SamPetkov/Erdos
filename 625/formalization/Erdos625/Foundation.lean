@@ -3,13 +3,13 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 /-!
 # Formalization foundation
 
-This module establishes the namespace and records the manuscript constant
-without asserting any unproved probabilistic claim.
+This module establishes the namespace and records the manuscript constant and
+target scale used throughout the formal proof.
 -/
 
 namespace Erdos625
 
-/-- The explicit constant in the proposed Erdős 625 lower bound. -/
+/-- The explicit constant in the Erdős 625 lower bound. -/
 noncomputable def gapConstant : ℝ :=
   (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)
 

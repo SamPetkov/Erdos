@@ -4,7 +4,7 @@ import Mathlib.Analysis.Complex.ExponentialBounds
 /-!
 # Uniform tilt corridor for the four-point Gaussian profile
 
-This file ports the audited finite analytic leaf of the variable-target
+This file proves the finite analytic estimate for the variable-target
 tilt argument into the repository's existing four-point exponential family.
 It deliberately reuses `q`, `fourGaussianScore`, `ProfileEntropyS4.mean`, and
 `ProfileEntropyS4.strictMono_mean`; in particular, it does not introduce a

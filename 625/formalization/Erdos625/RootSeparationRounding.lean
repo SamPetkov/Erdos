@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Exact midpoint rounding for the root corridor
 
-The real root separation is an upstream analytic task. This file formalizes
+Given a real root separation estimate, this file formalizes
 only the deterministic loss from the manuscript choices
 `floor rPlus - ceil N` and `ceil ((rCo + rPlus) / 2)`.
 -/

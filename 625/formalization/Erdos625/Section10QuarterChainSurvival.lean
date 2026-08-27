@@ -24,7 +24,7 @@ noncomputable section
 def quarterChainStart (n : ℕ) : ℕ :=
   ⌈(n : ℝ) ^ (1 / 3 : ℝ)⌉₊
 
-/-- The requested integer number of quarter-neighbourhood steps. -/
+/-- The chosen integer number of quarter-neighbourhood steps. -/
 def quarterChainSteps (n : ℕ) : ℕ :=
   ⌊Real.log (n : ℝ) / (13 * Real.log 4)⌋₊
 

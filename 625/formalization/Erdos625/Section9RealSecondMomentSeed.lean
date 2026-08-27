@@ -4,7 +4,7 @@ import Mathlib.Tactic
 /-!
 # Section IX: real-valued midpoint second-moment seed
 
-This module states the Section X input in the requested real form.  The real
+This module states the Section X input in real form.  The real
 normalized second moment is the finite `toReal` image of the exact Section VI
 `ENNReal` quotient; no replacement probability law or altered normalization
 is introduced.
@@ -22,7 +22,7 @@ noncomputable def signedProfileNormalizedSecondMomentReal
     {b : ℕ} (n : ℕ) (k : ColoringProfile b) : ℝ :=
   (signedProfileSecondMoment n k / signedProfileExpectation n k ^ 2).toReal
 
-/-- The requested finite real inequality with the explicit canonical exponent.
+/-- The finite real inequality with the explicit canonical exponent.
 This is the literal `E[Z^2] / E[Z]^2` quotient formalized in Section VI and
 transported through the attained canonical-demand law. -/
 theorem signedProfileNormalizedSecondMomentReal_le_exp_canonicalMidpointLambda

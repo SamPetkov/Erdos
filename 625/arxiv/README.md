@@ -1,17 +1,18 @@
-# Erdős Problem 625 arXiv package
+# Erdős Problem 625 publication package
 
-The submission source is `main.tex`; bibliography data are in
-`references.bib`. The generated `main.bbl` is included for arXiv
-portability.
+`main.tex` is the canonical, self-contained manuscript source. It contains no
+local `\input` dependencies. The bibliography is supplied both as
+`references.bib` and as the generated `main.bbl` for arXiv portability.
 
-Build with:
+Build from this directory with:
 
 ```text
-pdflatex main.tex
-bibtex main
-pdflatex main.tex
-pdflatex main.tex
+latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex
 ```
 
-The manuscript carries the fixed manuscript date 20 July 2026. arXiv records
-submission and version dates separately.
+The resulting `main.pdf` states the exact theorem proved by
+`Erdos625.erdos625` in the public formalization at
+`https://github.com/SamPetkov/Erdos/tree/main/625/formalization`, with coefficient
+`((log 2)^2 / 32) log(200/153)`. `Erdos625_source.zip` contains the four files
+needed for submission: `main.tex`, `main.bbl`, `references.bib`, and this
+README.

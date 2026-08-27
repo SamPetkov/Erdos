@@ -97,7 +97,7 @@ theorem midpointCanonicalPolymerSum_le_exp_add
     _ = ENNReal.ofReal (Real.exp (skeletonError + attachmentError)) := by
       rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add]
 
-/-- Sequence form of the separated dependency cut.  Vanishing nonnegative
+/-- Sequence form of the separated polymer estimate.  Vanishing nonnegative
 coefficients for the skeleton and attachment estimates give the direct
 polymer bound consumed by `canonicalMidpoint_secondMoment_seed_of_polymer_bound`.
 -/

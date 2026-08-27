@@ -2,7 +2,7 @@ import Erdos625.Section8EndpointFoundation
 import Mathlib.Tactic
 
 /-!
-# Target C: global falling-factorial transport
+# Global falling-factorial transport
 
 This is only the finite natural-number transport factor. It does not assert
 the ENNReal geometric-mean comparison (8.8) or the local bound (8.9).

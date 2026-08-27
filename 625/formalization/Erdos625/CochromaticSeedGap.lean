@@ -7,7 +7,7 @@ import Erdos625.RareSeedInversion
 This module specializes `rareSeed_gap_le` to the largest induced subgraph of
 a labelled graph that is cocolourable with at most `k` parts.  It is the exact
 probabilistic bridge corresponding to manuscript display (10.7): a lower
-bound on the probability of full cocolourability, together with the audited
+bound on the probability of full cocolourability, together with the proved
 one-sided vertex-block tail, bounds the deficit between `n` and the actual
 expectation of the induced-capacity statistic.
 -/

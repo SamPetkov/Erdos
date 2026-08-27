@@ -6,7 +6,7 @@ import Mathlib.Tactic
 /-!
 # Section X: uniform cochromatic amplification
 
-This module combines the accepted induced-capacity lower tail with the
+This module combines the proved induced-capacity lower tail with the
 parameter-independent uniform induced-colouring event.  It is the
 quantifier-correct event/probability form of manuscript Lemma 10.2:
 

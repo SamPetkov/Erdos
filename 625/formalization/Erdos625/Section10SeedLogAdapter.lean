@@ -3,7 +3,7 @@ import Erdos625.Section10CoColorablePaleyZygmundSeed
 /-!
 # Section X: logarithmic seed adapter
 
-This isolated target converts the displayed logarithmic lower bound for a
+This module converts the displayed logarithmic lower bound for a
 strictly positive real seed probability into the exponential seed inequality
 used by the uniform amplification theorem. It intentionally supplies no
 probabilistic or Section IX input.

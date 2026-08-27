@@ -9,13 +9,7 @@ near-containment part of Lemma 8.3.  It deliberately does not define a
 completion law, a middle expectation, or an encoding of physical skeletons;
 those require additional canonical-fibre structure.
 
-The two finite arithmetic proofs were returned by Aristotle tasks
-`b9426255-b07b-4fdb-bfc1-ef0928e797a4` and
-`9d38c74a-460e-4188-8f49-5a9d9a29a7e6`, then independently audited before
-integration.  The second task's service-level `COMPLETE_WITH_ERRORS` status
-did not alter its exact theorem: all recorded Lean builds and theorem checks
-succeeded, so the proof is accepted only through the repository's own Lean
-4.31 replay.
+The two finite arithmetic lemmas are proved in the pinned Lean toolchain.
 -/
 
 namespace Erdos625

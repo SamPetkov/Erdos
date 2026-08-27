@@ -36,7 +36,7 @@ private theorem tendsto_logLogOrder_div_logOrder_zero :
     Tendsto (fun n : ℕ ↦ logLogOrder n / logOrder n) atTop (𝓝 0) :=
   logLogOrder_isLittleO_logOrder.tendsto_div_nhds_zero
 
-private theorem tendsto_inv_logOrder_zero :
+theorem tendsto_inv_logOrder_zero :
     Tendsto (fun n : ℕ ↦ (logOrder n)⁻¹) atTop (𝓝 0) :=
   tendsto_logOrder_atTop.inv_tendsto_atTop
 
@@ -118,7 +118,7 @@ private theorem phaseNat_add_isLittleO_natCast (k : ℕ) :
         (tendsto_natCast_atTop_atTop (R := ℝ))
   exact (hPhase.add hConst).congr_left fun n ↦ by push_cast; rfl
 
-private theorem tendsto_log_natSub_phaseNat_add_div_logOrder_one (k : ℕ)
+theorem tendsto_log_natSub_phaseNat_add_div_logOrder_one (k : ℕ)
     (hRange : ∀ᶠ n : ℕ in atTop, phaseNat n + k ≤ n) :
     Tendsto (fun n : ℕ ↦
       Real.log (((n - (phaseNat n + k) : ℕ) : ℝ)) / logOrder n)
@@ -159,7 +159,7 @@ private theorem tendsto_log_scaledLogOrder_div_logOrder_zero :
   simp only [logLogOrder]
   field_simp [hN]
 
-private theorem tendsto_log_phaseNat_add_div_logOrder_zero (k : ℕ) :
+theorem tendsto_log_phaseNat_add_div_logOrder_zero (k : ℕ) :
     Tendsto (fun n : ℕ ↦
       Real.log (((phaseNat n + k : ℕ) : ℝ)) / logOrder n)
       atTop (𝓝 0) := by
@@ -184,7 +184,7 @@ private theorem tendsto_log_phaseNat_add_div_logOrder_zero (k : ℕ) :
       (fun n ↦ by simp [div_eq_mul_inv])
   exact hDivBigO'.trans_tendsto tendsto_log_scaledLogOrder_div_logOrder_zero
 
-private theorem tendsto_phaseNat_add_mul_q_div_logOrder_two (k : ℕ) :
+theorem tendsto_phaseNat_add_mul_q_div_logOrder_two (k : ℕ) :
     Tendsto (fun n : ℕ ↦
       (((phaseNat n + k : ℕ) : ℝ) * q) / logOrder n)
       atTop (𝓝 2) := by

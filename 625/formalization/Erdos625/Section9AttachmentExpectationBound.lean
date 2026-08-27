@@ -4,7 +4,7 @@ import Mathlib.Tactic
 /-!
 # Section IX: raw attachment numerator from a pointwise event bound
 
-This target is deliberately only the elementary finite-PMF step.  It keeps
+This module proves the elementary finite-PMF step.  It keeps
 the cap/no-return indicator inside the numerator and never divides by the
 event probability.
 -/

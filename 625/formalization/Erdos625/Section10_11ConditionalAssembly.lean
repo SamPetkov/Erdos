@@ -5,7 +5,7 @@ import Erdos625.Section11AsymptoticAssembly
 /-!
 # Conditional Sections X--XI assembly
 
-This module connects the accepted induced-capacity tail, the deterministic
+This module connects the proved induced-capacity tail, the deterministic
 capacity-witness amplification bound, the simultaneous leftover-colouring
 interface, and the Section XI event/probability infrastructure.
 
@@ -31,7 +31,7 @@ def cochromaticCapacityDeficitRadius (n : ℕ) (Lambda r : ℝ) : ℝ :=
     Real.sqrt ((((n - 1 : ℕ) : ℝ) * r) / 2)
 
 /-- Success event for the real-valued capacity-deficit estimate.  Its
-complement is exactly the non-strict failure event controlled by the accepted
+complement is exactly the non-strict failure event controlled by the proved
 one-sided lower-tail theorem. -/
 def capacityAmplificationSuccessEvent
     (n k : ℕ) (Lambda r : ℝ) : Set (LabeledGraph n) :=
@@ -60,7 +60,7 @@ theorem measurableSet_simultaneousLeftoverColoringEvent (n d q : ℕ) :
     MeasurableSet (simultaneousLeftoverColoringEvent n d q) :=
   Set.toFinite (simultaneousLeftoverColoringEvent n d q) |>.measurableSet
 
-/-- The accepted capacity theorem controls precisely the complement of the
+/-- The capacity theorem controls precisely the complement of the
 real-valued success event. -/
 theorem capacityAmplificationSuccessEvent_compl_probability_le
     (n k : ℕ) {Lambda r : ℝ}
@@ -103,7 +103,7 @@ theorem capacityAmplificationSuccessEvent_subset_capacityDeficitEvent
     exact_mod_cast hReal
   exact Nat.lt_succ_iff.mp hNat
 
-/-- The accepted real capacity tail therefore controls failure of any rounded
+/-- The real capacity tail therefore controls failure of any rounded
 natural deficit event whose cutoff dominates the real radius. -/
 theorem capacityDeficitEvent_compl_probability_le
     (n k d : ℕ) {Lambda r : ℝ}
@@ -126,7 +126,7 @@ theorem capacityDeficitEvent_compl_probability_le
       capacityAmplificationSuccessEvent_compl_probability_le
         n k hn hLambda hr hSeed
 
-/-- Sequence-level use of the accepted capacity tail.  Once the seed bound,
+/-- Sequence-level use of the capacity tail.  Once the seed bound,
 nonnegativity, and rounding inequality hold eventually and `r n → ∞`, the
 rounded natural capacity-deficit event has probability tending to one. -/
 theorem capacityDeficitEvent_probability_tendsto_one

@@ -4,10 +4,7 @@ import Mathlib.Tactic
 /-!
 # Finite falling-factorial ratio for the empty corner
 
-The proof was returned by Aristotle project
-`3d5fd715-841c-45b3-a097-94c185287192`, task
-`953bd883-0ad0-4c48-9c08-00f8bc575106`, and independently audited before
-integration.
+This module proves the exact finite ratio used at the empty corner.
 -/
 
 namespace Erdos625

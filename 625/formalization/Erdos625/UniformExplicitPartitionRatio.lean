@@ -5,10 +5,10 @@ import Mathlib.Analysis.SpecificLimits.Basic
 /-!
 # Uniform explicit four-size partition-ratio certificate
 
-This file ports the audited numerical core of manuscript Lemma 5.1 into the
+This file proves the numerical core of manuscript Lemma 5.1 for the
 repository's existing analytic infrastructure.  It reuses `q`,
 `fourGaussianScore`, `ProfileEntropyS4.partition`, the extended-Gaussian
-partition, and the already checked variable-target tilt corridor.  In
+partition, and the proved variable-target tilt corridor.  In
 particular, it introduces no duplicate exponential-family definitions and
 does not repeat the corridor proof.
 

@@ -657,10 +657,9 @@ theorem orientedMatchingClosingEdge_snd
   rcases z with ⟨⟨a, b⟩, orientation⟩
   cases orientation <;> rfl
 
-/-- The faithful-cut relation is external to the source-free code type.
-It states exactly what the still-missing construction from the covering cycle
-walk must establish.  In particular, none of these equalities or nodup proofs
-is stored in `SourceFreeCycleCutCode`. -/
+/-- The faithful-cut relation records the properties of a source-free code
+obtained from a covering cycle walk.  In particular, none of these equalities
+or nodup proofs is stored in `SourceFreeCycleCutCode`. -/
 structure IsFaithfulCycleCut
     {A B : Type*} [Fintype A] [Fintype B]
     [DecidableEq A] [DecidableEq B]

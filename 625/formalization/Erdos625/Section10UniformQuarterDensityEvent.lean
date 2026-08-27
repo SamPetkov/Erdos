@@ -5,7 +5,7 @@ import Mathlib.Tactic
 /-!
 # Section X: high-probability all-larger quarter-density event
 
-This module packages the accepted literal cutoff event, its probability-one
+This module packages the proved literal cutoff event, its probability-one
 limit, and its deterministic larger-subset lift into one event whose
 probability tends to one.  It does not construct a clique chain, transfer a
 complement clique to an independent set, or invoke greedy colouring.

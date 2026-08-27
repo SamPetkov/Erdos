@@ -6,9 +6,8 @@ import Mathlib.Tactic
 /-!
 # Finite disjoint stub allocations
 
-This module begins the trusted local replacement for the quarantined
-Aristotle Section 6 counting leaves.  The statements here are purely finite:
-they count labelled subsets of `Fin m` disjoint from already allocated cells.
+The statements here are purely finite: they count labelled subsets of `Fin m`
+disjoint from already allocated cells.
 -/
 
 namespace Erdos625

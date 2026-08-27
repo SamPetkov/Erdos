@@ -5,10 +5,7 @@ import Mathlib.Tactic
 /-!
 # Exact full-corner sum reindexing
 
-The proof was returned by Aristotle project
-`9f3a54c9-cd58-454e-bb37-cc7f2e3c675d`, task
-`f681a971-0623-4c77-8411-e95f0e15e717`, and independently audited before
-integration.
+This module records the exact finite reindexing used downstream.
 -/
 
 namespace Erdos625

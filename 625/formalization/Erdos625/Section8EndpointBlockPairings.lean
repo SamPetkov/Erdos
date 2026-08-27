@@ -2,7 +2,7 @@ import Erdos625.Section8EndpointFoundation
 import Mathlib.Tactic
 
 /-!
-# Target F1: block-pairing factorial identity
+# Block-pairing factorial identity
 
 This packages the selection and pairing of endpoint blocks only. It does not
 choose any stubs inside a selected block pair.
