@@ -48,7 +48,7 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean
 ```
 
 The checked source contains 475 local source modules, 86 external imports,
-and 88,563 logical lines. Its normalized-LF SHA-256 (the value printed by the
+and 88,563 lines. Its normalized-LF SHA-256 (the value printed by the
 generator on every platform) is
 `0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30`.
 

@@ -335,17 +335,17 @@ def endpoint_weight(
     )
 
 
-def q_bound(n: int, sizes: Sequence[int], i: int, j: int) -> float:
-    if i == j:
-        return 1.0
+def q_bound_squared(
+    n: int, sizes: Sequence[int], i: int, j: int
+) -> Fraction:
+    """Square of the Section 8 endpoint-transport charge, exactly."""
     larger = max(sizes[i], sizes[j])
     smaller = min(sizes[i], sizes[j])
     deficit = larger - smaller
-    return (
-        (n + 1) ** (deficit / 2)
-        * sqrt(falling(larger, deficit))
-        / factorial(deficit)
-        * 2 ** (-(deficit * smaller + comb(deficit, 2)) / 2)
+    return Fraction(
+        (n + 1) ** deficit * falling(larger, deficit),
+        factorial(deficit) ** 2
+        * 2 ** (deficit * smaller + comb(deficit, 2)),
     )
 
 
@@ -382,49 +382,53 @@ def bounded_tables(
 
 
 def check_transport_inequality() -> None:
-    """Exhaust a finite family of Lemma 8.1 endpoint tables."""
-    sizes = (5, 4, 3, 2)
+    """Exhaust a finite family of Lemma 8.11 endpoint tables."""
+    # These are the four endpoint sizes for alpha = 9, so the manuscript's
+    # explicit alpha > 8 hypothesis is satisfied by the finite test family.
+    sizes = (7, 6, 5, 4)
     counts = (2, 2, 2, 2)
     n = sum(size * count for size, count in zip(sizes, counts))
     checked = 0
-    largest_ratio = 0.0
+    largest_ratio_squared = Fraction(0, 1)
 
     for table in bounded_tables(4, counts, counts, total_cap=4):
         weight, row_margins, col_margins = endpoint_weight(n, sizes, counts, table)
-        diagonal_geometric_mean = sqrt(
-            float(
-                diagonal_weight(n, sizes, counts, row_margins)
-                * diagonal_weight(n, sizes, counts, col_margins)
-            )
+        diagonal_product = (
+            diagonal_weight(n, sizes, counts, row_margins)
+            * diagonal_weight(n, sizes, counts, col_margins)
         )
 
-        combinatorial_factor = 1.0
+        combinatorial_factor_squared = Fraction(1, 1)
         for margin in row_margins:
-            combinatorial_factor *= factorial(margin)
+            combinatorial_factor_squared *= factorial(margin)
         for margin in col_margins:
-            combinatorial_factor *= factorial(margin)
-        combinatorial_factor = sqrt(combinatorial_factor)
+            combinatorial_factor_squared *= factorial(margin)
 
         for i in range(4):
             for j in range(4):
                 multiplicity = table[i][j]
-                combinatorial_factor /= factorial(multiplicity)
-                combinatorial_factor *= q_bound(n, sizes, i, j) ** multiplicity
+                combinatorial_factor_squared /= factorial(multiplicity) ** 2
+                combinatorial_factor_squared *= (
+                    q_bound_squared(n, sizes, i, j) ** multiplicity
+                )
 
-        right_hand_side = diagonal_geometric_mean * combinatorial_factor
-        ratio = float(weight) / right_hand_side if right_hand_side else 0.0
-        largest_ratio = max(largest_ratio, ratio)
-        assert ratio <= 1.0 + 1e-11, (ratio, table)
+        right_hand_side_squared = (
+            diagonal_product * combinatorial_factor_squared
+        )
+        ratio_squared = weight**2 / right_hand_side_squared
+        largest_ratio_squared = max(largest_ratio_squared, ratio_squared)
+        assert weight**2 <= right_hand_side_squared, (ratio_squared, table)
         checked += 1
 
+    largest_ratio = sqrt(float(largest_ratio_squared))
     print(
-        "PASS Lemma 8.1 transport inequality "
+        "PASS Lemma 8.11 transport inequality (exact arithmetic) "
         f"({checked} typed tables; maximum ratio={largest_ratio:.12g})"
     )
 
 
 def check_near_containment_ratio() -> None:
-    """Check the exact local ratio (8.21) in its stated range."""
+    """Check the exact local deficit ratio (8.3) for every 2h < m."""
     checked = 0
     for smaller in range(5, 40):
         for deficit in range(4):
@@ -436,7 +440,7 @@ def check_near_containment_ratio() -> None:
                 )
                 * g(smaller)
             )
-            for missing in range(1, (smaller - 1) // 4 + 1):
+            for missing in range(1, (smaller - 1) // 2 + 1):
                 overlap = smaller - missing
                 actual = (
                     Fraction(
@@ -455,7 +459,7 @@ def check_near_containment_ratio() -> None:
                 assert actual / endpoint == formula
                 checked += 1
 
-    print(f"PASS exact near-containment ratio (8.21) ({checked} cases)")
+    print(f"PASS exact one-cell deficit ratio (8.3) ({checked} cases)")
 
 
 def main() -> None:

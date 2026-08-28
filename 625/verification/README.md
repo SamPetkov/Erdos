@@ -14,10 +14,9 @@ python 625/verification/check_constant_ledger_v3.py
 ```
 
 Do not use Python's `-O` or `-OO` flags: assertions implement seven checks in
-the finite checker. All three scripts use only the standard library. The two
-ledger scripts use exact `Fraction` arithmetic. In the finite checker, four
-groups use exact integer or `Fraction` arithmetic and one transport group uses
-floating-point square roots with tolerance `1e-11`.
+the finite checker. All three scripts use only the standard library. Every
+assertion uses exact integer or `Fraction` arithmetic; a floating-point square
+root is used only to print the maximum endpoint-transport ratio.
 
 The final theorem does not depend on the stronger constant ledger: its stated
 constant follows directly from the uniform entropy gap proved in the

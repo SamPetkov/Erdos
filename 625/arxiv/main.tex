@@ -4333,14 +4333,15 @@ every \(S\).
 
 There is an absolute constant $C>0$ and a deterministic
 $\varepsilon_n=o(1)$ with the following property. Suppose deterministic
-integers $k_n\ge0$ and deterministic reals $\Lambda_n\ge0$ satisfy
+integers $k_n\ge0$ and deterministic reals $\Lambda_n\ge0$ satisfy, for all
+sufficiently large $n$,
 
 \[
  \Prob{\zeta(G_n)\le k_n}\ge e^{-\Lambda_n}.             \tag{10.4}
 \]
 
-The same $C$ and $\varepsilon_n$, independent of $k_n,\Lambda_n,r$, satisfy,
-uniformly for every deterministic choice $r=r(n)>0$,
+The same $C$ and $\varepsilon_n$, independent of $k_n,\Lambda_n,r$, have the
+following property: for every deterministic choice $r=r(n)>0$, the bound
 
 \[
 \begin{split}
@@ -4350,6 +4351,7 @@ uniformly for every deterministic choice $r=r(n)>0$,
  &\le e^{-r}+\varepsilon_n.                              \end{split}
 \tag{10.5}
 \]
+holds for all sufficiently large $n$.
 
 \end{lemma}
 
@@ -4641,7 +4643,7 @@ sequence of natural numbers. The modular project and its deterministic
 single-file closure are archived at the immutable repository commit
 \url{https://github.com/SamPetkov/Erdos/tree/86c4422f9b41c4ce50e7c920dc7349a9f07f24a8/625/formalization}
 with Lean and Mathlib pinned to \texttt{v4.31.0}. The generated file contains
-475 local modules, 86 external imports, and 88,563 logical lines; its SHA-256
+475 local modules, 86 external imports, and 88,563 lines; its SHA-256
 is \url{0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30}.
 The deterministic generator check establishes source closure. On 27 August
 2026, that exact file was also replayed in a clean cloud environment with the

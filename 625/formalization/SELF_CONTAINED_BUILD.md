@@ -13,7 +13,7 @@ Generated source metrics:
 
 - local source modules: 475;
 - external Mathlib imports: 86;
-- logical lines: 88,563;
+- lines: 88,563;
 - normalized-LF SHA-256: `0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30`.
 
 The top-level theorem is `Erdos625.erdos625 : Erdos625Statement`. Its printed
