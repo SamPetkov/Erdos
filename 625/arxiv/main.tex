@@ -8,6 +8,8 @@
 \usepackage[authoryear,round]{natbib}
 \usepackage{enumitem}
 \usepackage{xurl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
 \usepackage{fancyhdr}
@@ -2859,25 +2861,75 @@ whole classes. Instead, its weights provide a normalized one-sided reference
 measure for the endpoint-table comparison below. Every overlap matrix remains present
 and is represented exactly once by its canonical high-cell skeleton.
 
-The exact decomposition used across Sections~8--9 is summarized by the
-following diagram. The first arrow is a finite bijective extraction, while the
-second line separates the two factors that are bounded independently:
-\[
-\begin{gathered}
-  \text{full overlap matching }\Pi
-  \quad\longmapsto\quad
-  \left(
-    \underbrace{M,j,S}_{\text{canonical exposed high cells}},
-    \underbrace{\Pi_{\mathrm{res}}}_{\text{capped residual matching}}
-  \right)
-  \\
-  \Big\downarrow\ \text{sum the physical high-cell fiber and condition on the residual law}
-  \\
-  \underbrace{w_{\mathrm{hi}}(M,j)}_{\text{bare skeleton}}
-  \quad\times\quad
-  \underbrace{\mathcal A(M,j)}_{\text{residual attachment}}.
-\end{gathered}
-\]
+The exact decomposition used across Sections~8--9 is summarized in
+Figure~\ref{fig:canonical-overlap-decomposition-v3}. Its matrix panels record
+the finite extraction proved in Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3},
+while the last line separates the two factors that are bounded independently.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  x=0.50cm,
+  y=0.48cm,
+  >=Latex,
+  every node/.style={font=\scriptsize},
+  highcell/.style={draw=blue!55!black,fill=blue!10,line width=0.65pt}
+]
+  \begin{scope}[shift={(0,0)}]
+    \draw[gray!65] (0,0) grid (5,4);
+    \foreach \x/\y/\z in {0/3/j_1,2/2/j_2,4/0/j_3}{
+      \filldraw[highcell] (\x,\y) rectangle ++(1,1);
+      \node at (\x+0.5,\y+0.5) {$\z$};
+    }
+    \node[font=\footnotesize] at (2.5,4.65) {$r=(r_{ab})$};
+    \node[align=center,text width=3.2cm] at (2.5,-0.85)
+      {full overlap table};
+  \end{scope}
+
+  \node[font=\large] at (6.0,2) {$\longmapsto$};
+
+  \begin{scope}[shift={(7,0)}]
+    \draw[gray!65] (0,0) grid (5,4);
+    \foreach \x/\y/\z in {0/3/j_1,2/2/j_2,4/0/j_3}{
+      \filldraw[highcell] (\x,\y) rectangle ++(1,1);
+      \node at (\x+0.5,\y+0.5) {$\z$};
+    }
+    \node[font=\footnotesize] at (2.5,4.65)
+      {$P=\{(a,b):r_{ab}>R_0\}$};
+    \node[align=center,text width=3.4cm] at (2.5,-0.85)
+      {high matching $P$ and values $j=r|_P$};
+  \end{scope}
+
+  \node[font=\large] at (13.25,2) {$\sqcup$};
+
+  \begin{scope}[shift={(14.5,0)}]
+    \draw[gray!65] (0,0) grid (5,4);
+    \foreach \x/\y in {0/3,2/2,4/0}{
+      \filldraw[highcell] (\x,\y) rectangle ++(1,1);
+      \node at (\x+0.5,\y+0.5) {$0$};
+    }
+    \node[text=gray!75!black] at (1.5,1.5) {$\le R_0$};
+    \node[text=gray!75!black] at (3.5,3.5) {$\le R_0$};
+    \node[font=\footnotesize] at (2.5,4.65) {$r'=(r'_{ab})$};
+    \node[align=center,text width=3.5cm] at (2.5,-0.85)
+      {capped residual $r'$, with $r'|_P=0$};
+  \end{scope}
+
+  \node[font=\small] at (9.75,-3.10) {$\displaystyle
+    \frac{\mathbb E (Z_{\mathbf k}^{\mathrm{sgn}})^2}
+         {(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}})^2}
+    =\sum_{(P,j)}
+      \underbrace{w_{\mathrm{hi}}(P,j)}_{\text{bare skeleton}}
+      \qquad
+      \underbrace{\mathcal A(P,j)}_{\text{residual attachment}}$};
+\end{tikzpicture}
+\caption{Canonical high-cell extraction, shown on a schematic overlap table.
+Highlighted cells lie in distinct rows and columns and therefore form a
+matching. Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3}
+proves the finite bijection and the displayed normalized factorization.}
+\label{fig:canonical-overlap-decomposition-v3}
+\end{figure}
+
 Thus the endpoint-table estimate pays only the bare-skeleton factor, and the
 matching-restriction estimate pays only the residual attachment.
 
@@ -3295,6 +3347,7 @@ $D(\ell^{\mathrm{pd}})=D(v)$. Below, $D(r)$ and $D(c)$ evaluate
 \eqref{eq:one-sided-diagonal-weight-v3} on the margins in
 $0\le v_i\le\kappa_i$.
 
+\begin{samepage}
 For the endpoint pair $(i,j)$, put
 \[
   s_{ij}:=\min\{u_i,u_j\},
@@ -3320,6 +3373,7 @@ $d_{ij}\le3$,
   =O\!\left(\frac{(\log n)^{3/2}}{\sqrt n}\right).
   \label{eq:endpoint-eta-v3}
 \end{equation}
+\end{samepage}
 
 Let
 \[
@@ -3536,6 +3590,9 @@ support. We now condition on one feasible high skeleton and estimate precisely
 those remaining factors. Section~7 has not removed any overlap from the exact
 sum: its diagonal weights enter Section~8 only as a comparison measure for the
 endpoint-table sum.
+
+In this section the canonical support denoted by $P$ in Section~8 is written
+$M$. This is a notational renaming, not an additional matching.
 
 Throughout this section, write $Z:=Z_{\mathbf k}^{\mathrm{sgn}}$ for the
 selected signed-profile witness count.
@@ -4583,6 +4640,53 @@ On this event and the chromatic lower event,
   \chi(G_n)-\zeta(G_n)
   >k_\chi^- -k_{\mathrm{co}}-a_n.
 \]
+The deterministic locations used in this comparison are collected in
+Figure~\ref{fig:final-root-geometry-v3}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  x=1cm,
+  y=1cm,
+  >=Latex,
+  every node/.style={font=\scriptsize}
+]
+  \draw[-{Latex[length=2mm]}] (-0.35,0) -- (12.0,0);
+  \draw[blue!55!black,line width=1.6pt] (6.5,0) -- (10.6,0);
+
+  \foreach \x in {0,5.4,6.5,10.6,11.5}
+    \draw[line width=0.55pt] (\x,-0.10) -- (\x,0.10);
+
+  \node[below=3pt] at (0,0) {$r_4^{\mathrm{co}}$};
+  \node[above=3pt] at (5.4,0) {$k_{\mathrm{co}}$};
+  \node[below=3pt] at (6.5,0) {$k_{\mathrm{co}}+a_n$};
+  \node[above=3pt] at (10.6,0) {$k_\chi^-$};
+  \node[below=3pt] at (11.5,0) {$r_+$};
+  \node[text=blue!55!black,fill=white,inner sep=1.5pt] at (8.55,0.42)
+    {usable separation};
+
+  \draw[<->] (0,1.35) -- (11.5,1.35);
+  \node[above=2pt,font=\scriptsize] at (5.75,1.35) {$\displaystyle
+    r_+-r_4^{\mathrm{co}}
+    =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+      \frac{n}{(\log n)^3}$};
+
+  \draw[<->] (5.4,-1.30) -- (11.5,-1.30);
+  \node[below=2pt,font=\scriptsize] at (8.45,-1.30) {$\displaystyle
+    r_+-k_{\mathrm{co}}
+    =\left[\frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)\right]
+      \frac{n}{(\log n)^3}$};
+\end{tikzpicture}
+\caption{Root geometry after rounding and amplification. For all sufficiently
+large $n$,
+$r_4^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
+The blue interval is the usable separation;
+$a_n=o(n/(\log n)^3)$ and
+$r_+-k_\chi^-\in[\log n,\log n+2)$. The horizontal positions are schematic
+and not to scale.}
+\label{fig:final-root-geometry-v3}
+\end{figure}
+
 A union bound and \eqref{eq:integer-location-gap-v3} therefore give a
 nonnegative deterministic sequence $\varepsilon_n^{\mathrm{gap}}\to0$ for
 which
