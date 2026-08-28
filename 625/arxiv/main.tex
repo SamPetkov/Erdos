@@ -365,15 +365,10 @@ sizes and let $j_e$ be its realized multiplicity. Set
 Here $m_e$ is the full-containment multiplicity, $j_e$ is the realized
 multiplicity, and $h_e$ is the deficit. Highness implies $2h_e<m_e$.
 
-Section~8 uses the bijection $i\mapsto i+2$ from $\{0,1,2,3\}$ to the four
-deficit labels $\{2,3,4,5\}$. The corresponding endpoint sizes and available
-block counts are defined there from the deficit-indexed four-size profile; this
-is distinct from the size-indexed convention $k_s$ above. For a block support $P$, the
-endpoint table $L(P)=(L_{ij})$ records how many support edges join types $i$
-and $j$. A table is \emph{feasible} when its type-$i$ row sum and type-$j$
-column sum are at most $\kappa_i$ and $\kappa_j$, respectively. Every block
-support has a feasible table, and every feasible table is attained by a
-block-slot matching.
+Section~8 locally reindexes the four deficit labels by $i\mapsto i+2$ and
+defines the associated endpoint sizes, block counts, and endpoint tables. Its
+deficit-indexed counts are distinct from the size-indexed convention $k_s$
+above; Section~9 inherits the Section~8 convention unchanged.
 
 \paragraph{Separation of accounts.}
 The \emph{bare high-skeleton weight} contains the incidence probability and
@@ -448,8 +443,10 @@ Put
   \qquad \ell:=\log\log n,
   \qquad C:=1+\log q-q.
 \]
-The usual independence-number center can then be written without a change of
-logarithm base as
+The \emph{independence-number center} is the standard real approximation to
+the value of $s$ at which the expected number $\mu_s$ of independent $s$-sets
+is one. Its fractional part records the phase of the neighboring integer
+sizes. Without changing logarithm base, it is
 \begin{equation*}
   \alpha_0
   =2\log_2 n-2\log_2\log_2 n+2\log_2(\mathrm e/2)+1
@@ -3291,8 +3288,11 @@ $\nu\mapsto \nu-2$. Define
   u_i:=\alpha-2-i,
   \qquad 0\le i\le3.
 \]
-Thus $\kappa_i$ is the number of endpoint blocks of size $u_i$ on each of the
-two partition sides. For
+Here the subscript $i+2$ is a deficit label, not a class size:
+$\kappa_i=k_{i+2}$ counts endpoint blocks of size
+$u_i=\alpha-(i+2)$ on each partition side. This is the deficit-indexed
+convention of Section~5, distinct from the size-indexed notation $k_s$ used
+earlier. For
 $i,j\in\{0,1,2,3\}$ let $m_{ij}:=\min\{u_i,u_j\}$ and put
 \[
   \rho_{ij}
@@ -3351,7 +3351,8 @@ if $K=\sum_{i=0}^{3}\kappa_i$ is the number of row-class slots, then
 
 \subsection{Regrouping by endpoint table}
 
-For $L=(\ell_{ij})\in\mathbb N_0^{4\times4}$, write
+With this deficit-indexed type convention, for
+$L=(\ell_{ij})\in\mathbb N_0^{4\times4}$ write
 \[
   r_i=\sum_j\ell_{ij},
   \qquad
@@ -3723,6 +3724,7 @@ endpoint-table sum.
 
 In this section the canonical support denoted by $P$ in Section~8 is written
 $M$. This is a notational renaming, not an additional matching.
+All endpoint-type notation is inherited unchanged from Section~8.
 
 Throughout this section, write $Z:=Z_{\mathbf k}^{\mathrm{sgn}}$ for the
 selected signed-profile witness count.
