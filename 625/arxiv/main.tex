@@ -2861,10 +2861,11 @@ whole classes. Instead, its weights provide a normalized one-sided reference
 measure for the endpoint-table comparison below. Every overlap matrix remains present
 and is represented exactly once by its canonical high-cell skeleton.
 
-The exact decomposition used across Sections~8--9 is summarized in
-Figure~\ref{fig:canonical-overlap-decomposition-v3}. Its matrix panels record
-the finite extraction proved in Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3},
-while the last line separates the two factors that are bounded independently.
+The table-level extraction used across Sections~8--9 is summarized in
+Figure~\ref{fig:canonical-overlap-decomposition-v3}.
+Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3} supplies its
+labeled-matching lift, while the last line separates the two factors that are
+bounded independently.
 
 \begin{figure}[htbp]
 \centering
@@ -2886,7 +2887,7 @@ while the last line separates the two factors that are bounded independently.
       {full overlap table};
   \end{scope}
 
-  \node[font=\large] at (6.0,2) {$\longmapsto$};
+  \node[font=\large] at (6.0,2) {$=$};
 
   \begin{scope}[shift={(7,0)}]
     \draw[gray!65] (0,0) grid (5,4);
@@ -2894,13 +2895,12 @@ while the last line separates the two factors that are bounded independently.
       \filldraw[highcell] (\x,\y) rectangle ++(1,1);
       \node at (\x+0.5,\y+0.5) {$\z$};
     }
-    \node[font=\footnotesize] at (2.5,4.65)
-      {$P=\{(a,b):r_{ab}>R_0\}$};
+    \node[font=\footnotesize] at (2.5,4.65) {$j_P$};
     \node[align=center,text width=3.4cm] at (2.5,-0.85)
-      {high matching $P$ and values $j=r|_P$};
+      {high table supported on $P$, with $j=r|_P$};
   \end{scope}
 
-  \node[font=\large] at (13.25,2) {$\sqcup$};
+  \node[font=\large] at (13.25,2) {$+$};
 
   \begin{scope}[shift={(14.5,0)}]
     \draw[gray!65] (0,0) grid (5,4);
@@ -2916,17 +2916,22 @@ while the last line separates the two factors that are bounded independently.
   \end{scope}
 
   \node[font=\small] at (9.75,-3.10) {$\displaystyle
-    \frac{\mathbb E (Z_{\mathbf k}^{\mathrm{sgn}})^2}
-         {(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}})^2}
+    \frac{\mathbb E\!\left[(Z_{\mathbf k}^{\mathrm{sgn}})^2\right]}
+         {\left(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\right)^2}
     =\sum_{(P,j)}
       \underbrace{w_{\mathrm{hi}}(P,j)}_{\text{bare skeleton}}
-      \qquad
+      \,
       \underbrace{\mathcal A(P,j)}_{\text{residual attachment}}$};
 \end{tikzpicture}
-\caption{Canonical high-cell extraction, shown on a schematic overlap table.
-Highlighted cells lie in distinct rows and columns and therefore form a
-matching. Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3}
-proves the finite bijection and the displayed normalized factorization.}
+\caption{Canonical high-cell extraction at the overlap-table level. The
+highlighted cells $P=\{(a,b):r_{ab}>R_0\}$ form a matching and have
+multiplicities $j=r|_P$;
+extending $j$ by zero off $P$ gives $r=j_P+r'$, where the capped residual
+table $r'$ vanishes on $P$.
+Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3} (where
+Section~9 writes $M=P$) lifts this table decomposition to a bijection of
+labeled configuration matchings by retaining the selected-pair set
+$S\in\mathfrak F(P,j)$, and yields the displayed normalized factorization.}
 \label{fig:canonical-overlap-decomposition-v3}
 \end{figure}
 
@@ -4680,7 +4685,7 @@ Figure~\ref{fig:final-root-geometry-v3}.
 \caption{Root geometry after rounding and amplification. For all sufficiently
 large $n$,
 $r_4^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
-The blue interval is the usable separation;
+The thick segment is the usable separation;
 $a_n=o(n/(\log n)^3)$ and
 $r_+-k_\chi^-\in[\log n,\log n+2)$. The horizontal positions are schematic
 and not to scale.}
@@ -4738,32 +4743,21 @@ This proves the main theorem. Since $n/(\log n)^3\to\infty$, the
 chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.
 
-\section*{Formal verification}
-An accompanying Lean~4 source formalization defines the finite uniform
-$G(n,1/2)$ model and contains the theorem
-\texttt{Erdos625.erdos625 : Erdos625Statement}. Its statement uses the
-displayed constant $(\log 2)^2\log(200/153)/32$ and quantifies along the full
-sequence of natural numbers. The modular project and its deterministic
-single-file closure are archived at the immutable repository commit
-\url{https://github.com/SamPetkov/Erdos/tree/86c4422f9b41c4ce50e7c920dc7349a9f07f24a8/625/formalization}
-with Lean and Mathlib pinned to \texttt{v4.31.0}. The generated file contains
-475 local modules, 86 external imports, and 88,563 lines; its SHA-256
-is \url{0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30}.
-The deterministic generator check establishes source closure. On 27 August
-2026, that exact file was also replayed in a clean cloud environment with the
-pinned toolchain by running
-\texttt{lake env lean -DwarningAsError=true Erdos625SelfContained.lean}; Lean
-returned exit code zero. The final
-\texttt{\#print axioms Erdos625.erdos625} output lists exactly
-\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The
-complete merged standard-output and standard-error transcript, exit code,
-source and toolchain revisions, file checksums, and audit report are preserved
-at the immutable public replay commit
-\url{https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091}.
+\section*{Formal verification and reproducibility}
+A companion Lean~4 development formalizes the main theorem; its top-level
+declaration is \texttt{Erdos625.erdos625}, with type
+\texttt{Erdos625.Erdos625Statement}~\citep{petkov-erdos625-lean}.
+The formal statement uses the same explicit constant as above and asserts
+convergence along the full sequence of natural numbers. The cited exact Git
+revision pins Lean and Mathlib at version~4.31.0 and provides the modular
+sources, a deterministically generated single-file closure, build
+instructions, a trust-boundary audit, and a clean-environment replay record.
+Detailed reproduction commands, checksums, and transcripts are maintained in
+the companion documentation.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup
-\small
+\footnotesize
 \bibliographystyle{plainnat}
 \bibliography{references}
 \endgroup

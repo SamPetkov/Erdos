@@ -1,4 +1,4 @@
-\begin{thebibliography}{16}
+\begin{thebibliography}{17}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -106,6 +106,16 @@ Konstantinos Panagiotou and Angelika Steger.
   2009.
 \newblock \doi{10.1016/j.disc.2008.09.019}.
 \newblock URL \url{https://doi.org/10.1016/j.disc.2008.09.019}.
+
+\bibitem[Petkov(2026)]{petkov-erdos625-lean}
+Samuil Petkov.
+\newblock {Erd{\H{o}}s Problem 625}: {Lean} 4 formalization and reproducibility
+  record.
+\newblock Software companion, exact Git revision, 2026.
+\newblock URL
+  \url{https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization}.
+\newblock Formal source revision 86c4422f9b41c4ce50e7c920dc7349a9f07f24a8; Lean
+  and Mathlib v4.31.0.
 
 \bibitem[Scheinerman(1992)]{scheinerman-1992}
 Edward~R. Scheinerman.

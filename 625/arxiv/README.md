@@ -11,19 +11,13 @@ latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex
 ```
 
 The resulting `main.pdf` states the theorem represented by
-`Erdos625.erdos625` in the public formalization at the immutable commit
-`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8`, with coefficient
-`((log 2)^2 / 32) log(200/153)`. The deterministic standalone Lean source has
-SHA-256
-`0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30`.
-On 2026-08-27 this exact file was replayed in a clean cloud environment under
-the pinned Lean/Mathlib v4.31.0 toolchain with
-`lake env lean -DwarningAsError=true Erdos625SelfContained.lean`; the command
-exited 0, and `#print axioms Erdos625.erdos625` reported exactly `propext`,
-`Classical.choice`, and `Quot.sound`. The complete merged stdout/stderr,
-exit code, exact toolchain revisions, checksums, and audit report are preserved
-in the public replay bundle at immutable commit
-`1eb0aeba305327d383496b912a1e6e1a8fa71947`:
-<https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091>.
+`Erdos625.erdos625` in the companion Lean development, with coefficient
+`((log 2)^2 / 32) log(200/153)`. The manuscript cites an exact Git revision of
+that software companion. Its formal source revision is
+`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8`, under the pinned Lean/Mathlib
+v4.31.0 toolchain. Detailed build commands, checksums, trust-boundary audit,
+and clean-environment replay evidence are maintained in the companion
+formalization documentation.
+
 `Erdos625_source.zip` contains the four files needed for submission:
 `main.tex`, `main.bbl`, `references.bib`, and this README.
