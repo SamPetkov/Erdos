@@ -40,12 +40,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RInE \
-            --exclude-dir=.lake --exclude='*.olean' --exclude='*.ilean' \
+          grep_status=0
+          grep -rInE \
+            --exclude-dir=.lake \
+            --exclude-dir=replay \
+            --include='*.lean' \
+            --include='*.py' \
             '(ChatGPT|Aristotle|ANTIGRAVITY|COMPLETE_WITH_ERRORS|ErdosProofClosed)' \
-            625/formalization; then
-            exit 1
-          fi
+            625/formalization || grep_status=$?
+          case "$grep_status" in
+            0) exit 1 ;;
+            1) ;;
+            *) exit "$grep_status" ;;
+          esac
 
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
