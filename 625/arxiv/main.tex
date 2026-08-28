@@ -76,12 +76,15 @@ Let $G_n\sim G(n,1/2)$. We prove, along the full sequence of integers $n$, that
 with probability tending to one, where $\chi$ and $\zeta$ denote the chromatic
 and cochromatic numbers. This resolves the question of Erd\H{o}s and Gimbel
 asking whether this difference tends to infinity with high probability. The
-main difficulty is to obtain estimates that remain uniform when the natural
-class-size cutoff changes. We use a signed profile supported on four
-consecutive class sizes, an exact identity for the overlap of two such
-profiles, and a matching restriction that controls the remaining cycle-space
-sum. A bounded-differences argument then amplifies the resulting second-moment
-witness to a high-probability cocoloring.
+stronger conclusion is phase-resolved: if $\delta_n$ is the fractional part
+of the usual independence-number center, an explicit function $A_4$ gives the
+  coefficient $(\log 2)^2A_4(\delta_n)/4-o(1)$. A uniform estimate for $A_4$
+then yields the numerical constant $0.032175871697936\ldots$. The main
+difficulty is uniformity when the natural class-size cutoff changes. We use a
+signed profile supported on four consecutive class sizes, an exact
+signed-overlap identity, and a matching restriction for the residual
+cycle-space sum. A bounded-differences argument amplifies the resulting
+second-moment witness to a high-probability cocoloring.
 \end{abstract}
 
 \maketitle
@@ -107,21 +110,59 @@ restated by Gimbel \citep[Section~7.4]{gimbel-2016} and is cataloged as
 Erd\H{o}s Problem~625 \citep{bloom-erdos625}. We obtain the following
 quantitative full-sequence statement.
 
-\begin{maintheorem}
-For $G_n\sim G(n,1/2)$,
+The expected number of independent sets of size $k$ is
+$\binom nk2^{-\binom k2}$.  Its first-moment threshold is centered at the
+following real approximation; we also record its fractional phase:
+\[
+  \alpha_0(n)
+  :=2\log_2 n-2\log_2\log_2 n+2\log_2(\mathrm e/2)+1,
+  \qquad
+  \delta_n:=\alpha_0(n)-\lfloor\alpha_0(n)\rfloor.
+\]
+
+\begin{maintheorem}[Phase-resolved and uniform forms]
+There is an explicit function $A_4:[0,1]\to(0,\infty)$, defined in
+\eqref{eq:phase-function-definition-v3}, and a nonnegative deterministic
+sequence $\varepsilon_n\to0$ such that, for $G_n\sim G(n,1/2)$,
 \[
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
     \ge
-    \frac{(\log 2)^2}{32}
+    \left[
+      \frac{(\log 2)^2}{4}A_4(\delta_n)-\varepsilon_n
+    \right]
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow1.
+\]
+Moreover, $A_4$ is continuous and
+\[
+  A_4(\delta)>\log\!\left(\frac{200}{153}\right)
+  \qquad(0\le\delta\le1),
+\]
+and consequently
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{4}
     \log\!\left(\frac{200}{153}\right)
     \frac{n}{(\log n)^3}
   \right)
   \longrightarrow 1.
 \]
-In particular, $\chi(G_n)-\zeta(G_n)$ tends to infinity with high probability
-along the full sequence of integers $n$.
 \end{maintheorem}
+
+The uniform coefficient displayed above is
+\[
+  \frac{(\log 2)^2}{4}
+  \log\!\left(\frac{200}{153}\right)
+  =0.032175871697936\ldots.
+\]
+The first assertion is stronger: it retains the actual phase
+$A_4(\delta_n)$ rather than replacing it by a phase-independent lower bound.
+Since $n/(\log n)^3\to\infty$, either form resolves the question of
+Erd\H{o}s and Gimbel along the full sequence of integers.
 
 The phrase \emph{full sequence} is substantive. The natural class-size cutoff
 jumps whenever the independence-number phase crosses an integer. At such a
@@ -130,11 +171,6 @@ its first-moment root. An estimate proved only for a density-one set of phase
 values does not automatically extend to every integer $n$. All asymptotic
 estimates in this paper are therefore uniform up to both endpoints of every
 phase interval.
-
-Unless stated otherwise, every $o(1)$ below is a deterministic error uniform
-over the complete phase interval. We keep the high-skeleton and residual
-attachment errors separate until the final second-moment ledger, which makes
-the uniformity and the absence of double counting explicit.
 
 \subsection*{Relation to previous work}
 
@@ -153,40 +189,72 @@ near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers \citep{heckel-2025-difference}. The unresolved part is
 precisely the exceptional phase. We retain the signed first-moment idea and
 rare-seed amplification from that work, but replace the pairwise sign estimate
-by an exact overlap identity. One four-size profile covers every phase; exact
+by an exact overlap identity. The same four-size support covers every phase; exact
 endpoint-table summation and residual cycle-space restriction make its second
 moment uniform.
 
 \subsection*{Contributions and main ideas}
 
-The proof has four reusable components.
+Beyond resolving the problem, the argument provides five ingredients.  The
+root and partial-diagonal estimates are tailored to the four-size profile;
+the overlap identities, matching comparison, and amplification principle are
+stated in reusable finite or quantitative forms.
 
 \begin{enumerate}
-\item \textbf{Uniform root separation.} We compare the ordinary coloring root
-with the signed cocoloring root supported on four consecutive class sizes. The
-finite support comparison is exact before passing to the limiting Gaussian
-dual. We then compare the finite target with the phase-center target through
-one explicit, phase-uniform error. The resulting separation has order
-$n/(\log n)^3$.
+\item \textbf{Phase-resolved root separation.} For the ordinary first-moment
+root $r_+$ and the signed four-size root $r_4^{\mathrm{co}}$, we prove,
+uniformly over the complete phase,
+\[
+  r_+-r_4^{\mathrm{co}}
+  =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+    \frac{n}{(\log n)^3}.
+\]
+The explicit entropy certificate $A_4(\delta)>\log(200/153)$ converts this
+phase-dependent comparison into a full-sequence estimate.
 
-\item \textbf{Exact sign compatibility.} For two signed witnesses, the sum over
-all compatible sign assignments factors into local cell rewards and the size
-of a binary cycle space. No sign correlation is estimated before this exact
-identity has been extracted.
+\item \textbf{Exact signed-overlap structure.} For two signed witnesses, the
+sum over compatible sign assignments is evaluated exactly as a product of
+local cell rewards and the size of a binary cycle space.  Every labeled
+overlap then has a unique canonical decomposition into high cells and a capped
+residual matching with a no-return condition.  Thus no sign correlation is
+estimated before its finite combinatorial structure has been identified.
 
-\item \textbf{Large cells without chosen completions.} Cells above half the
-class-size cap form a matching. We sum the entire physical matching fiber,
-compare it with full containment, and apply the ambient falling-factorial
-bound once to the total deficit. The resulting reference weights are regrouped
-exactly by their endpoint tables.
+\item \textbf{Uniform control of all common subprofiles.} For the exposed
+diagonal weights $D(\ell)$, we prove
+\[
+  \sum_{0\le \ell_i\le k_i}D(\ell)=1+o(1)
+\]
+uniformly throughout the phase.  The proof treats the empty, central, and full
+ranges separately by a forward recurrence, a negative rate function, and a
+reverse recurrence.  This is the direct four-size replacement for the
+tame-profile estimates whose hypotheses do not cover the exceptional phase.
 
-\item \textbf{Residual restriction and amplification.} After the large cells
-have been exposed, deletion outside their matching is injective on even
-residual edge sets. This converts the residual cycle-space sum into a product
-bound. The high-skeleton and residual logarithmic costs are kept separate and
-added only after the exact conditional decomposition. Paley--Zygmund supplies
-a rare signed witness, and a one-sided bounded-differences argument amplifies
-it to a high-probability cocoloring.
+\item \textbf{Canonical summation of large overlap cells.} Cells larger than
+half the class-size cap form a matching.  We sum all their labeled
+realizations, compare them with full containment using one aggregate
+falling-factorial bound, and regroup the resulting weights by endpoint table.
+The finite comparison applies more generally to any fixed endpoint alphabet
+whose selected cells form a matching.
+
+\item \textbf{Residual restriction and quantitative amplification.} After the
+high cells are exposed, restriction outside their matching is injective on
+even residual edge sets.  This gives a product bound for the remaining local
+rewards and cycle-space factor, and hence
+\[
+  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+  \le
+  \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
+\]
+Paley--Zygmund supplies a possibly rare signed witness.  More generally, if a
+$k_n$-class cocoloring has probability at least $e^{-\Lambda_n}$, then for
+every deterministic $r=r(n)>0$ the amplification lemma adds at most
+\[
+  C\!\left(
+    \frac{\sqrt{n\Lambda_n}+\sqrt{nr}}{\log n}+n^{1/3}+1
+  \right)
+\]
+classes and has failure probability at most $e^{-r}+o(1)$, with one absolute
+constant $C$.
 \end{enumerate}
 
 The four consecutive sizes used here form a small fixed support that spans the
@@ -199,74 +267,55 @@ proves the uniform certificate
   >
   \log\!\left(\frac{200}{153}\right).
 \]
-The later factor $1/8$ leaves a factor-four margin over the displayed
-coefficient $1/32$. Thus
-the finite support is not merely a technical truncation: it is the device that
-converts phase dependence into a full-sequence theorem.
+Placing the signed witness a fixed distance above its first-moment root retains
+the full leading root-separation coefficient.  Since $A_4$ is continuous
+and its lower certificate is strict on the compact phase interval, the same
+factor is retained in the uniform consequence.  Thus the finite support is not
+merely a technical truncation: it is the device that converts phase dependence
+into a full-sequence theorem.
 
-\subsection*{Guide to the argument}
+\subsection*{Proof strategy}
 
-At the level of dependencies, the proof has the following shape:
+We construct deterministic integers $k_\chi^-$ and $k_{\mathrm{co}}$, and a
+deterministic $a_n=o(n/(\log n)^3)$, for which
+\begin{enumerate}[label=(\Alph*)]
+\item
 \[
-\begin{gathered}
-\text{phase-uniform roots}
-\longrightarrow
-\text{tangent-rounded signed midpoint}
-\longrightarrow
-\text{exact signed-overlap law}
-\\[-1pt]
-\Big\downarrow
-\\[-1pt]
-\text{partial diagonals}
-\;+\;
-\text{canonical high skeleton}
-\;+\;
-\text{residual attachments}
-\\[-1pt]
-\Big\downarrow
-\\[-1pt]
-\text{rare signed witness}
-\longrightarrow
-\text{amplification}
-\longrightarrow
-\text{full-sequence gap}.
-\end{gathered}
+  k_\chi^- - k_{\mathrm{co}}-a_n
+  =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+    \frac{n}{(\log n)^3};
 \]
-
-The \emph{location step} identifies two continuous first-moment roots. The
-signed witness is placed at a tangent-rounded midpoint, retaining half of their
-leading separation while satisfying the exact profile conservation laws. The
-phase, finite-dual, target-displacement, and slope errors are uniform in the
-complete phase.
-
-The \emph{existence step} studies the normalized second moment of this one
-signed profile. The partial-diagonal weights are handled first and then used
-as a reference measure for the endpoint-table sum; no overlap is deleted at
-this stage. Each overlap table is subsequently decomposed into canonical high
-cells and residual cells. Sections~8 and~9 keep these two accounts disjoint:
-no residual factor is paid in the high-cell estimate, and no high-cell
-multiplicity is paid again in the residual estimate. The logarithm of the
-final upper bound is explicitly
+\item
 \[
-  \Lambda_n
-  =\Gamma_n^{\mathrm{skel}}+\Gamma_n^{\mathrm{att}}
-  =o\!\left(\frac{n}{(\log n)^4}\right).
+  \mathbb P\bigl(\chi(G_n)>k_\chi^-\bigr)\longrightarrow1;
 \]
+\item
+\[
+  \mathbb P\bigl(\zeta(G_n)\le k_{\mathrm{co}}+a_n\bigr)
+  \longrightarrow1.
+\]
+\end{enumerate}
+The intersection of the events in (B) and (C), together with (A), gives the
+phase-resolved assertion of the main theorem; no independence between the two
+events is required.
 
-The \emph{amplification step} converts this second-moment seed into a typical
-statement. The largest induced subgraph admitting the prescribed number of
-cocoloring classes is one-Lipschitz under vertex-block exposure. Its
-concentration, together with a simultaneous coloring bound for every leftover
-set, makes the amplification uniform in the seed exponent.
-
-Section~1 fixes the phase notation. Sections~2--5 locate and compare the two
-roots. Section~6 proves the exact signed-overlap identity, and Section~7 treats
-partial diagonals. Sections~8 and~9 contain the large-cell and residual
-estimates and the explicit global error ledger. Section~10 proves the
-amplifier. The final section combines the amplified cocoloring event with the
-ordinary chromatic lower-tail event and applies the uniform entropy
-certificate. A concise note after the proof identifies the exact
-machine-checked theorem and its build.
+Sections~1--5 prove (A) and (B) by locating the ordinary and signed
+first-moment roots, constructing an exactly feasible four-size profile, and
+controlling every phase uniformly.  For (C), Section~6 evaluates the signed
+overlap law exactly, and Section~7 controls all common subprofiles.
+Sections~8 and~9 decompose every overlap uniquely into its canonical high
+cells and its capped residual part.  The former estimate contains only the
+exposed high-cell factors, while the latter contains the remaining local
+rewards and binary cycle-space factor.  Together they give a normalized
+second moment bounded by
+\[
+  \exp\!\left\{
+    \Gamma_n^{\mathrm{skel}}+\Gamma_n^{\mathrm{att}}
+  \right\}
+  =\exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
+\]
+Section~10 amplifies the resulting seed, and the final section combines
+(A)--(C) and extracts the explicit constants.
 
 \section*{Notation and proof objects}
 \label{sec:conventions-v3}
@@ -337,51 +386,9 @@ zero or one contains no edge internal to both partition classes, whereas a
 cell of size at least two forces the marks on its row and column classes to
 agree.
 
-\paragraph{Three matching objects.}
-The proof uses three distinct objects that should not be conflated.
-\begin{enumerate}
-\item The \emph{configuration matching} is the perfect matching of all labeled
-row and column stubs induced by the common vertex set.
-\item A \emph{physical partial matching} is a set of selected stub pairs inside
-specified overlap cells.
-\item A \emph{block support} is a matching between row-class slots and
-column-class slots; its edges indicate the cells declared canonical and high.
-\end{enumerate}
-The product formula for physical cell counts relies on the third object being
-a matching. Distinct selected cells then use disjoint row and column stub
-families.
-
-\paragraph{High cells, deficits, and endpoint tables.}
-Let $U$ be the largest class size in the four-size profile and put
-$R_0=\lfloor U/2\rfloor$. A cell is \emph{high} when its multiplicity exceeds
-$R_0$. Two high cells cannot share a row or a column, so the high cells form a
-canonical block support. For a selected cell $e$, let $s_e,t_e$ be its endpoint
-sizes and let $j_e$ be its realized multiplicity. Set
-\[
-  m_e=\min\{s_e,t_e\},
-  \qquad
-  h_e=m_e-j_e.
-\]
-Here $m_e$ is the full-containment multiplicity, $j_e$ is the realized
-multiplicity, and $h_e$ is the deficit. Highness implies $2h_e<m_e$.
-
-Section~8 locally reindexes the four deficit labels by $i\mapsto i+2$ and
-defines the associated endpoint sizes, block counts, and endpoint tables. Its
-deficit-indexed counts are distinct from the size-indexed convention $k_s$
-above; Section~9 inherits the Section~8 convention unchanged.
-
-\paragraph{Separation of accounts.}
-The \emph{bare high-skeleton weight} contains the incidence probability and
-local rewards of the exposed high cells. It contains neither the rewards of
-unexposed cells nor the residual binary cycle-space factor. Conditional on a
-high skeleton, the expectation of those remaining factors is its
-\emph{residual attachment}. Sections~8 and~9 preserve this separation exactly:
-a factor paid in one account is never paid again in the other.
-
-Every load-bearing estimate follows the same order. We first state the finite
-identity, then apply deterministic inequalities, then take phase asymptotics,
-and only at the end deduce a probability statement. This order is useful both
-for mathematical auditing and for the theorem-by-theorem formalization.
+The high-cell threshold, deficit notation, endpoint tables, and the precise
+separation between high-skeleton and residual factors are introduced where
+they are first used in Sections~8--9.
 
 \section{Phase notation and elementary estimates}\label{notation-and-elementary-facts}
 
@@ -1371,7 +1378,11 @@ Define
               -\mathcal F_{S_4}(T_0),\qquad
   A_4(\delta):=\log 2-D_4(\delta),\qquad
   \gamma_4=\log\frac{200}{153}.                            \tag{5.2}
+  \label{eq:phase-function-definition-v3}
 \]
+Since $M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$, the inverse mean
+map $T\mapsto\lambda_S(T)$ is continuous.  The displayed dual representation
+therefore shows directly that $A_4$ is continuous on $[0,1]$.
 This certificate is sufficient both for the root separation and for the
 displayed numerical constant in the final theorem.
 
@@ -1712,7 +1723,7 @@ The deterministic finite-dual error from Section~3 satisfies
   \le\varepsilon_n^{\mathrm{dual}}
   \qquad(S=S_+,S_4).
 \]
-Consequently the single theorem-facing root error
+Consequently the single root error used in the final theorem,
 \begin{equation*}
   \omega_n^{\mathrm{root}}
   :=2\varepsilon_n^{\mathrm{dual}}
@@ -1736,7 +1747,7 @@ Thus $\omega_n^{\mathrm{root}}$ is one deterministic error sequence valid
 across the complete phase, including integer sequences approaching either
 endpoint.
 
-Substitution into (5.9a) yields the theorem-facing estimate
+Substitution into (5.9a) yields the estimate used in the final theorem,
 \begin{equation*}
   L_{S_4}(n,r_+)+(\log 2)r_+
   =r_+\{\log 2-D_4(\delta)+O(\omega_n^{\mathrm{root}})\}
@@ -1779,26 +1790,37 @@ Substituting this and (5.10) into the preceding identity yields
    \frac n{(\log n)^3}.                                        \tag{5.11}
 \]
 
-In particular, for all sufficiently large \(n\),
+\pagebreak[4]
+For the sole purpose of placing a fixed-offset integer strictly between the
+two roots, we record the following deliberately coarse consequence: for all
+sufficiently large \(n\),
 
 \[
  r_+-r_4^{\mathrm{co}}\ge\frac{(\log 2)^2\gamma_4}{8}\frac n{(\log n)^3}.     \tag{5.12}
 \]
 
-Choose the midpoint integer
+Choose an integer a fixed distance above the signed root:
 
 \[
- k_{\mathrm{co}}=\left\lceil\frac{r_4^{\mathrm{co}}+r_+}{2}\right\rceil. \tag{5.13}
+ k_{\mathrm{co}}=\left\lceil r_4^{\mathrm{co}}\right\rceil+16. \tag{5.13}
 \]
 
-By (5.12) and the common corridor in Lemma~3.1, this integer is eventually
-feasible for \(S_4\), and its target deficit mean lies in the fixed compact
-interval \(K_*\subset(2,5)\).
+Thus
+\[
+  16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17.
+\]
+By (5.12), $k_{\mathrm{co}}<r_+$ for all sufficiently large $n$.
+Consequently the common corridor in Lemma~3.1 contains the entire interval
+from $r_4^{\mathrm{co}}$ to $k_{\mathrm{co}}$.  Every real point of this
+interval therefore has target deficit mean in the fixed compact interval
+$K_*\subset(2,5)$ and is feasible for the real $S_4$ optimization.  In
+particular this holds at the selected integer before the type counts are
+rounded.  The value $16$ is not optimized; any fixed positive integer suffices
+asymptotically, while this choice leaves a generous explicit margin in (5.19).
 
-We call the resulting profile the \emph{exact midpoint profile}: its total
-number of parts is the rounded midpoint between the signed four-size root
-\(r_4^{\mathrm{co}}\) and the unrestricted chromatic root \(r_+\).  The
-type counts are chosen next so that both finite-\(n\) conservation
+We call the resulting profile the \emph{exact signed witness profile}.  Its
+total number of parts is a fixed distance above the signed four-size root, and
+the type counts are chosen next so that both finite-\(n\) conservation
 constraints hold exactly.
 
 At this exact \(k\), let \(p_i^{(n)}\) be the exact
@@ -1908,34 +1930,37 @@ and
 \[
  \log \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
  =L_{S_4}(n,k_{\mathrm{co}})+{\log 2}k_{\mathrm{co}}+O({\log n})
- \ge c_Zk_{\mathrm{co}}                                          \tag{5.19}
+ \ge c_Z(\log n)^2                                               \tag{5.19}
 \]
 
-for a phase-independent \(c_Z>0\). Indeed, the midpoint is at distance
-at least \((r_+-r_4^{\mathrm{co}})/2-O(1)\) to the right of
-\(r_4^{\mathrm{co}}\).  Integrating the positive derivative (3.7) over
-that interval and using (5.12) gives the scale calculation
+for a phase-independent \(c_Z>0\).  Indeed,
+$\Phi_n(r_4^{\mathrm{co}})=0$ and
+$16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17$.  Equation~(3.7), with
+$S=S_4$ and $c=\log 2$, gives a phase-independent $c_1>0$ such that
+$\Phi_n'(k)\ge c_1(\log n)^2$ throughout this interval for all sufficiently
+large $n$.  Integration therefore gives
 \[
- \frac{n}{(\log n)^3}\cdot(\log n)^2
- \asymp\frac n{\log n}\asymp k_{\mathrm{co}}.
+  L_{S_4}(n,k_{\mathrm{co}})+(\log 2)k_{\mathrm{co}}
+  =\Phi_n(k_{\mathrm{co}})
+  \ge16c_1(\log n)^2.
 \]
-Consequently,
-\[
- L_{S_4}(n,k_{\mathrm{co}})+{\log 2}k_{\mathrm{co}}
- \ge c_Zk_{\mathrm{co}},
-\]
-after decreasing \(c_Z\) if necessary. Every
+The $O(\log n)$ Stirling error in (5.19) is smaller than this bound; decreasing
+$c_Z$ proves the assertion. Every
 \(u_i\) tends to infinity, so the independent and complete
 declarations of one part are disjoint. Thus
 \(Z_{\mathbf k}^{\mathrm{sgn}}>0\)
 implies an actual cocoloring with \(k_{\mathrm{co}}\) parts.
 
-Finally, (4.1), (5.12), and (5.13) give
+Finally, (4.1), (5.11), and (5.13) give
 
 \[
+\begin{aligned}
  k_\chi^- -k_{\mathrm{co}}
- \ge\left(\frac{(\log 2)^2\gamma_4}{16}-o(1)\right)
-       \frac n{(\log n)^3}.                                    \tag{5.20}
+ &=\left[\frac{(\log 2)^2}{4}A_4(\delta)+o(1)\right]
+       \frac n{(\log n)^3}\\
+ &\ge\left[\frac{(\log 2)^2\gamma_4}{4}-o(1)\right]
+       \frac n{(\log n)^3}.
+\end{aligned}                                                   \tag{5.20}
 \]
 
 For orientation, the remaining argument uses the scale hierarchy
@@ -2373,11 +2398,13 @@ mass, and no tame-profile theorem is invoked.
 \begin{lemma}[All common subprofiles]
 \label{lemma-7.1-all-common-subprofiles}
 
-For the exact midpoint profile,
+For the exact signed witness profile, uniformly over the complete phase,
 
 \[
- \sum_{0\le\ell_i\le k_i}D(\ell)=1+o(1).               \tag{7.7}
+ \sum_{0\le\ell_i\le k_i}D(\ell)=1+o(1),               \tag{7.7}
 \]
+
+where the error is bounded by one deterministic sequence tending to zero.
 
 \end{lemma}
 
@@ -2556,7 +2583,7 @@ remain exact. Only a fixed number of factorials are approximated, and every
 argument is at most $n$. Therefore the total remainder is $O(\!\log n)$
 uniformly, including when some $\ell_i$ or $k_i-\ell_i$ is zero.
 
-Here is the complete cancellation ledger. Put $K=k_{\mathrm{co}}$, so
+Here is the complete factorial cancellation. Put $K=k_{\mathrm{co}}$, so
 $k_i=Kp_i$, $\ell_i=Ky_i$, and $k_i-\ell_i=Kz_i$. The factorials involving
 the profile multiplicities contribute
 \[
@@ -2648,8 +2675,18 @@ first moment gives
  =\sum_i p_i\log p_i-1+\bar E+o(1).
  \tag{7.17}
 \end{equation*}
-The phase-uniform margin (5.19) implies $\bar E\le C_E$. To expose the affine
-structure in (7.16), set
+The phase-uniform growth estimate (5.19) is eventually positive.  Solving
+(7.17) for $\bar E$ and using
+$-\sum_i p_i\log p_i\le\log4$ therefore gives
+\[
+  \bar E
+  =1-\sum_i p_i\log p_i
+    -\frac1{k_{\mathrm{co}}}\log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
+    +o(1)
+  \le1+\log4+o(1).
+\]
+In particular, $\bar E\le C_E$ for one phase-independent constant. To expose
+the affine structure in (7.16), set
 \[
   F_i:=E_i+\frac{(\log 2)\alpha}{2}i.
 \]
@@ -2765,7 +2802,7 @@ Thus, throughout the scalar range,
   \Phi_T(z)\le-\frac{Y}{5000}.
   \tag{7.23}
 \end{equation*}
-All rational inequalities in this two-range ledger are explicit; the
+All rational inequalities in this two-range argument are explicit; the
 logarithmic inequality and four-deficit reduction are proved above.
 
 \displayheading{Uniform summation over the central range}
@@ -2898,18 +2935,18 @@ $0$ to $h$, and
   \tag{7.27}
 \end{equation*}
 By the exact complementary identity (7.5) and the phase-uniform first-moment
-margin (5.19),
+growth estimate (5.19),
 \begin{equation*}
   D(\mathbf k-h)
   =\frac{B(h)}{\Exp{Z_{\mathbf k}^{\mathrm{sgn}}}}
-  \le e^{-c_Zk_{\mathrm{co}}}.
+  \le \exp\{-c_Z(\log n)^2\}.
   \tag{7.27a}
 \end{equation*}
 There are at most $(k_{\mathrm{co}}+1)^4$ residual profiles. Therefore
 \[
   \sum_{v(h)\le n/32}D(\mathbf k-h)
   \le
-  \exp\{4\log(k_{\mathrm{co}}+1)-c_Zk_{\mathrm{co}}\}
+  \exp\{4\log(k_{\mathrm{co}}+1)-c_Z(\log n)^2\}
   =o(1)
 \]
 uniformly in the phase. Equivalently, this sum is bounded by one deterministic
@@ -2969,7 +3006,7 @@ then compare
 realized multiplicities with full containment, sum all positive deficits, and
 regroup the full-containment references by endpoint table. Only in the final
 subsection do we insert the four-size phase estimates. No residual local reward
-or cycle-space factor is charged here; those factors belong to Section~9.
+or cycle-space factor is included here; those factors belong to Section~9.
 
 Section~7 has not subtracted or conditioned away overlaps containing common
 whole classes. Instead, its weights provide a normalized one-sided reference
@@ -3055,9 +3092,6 @@ yields the displayed normalized factorization.}
 \label{fig:canonical-overlap-decomposition-v3}
 \end{figure}
 
-Thus the endpoint-table estimate pays only the bare-skeleton factor, and the
-matching-restriction estimate pays only the residual attachment.
-
 \subsection{All labeled realizations of a high skeleton}
 
 Let $U$ be the largest class size in the fixed four-size profile and put
@@ -3068,6 +3102,12 @@ A cell is \emph{high} if its multiplicity exceeds $R_0$. Two high cells cannot
 share a row or a column: otherwise that row or column would contain more than
 $U$ stubs. Hence all high cells form a canonical bipartite matching, denoted by
 $P$.
+
+Here $P$ is a matching of row- and column-class slots.  It is distinct from
+the complete configuration matching of all labeled stubs and from a partial
+stub matching, which specifies selected pairs inside the cells of $P$.
+Because the edges of $P$ have disjoint endpoints, the corresponding labeled
+realization counts factor.
 
 For $e\in P$, let $s_e$ and $t_e$ be its endpoint block sizes and set
 \[
@@ -3088,10 +3128,9 @@ Put $J:=\sum_{e\in P}j_e$.
 
 For fixed \((P,j)\), let \(\mathfrak F(P,j)\) be the finite set of labeled
 partial stub matchings that place exactly \(j_e\) pairs in every cell
-\(e\in P\); no other stub pair is prescribed. We call
-\(\mathfrak F(P,j)\) the \emph{physical fiber} of the high skeleton. Thus the
-word ``fiber'' refers to the inverse image of \((P,j)\) under the map that
-records only the selected cells and their multiplicities.
+\(e\in P\); no other stub pair is prescribed.  Thus
+\(\mathfrak F(P,j)\) is the set of labeled realizations of the high skeleton
+\((P,j)\).
 
 A size-$j$ partial matching between labeled blocks of sizes $s$ and $t$ can be
 chosen in
@@ -3142,9 +3181,9 @@ This is the same bare high-skeleton weight that appears in the exact
 conditional decomposition of Section~9.
 
 \begin{remark}
-The matching hypothesis is load-bearing. If two selected cells shared a row or
+The matching hypothesis is essential. If two selected cells shared a row or
 a column, their endpoint choices would compete for the same stubs and the
-one-cell fiber counts would not multiply.
+one-cell realization counts would not multiply.
 \end{remark}
 
 \subsection{Deficits and the single ambient loss}
@@ -3221,7 +3260,7 @@ Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell, apply
 $n^{h_\bullet}=\prod_{e\in P}n^{h_e}$.
 \end{proof}
 
-The order of operations matters: first sum the physical fiber, and then apply
+The order of operations matters: first sum all labeled realizations, and then apply
 the single aggregate bound $(n-J)_{h_\bullet}\le n^{h_\bullet}$ from
 \eqref{eq:one-global-falling-factorial-v3}.
 
@@ -3756,7 +3795,7 @@ $\mathcal B$ of the residual matching,
   \frac{1}{(n)_J}\,\mathbb P_{\mathrm{res}}(\mathcal B).
   \label{eq:exposed-residual-factorization-v3}
 \end{equation}
-After the physical fiber is summed, the residual attachment depends on the
+After the labeled realizations are summed, the residual attachment depends on the
 block matching $M$ and the residual degree lists, but not on which labeled
 stubs realize the exposed pairs. Define
 \begin{equation}
@@ -3808,7 +3847,7 @@ $\Pi_{\mathrm{res}}:=\Pi\setminus S(\Pi)$. Then
   \Pi\longmapsto
   \bigl(M(\Pi),j(\Pi),S(\Pi),\Pi_{\mathrm{res}}\bigr)
 \]
-takes values in the feasible skeletons, their physical fibers, and residual
+takes values in the feasible skeletons, their labeled realizations, and residual
 matchings satisfying $\mathcal E(M,j)$. It is injective because
 $\Pi=S(\Pi)\cup\Pi_{\mathrm{res}}$.
 
@@ -4217,12 +4256,12 @@ skeleton satisfies
 \]
 \end{proposition}
 
-\subsection{Explicit global logarithmic ledger}
+\subsection{The global second-moment exponent}
 \label{subsec:explicit-global-ledger-v3}
 
 The preceding propositions already prove the required normalized second-moment
-bound. We now record their error terms in a form that can be consumed directly
-by the amplification theorem and by a theorem-facing formalization.
+bound. We now record their error terms in a form that can be used directly by
+the amplification theorem and by the formal development.
 
 First combine the three deterministic partial-diagonal errors from Section~7:
 \begin{equation}
@@ -4272,7 +4311,7 @@ Proposition~\ref{prop:endpoint-table-sum-v3}, now with the explicit constant in
   (1+\varepsilon_n^{\mathrm{pd}}).
   \label{eq:explicit-endpoint-table-sum-v3}
 \end{equation}
-Combining this with the one-charge deficit reduction
+Combining this with the single aggregate deficit reduction
 \eqref{eq:coarse-realized-table-reduction-v3}, define
 \begin{equation}
 \begin{split}
@@ -4293,8 +4332,9 @@ large $n$,
   \le e^{\Gamma_n^{\mathrm{skel}}}.
   \label{eq:explicit-bare-skeleton-bound-v3}
 \end{equation}
-This inequality displays separately the unique ambient deficit charge, the
-off-diagonal endpoint-table charge, and the partial-diagonal reference mass.
+This inequality displays separately the ambient deficit contribution, the
+off-diagonal endpoint-table contribution, and the partial-diagonal reference
+mass.
 
 The phase estimates from Section~8 imply
 \[
@@ -4367,7 +4407,7 @@ Thus the deterministic normalized attachment error
   \label{eq:normalized-attachment-error-v3}
 \end{equation}
 
-\begin{proposition}[Explicit normalized second-moment ledger]
+\begin{proposition}[Explicit normalized second-moment bound]
 \label{prop:explicit-normalized-second-moment-ledger-v3}
 Define
 \begin{equation}
@@ -4416,13 +4456,13 @@ The lower bound is the nonnegativity-of-variance inequality. Equations
 \end{proof}
 
 Thus the global second-moment exponent is not an unspecified new error. It is
-the sum of two deterministic ledgers with disjoint responsibilities:
+the sum of two deterministic bounds for disjoint factors:
 \[
   \text{partial diagonals, deficits, and endpoint-table comparison}
   \quad+\quad
   \text{residual local rewards and cycle space}.
 \]
-No factor is charged in both ledgers.
+No factor is included twice.
 \section{Rare-event amplification}\label{rare-event-amplification}
 
 Proposition~\ref{prop:explicit-normalized-second-moment-ledger-v3} and (1.4)
@@ -4645,11 +4685,11 @@ Lemma~\ref{lemma-10.2-amplification-from-a-seed} give
  \le e^{-r_n}+\varepsilon_n\longrightarrow0.            \tag{10.13}
 \]
 
-\subsection{Uniformity dependency ledger}
+\subsection{Uniformity across the phase}
 
 The final assembly uses the preceding estimates simultaneously over every
 admissible phase, integer profile, skeleton, and residual degree sequence. The
-following ledger records where that uniformity enters.
+following table records where that uniformity enters.
 \begin{center}
 \small
 \renewcommand{\arraystretch}{1.16}
@@ -4661,8 +4701,9 @@ Phase and root package &
 $\delta\in[0,1]$ and $T\in K_*$; the inverse mean maps have
 $M'_{n,S}\ge v_*>0$, and $\omega_n^{\mathrm{root}}\to0$ is independent of
 the phase. \\
-Midpoint profile &
-$A_4(\delta)>\gamma_4$, $p_i\ge c_p$, and
+Signed witness profile &
+$A_4(\delta)>\gamma_4$, $p_i\ge c_p$,
+$\log\Exp{Z_{\mathbf k}^{\mathrm{sgn}}}\ge c_Z(\log n)^2$, and
 $\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$, with the same constants for
 all phases. \\
 Partial diagonals &
@@ -4685,7 +4726,7 @@ $k_n$, $\Lambda_n$, and $r$. \\
 \hline
 \end{tabular}
 \end{center}
-Only finitely many eventuality thresholds occur in this ledger. Taking their
+Only finitely many eventuality thresholds occur in this table. Taking their
 maximum gives one deterministic, phase-independent threshold for the final
 argument.
 
@@ -4710,13 +4751,11 @@ Section~\ref{the-four-size-signed-first-moment-advantage} gives
   \frac{n}{(\log n)^3}.
   \label{eq:phase-resolved-root-gap-v3}
 \end{equation}
-The signed profile is placed at the rounded midpoint
+The signed profile is placed a fixed distance above its first-moment root:
 \[
   k_{\mathrm{co}}
   =
-  \left\lceil
-    \frac{r_4^{\mathrm{co}}(n)+r_+(n)}2
-  \right\rceil.
+  \left\lceil r_4^{\mathrm{co}}(n)\right\rceil+16.
 \]
 At this fixed value of $k_{\mathrm{co}}$, the tangent correction in
 Section~\ref{the-four-size-signed-first-moment-advantage} changes only the four
@@ -4733,18 +4772,16 @@ Thus there is no additional correction to the total number of classes. Hence
   r_+(n)-k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
-  \label{eq:midpoint-retained-gap-v3}
+  \label{eq:near-root-retained-gap-v3}
 \end{equation}
 Indeed, (5.13) gives
 $r_+(n)-k_{\mathrm{co}}
-=\tfrac12(r_+(n)-r_4^{\mathrm{co}})+O(1)$.
-The coefficient $1/4$ in
-\eqref{eq:phase-resolved-root-gap-v3} is therefore multiplied by $1/2$, giving
-$1/8$. The ceiling contributes the displayed $O(1)$; the tangent correction
-preserves $k_{\mathrm{co}}$ itself.
+=(r_+(n)-r_4^{\mathrm{co}})-16+O(1)$.
+The fixed displacement and the ceiling are absorbed by the displayed $o(1)$;
+the tangent correction preserves $k_{\mathrm{co}}$ itself.
 
 Section~\ref{a-valid-unrestricted-lower-location-for-chi} constructs a
 deterministic integer $k_\chi^-$ such that
@@ -4752,12 +4789,12 @@ deterministic integer $k_\chi^-$ such that
   \mathbb P\bigl(\chi(G_n)>k_\chi^-\bigr)\longrightarrow1
 \]
 and $k_\chi^-=r_+(n)+O(\log n)$. Combining this with
-\eqref{eq:midpoint-retained-gap-v3} gives
+\eqref{eq:near-root-retained-gap-v3} gives
 \begin{equation}
   k_\chi^- - k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
   \label{eq:integer-location-gap-v3}
@@ -4786,17 +4823,17 @@ Figure~\ref{fig:final-root-geometry-v3}.
   every node/.style={font=\scriptsize}
 ]
   \draw[-{Latex[length=2mm]}] (-0.35,0) -- (12.0,0);
-  \draw[blue!55!black,line width=1.6pt] (6.5,0) -- (10.6,0);
+  \draw[blue!55!black,line width=1.6pt] (2.0,0) -- (10.6,0);
 
-  \foreach \x in {0,5.4,6.5,10.6,11.5}
+  \foreach \x in {0,1.0,2.0,10.6,11.5}
     \draw[line width=0.55pt] (\x,-0.10) -- (\x,0.10);
 
   \node[below=3pt] at (0,0) {$r_4^{\mathrm{co}}$};
-  \node[above=3pt] at (5.4,0) {$k_{\mathrm{co}}$};
-  \node[below=3pt] at (6.5,0) {$k_{\mathrm{co}}+a_n$};
+  \node[above=3pt] at (1.0,0) {$k_{\mathrm{co}}$};
+  \node[below=3pt] at (2.0,0) {$k_{\mathrm{co}}+a_n$};
   \node[above=3pt] at (10.6,0) {$k_\chi^-$};
   \node[below=3pt] at (11.5,0) {$r_+$};
-  \node[text=blue!55!black,fill=white,inner sep=1.5pt] at (8.55,0.42)
+  \node[text=blue!55!black,fill=white,inner sep=1.5pt] at (6.3,0.42)
     {usable separation};
 
   \draw[<->] (0,1.35) -- (11.5,1.35);
@@ -4805,17 +4842,17 @@ Figure~\ref{fig:final-root-geometry-v3}.
     =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
       \frac{n}{(\log n)^3}$};
 
-  \draw[<->] (5.4,-1.30) -- (11.5,-1.30);
-  \node[below=2pt,font=\scriptsize] at (8.45,-1.30) {$\displaystyle
+  \draw[<->] (1.0,-1.30) -- (11.5,-1.30);
+  \node[below=2pt,font=\scriptsize] at (6.25,-1.30) {$\displaystyle
     r_+-k_{\mathrm{co}}
-    =\left[\frac{(\log 2)^2}{8}A_4(\delta_n)+o(1)\right]
+    =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
       \frac{n}{(\log n)^3}$};
 \end{tikzpicture}
 \caption{Root geometry after rounding and amplification. For all sufficiently
 large $n$,
 $r_4^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
 Here $r_4^{\mathrm{co}}$ and $r_+$ are analytic roots,
-$k_{\mathrm{co}}$ is the rounded witness count, and
+$k_{\mathrm{co}}=\lceil r_4^{\mathrm{co}}\rceil+16$ is the witness count, and
 $k_{\mathrm{co}}+a_n$ and $k_\chi^-$ are probabilistic thresholds.
 The thick segment is the usable separation;
 $a_n=o(n/(\log n)^3)$ and
@@ -4824,15 +4861,35 @@ and not to scale.}
 \label{fig:final-root-geometry-v3}
 \end{figure}
 
-A union bound and \eqref{eq:integer-location-gap-v3} therefore give a
-nonnegative deterministic sequence $\varepsilon_n^{\mathrm{gap}}\to0$ for
-which
+To make the final error explicit, put
+\[
+  s_n:=\frac{n}{(\log n)^3},\qquad
+  \theta_n:=\frac{k_\chi^- - k_{\mathrm{co}}}{s_n}
+  -\frac{(\log 2)^2}{4}A_4(\delta_n),\qquad
+  \eta_n:=\frac{a_n}{s_n}.
+\]
+By \eqref{eq:integer-location-gap-v3} and (10.13),
+$\theta_n\to0$ and $\eta_n\to0$.  Hence the nonnegative deterministic error
+\[
+  \varepsilon_n^{\mathrm{gap}}:=|\theta_n|+\eta_n
+\]
+tends to zero.  On the intersection of the two high-probability events above,
+\[
+  \chi(G_n)-\zeta(G_n)
+  > k_\chi^- - k_{\mathrm{co}}-a_n
+  \ge
+  \left[
+    \frac{(\log 2)^2}{4}A_4(\delta_n)
+    -\varepsilon_n^{\mathrm{gap}}
+  \right]s_n.
+\]
+A union bound therefore gives
 \begin{equation}
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
     \ge
     \left[
-      \frac{(\log 2)^2}{8}A_4(\delta_n)
+      \frac{(\log 2)^2}{4}A_4(\delta_n)
       -\varepsilon_n^{\mathrm{gap}}
     \right]
     \frac{n}{(\log n)^3}
@@ -4841,24 +4898,26 @@ which
   \label{eq:phase-resolved-final-v3}
 \end{equation}
 
-Put $q:=\log 2$ and $\gamma_4:=\log(200/153)>0$. Lemma~\ref{lem:entropy-gap}
-gives $A_4(\delta)>\gamma_4$ throughout the phase. Since
-$\varepsilon_n^{\mathrm{gap}}\to0$, for all sufficiently large $n$,
+Put $q:=\log 2$ and $\gamma_4:=\log(200/153)>0$.
+The function $A_4$ is continuous on $[0,1]$, and
+Lemma~\ref{lem:entropy-gap} gives $A_4(\delta)>\gamma_4$ at every point.
+Hence compactness gives
 \[
-  \varepsilon_n^{\mathrm{gap}}<\frac{3q^2\gamma_4}{32}.
+  m_4:=\min_{0\le\delta\le1}A_4(\delta)>\gamma_4.
 \]
-Therefore the coefficient in \eqref{eq:phase-resolved-final-v3} is strictly
-larger than
+Since $\varepsilon_n^{\mathrm{gap}}\to0$, eventually
 \[
-  \frac{q^2\gamma_4}{8}-\frac{3q^2\gamma_4}{32}
-  =\frac{q^2\gamma_4}{32}.
+  \varepsilon_n^{\mathrm{gap}}
+  <\frac{q^2}{4}(m_4-\gamma_4).
 \]
+Therefore the coefficient in \eqref{eq:phase-resolved-final-v3} is at least
+$q^2\gamma_4/4$ for all sufficiently large $n$.
 It follows that
 \[
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
     \ge
-    \frac{(\log 2)^2}{32}
+    \frac{(\log 2)^2}{4}
     \log\!\left(\frac{200}{153}\right)
     \frac{n}{(\log n)^3}
   \right)
@@ -4866,9 +4925,9 @@ It follows that
 \]
 The displayed coefficient equals
 \[
-  \frac{(\log 2)^2}{32}
+  \frac{(\log 2)^2}{4}
   \log\!\left(\frac{200}{153}\right)
-  =0.004021983962242\ldots.
+  =0.032175871697936\ldots.
 \]
 
 This proves the main theorem. Since $n/(\log n)^3\to\infty$, the
@@ -4876,11 +4935,16 @@ chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.
 
 \section*{Formal verification and reproducibility}
-A companion Lean~4 development formalizes the main theorem; its top-level
+A companion Lean~4 development formalizes a conservative explicit consequence
+of the main theorem; its top-level
 declaration is \texttt{Erdos625.erdos625}, with type
 \texttt{Erdos625.Erdos625Statement}~\citep{petkov-erdos625-lean}.
-The formal statement uses the same explicit constant as above and asserts
-convergence along the full sequence of natural numbers. The cited exact Git
+The formal statement uses the coefficient
+$((\log 2)^2/32)\log(200/153)$ and asserts convergence along the full sequence
+of natural numbers.  Thus it independently verifies the full solution of
+Erd\H{o}s Problem~625 at that explicit constant; the fixed-offset construction,
+the phase-resolved refinement, and the stronger coefficient
+$((\log 2)^2/4)\log(200/153)$ are established in the manuscript proof. The cited exact Git
 source revision pins Lean and Mathlib at version~4.31.0 and provides the
 modular sources and deterministically generated single-file closure; the cited
 archive revision adds the trust-boundary audit and clean-environment replay

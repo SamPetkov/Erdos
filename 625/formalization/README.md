@@ -1,7 +1,10 @@
 # Lean 4 formalization of Erdős Problem 625
 
-This directory contains the complete Lean 4 formalization of the theorem
-stated in `../arxiv/main.tex`.
+This directory contains a complete Lean 4 formalization of the explicit
+quantitative consequence below. That consequence already resolves Erdős
+Problem 625. The manuscript in `../arxiv/main.tex` additionally proves a
+stronger phase-resolved coefficient and a stronger uniform constant; those
+refinements are not claimed as part of the current Lean theorem.
 
 The exact top-level result is
 
