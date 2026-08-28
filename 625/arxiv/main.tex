@@ -2009,54 +2009,57 @@ the thresholding operation and the two factors that it creates.
   y=0.62cm,
   >=Latex,
   every node/.style={font=\scriptsize},
-  vertex/.style={circle,draw=black!70,fill=white,inner sep=1.8pt},
+  entry/.style={minimum width=0.58cm,minimum height=0.45cm,inner sep=0pt},
+  cyclecell/.style={fill=blue!10,rounded corners=0.8pt},
+  treecell/.style={fill=orange!16,rounded corners=0.8pt},
+  vertex/.style={circle,draw=black,fill=white,inner sep=1.8pt},
   cycleedge/.style={draw=blue!60!black,line width=0.9pt},
   treeedge/.style={draw=orange!80!black,line width=0.9pt,dashed}
 ]
   \begin{scope}
-    \fill[blue!10] (0,2) rectangle (2,3);
-    \fill[blue!10] (0,1) rectangle (2,2);
-    \fill[orange!16] (2,0) rectangle (3,1);
-    \draw[gray!65] (0,0) grid (3,3);
-    \foreach \x/\y/\z in {
-      0.5/2.5/2,1.5/2.5/2,2.5/2.5/0,
-      0.5/1.5/2,1.5/1.5/3,2.5/1.5/0,
-      0.5/0.5/0,1.5/0.5/0,2.5/0.5/2}{
-      \node at (\x,\y) {$\z$};
+    \foreach \x/\y/\z/\style in {
+      0.45/2.55/2/cyclecell,1.35/2.55/2/cyclecell,2.25/2.55/0/,
+      0.45/1.65/2/cyclecell,1.35/1.65/3/cyclecell,2.25/1.65/0/,
+      0.45/0.75/0/,1.35/0.75/0/,2.25/0.75/2/treecell}{
+      \node[entry,\style] at (\x,\y) {$\z$};
     }
-    \foreach \y/\a in {2.5/1,1.5/2,0.5/3}{
-      \node[left] at (-0.05,\y) {$a_{\a}$};
+    \draw[line width=0.55pt]
+      (-0.02,0.38)--(-0.18,0.38)--(-0.18,2.92)--(-0.02,2.92);
+    \draw[line width=0.55pt]
+      (2.72,0.38)--(2.88,0.38)--(2.88,2.92)--(2.72,2.92);
+    \foreach \y/\a in {2.55/1,1.65/2,0.75/3}{
+      \node[left] at (-0.35,\y) {$a_{\a}$};
     }
-    \foreach \x/\b in {0.5/1,1.5/2,2.5/3}{
-      \node[above] at (\x,3.02) {$b_{\b}$};
+    \foreach \x/\b in {0.45/1,1.35/2,2.25/3}{
+      \node at (\x,3.25) {$b_{\b}$};
     }
-    \node[font=\footnotesize] at (1.5,3.75) {overlap table $r$};
+    \node[font=\footnotesize] at (1.35,3.92) {overlap table $r$};
   \end{scope}
 
-  \draw[->,line width=0.65pt] (3.55,1.5) -- (6.0,1.5)
+  \draw[->,line width=0.65pt] (3.35,1.65) -- (5.55,1.65)
     node[midway,above,align=center] {$r_{ab}\ge2$};
 
-  \begin{scope}[shift={(6.6,0)}]
-    \foreach \y/\a in {2.5/1,1.5/2,0.5/3}{
-      \node[vertex] (a\a) at (0,\y) {$a_{\a}$};
-    }
-    \foreach \y/\b in {2.5/1,1.5/2,0.5/3}{
-      \node[vertex] (b\b) at (4,\y) {$b_{\b}$};
-    }
-    \draw[cycleedge] (a1)--(b1) (a1)--(b2) (a2)--(b1) (a2)--(b2);
+  \begin{scope}[shift={(6.15,0)}]
+    \node[vertex] (a1) at (0,2.35) {$a_1$};
+    \node[vertex] (b1) at (2,3.10) {$b_1$};
+    \node[vertex] (a2) at (4,2.35) {$a_2$};
+    \node[vertex] (b2) at (2,1.60) {$b_2$};
+    \node[vertex] (a3) at (1,0.48) {$a_3$};
+    \node[vertex] (b3) at (3,0.48) {$b_3$};
+    \draw[cycleedge] (a1)--(b1)--(a2)--(b2)--cycle;
     \draw[treeedge] (a3)--(b3);
-    \node[font=\footnotesize] at (2,3.75) {support graph $H(r)$};
-    \node[align=center] at (2,-0.20)
+    \node[font=\footnotesize] at (2,3.92) {support graph $H(r)$};
+    \node[align=center] at (2,-0.24)
       {$|E|=5,\ |V|=6,\ c=2,\ \beta=1$};
   \end{scope}
 
-  \draw[->,line width=0.65pt] (11.25,1.5) -- (13.0,1.5);
-  \node[align=left,anchor=west,font=\footnotesize] at (13.35,1.55)
+  \draw[->,line width=0.65pt] (10.75,1.65) -- (12.45,1.65);
+  \node[align=left,anchor=west,font=\footnotesize] at (12.80,1.70)
     {$\displaystyle W=7,\qquad \text{local reward}=4,$\\[0.45ex]
      $\displaystyle \text{normalized factor}
        =2^{7+2-6}=8=4\cdot2^1.$};
 \end{tikzpicture}
-\caption{From an overlap table to the signed support factor. The shaded cells
+\caption{From an overlap table to the signed support factor. The shaded entries
 are precisely those with multiplicity at least two. Their support consists of
 one four-cycle (solid blue) and one isolated edge (dashed orange), so its binary
 cycle space has dimension one. Compatible signs are constant on each connected
@@ -3667,9 +3670,9 @@ Since every $m_{ij}=O(\log n)$,
 \end{equation}
 Thus $\rho_{\Sigma}\le1$ for all sufficiently large $n$.
 
-Define the bare high-skeleton sum by
+Let $\mathfrak S_n$ denote the bare high-skeleton sum:
 \[
-  \operatorname{BareSkeletonSum}_n
+  \mathfrak S_n
   :=
   \sum_{(P,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(P,j),
 \]
@@ -3680,7 +3683,7 @@ admissible high multiplicities defined above.
 \label{prop:bare-high-skeleton-v3}
 There is a deterministic sequence $\varepsilon_n\to0$ such that
 \begin{equation}
-  \operatorname{BareSkeletonSum}_n
+  \mathfrak S_n
   \le
   \exp\!\left\{
     \varepsilon_n\frac{n}{(\log n)^4}
@@ -3704,7 +3707,7 @@ $o(n/(\log n)^4)$. Combining these estimates with
 \end{proof}
 
 No residual local reward or binary cycle-space factor has been included in
-$\operatorname{BareSkeletonSum}_n$. Section~9 treats exactly those remaining
+$\mathfrak S_n$. Section~9 treats exactly those remaining
 factors. All overlap matrices, including those containing whole common
 classes, remain part of the exact conditional decomposition there.
 
@@ -4281,10 +4284,10 @@ Combining this with the one-charge deficit reduction
 \end{equation}
 With the notation $M=P$, the skeleton sum in
 \eqref{eq:exact-attachment-decomposition-v3} is precisely the
-$\operatorname{BareSkeletonSum}_n$ defined in Section~8. For all sufficiently
+$\mathfrak S_n$ defined in Section~8. For all sufficiently
 large $n$,
 \begin{equation}
-  \operatorname{BareSkeletonSum}_n
+  \mathfrak S_n
   \le e^{\Gamma_n^{\mathrm{skel}}}.
   \label{eq:explicit-bare-skeleton-bound-v3}
 \end{equation}
@@ -4400,7 +4403,7 @@ skeleton sum. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
   e^{\Gamma_n^{\mathrm{att}}}
-  \operatorname{BareSkeletonSum}_n
+  \mathfrak S_n
   \le
   e^{\Gamma_n^{\mathrm{att}}+\Gamma_n^{\mathrm{skel}}}
   =e^{\Lambda_n}.
