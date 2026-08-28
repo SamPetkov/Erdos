@@ -68,10 +68,12 @@ jobs:
           tex=625/arxiv/main.tex
           test "$(grep -c '\\begin{maintheorem}' "$tex")" -eq 1
           test "$(grep -c '\\end{maintheorem}' "$tex")" -eq 1
+          test "$(grep -cF 'OpenAI GPT-5.6 Sol' "$tex")" -eq 1
+          test "$(grep -cF "Aristotle, Harmonic's automated theorem-proving system" "$tex")" -eq 1
           ! grep -nF '\input{' "$tex"
           grep -qF '200/153' "$tex"
           if grep -nEi \
-            '(proof remains conditional|candidate preprint|design hole|missing proof|unfinished theorem|ChatGPT|Aristotle|ANTIGRAVITY|COMPLETE_WITH_ERRORS|ErdosProofClosed)' \
+            '(proof remains conditional|candidate preprint|design hole|missing proof|unfinished theorem|ANTIGRAVITY|COMPLETE_WITH_ERRORS|ErdosProofClosed)' \
             "$tex"; then
             exit 1
           fi

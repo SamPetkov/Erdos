@@ -4941,9 +4941,9 @@ declaration is \texttt{Erdos625.erdos625}, with type
 \texttt{Erdos625.Erdos625Statement}~\citep{petkov-erdos625-lean}.
 The formal statement uses the coefficient
 $((\log 2)^2/32)\log(200/153)$ and asserts convergence along the full sequence
-of natural numbers.  Thus it independently verifies the full solution of
-Erd\H{o}s Problem~625 at that explicit constant; the fixed-offset construction,
-the phase-resolved refinement, and the stronger coefficient
+of natural numbers. Thus the Lean kernel checks a conservative explicit
+consequence that already resolves Erd\H{o}s Problem~625 at that constant; the
+fixed-offset construction, the phase-resolved refinement, and the stronger coefficient
 $((\log 2)^2/4)\log(200/153)$ are established in the manuscript proof. The cited exact Git
 source revision pins Lean and Mathlib at version~4.31.0 and provides the
 modular sources and deterministically generated single-file closure; the cited
@@ -4951,6 +4951,21 @@ archive revision adds the trust-boundary audit and clean-environment replay
 record. Both revisions provide detailed build instructions.
 Detailed reproduction commands, checksums, and transcripts are maintained in
 the companion documentation.
+
+\paragraph{AI assistance disclosure.}
+OpenAI GPT-5.6 Sol, used through ChatGPT and Codex, assisted with adversarial
+and counterexample-oriented checking of the written proof, formalization
+design and review, computational checks, exposition, and repository and
+release engineering. Aristotle, Harmonic's automated theorem-proving system
+\citep{achim-et-al-2025}, assisted with the Lean formalization through
+quarantined atomic proof search and clean cloud replay. Candidate formal
+outputs were reviewed, integrated, and rebuilt under the pinned Lean toolchain
+before acceptance. Neither system is an author, and no AI output was treated
+as proof of the manuscript theorem: machine-checked claims rest on the Lean
+kernel, while unformalized claims rest on the written argument. Samuil Petkov
+directed the work, selected the claims and arguments, reviewed the manuscript
+and formalization, and takes responsibility for the accuracy, integrity,
+citations, and final submission.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup
