@@ -21,13 +21,13 @@ matches the top-level source.
 These choices follow arXiv's current
 [TeX submission guidance](https://info.arxiv.org/help/submit_tex.html).
 
-The manuscript intentionally contains neither `\date` nor `\today`. The arXiv
-identifier and submission record supply the authoritative date, whereas
-`\today` would change whenever arXiv rebuilds the source. Before submitting,
-inspect the arXiv-generated PDF and compilation log, with particular attention
-to the three figures, the final theorem, and the bibliography. See arXiv's
-[date guidance](https://info.arxiv.org/help/faq/today.html) for the reason the
-source is undated.
+The manuscript uses the fixed author-supplied date `\date{31 August 2026}`.
+It does not use `\today`, which would change whenever arXiv rebuilds the
+source; the arXiv identifier and submission record remain the authoritative
+submission date. Before submitting, inspect the arXiv-generated PDF and
+compilation log, with particular attention to the three figures, the final
+theorem, and the bibliography. See arXiv's
+[date guidance](https://info.arxiv.org/help/faq/today.html) for this distinction.
 
 The resulting `main.pdf` states a phase-resolved theorem with coefficient
 `((log 2)^2 / 4) A_4(delta_n) - o(1)` and the uniform consequence with
