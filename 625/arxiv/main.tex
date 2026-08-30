@@ -1472,7 +1472,7 @@ function, and mean map
 The Gaussian factor makes both sums finite. Moreover,
 \(M_S'(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0\), and the endpoint
 limits of \(M_S\) are the endpoints of the convex hull of \(S\). Thus, for
-every target mean \(T\) in its interior, there is a unique tilt
+every \(T\in(2,5)\), there is a unique tilt
 \(\lambda_S(T)\) with \(M_S(\lambda_S(T))=T\). The Gibbs identity (3.13a)
 proves that the optimizer in (3.9a) is
 
@@ -1594,15 +1594,15 @@ Dividing the second equality by the first gives
 
 We verify the first strict inequality in (5.4) directly. Put
 \[
- A=\sum_{j=0}^{3}2^{-j^2/2},\quad
- B=\sum_{j=0}^{3}j2^{-j^2/2},\quad
- C=\sum_{j=4}^{\infty}2^{-j^2/2},\quad
- D=\sum_{j=4}^{\infty}j2^{-j^2/2}.
+ Z_0=\sum_{j=0}^{3}2^{-j^2/2},\quad
+ N_0=\sum_{j=0}^{3}j2^{-j^2/2},\quad
+ Z_1=\sum_{j=4}^{\infty}2^{-j^2/2},\quad
+ N_1=\sum_{j=4}^{\infty}j2^{-j^2/2}.
 \]
-Here \(B/A\le3\), while \(D/C\ge4\).  Since \(A,C>0\),
+Here \(N_0/Z_0\le3\), while \(N_1/Z_1\ge4\).  Since \(Z_0,Z_1>0\),
 \[
- \frac{B+D}{A+C}-\frac BA
- =\frac{AD-BC}{A(A+C)}>0.
+ \frac{N_0+N_1}{Z_0+Z_1}-\frac {N_0}{Z_0}
+ =\frac{Z_0N_1-N_0Z_1}{Z_0(Z_0+Z_1)}>0.
 \]
 Thus adjoining the terms whose new indices satisfy \(j\ge4\) strictly
 increases the weighted mean. For the next inequality, put
