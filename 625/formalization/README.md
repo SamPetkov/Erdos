@@ -1,10 +1,10 @@
 # Lean 4 formalization of Erdős Problem 625
 
 This directory contains a complete Lean 4 formalization of the explicit
-quantitative consequence below. That consequence already resolves Erdős
-Problem 625. The manuscript in `../arxiv/main.tex` additionally proves a
-stronger phase-resolved coefficient and a stronger uniform constant; those
-refinements are not claimed as part of the current Lean theorem.
+uniform quantitative consequence below. That consequence resolves Erdős
+Problem 625. The manuscript in `../arxiv/main.tex` additionally proves the
+phase-resolved refinement involving `A_4(delta_n)`; that refinement is not
+claimed as part of the current Lean theorem.
 
 The exact top-level result is
 
@@ -16,7 +16,7 @@ where `Erdos625Statement` says that, for `G(n,1/2)`, the probability of
 
 ```text
 chromaticNumber - cochromaticNumber
-  >= ((log 2)^2 / 32 * log (200 / 153)) * n / (log n)^3
+  >= ((log 2)^2 / 4 * log (200 / 153)) * n / (log n)^3
 ```
 
 tends to one along the full sequence of natural numbers.
@@ -50,10 +50,10 @@ Compile it independently:
 lake env lean -DwarningAsError=true Erdos625SelfContained.lean
 ```
 
-The checked source contains 475 local source modules, 86 external imports,
-and 88,563 lines. Its normalized-LF SHA-256 (the value printed by the
+The checked source contains 480 local source modules, 86 external imports,
+and 89,528 lines. Its normalized-LF SHA-256 (the value printed by the
 generator on every platform) is
-`0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30`.
+`53060b9563330f20a5f2133ffdf8f56e5a41eae6d0f772487193d9c54133e837`.
 
 ## Trust boundary
 
@@ -64,8 +64,10 @@ audit reports only `propext`, `Classical.choice`, and `Quot.sound`.
 ## Public cloud replay evidence
 
 The exact standalone file at source commit
-`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8` was independently replayed in a
-clean Aristotle cloud workspace. The complete merged stdout/stderr, exit code,
-source and toolchain revisions, file checksums, and audit report are preserved
-at immutable public commit `1eb0aeba305327d383496b912a1e6e1a8fa71947` in
-[`replay/aristotle-76792321-4b5f-4367-8885-d1470db80091`](https://github.com/SamPetkov/Erdos/tree/1eb0aeba305327d383496b912a1e6e1a8fa71947/625/formalization/replay/aristotle-76792321-4b5f-4367-8885-d1470db80091).
+`824e4b609466d2e26b216a76ecf103184dac2663` was independently replayed in a
+clean Aristotle cloud workspace. The raw download, primary-command stdout,
+stderr, and exit-code records, supplementary check output, source and
+toolchain revisions, file checksums, and axiom audit are preserved at
+immutable public commit
+`31bbe00c529a996bdb61b880120d71240172d18f` in
+[`replay/aristotle-03e8124e-c359-4219-8b37-442060dae209`](https://github.com/SamPetkov/Erdos/tree/31bbe00c529a996bdb61b880120d71240172d18f/625/formalization/replay/aristotle-03e8124e-c359-4219-8b37-442060dae209).

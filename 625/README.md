@@ -19,11 +19,11 @@ P(chi(G_n) - zeta(G_n)
   >= ((log 2)^2 / 4) log(200/153) * n/(log n)^3) -> 1.
 ```
 
-The companion Lean theorem certifies the conservative consequence
+The companion Lean theorem certifies this same explicit uniform consequence:
 
 ```text
 P(chi(G_n) - zeta(G_n)
-  >= ((log 2)^2 / 32) log(200/153) * n/(log n)^3) -> 1.
+  >= ((log 2)^2 / 4) log(200/153) * n/(log n)^3) -> 1.
 ```
 
 In particular, the chromatic--cochromatic gap tends to infinity with high
@@ -42,13 +42,17 @@ probability along the full sequence of integers.
 ## Formal verification
 
 [`formalization/`](formalization/) contains the modular Lean project and the
-generated one-file proof [`Erdos625SelfContained.lean`](formalization/Erdos625SelfContained.lean).
-Both Lean sources prove the displayed conservative consequence and use the
-repository-pinned Lean/mathlib v4.31.0 toolchain. The fixed-offset construction,
-phase-resolved coefficient, and stronger uniform constant are established in
-the manuscript proof and are not claimed as kernel-checked. See
-[`formalization/README.md`](formalization/README.md) for exact reproduction
-commands, the trust boundary, and the immutable cloud replay transcript.
+generated one-file proof
+[`Erdos625SelfContained.lean`](formalization/Erdos625SelfContained.lean).
+Both sources kernel-check the displayed uniform consequence under the
+repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
+fixed-offset construction leading to the uniform coefficient. The stronger
+phase-resolved refinement involving `A_4(delta_n)` is proved in the manuscript
+and is not claimed as part of the Lean theorem. The exact formal source is
+commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
+[`formalization/README.md`](formalization/README.md) for reproduction commands,
+the trust boundary, and the immutable cloud replay record at
+`31bbe00c529a996bdb61b880120d71240172d18f`.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These

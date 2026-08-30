@@ -28,8 +28,8 @@ download, all 485 Lean files in the cloud copy were compared with commit
 
 The exact submitted Lean sources pass the release checks:
 
-- `lake build --wfail`: exit 0 (9,038 jobs in the corresponding full-tree
-  replay; the release transcript records 1,589 seconds);
+- `lake build --wfail`: exit 0 (9,038 jobs in the default-target, final-import-
+  closure replay; the release transcript records 1,589 seconds);
 - deterministic standalone generator check: exit 0;
 - final-instantiation module, project root, and axiom audit under
   `-DwarningAsError=true`: exit 0;
@@ -53,18 +53,22 @@ the logs; it is not a source or theorem failure.
 
 No Lean source was changed by the replay. Aristotle did, however, prepend a
 nine-line attribution notice to its returned copy of the root `README.md` and
-added `ARISTOTLE_SUMMARY.md`. Consequently, the cloud summary's blanket claim
-that no supplied file was edited is too broad. The raw archive is retained
-unchanged for provenance, while the public source identity is established by
-the byte comparison of all Lean files and the standalone checksum above.
+added `ARISTOTLE_SUMMARY.md`; its returned archive also omits the repository's
+root `.gitignore`. Consequently, the cloud summary's blanket claim that no
+supplied file was edited is too broad. The raw archive is retained unchanged
+for provenance, while the public source identity is established by the byte
+comparison of all Lean files and the standalone checksum above. The returned
+logs are hash-sealed, but their archive modes are `0644`; “read-only” in the
+verbatim cloud text is therefore not a filesystem-permission claim.
 
 ## Contents
 
 - `aristotle-result.tar.gz`: the byte-identical Aristotle download;
 - `cloud-output/ARISTOTLE_SUMMARY.md`: the verbatim cloud summary;
 - `cloud-output/release-replay-824e4b6/`: the verbatim audit report, exact
-  driver, environment record, command timelines, stdout, stderr, exit codes,
-  static scans, axiom scan, and cloud checksum seals;
+  driver, environment record, command timelines, available stdout, stderr, and
+  exit-code records, static scans, the primary-log axiom scan, and cloud
+  checksum seals;
 - `SHA256SUMS`: local checksums of every preserved verbatim artifact.
 
 The raw logs are evidence, not an additional trust boundary: the formal claims

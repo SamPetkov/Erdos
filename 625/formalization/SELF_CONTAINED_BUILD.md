@@ -11,10 +11,10 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean
 
 Generated source metrics:
 
-- local source modules: 475;
+- local source modules: 480;
 - external Mathlib imports: 86;
-- lines: 88,563;
-- normalized-LF SHA-256: `0f54ac26285e5a1631ed62f0258ba0836cc3a2cd28cc35df3b2f737cfaffac30`.
+- lines: 89,528;
+- normalized-LF SHA-256: `53060b9563330f20a5f2133ffdf8f56e5a41eae6d0f772487193d9c54133e837`.
 
 The top-level theorem is `Erdos625.erdos625 : Erdos625Statement`. Its printed
 axiom closure contains only `propext`, `Classical.choice`, and `Quot.sound`.
