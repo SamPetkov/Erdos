@@ -21,7 +21,7 @@ matches the top-level source.
 These choices follow arXiv's current
 [TeX submission guidance](https://info.arxiv.org/help/submit_tex.html).
 
-The manuscript uses the fixed author-supplied date `\date{31 August 2026}`.
+The manuscript uses the fixed author-supplied date `\date{30 August 2026}`.
 It does not use `\today`, which would change whenever arXiv rebuilds the
 source; the arXiv identifier and submission record remain the authoritative
 submission date. Before submitting, inspect the arXiv-generated PDF and
