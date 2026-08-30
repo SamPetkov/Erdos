@@ -436,10 +436,10 @@ import Erdos625.Section9ActualAttachmentLargeResidualEnvelope
 import Erdos625.Section9ERealENNRealExpTransport
 import Erdos625.ProfileBlockCardinalityBound
 import Erdos625.ExpTailTransport
-import Erdos625.Section12ConcreteSignedFirstMoment
-import Erdos625.Section12PartialDiagonalAssembly
-import Erdos625.Section12CanonicalBareSkeletonAsymptotic
-import Erdos625.Section13GlobalMidpointSeed
+import Erdos625.Section12FixedOffsetConcreteSignedFirstMoment
+import Erdos625.Section12FixedOffsetPartialDiagonalAssembly
+import Erdos625.Section12FixedOffsetCanonicalBareSkeletonAsymptotic
+import Erdos625.Section13GlobalFixedOffsetSeed
 import Erdos625.Section15FinalInstantiation
 import Erdos625.AxiomAudit
 
@@ -454,7 +454,7 @@ target on the full natural-number sequence.
 Its final declaration, `Erdos625.erdos625`, proves the unchanged proposition
 `Erdos625Statement`: the probability of the specified chromatic/cochromatic
 gap event tends to one as `n → ∞`.  The proof composes the global
-midpoint seed, concrete chromatic lower-tail estimate, root-corridor estimate,
-and final probability adapter.  See the individual section modules for the
-definitions, intermediate statements, and permanent axiom audit.
+fixed-offset seed, concrete chromatic lower-tail estimate, sharp root-gap
+estimate, and final probability adapter. See the individual section modules
+for the definitions, intermediate statements, and permanent axiom audit.
 -/

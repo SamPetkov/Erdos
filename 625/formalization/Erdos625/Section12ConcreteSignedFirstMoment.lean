@@ -32,16 +32,7 @@ set_option autoImplicit false
 
 private theorem tendsto_baseScale_atTop :
     Tendsto baseScale atTop atTop := by
-  let d : ℝ :=
-    (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)
-  have hd : 0 < d := by
-    dsimp [d]
-    positivity
-  have hScaled : Tendsto (fun n : ℕ ↦ d * baseScale n) atTop atTop := by
-    simpa only [d, baseScale, mul_div_assoc] using
-      tendsto_explicit_gap_scale_atTop
-  have h := hScaled.const_mul_atTop (inv_pos.mpr hd)
-  simpa only [← mul_assoc, inv_mul_cancel₀ hd.ne', one_mul] using h
+  exact tendsto_baseScale_atTop_unscaled
 
 private structure PhaseCochromaticMidpointGeometry (n : ℕ) : Prop where
   index_pos : 0 < phaseCochromaticMidpointIndex n

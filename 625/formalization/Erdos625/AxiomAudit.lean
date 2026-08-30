@@ -405,10 +405,10 @@ import Erdos625.Section9ProfileAttachmentLargeResidualLogScale
 import Erdos625.Section9ActualAttachmentLargeResidualExp
 import Erdos625.ExpTailTransport
 import Erdos625.ProbabilityTools
-import Erdos625.Section12ConcreteSignedFirstMoment
-import Erdos625.Section12PartialDiagonalAssembly
-import Erdos625.Section12CanonicalBareSkeletonAsymptotic
-import Erdos625.Section13GlobalMidpointSeed
+import Erdos625.Section12FixedOffsetConcreteSignedFirstMoment
+import Erdos625.Section12FixedOffsetPartialDiagonalAssembly
+import Erdos625.Section12FixedOffsetCanonicalBareSkeletonAsymptotic
+import Erdos625.Section13GlobalFixedOffsetSeed
 import Erdos625.Section15FinalInstantiation
 
 /-!
@@ -438,6 +438,7 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.tendsto_measure_one_of_eventually_subset
 #print axioms Erdos625.fixedThreshold_tail_of_movingThreshold
 #print axioms Erdos625.eventually_explicit_gap_threshold
+#print axioms Erdos625.tendsto_baseScale_atTop_unscaled
 #print axioms Erdos625.tendsto_explicit_gap_scale_atTop
 #print axioms Erdos625.phaseDelta_mem_Ico
 #print axioms Erdos625.mu_succ_div_identity
@@ -1411,14 +1412,17 @@ No placeholder axiom or project-defined axiom may appear.
 #print axioms Erdos625.eventually_phaseRootLogLogCorridor_part_div_phaseNat_sq_lower
 #print axioms Erdos625.eventually_selected_phase_roots_separated
 #print axioms Erdos625.phaseChromaticLowerIndex
-#print axioms Erdos625.phaseCochromaticMidpointIndex
-#print axioms Erdos625.eventually_concrete_phase_root_corridor_bounds
+#print axioms Erdos625.phaseCochromaticFixedOffsetIndex
+#print axioms Erdos625.exists_phaseRootGapCoefficient_gt_uniformQuarter
+#print axioms Erdos625.exists_eventually_concrete_phase_fixedOffset_root_gap
 #print axioms Erdos625.eventually_phaseChromaticLowerIndex_pos_and_le
 #print axioms Erdos625.eventually_profilePhaseObjective_phaseChromaticLowerIndex_le_neg_cubic
 #print axioms Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseChromaticLowerIndex_tendsto_zero
-#print axioms Erdos625.eventually_phaseCochromaticMidpointIndex_rounding_admissible
-#print axioms Erdos625.phase_midpoint_completeSignedFirstMoment_tendsto_atTop
-#print axioms Erdos625.tendsto_sum_midpointPartialDiagonalWeight
-#print axioms Erdos625.exists_phaseMidpointCanonicalBareSkeleton_error
-#print axioms Erdos625.exists_phaseCochromaticMidpoint_real_seed
+#print axioms Erdos625.fixedOffset_rounding_budget_spec
+#print axioms Erdos625.eventually_phaseCochromaticFixedOffsetIndex_target_control
+#print axioms Erdos625.eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible
+#print axioms Erdos625.phase_fixedOffset_completeSignedFirstMoment_tendsto_atTop
+#print axioms Erdos625.tendsto_sum_fixedOffsetPartialDiagonalWeight
+#print axioms Erdos625.exists_phaseFixedOffsetCanonicalBareSkeleton_error
+#print axioms Erdos625.exists_phaseCochromaticFixedOffset_real_seed
 #print axioms Erdos625.erdos625

@@ -11,7 +11,7 @@ namespace Erdos625
 
 /-- The explicit constant in the Erdős 625 lower bound. -/
 noncomputable def gapConstant : ℝ :=
-  (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)
+  (Real.log 2) ^ 2 / 4 * Real.log (200 / 153 : ℝ)
 
 /-- The explicit lower-bound constant is strictly positive. -/
 theorem gapConstant_pos : 0 < gapConstant := by

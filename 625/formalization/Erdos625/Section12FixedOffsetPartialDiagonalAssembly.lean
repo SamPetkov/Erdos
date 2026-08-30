@@ -1,9 +1,41 @@
-import Erdos625.Section12ConcreteSignedFirstMoment
+import Erdos625.Section12FixedOffsetConcreteSignedFirstMoment
 import Erdos625.PartialDiagonalEmptyRangeAsymptotic
 import Erdos625.PartialDiagonalFourDeficitRateBridge
 import Erdos625.PartialDiagonalMidpointRhoIdentity
 import Erdos625.FullCornerMidpointAggregate
 import Mathlib.Tactic
+
+/-!
+# Partial-diagonal assembly at the fixed-offset selector
+
+This module replays the Section 12 empty / central / full partial-diagonal
+assembly for the manuscript *fixed-offset* cocolouring selector
+`phaseCochromaticFixedOffsetIndex`.  All selector-specific inputs come from the
+verified fixed-offset layer:
+
+* corridor geometry and four-size target control from
+  `eventually_phaseFixedOffsetCorridorGeometry` and
+  `eventually_phaseCochromaticFixedOffsetIndex_target_control`;
+* rounding admissibility from
+  `eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible`;
+* first-moment divergence from
+  `phase_fixedOffset_completeSignedFirstMoment_tendsto_atTop`.
+
+The finite partial-diagonal estimates are generic in the selector `K` and are
+reused verbatim.  Two public results are proved:
+
+* `tendsto_phaseFixedOffsetFullCornerSum_zero`, the vanishing of the
+  full-corner contribution; only divergence of the complete signed first
+  moment is consumed, so the `phaseNat ^ 2`-scale fixed-offset lower bound is
+  enough to dominate the polynomial profile count;
+* `tendsto_sum_fixedOffsetPartialDiagonalWeight`, the asymptotic mass one of
+  the fixed-offset partial-diagonal multiplier, obtained from the explicit
+  disjoint empty / central / restricted-full partition together with the
+  nonnegativity and squeeze arguments.
+
+Nothing here depends on the midpoint selector, and no skeleton, residual,
+seed, amplification, or top-theorem layer is touched.
+-/
 
 namespace Erdos625
 
@@ -14,222 +46,79 @@ noncomputable section
 
 set_option autoImplicit false
 
-/-! ### Canonical midpoint corridor geometry -/
+/-! ### Fixed-offset corridor geometry inputs
 
-private theorem tendsto_baseScale_atTop_for_partialDiagonal :
-    Tendsto baseScale atTop atTop := by
-  exact tendsto_baseScale_atTop_unscaled
+The corridor geometry of the selector is supplied by
+`eventually_phaseFixedOffsetCorridorGeometry` and its consequence
+`eventually_phaseCochromaticFixedOffsetIndex_target_control`; no geometry is
+reconstructed here. -/
 
-private structure PhaseMidpointEnvelopeGeometry (n : Nat) : Prop where
-  index_mem :
-    (phaseCochromaticMidpointIndex n : Real) ∈
-      Icc
-        (phaseRootCenter n -
-          (phaseRootCommonCorridorCoefficient + 1) *
-            logLogOrder n * phaseRootGapRadius n)
-        (phaseRootCenter n +
-          (phaseRootCommonCorridorCoefficient + 1) *
-            logLogOrder n * phaseRootGapRadius n)
-
-private theorem eventually_phaseMidpointEnvelopeGeometry :
-    ∀ᶠ n : Nat in atTop, PhaseMidpointEnvelopeGeometry n := by
-  let c : Real := q ^ 2 / 8 * Real.log (200 / 153 : Real)
-  have hc : 0 < c := by
-    dsimp [c]
-    exact mul_pos (div_pos (sq_pos_of_pos q_pos) (by norm_num))
-      log_200_div_153_pos
-  have hLogLogLarge : ∀ᶠ n : Nat in atTop,
-      8 / q ^ 3 ≤ logLogOrder n :=
-    tendsto_logLogOrder_atTop.eventually_ge_atTop (8 / q ^ 3)
-  have hBaseOne : ∀ᶠ n : Nat in atTop, 1 ≤ baseScale n :=
-    tendsto_baseScale_atTop_for_partialDiagonal.eventually_ge_atTop 1
-  have hScale :=
-    eventually_phaseRootLogLogCorridor_part_div_phaseNat_sq_lower
-      0 (by norm_num)
-  filter_upwards
-    [eventually_selected_phase_roots_separated,
-      eventually_phaseSignedFourSizeRootSelected_spec_unique,
-      eventually_unrestrictedPhaseRootSelected_spec_unique,
-      hLogLogLarge, hBaseOne, hScale] with
-      n hGap hSigned hUnrestricted hLogLogLargeN hBaseOneN hScaleN
-  let rCo : Real := phaseSignedFourSizeRootSelected n
-  let rPlus : Real := unrestrictedPhaseRootSelected n
-  let width : Real := logLogOrder n * phaseRootGapRadius n
-  let midpoint : Real := (rCo + rPlus) / 2
-  let z : Int := rootCochromaticIndex rCo rPlus
-  have hRCoPos : 0 < rCo := hSigned.1.2.1
-  have hGap' : c * baseScale n ≤ rPlus - rCo := by
-    simpa [c, rPlus, rCo] using hGap
-  have hRPlusPos : 0 < rPlus := by
-    have hBasePos : 0 < baseScale n :=
-      lt_of_lt_of_le (by norm_num) hBaseOneN
-    nlinarith [mul_pos hc hBasePos]
-  have hScaleAtCenter : q ^ 3 / 8 * baseScale n ≤
-      phaseRootGapRadius n := by
-    have h := hScaleN (phaseRootCenter n) (by simp)
-    simpa [phaseRootGapRadius] using h
-  have hQCubePos : 0 < q ^ 3 := pow_pos q_pos 3
-  have hCoeffLogLog : 1 ≤ q ^ 3 / 8 * logLogOrder n := by
-    rw [div_le_iff₀ hQCubePos] at hLogLogLargeN
-    nlinarith
-  have hLogLogPos : 0 < logLogOrder n := by
-    have : 0 < 8 / q ^ 3 := div_pos (by norm_num) hQCubePos
-    linarith
-  have hBaseNonneg : 0 ≤ baseScale n :=
-    (show (0 : Real) ≤ 1 by norm_num).trans hBaseOneN
-  have hWidthOne : 1 ≤ width := by
-    calc
-      1 ≤ baseScale n := hBaseOneN
-      _ ≤ (q ^ 3 / 8 * logLogOrder n) * baseScale n := by
-        simpa only [one_mul] using
-          mul_le_mul_of_nonneg_right hCoeffLogLog hBaseNonneg
-      _ = logLogOrder n * (q ^ 3 / 8 * baseScale n) := by ring
-      _ ≤ logLogOrder n * phaseRootGapRadius n :=
-        mul_le_mul_of_nonneg_left hScaleAtCenter hLogLogPos.le
-      _ = width := by rfl
-  have hWidthPos : 0 < width := lt_of_lt_of_le (by norm_num) hWidthOne
-  have hSignedCoeffLe :
-      phaseSignedFourSizeRootCorridorCoefficient ≤
-        phaseRootCommonCorridorCoefficient := by
-    unfold phaseRootCommonCorridorCoefficient
-    linarith [unrestrictedPhaseRootCorridorCoefficient_pos]
-  have hUnrestrictedCoeffLe :
-      unrestrictedPhaseRootCorridorCoefficient ≤
-        phaseRootCommonCorridorCoefficient := by
-    unfold phaseRootCommonCorridorCoefficient
-    linarith [phaseSignedFourSizeRootCorridorCoefficient_pos]
-  have hSignedMem : rCo ∈ Icc
-      (phaseRootCenter n - phaseRootCommonCorridorCoefficient * width)
-      (phaseRootCenter n + phaseRootCommonCorridorCoefficient * width) := by
-    have hOwn := hSigned.1.1
-    rw [mem_Ioo] at hOwn
-    rw [mem_Icc]
-    dsimp [rCo, width]
-    constructor <;>
-      nlinarith [mul_le_mul_of_nonneg_right hSignedCoeffLe hWidthPos.le]
-  have hUnrestrictedMem : rPlus ∈ Icc
-      (phaseRootCenter n - phaseRootCommonCorridorCoefficient * width)
-      (phaseRootCenter n + phaseRootCommonCorridorCoefficient * width) := by
-    have hOwn := hUnrestricted.1.1
-    rw [mem_Ioo] at hOwn
-    rw [mem_Icc]
-    dsimp [rPlus, width]
-    constructor <;>
-      nlinarith [mul_le_mul_of_nonneg_right hUnrestrictedCoeffLe hWidthPos.le]
-  have hMidpointMem : midpoint ∈ Icc
-      (phaseRootCenter n - phaseRootCommonCorridorCoefficient * width)
-      (phaseRootCenter n + phaseRootCommonCorridorCoefficient * width) := by
-    rw [mem_Icc]
-    dsimp [midpoint]
-    constructor <;> linarith [hSignedMem.1, hSignedMem.2,
-      hUnrestrictedMem.1, hUnrestrictedMem.2]
-  have hMidpointPos : 0 < midpoint := by
-    dsimp [midpoint]
-    positivity
-  have hZNonneg : 0 ≤ z := by
-    dsimp [z, rootCochromaticIndex]
-    exact Int.ceil_nonneg hMidpointPos.le
-  have hIndexCast : (phaseCochromaticMidpointIndex n : Real) = (z : Real) := by
-    rw [phaseCochromaticMidpointIndex]
-    norm_cast
-    simpa [z, rCo, rPlus, rootCochromaticIndex] using
-      Int.toNat_of_nonneg hZNonneg
-  have hMidpointLeZ : midpoint ≤ (z : Real) := by
-    dsimp [z, rootCochromaticIndex, midpoint]
-    exact_mod_cast Int.le_ceil ((rCo + rPlus) / 2)
-  have hZLt : (z : Real) < midpoint + 1 := by
-    dsimp [z, rootCochromaticIndex, midpoint]
-    exact Int.ceil_lt_add_one ((rCo + rPlus) / 2)
-  refine { index_mem := ?_ }
-  rw [hIndexCast, mem_Icc]
-  dsimp [width] at hMidpointMem hWidthOne ⊢
-  constructor
-  · nlinarith [hMidpointMem.1, hMidpointLeZ]
-  · nlinarith [hMidpointMem.2, hZLt, hWidthOne]
-
-private theorem eventually_phaseMidpoint_fourSizeTarget_le_four :
+/-- Eventual four-size target control at the fixed-offset selector.  This is
+the second component of `eventually_phaseCochromaticFixedOffsetIndex_target_control`,
+which is itself derived from `eventually_phaseFixedOffsetCorridorGeometry`. -/
+private theorem eventually_phaseFixedOffset_fourSizeTarget_le_four :
     ∀ᶠ n : Nat in atTop,
       fourSizeTarget n (phaseNat n)
-        (phaseCochromaticMidpointIndex n : Real) ≤ 4 := by
-  let C : Real := phaseRootCommonCorridorCoefficient + 1
-  have hC : 0 ≤ C := by
-    dsimp [C]
-    linarith [phaseRootCommonCorridorCoefficient_pos]
-  have hClose :=
-    eventually_uniform_phaseRootLogLogCorridor_fourSizeTarget_tendsto_center
-      C hC (1 / 20) (by norm_num)
-  filter_upwards [eventually_phaseMidpointEnvelopeGeometry,
-    eventually_phaseDomain, hClose] with n hGeom hDomain hCloseN
-  have hTargetEq := phaseRootDeficitTarget_eq hDomain
-  have hqLower : (20 / 29 : Real) < q := by
-    exact (by norm_num : (20 / 29 : Real) < 0.6931471803).trans
-      Real.log_two_gt_d9
-  have hTwoDiv : 2 / q < (29 / 10 : Real) := by
-    rw [div_lt_iff₀ q_pos]
-    nlinarith
-  have hCenter : phaseRootDeficitTarget n < (39 / 10 : Real) := by
-    rw [hTargetEq]
-    linarith [phaseDelta_nonneg n]
-  have hAt := hCloseN (phaseCochromaticMidpointIndex n : Real)
-    (by simpa only [C] using hGeom.index_mem)
-  rw [abs_lt] at hAt
-  linarith
+        (phaseCochromaticFixedOffsetIndex n : Real) ≤ 4 := by
+  filter_upwards [eventually_phaseCochromaticFixedOffsetIndex_target_control]
+    with n hn
+  exact hn.2
 
-private noncomputable def phaseMidpointFullCornerSum (n : Nat) : Real :=
+private noncomputable def phaseFixedOffsetFullCornerSum (n : Nat) : Real :=
   ∑ ell ∈
       (partialSubprofileBox
         (midpointMultiplicity n (phaseNat n)
-          (phaseCochromaticMidpointIndex n))).filter
+          (phaseCochromaticFixedOffsetIndex n))).filter
           (fun ell =>
             n - selectedVertexMass
                 (midpointPartialDiagonalSize (phaseNat n)) ell ≤ n / 32),
     partialDiagonalWeight n
       (midpointPartialDiagonalSize (phaseNat n))
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell
+        (phaseCochromaticFixedOffsetIndex n)) ell
 
-private theorem phaseMidpointFullCornerSum_nonneg (n : Nat) :
-    0 ≤ phaseMidpointFullCornerSum n := by
-  unfold phaseMidpointFullCornerSum
+private theorem phaseFixedOffsetFullCornerSum_nonneg (n : Nat) :
+    0 ≤ phaseFixedOffsetFullCornerSum n := by
+  unfold phaseFixedOffsetFullCornerSum
   apply Finset.sum_nonneg
   intro ell hell
   have hbox := (Finset.mem_filter.mp hell).1
   exact (partialDiagonalWeight_pos n
     (midpointPartialDiagonalSize (phaseNat n))
     (midpointMultiplicity n (phaseNat n)
-      (phaseCochromaticMidpointIndex n)) ell
+      (phaseCochromaticFixedOffsetIndex n)) ell
     (mem_partialSubprofileBox.mp hbox)).le
 
-theorem tendsto_phaseMidpointFullCornerSum_zero :
-    Tendsto phaseMidpointFullCornerSum atTop (nhds 0) := by
+theorem tendsto_phaseFixedOffsetFullCornerSum_zero :
+    Tendsto phaseFixedOffsetFullCornerSum atTop (nhds 0) := by
   let M : Nat → Real := fun n =>
     completeSignedFirstMoment
       (midpointPartialDiagonalSize (phaseNat n))
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n))
+        (phaseCochromaticFixedOffsetIndex n))
   have hM : Tendsto M atTop atTop := by
     simpa only [M] using
-      phase_midpoint_completeSignedFirstMoment_tendsto_atTop
+      phase_fixedOffset_completeSignedFirstMoment_tendsto_atTop
   have hEnvelope : Tendsto (fun n => Real.exp 1 / M n) atTop (nhds 0) := by
     have hInv : Tendsto (fun n => (M n)⁻¹) atTop (nhds 0) :=
       hM.inv_tendsto_atTop
     simpa only [div_eq_mul_inv, mul_zero] using
       hInv.const_mul (Real.exp 1)
   have hUpper : ∀ᶠ n : Nat in atTop,
-      phaseMidpointFullCornerSum n ≤ Real.exp 1 / M n := by
+      phaseFixedOffsetFullCornerSum n ≤ Real.exp 1 / M n := by
     filter_upwards
       [eventually_sum_midpointPartialDiagonalWeight_fullCorner_filter_mul_complete_le_exp
         1 (by norm_num),
-       eventually_phaseCochromaticMidpointIndex_rounding_admissible] with
+       eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible] with
         n hfull hadm
     have hMpos : 0 < M n := by
       dsimp [M]
       exact completeSignedFirstMoment_pos _ _
     apply (le_div_iff₀ hMpos).2
-    simpa only [phaseMidpointFullCornerSum, M] using
-      hfull (phaseCochromaticMidpointIndex n) hadm
+    simpa only [phaseFixedOffsetFullCornerSum, M] using
+      hfull (phaseCochromaticFixedOffsetIndex n) hadm
   exact squeeze_zero'
-    (Filter.Eventually.of_forall phaseMidpointFullCornerSum_nonneg)
+    (Filter.Eventually.of_forall phaseFixedOffsetFullCornerSum_nonneg)
     hUpper hEnvelope
 
 /-! ### Central-range finite analytic helpers -/
@@ -272,52 +161,52 @@ private theorem mul_log_le_mul_log_add_sixtyFour_abs_sub
     rw [abs_of_nonneg (sub_nonneg.mpr hba)]
     nlinarith
 
-private noncomputable def phaseMidpointSelectedFraction
+private noncomputable def phaseFixedOffsetSelectedFraction
     (n : Nat) (ell : Fin 4 → Nat) : Real :=
   ∑ i : Fin 4,
-    midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i
+    midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i
 
-private noncomputable def phaseMidpointResidualFraction
+private noncomputable def phaseFixedOffsetResidualFraction
     (n : Nat) (ell : Fin 4 → Nat) : Real :=
   ∑ i : Fin 4,
     (midpointPartialDiagonalP n (phaseNat n)
-        (phaseCochromaticMidpointIndex n) i -
-      midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i)
+        (phaseCochromaticFixedOffsetIndex n) i -
+      midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i)
 
-private noncomputable def phaseMidpointResidualDeficit
+private noncomputable def phaseFixedOffsetResidualDeficit
     (n : Nat) (ell : Fin 4 → Nat) : Real :=
   ∑ i : Fin 4, (fourDeficit i : Real) *
     (midpointPartialDiagonalP n (phaseNat n)
-        (phaseCochromaticMidpointIndex n) i -
-      midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i)
+        (phaseCochromaticFixedOffsetIndex n) i -
+      midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i)
 
-private theorem phaseMidpointCentral_scale_facts
+private theorem phaseFixedOffsetCentral_scale_facts
     (n : Nat)
     (hAlphaLarge : (384 : Real) ≤ (phaseNat n : Real))
     (hAlphaLog : logOrder n ≤ (phaseNat n : Real))
     (hLogLogPos : 0 < logLogOrder n)
     (hTargetUpper :
       fourSizeTarget n (phaseNat n)
-        (phaseCochromaticMidpointIndex n : Real) ≤ 4)
+        (phaseCochromaticFixedOffsetIndex n : Real) ≤ 4)
     (hadm : MidpointRoundingAdmissible n (phaseNat n)
-      (phaseCochromaticMidpointIndex n))
+      (phaseCochromaticFixedOffsetIndex n))
     (ell : Fin 4 → Nat)
     (hell : IsPartialSubprofile
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell)
+        (phaseCochromaticFixedOffsetIndex n)) ell)
     (hNotEmpty : ¬ midpointPartialDiagonalEmptyRange n ell)
     (hNotFull : ¬ (n - selectedVertexMass
       (midpointPartialDiagonalSize (phaseNat n)) ell ≤ n / 32)) :
-    (1 : Real) / 64 ≤ phaseMidpointResidualFraction n ell ∧
-    phaseMidpointResidualFraction n ell ≤ 1 ∧
+    (1 : Real) / 64 ≤ phaseFixedOffsetResidualFraction n ell ∧
+    phaseFixedOffsetResidualFraction n ell ≤ 1 ∧
     (1 : Real) / 64 ≤ midpointPartialDiagonalRho n (phaseNat n) ell ∧
     midpointPartialDiagonalRho n (phaseNat n) ell ≤ 1 ∧
     |midpointPartialDiagonalRho n (phaseNat n) ell -
-        phaseMidpointResidualFraction n ell| ≤
-      6 * phaseMidpointSelectedFraction n ell / (phaseNat n : Real) ∧
+        phaseFixedOffsetResidualFraction n ell| ≤
+      6 * phaseFixedOffsetSelectedFraction n ell / (phaseNat n : Real) ∧
     logLogOrder n / 64 ≤
-      (phaseNat n : Real) * phaseMidpointSelectedFraction n ell := by
-  let K : Nat := phaseCochromaticMidpointIndex n
+      (phaseNat n : Real) * phaseFixedOffsetSelectedFraction n ell := by
+  let K : Nat := phaseCochromaticFixedOffsetIndex n
   let p : Fin 4 → Real := midpointPartialDiagonalP n (phaseNat n) K
   let y : Fin 4 → Real := midpointPartialDiagonalY K ell
   let T : Real := fourSizeTarget n (phaseNat n) (K : Real)
@@ -546,7 +435,7 @@ private theorem phaseMidpointCentral_scale_facts
             (logLogOrder n / (64 * logOrder n)) := by ring
     rw [← hEtaForm] at hBase
     exact hBase.trans (mul_le_mul_of_nonneg_left hScaledY.le hAlpha.le)
-  dsimp [phaseMidpointResidualFraction, phaseMidpointSelectedFraction]
+  dsimp [phaseFixedOffsetResidualFraction, phaseFixedOffsetSelectedFraction]
   simpa only [K, p, y, R, rho] using
     ⟨hRLower, hROne, hRhoLower.trans' (by norm_num), hRhoOne, hDiff,
       hSelectedScale⟩
@@ -604,7 +493,7 @@ private theorem probability_entropy_lower_neg_two_q
     rw [Finset.sum_add_distrib, ← Finset.sum_neg_distrib]
     simp_rw [hlogU]
     rw [← Finset.sum_mul, hpSum]
-    ring
+    ring_nf
   rw [hform] at hrel
   linarith
 
@@ -743,10 +632,10 @@ private theorem eventually_logOrder_pow_five_le_natCast :
         ← Real.rpow_mul hnpos.le]
       norm_num
 
-private theorem eventually_four_factorialLogErrorBound_le_phaseMidpointIndex :
+private theorem eventually_four_factorialLogErrorBound_le_phaseFixedOffsetIndex :
     ∀ᶠ n : Nat in atTop,
       4 * factorialLogErrorBound n ≤
-        (phaseCochromaticMidpointIndex n : Real) := by
+        (phaseCochromaticFixedOffsetIndex n : Real) := by
   have hRatio : ∀ᶠ n : Nat in atTop,
       factorialLogErrorBound n / logOrder n < 2 :=
     factorialLogErrorBound_div_logOrder_tendsto_one.eventually
@@ -754,10 +643,10 @@ private theorem eventually_four_factorialLogErrorBound_le_phaseMidpointIndex :
   filter_upwards [hRatio, eventually_logOrder_pow_five_le_natCast,
     eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
     tendsto_logOrder_atTop.eventually_ge_atTop 4,
-    eventually_phaseCochromaticMidpointIndex_rounding_admissible] with
+    eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible] with
       n hRatioN hPow hPhase hLog hadm
   let L : Real := logOrder n
-  let K : Real := phaseCochromaticMidpointIndex n
+  let K : Real := phaseCochromaticFixedOffsetIndex n
   have hLpos : 0 < L := lt_of_lt_of_le (by norm_num) hLog
   have hError : factorialLogErrorBound n < 2 * L := by
     exact (div_lt_iff₀ hLpos).mp (by simpa only [L] using hRatioN)
@@ -789,17 +678,17 @@ private theorem eventually_four_factorialLogErrorBound_le_phaseMidpointIndex :
       (mul_pos (by norm_num : (0 : Real) < 4) hLpos)
   linarith
 
-private theorem eventually_eight_logOrder_le_phaseMidpointIndex :
+private theorem eventually_eight_logOrder_le_phaseFixedOffsetIndex :
     ∀ᶠ n : Nat in atTop,
       8 * logOrder n ≤
-        (phaseCochromaticMidpointIndex n : Real) := by
+        (phaseCochromaticFixedOffsetIndex n : Real) := by
   filter_upwards [eventually_logOrder_pow_five_le_natCast,
     eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
     tendsto_logOrder_atTop.eventually_ge_atTop 4,
-    eventually_phaseCochromaticMidpointIndex_rounding_admissible] with
+    eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible] with
       n hPow hPhase hLog hadm
   let L : Real := logOrder n
-  let K : Real := phaseCochromaticMidpointIndex n
+  let K : Real := phaseCochromaticFixedOffsetIndex n
   have hLpos : 0 < L := lt_of_lt_of_le (by norm_num) hLog
   have h32 : (32 : Real) ≤ L ^ 3 := by
     calc
@@ -828,20 +717,20 @@ private theorem eventually_eight_logOrder_le_phaseMidpointIndex :
   exact le_of_mul_le_mul_left hScaled
     (mul_pos (by norm_num : (0 : Real) < 4) hLpos)
 
-private theorem eventually_midpointPartialDiagonalE_average_le_four :
+private theorem eventually_fixedOffsetPartialDiagonalE_average_le_four :
     ∀ᶠ n : Nat in atTop,
       (∑ i : Fin 4,
         midpointPartialDiagonalP n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) i *
+            (phaseCochromaticFixedOffsetIndex n) i *
           midpointPartialDiagonalE n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) i) ≤ 4 := by
+            (phaseCochromaticFixedOffsetIndex n) i) ≤ 4 := by
   have hMoment :=
-    phase_midpoint_completeSignedFirstMoment_tendsto_atTop.eventually_ge_atTop 1
+    phase_fixedOffset_completeSignedFirstMoment_tendsto_atTop.eventually_ge_atTop 1
   filter_upwards [hMoment,
-    eventually_four_factorialLogErrorBound_le_phaseMidpointIndex,
-    eventually_phaseCochromaticMidpointIndex_rounding_admissible] with
+    eventually_four_factorialLogErrorBound_le_phaseFixedOffsetIndex,
+    eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible] with
       n hMomentN hError hadm
-  let K : Nat := phaseCochromaticMidpointIndex n
+  let K : Nat := phaseCochromaticFixedOffsetIndex n
   let p : Fin 4 → Real := midpointPartialDiagonalP n (phaseNat n) K
   let E : Fin 4 → Real := midpointPartialDiagonalE n (phaseNat n) K
   let D : Real :=
@@ -1074,7 +963,7 @@ private theorem eventually_abs_phaseCenteredEError_le
     (epsilon : Real) (hepsilon : 0 < epsilon) :
     ∀ᶠ n : Nat in atTop,
       ∀ i : Fin 4,
-        |phaseCenteredEError n (phaseCochromaticMidpointIndex n) i| ≤
+        |phaseCenteredEError n (phaseCochromaticFixedOffsetIndex n) i| ≤
           epsilon * (phaseNat n : Real) := by
   have h1 := tendsto_phaseAdjacentEError_div_logOrder_zero 2
   have h2 : Tendsto
@@ -1095,7 +984,7 @@ private theorem eventually_abs_phaseCenteredEError_le
       n hn1 hn2 hn3 hphase hscale hL
   intro i
   have hratio :
-      |phaseCenteredEError n (phaseCochromaticMidpointIndex n) i /
+      |phaseCenteredEError n (phaseCochromaticFixedOffsetIndex n) i /
         logOrder n| < epsilon := by
     rw [phaseCenteredEError_eq_adjacent_sum n _ hphase i]
     fin_cases i
@@ -1112,7 +1001,7 @@ private theorem eventually_abs_phaseCenteredEError_le
       rw [add_div, add_div]
       simpa only [Real.dist_eq, sub_zero] using hn3
   have hraw :
-      |phaseCenteredEError n (phaseCochromaticMidpointIndex n) i| <
+      |phaseCenteredEError n (phaseCochromaticFixedOffsetIndex n) i| <
         epsilon * logOrder n := by
     rw [abs_div, abs_of_pos hL, div_lt_iff₀ hL] at hratio
     simpa only [mul_comm] using hratio
@@ -1208,38 +1097,38 @@ private theorem midpointPartialDiagonal_sum_y_mul_E_le
 
 /-! ### Pointwise central decay -/
 
-private theorem phaseMidpointCentral_rho_rate_le
+private theorem phaseFixedOffsetCentral_rho_rate_le
     (n : Nat)
     (hAlphaLarge : (384 : Real) ≤ (phaseNat n : Real))
     (hAlphaLog : logOrder n ≤ (phaseNat n : Real))
     (hLogLogPos : 0 < logLogOrder n)
     (hTargetUpper :
       fourSizeTarget n (phaseNat n)
-        (phaseCochromaticMidpointIndex n : Real) ≤ 4)
+        (phaseCochromaticFixedOffsetIndex n : Real) ≤ 4)
     (hadm : MidpointRoundingAdmissible n (phaseNat n)
-      (phaseCochromaticMidpointIndex n))
+      (phaseCochromaticFixedOffsetIndex n))
     (ell : Fin 4 → Nat)
     (hell : IsPartialSubprofile
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell)
+        (phaseCochromaticFixedOffsetIndex n)) ell)
     (hNotEmpty : ¬ midpointPartialDiagonalEmptyRange n ell)
     (hNotFull : ¬ (n - selectedVertexMass
       (midpointPartialDiagonalSize (phaseNat n)) ell ≤ n / 32)) :
     (n : Real) * midpointPartialDiagonalRho n (phaseNat n) ell *
           Real.log (midpointPartialDiagonalRho n (phaseNat n) ell) +
-        (phaseCochromaticMidpointIndex n : Real) *
+        (phaseCochromaticFixedOffsetIndex n : Real) *
           (q / 2 * (phaseNat n : Real) *
-            (phaseMidpointResidualDeficit n ell -
+            (phaseFixedOffsetResidualDeficit n ell -
               fourSizeTarget n (phaseNat n)
-                  (phaseCochromaticMidpointIndex n : Real) *
-                phaseMidpointResidualFraction n ell)) ≤
+                  (phaseCochromaticFixedOffsetIndex n : Real) *
+                phaseFixedOffsetResidualFraction n ell)) ≤
       -(1 / 5000 : Real) *
-          (phaseCochromaticMidpointIndex n : Real) *
-          (phaseNat n : Real) * phaseMidpointSelectedFraction n ell +
-        384 * (phaseCochromaticMidpointIndex n : Real) *
-          phaseMidpointSelectedFraction n ell +
-        4 * (phaseCochromaticMidpointIndex n : Real) := by
-  let K : Nat := phaseCochromaticMidpointIndex n
+          (phaseCochromaticFixedOffsetIndex n : Real) *
+          (phaseNat n : Real) * phaseFixedOffsetSelectedFraction n ell +
+        384 * (phaseCochromaticFixedOffsetIndex n : Real) *
+          phaseFixedOffsetSelectedFraction n ell +
+        4 * (phaseCochromaticFixedOffsetIndex n : Real) := by
+  let K : Nat := phaseCochromaticFixedOffsetIndex n
   let a : Real := (phaseNat n : Real)
   let p : Fin 4 → Real := midpointPartialDiagonalP n (phaseNat n) K
   let y : Fin 4 → Real := midpointPartialDiagonalY K ell
@@ -1267,12 +1156,12 @@ private theorem phaseMidpointCentral_rho_rate_le
   have hR : R = 1 - Y := by
     dsimp [R]
     rw [Finset.sum_sub_distrib, hpSum]
-  have hScale := phaseMidpointCentral_scale_facts n hAlphaLarge hAlphaLog
+  have hScale := phaseFixedOffsetCentral_scale_facts n hAlphaLarge hAlphaLog
     hLogLogPos hTargetUpper hadm ell hell hNotEmpty hNotFull
   have hRlow : (1 : Real) / 64 ≤ R := by
-    simpa only [R, p, y, K, phaseMidpointResidualFraction] using hScale.1
+    simpa only [R, p, y, K, phaseFixedOffsetResidualFraction] using hScale.1
   have hRone : R ≤ 1 := by
-    simpa only [R, p, y, K, phaseMidpointResidualFraction] using hScale.2.1
+    simpa only [R, p, y, K, phaseFixedOffsetResidualFraction] using hScale.2.1
   have hRnonneg : 0 ≤ R := (by norm_num : (0 : Real) ≤ 1 / 64).trans hRlow
   have hRhoLow : (1 : Real) / 64 ≤ rho := by
     simpa only [rho] using hScale.2.2.1
@@ -1280,7 +1169,7 @@ private theorem phaseMidpointCentral_rho_rate_le
     simpa only [rho] using hScale.2.2.2.1
   have hDiff : |rho - R| ≤ 6 * Y / a := by
     simpa only [rho, R, Y, p, y, K, a,
-      phaseMidpointResidualFraction, phaseMidpointSelectedFraction] using
+      phaseFixedOffsetResidualFraction, phaseFixedOffsetSelectedFraction] using
         hScale.2.2.2.2.1
   have hTupper : T ≤ 4 := by simpa only [T, K] using hTargetUpper
   have hTpos : 0 < T := by
@@ -1373,34 +1262,34 @@ private theorem phaseMidpointCentral_rho_rate_le
     _ = -(1 / 5000 : Real) * (K : Real) * a * Y +
         384 * (K : Real) * Y + 4 * (K : Real) := by ring
 
-private theorem phaseMidpointCentral_log_weight_le
+private theorem phaseFixedOffsetCentral_log_weight_le
     (n : Nat) (C : Real)
     (hAlphaLarge : (384 : Real) ≤ (phaseNat n : Real))
     (hAlphaLog : logOrder n ≤ (phaseNat n : Real))
     (hLogLogPos : 0 < logLogOrder n)
     (hTargetUpper :
       fourSizeTarget n (phaseNat n)
-        (phaseCochromaticMidpointIndex n : Real) ≤ 4)
+        (phaseCochromaticFixedOffsetIndex n : Real) ≤ 4)
     (hadm : MidpointRoundingAdmissible n (phaseNat n)
-      (phaseCochromaticMidpointIndex n))
+      (phaseCochromaticFixedOffsetIndex n))
     (hEavg :
       ∑ i : Fin 4,
           midpointPartialDiagonalP n (phaseNat n)
-              (phaseCochromaticMidpointIndex n) i *
+              (phaseCochromaticFixedOffsetIndex n) i *
             midpointPartialDiagonalE n (phaseNat n)
-              (phaseCochromaticMidpointIndex n) i ≤ 4)
+              (phaseCochromaticFixedOffsetIndex n) i ≤ 4)
     (hcenter : ∀ i : Fin 4,
       |midpointPartialDiagonalE n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) i -
+            (phaseCochromaticFixedOffsetIndex n) i -
           midpointPartialDiagonalE n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) (0 : Fin 4) +
+            (phaseCochromaticFixedOffsetIndex n) (0 : Fin 4) +
           q / 2 * (phaseNat n : Real) *
             ((fourDeficit i : Real) - 2)| ≤
         (1 / 40000 : Real) * (phaseNat n : Real))
     (ell : Fin 4 → Nat)
     (hell : IsPartialSubprofile
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell)
+        (phaseCochromaticFixedOffsetIndex n)) ell)
     (hNotEmpty : ¬ midpointPartialDiagonalEmptyRange n ell)
     (hNotFull : ¬ (n - selectedVertexMass
       (midpointPartialDiagonalSize (phaseNat n)) ell ≤ n / 32))
@@ -1409,39 +1298,39 @@ private theorem phaseMidpointCentral_log_weight_le
           (partialDiagonalWeight n
             (midpointPartialDiagonalSize (phaseNat n))
             (midpointMultiplicity n (phaseNat n)
-              (phaseCochromaticMidpointIndex n)) ell) ≤
+              (phaseCochromaticFixedOffsetIndex n)) ell) ≤
         (n : Real) * midpointPartialDiagonalRho n (phaseNat n) ell *
             Real.log (midpointPartialDiagonalRho n (phaseNat n) ell) +
-          (phaseCochromaticMidpointIndex n : Real) *
+          (phaseCochromaticFixedOffsetIndex n : Real) *
             ∑ i : Fin 4,
               (2 * midpointPartialDiagonalP n (phaseNat n)
-                    (phaseCochromaticMidpointIndex n) i *
+                    (phaseCochromaticFixedOffsetIndex n) i *
                     Real.log (midpointPartialDiagonalP n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) i) -
+                      (phaseCochromaticFixedOffsetIndex n) i) -
                 2 * midpointPartialDiagonalZ n (phaseNat n)
-                    (phaseCochromaticMidpointIndex n) ell i *
+                    (phaseCochromaticFixedOffsetIndex n) ell i *
                     Real.log (midpointPartialDiagonalZ n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) ell i) -
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i *
+                      (phaseCochromaticFixedOffsetIndex n) ell i) -
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i *
                     Real.log (midpointPartialDiagonalY
-                      (phaseCochromaticMidpointIndex n) ell i) -
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i +
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i *
+                      (phaseCochromaticFixedOffsetIndex n) ell i) -
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i +
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i *
                     midpointPartialDiagonalE n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) i) +
+                      (phaseCochromaticFixedOffsetIndex n) i) +
           C * logOrder n) :
     Real.log
         (partialDiagonalWeight n
           (midpointPartialDiagonalSize (phaseNat n))
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n)) ell) ≤
+            (phaseCochromaticFixedOffsetIndex n)) ell) ≤
       -(3 / 20000 : Real) *
-          (phaseCochromaticMidpointIndex n : Real) *
-          (phaseNat n : Real) * phaseMidpointSelectedFraction n ell +
-        388 * (phaseCochromaticMidpointIndex n : Real) *
-          phaseMidpointSelectedFraction n ell +
-        8 * (phaseCochromaticMidpointIndex n : Real) + C * logOrder n := by
-  let K : Nat := phaseCochromaticMidpointIndex n
+          (phaseCochromaticFixedOffsetIndex n : Real) *
+          (phaseNat n : Real) * phaseFixedOffsetSelectedFraction n ell +
+        388 * (phaseCochromaticFixedOffsetIndex n : Real) *
+          phaseFixedOffsetSelectedFraction n ell +
+        8 * (phaseCochromaticFixedOffsetIndex n : Real) + C * logOrder n := by
+  let K : Nat := phaseCochromaticFixedOffsetIndex n
   let a : Real := (phaseNat n : Real)
   let p : Fin 4 → Real := midpointPartialDiagonalP n (phaseNat n) K
   let y : Fin 4 → Real := midpointPartialDiagonalY K ell
@@ -1515,9 +1404,9 @@ private theorem phaseMidpointCentral_log_weight_le
         -(1 / 5000 : Real) * (K : Real) * a * Y +
           384 * (K : Real) * Y + 4 * (K : Real) := by
     simpa only [rho, K, a, T, R, Y, Ir, p, y,
-      phaseMidpointResidualFraction, phaseMidpointSelectedFraction,
-      phaseMidpointResidualDeficit] using
-        phaseMidpointCentral_rho_rate_le n hAlphaLarge hAlphaLog hLogLogPos
+      phaseFixedOffsetResidualFraction, phaseFixedOffsetSelectedFraction,
+      phaseFixedOffsetResidualDeficit] using
+        phaseFixedOffsetCentral_rho_rate_le n hAlphaLarge hAlphaLog hLogLogPos
           hTargetUpper hadm ell hell hNotEmpty hNotFull
   have hSplit :
       (∑ i : Fin 4,
@@ -1549,7 +1438,7 @@ private theorem phaseMidpointCentral_log_weight_le
   nlinarith [mul_le_mul_of_nonneg_left hEntropy hK.le,
     mul_le_mul_of_nonneg_left hYE hK.le]
 
-private theorem phaseMidpointCentral_log_weight_strong
+private theorem phaseFixedOffsetCentral_log_weight_strong
     (n : Nat) (C : Real)
     (hC : 0 ≤ C)
     (hAlphaHuge : (3880000 : Real) ≤ (phaseNat n : Real))
@@ -1557,30 +1446,30 @@ private theorem phaseMidpointCentral_log_weight_strong
     (hLogLogHuge :
       2000000 * (8 + C) ≤ logLogOrder n)
     (hEight : 8 * logOrder n ≤
-      (phaseCochromaticMidpointIndex n : Real))
+      (phaseCochromaticFixedOffsetIndex n : Real))
     (hTargetUpper :
       fourSizeTarget n (phaseNat n)
-        (phaseCochromaticMidpointIndex n : Real) ≤ 4)
+        (phaseCochromaticFixedOffsetIndex n : Real) ≤ 4)
     (hadm : MidpointRoundingAdmissible n (phaseNat n)
-      (phaseCochromaticMidpointIndex n))
+      (phaseCochromaticFixedOffsetIndex n))
     (hEavg :
       ∑ i : Fin 4,
           midpointPartialDiagonalP n (phaseNat n)
-              (phaseCochromaticMidpointIndex n) i *
+              (phaseCochromaticFixedOffsetIndex n) i *
             midpointPartialDiagonalE n (phaseNat n)
-              (phaseCochromaticMidpointIndex n) i ≤ 4)
+              (phaseCochromaticFixedOffsetIndex n) i ≤ 4)
     (hcenter : ∀ i : Fin 4,
       |midpointPartialDiagonalE n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) i -
+            (phaseCochromaticFixedOffsetIndex n) i -
           midpointPartialDiagonalE n (phaseNat n)
-            (phaseCochromaticMidpointIndex n) (0 : Fin 4) +
+            (phaseCochromaticFixedOffsetIndex n) (0 : Fin 4) +
           q / 2 * (phaseNat n : Real) *
             ((fourDeficit i : Real) - 2)| ≤
         (1 / 40000 : Real) * (phaseNat n : Real))
     (ell : Fin 4 → Nat)
     (hell : IsPartialSubprofile
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell)
+        (phaseCochromaticFixedOffsetIndex n)) ell)
     (hNotEmpty : ¬ midpointPartialDiagonalEmptyRange n ell)
     (hNotFull : ¬ (n - selectedVertexMass
       (midpointPartialDiagonalSize (phaseNat n)) ell ≤ n / 32))
@@ -1589,49 +1478,49 @@ private theorem phaseMidpointCentral_log_weight_strong
           (partialDiagonalWeight n
             (midpointPartialDiagonalSize (phaseNat n))
             (midpointMultiplicity n (phaseNat n)
-              (phaseCochromaticMidpointIndex n)) ell) ≤
+              (phaseCochromaticFixedOffsetIndex n)) ell) ≤
         (n : Real) * midpointPartialDiagonalRho n (phaseNat n) ell *
             Real.log (midpointPartialDiagonalRho n (phaseNat n) ell) +
-          (phaseCochromaticMidpointIndex n : Real) *
+          (phaseCochromaticFixedOffsetIndex n : Real) *
             ∑ i : Fin 4,
               (2 * midpointPartialDiagonalP n (phaseNat n)
-                    (phaseCochromaticMidpointIndex n) i *
+                    (phaseCochromaticFixedOffsetIndex n) i *
                     Real.log (midpointPartialDiagonalP n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) i) -
+                      (phaseCochromaticFixedOffsetIndex n) i) -
                 2 * midpointPartialDiagonalZ n (phaseNat n)
-                    (phaseCochromaticMidpointIndex n) ell i *
+                    (phaseCochromaticFixedOffsetIndex n) ell i *
                     Real.log (midpointPartialDiagonalZ n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) ell i) -
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i *
+                      (phaseCochromaticFixedOffsetIndex n) ell i) -
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i *
                     Real.log (midpointPartialDiagonalY
-                      (phaseCochromaticMidpointIndex n) ell i) -
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i +
-                midpointPartialDiagonalY (phaseCochromaticMidpointIndex n) ell i *
+                      (phaseCochromaticFixedOffsetIndex n) ell i) -
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i +
+                midpointPartialDiagonalY (phaseCochromaticFixedOffsetIndex n) ell i *
                     midpointPartialDiagonalE n (phaseNat n)
-                      (phaseCochromaticMidpointIndex n) i) +
+                      (phaseCochromaticFixedOffsetIndex n) i) +
           C * logOrder n) :
     Real.log
         (partialDiagonalWeight n
           (midpointPartialDiagonalSize (phaseNat n))
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n)) ell) ≤
-      -(phaseCochromaticMidpointIndex n : Real) * logLogOrder n /
+            (phaseCochromaticFixedOffsetIndex n)) ell) ≤
+      -(phaseCochromaticFixedOffsetIndex n : Real) * logLogOrder n /
         10000000 := by
-  let K : Real := phaseCochromaticMidpointIndex n
+  let K : Real := phaseCochromaticFixedOffsetIndex n
   let a : Real := phaseNat n
-  let Y : Real := phaseMidpointSelectedFraction n ell
+  let Y : Real := phaseFixedOffsetSelectedFraction n ell
   have hK : 0 < K := by
     dsimp [K]
     exact_mod_cast hadm.2.1
   have hY : 0 ≤ Y := by
-    dsimp [Y, phaseMidpointSelectedFraction, midpointPartialDiagonalY]
+    dsimp [Y, phaseFixedOffsetSelectedFraction, midpointPartialDiagonalY]
     positivity
   have hLogLogPos : 0 < logLogOrder n := by
     nlinarith [hC, hLogLogHuge]
-  have hWeak := phaseMidpointCentral_log_weight_le n C
+  have hWeak := phaseFixedOffsetCentral_log_weight_le n C
     (hAlphaHuge.trans' (by norm_num)) hAlphaLog hLogLogPos hTargetUpper
     hadm hEavg hcenter ell hell hNotEmpty hNotFull hEnvelope
-  have hScale := phaseMidpointCentral_scale_facts n
+  have hScale := phaseFixedOffsetCentral_scale_facts n
     (hAlphaHuge.trans' (by norm_num)) hAlphaLog hLogLogPos hTargetUpper
     hadm ell hell hNotEmpty hNotFull
   have hSelected : logLogOrder n / 64 ≤ a * Y := by
@@ -1659,13 +1548,13 @@ private theorem phaseMidpointCentral_log_weight_strong
 
 /-! ### Central aggregate -/
 
-private noncomputable def phaseMidpointCentralSum (n : Nat) : Real := by
+private noncomputable def phaseFixedOffsetCentralSum (n : Nat) : Real := by
   classical
   exact
     ∑ ell ∈
         (partialSubprofileBox
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n))).filter
+            (phaseCochromaticFixedOffsetIndex n))).filter
           (fun ell =>
             ¬ midpointPartialDiagonalEmptyRange n ell ∧
             ¬ (n - selectedVertexMass
@@ -1673,23 +1562,23 @@ private noncomputable def phaseMidpointCentralSum (n : Nat) : Real := by
       partialDiagonalWeight n
         (midpointPartialDiagonalSize (phaseNat n))
         (midpointMultiplicity n (phaseNat n)
-          (phaseCochromaticMidpointIndex n)) ell
+          (phaseCochromaticFixedOffsetIndex n)) ell
 
-private theorem phaseMidpointCentralSum_nonneg (n : Nat) :
-    0 ≤ phaseMidpointCentralSum n := by
+private theorem phaseFixedOffsetCentralSum_nonneg (n : Nat) :
+    0 ≤ phaseFixedOffsetCentralSum n := by
   classical
-  unfold phaseMidpointCentralSum
+  unfold phaseFixedOffsetCentralSum
   apply Finset.sum_nonneg
   intro ell hell
   have hbox := (Finset.mem_filter.mp hell).1
   exact (partialDiagonalWeight_pos n
     (midpointPartialDiagonalSize (phaseNat n))
     (midpointMultiplicity n (phaseNat n)
-      (phaseCochromaticMidpointIndex n)) ell
+      (phaseCochromaticFixedOffsetIndex n)) ell
     (mem_partialSubprofileBox.mp hbox)).le
 
-private theorem tendsto_phaseMidpointCentralSum_zero :
-    Tendsto phaseMidpointCentralSum atTop (nhds 0) := by
+private theorem tendsto_phaseFixedOffsetCentralSum_zero :
+    Tendsto phaseFixedOffsetCentralSum atTop (nhds 0) := by
   classical
   obtain ⟨C, hC, N₀, hEnvelope⟩ :=
     partialDiagonal_log_upper_envelope_midpoint_fourDeficit
@@ -1704,21 +1593,21 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
       2000000 * (8 + C) ≤ logLogOrder n :=
     tendsto_logLogOrder_atTop.eventually_ge_atTop (2000000 * (8 + C))
   have hUpper : ∀ᶠ n : Nat in atTop,
-      phaseMidpointCentralSum n ≤ Real.exp (-4 * logOrder n) := by
+      phaseFixedOffsetCentralSum n ≤ Real.exp (-4 * logOrder n) := by
     filter_upwards
       [eventually_ge_atTop N₀,
         eventually_ge_atTop 3,
         hAlphaHuge,
         eventually_logOrder_le_phaseNat_and_phaseNat_le_four_logOrder,
         hLogLogHuge,
-        eventually_eight_logOrder_le_phaseMidpointIndex,
-        eventually_phaseMidpoint_fourSizeTarget_le_four,
-        eventually_phaseCochromaticMidpointIndex_rounding_admissible,
-        eventually_midpointPartialDiagonalE_average_le_four,
+        eventually_eight_logOrder_le_phaseFixedOffsetIndex,
+        eventually_phaseFixedOffset_fourSizeTarget_le_four,
+        eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible,
+        eventually_fixedOffsetPartialDiagonalE_average_le_four,
         eventually_abs_phaseCenteredEError_le (1 / 40000 : Real) (by norm_num),
         tendsto_logOrder_atTop.eventually_gt_atTop 0] with
       n hN₀ hn hAlpha hPhase hLogLog hEight hTarget hadm hEavg hcenter hLpos
-    let K : Nat := phaseCochromaticMidpointIndex n
+    let K : Nat := phaseCochromaticFixedOffsetIndex n
     let k : Fin 4 → Nat := midpointMultiplicity n (phaseNat n) K
     let box : Finset (Fin 4 → Nat) := partialSubprofileBox k
     let central : Finset (Fin 4 → Nat) := box.filter
@@ -1736,7 +1625,7 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
       have hell : IsPartialSubprofile k ell :=
         mem_partialSubprofileBox.mp (by simpa only [box] using hmem.1)
       have henv := hEnvelope n (phaseNat n) K hN₀ hadm ell (by simpa only [k] using hell)
-      have hlog := phaseMidpointCentral_log_weight_strong n C hC hAlpha
+      have hlog := phaseFixedOffsetCentral_log_weight_strong n C hC hAlpha
         hPhase.1 hLogLog hEight hTarget hadm hEavg
         (by simpa only [phaseCenteredEError, K] using hcenter)
         ell (by simpa only [k] using hell) hmem.2.1 hmem.2.2 henv
@@ -1747,7 +1636,7 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
       rw [← Real.exp_log hwpos]
       exact Real.exp_le_exp.mpr (by simpa only [K, k, w] using hlog)
     have hSumPoint :
-        phaseMidpointCentralSum n ≤
+        phaseFixedOffsetCentralSum n ≤
           (central.card : Real) *
             Real.exp (-(K : Real) * logLogOrder n / 10000000) := by
       have hLocal : (∑ ell ∈ central, w ell) ≤
@@ -1761,7 +1650,7 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
           _ = (central.card : Real) *
               Real.exp (-(K : Real) * logLogOrder n / 10000000) := by
             rw [Finset.sum_const, nsmul_eq_mul]
-      simpa only [phaseMidpointCentralSum, central, box, w, k, K] using hLocal
+      simpa only [phaseFixedOffsetCentralSum, central, box, w, k, K] using hLocal
     have hCount :=
       (midpointMultiplicity_count_deficit_intDisplacement
         n (phaseNat n) K hadm).1
@@ -1811,7 +1700,7 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
         _ = Real.exp (8 * logOrder n) := by
           rw [← Real.exp_log (pow_pos hnR 8), Real.log_pow]
           simp only [logOrder]
-          ring
+          ring_nf
     have hW : (15000000 : Real) ≤ logLogOrder n := by
       nlinarith [hC, hLogLog]
     have hKnonneg : 0 ≤ (K : Real) := by positivity
@@ -1822,7 +1711,7 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
         (by norm_num : (0 : Real) ≤ 15000000) hKnonneg
       nlinarith
     calc
-      phaseMidpointCentralSum n ≤
+      phaseFixedOffsetCentralSum n ≤
           (central.card : Real) *
             Real.exp (-(K : Real) * logLogOrder n / 10000000) := hSumPoint
       _ ≤ Real.exp (8 * logOrder n) *
@@ -1840,51 +1729,51 @@ private theorem tendsto_phaseMidpointCentralSum_zero :
     Real.tendsto_exp_atBot.comp
       (tendsto_logOrder_atTop.const_mul_atTop_of_neg (by norm_num))
   exact squeeze_zero'
-    (Filter.Eventually.of_forall phaseMidpointCentralSum_nonneg)
+    (Filter.Eventually.of_forall phaseFixedOffsetCentralSum_nonneg)
     hUpper hDecay
 
 /-! ### Three-range assembly -/
 
-private noncomputable def phaseMidpointEmptySum (n : Nat) : Real := by
+private noncomputable def phaseFixedOffsetEmptySum (n : Nat) : Real := by
   classical
   exact
     ∑ ell ∈
         (partialSubprofileBox
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n))).filter
+            (phaseCochromaticFixedOffsetIndex n))).filter
           (fun ell => midpointPartialDiagonalEmptyRange n ell),
       partialDiagonalWeight n
         (midpointPartialDiagonalSize (phaseNat n))
         (midpointMultiplicity n (phaseNat n)
-          (phaseCochromaticMidpointIndex n)) ell
+          (phaseCochromaticFixedOffsetIndex n)) ell
 
-private theorem tendsto_phaseMidpointEmptySum_one :
-    Tendsto phaseMidpointEmptySum atTop (nhds 1) := by
+private theorem tendsto_phaseFixedOffsetEmptySum_one :
+    Tendsto phaseFixedOffsetEmptySum atTop (nhds 1) := by
   rw [Metric.tendsto_atTop]
   intro epsilon hepsilon
   have hRange := eventually_sum_midpointPartialDiagonal_empty_mem_Icc
     (epsilon / 2) (half_pos hepsilon)
   have hEventually : ∀ᶠ n : Nat in atTop,
-      dist (phaseMidpointEmptySum n) 1 < epsilon := by
+      dist (phaseFixedOffsetEmptySum n) 1 < epsilon := by
     filter_upwards [hRange,
-      eventually_phaseCochromaticMidpointIndex_rounding_admissible] with
+      eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible] with
         n hRangeN hadm
-    have h := hRangeN (phaseCochromaticMidpointIndex n) hadm
-    have h' : phaseMidpointEmptySum n ∈
+    have h := hRangeN (phaseCochromaticFixedOffsetIndex n) hadm
+    have h' : phaseFixedOffsetEmptySum n ∈
         Set.Icc (1 : Real) (1 + epsilon / 2) := by
-      simpa only [phaseMidpointEmptySum] using h
+      simpa only [phaseFixedOffsetEmptySum] using h
     rw [Real.dist_eq, abs_lt]
     constructor <;> linarith [h'.1, h'.2]
   rw [Filter.eventually_atTop] at hEventually
   exact hEventually
 
-private noncomputable def phaseMidpointRestrictedFullSum (n : Nat) : Real := by
+private noncomputable def phaseFixedOffsetRestrictedFullSum (n : Nat) : Real := by
   classical
   exact
     ∑ ell ∈
         (partialSubprofileBox
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n))).filter
+            (phaseCochromaticFixedOffsetIndex n))).filter
           (fun ell =>
             ¬ midpointPartialDiagonalEmptyRange n ell ∧
             n - selectedVertexMass
@@ -1892,25 +1781,25 @@ private noncomputable def phaseMidpointRestrictedFullSum (n : Nat) : Real := by
       partialDiagonalWeight n
         (midpointPartialDiagonalSize (phaseNat n))
         (midpointMultiplicity n (phaseNat n)
-          (phaseCochromaticMidpointIndex n)) ell
+          (phaseCochromaticFixedOffsetIndex n)) ell
 
-private theorem phaseMidpointRestrictedFullSum_nonneg (n : Nat) :
-    0 ≤ phaseMidpointRestrictedFullSum n := by
+private theorem phaseFixedOffsetRestrictedFullSum_nonneg (n : Nat) :
+    0 ≤ phaseFixedOffsetRestrictedFullSum n := by
   classical
-  unfold phaseMidpointRestrictedFullSum
+  unfold phaseFixedOffsetRestrictedFullSum
   apply Finset.sum_nonneg
   intro ell hell
   have hbox := (Finset.mem_filter.mp hell).1
   exact (partialDiagonalWeight_pos n
     (midpointPartialDiagonalSize (phaseNat n))
     (midpointMultiplicity n (phaseNat n)
-      (phaseCochromaticMidpointIndex n)) ell
+      (phaseCochromaticFixedOffsetIndex n)) ell
     (mem_partialSubprofileBox.mp hbox)).le
 
-private theorem phaseMidpointRestrictedFullSum_le (n : Nat) :
-    phaseMidpointRestrictedFullSum n ≤ phaseMidpointFullCornerSum n := by
+private theorem phaseFixedOffsetRestrictedFullSum_le (n : Nat) :
+    phaseFixedOffsetRestrictedFullSum n ≤ phaseFixedOffsetFullCornerSum n := by
   classical
-  unfold phaseMidpointRestrictedFullSum phaseMidpointFullCornerSum
+  unfold phaseFixedOffsetRestrictedFullSum phaseFixedOffsetFullCornerSum
   apply Finset.sum_le_sum_of_subset_of_nonneg
   · intro ell hell
     have hmem := Finset.mem_filter.mp hell
@@ -1920,28 +1809,28 @@ private theorem phaseMidpointRestrictedFullSum_le (n : Nat) :
     exact (partialDiagonalWeight_pos n
       (midpointPartialDiagonalSize (phaseNat n))
       (midpointMultiplicity n (phaseNat n)
-        (phaseCochromaticMidpointIndex n)) ell
+        (phaseCochromaticFixedOffsetIndex n)) ell
       (mem_partialSubprofileBox.mp hbox)).le
 
-private theorem tendsto_phaseMidpointRestrictedFullSum_zero :
-    Tendsto phaseMidpointRestrictedFullSum atTop (nhds 0) :=
+private theorem tendsto_phaseFixedOffsetRestrictedFullSum_zero :
+    Tendsto phaseFixedOffsetRestrictedFullSum atTop (nhds 0) :=
   squeeze_zero'
-    (Filter.Eventually.of_forall phaseMidpointRestrictedFullSum_nonneg)
-    (Filter.Eventually.of_forall phaseMidpointRestrictedFullSum_le)
-    tendsto_phaseMidpointFullCornerSum_zero
+    (Filter.Eventually.of_forall phaseFixedOffsetRestrictedFullSum_nonneg)
+    (Filter.Eventually.of_forall phaseFixedOffsetRestrictedFullSum_le)
+    tendsto_phaseFixedOffsetFullCornerSum_zero
 
-private theorem phaseMidpoint_three_range_partition (n : Nat) :
+private theorem phaseFixedOffset_three_range_partition (n : Nat) :
     (∑ ell ∈ partialSubprofileBox
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n)),
+            (phaseCochromaticFixedOffsetIndex n)),
         partialDiagonalWeight n
           (midpointPartialDiagonalSize (phaseNat n))
           (midpointMultiplicity n (phaseNat n)
-            (phaseCochromaticMidpointIndex n)) ell) =
-      phaseMidpointEmptySum n + phaseMidpointCentralSum n +
-        phaseMidpointRestrictedFullSum n := by
+            (phaseCochromaticFixedOffsetIndex n)) ell) =
+      phaseFixedOffsetEmptySum n + phaseFixedOffsetCentralSum n +
+        phaseFixedOffsetRestrictedFullSum n := by
   classical
-  let K : Nat := phaseCochromaticMidpointIndex n
+  let K : Nat := phaseCochromaticFixedOffsetIndex n
   let k : Fin 4 → Nat := midpointMultiplicity n (phaseNat n) K
   let box : Finset (Fin 4 → Nat) := partialSubprofileBox k
   let empty : (Fin 4 → Nat) → Prop := fun ell =>
@@ -1976,32 +1865,32 @@ private theorem phaseMidpoint_three_range_partition (n : Nat) :
             ∑ ell ∈ box.filter (fun ell => ¬ empty ell), w ell :=
         hFirst.symm
       _ = _ := by rw [hRest]; ring
-  simpa only [K, k, box, empty, full, w, phaseMidpointEmptySum,
-    phaseMidpointCentralSum, phaseMidpointRestrictedFullSum] using hLocal
+  simpa only [K, k, box, empty, full, w, phaseFixedOffsetEmptySum,
+    phaseFixedOffsetCentralSum, phaseFixedOffsetRestrictedFullSum] using hLocal
 
-/-- The canonical midpoint partial-diagonal multiplier has asymptotic mass
+/-- The fixed-offset partial-diagonal multiplier has asymptotic mass
 one.  The proof is the literal disjoint decomposition into the empty range,
 the central range, and the restricted full-corner range. -/
-theorem tendsto_sum_midpointPartialDiagonalWeight :
+theorem tendsto_sum_fixedOffsetPartialDiagonalWeight :
     Tendsto
       (fun n =>
         ∑ ell ∈ partialSubprofileBox
             (midpointMultiplicity n (phaseNat n)
-              (phaseCochromaticMidpointIndex n)),
+              (phaseCochromaticFixedOffsetIndex n)),
           partialDiagonalWeight n
             (midpointPartialDiagonalSize (phaseNat n))
             (midpointMultiplicity n (phaseNat n)
-              (phaseCochromaticMidpointIndex n)) ell)
+              (phaseCochromaticFixedOffsetIndex n)) ell)
       atTop (nhds 1) := by
-  have hSum := tendsto_phaseMidpointEmptySum_one.add
-    (tendsto_phaseMidpointCentralSum_zero.add
-      tendsto_phaseMidpointRestrictedFullSum_zero)
+  have hSum := tendsto_phaseFixedOffsetEmptySum_one.add
+    (tendsto_phaseFixedOffsetCentralSum_zero.add
+      tendsto_phaseFixedOffsetRestrictedFullSum_zero)
   norm_num at hSum
   exact hSum.congr' (Filter.Eventually.of_forall fun n => by
-    simpa only [add_assoc] using (phaseMidpoint_three_range_partition n).symm)
+    simpa only [add_assoc] using (phaseFixedOffset_three_range_partition n).symm)
 
-#print axioms tendsto_phaseMidpointFullCornerSum_zero
-#print axioms tendsto_sum_midpointPartialDiagonalWeight
+#print axioms tendsto_phaseFixedOffsetFullCornerSum_zero
+#print axioms tendsto_sum_fixedOffsetPartialDiagonalWeight
 
 end
 

@@ -51,7 +51,7 @@ from (11.2) rather than hiding it behind `gapScale`. -/
 theorem explicitThresholdIntersection_subset_gapEvent
     {n kChi kCo : ℕ} {a : ℝ}
     (hsep :
-      ((Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)) * (n : ℝ) /
+      ((Real.log 2) ^ 2 / 4 * Real.log (200 / 153 : ℝ)) * (n : ℝ) /
           (Real.log (n : ℝ)) ^ 3 ≤
         ((kChi + 1 : ℕ) : ℝ) - ((kCo : ℝ) + a)) :
     chromaticLowerEvent n kChi ∩ cochromaticUpperEvent n kCo a ⊆

@@ -138,89 +138,101 @@ theorem fixedThreshold_tail_of_movingThreshold
 noncomputable def baseScale (n : ℕ) : ℝ :=
   (n : ℝ) / (Real.log (n : ℝ)) ^ 3
 
-/-- Section 5's root separation, together with Section 10's little-o
-cochromatic amplification loss, eventually dominates the exact factor-two
-reduced constant of (11.2).  The `+1` retains the strict integer chromatic
-event used in Section 11. -/
+/-- A root-gap coefficient strictly above `gapConstant`, together with a
+vanishing coefficient error and a little-o amplification loss, eventually
+dominates the exact target scale. The `+1` records the strict integer
+chromatic event; it is not used to pay either analytic error. -/
 theorem eventually_explicit_gap_threshold
     (kChi kCo : ℕ → ℕ) (a rho : ℕ → ℝ)
     (hrho : Tendsto rho atTop (nhds 0))
     (ha : a =o[atTop] baseScale)
-    (hroot : ∀ᶠ n in atTop,
-      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ)) - rho n) *
-          baseScale n ≤
-        (kChi n : ℝ) - (kCo n : ℝ)) :
+    (hroot : ∃ c : ℝ,
+      gapConstant < c ∧
+      ∀ᶠ n in atTop,
+        (c - rho n) * baseScale n ≤
+          (kChi n : ℝ) - (kCo n : ℝ)) :
     ∀ᶠ n in atTop,
-      ((Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)) *
-          baseScale n ≤
+      gapScale n ≤
         ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n) := by
-  let c : ℝ :=
-    (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)
-  have hc : 0 < c := by
-    dsimp [c]
-    positivity
-  have hLeading :
-      (Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : ℝ) = 2 * c := by
-    dsimp [c]
-    ring
-  have hRho : ∀ᶠ n in atTop, |rho n| < c / 4 := by
-    have hIoo : Set.Ioo (-(c / 4)) (c / 4) ∈ nhds (0 : ℝ) :=
-      Ioo_mem_nhds (neg_lt_zero.mpr (div_pos hc (by norm_num)))
-        (div_pos hc (by norm_num))
+  obtain ⟨c, hc, hroot⟩ := hroot
+  let d : ℝ := c - gapConstant
+  have hd : 0 < d := by
+    dsimp [d]
+    exact sub_pos.mpr hc
+  have hRho : ∀ᶠ n in atTop, |rho n| < d / 4 := by
+    have hIoo : Set.Ioo (-(d / 4)) (d / 4) ∈ nhds (0 : ℝ) :=
+      Ioo_mem_nhds
+        (neg_lt_zero.mpr (div_pos hd (by norm_num)))
+        (div_pos hd (by norm_num))
     filter_upwards [hrho.eventually hIoo] with n hn
     exact abs_lt.mpr hn
   have hASmall : ∀ᶠ n in atTop,
-      ‖a n‖ ≤ (c / 4) * ‖baseScale n‖ :=
-    ha.bound (by positivity)
+      ‖a n‖ ≤ (d / 4) * ‖baseScale n‖ :=
+    ha.bound (div_pos hd (by norm_num))
   have hBasePos : ∀ᶠ n in atTop, 0 < baseScale n := by
     filter_upwards [eventually_gt_atTop (1 : ℕ)] with n hn
-    have hnReal : (1 : ℝ) < n := by exact_mod_cast hn
+    have hnReal : (1 : ℝ) < n := by
+      exact_mod_cast hn
     simp only [baseScale]
-    exact div_pos (Nat.cast_pos.mpr (by omega))
+    exact div_pos
+      (Nat.cast_pos.mpr (by omega))
       (pow_pos (Real.log_pos hnReal) 3)
   filter_upwards [hroot, hRho, hASmall, hBasePos] with n hRoot hRhoN hAN hBase
-  rw [hLeading] at hRoot
-  have hRhoUpper : rho n ≤ c / 4 :=
+  have hRhoUpper : rho n ≤ d / 4 :=
     (le_abs_self (rho n)).trans hRhoN.le
-  have hRhoMul : rho n * baseScale n ≤ (c / 4) * baseScale n :=
+  have hRhoMul :
+      rho n * baseScale n ≤ (d / 4) * baseScale n :=
     mul_le_mul_of_nonneg_right hRhoUpper hBase.le
-  have hAUpper : a n ≤ (c / 4) * baseScale n := by
+  have hAUpper :
+      a n ≤ (d / 4) * baseScale n := by
     calc
       a n ≤ |a n| := le_abs_self _
       _ = ‖a n‖ := (Real.norm_eq_abs _).symm
-      _ ≤ (c / 4) * ‖baseScale n‖ := hAN
-      _ = (c / 4) * baseScale n := by
+      _ ≤ (d / 4) * ‖baseScale n‖ := hAN
+      _ = (d / 4) * baseScale n := by
         rw [Real.norm_eq_abs, abs_of_pos hBase]
-  change c * baseScale n ≤
-    ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n)
-  norm_num only [Nat.cast_add, Nat.cast_one]
-  nlinarith
+  have hDScale : 0 ≤ d * baseScale n :=
+    mul_nonneg hd.le hBase.le
+  have hCore :
+      gapConstant * baseScale n ≤
+        (kChi n : ℝ) - (kCo n : ℝ) - a n := by
+    dsimp [d] at hRhoMul hAUpper hDScale
+    nlinarith [hRoot, hRhoMul, hAUpper, hDScale]
+  have hScaleIdentity :
+      gapScale n = gapConstant * baseScale n := by
+    simp only [gapScale, baseScale]
+    ring
+  calc
+    gapScale n = gapConstant * baseScale n := hScaleIdentity
+    _ ≤ (kChi n : ℝ) - (kCo n : ℝ) - a n := hCore
+    _ ≤ ((kChi n + 1 : ℕ) : ℝ) -
+          ((kCo n : ℝ) + a n) := by
+      norm_num only [Nat.cast_add, Nat.cast_one]
+      linarith
 
-/-- The exact lower-bound scale in (11.2) tends to infinity along all natural
-numbers, which is the deterministic implication used for (11.3). -/
+/-- The coefficient-free scale `n / (ln n)^3` tends to infinity along the
+full natural-number sequence. -/
+theorem tendsto_baseScale_atTop_unscaled :
+    Tendsto baseScale atTop atTop := by
+  suffices hLog :
+      Tendsto (fun u : ℝ ↦ Real.exp u / u ^ 3) atTop atTop by
+    have h := hLog.comp
+      (Real.tendsto_log_atTop.comp
+        (tendsto_natCast_atTop_atTop :
+          Tendsto (fun n : ℕ ↦ (n : ℝ)) atTop atTop))
+    exact h.congr' (by
+      filter_upwards [eventually_gt_atTop (0 : ℕ)] with n hn
+      simp only [baseScale, Function.comp_apply]
+      rw [Real.exp_log (Nat.cast_pos.mpr hn)])
+  exact Real.tendsto_exp_div_pow_atTop 3
+
+/-- The exact lower-bound scale in the target statement tends to infinity
+along all natural numbers. -/
 theorem tendsto_explicit_gap_scale_atTop :
-    Tendsto
-      (fun n : ℕ ↦
-        ((Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ)) * (n : ℝ) /
-          (Real.log (n : ℝ)) ^ 3)
-      atTop atTop := by
-  have hLimit :
-      Tendsto (fun n : ℕ ↦ (n : ℝ) / (Real.log n) ^ 3)
-        atTop atTop := by
-    suffices hLog :
-        Tendsto (fun u : ℝ ↦ Real.exp u / u ^ 3) atTop atTop by
-      have h := hLog.comp
-        (Real.tendsto_log_atTop.comp
-          (tendsto_natCast_atTop_atTop :
-            Tendsto (fun n : ℕ ↦ (n : ℝ)) atTop atTop))
-      exact h.congr' (by
-        filter_upwards [eventually_gt_atTop (0 : ℕ)] with n hn
-        simp only [Function.comp_apply]
-        rw [Real.exp_log (Nat.cast_pos.mpr hn)])
-    exact Real.tendsto_exp_div_pow_atTop 3
-  simpa only [mul_div_assoc] using
-    hLimit.const_mul_atTop (by positivity :
-      0 < (Real.log 2) ^ 2 / 32 * Real.log (200 / 153 : ℝ))
+    Tendsto gapScale atTop atTop := by
+  refine (tendsto_baseScale_atTop_unscaled.const_mul_atTop gapConstant_pos).congr
+    fun n => ?_
+  simp only [gapScale, baseScale, mul_div_assoc]
 
 #print axioms fixedThreshold_tail_of_movingThreshold
 

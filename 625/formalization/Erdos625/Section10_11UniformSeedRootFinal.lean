@@ -33,10 +33,11 @@ theorem erdos625Statement_of_uniform_seed_and_root
         {G : LabeledGraph n | chromaticNumberNat G ≤ kChi n})
       atTop (nhds 0))
     (hrho : Tendsto rho atTop (nhds 0))
-    (hroot : ∀ᶠ n in atTop,
-      (((Real.log 2) ^ 2 / 16 * Real.log (200 / 153 : Real)) - rho n) *
-          baseScale n ≤
-        (kChi n : Real) - (kCo n : Real)) :
+    (hroot : ∃ c : ℝ,
+      gapConstant < c ∧
+      ∀ᶠ n in atTop,
+        (c - rho n) * baseScale n ≤
+          (kChi n : ℝ) - (kCo n : ℝ)) :
     Erdos625Statement := by
   obtain ⟨C, epsilon, hC, hEpsilon, hEpsilonNonneg, hUniform⟩ :=
     exists_uniform_cochromatic_amplification_at_manuscript_scales
@@ -55,8 +56,8 @@ theorem erdos625Statement_of_uniform_seed_and_root
   have hGapThreshold : ∀ᶠ n in atTop,
       gapScale n ≤
         ((kChi n + 1 : ℕ) : ℝ) - ((kCo n : ℝ) + a n) := by
-    simpa only [gapScale, gapConstant, baseScale, mul_div_assoc] using
-      eventually_explicit_gap_threshold kChi kCo a rho hrho haBase hroot
+    exact eventually_explicit_gap_threshold
+      kChi kCo a rho hrho haBase hroot
   have hCochromaticTail : Tendsto
       (fun n => randomGraphMeasure n
         (cochromaticUpperEvent n (kCo n) (a n)))

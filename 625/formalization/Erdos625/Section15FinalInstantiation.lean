@@ -1,7 +1,7 @@
-import Erdos625.Section13GlobalMidpointSeed
+import Erdos625.Section13GlobalFixedOffsetSeed
 import Erdos625.Section10_11UniformSeedRootFinal
 import Erdos625.Section11ConcreteChromaticLowerTail
-import Erdos625.Section8ConcretePhaseInputs
+import Erdos625.Section8FixedOffsetPhaseInputs
 
 /-!
 # Section XV: final Erdős 625 instantiation
@@ -21,14 +21,17 @@ noncomputable section
 has probability tending to one along the full sequence. -/
 theorem erdos625 : Erdos625Statement := by
   obtain ⟨Lambda, hLambdaNonneg, hLambdaSmall, hSeed⟩ :=
-    exists_phaseCochromaticMidpoint_real_seed
+    exists_phaseCochromaticFixedOffset_real_seed
   refine erdos625Statement_of_uniform_seed_and_root
-    phaseChromaticLowerIndex phaseCochromaticMidpointIndex
-    Lambda rootRoundingBudget
+    phaseChromaticLowerIndex phaseCochromaticFixedOffsetIndex
+    Lambda fixedOffsetRoundingBudget
     hLambdaNonneg hLambdaSmall hSeed
     randomGraphMeasure_chromaticNumberAtMost_phaseChromaticLowerIndex_tendsto_zero
-    root_rounding_budget_spec.1 ?_
-  simpa only [q] using eventually_concrete_phase_root_corridor_bounds
+    fixedOffset_rounding_budget_spec.1 ?_
+  obtain ⟨c, hc, hgap⟩ :=
+    exists_eventually_concrete_phase_fixedOffset_root_gap
+  refine ⟨c, ?_, hgap⟩
+  simpa only [gapConstant, q] using hc
 
 #print axioms erdos625
 
