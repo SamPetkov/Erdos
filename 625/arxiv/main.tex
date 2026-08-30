@@ -92,14 +92,14 @@ sequence of integers that
  \frac{n}{(\log n)^3}\right)\longrightarrow1.
 \]
 This resolves the question of Erd\H{o}s and Gimbel asking whether the
-difference tends to infinity with high probability.  More precisely, if
-$\delta_n$ is the fractional part of the standard independence-number center,
-then our lower bound has coefficient $(\log 2)^2A_4(\delta_n)/4-o(1)$, where
-$A_4$ is explicit, continuous, and nonconstant.  Uniformity at the jumps of
-the natural class-size cutoff is
-the central difficulty.  We use a signed profile on four consecutive class
-sizes, an exact signed-overlap identity, a canonical decomposition of large
-overlap cells, and a matching restriction for the residual cycle-space sum.
+difference tends to infinity with high probability.  Writing $\delta_n$ for
+the fractional part of the standard independence-number center, the
+phase-resolved coefficient is $(\log 2)^2A_4(\delta_n)/4-o(1)$, where $A_4$ is
+explicit, continuous, and nonconstant.  The proof must remain uniform when
+the natural class-size cutoff jumps.  Its main tools are a signed profile on
+four consecutive class sizes, an exact signed-overlap identity, a canonical
+decomposition of large overlap cells, and a matching restriction for the
+residual cycle-space sum.
 A bounded-differences argument turns the resulting second-moment seed into a
 high-probability cocoloring.
 \end{abstract}
@@ -254,9 +254,9 @@ common subprofile, and the canonical high-cell/residual decomposition.
 
 \subsection*{Contributions and main ideas}
 
-The proof has the following components. Three are stated in forms not specific
-to Problem~625: the finite signed-overlap identity, the fixed-alphabet matching
-comparison, and the quantitative seed-amplification lemma.
+The proof uses six ingredients. Three do not depend on Problem~625: the
+finite signed-overlap identity, the fixed-alphabet matching comparison, and
+the quantitative seed-amplification lemma.
 
 \begin{enumerate}
 \item \textbf{Phase-resolved root separation.} Let $r_+$ and
@@ -1504,7 +1504,7 @@ Since $M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$, the inverse mean
 map $T\mapsto\lambda_S(T)$ is continuous.  The displayed dual representation
 therefore shows directly that $A_4$ is continuous on $[0,1]$.
 
-The phase dependence is genuine. Put $\lambda_*=3q$, define
+We next show that $A_4$ is nonconstant. Put $\lambda_*=3q$, define
 $\widehat w_i:=w_i(\lambda_*)$, and set
 \[
  T_*:=M_{S_4}(\lambda_*)
@@ -2129,7 +2129,7 @@ $\Lambda_n$ such that
        {(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}})^2}
   \le e^{\Lambda_n}
 \]
-and prove the scale hierarchy
+and yields the scale hierarchy
 \[
   k_{\mathrm{co}}\asymp\frac n{\log n},\qquad
   r_+-r_4^{\mathrm{co}}\asymp\frac n{(\log n)^3},\qquad
@@ -2445,8 +2445,8 @@ Consequently
 \]
 
 while \((m_0)_0=1=(m_0/\mathrm e)^0\) covers \(x=0\). Combining (6.10) with
-\((d)_r\le d^r\) proves (6.9). Notice that (6.8) retains the single global falling
-factorial before (6.9) is taken.
+\((d)_r\le d^r\) proves (6.9). Equation~(6.8) retains the single global falling
+factorial before the coarser bound (6.9) is taken.
 \end{proof}
 
 \section{Exact partial diagonals}\label{exact-partial-diagonals}
@@ -2461,8 +2461,8 @@ estimates are explicitly labeled below.
 A \emph{partial diagonal} is a specified collection of whole classes that
 the two partitions have in common.  It is marked: one overlap may contain
 several such collections and then contributes to every corresponding
-nonnegative marked term.  This intentional overcount is what makes the
-subsequent summation an upper-bound device.
+nonnegative marked term.  The resulting overcount makes the subsequent
+summation an upper bound.
 
 For a selected common subprofile \(\ell=(\ell_i)\), with
 $i\in\{2,3,4,5\}$, put
@@ -2818,7 +2818,7 @@ by compactness. Finally,
   \le
   Y\log\!\left(\frac{4\mathrm e}{Y}\right),
 \]
-by the entropy bound on four coordinates. This is
+by the entropy bound on four coordinates. The resulting sum is
 $O(Y\log(\mathrm e/Y))$ uniformly.
 
 Since $u_{i+1}=u_i-1$, exact subtraction in (7.15) gives
@@ -3177,7 +3177,7 @@ which proves (7.7) with one eventuality threshold for the complete phase.
 \section{Canonical high cells and endpoint-table comparison}
 \label{sec:canonical-high-cells-v3}
 
-This section estimates the large overlap cells.  We first sum all labeled stub
+We estimate the large overlap cells.  We first sum all labeled stub
 matchings realizing a fixed high-cell demand, compare their multiplicities
 with full containment, and regroup the reference weights by endpoint table.
 The finite identities precede the eventual four-size estimates; their final
@@ -3361,8 +3361,8 @@ For a feasible high skeleton, write
 \[
   w_{\mathrm{hi}}(P,j):=w(P,j).
 \]
-This is the same high-skeleton weight that appears in the exact
-conditional decomposition of Section~9.
+The same high-skeleton weight appears in the exact conditional decomposition
+of Section~9.
 
 \begin{remark}
 The matching hypothesis is essential. If two selected cells shared a row or
@@ -3511,8 +3511,8 @@ Subsection~\ref{subsec:uniformity-phase-v3}. Define
 \]
 Here the subscript $i+2$ labels a deficit:
 $\kappa_i=k_{i+2}$ counts endpoint blocks of size
-$u_i=\alpha-(i+2)$ on each partition side. This is the deficit-indexed
-convention of Section~5, distinct from the size-indexed notation $k_s$ used
+$u_i=\alpha-(i+2)$ on each partition side. This deficit-indexed convention
+comes from Section~5 and differs from the size-indexed notation $k_s$ used
 earlier. For
 $i,j\in\{0,1,2,3\}$ let $m_{ij}:=\min\{u_i,u_j\}$ and put
 \[
@@ -3793,7 +3793,7 @@ Combining this inequality with the local ratio cell by cell gives
 \end{aligned}
 \]
 where the equality uses
-\(m(r)+m(c)-2J(L)=\sum_{i,j}d_{ij}\ell_{ij}\). This is
+\(m(r)+m(c)-2J(L)=\sum_{i,j}d_{ij}\ell_{ij}\). This proves
 \eqref{eq:endpoint-table-product-comparison-v3}.
 \end{proof}
 
@@ -3843,7 +3843,7 @@ most $(1+3\tau_n^{\mathrm{end}})^K\sum_{v\in\mathcal V}D(v)$, where $v$ is now a
 subprofile variable. The column-margin term is identical after exchanging rows and
 columns. Section~7 proves
 $\sum_{v\in\mathcal V}D(v)=1+o(1)$ uniformly in the phase.
-This reference-sum domination preserves every common-class overlap. Finally,
+Thus the reference sum still contains every common-class overlap. Finally,
 $K=\Theta(n/\log n)$ and
 \eqref{eq:endpoint-eta-v3} imply
 $\tau_n^{\mathrm{end}}K=O(\sqrt{n\log n})$.
@@ -3934,8 +3934,8 @@ $o(n/(\log n)^4)$. Combining these estimates with
 \label{sec:residual-attachments-v3}
 
 Fix a feasible high skeleton. We estimate its unexposed cell rewards together
-with the residual binary cycle-space factor. This estimate is applied termwise
-to the exact overlap sum; no overlap matrix is discarded.
+with the residual binary cycle-space factor, applying the estimate termwise to
+the exact overlap sum. Every overlap matrix remains in the sum.
 
 We write $M$ for the canonical matching denoted by $P$ in Section~8.
 All endpoint-type notation is inherited unchanged from Section~8.
@@ -4057,8 +4057,8 @@ Lemma~\ref{lemma-6.1-exact-sign-sum}, the unexposed local rewards and the
 remaining sign factor are exactly the integrand defining
 $\mathcal A(M,j)$, with support factor
 $2^{\beta(M\cup H_{\mathrm{res}})}$. The bijection therefore yields
-\eqref{eq:exact-attachment-decomposition-v3}, with neither omissions nor
-double counting.
+\eqref{eq:exact-attachment-decomposition-v3} and counts every full matching
+once.
 \end{proof}
 
 The case $m_0=0$ is complete without introducing cell activities. The residual
@@ -4115,8 +4115,8 @@ $\operatorname{supp}(x):=\{(a,b):x_{ab}>0\}$.  It gives, in all cases,
     \frac{\theta_{ab}^{x_{ab}}}{x_{ab}!}.
   \label{eq:prescribed-cell-residual-v3}
 \end{equation}
-This joint estimate is the reason that cells sharing a row or a column may be
-expanded simultaneously; no independence between cells is asserted.
+Because this estimate is joint, it applies simultaneously to cells sharing a
+row or a column; no independence between cells is asserted.
 
 For $0\le r\le R$,
 \[
@@ -4157,9 +4157,9 @@ cardinality and of all local rewards gives the exact identity
   \sum_{F\in\mathfrak E(M)}\Phi_F(r').
 \]
 
-This identity uses both parts of $\mathcal E(M,j)$: the cap bounds every
-off-$M$ multiplicity by $R$, and the no-return condition makes $r'$ vanish on
-$M$. After multiplying by $\mathbf 1_{\mathcal E(M,j)}$, we remove this
+Both parts of $\mathcal E(M,j)$ are used here: the cap bounds every off-$M$
+multiplicity by $R$, and the no-return condition makes $r'$ vanish on $M$.
+After multiplying by $\mathbf 1_{\mathcal E(M,j)}$, we remove this
 indicator only to bound the expectation of the nonnegative truncated
 expansion from above. No identity with the uncapped reward is used on
 $\mathcal E(M,j)^c$.
@@ -4202,7 +4202,7 @@ $1+\lambda_e\ge1$ gives
 
 \subsection{Restriction outside the exposed matching}
 
-The next finite lemma is independent of random graphs.
+The following finite lemma does not use random graphs.
 
 \begin{lemma}[Restriction-product bound]
 \label{lem:restriction-product-v3}
@@ -4431,7 +4431,7 @@ Multiplication yields
   \label{eq:complementary-attachment-v3}
 \end{equation}
 
-We now combine the zero-residual case with the two positive-residual regimes
+We combine the zero-residual case with the two positive-residual regimes
 $2^U\le m_0^3$ and $2^U>m_0^3$.
 
 \begin{proposition}[Uniform residual attachment]
@@ -4486,8 +4486,8 @@ Let
   :=2^{3/2}\sqrt{\frac{(n+1)a}{2^a}},
   \qquad a=\alpha-2.
 \]
-This is the same $\tau_n^{\mathrm{end}}$ as in
-\eqref{eq:endpoint-eta-v3}. For all sufficiently large $n$,
+The notation agrees with \eqref{eq:endpoint-eta-v3}. For all sufficiently
+large $n$,
 $\tau_n^{\mathrm{end}}\le1$. Since $Q_{ii}=1$ and each row has only three
 off-diagonal positions, \eqref{eq:endpoint-eta-v3} gives the explicit row
 bound
@@ -4531,9 +4531,9 @@ large $n$,
   \le e^{\Gamma_n^{\mathrm{skel}}}.
   \label{eq:explicit-bare-skeleton-bound-v3}
 \end{equation}
-This inequality displays separately the ambient deficit contribution, the
-off-diagonal endpoint-table contribution, and the partial-diagonal reference
-mass.
+The three terms in $\Gamma_n^{\mathrm{skel}}$ respectively bound the ambient
+deficit contribution, the off-diagonal endpoint-table contribution, and the
+partial-diagonal reference mass.
 
 The phase estimates from Section~8 imply
 \[
@@ -4653,7 +4653,7 @@ skeleton sum. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
   e^{\Gamma_n^{\mathrm{att}}+\Gamma_n^{\mathrm{skel}}}
   =e^{\Lambda_n}.
 \]
-The lower bound is the nonnegativity-of-variance inequality. Equations
+The lower bound follows from $\operatorname{Var}(Z)\ge0$. Equations
 \eqref{eq:normalized-skeleton-error-v3} and
 \eqref{eq:normalized-attachment-error-v3} give the stated order of $\Lambda_n$.
 \end{proof}
@@ -4661,7 +4661,7 @@ The lower bound is the nonnegativity-of-variance inequality. Equations
 Thus $\Gamma_n^{\mathrm{skel}}$ collects the bounds for partial diagonals,
 deficits, and the endpoint-table comparison, whereas
 $\Gamma_n^{\mathrm{att}}$ bounds the residual local rewards and the
-cycle-space factor. This is the factorization used in the amplification step.
+cycle-space factor. The amplification step uses this separation.
 \section{Rare-event amplification}\label{rare-event-amplification}
 
 Proposition~\ref{prop:explicit-normalized-second-moment-ledger-v3} and (1.4)
@@ -4910,8 +4910,8 @@ thresholds gives one deterministic threshold for the final argument.
 \section{Final assembly and the quantitative constant}
 \label{sec:final-assembly-v3}
 
-We now combine the chromatic lower location, the signed cocoloring upper
-location, and the amplification estimate.
+We combine the chromatic lower location, the signed cocoloring upper location,
+and the amplification estimate.
 
 \subsection{The phase-resolved gap}
 
