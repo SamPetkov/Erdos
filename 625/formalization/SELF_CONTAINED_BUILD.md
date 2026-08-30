@@ -1,7 +1,10 @@
 # Self-contained Lean build
 
-`Erdos625SelfContained.lean` is generated deterministically from the local
-import closure of `Erdos625.lean`.
+`Erdos625SelfContained.lean` is generated deterministically from the complete
+local import closure of `Erdos625.lean`. It contains no local import commands;
+the only remaining imports are external Mathlib modules supplied by the pinned
+toolchain. Thus the artifact is standalone with respect to this project, not
+with respect to Lean or Mathlib.
 
 ```text
 lake exe cache get
@@ -18,3 +21,5 @@ Generated source metrics:
 
 The top-level theorem is `Erdos625.erdos625 : Erdos625Statement`. Its printed
 axiom closure contains only `propext`, `Classical.choice`, and `Quot.sound`.
+The current file is byte-identical to the standalone file at source commit
+`824e4b609466d2e26b216a76ecf103184dac2663`.

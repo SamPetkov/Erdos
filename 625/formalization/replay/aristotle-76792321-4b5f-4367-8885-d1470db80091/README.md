@@ -1,7 +1,10 @@
-# Immutable cloud replay: Erdős 625
+# Historical cloud replay: Erdős 625
 
-This directory preserves the independently downloadable output of the completed
-Aristotle cloud replay of the exact standalone Erdős 625 formalization.
+This directory preserves the independently downloadable output of an earlier
+Aristotle cloud replay. It checks the superseded source commit
+`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8` and is retained only as historical
+provenance. The sharp release and its current standalone file are replayed in
+`../aristotle-03e8124e-c359-4219-8b37-442060dae209/`.
 
 ## Run identity
 

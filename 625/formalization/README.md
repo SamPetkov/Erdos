@@ -36,7 +36,9 @@ The final declaration is in `Erdos625/Section15FinalInstantiation.lean`.
 ## Reproduce the one-file proof
 
 `Erdos625SelfContained.lean` concatenates the complete transitive local import
-closure into one Lean source file. It retains only external Mathlib imports.
+closure of the release root into one Lean source file. It retains only external
+Mathlib imports; "one-file" therefore means one project source file, not a
+copy of Mathlib or a toolchain-free artifact.
 
 Check that it is current:
 
@@ -55,6 +57,17 @@ and 89,528 lines. Its normalized-LF SHA-256 (the value printed by the
 generator on every platform) is
 `53060b9563330f20a5f2133ffdf8f56e5a41eae6d0f772487193d9c54133e837`.
 
+The project directory also retains four superseded midpoint-route modules for
+historical comparison:
+
+- `Erdos625/Section12CanonicalBareSkeletonAsymptotic.lean`;
+- `Erdos625/Section12ConcreteSignedFirstMoment.lean`;
+- `Erdos625/Section12PartialDiagonalAssembly.lean`;
+- `Erdos625/Section13GlobalMidpointSeed.lean`.
+
+They are not imported by `Erdos625.lean`, are not members of the 480-module
+release closure, and are not needed for `Erdos625.erdos625`.
+
 ## Trust boundary
 
 The proof sources contain no `sorry`, `admit`, project-defined axiom,
@@ -71,3 +84,9 @@ toolchain revisions, file checksums, and axiom audit are preserved at
 immutable public commit
 `31bbe00c529a996bdb61b880120d71240172d18f` in
 [`replay/aristotle-03e8124e-c359-4219-8b37-442060dae209`](https://github.com/SamPetkov/Erdos/tree/31bbe00c529a996bdb61b880120d71240172d18f/625/formalization/replay/aristotle-03e8124e-c359-4219-8b37-442060dae209).
+
+The sibling replay directory
+`replay/aristotle-76792321-4b5f-4367-8885-d1470db80091` is a historical replay
+of the superseded source commit
+`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8`; it is preserved as provenance and
+is not the replay record for the sharp release.

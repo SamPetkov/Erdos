@@ -4,6 +4,10 @@ This directory contains a proposed resolution of Erdős Problem 625, together
 with a Lean 4 formalization of an explicit quantitative consequence that
 already resolves the problem.
 
+The [`G(12,1/2)` animation](assets/animations/) is an exactly solved finite
+illustration with recorded witnesses and checksums. It is not used in the
+asymptotic proof.
+
 For `G_n ~ G(n,1/2)`, the manuscript proves the phase-resolved statement
 
 ```text
@@ -52,7 +56,9 @@ and is not claimed as part of the Lean theorem. The exact formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,
 the trust boundary, and the immutable cloud replay record at
-`31bbe00c529a996bdb61b880120d71240172d18f`.
+`31bbe00c529a996bdb61b880120d71240172d18f`. Later release commits retain the
+standalone source byte-for-byte; they update only the manuscript, replay
+records, documentation, and publication package.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These
