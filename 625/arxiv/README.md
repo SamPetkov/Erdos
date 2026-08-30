@@ -43,5 +43,6 @@ refinement involving `A_4(delta_n)` is established in the manuscript and is
 not claimed as part of the Lean theorem.
 
 `Erdos625_source.zip` contains `main.tex`, `main.bbl`, `references.bib`, and
-this build guide. Only the first three files are needed to compile the paper;
-the guide is included to make the archive self-describing.
+this build guide. `main.tex` and the pre-generated `main.bbl` suffice to compile
+the paper; `references.bib` is retained as bibliography source and provenance,
+and the guide makes the archive self-describing.

@@ -56,9 +56,10 @@ and is not claimed as part of the Lean theorem. The exact formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,
 the trust boundary, and the immutable cloud replay record at
-`31bbe00c529a996bdb61b880120d71240172d18f`. Later release commits retain the
-standalone source byte-for-byte; they update only the manuscript, replay
-records, documentation, and publication package.
+`31bbe00c529a996bdb61b880120d71240172d18f`. Later release commits leave the
+Lean proof sources and standalone file byte-for-byte unchanged while updating
+the manuscript, replay records, documentation, illustrative assets, and
+publication package.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These

@@ -19,7 +19,8 @@ Generated source metrics:
 - lines: 89,528;
 - normalized-LF SHA-256: `53060b9563330f20a5f2133ffdf8f56e5a41eae6d0f772487193d9c54133e837`.
 
-The top-level theorem is `Erdos625.erdos625 : Erdos625Statement`. Its printed
-axiom closure contains only `propext`, `Classical.choice`, and `Quot.sound`.
+The top-level theorem is
+`Erdos625.erdos625 : Erdos625.Erdos625Statement`. Its printed axiom closure
+contains only `propext`, `Classical.choice`, and `Quot.sound`.
 The current file is byte-identical to the standalone file at source commit
 `824e4b609466d2e26b216a76ecf103184dac2663`.
