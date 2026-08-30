@@ -1504,7 +1504,8 @@ Since $M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$, the inverse mean
 map $T\mapsto\lambda_S(T)$ is continuous.  The displayed dual representation
 therefore shows directly that $A_4$ is continuous on $[0,1]$.
 
-The phase dependence is genuine.  Put $\lambda_*=3q$ and
+The phase dependence is genuine. Put $\lambda_*=3q$, define
+$\widehat w_i:=w_i(\lambda_*)$, and set
 \[
  T_*:=M_{S_4}(\lambda_*)
  =\frac{96+68\sqrt2}{32+20\sqrt2}
@@ -1514,9 +1515,9 @@ Then $49/16<T_*<17/5$.  Hence
 $\delta_*:=1+2/q-T_*$ lies in $(0,1)$ by (2.0).  For $S_+$, the weights
 $2^{3i-i^2/2}$ with $-1\le i\le7$ pair under $i\mapsto6-i$ and have mean
 $3$; their total mass exceeds $16$. The remaining tail starts with
-$w_8=2^{-8}$ and has successive ratio at most $1/32$, so
+$\widehat w_8=2^{-8}$ and has successive ratio at most $1/32$, so
 \[
- \sum_{i\ge8}(i-3)w_i
+ \sum_{i\ge8}(i-3)\widehat w_i
  \le2^{-8}\sum_{j\ge0}(5+j)32^{-j}<1.
 \]
 Consequently $M_{S_+}(3q)<3+1/16<T_*$.  Since both mean maps are strictly
@@ -3497,9 +3498,11 @@ Together with $\binom mh\le m^h$ and
   \label{eq:three-quarter-charge-v3}
 \end{equation}
 
-For the remainder of this section, reindex the deficit labels by the bijection
-$i\mapsto \nu=i+2$ from $\{0,1,2,3\}$ to $\{2,3,4,5\}$, with inverse
-$\nu\mapsto \nu-2$. Define
+For the remainder of this section, assume $\alpha>8$ and reindex the deficit
+labels by the bijection $i\mapsto \nu=i+2$ from $\{0,1,2,3\}$ to
+$\{2,3,4,5\}$, with inverse $\nu\mapsto \nu-2$. This size condition is
+included in the common eventuality threshold of
+Subsection~\ref{subsec:uniformity-phase-v3}. Define
 \[
   \kappa_i:=k_{i+2},
   \qquad
@@ -3631,9 +3634,7 @@ below.
 
 \subsection{Endpoint-table comparison}
 
-For the remainder of this subsection, assume $\alpha>8$. This condition is
-included in the common eventuality threshold of
-Subsection~\ref{subsec:uniformity-phase-v3}.
+Continue under the standing assumption $\alpha>8$.
 
 Recall that $u_i=a-i$ and $\kappa_i=k_{i+2}$ for $0\le i\le3$, where
 $a=\alpha-2$ and the corresponding deficit label is $i+2$.
@@ -4733,9 +4734,9 @@ $|N_H(v_t)\cap S_t|\ge(s_t-1)/4$. Hence
  s_{t+1}\ge(s_t-1)/4,\qquad s_t\ge4^{-t}s_0-1/3.         \tag{10.3a}
 \]
 
-The sets are nested and $S_{t+1}\subseteq N_H(v_t)$. Thus, whenever $s>t$,
+The sets are nested and $S_{t+1}\subseteq N_H(v_t)$. Thus, whenever $j>t$,
 \[
-  v_s\in S_s\subseteq S_{t+1}\subseteq N_H(v_t).
+  v_j\in S_j\subseteq S_{t+1}\subseteq N_H(v_t).
 \]
 Every later choice is therefore adjacent in $H$ to every earlier one, so the
 chosen vertices form a clique in $H$. Since \(s_0\ge\lceil n^{1/3}\rceil\), for every
@@ -5068,7 +5069,7 @@ tends to zero. On the event
     -\varepsilon_n^{\mathrm{gap}}
   \right]s_n.
 \]
-By (10.4) and (10.11), a union bound shows that this intersection has
+By (4.6) and (10.13), a union bound shows that this intersection has
 probability $1-o(1)$. Consequently,
 \begin{equation}
   \mathbb P\!\left(
