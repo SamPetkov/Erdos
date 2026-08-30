@@ -1,0 +1,2 @@
+# The repository root ignores logs globally; these replay logs are intentional evidence.
+!cloud-output/**/*.log

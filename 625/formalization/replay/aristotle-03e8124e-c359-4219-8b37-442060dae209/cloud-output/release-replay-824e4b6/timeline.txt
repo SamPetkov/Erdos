@@ -1,0 +1,19 @@
+[2026-08-30T18:27:25Z] BEGIN 00_cache_get: lake exe cache get
+[2026-08-30T18:28:04Z] END   00_cache_get exit=0 duration=39s
+[2026-08-30T18:28:04Z] BEGIN 01_lake_build_wfail: lake build --wfail
+[2026-08-30T18:54:33Z] END   01_lake_build_wfail exit=0 duration=1589s
+[2026-08-30T18:54:33Z] BEGIN 02_Section12ConcreteSignedFirstMoment: lake env lean -DwarningAsError=true Erdos625/Section12ConcreteSignedFirstMoment.lean
+[2026-08-30T18:55:04Z] END   02_Section12ConcreteSignedFirstMoment exit=0 duration=31s
+[2026-08-30T18:55:04Z] BEGIN 03_Section12PartialDiagonalAssembly: lake env lean -DwarningAsError=true Erdos625/Section12PartialDiagonalAssembly.lean
+[2026-08-30T18:55:07Z] END   03_Section12PartialDiagonalAssembly exit=1 duration=3s
+[2026-08-30T18:55:07Z] BEGIN 04_Section15FinalInstantiation: lake env lean -DwarningAsError=true Erdos625/Section15FinalInstantiation.lean
+[2026-08-30T18:55:23Z] END   04_Section15FinalInstantiation exit=0 duration=16s
+[2026-08-30T18:55:23Z] BEGIN 05_Erdos625: lake env lean -DwarningAsError=true Erdos625.lean
+[2026-08-30T18:55:40Z] END   05_Erdos625 exit=0 duration=17s
+[2026-08-30T18:55:40Z] BEGIN 06_AxiomAudit: lake env lean -DwarningAsError=true Erdos625/AxiomAudit.lean
+[2026-08-30T18:55:57Z] END   06_AxiomAudit exit=0 duration=17s
+[2026-08-30T18:55:57Z] BEGIN 07_Erdos625SelfContained: lake env lean -DwarningAsError=true Erdos625SelfContained.lean
+[2026-08-30T19:10:02Z] END   07_Erdos625SelfContained exit=0 duration=845s
+[2026-08-30T19:10:02Z] ALL DONE
+[2026-08-30T19:11:30Z] BEGIN 09_supplementary_build_missing_olean
+[2026-08-30T19:13:38Z] supplementary rerun exit=0

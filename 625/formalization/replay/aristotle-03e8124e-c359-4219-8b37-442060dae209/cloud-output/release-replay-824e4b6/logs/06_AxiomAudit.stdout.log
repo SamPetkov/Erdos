@@ -1,0 +1,1608 @@
+'Erdos625.coColorable_of_induce_and_compl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.coColorable_of_induce_and_colorable_compl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.coColorable_iff_cochromaticNumber_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticNumber_le_chromaticNumber' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.gapConstant_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_singleton' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_singleton_uniform' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_eq_uniformOn_univ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.measurableSet_gapEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.gapProbability_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.erdos625Statement_iff_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.thresholdIntersection_subset_gapEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.explicitThresholdIntersection_subset_gapEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_measure_inter_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_measure_one_of_eventually_subset' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedThreshold_tail_of_movingThreshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_explicit_gap_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_baseScale_atTop_unscaled' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_explicit_gap_scale_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseDelta_mem_Ico' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mu_succ_div_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mu_pred_div_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.markov_measureReal_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.paleyZygmund_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mcdiarmid_two_sided_of_subgaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.binomialHalf_lowerQuarter_le_exp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_vertex_quarter_degree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDense_all_larger_of_all_exact' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterRecurrence_lowerBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.binomialRandom_map_ncard_edgeSet_singleton' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_map_compl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.setBernoulli_map_preimage_of_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fromEdgeSet_induce_eq_preimage' depends on axioms: [propext, Quot.sound]
+'Erdos625.diagSet_compl_preimage_subtype_sym2Map' depends on axioms: [propext, Quot.sound]
+'Erdos625.randomGraphMeasure_map_induce' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.binomialRandom_map_edgeCount' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.binomialRandom_real_edgeCount_lowerTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.binomialRandom_half_edgeCount_lowerQuarter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_inducedEdgeCount_lowerQuarter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_map_induce_complement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_inducedComplementEdgeCount_lowerQuarter' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.measurableSet_cutoffComplementQuarterDensityEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.inducedComplementLowerQuarterEvent_tail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_failure_le_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDensityCutoffSubsets_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_failure_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDensity_choose_two_div_sixteen_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDensityCutoff_tendsto_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDensity_eventually_exponent_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_failure_real_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_probability_tendsto_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_exact' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_quarterDense_all_larger' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementQuarterDensityEvent_subset_allLargerQuarterDenseEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementAllLargerQuarterDenseEvent_probability_tendsto_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChain_shifted_survival_eventually' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterDensityCutoff_le_quarterChainStart_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.one_le_quarterDensityCutoff_eventually' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChainSteps_tendsto_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.one_le_quarterChainSteps_eventually' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChainSteps_real_lower_bound_eventually' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChain_shifted_survival_of_start_le_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChain_shifted_survival_all_larger_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterDense_neighbor_step' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_quarterDense_clique_chain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.isIndepSet_of_compl_isClique' depends on axioms: [propext, Quot.sound]
+'Erdos625.quarterDensity_unionBound_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.simultaneous_induced_chromatic_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cutoffComplementAllLargerQuarterDenseEvent_subset_independentBlockEvent_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChainIndependentBlockEvent_probability_tendsto_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.chromaticNumberNat_induce_le_of_independentBlockEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChainIndependentBlockFailure_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChain_greedy_count_real_upper_bound_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.log_le_realCubeRoot_eventually' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChainGreedyColorCost_eventually_le_linear_log_plus_cubeRoot' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.chromaticNumberNat_induce_le_quarterChainGreedyColorCost' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_quarterChainIndependentBlockEvent_subset_linearColoringEvent_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_quarterChainLinearColoringEvent_probability_tendsto_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_quarterChainLinearColoringEvent_full_control' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.amplificationRadius_tendsto_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sqrt_seedTerm_isLittleO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sqrt_radiusTerm_isLittleO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.realCubeRoot_isLittleO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.one_isLittleO_gapScale' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.amplificationError_isLittleO_gapBase' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.failure_probability_le_add_of_two_success_events' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.capacityDeficitEvent_probability_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticNumber_le_of_capacityDeficit_and_leftover' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.erdos625Statement_of_capacity_leftover_thresholds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChainLeftoverBound_real_upper_bound_eventually' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChainIndependentBlockEvent_subset_simultaneousLeftoverColoringEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChainLeftoverBound_probability_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.quarterChainLeftoverBound_compl_probability_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.erdos625Statement_of_capacity_quarterChainLeftover_thresholds' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.erdos625Statement_of_capacitySeed_quarterChainLeftover_thresholds' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quarterChainLinearColoringEvent_mono_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticCapacityDeficitRadius_lt_displayed' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.capacityAmplification_inter_linear_subset_cochromaticUpperEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cochromaticUpperEvent_compl_probability_le_exp_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_uniform_cochromatic_amplification' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformAmplificationError_amplificationRadius_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exp_neg_amplificationRadius_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_measure_one_of_compl_real_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_uniform_cochromatic_amplification_at_manuscript_scales' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.strictLower_probability_tendsto_one_of_atMost_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.chromaticLowerEvent_probability_tendsto_one_of_atMost_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.coColorable_real_seed_of_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.erdos625Statement_of_chromatic_cochromatic_thresholds' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.erdos625Statement_of_uniform_seed_and_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_independentEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.independentSetExpectation_eq_ofReal_mu' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.independenceNumberExceedsEvent_eq_countPositive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_independenceNumberExceeds_le_mu_succ' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.alphaZero_eq_two_phaseS_div_q_add_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_phaseK_abs_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRangeDomain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseNat_isEquivalent_scaled_logOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_two_mul_phaseNat_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_descFactorial_linear_error_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.stirlingLogRemainder_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_mu_sub_phaseStirlingMain_abs_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseBracket_sub_main_abs_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseBracket_sub_main_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseStirlingResidual_isBigO_inv_logOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseMain_algebra_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseExpansionResidual_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_mu_phaseNat_add_two_div_logOrder_sub_phaseDelta_add_two_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mu_phaseNat_add_two_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_pos_eventually_mu_phaseNat_sub_two_lower_bound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_independenceNumberExceeds_phaseNat_add_one_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cubeMean_exp_center_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.integral_boolCubePMF_eq_cubeMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedDifferences_hasSubgaussianMGF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedDifferences_twoSidedTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockMean_succ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.integral_blockUniformPMF_eq_blockMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockMean_exp_center_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockBoundedDifferences_hasSubgaussianMGF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockBoundedDifferences_twoSidedTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockBoundedDifferences_hasSubgaussianMGF_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.gap_le_sqrt_two_mul_of_exp_neg_le_exp_neg_sq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.integral_le_const_of_ae_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.measureReal_levelSet_le_centeredUpperTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.rareSeed_gap_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.rareSeed_gap_le_of_hasSubgaussianMGF' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.vertexBlocksEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_vertexBlocks' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.map_vertexBlockMeasure_eq_randomGraphMeasure' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blocksToGraph_induce_away_eq' depends on axioms: [propext, Quot.sound]
+'Erdos625.randomGraph_vertexBlock_twoSidedTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.integral_randomGraphMeasure_eq_randomGraphBlockExpectation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.CoColoring.pullback' does not depend on any axioms
+'Erdos625.cochromaticInducedCapacity_eq_card_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticInducedCapacity_le_add_one_of_induce_away_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cochromaticInducedCapacity_hasBlockOscillation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.blockVariance_noninitialUnitOscillation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraph_cochromaticInducedCapacity_upperTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraph_cochromaticInducedCapacity_twoSidedTail' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_cochromaticInducedCapacity_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.capacity_witness_compl_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticNumber_le_add_chromaticNumber_compl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_capacity_witness_with_compl_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.measurable_cochromaticInducedCapacity_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.integrable_cochromaticInducedCapacity_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticInducedCapacity_levelSet_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticVarianceProxy_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticSeedGap_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cochromaticSeedGap_le_simplified' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraph_cochromaticInducedCapacity_lowerTail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraph_cochromaticInducedCapacity_failureProbability_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraph_cochromaticInducedCapacity_strictFailureProbability_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.sum_weight' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.hasDerivAt_mean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.variance_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.strictMono_mean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_mean_atBot' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_mean_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.existsUnique_mean_eq_of_mem_Ioo' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.mean_tilt_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.optimizer_isFeasible' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.entropy_score_le_log_partition_sub_tilt_mul_target' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.optimizer_entropy_score_eq_log_partition_sub_tilt_mul_target' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.sum_mul_sub_sum_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.abs_optimizedValue_sub_optimizedValue_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_optimizedValue_of_uniform_scores' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizedValue_of_uniform_scores' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.eventually_uniform_optimizedValue_on_Ioo_of_uniform_scores' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_mean_of_scores_and_parameter' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_tilt_of_scores_and_target' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ProfileEntropyS4.tendsto_optimizer_of_scores_and_target' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.eventually_uniformOn_tilt_of_uniform_scores' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.eventually_uniformOn_optimizer_of_uniform_scores' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.exists_uniform_optimizer_lower_bound_on_compact' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.eventually_uniform_optimizer_pos_on_compact' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfileEntropyS4.optimizedValue_mono_scores' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedFourDeficitProfileExpectation_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourSizeFiniteEntropy_eq_gibbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_signedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.continuousAt_phaseSignedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ColoringProfile.prod_factorial_count_sizes' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ColoringProfile.enumerativeCoefficient_mul_coordinateDenominator_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ProfilePartition.ncard_partitionInternalGraph' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_partitionColoringEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileColoringExpectation_eq_card_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileColoringExpectation_eq_formula_of_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileColoringExpectation_eq_zero_of_vertexMass_ne' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_shapeSlot' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_profileDecoration' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.decoratedProfileInv_map' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.shapeBlockIndexEquivKernelParts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_slotBlockPart' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partitionShape_slotKernelPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileEnumerationStatement_of_decorationBijection' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.decoratedProfileEquiv_slotProfileDecoration' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.slotKernelPartition_decoratedProfileEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDecoration_eq_of_equiv_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.totalProfileDecorationMap_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.totalProfileDecorationMap_surjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.totalProfileDecorationEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDecorationBijectionStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileEnumerationStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileColoringExpectation_eq_formula' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ColoringProfile.coordinate_le_vertexMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mem_coloringProfileBox_of_vertexMass_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_coloringProfileBox' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mem_boundedColoringProfiles' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_boundedColoringProfiles_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_eq_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_le_box_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.abs_log_factorial_sub_factorialEntropyMain_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.abs_profileLogFactorialSum_sub_main_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ColoringProfile.log_enumerativeCoefficient_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_profileColoringExpectation_toReal_eq_profileLogWeight' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedProfileColoringCount_pos_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileColoringExpectation_le_of_stirlingUpperMain_add_error_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_le_box_mul_exp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDiscreteObjective_eq_profileManuscriptObjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profileStirlingUpperMain_eq_profileDiscreteObjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.RealColoringProfile.isFeasible_ofNat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileRealObjective_ofNat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ennreal_boxMultiplicity_eq_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_le_variationalEnvelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_le_of_continuousRelaxation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profileDualPartition_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_profile_relativeEntropy_le_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileRealObjective_le_profileDualUpper' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDiscreteObjective_le_profileDualUpper' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedProfileColoringExpectation_le_profileDualUpper' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.hasDerivAt_log_profileDualPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_profileDualUpper' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_profileDualMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDualVariance_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.strictMono_deriv_profileDualUpper' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_profileDualMean_eq_of_mem_Ioo' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDualUpper_isGreatest_profileRealObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDualMean_eq_iff_profileDeficitMean_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDualUpper_eq_deficitCentered' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_profileDualTilt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDualOptimalValue_isGreatest_profileRealObjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.hasDerivAt_profileDualOptimalValue_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitResidualScore_last' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitResidualScore_le_gaussian' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_log_descFactorial_sub_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourDeficit_zero' depends on axioms: [propext]
+'Erdos625.fourDeficit_one' depends on axioms: [propext]
+'Erdos625.fourDeficit_two' depends on axioms: [propext]
+'Erdos625.fourDeficit_three' depends on axioms: [propext]
+'Erdos625.fourDeficit_cast_eq_support' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitResidualScore_rev_succ_eq_fourDeficitScore' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendsto_fourDeficitScore' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_uniform_fourDeficitScore' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_uniform_fourDeficitOptimizedValue' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_four_size_tilt_corridor' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_four_size_tilt_corridor_for_delta' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_four_size_partition_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_four_size_partition_ratio_for_delta' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.gaussian_abs_tilt_domination' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteTiltedGaussianTail_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteTiltedGaussianFirstMomentTail_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tsum_cast_sq_mul_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_Ico_cast_sq_mul_pow_le_geometric_tail' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteTiltedGaussianSecondMomentTail_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.summable_tiltedGaussian_moments' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.summable_extendedGaussianNaturalTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.summable_extendedGaussianFirstMoment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.summable_extendedGaussianSecondMoment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.one_lt_extendedGaussianPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianRawVariance_eq_moment_quotients' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_extendedGaussianPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_extendedGaussianFirstNumerator' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_extendedGaussianMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianNatural_cauchySchwarz' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianRawVariance_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.differentiable_extendedGaussianMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.continuous_extendedGaussianMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.strictMono_extendedGaussianMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_extendedGaussianMean_atBot' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_extendedGaussianMean_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_ordered_mean_bracket' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_eq_of_strictMono_endpoint_limits' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_ordered_extendedGaussianMean_bracket' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_extendedGaussianMean_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_tsum_of_norm_le_summable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tsum_eq_sum_range_of_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_exp_affine_add_of_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_tsum_of_uniform_coordinate_limits' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendstoUniformlyOn_div_of_denominator_ge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.one_le_profileDeficitPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitPartition_le_gaussianEnvelope' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitSecondNumerator_le_gaussianEnvelope' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitSecondMoment_le_gaussianEnvelope' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.abs_profileDeficitMean_le_gaussianEnvelope' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitNaturalTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitExceptionalTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitNaturalFirstMomentTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitNaturalSecondMomentTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitFirstNumerator' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitSecondNumerator' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_profileDeficitMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitPartition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitFirstNumerator' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitSecondNumerator' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileDeficitMean_profileDeficitTilt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_eventually_forall_mem_Icc_abs_profileDeficitTilt_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.hasDerivAt_profileDeficitMean' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitVariance' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_pos_lower_bound_on_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_inverse_close_of_lower_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.weighted_variance_eq_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_of_reflected_centering' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.normalized_raw_variance_stability' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianMean_extendedGaussianTilt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_abs_extendedGaussianTilt_le_on_compact' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_pos_extendedGaussianRawVariance_lower_bound_on_Icc' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.extendedGaussianMean_lower_separation_on_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendstoUniformlyOn_profileDeficitTilt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_log_nat_div_nat_add_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.abs_div_sub_div_le_of_denominator_ge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_mul_comp_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_mul_comp_div_add_const_and_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_root_mem_Ioo_of_strictAntiOn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_root_mem_corridor_of_center_bound_deriv_upper' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.derivative_lower_bound_mul_sub_le_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tilt_mem_Ioo_of_strictMono_mean_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.rounded_left_value_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_labelingFiberCount' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_labelingFiber' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sigmaEquivOfFiberOrders_apply' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_fixedFiberLabeling_mul_factorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.restricted_labelingFiberCount_eq_orderedOverlapCount' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_orderedOverlapCount_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.orderedOverlapCount_comm' depends on axioms: [propext, Quot.sound]
+'Erdos625.sum_orderedOverlapCount_column' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_fixedMarginOverlapEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_orderedOverlapLabeling_mul_factorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_orderedOverlapLabeling_probability_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.orderedOverlapLabeling_probability_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedMarginOverlapEvent_probability_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedFiberLabelingOverlapTableEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedFixedMarginTable_probability_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_signedProfileWitnessEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedProfileExpectation_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedProfileCount_pos_implies_coColorable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_labeledProfilePartition_eq_orderedProfilePartition_all' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.labeledProfilePartitionEquivOrdered' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.orderedSignedProfileCount_eq_coordinateMultiplier' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.labeledProfilePartitionEquivOrderedSemantic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileSignValid_iff_orderedSlotSignValid_labeled' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileSignValid_iff_orderedSlotSignValid_kernel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.orderedOverlapCount_eq_profileOverlapCellCount' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_mixedEdgePrescriptionEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ncard_profilePartitionInternalGraph_edgeSet_inter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ncard_profilePartitionInternalGraph_edgeSet_union' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedOverlapLocalFactor_cross' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedOverlapLocalFactor_div_pow_eq_reward_rat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedOverlapLocalFactor_div_pow_eq_pow_exponent_rat' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.compatiblePairSignAssignmentsEquivOverlap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.natCard_compatiblePairSignAssignments_eq_two_pow_components' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedProfilePair_prescriptions_disjoint_iff_compatible' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedProfilePairEvent_eq_empty_of_incompatible' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_signedProfilePairEvent_of_compatible' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedProfilePairMassSum_eq_compatibleCard_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedProfilePairMassSum_mul_two_pow_forbiddenEdges' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedOverlapTableProbability_eq_factorialLaw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_boundedOverlapTableProbability_eq_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedSecondMomentTableSum_eq_factorial_reward_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_profileBlockIndex' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileOverlapTable_realizable_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_weight_profileOverlapTableOfOrderedPair_eq_sum_card_nsmul' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.configurationMatchingEquivColumnWithOrders' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellCount_ofColumnWithOrders_eq_orderedOverlapCount' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_map_orderedProfileColumn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.weightedExpectation_uniformConfigurationMatching_eq_uniformProfile' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedProfileSecondMoment_eq_sum_pairEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedProfileExpectation_ne_zero_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedOverlapReward_reindex' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.labeledSignedProfileDataEquivOrderedSlots' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.orderedSignedOverlapRewardSum_eq_labelMultiplier_sq_mul_unordered' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedOverlapQuotientBridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.normalizedSignedProfileSecondMoment_eq_tableSum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.normalizedSignedProfileSecondMoment_eq_profileOverlapTableSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.lintegral_signedProfileCount_eq_signedProfileExpectation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.lintegral_signedProfileCount_sq_eq_signedProfileSecondMoment' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedProfile_real_seed_of_tableSum_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_table_rows_eq_sum_table_columns' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_demand_le_sum_table' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.no_contingencyTable_of_infeasible_demands' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.highCells_form_matching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_iUnion_stubAllocation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_disjoint_extension' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_stubEmbedding_eq_descFactorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_stubEmbedding_eq_labeledAllocation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_labeledStubAllocation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_stubAllocation_mul_factorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_prescribedDemandWitness_mul_factorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_extensions_of_exposed_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_extensions_of_embedding_pairing' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_rowStub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_columnStub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_configurationMatching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessRowAtom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessColumnAtom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendsPrescribedDemandWitness_iff_cellwise' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendsWitness_mem_prescribedCellEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_extendingWitness_of_mem_prescribedCellEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_extensionsOfPrescribedDemandWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_prescribedCellEvent_le_witness_mul_factorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.pow_sub_add_one_le_descFactorial' depends on axioms: [propext, Quot.sound]
+'Erdos625.factorial_pow_le_descFactorial_pow' depends on axioms: [propext, Quot.sound]
+'Erdos625.real_div_exp_one_pow_le_descFactorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ennreal_div_euler_pow_le_descFactorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.row_column_descendingProduct_le_cellDegreePowerProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.configurationCellTheta_pow_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.inv_demandFactorialProduct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellWeight_product_eq_global' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_prescribedCellEvent_apply' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_prescribedCellEvent_le_witness' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.jointPrescribedCellBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.jointPrescribedCellBound_cellwise_of_totalDemand_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.not_mem_prescribedCellEvent_of_total_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.jointPrescribedCellBound_cellwise' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellCount_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellCount_column' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellCount_highCells_form_matching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.witnessSelectedStubEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extensionsOfPrescribedDemandWitnessEquivRemaining' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessSelectedRowStubs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessSelectedColumnStubs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_remainingRowStub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_remainingColumnStub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_remainingStubs_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformOfFintype_map_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformOfFintype_prod_map_snd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_filter_eq_uniformSubtype_map' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.highCellFinset_card_mul_succ_le_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.two_mul_card_selectedCells_le_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_selectedCells_le_half_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellCount_all' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_configurationResidualSupportFinset_le_half_stubMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_configurationResidualSupportFinset_le_half_rowStubCard' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_family_le_pow_residualCells_of_even_encoding' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_family_le_two_pow_half_stubMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_actualResidualEvenEdgeFamily_le_pow_support' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteEvenEdgeSet_iff_isBipartiteEven' depends on axioms: [propext, Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_weight_le_all_even' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.weighted_evenSubgraph_ennreal_polymer_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_product' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ennreal_one_add_le_ereal_exp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.ennreal_polymer_product_le_ereal_exp_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_ennreal_weight_le_polymer_exp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_all_even' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_product' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_actualResidualEvenEdgeFamily_real_weight_le_polymer_exp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.twice_sum_choose_two_le_cap_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.smallResidualDeterministicBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cycleRank_matching_union_le_card_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.relationFinset_configurationResidualSupportRelation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cycleRank_matching_union_configurationResidualSupport_le_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_stubMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_m₀' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cycleRank_matching_union_configurationResidualSupport_le_half_rowStubCard' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_configurationActualResidualEvenEdgeFamily_le_two_pow_half_stubMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.finitePositiveWalkKernel_rowSum_le_geometric' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.explicit_terms_le_kernel_masses' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.q_row_column_le_of_pointwise_degree_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.rescale_configurationCellTheta_square_to_degreeSquare' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.configurationCellTheta_toReal_le_of_caps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualQRowColumnBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualQRowColumnBound_of_degreeCaps' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.existsAbsoluteResidualQBipartiteKernelRowBound_of_degreeCaps' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.finrank_graphCycleSpace_eq_cycleRank' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.natCard_graphCycleSpace_eq_two_pow_cycleRank' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.graphEdgeSubsetVector_mem_graphCycleSpace_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.natCard_evenEdgeSubset_eq_two_pow_cycleRank' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.supportedCellEquivBipartiteGraphEdge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.supportedCellFinsetToEdges_even_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.actualResidualEvenEdgeFamilyEquivEvenEdgeSubset' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.natCard_actualResidualEvenEdgeFamily_eq_two_pow_cycleRank' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.compatibleBoolSignAssignmentsEquivComponents' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.natCard_compatibleBoolSignAssignments_eq_two_pow_components' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.weighted_evenSubgraph_polymer_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_covering_cycleWalk_of_minimal_even' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteKernelWalkMass_le_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_kernelPathCode_weight_eq_finiteKernelEndpointMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_positiveKernelPathCode_weight_eq_finitePositiveWalkKernel' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_finiteKernelEndpointMass_eq_finiteKernelWalkMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_marked_finiteKernelWalkMass_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteCellKernel_rowSum_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteCellKernel_walkMass_le_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_range_pow_even_add_four_le_geometric' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_marked_range_finiteKernelWalkMass_even_add_four_le_geometric' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_marked_range_finiteKernelWalkMass_succ_le_geometric' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.finite_relaxed_matchingTraversal_enumeration' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_positiveKernelThenTransitionCode_weight_eq_finiteKernelComp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_relaxedBlockChainCode_weight_eq_finiteKernelEndpointMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.decodeRelaxedBlockCells_eq_union' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.relaxedBlock_projection_nodup' does not depend on any axioms
+'Erdos625.relaxedBlockChainCode_weight_eq_projection_weights' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.relaxedBlockChainCode_bipartite_weight_eq_projection_weights' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.cycle_inter_matching_card_le_vertex_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.decode_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.transitionEdges_length_eq_inter_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.IsFaithfulCycleCut.residualCellList_length_eq_raw_length' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.IsFaithfulCycleCut.transitionCellList_length_eq_raw_length' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.IsFaithfulCycleCut.residualEdges_length_eq_sdiff_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.IsFaithfulCycleCut.residualWeight_eq_sdiff_prod' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.transitionWeight_eq_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.codeWeight_eq_sdiff_prod' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.projection_orientedEdges_nodup' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.IsFaithfulCycleCut.blockCount_le_vertex_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.physicalCycleCuttingStatement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenPhysicalCycleCut_faithful' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.decode_chosenPhysicalCycleCut' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenPhysicalCycleCut_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenPhysicalCycleCut_weight_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.decode_chosenMarkedCycleTraversal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenMarkedCycleTraversal_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenMarkedCycleTraversal_weight_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_markedCycleTraversalCode_weight_eq_endpointMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_markedCycleTraversalCode_weight_le_walkMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_markedCycleTraversalCode_weight_eq_endpointMass_finset' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_markedCycleTraversalCode_weight_le_walkMass_finset' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_mixedSimpleCycle_weight_le_markedTraversalCode' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_mixedSimpleCycle_weight_le_nested_walkMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mixedSimpleCycle_weighted_walk_enumeration' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualQMixedCycleWeightedEnumeration' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_simpleBipartiteCycles_edgeWeight_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_faithfulResidualCycleTraversal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenResidualOnlyCycleTraversal_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.chosenResidualOnlyCycleTraversal_weight_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_residualOnlySimpleCycle_weight_le_traversalCode' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_residualCycleTraversalCode_weight_eq_endpointMass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_residualCycleTraversalCode_weight_le_walkMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_rowRooted_evenWalkMass_le_geometric' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualOnlySimpleCycle_weighted_walk_enumeration' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.prod_localSignRewardNat_eq_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cappedReward_telescoping' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteInjectiveFamily_product_exp_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_tau_lt_one_third' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseControlled_ennreal_tau_lt_one_third' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_uniform_twoRegime_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteFiniteEndpointConstant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualQQuadraticBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualLambdaCubicBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsAbsoluteResidualLambdaTotalBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.capped_fixedF_prescribedDemand_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualReward_eq_localSignRewardNat' depends on axioms: [propext, Quot.sound]
+'Erdos625.residualRewardIncrement_eq_localSignRewardNat_sub' depends on axioms: [propext, Quot.sound]
+'Erdos625.residualFixedFExpectation_le_lambdaProduct_mul_edgeWeight' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_evenWeightSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualCappedEvenFixedFSum_le_lambdaProduct_mul_polymerProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mem_actualResidualEvenEdgeSets_iff_actualResidualEvenEdgeFamilyPredicate' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_fixedF_thresholdIndicator_eq_card_actualResidualEvenEdgeSets' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_eq_residualCappedEvenFixedFSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.actualResidualEvenEdgeSetsEquivActualResidualEvenEdgeFamily' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.coe_card_actualResidualEvenEdgeSets_eq_two_pow_cycleRank' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualCycleRankExpectation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_eq_cycleRankExpectation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.taggedResidualAttachmentValue' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_taggedResidualAttachmentValue_eq_incidence_mul_numerator' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.canonicalDemandReferenceWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_global_taggedResidualAttachmentValue_eq_sum_incidence_mul_numerator' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_evenWeightSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_le_lambdaProduct_mul_polymerProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.evenMatrix_eq_zero_of_support_rowMatching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteEdgeMatrix_apply_eq_one_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteEdgeMatrix_apply_ne_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteEdgeMatrix_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_bipartiteEdgeMatrix_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_bipartiteEdgeMatrix_column' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteEdgeMatrix_even_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.evenMatrix_eq_of_eq_on_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualRestriction_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_evenMatrixSupportedOn_le_pow_card_residualCell' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_sqrt_mul_weight_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_selectedRowStubs_in_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_selectedColumnStubs_in_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessSelectedRowIndices' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_witnessSelectedColumnIndices' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_remainingRowFiber' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_remainingColumnFiber' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.remainingRowStubEquivResidual_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.remainingColumnStubEquivResidual_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniform_extensionSubtype_map_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_targetFiber_eq_usedTarget_add_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.remainingRowStubEquivResidual_apply_in_class' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualConfiguration_targetClass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.usedRowTargetIndices_eq_witnessCell' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellCount_eq_demand_add_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nat_add_eq_left_iff_right_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nat_add_le_iff_le_sub_of_le' depends on axioms: [propext]
+'Erdos625.exposedCell_constraints_iff_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCell_constraints_iff_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedWitnessFullCellConstraints_iff_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedWitnessSection8Assembly' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.compatiblePairing_unique' depends on axioms: [propext, Quot.sound]
+'Erdos625.selectedFiber_eq_fullFiber_of_zero_residual' depends on axioms: [propext, Quot.sound]
+'Erdos625.canonicalHighDemand_partialMatching_and_incidence' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalHighDemand_eq_iff_exact_support_and_capped_off' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.existsUnique_canonicalHighDemandWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_canonicalHighDemandWitness_residualProfile' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalResidualCellEvent_eq_residualCapNoReturnEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mem_fixedWitnessCanonicalDemandEvent_iff_residualCapNoReturn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mem_canonicalDemandEvent_iff_exact_support_and_capped_off' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_canonicalDemandEvent_eq_witness_mul_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedWitnessCanonicalDemandEventEquivResidual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalDemandEventEquivSigmaFixedWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalDemandEventEquivSigmaResidual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nonempty_sigmaCanonicalResidual_of_nonempty_canonicalDemandEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniform_canonicalDemandEventSubtype_map_sigmaResidual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniform_filter_canonicalDemandEvent_eq_uniformSigmaResidual_reconstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sigmaCanonicalResidualEquivWitnessTimesResidual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalDemandEventEquivWitnessTimesResidual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nonempty_canonicalResidualCellEvent_of_nonempty_canonicalDemandEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniform_canonicalDemandEventSubtype_map_witnessTimesResidual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniform_canonicalDemandEventSubtype_map_fixedResidual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.configurationMatchingEquivSigmaCanonicalDemandEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_configurationMatching_eq_sum_card_canonicalDemandEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_uniformConfigurationMatching_canonicalDemandEvent_eq_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformOfFintype_sigma_map_fst_apply' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.canonicalDemandOfMatching_high_of_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nonempty_canonicalDemandEvent_of_canonicalDemandImage' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.canonicalDemandImage_high' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationMatchingEquivSigmaCanonicalDemandResidual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformSigmaCanonicalDemandResidual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_map_sigmaCanonicalDemandResidual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_sigmaCanonicalDemandResidual_fiber_eq_witness_mul_residual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_map_canonicalDemand_apply_eq_witness_mul_residual_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sigmaCanonicalDemandResidual_mem_residualCapNoReturn' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sigmaCanonicalDemandResidualEquivSigmaCapNoReturn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationMatchingEquivSigmaCapNoReturn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformSigmaCapNoReturn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_map_sigmaCapNoReturn' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.positiveDemandSupport_isBipartiteMatching_of_canonicalDemandImage' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualReward_add_eq_mul_of_noReturn' depends on axioms: [propext, Quot.sound]
+'Erdos625.prod_residualReward_add_eq_positiveSupport_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.two_le_add_iff_positive_or_two_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.bipartiteGraph_positiveSupport_add_eq_union' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fixedWitnessCanonical_reward_support_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.typedPartialMatchingSourceEmbedding' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.typedPartialMatchingTargetEmbedding' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.typedPartialMatchingPairing' depends on axioms: [propext, Quot.sound]
+'Erdos625.typedPartialMatchingEquivPrescribedDemandWitness' depends on axioms: [propext, Quot.sound]
+'Erdos625.card_typedPartialMatching_mul_factorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.UnlabelledTypedSkeleton.ext' depends on axioms: [propext, Quot.sound]
+'Erdos625.typedPartialMatchingUnlabelledSkeleton' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.typedPartialMatchingUnlabelledSkeleton_typeTable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.unlabelledSkeletonFibreToTypedPartialMatching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.typedPartialMatchingEquivUnlabelledSkeletonFibre' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_unlabelledTypedSkeleton_typeTable_mul_factorials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_unlabelledSkeleton_weight_eq_sum_typeTables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.cast_card_unlabelledSkeleton_fibre_mul_cellFactorials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_unlabelledSkeleton_cellFactorial_weight_eq_descendingProducts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_unlabelledSkeleton_weight_eq_descendingProducts_div_cellFactorials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_unlabelledTypedSkeleton_fixedExposureWeight_eq_weightedQuotient' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.typeTableCellFactorial_mul_descendingProducts_div_cellFactorials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_event_apply' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_canonicalDemandEvent_apply' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.labelledWitnessIncidence_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_canonicalResidualCellEvent_apply' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_canonicalDemandEvent_eq_incidence_mul_residual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniformConfigurationMatching_fixedWitnessCanonicalDemandEvent_eq_residualFactor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.totalDemand_le_rowTotal_of_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_residualRowDegree_eq_sum_residualColumnDegree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_residualRowDegree_eq_rowTotal_sub_totalDemand' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_residualColumnDegree_eq_colTotal_sub_totalDemand' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualDegreeProfile_of_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_nearSkeletonChoiceWeight_eq_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nearCellChoiceExpansion_and_succ_cross_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_nearSkeletonChoiceWeight_le_one_add_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_nearSkeletonChoiceWeight_le_exp_of_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.supportIndexed_fullConstraints_iff_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sub_min_add_sub_min_eq_dist' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.add_eq_two_mul_min_add_dist' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.descFactorial_endpoint_transport' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.descFactorial_endpoint_transport_succ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.descFactorial_min_transport' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.descFactorial_min_transport_succ' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeSquareSum_le_cap_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeCubeSum_le_cap_sq_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeSquareSum_real_le_cap_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeCubeSum_real_le_cap_sq_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeSquareSum_ennreal_le_cap_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.degreeCubeSum_ennreal_le_cap_sq_mul_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_column' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_row_le_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_column_le_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_row_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_column_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_row_le_uniform' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_sq_column_le_uniform' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_cube_le_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_cube_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellTheta_eq_zero_of_rowTotal_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.configurationCellTheta_eq_zero_of_colTotal_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_configurationCellTheta_cube_eq_zero_of_total_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.selectedBlockCount_increment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.selectedVertexMass_increment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.selectedInternalEdgeCount_increment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialProfileFactorialProduct_increment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialMarkingCount_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.isPartialSubprofile_increment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialSignedFirstMoment_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialMarkingCount_pos' depends on axioms: [propext, Quot.sound]
+'Erdos625.partialDiagonalWeight_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialSignedFirstMoment_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_increment_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.completeSignedFirstMoment_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualMarkingCount_pos' depends on axioms: [propext, Quot.sound]
+'Erdos625.fullCornerWeight_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.complementaryProfile_add' depends on axioms: [propext]
+'Erdos625.selectedBlockCount_complement_add' depends on axioms: [propext, Quot.sound]
+'Erdos625.selectedVertexMass_complement_add' depends on axioms: [propext, Quot.sound]
+'Erdos625.selectedVertexMass_complement_le_of_fullMass' depends on axioms: [propext, Quot.sound]
+'Erdos625.selectedVertexMass_le_of_fullMass' depends on axioms: [propext, Quot.sound]
+'Erdos625.selectedInternalEdgeCount_complement_add' depends on axioms: [propext, Quot.sound]
+'Erdos625.partialMarkingCount_complement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualMarking_mul_profileFactorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_complement_mul_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_complement_eq_fullCorner_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualMarkingCount_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.completeSignedFirstMoment_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fullCornerWeight_increment_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fullCornerWeight_increment_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_finpartition_refinement_card_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_bounded_proper_refinement_card_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partitionShape_eq_sizes_vertexPartitionProfile' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.boundedProfileColoringCount_pos_of_partition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_parts_coloringVertexPartition_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_exact_proper_partition_of_chromaticNumberNat_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.boundedProfileColoringCount_pos_of_chromaticNumberNat_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.chromaticNumberNat_le_set_subset_boundedProfileColoringCount_pos_union' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_boundedProfileColoringCountPositive_le_expectation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_expectation_add_independence' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_box_mul_exp_add_mu' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_le_profileDual_add_mu' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_dual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.chromaticAtMost_tendsto_zero_of_phaseEnvelope_atBot' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signed_root_separation_of_advantage_and_slope' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.root_midpoint_rounding_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.root_midpoint_rounding_gap_toNat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_concrete_root_corridor_gap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.root_rounding_budget_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_exp_neg_le_of_eventually_neg_le_log' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tendsto_ennrealOfReal_exp_atTop_of_tendsto_atBot' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profilePhaseObjective_eq_selected_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.hasDerivAt_profilePhaseObjective_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.deriv_profilePhaseObjective_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.coloringProfileDualExponentRewrite' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_typedPartialMatching_skeletonWeight_eq_sum_unlabelledSkeletonFibre' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.UnlabelledTypedSkeleton.sum_typeTable_row_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.UnlabelledTypedSkeleton.sum_typeTable_column_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformConfigurationMatching_sum_tagged_transport' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_le_of_forall_event_integrand_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.residualActualAttachmentNumerator_empty_eq_one_of_total_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.canonicalDemandRawAttachmentTerm_eq_bare_of_residualTotal_zero_of_matching' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.entropy_loss_le_log_partition_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_s4_embedded_extendedGaussian_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.splusEntropySupremumDualInterior_bundle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_s4_embedded_extendedGaussian_witness_allTilts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.extendedGaussianEntropyValue_le_dual_interior' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourEntropyLoss_nonneg_interior' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_normalized_extendedGaussianNaturalTerm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_normalized_extendedGaussianExceptionalAtom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianNaturalEntropyTerm_le_normalized' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianExceptionalEntropyTerm_le_normalized' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.extendedGaussian_finite_dual_bound_of_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.extendedGaussianEntropyWitnessAllTilts_iff_sPlusPrimalProfile' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.extendedGaussianEntropyCandidateSet_eq_sPlusPrimalCandidateSet' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.extendedGaussianEntropyValue_eq_sPlusPrimalEntropyValue' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourEntropyLoss_eq_sPlusPrimalEntropyValue_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_le_exp_sum_of_mu_lower_on_mass' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_le_product_truncatedExp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mu_le_of_le_vertex_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalWeight_increment_le_of_mu_cutoff_activity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedOverlapReward_canonicalRewardState_eq_attachment' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonAttachmentSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_uniformConfigurationMatching_signedOverlapReward_eq_skeletonCycleRankSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonAttachmentSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_uniformProfile_signedOverlapReward_eq_skeletonCycleRankSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualEnvelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.ennreal_le_of_coe_le_ereal_exp_toReal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.residualLargeEnvelope_ne_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileHighSkeletonAttachment_le_smallResidualExpScale' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_absolute_profileHighSkeletonAttachment_le_largeResidualExp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.nearCut_le_iff_four_mul_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.denominatorLoss_eq_falling_and_le_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fullCornerWeight_le_one_of_local_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_fullCorner_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_fullCorner_filter_mul_complete_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.mu_div_mu_sub_le_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.UnlabelledTypedSkeleton.typeTable_ne_zero_iff_exists_physical_edge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.CappedPhysicalHighFibre.demand_ne_zero_iff_exists_physical_edge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.encodeRawNearMiddle_reconstructs_and_is_disjoint' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.positiveDemandSupport_card_mul_cap_le_two_total' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseControlled_two_pow_le_cube' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_profileBlockIndex_le_vertex_count_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.midpointCanonicalAttachmentSum_le_bare_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_midpointCanonicalAttachment_twoRegime_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_zeroResidual_canonicalDemandRawAttachmentTerm_eq_bare' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profileHighSkeleton_cardinality_and_support_mass_bounds' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.unrestrictedPhaseObjective_div_eq_deficitCentered' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.log_profileDeficitPartition_mem_Icc_gaussianEnvelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootDeficitTarget_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.unrestrictedPhaseObjective_center_div_decomposition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootAlgebraicNoLog_sub_logOrder_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.logOrder_sub_log_phaseRootCenter_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootAlgebraicCore_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootScalarTerm_eq_stirlingForm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootScalarTerm_eq_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseExpansionResidual_isBigO_logLogOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseNat_stirlingLogRemainder_isBigO_logLogOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseStirlingResidual_isBigO_logLogOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootScalarTerm_isBigO_logLogOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootSelectedDeficitTerm_isBigO_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.unrestrictedPhaseObjective_center_div_isBigO_logLogOrder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootS0_isEquivalent_scaled_logOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.abs_profileDeficitAffineCore_sub_quadratic_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finite_four_entropy_loss_eq_limiting_add_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.finiteFourVsExtendedEntropyLoss_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_profileHighSkeletonAttachment_le_smallResidual_logScale' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_profileHighSkeletonAttachment_le_largeResidual_logScale' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_absolute_residualActualAttachmentNumerator_le_largeResidualExp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profilePhaseObjective_eq_profileBoxTerm_add_unrestricted' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRoot_target_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRoot_domain_pos_and_target_corridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.uniform_limiting_entropy_certificate_for_delta' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.uniformProfile_signedOverlapReward_le_zeroRaw_add_rawSmall_add_largePolymer' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourDeficitCoordinate_val_add_one_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourDeficitCoordinate_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.nonempty_orderedProfilePartition_of_vertexMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonalRate_uniform_negative' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.CappedPhysicalHighFibre.mem_canonicalNearEdges' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.CappedPhysicalHighFibre.canonicalNearSkeleton_typeTable' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.UnlabelledTypedSkeleton.cellFilter_eq_of_edges_subset_of_typeTable_eq' depends on axioms: [propext,
+ Quot.sound]
+'Erdos625.CappedPhysicalHighFibre.canonicalNearPrefix_noFurtherNear' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.NearPrefix.edges_eq_canonicalNearEdges_of_noFurtherNear' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.NearPrefix.physical_eq_canonicalNearSkeleton_of_noFurtherNear' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.CappedPhysicalHighFibre.existsUnique_nearPrefix_noFurtherNear' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.encodeRawNearMiddle_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpoint_profile_indexing_facts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpoint_endpointOnly_isCanonicalHigh' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpoint_fullTable_feasible_of_matching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpoint_rowAssignment_product_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fullCornerWeight_le_one_of_mu_cap' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_fullCorner_filter_mul_complete_le_exp_sum_of_mu_cap' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.partialDiagonalRate_uniform_negative_fourDeficit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.partialDiagonal_log_upper_envelope_midpoint_fourDeficit' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.midpointPartialDiagonalRho_eq_residual_add_correction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_five_lt_phaseNat' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.deficit_cast_eq_parts_mul_fourSizeTarget' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tangent_rounding_integer_conservation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tangent_floor_error_intervals' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.tangent_corrected_counts_nonnegative_of_fourteen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_fourEndpointBlockPairing_mul_cellFactorials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.card_fourEndpointDecoratedBlockPairing_mul_cellStubFactorials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourEndpointDecoratedBlockPairingToPhysicalFibre' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourDeficitEmbedding_profile_invariants' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourDeficitEmbedding_eval_and_off_image' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourDeficitScore_le_fourGaussianScore' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_signedProfile_real_seed_of_midpointCanonicalPolymer_bound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourEndpoint_mass_facts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpointLocalCellFactor_eq_lowerDiagonal_mul_choose' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourEndpointSizeDiagonalFactor_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpointLocalCellFactor_sq_mul_transportDenominator' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_fourEndpointRealized_W_mul_threeQuarterProduct_le_fusedRowMax' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_fourEndpointFusedRowMax_le_one_add_logOrder_rpow_five_halves_div_sqrt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.card_singleCellStubMatching_mul_factorial' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.fourEndpoint_global_transport' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.profileHighSkeletonWeight_eq_fourEndpointPartialAggregateWeight' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profileHighSkeletonWeight_le_fourEndpointFullReference_mul_deficitCharge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_fourEndpointAllHighChoiceWeight_le_threeQuarterProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.profileHighSkeletonWeight_le_fourEndpointEncodedFullSupportCharge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_fourEndpointFullSupportReferenceWeight_mul_tableWeight_eq_sum_realized_W_mul_tableWeight' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_profileHighSkeletonWeight_le_realizedTableThreeQuarterProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.threeQuarterCellBase_le_fourEndpointThreeQuarterRho' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.sum_profileCanonicalHighSkeleton_le_canonicalThreeQuarterRhoSupportSum' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_five_fourths_log_sub_le_q_mul_endpointBudget' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_fourEndpointThreeQuarterRho_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.sum_profileHighSkeletonWeight_le_canonicalDeficitFactor_mul_sum_W' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tangent_rounding_nat_conservation_and_uniform_displacement' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.midpointOptimizer_count_and_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.midpointMultiplicity_cast_eq_correctedInt' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.midpointMultiplicity_count_deficit_intDisplacement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.midpointMultiplicity_uniform_displacement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.existsUnique_phaseSignedFourSizeRoot_of_center_and_deriv_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.abs_unrestrictedPhaseObjective_deriv_sub_deficitMain_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_phaseRootCenter_deficitTarget_mem_open' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_factorialLogErrorBound_phaseNat_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootSelectedDeficitTerm_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_log_phaseRootCenter_le_quadratic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootDerivativeSelectedTerm_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_abs_phaseRootTilt_mul_phaseNat_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.unrestrictedPhaseObjective_deriv_center_lower_corrected' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootLogPartition_le_quadratic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_abs_phaseRootDerivativeSelectedTerm_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.quadraticMain_sub_three_errors_ge_quarter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_unrestrictedPhaseObjective_deriv_center_ge_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootCenter_div_phaseNat_sq_isTheta_gapScale' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseRootGapRadius_isTheta_gapScale' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRootGapCorridor_fourSize_domain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRootGapCorridor_fourSize_target_mem_Icc' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_pos_eventually_phaseRootGapCorridor_fourSize_compact_control' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedFourSizeObjectiveDerivative_eq_affineCore_sub_tiltTerm' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.signedFourSizeObjectiveDerivative_quadratic_lower_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourGaussian_optimizedValue_ge_neg_twenty_five_q_div_two' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_fourSizeFiniteEntropy_ge_neg_twenty_five_q_div_two_sub_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootGapCorridor_fourSize_tilt_linear_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootGapCorridor_log_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_signedFourSizeObjectiveDerivative_gapCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendsto_phaseRootScalarTerm_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseSignedFourSizeObjective_referenceCenter_div_decomposition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendsto_phaseSignedFourSizeObjective_referenceCenter_div_atTop' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseSignedFourSizeObjective_referenceCenter_div_isBigO_logLogOrder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_phaseRootLogLogCorridor_fourSize_domain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRootLogLogCorridor_fourSize_target_mem_Icc' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_pos_eventually_phaseRootLogLogCorridor_fourSize_compact_control' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootLogLogCorridor_fourSize_tilt_linear_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_abs_phaseRootLogLogCorridor_log_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_signedFourSizeObjectiveDerivative_logLogCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fourSizeFiniteEntropy_le_two_q' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_signedFourSizeObjectiveDerivative_logLogCorridor_upper' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_pos_eventually_existsUnique_phaseSignedFourSizeRoot_logLogCorridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_unrestrictedPhaseObjective_deriv_logLogCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.exists_pos_eventually_existsUnique_unrestrictedPhaseObjective_zero_logLogCorridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.finiteProfileDeficitEntropy_le_extendedGaussianEntropyValue' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootScalarTerm_div_phaseNat_sq_isLittleO_gapScale' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseRootScalarTerm_isTheta_logLogOrder' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseRoot_unitCorridor_domain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_unrestrictedPhaseObjective_deriv_unitCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_uniform_finite_four_entropy_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.mu_le_mu_mul_vertex_ratio_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.midpointFullCornerVertexRatio_logExponent_tendsto_neg_ten' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.log_mu_phaseNat_sub_fourDeficit_div_logOrder_sub_phaseDelta_add_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_sum_midpointPartialDiagonal_empty_mem_Icc' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_sum_midpointPartialDiagonal_fullCorner_mu_activity_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_sum_midpointPartialDiagonalWeight_fullCorner_filter_mul_complete_le_exp' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.abs_mul_midpointRoundedFourSizeEntropyLoss_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.signedProfileExpectation_toReal_eq_partialSignedFirstMoment_fourDeficit' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.abs_log_partialSignedFirstMoment_fourDeficit_sub_discreteObjective_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.abs_log_midpointPartialSignedFirstMoment_sub_signedFourSizeObjective_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendsto_midpointPartialSignedFirstMomentLogError_div_parts_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseSignedFourSizeObjective_div_sub_unrestrictedPhaseObjective_div_eq_finiteMargin' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phaseSignedFourSizeObjective_eq_parts_mul_finiteMargin_of_unrestrictedRoot' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_uniform_phaseRootLogLogCorridor_fourSizeTarget_tendsto_center' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_finiteSignedFourMargin_gt_log_200_div_153_on_logLogCorridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_phaseRootLogLogCorridor_part_div_phaseNat_sq_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_selected_phase_roots_separated' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseChromaticLowerIndex' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.phaseCochromaticFixedOffsetIndex' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_phaseRootGapCoefficient_gt_uniformQuarter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_eventually_concrete_phase_fixedOffset_root_gap' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_phaseChromaticLowerIndex_pos_and_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_profilePhaseObjective_phaseChromaticLowerIndex_le_neg_cubic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseChromaticLowerIndex_tendsto_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.fixedOffset_rounding_budget_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.eventually_phaseCochromaticFixedOffsetIndex_target_control' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.eventually_phaseCochromaticFixedOffsetIndex_rounding_admissible' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.phase_fixedOffset_completeSignedFirstMoment_tendsto_atTop' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Erdos625.tendsto_sum_fixedOffsetPartialDiagonalWeight' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_phaseFixedOffsetCanonicalBareSkeleton_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.exists_phaseCochromaticFixedOffset_real_seed' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Erdos625.erdos625' depends on axioms: [propext, Classical.choice, Quot.sound]

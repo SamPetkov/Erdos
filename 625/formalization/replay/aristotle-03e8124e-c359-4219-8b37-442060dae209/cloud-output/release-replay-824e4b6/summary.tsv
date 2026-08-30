@@ -1,0 +1,8 @@
+00_cache_get	lake exe cache get	exit=0	39s
+01_lake_build_wfail	lake build --wfail	exit=0	1589s
+02_Section12ConcreteSignedFirstMoment	lake env lean -DwarningAsError=true Erdos625/Section12ConcreteSignedFirstMoment.lean	exit=0	31s
+03_Section12PartialDiagonalAssembly	lake env lean -DwarningAsError=true Erdos625/Section12PartialDiagonalAssembly.lean	exit=1	3s
+04_Section15FinalInstantiation	lake env lean -DwarningAsError=true Erdos625/Section15FinalInstantiation.lean	exit=0	16s
+05_Erdos625	lake env lean -DwarningAsError=true Erdos625.lean	exit=0	17s
+06_AxiomAudit	lake env lean -DwarningAsError=true Erdos625/AxiomAudit.lean	exit=0	17s
+07_Erdos625SelfContained	lake env lean -DwarningAsError=true Erdos625SelfContained.lean	exit=0	845s

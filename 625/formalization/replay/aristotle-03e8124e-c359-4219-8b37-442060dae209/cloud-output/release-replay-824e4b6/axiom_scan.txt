@@ -1,0 +1,15 @@
+00_cache_get.stdout.log: 0 axiom reports; distinct axioms = []; disallowed = []
+01_lake_build_wfail.stdout.log: 1682 axiom reports; distinct axioms = ['Classical.choice', 'Quot.sound', 'propext']; disallowed = []
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+02_Section12ConcreteSignedFirstMoment.stdout.log: 2 axiom reports; distinct axioms = ['Classical.choice', 'Quot.sound', 'propext']; disallowed = []
+03_Section12PartialDiagonalAssembly.stdout.log: 0 axiom reports; distinct axioms = []; disallowed = []
+04_Section15FinalInstantiation.stdout.log: 1 axiom reports; distinct axioms = ['Classical.choice', 'Quot.sound', 'propext']; disallowed = []
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+05_Erdos625.stdout.log: 0 axiom reports; distinct axioms = []; disallowed = []
+06_AxiomAudit.stdout.log: 1003 axiom reports; distinct axioms = ['Classical.choice', 'Quot.sound', 'propext']; disallowed = []
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+07_Erdos625SelfContained.stdout.log: 1682 axiom reports; distinct axioms = ['Classical.choice', 'Quot.sound', 'propext']; disallowed = []
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+   -> Erdos625.erdos625 = propext, Classical.choice, Quot.sound
+08_generator_check.stdout.log: 0 axiom reports; distinct axioms = []; disallowed = []

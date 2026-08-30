@@ -1,0 +1,32 @@
+def Erdos625.gapProbability : ℕ → ENNReal :=
+fun n => (Erdos625.randomGraphMeasure n) (Erdos625.gapEvent n)
+def Erdos625.gapEvent : (n : ℕ) → Set (Erdos625.LabeledGraph n) :=
+fun n => {G | Erdos625.gapScale n ≤ ↑(Erdos625.chromaticNumberNat G) - ↑(Erdos625.cochromaticNumber G)}
+def Erdos625.gapScale : ℕ → ℝ :=
+fun n => Erdos625.gapConstant * ↑n / Real.log ↑n ^ 3
+Erdos625.erdos625Statement_of_uniform_seed_and_root : ∀ (kChi kCo : ℕ → ℕ) (Lambda rho : ℕ → ℝ),
+  (∀ᶠ (n : ℕ) in Filter.atTop, 0 ≤ Lambda n) →
+    Lambda =o[Filter.atTop] Erdos625.amplificationBase →
+      (∀ᶠ (n : ℕ) in Filter.atTop,
+          Real.exp (-Lambda n) ≤ (Erdos625.randomGraphMeasure n).real {G | Erdos625.CoColorable G (kCo n)}) →
+        Filter.Tendsto (fun n => (Erdos625.randomGraphMeasure n) {G | Erdos625.chromaticNumberNat G ≤ kChi n})
+            Filter.atTop (nhds 0) →
+          Filter.Tendsto rho Filter.atTop (nhds 0) →
+            (∃ c,
+                Erdos625.gapConstant < c ∧
+                  ∀ᶠ (n : ℕ) in Filter.atTop, (c - rho n) * Erdos625.baseScale n ≤ ↑(kChi n) - ↑(kCo n)) →
+              Erdos625.Erdos625Statement
+Erdos625.exists_phaseCochromaticFixedOffset_real_seed : ∃ Lambda,
+  (∀ᶠ (n : ℕ) in Filter.atTop, 0 ≤ Lambda n) ∧
+    Lambda =o[Filter.atTop] Erdos625.amplificationBase ∧
+      ∀ᶠ (n : ℕ) in Filter.atTop,
+        Real.exp (-Lambda n) ≤
+          (Erdos625.randomGraphMeasure n).real
+            {G | Erdos625.CoColorable G (Erdos625.phaseCochromaticFixedOffsetIndex n)}
+Erdos625.exists_eventually_concrete_phase_fixedOffset_root_gap : ∃ c,
+  Erdos625.q ^ 2 / 4 * Real.log (200 / 153) < c ∧
+    ∀ᶠ (n : ℕ) in Filter.atTop,
+      (c - Erdos625.fixedOffsetRoundingBudget n) * Erdos625.baseScale n ≤
+        ↑(Erdos625.phaseChromaticLowerIndex n) - ↑(Erdos625.phaseCochromaticFixedOffsetIndex n)
+Erdos625.phaseCochromaticFixedOffsetIndex : ℕ → ℕ
+Erdos625.fixedOffsetRoundingBudget : ℕ → ℝ

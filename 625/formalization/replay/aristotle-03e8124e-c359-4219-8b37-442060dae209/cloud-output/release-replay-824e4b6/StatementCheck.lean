@@ -1,0 +1,9 @@
+import Erdos625
+#print Erdos625.gapProbability
+#print Erdos625.gapEvent
+#print Erdos625.gapScale
+#check @Erdos625.erdos625Statement_of_uniform_seed_and_root
+#check @Erdos625.exists_phaseCochromaticFixedOffset_real_seed
+#check @Erdos625.exists_eventually_concrete_phase_fixedOffset_root_gap
+#check @Erdos625.phaseCochromaticFixedOffsetIndex
+#check @Erdos625.fixedOffsetRoundingBudget

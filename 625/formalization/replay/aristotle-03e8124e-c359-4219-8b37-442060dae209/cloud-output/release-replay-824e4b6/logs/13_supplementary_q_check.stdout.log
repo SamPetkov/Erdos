@@ -1,0 +1,8 @@
+def Erdos625.q : ℝ :=
+Real.log 2
+def Erdos625.baseScale : ℕ → ℝ :=
+fun n => ↑n / Real.log ↑n ^ 3
+@[reducible] def Erdos625.LabeledGraph : ℕ → Type :=
+fun n => SimpleGraph (Fin n)
+def Erdos625.randomGraphMeasure : (n : ℕ) → MeasureTheory.Measure (Erdos625.LabeledGraph n) :=
+fun n => SimpleGraph.binomialRandom (Fin n) Erdos625.halfProbability

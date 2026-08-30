@@ -1,0 +1,5 @@
+# Preserve the downloaded cloud archive and verbatim cloud outputs byte-for-byte.
+aristotle-result.tar.gz binary
+cloud-output/** binary
+README.md text eol=lf
+SHA256SUMS text eol=lf

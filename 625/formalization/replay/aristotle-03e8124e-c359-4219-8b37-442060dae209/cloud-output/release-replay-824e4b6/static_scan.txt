@@ -1,0 +1,12 @@
+-- occurrences in Erdos625SelfContained.lean --
+sorry: 0
+admit: 9
+native_decide: 0
+implemented_by: 0
+^axiom : 0
+axiom : 5
+-- occurrences across Erdos625/*.lean and Erdos625.lean --
+sorry: 0
+native_decide: 0
+implemented_by: 0
+^axiom : 0

@@ -1,0 +1,357 @@
+ℹ [3595/3669] Replayed Erdos625.PhaseEstimates
+info: Erdos625/PhaseEstimates.lean:318:62: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+ℹ [3598/3669] Replayed Erdos625.ColoringProfileDiscreteObjective
+info: Erdos625/ColoringProfileDiscreteObjective.lean:75:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+ℹ [3608/3669] Replayed Erdos625.ColoringProfilePhaseObjective
+info: Erdos625/ColoringProfilePhaseObjective.lean:34:0: 'Erdos625.profilePhaseObjective_eq_selected_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8604/8668] Replayed Erdos625.FourDeficitScoreConvergence
+info: Erdos625/FourDeficitScoreConvergence.lean:121:0: 'Erdos625.fourDeficit_zero' depends on axioms: [propext]
+info: Erdos625/FourDeficitScoreConvergence.lean:122:0: 'Erdos625.fourDeficit_one' depends on axioms: [propext]
+info: Erdos625/FourDeficitScoreConvergence.lean:123:0: 'Erdos625.fourDeficit_two' depends on axioms: [propext]
+info: Erdos625/FourDeficitScoreConvergence.lean:124:0: 'Erdos625.fourDeficit_three' depends on axioms: [propext]
+info: Erdos625/FourDeficitScoreConvergence.lean:125:0: 'Erdos625.fourDeficit_cast_eq_support' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourDeficitScoreConvergence.lean:126:0: 'Erdos625.profileDeficitResidualScore_rev_succ_eq_fourDeficitScore' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/FourDeficitScoreConvergence.lean:127:0: 'Erdos625.tendsto_fourDeficitScore' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourDeficitScoreConvergence.lean:128:0: 'Erdos625.eventually_uniform_fourDeficitScore' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourDeficitScoreConvergence.lean:129:0: 'Erdos625.eventually_uniform_fourDeficitOptimizedValue' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8607/8668] Replayed Erdos625.SignedFourSizeObjective
+info: Erdos625/SignedFourSizeObjective.lean:360:0: 'Erdos625.profileDeficitResidualScore_fourDeficitCoordinate' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:361:0: 'Erdos625.profileDeficit_fourDeficitCoordinate' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:362:0: 'Erdos625.signedFourDeficitProfileExpectation_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:363:0: 'Erdos625.fourSizeFiniteEntropy_eq_gibbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:364:0: 'Erdos625.signedFourSizeObjectiveAtTarget_eq_gibbs' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:365:0: 'Erdos625.hasDerivAt_fourSizeTilt' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:366:0: 'Erdos625.hasDerivAt_fourSizeFiniteEntropy' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:367:0: 'Erdos625.hasDerivAt_fourSizeTarget' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:368:0: 'Erdos625.hasDerivAt_signedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:369:0: 'Erdos625.continuousAt_signedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:370:0: 'Erdos625.hasDerivAt_phaseSignedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourSizeObjective.lean:371:0: 'Erdos625.continuousAt_phaseSignedFourSizeObjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8610/8668] Replayed Erdos625.PhaseSignedFourSizeDerivativeLowerEnvelope
+info: Erdos625/PhaseSignedFourSizeDerivativeLowerEnvelope.lean:40:0: 'Erdos625.signedFourSizeObjectiveDerivative_quadratic_lower_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8611/8668] Replayed Erdos625.PhaseSignedFourSizeEntropyLower
+info: Erdos625/PhaseSignedFourSizeEntropyLower.lean:95:0: 'Erdos625.fourGaussian_optimizedValue_ge_neg_twenty_five_q_div_two' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/PhaseSignedFourSizeEntropyLower.lean:96:0: 'Erdos625.eventually_fourSizeFiniteEntropy_ge_neg_twenty_five_q_div_two_sub_one' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8619/8668] Replayed Erdos625.SignedFourEntropyCertificate
+info: Erdos625/SignedFourEntropyCertificate.lean:180:0: 'Erdos625.q_sub_log_153_div_100_eq_log_200_div_153' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:181:0: 'Erdos625.log_200_div_153_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:182:0: 'Erdos625.signed_margin_gt_log_200_div_153_of_entropy_loss_lt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:183:0: 'Erdos625.fourGaussianEntropy_eq_dual_at_mean' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:184:0: 'Erdos625.entropy_loss_le_log_partition_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:185:0: 'Erdos625.entropy_loss_lt_log_153_div_100_of_dual_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourEntropyCertificate.lean:186:0: 'Erdos625.signed_margin_gt_log_200_div_153_of_dual_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8620/8668] Replayed Erdos625.FourGaussianTiltCorridor
+info: Erdos625/FourGaussianTiltCorridor.lean:33:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/FourGaussianTiltCorridor.lean:36:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/FourGaussianTiltCorridor.lean:42:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/FourGaussianTiltCorridor.lean:124:0: 'Erdos625.uniform_four_size_tilt_corridor' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourGaussianTiltCorridor.lean:125:0: 'Erdos625.uniform_four_size_tilt_corridor_for_delta' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8621/8668] Replayed Erdos625.UniformExplicitPartitionRatio
+info: Erdos625/UniformExplicitPartitionRatio.lean:62:12: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/UniformExplicitPartitionRatio.lean:269:6: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/UniformExplicitPartitionRatio.lean:274:6: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/UniformExplicitPartitionRatio.lean:338:0: 'Erdos625.uniform_four_size_partition_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/UniformExplicitPartitionRatio.lean:339:0: 'Erdos625.uniform_four_size_partition_ratio_for_delta' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8629/8741] Replayed Erdos625.Section11AsymptoticAssembly
+info: Erdos625/Section11AsymptoticAssembly.lean:237:0: 'Erdos625.fixedThreshold_tail_of_movingThreshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8630/8741] Replayed Erdos625.MidpointProfileCoordinates
+info: Erdos625/MidpointProfileCoordinates.lean:126:0: 'Erdos625.fourDeficitEmbedding_eval_and_off_image' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8634/8741] Replayed Erdos625.ProfileOverlapTables
+info: Erdos625/ProfileOverlapTables.lean:251:0: 'Erdos625.fixedFiberLabelingOverlapTableEquiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ProfileOverlapTables.lean:252:0: 'Erdos625.fixedMarginOverlapEvent_exhaustion' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ProfileOverlapTables.lean:253:0: 'Erdos625.card_fixedFiberLabeling_eq_sum_card_fixedMarginOverlapEvent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/ProfileOverlapTables.lean:254:0: 'Erdos625.boundedFixedMarginTable_probability_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8635/8741] Replayed Erdos625.ProfileOverlapCanonicalTable
+info: Erdos625/ProfileOverlapCanonicalTable.lean:209:0: 'Erdos625.card_profileBlockIndex' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ProfileOverlapCanonicalTable.lean:210:0: 'Erdos625.profileOverlapTableEquivBounded' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ProfileOverlapCanonicalTable.lean:211:0: 'Erdos625.profileOverlapTableOfOrderedPair_tableNat' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ProfileOverlapCanonicalTable.lean:212:0: 'Erdos625.profileOverlapTable_realizable_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8636/8741] Replayed Erdos625.Section6SignedExpectationDenominator
+info: Erdos625/Section6SignedExpectationDenominator.lean:239:0: 'Erdos625.profilePartition_nonempty_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/Section6SignedExpectationDenominator.lean:240:0: 'Erdos625.signedProfileExpectation_ne_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/Section6SignedExpectationDenominator.lean:241:0: 'Erdos625.signedProfileExpectation_pos_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/Section6SignedExpectationDenominator.lean:242:0: 'Erdos625.div_signedProfileExpectation_sq_eq_iff_of_orderedProfilePartition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8646/8741] Replayed Erdos625.ColoringProfileDualLogReduction
+info: Erdos625/ColoringProfileDualLogReduction.lean:226:0: 'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/ColoringProfileDualLogReduction.lean:227:0: 'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_log_dual_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/ColoringProfileDualLogReduction.lean:228:0: 'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_log_dual' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/ColoringProfileDualLogReduction.lean:229:0: 'Erdos625.factorialLogErrorBound_div_logOrder_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ColoringProfileDualLogReduction.lean:230:0: 'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_normalized_core' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/ColoringProfileDualLogReduction.lean:231:0: 'Erdos625.randomGraphMeasure_chromaticNumberAtMost_phaseCap_tendsto_zero_of_phaseObjective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8649/8741] Replayed Erdos625.PartialDiagonalMidpointActivityBridge
+info: Erdos625/PartialDiagonalMidpointActivityBridge.lean:129:0: 'Erdos625.mu_le_of_le_vertex_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/PartialDiagonalMidpointActivityBridge.lean:130:0: 'Erdos625.partialDiagonalWeight_increment_le_of_mu_cutoff_activity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/PartialDiagonalMidpointActivityBridge.lean:131:0: 'Erdos625.sum_partialDiagonalWeight_le_exp_sum_muCutoffActivity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8665/8741] Replayed Erdos625.ExtendedGaussianEntropyTransport
+info: Erdos625/ExtendedGaussianEntropyTransport.lean:229:0: 'Erdos625.tendsto_extendedGaussianReferenceMassTruncation' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ExtendedGaussianEntropyTransport.lean:230:0: 'Erdos625.extendedGaussianEntropy_le_dual_of_truncations' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ExtendedGaussianEntropyTransport.lean:231:0: 'Erdos625.extendedGaussianEntropy_le_dual_of_truncations_q' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ExtendedGaussianEntropyTransport.lean:232:0: 'Erdos625.signed_margin_gt_log_200_div_153_of_truncations' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/ExtendedGaussianEntropyTransport.lean:233:0: 'Erdos625.signed_margin_gt_log_200_div_153_of_truncations_selected' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8667/8741] Replayed Erdos625.SPlusEntropySupremumDualInterior
+info: Erdos625/SPlusEntropySupremumDualInterior.lean:303:0: 'Erdos625.splusEntropySupremumDualInterior_bundle' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SPlusEntropySupremumDualInterior.lean:304:0: 'Erdos625.exists_s4_embedded_extendedGaussian_witness_allTilts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SPlusEntropySupremumDualInterior.lean:305:0: 'Erdos625.extendedGaussianEntropyValue_le_dual_interior' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SPlusEntropySupremumDualInterior.lean:306:0: 'Erdos625.fourGaussian_optimizedValue_le_extendedGaussianEntropyValue' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SPlusEntropySupremumDualInterior.lean:307:0: 'Erdos625.fourEntropyLoss_nonneg_interior' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8685/8741] Replayed Erdos625.MidpointRoundedFourSizeEntropyLoss
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:408:0: 'Erdos625.ProfileEntropyS4.mul_log_div_le_sq_div_add_sub' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:409:0: 'Erdos625.ProfileEntropyS4.sum_mul_log_div_le_chiSquare' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:410:0: 'Erdos625.ProfileEntropyS4.optimizedValue_sub_entropyScore_eq_sum_mul_log_div' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:411:0: 'Erdos625.ProfileEntropyS4.optimizedValue_sub_entropyScore_nonneg_and_le_chiSquare' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:412:0: 'Erdos625.midpointRoundedProportion_pos_of_admissible' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:413:0: 'Erdos625.midpointRoundedFourSizeEntropyLoss_eq_sum_mul_log_div' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:414:0: 'Erdos625.mul_midpointRoundedProportion_sub_optimizer_sq_div_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:415:0: 'Erdos625.mul_sum_midpointRoundedProportion_sub_optimizer_sq_div_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:416:0: 'Erdos625.midpointRoundedFourSizeEntropy_loss_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedFourSizeEntropyLoss.lean:417:0: 'Erdos625.abs_mul_midpointRoundedFourSizeEntropyLoss_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8700/8741] Replayed Erdos625.PhaseSignedFourSizeReferenceCenterAudit
+info: Erdos625/PhaseSignedFourSizeReferenceCenterAudit.lean:92:0: 'Erdos625.phaseSignedFourSizeObjective_referenceCenter_div_decomposition' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/PhaseSignedFourSizeReferenceCenterAudit.lean:93:0: 'Erdos625.tendsto_phaseSignedFourSizeObjective_referenceCenter_div_atTop' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8704/8741] Replayed Erdos625.PhaseSignedFourSizeReferenceCenterScale
+info: Erdos625/PhaseSignedFourSizeReferenceCenterScale.lean:125:0: 'Erdos625.phaseSignedFourSizeObjective_referenceCenter_div_isBigO_logLogOrder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8705/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorDomain
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorDomain.lean:188:0: 'Erdos625.eventually_phaseRootLogLogCorridor_fourSize_domain' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8706/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorTarget
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorTarget.lean:187:0: 'Erdos625.eventually_phaseRootLogLogCorridor_fourSize_target_mem_Icc' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8707/8741] Replayed Erdos625.PhaseSignedFourSizeTargetTransport
+info: Erdos625/PhaseSignedFourSizeTargetTransport.lean:185:0: 'Erdos625.real_abs_deficitTarget_sub_center_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/PhaseSignedFourSizeTargetTransport.lean:186:0: 'Erdos625.eventually_uniform_phaseRootLogLogCorridor_fourSizeTarget_tendsto_center' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8714/8741] Replayed Erdos625.SignedUnrestrictedObjectiveGapIdentity
+info: Erdos625/SignedUnrestrictedObjectiveGapIdentity.lean:131:0: 'Erdos625.fourSizeTarget_eq_profileDeficitTarget' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedUnrestrictedObjectiveGapIdentity.lean:132:0: 'Erdos625.phaseSignedFourSizeObjective_div_sub_unrestrictedPhaseObjective_div_eq_finiteMargin' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SignedUnrestrictedObjectiveGapIdentity.lean:133:0: 'Erdos625.finiteSignedFourEntropyLoss_eq_limiting_add_errors' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedUnrestrictedObjectiveGapIdentity.lean:134:0: 'Erdos625.finiteSignedFourMargin_eq_limiting_sub_errors' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedUnrestrictedObjectiveGapIdentity.lean:135:0: 'Erdos625.phaseSignedFourSizeObjective_eq_parts_mul_finiteMargin_of_unrestrictedRoot' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8715/8741] Replayed Erdos625.PhaseSignedFourSizeFiniteMargin
+info: Erdos625/PhaseSignedFourSizeFiniteMargin.lean:204:0: 'Erdos625.fourEntropyLoss_le_fourTargetRatioLog' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/PhaseSignedFourSizeFiniteMargin.lean:205:0: 'Erdos625.continuousOn_fourTargetRatioLog' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/PhaseSignedFourSizeFiniteMargin.lean:206:0: 'Erdos625.eventually_finiteSignedFourMargin_gt_log_200_div_153_on_logLogCorridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8717/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorLog
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorLog.lean:129:0: 'Erdos625.eventually_abs_phaseRootLogLogCorridor_log_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8718/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorCompactControl
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorCompactControl.lean:83:0: 'Erdos625.exists_pos_eventually_phaseRootLogLogCorridor_fourSize_compact_control' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8719/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorTiltLinear
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorTiltLinear.lean:154:0: 'Erdos625.eventually_abs_phaseRootLogLogCorridor_fourSize_tilt_linear_le_quadratic' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8720/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorDerivativeLower
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorDerivativeLower.lean:89:0: 'Erdos625.eventually_signedFourSizeObjectiveDerivative_logLogCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8721/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorRootExistence
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorRootExistence.lean:103:0: 'Erdos625.exists_pos_eventually_existsUnique_phaseSignedFourSizeRoot_logLogCorridor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8728/8741] Replayed Erdos625.PhaseUnrestrictedLogLogCorridorDerivativeLower
+info: Erdos625/PhaseUnrestrictedLogLogCorridorDerivativeLower.lean:87:0: 'Erdos625.eventually_unrestrictedPhaseObjective_deriv_logLogCorridor_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8730/8741] Replayed Erdos625.PhaseRootSelectors
+info: Erdos625/PhaseRootSelectors.lean:203:0: 'Erdos625.eventually_phaseSignedFourSizeRootSelected_spec_unique' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/PhaseRootSelectors.lean:204:0: 'Erdos625.eventually_unrestrictedPhaseRootSelected_spec_unique' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8731/8741] Replayed Erdos625.PhaseRootLogLogCorridorScale
+info: Erdos625/PhaseRootLogLogCorridorScale.lean:151:0: 'Erdos625.eventually_phaseRootLogLogCorridor_part_div_phaseNat_sq_lower' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8732/8741] Replayed Erdos625.PhaseSignedFourSizeLogLogCorridorDerivativeUpper
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorDerivativeUpper.lean:64:16: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorDerivativeUpper.lean:163:0: 'Erdos625.fourSizeFiniteEntropy_le_two_q' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/PhaseSignedFourSizeLogLogCorridorDerivativeUpper.lean:164:0: 'Erdos625.eventually_signedFourSizeObjectiveDerivative_logLogCorridor_upper' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8733/8741] Replayed Erdos625.PhaseSelectedRootSeparation
+info: Erdos625/PhaseSelectedRootSeparation.lean:209:0: 'Erdos625.eventually_selected_phase_roots_separated' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8734/8741] Replayed Erdos625.Section8ConcretePhaseInputs
+info: Erdos625/Section8ConcretePhaseInputs.lean:100:0: 'Erdos625.eventually_concrete_phase_root_corridor_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [8735/8741] Replayed Erdos625.SignedFourFirstMomentNormalization
+info: Erdos625/SignedFourFirstMomentNormalization.lean:335:0: 'Erdos625.log_signedProfileExpectation_toReal_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentNormalization.lean:336:0: 'Erdos625.forbiddenEdges_fourDeficitEmbedding' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentNormalization.lean:337:0: 'Erdos625.sum_fourDeficitEmbedding_cast_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentNormalization.lean:338:0: 'Erdos625.sum_apply_fourDeficitEmbedding' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentNormalization.lean:339:0: 'Erdos625.log_partialSignedFirstMoment_fourDeficitEmbedding' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentNormalization.lean:340:0: 'Erdos625.signedProfileExpectation_toReal_eq_partialSignedFirstMoment_fourDeficit' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8736/8741] Replayed Erdos625.FourDeficitFirstMomentStirlingBridge
+info: Erdos625/FourDeficitFirstMomentStirlingBridge.lean:231:0: 'Erdos625.profileLogWeight_sub_discreteObjective_eq_factorialRemainders' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/FourDeficitFirstMomentStirlingBridge.lean:232:0: 'Erdos625.factorialLogErrorBound_mono' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourDeficitFirstMomentStirlingBridge.lean:233:0: 'Erdos625.fourDeficitMultiplicity_le_n' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/FourDeficitFirstMomentStirlingBridge.lean:234:0: 'Erdos625.abs_profileLogWeight_sub_discreteObjective_fourDeficitEmbedding_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/FourDeficitFirstMomentStirlingBridge.lean:235:0: 'Erdos625.abs_log_partialSignedFirstMoment_fourDeficit_sub_discreteObjective_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8737/8741] Replayed Erdos625.MidpointRoundedSignedFourSizeObjectiveBridge
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:576:0: 'Erdos625.midpointRoundedFourSizeEntropyLoss_eq_sub_score' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:577:0: 'Erdos625.signedFourSizeObjective_sub_midpointDiscrete_eq_namedEntropyLoss' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:578:0: 'Erdos625.signedFourSizeObjective_sub_midpointDiscrete_eq_entropyLoss' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:579:0: 'Erdos625.signedFourSizeObjective_sub_midpointDiscrete_nonneg_and_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:580:0: 'Erdos625.midpointMultiplicity_vertexMass' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/MidpointRoundedSignedFourSizeObjectiveBridge.lean:581:0: 'Erdos625.abs_log_midpointPartialSignedFirstMoment_sub_signedFourSizeObjective_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8738/8741] Replayed Erdos625.SignedFourFirstMomentFiniteErrorAsymptotic
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:146:0: 'Erdos625.signedFourFiniteFirstMomentErrorBound_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:147:0: 'Erdos625.eventually_abs_midpointPartialSignedFirstMomentLogError_le' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:148:0: 'Erdos625.midpointPartialSignedFirstMomentLogError_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:149:0: 'Erdos625.signedFourFiniteFirstMomentErrorBound_isLittleO_of_logOrder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:150:0: 'Erdos625.midpointPartialSignedFirstMomentLogError_isLittleO_of_logOrder' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/SignedFourFirstMomentFiniteErrorAsymptotic.lean:151:0: 'Erdos625.tendsto_midpointPartialSignedFirstMomentLogError_div_parts_zero' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8740/8741] Built Erdos625.Section12ConcreteSignedFirstMoment (27s)
+info: Erdos625/Section12ConcreteSignedFirstMoment.lean:462:0: 'Erdos625.eventually_phaseCochromaticMidpointIndex_rounding_admissible' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+info: Erdos625/Section12ConcreteSignedFirstMoment.lean:463:0: 'Erdos625.phase_midpoint_completeSignedFirstMoment_tendsto_atTop' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+ℹ [8741/8741] Built Erdos625.Section12PartialDiagonalAssembly (39s)
+info: Erdos625/Section12PartialDiagonalAssembly.lean:607:4: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/Section12PartialDiagonalAssembly.lean:1814:10: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+info: Erdos625/Section12PartialDiagonalAssembly.lean:2003:0: 'Erdos625.tendsto_phaseMidpointFullCornerSum_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Erdos625/Section12PartialDiagonalAssembly.lean:2004:0: 'Erdos625.tendsto_sum_midpointPartialDiagonalWeight' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (8741 jobs).
