@@ -84,25 +84,38 @@ Between the Chromatic and Cochromatic Numbers of a Random Graph}
 
 
 \begin{abstract}
-Let $\zeta(G)$ be the least number of parts in a partition of $V(G)$ into
-cliques and independent sets.  For $G_n\sim G(n,1/2)$, we prove along the full
-sequence of integers that
+Let $\zeta(G)$ denote the minimum number of parts in a partition of $V(G)$ in
+which every part induces either a clique or an independent set. Erd\H{o}s and
+Gimbel asked whether, for $G_n\sim G(n,1/2)$, the difference
+$\chi(G_n)-\zeta(G_n)$ tends to infinity with high probability. We resolve this
+problem along the full sequence $n\to\infty$ and prove that
 \[
- \mathbb P\!\left(\chi(G_n)-\zeta(G_n)\ge
- \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right)
- \frac{n}{(\log n)^3}\right)\longrightarrow1.
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)\ge
+    \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right)
+    \frac{n}{(\log n)^3}
+  \right)\longrightarrow1.
 \]
-This resolves the question of Erd\H{o}s and Gimbel asking whether the
-difference tends to infinity with high probability.  Writing $\delta_n$ for
-the fractional part of the standard independence-number center, the
-phase-resolved coefficient is $(\log 2)^2A_4(\delta_n)/4-o(1)$, where $A_4$ is
-explicit, continuous, and nonconstant.  The proof must remain uniform when
-the natural class-size cutoff jumps.  Its main tools are a signed profile on
-four consecutive class sizes, an exact signed-overlap identity, a canonical
-decomposition of large overlap cells, and a matching restriction for the
-residual cycle-space sum.
-A bounded-differences argument turns the resulting second-moment seed into a
-high-probability cocoloring.
+Thus we obtain a lower bound at the conjectured scale $n/(\log n)^3$. We also
+prove a phase-resolved refinement: if $\delta_n$ is the fractional part of the
+standard independence-number center, then the coefficient above may be
+replaced by
+\[
+  \frac{(\log 2)^2}{4}A_4(\delta_n)-o(1),
+\]
+where $A_4$ is explicit, continuous, nonconstant, and satisfies
+\[
+  A_4(\delta)>\log\!\left(\frac{200}{153}\right)
+  \qquad\text{for every }\delta\in[0,1].
+\]
+The proof uses signed cocoloring profiles supported on four consecutive class
+sizes and remains uniform across jumps of the natural class-size cutoff. An
+exact signed-overlap identity separates local cell rewards from a binary
+cycle-space factor. We then decompose every overlap into canonical high cells
+and a capped residual matching; an endpoint-table comparison and an injective
+restriction of residual even edge sets yield the required second-moment
+estimate. Finally, a bounded-differences argument amplifies the resulting rare
+signed witness to a high-probability cocoloring.
 \end{abstract}
 
 \maketitle
