@@ -1,48 +1,9 @@
-# Erdős Problem 625 publication package
+# ERDOS625 revised v2 manuscript
 
-`main.tex` is the canonical, self-contained manuscript source. It contains no
-local `\input` dependencies. The bibliography is supplied both as
-`references.bib` and as the generated `main.bbl` for arXiv portability.
+Current checked v2 sources and PDF, prepared 12 October 2026. This is a preparation for an arXiv replacement, not a record of submission.
 
-Build from this directory with:
+Download [main.pdf](main.pdf) or [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip). The legacy archive name Erdos625_source.zip contains the same current package.
 
-```text
-latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error main.tex
-```
+The source archive contains main.tex, main.bbl, references.bib and petkov-preprint.sty. Compile with pdflatex (or latexmk -pdf); keep the supplied bibliography. arxiv-abstract.txt and arxiv-comments.txt provide separate metadata.
 
-## arXiv submission
-
-Upload `Erdos625_source.zip`, select `pdflatex`, and use `main.tex` as the
-top-level file. At the time of this release, TeX Live 2025 is arXiv's default;
-TeX Live 2023 remains available as a fallback if the generated preview differs.
-Retain `main.bbl`: arXiv uses a pre-generated bibliography when its basename
-matches the top-level source.
-
-These choices follow arXiv's current
-[TeX submission guidance](https://info.arxiv.org/help/submit_tex.html).
-
-The manuscript uses the fixed author-supplied date `\date{30 August 2026}`.
-It does not use `\today`, which would change whenever arXiv rebuilds the
-source; the arXiv identifier and submission record remain the authoritative
-submission date. Before submitting, inspect the arXiv-generated PDF and
-compilation log, with particular attention to the three figures, the final
-theorem, and the bibliography. See arXiv's
-[date guidance](https://info.arxiv.org/help/faq/today.html) for this distinction.
-
-The resulting `main.pdf` states a phase-resolved theorem with coefficient
-`((log 2)^2 / 4) A_4(delta_n) - o(1)` and the uniform consequence with
-coefficient `((log 2)^2 / 4) log(200/153)`. The companion declaration
-`Erdos625.erdos625` kernel-checks this same explicit uniform consequence and
-therefore resolves Erdős Problem 625. Its exact formal source revision is
-`824e4b609466d2e26b216a76ecf103184dac2663`, under the pinned Lean/Mathlib
-v4.31.0 toolchain, and its immutable replay and archive revision is
-`31bbe00c529a996bdb61b880120d71240172d18f`. Detailed build commands,
-checksums, the trust-boundary audit, and clean-environment replay evidence are
-maintained in the companion formalization documentation. The phase-resolved
-refinement involving `A_4(delta_n)` is established in the manuscript and is
-not claimed as part of the Lean theorem.
-
-`Erdos625_source.zip` contains `main.tex`, `main.bbl`, `references.bib`, and
-this build guide. `main.tex` and the pre-generated `main.bbl` suffice to compile
-the paper; `references.bib` is retained as bibliography source and provenance,
-and the guide makes the archive self-describing.
+[Previous GitHub manuscript](https://github.com/SamPetkov/Erdos/tree/b3fdc4d3efbe6c999faac3da4614cc3036b3b3ea/625/arxiv) is preserved in history.

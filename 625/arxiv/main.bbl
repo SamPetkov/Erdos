@@ -1,4 +1,4 @@
-\begin{thebibliography}{18}
+\begin{thebibliography}{20}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -29,6 +29,14 @@ B{\'{e}}la Bollob{\'{a}}s.
 \newblock \emph{Combinatorica}, 8\penalty0 (1):\penalty0 49--55, 1988.
 \newblock \doi{10.1007/BF02122551}.
 \newblock URL \url{https://doi.org/10.1007/BF02122551}.
+
+\bibitem[Bollob{\'a}s and Erd{\H{o}}s(1976)]{bollobas-erdos-1976}
+B{\'e}la Bollob{\'a}s and Paul Erd{\H{o}}s.
+\newblock Cliques in random graphs.
+\newblock \emph{Mathematical Proceedings of the Cambridge Philosophical
+  Society}, 80\penalty0 (3):\penalty0 419--427, 1976.
+\newblock \doi{10.1017/S0305004100053056}.
+\newblock URL \url{https://doi.org/10.1017/S0305004100053056}.
 
 \bibitem[Bollob{\'{a}}s and Thomason(1995)]{bollobas-thomason-1995}
 B{\'{e}}la Bollob{\'{a}}s and Andrew Thomason.
@@ -152,5 +160,12 @@ Raphael Steiner.
 \newblock \doi{10.1137/24M1715180}.
 \newblock URL \url{https://doi.org/10.1137/24M1715180}.
 \newblock Published online 17 November 2025; arXiv:2408.02400.
+
+\bibitem[Yu(2010)]{Yu2010RelativeLogConcavity}
+Yaming Yu.
+\newblock Relative log-concavity and a pair of triangle inequalities.
+\newblock \emph{Bernoulli}, 16\penalty0 (2):\penalty0 459--470, 2010.
+\newblock \doi{10.3150/09-BEJ216}.
+\newblock URL \url{https://doi.org/10.3150/09-BEJ216}.
 
 \end{thebibliography}
