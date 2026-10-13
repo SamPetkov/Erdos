@@ -1,4 +1,4 @@
-\begin{thebibliography}{20}
+\begin{thebibliography}{21}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -118,6 +118,17 @@ Colin McDiarmid.
   435--442, 1990.
 \newblock \doi{10.1002/rsa.3240010404}.
 \newblock URL \url{https://doi.org/10.1002/rsa.3240010404}.
+
+\bibitem[McDiarmid(1998)]{mcdiarmid-1998}
+Colin McDiarmid.
+\newblock Concentration.
+\newblock In Michel Habib, Colin McDiarmid, Jorge Ramirez-Alfonsin, and Bruce
+  Reed, editors, \emph{Probabilistic Methods for Algorithmic Discrete
+  Mathematics}, volume~16 of \emph{Algorithms and Combinatorics}, pages
+  195--248. Springer, Berlin, Heidelberg, 1998.
+\newblock \doi{10.1007/978-3-662-12788-9_6}.
+\newblock URL \url{https://cgm.cs.mcgill.ca/~breed/conc/colin.pdf}.
+\newblock Theorem 3.1; author preprint, pp. 10--11.
 
 \bibitem[Panagiotou and Steger(2009)]{panagiotou-steger-2009}
 Konstantinos Panagiotou and Angelika Steger.

@@ -377,9 +377,9 @@ used below to fix their hypotheses and constants.
 The first is Stirling's estimate, the second is McDiarmid's
 bounded-differences inequality, and the third is the zero-threshold case of
 Paley--Zygmund. The fourth is the only binomial-tail estimate used
-below; the fifth is Markov's inequality. The bounded-differences
-formulation is the one recorded by
-\citet[Theorem~3.1]{mcdiarmid-1989}.
+below; the fifth is Markov's inequality. The bounded-differences method is due to
+\citet{mcdiarmid-1989}; the one-sided formulation used here is
+\citet[Theorem~3.1]{mcdiarmid-1998}.
 
 
 
@@ -1292,8 +1292,7 @@ $K_*\subset(2,5)$ and is feasible for the real $S_4$ optimization.  In
 particular this holds at the selected integer before the type counts are
 rounded.  The convenient choice $16$ leaves a fixed explicit margin in (5.19).
 
-We now choose the \emph{selected integer profile}. The number of parts
-has already been fixed just above the four-size first-moment root for marked partitions. We round the
+We now choose the \emph{selected integer profile}. We round the
 optimizing type counts while preserving both finite-\(n\) conservation
 constraints.
 
@@ -1313,9 +1312,9 @@ decomposition \eqref{eq:root-affine} then give
 Since
 $e^{B_ni}e^{\lambda_{n,\mathrm{def}}i}
 =e^{(B_n+\lambda_{n,\mathrm{def}})i}=e^{\widehat\lambda_ni}$,
-the quantity \(\lambda_{n,\mathrm{def}}\) is the multiplier in the exact
-finite-$n$ coordinates, whereas \(\widehat\lambda_n\) is the tilt in the
-limiting Gaussian coordinates. (If a size-coordinate
+the multiplier \(\lambda_{n,\mathrm{def}}\) is written before absorbing
+the affine term \(B_ni\). The resulting \(\widehat\lambda_n\) is the
+finite-support tilt in \(e^{\widehat\lambda_ni+h_n(i)}\). (If a size-coordinate
 multiplier \(\tau_n\) is used instead, then
 \(\lambda_{n,\mathrm{def}}=-\tau_n\).)
 The target deficit mean is $\alpha-n/k_{\mathrm{co}}$. By uniqueness in
@@ -3039,8 +3038,8 @@ cardinality and of all local factors gives the exact identity
 This identity uses both parts of $\mathcal E(M,j)$: off-$M$ cells are
 capped at $R$, and $r'$ vanishes on $M$. We next multiply by
 $\mathbf 1_{\mathcal E(M,j)}$ and bound the expectation term by term.
-The truncated expansion is nonnegative, so its indicator may be dropped
-for an upper bound. On $\mathcal E(M,j)^c$ we use only this expansion,
+Every term of the truncated expansion is nonnegative, so dropping
+$\mathbf 1_{\mathcal E(M,j)}$ gives an upper bound for its expectation. On $\mathcal E(M,j)^c$ we use only this expansion,
 without identifying it with the uncapped reward.
 
 \begin{lemma}[Fixed even-set expansion]
@@ -3315,9 +3314,8 @@ Indeed, for $i\ne j$ one has
 $Q_{ij}\le(\tau_n^{\mathrm{end}})^{d_{ij}}/d_{ij}!
 \le\tau_n^{\mathrm{end}}$.
 
-Repeating the two arithmetic--geometric-mean sums in the proof of
-Proposition~\ref{prop:endpoint-table-sum-v3}, now with the explicit constant in
-\eqref{eq:explicit-endpoint-row-bound-v3}, gives
+Combining Proposition~\ref{prop:endpoint-table-sum-v3} with
+\eqref{eq:partial-diagonal-ledger-sum-v3} gives
 \begin{equation}
   \sum_{L\ \mathrm{feasible}}W(L)
   \le
@@ -3638,7 +3636,7 @@ delete it and restrict the cocoloring to the remaining set; otherwise keep
 the set. Either way, it is feasible in the second outcome and has lost at
 most one vertex. Interchanging the outcomes gives the reverse comparison.
 Thus $S_{k}$ changes by at most one, and (1.3) applies
-\citep[Theorem~3.1]{mcdiarmid-1989}.
+\citep[Theorem~3.1]{mcdiarmid-1998}.
 
 \Needspace{6\baselineskip}
 Since $S_{k}=n$ exactly when $\zeta(G_n)\le k$,
@@ -5108,8 +5106,8 @@ so (7.13) gives
 If $\rho\ge1/32$, then $Y\le1$ and the preceding bound implies
 $R\ge1/64$ for all sufficiently large $n$. Hence $x\mapsto x\log x$ is
 uniformly Lipschitz on the interval between $R$ and $\rho$. Moreover,
-$-R\log R\le1-R=Y$. Thus
-choose an absolute Lipschitz constant $C_{\mathrm{lip}}>0$. Then
+$-R\log R\le1-R=Y$. Choose a fixed Lipschitz constant $C_{\mathrm{lip}}>0$ for
+$x\mapsto x\log x$ on $[1/64,1]$. Then
 \[
 \begin{aligned}
 &\left|n\rho\log\rho
