@@ -1,21 +1,19 @@
-# Erdős 625 revised v2 manuscript
+# Erdős 625: current v2 manuscript package
 
-Current sources and matching PDF after two separate rounds of GPT-6 Pro review, prepared 13 October 2026. The completed reports were independently adjudicated before accepting changes. No arXiv replacement has been submitted.
+The final bounded GPT-6 Pro review of each paper was completed on 13 October 2026. The checked local prose corrections are included here. No new theorem or hypothesis change was introduced by this final pass.
 
-Download [main.pdf](main.pdf) (52 pages) or [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip). The legacy archive Erdos625_source.zip contains the same package. Main text: about 36.3 pages, with supporting material and references following. Shared preprint typography and coloured links are preserved.
+- `main.pdf`: the current 52-page paper.
+- `main.tex`: editable LaTeX source.
+- `Erdos625-v2-arxiv-upload.zip`: the arXiv upload package.
+- `MANIFEST.txt` and `SHA256SUMS`: the current scoped inventory and checksums for this directory. The checksum ledger excludes itself.
+- `arxiv-abstract.txt` and `arxiv-comments.txt`: separate arXiv metadata.
 
-This round records 7 source changes:
+The upload archive contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty`. Its exact extracted contents compiled successfully with pdfLaTeX on 13 October 2026, without warnings, unresolved references or citations, missing glyphs, or overfull/underfull boxes. All PDF fonts are embedded, and internal and external hyperlinks are present. Both papers use the same stylesheet.
 
-- Retain the original attribution and give a verified theorem locator for the one-sided inequality.
-- Use the verified 1998 theorem locator in the amplification proof.
-- Identify the two established bounds used to obtain the global endpoint-table sum.
-- Distinguish the exact finite-support tilt from its limiting Gaussian-score tilt.
-- Name the fixed interval that makes the Lipschitz constant uniform.
-- Specify which indicator is dropped and why the expectation can only increase.
-- Remove the repeated explanation of the selected number of parts.
+## Formalization scope
 
-The principal conclusions and their exact graph/phase hypotheses are retained. The review is not a proof certification or new Lean replay; the manuscript retains its precise formal-verification scope and assistance disclosure.
+The released Erdős development proves the full-sequence fixed-coefficient lower bound for the actual Mathlib G(n,1/2) distribution. It uses tail amplification. The mean-positive-excess lemma proved in the paper is not claimed as a separately released Lean theorem; see Appendix H.
 
-The four-file ZIP contains main.tex, main.bbl, references.bib and petkov-preprint.sty at its root. Compile main.tex with pdflatex or latexmk -pdf. Separate abstract and comments metadata are provided. The exact upload sources compile without warnings or errors; the PDF has embedded fonts, bookmarks and internal/external links.
+The fresh kernel replay runs only on Procida, using Lean 4.31.0 and the pinned Mathlib revision `fabf563a7c95a166b8d7b6efca11c8b4dc9d911f`. It uses new project OLeans and a reused Mathlib cache. The SSH connection became unavailable before the full run could be retrieved. As of the last verified progress, WOW had checked 67 of 195 production-closure modules and Erdős had checked 194 of 480 under its required `autoImplicit=false` option, with no failures observed in those corrected runs. Full fresh closure, standalone and endpoint-patch completion are unconfirmed until the source-bound remote logs are retrieved. Earlier successful compilation evidence remains historical evidence; it is not described as a completed fresh replay.
 
-The [version submitted for this review](https://github.com/SamPetkov/Erdos/tree/60547b426132228be2fae3ce20106efd85eefaac/625/arxiv) remains in Git history.
+Separately prepared unpublished endpoint patches are excluded from released formalization coverage. No Lean sources or toolchain were changed by this manuscript publication. This directory is ready for an author-managed arXiv replacement; no arXiv submission was made. No new AI-detector score is claimed.

@@ -136,7 +136,7 @@ Then $T_\delta\in(2,5)$.  For $S\in\{S_+,S_4\}$ and $T\in(2,5)$, put
   A_4(\delta):=
   \log 2-\mathcal F_{S_+}(T_\delta)+\mathcal F_{S_4}(T_\delta).
 \]
-The series defining $\mathcal F_{S_+}(T)$ converges for every
+The sum inside the logarithm defining $\mathcal F_{S_+}(T)$ converges for every
 $\lambda\in\mathbb R$; for $T\in(2,5)$, each displayed infimum is a finite real
 and is uniquely attained.
 
@@ -1309,14 +1309,9 @@ decomposition \eqref{eq:root-affine} then give
  \widehat\lambda_n:=B_n+\lambda_{n,\mathrm{def}}.          \tag{5.14}
 \]
 
-Since
-$e^{B_ni}e^{\lambda_{n,\mathrm{def}}i}
-=e^{(B_n+\lambda_{n,\mathrm{def}})i}=e^{\widehat\lambda_ni}$,
-the multiplier \(\lambda_{n,\mathrm{def}}\) is written before absorbing
-the affine term \(B_ni\). The resulting \(\widehat\lambda_n\) is the
-finite-support tilt in \(e^{\widehat\lambda_ni+h_n(i)}\). (If a size-coordinate
-multiplier \(\tau_n\) is used instead, then
-\(\lambda_{n,\mathrm{def}}=-\tau_n\).)
+The finite-support tilt \(\widehat\lambda_n\) absorbs the affine term
+\(B_ni\). With a size-coordinate multiplier \(\tau_n\), the sign convention is
+\(\lambda_{n,\mathrm{def}}=-\tau_n\).
 The target deficit mean is $\alpha-n/k_{\mathrm{co}}$. By uniqueness in
 Lemma~\ref{lem:uniform-root-slope-dual}, $\widehat\lambda_n$ is the finite-support
 tilt $\lambda_{n,S_4}(\alpha-n/k_{\mathrm{co}})$ introduced there. The corridor estimate
@@ -1842,7 +1837,7 @@ exact \emph{marked} common-subprofile weight
 
 \[
  D(\ell)=\frac{\prod_i\binom{k_i}{\ell_i}^2}
-                  {Y_\ell^{\mathrm{sgn}}}.                         \tag{7.3}
+                  {Y_\ell^{\mathrm{sgn}}}.                         \tag{7.3}\label{eq:marked-common-subprofile-weight}
 \]
 
 Only the incidence and local signed reward of the marked whole blocks
@@ -2546,12 +2541,10 @@ For $v\in\mathcal V$, define
   m(v)=\sum_i u_iv_i.
   \label{eq:one-sided-diagonal-weight-v3}
 \end{equation}
-For comparison with Section~7, denote its common-subprofile vector by
-$\ell^{\mathrm{pd}}=(\ell_\nu^{\mathrm{pd}})_{\nu=2}^{5}$. Under the bijection
-$\ell_{i+2}^{\mathrm{pd}}=v_i$, the multiplicity and block size are
-$k_{i+2}=\kappa_i$ and $\alpha-(i+2)=u_i$; hence (7.3) gives
-$D(\ell^{\mathrm{pd}})=D(v)$, using
-$g(u_i)=2^{\binom{u_i}{2}-1}$, valid here because $\alpha>8$.
+With $\ell_{i+2}^{\mathrm{pd}}=v_i$, $D(v)$ is the common-subprofile weight
+in \eqref{eq:marked-common-subprofile-weight}. This follows from
+$\kappa_i=k_{i+2}$, $u_i=\alpha-(i+2)$, and
+$g(u_i)=2^{\binom{u_i}{2}-1}$ for $\alpha>8$.
 Below, $D(r)$ and $D(c)$ evaluate
 \eqref{eq:one-sided-diagonal-weight-v3} on the margins in
 $0\le v_i\le\kappa_i$.
@@ -3124,12 +3117,6 @@ Since $0\le\lambda_e\le q_e$, equations
 Thus both the local factors and the cycle-space cardinality are controlled by
 one total residual activity.
 
-\begin{remark}
-The product argument applies more generally to any weighted family of edge
-sets whose restriction outside a chosen set is injective. For even edge
-sets, the matching hypothesis supplies exactly this injectivity.
-\end{remark}
-
 \subsection{Large residual mass: a quadratic activity bound}
 
 It remains to sum the residual activities. We first treat residual mass
@@ -3640,7 +3627,7 @@ Thus $S_{k}$ changes by at most one, and (1.3) applies
 
 \Needspace{6\baselineskip}
 Since $S_{k}=n$ exactly when $\zeta(G_n)\le k$,
-the assumed probability bound and (1.3) give
+the assumed probability bound and the one-sided upper-tail form of (1.3) give
 
 \[
  e^{-\Lambda}
@@ -5455,7 +5442,10 @@ $((\log 2)^2/4)\log(200/153)$. The top-level declaration is
 \texttt{Erdos625.\allowbreak erdos625}; its type is
 \texttt{Erdos625.\allowbreak Erdos625Statement}. The phase-resolved refinement
 involving $A_4(\delta_n)$ is proved in this manuscript and is not claimed as
-part of the Lean theorem. The cited source revision pins Lean and Mathlib at
+part of the Lean theorem. The released proof uses tail amplification.
+The mean-positive-excess bound in Lemma~\ref{lem:mean-seed-amplification}
+is proved here but is not asserted as a separately released Lean theorem.
+The cited source revision pins Lean and Mathlib at
 version~4.31.0 and contains the modular sources and generated single-file
 closure. The cited replay revision contains the trust-boundary audit and a
 clean-environment replay. Reproduction commands, checksums, and transcripts
