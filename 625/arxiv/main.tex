@@ -201,10 +201,9 @@ near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers and conjectured that the natural full-sequence scale is
 $n/(\log n)^3$ \citep{heckel-2025-difference}.  We prove this lower bound along
 the full sequence $n\to\infty$, with an explicit phase-resolved coefficient.
-Our starting points are Heckel's signed first-moment gain and rare-seed
-amplification. We use four consecutive class sizes to make the optimization
+Our starting points are Heckel's first-moment gain from class marks and probability amplification. We use four consecutive class sizes to make the optimization
 uniform in the phase, and count the compatible signs exactly. In the second
-moment we retain every common subprofile, then separate the high cells from
+moment we retain every common subprofile, then separate the large cells from
 the residual matching.
 
 \Needspace{8\baselineskip}
@@ -233,14 +232,9 @@ The intersection of the events in (B) and (C), together with (A), gives the
 phase-resolved assertion of the main theorem; no independence between the two
 events is required.
 
-Sections~1--5 locate the two first-moment roots, prove (B), and construct
-the four-size profile used in (A). It remains to obtain a cocoloring with
-high probability. Sections~6--9 estimate the second moment of the profile
-count $Z$: we count compatible signs and common whole classes, sum the
-high-cell weights, and bound the capped residual matching. This supplies
-the rare seed. In Section~10, amplification constructs
-$a_n=o(n/(\log n)^3)$ and proves (C). The final section combines (A)--(C)
-and evaluates the constants.
+Sections~1--5 locate the first-moment roots and prove (A)--(B).
+Sections~6--9 bound the second moment, Section~10 proves (C), and the
+final section combines the bounds.
 
 \subsection*{The two counting difficulties}
 
@@ -254,23 +248,19 @@ For the latter, we expose all cells larger than half the size cap.
 They form a matching. Retaining their labelled pairs makes the extraction
 unique, so each labelled configuration is counted once. Section~8 sums
 these exposed weights using one ambient falling-factorial denominator.
-Section~9 bounds the remaining local rewards and sign-compatibility
+Section~9 bounds the remaining local factors and sign-compatibility
 factor by restricting even edge sets outside the exposed matching.
 The resulting second-moment ratio is
 \[
  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
  \le \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
 \]
-Paley--Zygmund gives a possibly rare seed. The amplification in Section~10
-then adds only \(o(n/(\log n)^3)\) classes.
-
 Appendix~\ref{app:lean-reproducibility} records the companion Lean theorem and its reproducibility materials.
 
-\section*{Notation and proof objects}
+\section*{Notation and counting conventions}
 \label{sec:conventions-v3}
 
-We collect the conventions and counting objects used throughout the proof.
-Notation specific to one estimate is introduced at that estimate.
+Notation specific to an estimate is introduced where it is used.
 
 \paragraph{Asymptotic and counting conventions.}
 An event holds \emph{with high probability} if its
@@ -287,14 +277,12 @@ For integers $x,r\ge0$, we use the falling factorial
 and set $(x)_r=0$ for $r>x$. A quotient involving falling factorials is used
 only after the denominator has been shown to be nonzero.
 
-\paragraph{Signed witnesses and profiles.}
-A \emph{signed cocoloring witness} is a partition together with an $I$- or
-$K$-mark on each class. An $I$-marked class must be independent and a
-$K$-marked class must be complete. The marks are counting data; they do not
-define a new graph invariant. In the four-size profile every class has size at
-least two for sufficiently large $n$, so a realized class cannot satisfy both
-requirements. Forgetting the marks therefore recovers its cocoloring without
-multiplicity.
+\paragraph{Class marks and profiles.}
+For counting, mark each class of a partition by $I$ or $K$, requiring it to
+be independent or complete, respectively. All classes in the selected
+profile have size at least two for sufficiently large $n$, so these two
+requirements are disjoint. Forgetting the marks recovers the cocoloring
+without multiplicity.
 
 A \emph{profile} is a finitely supported sequence $(k_s)_{s\ge1}$ of
 nonnegative integers, where $k_s$ is the number of classes of size $s$
@@ -306,7 +294,7 @@ feasible on $n$ vertices with $k$ parts when
   \sum_s s k_s=n.
 \]
 The ordinary first moment counts profile partitions whose classes are all
-required to be independent. The signed first moment counts profile partitions
+required to be independent. The first moment of the marked count counts profile partitions
 together with one $I/K$ mark per class, subject to the corresponding
 independence or completeness requirement.
 
@@ -336,8 +324,8 @@ zero or one contains no edge internal to both partition classes, whereas a
 cell of size at least two forces the marks on its row and column classes to
 agree.
 
-The high-cell threshold, deficit notation, endpoint tables, and the precise
-separation between high-skeleton and residual factors are introduced where
+The large-cell threshold, deficit notation, endpoint tables, and the precise
+separation between exposed matching and residual factors are introduced where
 they are first used in Sections~8--9.
 
 \section{Independent-set counts and probability inequalities}\label{notation-and-elementary-facts}
@@ -502,8 +490,8 @@ deterministic cap error
 
 We first allow real type counts and optimize the counting exponent under
 the two conservation constraints. The ordinary first-moment root will give a
-lower location for the chromatic number. The signed four-size root will give
-the number of parts in our cocoloring witness. Section~5 compares these roots
+lower location for the chromatic number. The four-size first-moment root for marked partitions will give
+the number of parts in our cocoloring. Section~5 compares these roots
 before rounding the type counts; Proposition~\ref{prop:selected-profile-contract}
 collects the properties of the resulting integer profile.
 Throughout this section, $n$ is sufficiently large that $\alpha\ge6$.
@@ -1266,12 +1254,7 @@ Finally, (4.3b) also records the location precision:
 Thus both the probability statement and the location error hold with one set
 of phase-independent thresholds along the full sequence of integers.
 
-\section{Four-size entropy gain and the signed witness profile}\label{the-four-size-signed-first-moment-advantage}
-
-Recall that a signed cocoloring witness is a profile partition with one
-independent-or-complete declaration on each class. It is realized when each
-class induces the declared graph. These declarations are auxiliary counting
-data attached to the witness; $\zeta(G)$ still counts only the classes.
+\section{Four-size entropy gain and the selected integer profile}\label{the-four-size-signed-first-moment-advantage}
 
 The choice \(S_4=\{2,3,4,5\}\) costs profile entropy but makes the later
 overlap estimates uniform. We must show that this cost is less than
@@ -1281,7 +1264,7 @@ estimate in Lemma~\ref{lem:uniform-root-slope-dual} then converts this gain
 in the counting exponent into a distance between its roots.
 
 \Needspace{8\baselineskip}
-\subsection{The phase coefficient and entropy certificate}
+\subsection{The phase coefficient and entropy bound}
 For \(S\in\{S_+,S_4\}\), introduce the tilted weights, partition
 function, and mean map
 
@@ -1319,7 +1302,7 @@ This also gives the dual representation
 \]
 
 Since $T_0=1+2/{\log 2}-\delta=T_\delta$, introduce the entropy loss
-$D_4$ and the uniform certificate $\gamma_4$ by
+$D_4$ and the uniform bound $\gamma_4$ by
 
 \[
   D_4(\delta):=\mathcal F_{S_+}(T_\delta)
@@ -1397,7 +1380,7 @@ $T_\delta\in(2,5)$ on a neighborhood of $[0,1]$, they also apply at both
 endpoints. Strict concavity gives the endpoint minimum.
 \end{proof}
 
-\begin{lemma}[Uniform entropy certificate]
+\begin{lemma}[Uniform entropy bound]
 \label{lem:entropy-gap}
 
 For every \(0\le \delta\le 1\),
@@ -1415,7 +1398,7 @@ the omitted weights on either side of the four-size support.
 Appendix~\ref{app:entropy-certificate-details} gives the tilt comparisons,
 the rational bounds and the Gaussian-tail calculation.
 
-\subsection{The signed gain and root separation}
+\subsection{The gain from class marks and root separation}
 
 The following \(2^k\) gain is the one-partition identity isolated by
 \citet[Proposition~6]{heckel-2025-difference}.  We repeat its short
@@ -1589,9 +1572,9 @@ of (5.11): for all sufficiently large \(n\),
  r_+-r_4^{\mathrm{co}}\ge\frac{(\log 2)^2\gamma_4}{8}\frac n{(\log n)^3}.     \tag{5.12}
 \]
 
-\subsection{An exact integer profile above the signed root}
+\subsection{An exact integer profile above the first-moment root for marked partitions}
 
-Choose an integer a fixed distance above the signed root:
+Choose an integer a fixed distance above the first-moment root for marked partitions:
 
 \[
  k_{\mathrm{co}}=\left\lceil r_4^{\mathrm{co}}\right\rceil+16. \tag{5.13}
@@ -1610,8 +1593,8 @@ $K_*\subset(2,5)$ and is feasible for the real $S_4$ optimization.  In
 particular this holds at the selected integer before the type counts are
 rounded.  The convenient choice $16$ leaves a fixed explicit margin in (5.19).
 
-We now choose the \emph{exact signed witness profile}. The number of parts
-has already been fixed just above the signed four-size root. We round the
+We now choose the \emph{selected integer profile}. The number of parts
+has already been fixed just above the four-size first-moment root for marked partitions. We round the
 optimizing type counts while preserving both finite-\(n\) conservation
 constraints.
 
@@ -1777,12 +1760,12 @@ integers and satisfy exactly
 \]
 Moreover, $k_i/k_{\mathrm{co}}\ge c_*$ for every $i$, and
 $k_{\mathrm{co}}\asymp n/\log n$.
-\item For $G_n\sim G(n,1/2)$, the signed witness count defined in (5.18)
+\item For $G_n\sim G(n,1/2)$, the marked cocoloring count defined in (5.18)
 obeys
 \[
   \log\Exp{Z_{\mathbf k}^{\mathrm{sgn}}}\ge c_Z(\log n)^2.
 \]
-A positive witness count gives a cocoloring with exactly
+A positive count gives a cocoloring with exactly
 $k_{\mathrm{co}}$ parts.
 \item The ordinary and signed roots satisfy
 \[
@@ -1811,7 +1794,7 @@ Equation (5.16) removes both rounding errors exactly. The segment estimate
 following (5.16) gives $k_i\ge(c_p/2)k_{\mathrm{co}}$ after one
 phase-independent threshold; take $c_*=c_p/2$. The root corridor and (5.13)
 give the order of $k_{\mathrm{co}}$. Equation (5.19) proves the first-moment
-bound, and the paragraph following it identifies a realized signed witness
+bound, and the paragraph following it identifies a realized marked cocoloring
 with a cocoloring. The root separation is (5.11). Finally, (4.1) and (5.13)
 change its two roots by $O(\log n)$ and $O(1)$ respectively, giving (5.20).
 All these bounds were proved with phase-independent constants and errors.
@@ -1819,8 +1802,8 @@ All these bounds were proved with phase-independent constants and errors.
 
 \displayheading{The gap and amplification scales}
 
-It remains to turn this large signed first moment into a lower bound on the
-probability of a witness. The second-moment analysis in Sections~8--9 produces a deterministic exponent
+It remains to turn this large first moment of the marked count into a lower bound on the
+probability of a cocoloring. The second-moment analysis in Sections~8--9 produces a deterministic exponent
 $\Lambda_n$ such that
 \[
   \frac{\mathbb E[(Z_{\mathbf k}^{\mathrm{sgn}})^2]}
@@ -1840,13 +1823,12 @@ Once the last estimate is available, its amplification cost satisfies
 \]
 which is smaller than the root separation.
 
-\section{Exact signed second-moment representation}\label{exact-signed-second-moment-representation}
+\section{Second moment of the marked cocoloring count}\label{exact-signed-second-moment-representation}
 
 Fix the deterministic four-size profile from
-Proposition~\ref{prop:selected-profile-contract}. Its signed first moment is
-large, but amplification needs a lower bound on the probability of a
-witness. For this we must control the edge constraints shared by two
-partitions. We begin by counting their compatible signs. For partitions sharing exactly \(\ell\) whole
+Proposition~\ref{prop:selected-profile-contract}. Its marked cocoloring count
+has a large first moment. To bound the probability that it is positive, we
+must control the edge constraints shared by two partitions. We begin by counting their compatible signs. For partitions sharing exactly \(\ell\) whole
 classes, \citet[Proposition~6]{heckel-2025-difference} used the bound
 \(2^{2k-\ell}\) to transfer selected ordinary-coloring estimates to
 cocolorings. We keep the full overlap matrix instead. Lemma~6.1 evaluates
@@ -1856,7 +1838,7 @@ least two; common whole classes are included in this count.
 \subsection*{Overlap law and compatible signs}
 
 Temporarily label all slots within each of the four types. This
-multiplies the unordered witness by the deterministic factor
+multiplies the unordered partition by the deterministic factor
 \(\prod_i k_i!\) and hence does not change its normalized second
 moment. Let $\mathcal I_{\mathrm{row}}$ and $\mathcal I_{\mathrm{col}}$ be the row- and column-slot index
 sets. Choose two independent uniform ordered partitions of the profile, write
@@ -1957,7 +1939,7 @@ the thresholding operation and the two factors that it creates.
 
   \draw[->,line width=0.65pt] (10.75,1.65) -- (12.45,1.65);
   \node[align=left,anchor=west,font=\footnotesize] at (12.80,1.70)
-    {$\displaystyle W=7,\qquad \text{local reward}=4,$\\[0.45ex]
+    {$\displaystyle W=7,\qquad \text{local factor}=4,$\\[0.45ex]
      $\displaystyle \text{normalized factor}
        =2^{7+2-6}=8=4\cdot2^1.$};
 \end{tikzpicture}
@@ -2053,16 +2035,16 @@ The identity
 \]
 
 expresses the cycle-space factor as a count of even edge sets. This
-description is useful in Section~9: restriction outside the exposed high-cell
+description is useful in Section~9: restriction outside the exposed large-cell
 matching is injective, so we can bound the cycle-space contribution together
-with the local rewards. The identity is the elementary fact that the even
+with the local factors. The identity is the elementary fact that the even
 subgraphs form the binary cycle space of dimension \(\beta(H)\).
 
 \subsection*{Joint multiplicity bounds for overlap cells}
 
 The overlap cells are dependent. The next configuration-model estimate
 bounds a joint prescription of cell multiplicities by counting the stub
-pairs that witness it.
+pairs that realize it.
 
 \begin{lemma}[Joint prescribed-cell bound]
 \label{lemma-6.2-joint-prescribed-cell-bound}
@@ -2124,7 +2106,7 @@ choices. Independently selecting the column stubs gives
 \]
 choices. For each cell \(ab\), the selected row and column stubs can be paired
 in \(x_{ab}!\) ways. Hence the product over all cells cancels one of the two
-copies of \(\prod_{(a,b)\in D}x_{ab}!\), and the total number of demand witnesses
+copies of \(\prod_{(a,b)\in D}x_{ab}!\), and the total number of choices of prescribed stub pairs
 is
 
 \[
@@ -2132,7 +2114,7 @@ is
       {\prod_{(a,b)\in D}x_{ab}!}.
 \]
 
-Any fixed witness occurs with probability \(1/(m_0)_x\), because after
+Any prescribed set of stub pairs occurs with probability \(1/(m_0)_x\), because after
 its \(x\) prescribed pairs are exposed the remaining matching is uniform
 on the unused stubs.  A union bound proves (6.8).
 
@@ -2193,8 +2175,7 @@ factorial in the counting formula below has its ordinary combinatorial
 meaning.
 
 \paragraph{Marked weights and recurrences.}
-Summed over all choices of an $m$-vertex support in $[n]$, the signed first
-moment of these partial partitions is
+Summed over all choices of an $m$-vertex support in $[n]$, the first moment of the marked count of these partial partitions is
 
 \[
  Y_{\ell}^{\mathrm{sgn}}
@@ -2215,7 +2196,7 @@ exact \emph{marked} common-subprofile weight
 \]
 
 Only the incidence and local signed reward of the marked whole blocks
-enter $D(\ell)$. The other cell rewards and the cycle-space factor remain
+enter $D(\ell)$. The other cell factors and the cycle-space factor remain
 to be estimated in Sections~8--9.
 
 Different marked choices need not be disjoint: an overlap containing several
@@ -2300,7 +2281,7 @@ and every intermediate mass.
 \begin{lemma}[All common subprofiles]
 \label{lemma-7.1-all-common-subprofiles}
 
-For the exact signed witness profile, uniformly over the complete phase,
+For the selected integer profile, uniformly over the complete phase,
 
 \[
  \sum_{0\le\ell_i\le k_i}D(\ell)=1+o(1),               \tag{7.7}
@@ -2389,28 +2370,24 @@ missing stubs inside a selected cell, and unequal sizes at its endpoints.
 We bound the first by summing deficits, then group the full-containment
 weights by endpoint table to bound the second.
 
-The reference weights from Section~7 have total mass $1+o(1)$ and include
-every common-class overlap. We first record which cells exceed half the
-class-size cap and how many pairs each contains. This is the high-cell
-skeleton determined by the overlap matrix. We estimate its exposed weight
-here; Section~9 keeps the remaining matching and controls its local rewards
-and cycle-space factor. The finite counting formulas come first, with the
-phase estimates collected at the end of this section.
+The common-class weights from Section~7 have total mass $1+o(1)$.
+Here we sum the weights of cells larger than half the class-size cap;
+Section~9 bounds the remaining local factors and the cycle-space factor.
 
 
 
-\subsection{High cells and their labeled realizations}
+\subsection{Large cells and their labeled realizations}
 
 Let $U:=\alpha-2$ be the largest class size in the fixed four-size profile and put
 \[
   R_0:=\left\lfloor\frac U2\right\rfloor.
 \]
-A cell is \emph{high} if its multiplicity exceeds $R_0$. Two high cells cannot
+A cell is \emph{large} if its multiplicity exceeds $R_0$. Two large cells cannot
 share a row or a column: otherwise that row or column would contain more than
-$U$ stubs, because $2(R_0+1)>U$. Hence all high cells form a canonical
+$U$ stubs, because $2(R_0+1)>U$. Hence all large cells form a canonical
 bipartite matching, denoted by $M$.
 
-The matching $M$ records which class slots meet in high cells. A labeled
+The matching $M$ records which class slots meet in large cells. A labeled
 stub realization also specifies the pairs inside each of those cells.
 The endpoints of $M$ are disjoint, so selecting pairs in a cell of $M$ does
 not use the stubs of another. This is why the realization counts multiply.
@@ -2435,8 +2412,7 @@ Put $J:=\sum_{e\in M}j_e$.
 For fixed $(M,j)$, let $\mathfrak F(M,j)$ be the finite set of labeled partial
 stub matchings containing exactly $J$ pairs, all in cells of $M$, with exactly
 $j_e$ pairs in each cell $e\in M$.  Thus
-\(\mathfrak F(M,j)\) is the set of labeled realizations of the high skeleton
-\((M,j)\).
+\(\mathfrak F(M,j)\) records the labelled pairs, not just their cell counts.
 
 A size-$j$ partial matching between labeled blocks of sizes $s$ and $t$ can be
 chosen in
@@ -2453,7 +2429,7 @@ Let $M$ be a fixed matching support arising from two copies of the fixed
 feasible $n$-vertex profile. For a multiplicity vector
 $j=(j_e)_{e\in M}$ satisfying
 $0\le j_e\le\min\{s_e,t_e\}$ for every $e\in M$, one has $J\le n$, and the
-total configuration probability multiplied by the exposed local reward, summed
+total configuration probability multiplied by the exposed local factor, summed
 over \(\mathfrak F(M,j)\), is
 \begin{equation}
   w(M,j)
@@ -2481,16 +2457,15 @@ displayed cardinality and by the exposed reward
 $\prod_{e\in M}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
 \end{proof}
 
-We call $(M,j)$ a \emph{feasible high skeleton} when $M$ is a block matching
-and
+A pair $(M,j)$ is \emph{feasible} when $M$ is a matching between classes and
 \[
   R_0<j_e\le m_e\qquad(e\in M).
 \]
-For a feasible high skeleton, write
+For a feasible pair $(M,j)$, write
 \[
   w_{\mathrm{hi}}(M,j):=w(M,j).
 \]
-The same high-skeleton weight appears in the exact conditional decomposition
+The same exposed weight appears in the exact conditional decomposition
 of Section~9.
 
 \begin{remark}
@@ -2504,7 +2479,7 @@ table is split. To recover a full labeled matching, we must also retain
 the exposed stub pairs; this is done in
 Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3}. The last
 line of the figure separates the exposed weight $w_{\mathrm{hi}}$, defined
-above, from the residual attachment $\mathcal A$ of Section~9. Each factor
+above, from the residual factor $\mathcal A$ of Section~9. Each factor
 will have its own bound.
 
 \begin{figure}[htbp]
@@ -2537,7 +2512,7 @@ will have its own bound.
     }
     \node[font=\footnotesize] at (2.5,4.65) {$j_M$};
     \node[align=center,text width=3.4cm] at (2.5,-0.85)
-      {high table supported on $M$, with $j=r|_M$};
+      {large cells supported on $M$, with $j=r|_M$};
   \end{scope}
 
   \node[font=\large] at (13.25,2) {$+$};
@@ -2559,11 +2534,11 @@ will have its own bound.
     \frac{\mathbb E\!\left[(Z_{\mathbf k}^{\mathrm{sgn}})^2\right]}
          {\left(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\right)^2}
     =\sum_{(M,j)}
-      \underbrace{w_{\mathrm{hi}}(M,j)}_{\text{high-cell factor}}
+      \underbrace{w_{\mathrm{hi}}(M,j)}_{\text{large-cell factor}}
       \qquad
-      \underbrace{\mathcal A(M,j)}_{\text{residual attachment}}$};
+      \underbrace{\mathcal A(M,j)}_{\text{residual factor}}$};
 \end{tikzpicture}
-\caption{Canonical high-cell extraction. The highlighted cells
+\caption{Canonical large-cell extraction. The highlighted cells
 \(M=\{(a,b):r_{ab}>R_0\}\) form a matching, with multiplicities \(j=r|_M\).
 Extending \(j\) by zero gives \(r=j_M+r'\), where \(r'\) vanishes on \(M\)
 and is capped by \(R_0\) elsewhere.}
@@ -2607,14 +2582,14 @@ it is restored once globally in the aggregate comparison below.
 \end{lemma}
 
 \begin{proof}
-The ratio of the physical matching counts is
+The ratio of the partial matching counts is
 \[
   \frac{(m)_{m-h}(m+d)_{m-h}}{(m-h)!}
   \frac{m!}{(m)_m(m+d)_m}
   =
   \frac{\binom mh}{(d+1)(d+2)\cdots(d+h)}.
 \]
-The local signed rewards satisfy
+The local signed factors satisfy
 \[
   \frac{g(m-h)}{g(m)}
   =
@@ -2674,7 +2649,7 @@ For a selected cell $e$, enlarge the exact positive-deficit range to
 \[
   A_e:=\{h\in\mathbb N:h\ge1,\ 2h<m_e\}.
 \]
-This range may include deficits that no longer give a high cell. Adding
+This range may include deficits that no longer give a large cell. Adding
 their nonnegative weights only increases the upper bound.
 
 For any nonnegative $u_e(h)$, set $u_e(0):=1$. Expanding the finite product
@@ -2839,9 +2814,9 @@ Whenever $\rho_{\Sigma}\le1$, combining
 Proposition~\ref{prop:fixed-support-all-deficit-v3},
 \eqref{eq:support-cardinality-v3}, and
 \eqref{eq:reference-grouping-v3} yields, after enlarging the nonnegative sum
-from canonical high supports to all block matchings,
+from canonical large-cell matchings to all block matchings,
 \begin{equation}
-  \sum_{\text{high skeletons}}w_{\mathrm{hi}}
+  \sum_{(M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}
   \le
   \left(\sum_{L\ \mathrm{feasible}}W(L)\right)
   \left(1+(\alpha+1)\rho_{\Sigma}\right)^K.
@@ -3088,7 +3063,7 @@ common-class overlaps included. Finally, $K=\Theta(n/\log n)$ and
 $\tau_n^{\mathrm{end}}K=O(\sqrt{n\log n})$.
 \end{proof}
 
-\subsection{The high-cell bound across the phase}
+\subsection{The large-cell bound across the phase}
 
 The phase satisfies
 \[
@@ -3131,16 +3106,15 @@ Since every $m_{ij}=O(\log n)$,
 \end{equation}
 Thus $\rho_{\Sigma}\le1$ for all sufficiently large $n$.
 
-Let $\Sigma_n^{\mathrm{hi}}$ denote the high-skeleton reference sum:
+Let $\Sigma_n^{\mathrm{hi}}$ denote the sum of exposed weights:
 \[
   \Sigma_n^{\mathrm{hi}}
   :=
   \sum_{(M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(M,j),
 \]
-where the sum ranges over the canonical high-cell matching supports and their
-admissible high multiplicities defined above.
+where the sum is over the feasible pairs $(M,j)$ defined above.
 
-\begin{proposition}[High-skeleton estimate]
+\begin{proposition}[Bound for the exposed weights]
 \label{prop:bare-high-skeleton-v3}
 There is a phase-independent deterministic sequence
 $\varepsilon_n^{\mathrm{hi}}\ge0$ with
@@ -3169,7 +3143,7 @@ $o(n/(\log n)^4)$. Combining these estimates with
 \eqref{eq:coarse-realized-table-reduction-v3} proves the proposition.
 \end{proof}
 
-\section{Residual rewards and the second-moment bound}
+\section{Residual factors and the second-moment bound}
 \label{sec:residual-attachments-v3}
 
 We keep the selected profile of Proposition~\ref{prop:selected-profile-contract}
@@ -3177,29 +3151,29 @@ and the endpoint indexing from Section~8. The exposed matching \(M\)
 has pairs of class slots as its edges. The labelled stub pairs chosen
 inside those cells are denoted by \(S\).
 
-Fix one feasible high skeleton and one such labeled realization.
+Fix one feasible pair $(M,j)$ and one such labeled realization.
 Condition only on its stub pairs being present. The unused row stubs are
 then matched uniformly to the unused column stubs. A completion receives
 weight zero if it adds a pair in an exposed cell or exceeds the residual cap
-in another cell; otherwise it receives weight one. Both the local rewards
-and the cycle-space factor depend on this same residual matching. We average
-their product with the completion weight. A bound uniform over every
-feasible high skeleton can then be taken outside the exposed-weight sum
+in another cell; otherwise it receives weight one. Both the local factors
+and the cycle-space factor depend on this same residual matching. We multiply
+their product by the indicator of allowed completions before taking its
+expectation. A bound uniform over every
+feasible pair $(M,j)$ can then be taken outside the exposed-weight sum
 from Section~8.
 
 Throughout this section, write $Z:=Z_{\mathbf k}^{\mathrm{sgn}}$ for the
-selected signed-profile witness count.
+selected marked cocoloring count.
 
-\subsection{Exact decomposition after exposing the high cells}
+\subsection{Exact decomposition after exposing the large cells}
 
-Fix a canonical high skeleton with exposed block matching $M$, exposed
-multiplicities $j$, and total exposed mass $J$. Put
+Fix a feasible pair $(M,j)$ and recall $J=\sum_{e\in M}j_e$. Put
 \[
   m_0:=n-J.
 \]
 Here feasibility means that \(M\) is a block matching and
 \(R_0<j_e\le\min\{s_e,t_e\}\) for every \(e\in M\). Each
-\(S\in\mathfrak F(M,j)\) is a physical partial matching containing exactly
+\(S\in\mathfrak F(M,j)\) is a labelled partial matching containing exactly
 $J$ pairs.
 Let $(d_a)_a$ and $(d'_b)_b$ be the residual row and column degrees. Their two
 sums equal $m_0$, and every degree is at most the phase cap $U$.
@@ -3215,10 +3189,10 @@ $\mathbb P_{\mathrm{res}}$ and $\mathbb E_{\mathrm{res}}$ for its law and
 expectation. Let
 $r'_{ab}$ be its cell counts and let $H_{\mathrm{res}}$ be the simple support
 graph of cells with $r'_{ab}\ge2$. The event $\mathcal E(M,j)$ specifies which
-residual matchings complete the chosen high cells. Outside the exposed
+residual matchings complete the chosen large cells. Outside the exposed
 matching it imposes the cap $r'_{ab}\le\lfloor U/2\rfloor$; in a cell of
 $M$, no further pair is allowed. The exposed data already include every pair
-in each high cell, so an additional pair would change its multiplicity.
+in each large cell, so an additional pair would change its multiplicity.
 Thus, with $R_0=\lfloor U/2\rfloor$,
 \[
  \mathcal E(M,j)=
@@ -3253,12 +3227,12 @@ Only the residual configuration matching is random in this expectation.
 
 Thus $w_{\mathrm{hi}}(M,j)$ sums the exposed realizations in
 $\mathfrak F(M,j)$, while $\mathbf 1_{\mathcal E(M,j)}$ selects exactly
-their capped, no-return completions. The next proposition puts the two
+their completions with capped residual cells and no further pairs in exposed cells. The next proposition puts the two
 counts together.
 
 \begin{proposition}[Canonical exact overlap decomposition]
 \label{prop:canonical-exact-overlap-decomposition-v3}
-Let $n$ be finite and let the fixed signed profile be feasible, with phase cap
+Let $n$ be finite and let the fixed selected profile be feasible, with phase cap
 $U\ge2$. Then
 \begin{equation}
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
@@ -3266,8 +3240,7 @@ $U\ge2$. Then
   \sum_{(M,j)}w_{\mathrm{hi}}(M,j)\,\mathcal A(M,j),
   \label{eq:exact-attachment-decomposition-v3}
 \end{equation}
-where the sum ranges over the finite family of feasible canonical high
-skeletons.
+where the sum ranges over the finite family of feasible pairs $(M,j)$.
 \end{proposition}
 
 \begin{proof}
@@ -3280,30 +3253,30 @@ its cell counts. Define
 \]
 Since $2(R_0+1)>U$, the degree cap makes $M(\Pi)$ a matching. Moreover,
 $j_{ab}>\lfloor U/2\rfloor$ and $U\ge2$ imply $j_{ab}\ge2$, so every cell of
-$M(\Pi)$ is an edge of the signed support graph from Section~6. Let $S(\Pi)$
+$M(\Pi)$ is an edge of the support graph from Section~6. Let $S(\Pi)$
 be the set of all stub pairs of $\Pi$ lying in cells of $M(\Pi)$, and put
 $\Pi_{\mathrm{res}}:=\Pi\setminus S(\Pi)$. Then
 \[
   \Pi\longmapsto
   \bigl(M(\Pi),j(\Pi),S(\Pi),\Pi_{\mathrm{res}}\bigr)
 \]
-takes values in the feasible skeletons, their labeled realizations, and residual
+takes values in the feasible pairs $(M,j)$, their labeled realizations, and residual
 matchings satisfying $\mathcal E(M,j)$. It is injective because
 $\Pi=S(\Pi)\cup\Pi_{\mathrm{res}}$.
 
 Conversely, take a feasible $(M,j)$, an $S\in\mathfrak F(M,j)$, and a perfect
 matching of the unused stubs satisfying $\mathcal E(M,j)$. Their disjoint union
-is a full matching. The no-return condition leaves multiplicity $j_e>R_0$ in
+is a full matching. The condition $r'_{ab}=0$ on $M$ leaves multiplicity $j_e>R_0$ in
 each $e\in M$, and the residual cap leaves every cell outside $M$ with
-multiplicity at most $R_0$. Thus its canonical high-cell data are exactly
+multiplicity at most $R_0$. Thus its canonical large-cell data are exactly
 $(M,j)$, and this construction is the inverse of the displayed map.
 
 For each fixed $S$, the exposed-residual factorization
 \eqref{eq:exposed-residual-factorization-v3} contributes $(n)_J^{-1}$ and the
 residual configuration law. Summing over $S\in\mathfrak F(M,j)$ and including
-the exposed local rewards gives $w_{\mathrm{hi}}(M,j)$ by
+the exposed local factors gives $w_{\mathrm{hi}}(M,j)$ by
 Proposition~\ref{prop:aggregate-high-weight-v3}. By
-Lemma~\ref{lemma-6.1-exact-sign-sum}, the unexposed local rewards and the
+Lemma~\ref{lemma-6.1-exact-sign-sum}, the unexposed local factors and the
 remaining sign factor are exactly the integrand defining
 $\mathcal A(M,j)$, with support factor
 $2^{\beta(M\cup H_{\mathrm{res}})}$. The bijection therefore yields
@@ -3401,8 +3374,8 @@ $F\in\mathfrak E(M)$, define
 An edge $e$ of the even set outside the exposed matching must occur in
 the residual support, so the first product includes its threshold-two
 indicator. Cells outside both the even set and the exposed matching
-contribute only their local rewards. On the event $\mathcal E(M,j)$, expansion of the cycle-space
-cardinality and of all local rewards gives the exact identity
+contribute only their local factors. On the event $\mathcal E(M,j)$, expansion of the cycle-space
+cardinality and of all local factors gives the exact identity
 \[
   \left(\prod_{a,b}g(r'_{ab})\right)
   2^{\beta(M\cup H_{\mathrm{res}})}
@@ -3439,7 +3412,7 @@ nothing or one higher increment. Apply
 monomial. The threshold-two contribution is $\theta_e^2/2$, the higher
 increments sum to $\lambda_e$, and the empty choice contributes one. Every
 monomial is nonnegative and $\mathbf 1_{\mathcal E(M,j)}\le1$, so omitting
-the cap and no-return indicator can only increase the expectation.
+the indicator of $\mathcal E(M,j)$ can only increase the expectation.
 \end{proof}
 
 Summing over $F$ and then inserting the missing factors
@@ -3496,7 +3469,7 @@ Since $0\le\lambda_e\le q_e$, equations
   \exp\!\left(2\sum_{e\in E_0}q_e\right).
   \label{eq:q-only-attachment-v3}
 \end{equation}
-Thus both the local rewards and the cycle-space cardinality are controlled by
+Thus both the local factors and the cycle-space cardinality are controlled by
 one total residual activity.
 
 \begin{remark}
@@ -3584,14 +3557,13 @@ $\mathcal E(M,j)$, write
   \qquad
   W':=\sum_{a,b}\binom{r'_{ab}}2.
 \]
-Every support edge is a cell of multiplicity at least two, so the local
-reward, including $g(2)=1$, is exactly
+Every support edge is a cell of multiplicity at least two, so the local factor, including $g(2)=1$, is exactly
 \[
   \prod_{a,b}g(r'_{ab})=2^{W'-|E(H)|}.
 \]
 Restriction of even edge sets outside the matching $M$ is injective by
 the argument following Lemma~\ref{lem:restriction-product-v3}.
-The no-return condition gives $E(H)\cap M=\varnothing$; hence
+No residual pair lies in an exposed cell, so $E(H)\cap M=\varnothing$; hence
 \[
   2^{\beta(M\cup H)}\le2^{|E(H)|}.
 \]
@@ -3606,7 +3578,7 @@ $m_0$, gives
   \left(\prod_{a,b}g(r'_{ab})\right)2^{\beta(M\cup H)}
   \le2^{W'}\le2^{(R_0-1)m_0/2}.
 \]
-The attachment integrand vanishes outside $\mathcal E(M,j)$. Taking
+The residual factor integrand vanishes outside $\mathcal E(M,j)$. Taking
 expectations proves
 \begin{equation}
   \mathcal A(M,j)\le2^{(R_0-1)m_0/2}
@@ -3619,10 +3591,10 @@ zero residual mass, empty residual support, and an empty canonical event.
 We combine the zero-residual case with the two positive-residual regimes
 $2^U\le m_0^3$ and $2^U>m_0^3$.
 
-\begin{proposition}[Uniform residual attachment]
+\begin{proposition}[Uniform residual factor]
 \label{prop:uniform-residual-attachment-v3}
-For the fixed feasible signed profile with $U\ge2$, there is an absolute
-constant $C_{\mathrm{att}}>0$ such that every feasible canonical high skeleton
+For the fixed feasible selected profile with $U\ge2$, there is an absolute
+constant $C_{\mathrm{att}}>0$ such that every feasible pair $(M,j)$
 satisfies
 \[
   \mathcal A(M,j)
@@ -3646,8 +3618,8 @@ $C_{\mathrm{att}}:=2C_1$.
 \subsection{The global second-moment exponent}
 \label{subsec:explicit-global-ledger-v3}
 
-We can now sum the exact decomposition. The high-skeleton estimate bounds
-the total exposed weight, and the residual estimate bounds each attachment
+We can now sum the exact decomposition. The bound for the exposed weights bounds
+the total exposed weight, and the residual estimate bounds each residual factor
 uniformly. Their logarithms add. We keep them separate until checking that
 both are small on the scale required by amplification.
 
@@ -3713,7 +3685,7 @@ Combining this with the single aggregate deficit reduction
 \end{split}
   \label{eq:explicit-skeleton-ledger-v3}
 \end{equation}
-With the notation $M=P$, the skeleton sum in
+The sum over $(M,j)$ in
 \eqref{eq:exact-attachment-decomposition-v3} is precisely the
 $\Sigma_n^{\mathrm{hi}}$ defined in Section~8. For all sufficiently
 large $n$,
@@ -3738,7 +3710,7 @@ The phase estimates from Section~8 imply
   \log(1+\varepsilon_n^{\mathrm{pd}})&=o(1).
 \end{split}
 \]
-Consequently the deterministic normalized skeleton error
+Consequently the deterministic normalized exposed-weight error
 \begin{equation}
   \varepsilon_n^{\mathrm{skel}}
   :=
@@ -3765,7 +3737,7 @@ bound
   \mathcal A(M,j)\le e^{\Gamma_n^{\mathrm{att}}}
   \label{eq:uniform-attachment-exponential-v3}
 \end{equation}
-for every feasible high skeleton. For large residual mass we use
+for every feasible pair $(M,j)$. For large residual mass we use
 \eqref{eq:intrinsic-attachment-v3}. For small positive residual mass,
 $m_0<2^{U/3}$ and
 \[
@@ -3789,7 +3761,7 @@ one has
   \right)
   =o\!\left(\frac{n}{(\log n)^4}\right).
 \]
-Thus the deterministic normalized attachment error
+Thus the deterministic normalized residual factor error
 \begin{equation}
   \varepsilon_n^{\mathrm{att}}
   :=
@@ -3801,7 +3773,7 @@ Thus the deterministic normalized attachment error
 \Needspace{8\baselineskip}
 \begin{proposition}[Explicit normalized second-moment bound]
 \label{prop:explicit-normalized-second-moment-ledger-v3}
-For the signed-profile witness count
+For the marked cocoloring count
 $Z=Z_{\mathbf k}^{\mathrm{sgn}}$ from
 Proposition~\ref{prop:selected-profile-contract}, define
 \begin{equation}
@@ -3834,8 +3806,8 @@ for all sufficiently large $n$,
 \begin{proof}
 Insert \eqref{eq:uniform-attachment-exponential-v3} into the exact decomposition
 \eqref{eq:exact-attachment-decomposition-v3}. Because all summands are
-nonnegative, the uniform attachment factor may be taken outside the finite
-skeleton sum. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
+nonnegative, the uniform residual factor may be taken outside the finite
+sum over $(M,j)$. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
 \[
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
@@ -3852,32 +3824,31 @@ The lower bound follows from $\operatorname{Var}(Z)\ge0$. Equations
 
 The second-moment estimate is now ready for Paley--Zygmund.
 $\Gamma_n^{\mathrm{skel}}$ accounts for partial diagonals, deficits, and
-endpoint tables; $\Gamma_n^{\mathrm{att}}$ accounts for residual local
-rewards and the cycle-space factor. Their sum is the exponent used in
+endpoint tables; $\Gamma_n^{\mathrm{att}}$ accounts for residual local factors and the cycle-space factor. Their sum is the exponent used in
 the amplification step.
-\section{From a rare seed to a high-probability cocoloring}\label{rare-event-amplification}
+\section{Amplifying a cocoloring probability bound}\label{rare-event-amplification}
 
 Proposition~\ref{prop:explicit-normalized-second-moment-ledger-v3} and (1.4)
-give the seed
+give the probability bound
 
 \[
  \Prob{Z_{\mathbf k}^{\mathrm{sgn}}>0}\ge e^{-\Lambda_n}.       \tag{10.1}
 \]
 
-The event $Z_{\mathbf k}^{\mathrm{sgn}}>0$ yields a signed witness and hence a
-cocoloring with $k_{\mathrm{co}}$ classes, so the seed implies
+The event $Z_{\mathbf k}^{\mathrm{sgn}}>0$ yields a marked cocoloring and hence a
+cocoloring with $k_{\mathrm{co}}$ classes, so the probability bound implies
 
 \[
  \Prob{\zeta(G_n)\le k_{\mathrm{co}}}\ge e^{-\Lambda_n}.        \tag{10.2}
 \]
 
-The seed bound need not tend to one. Following
+The probability bound need not tend to one. Following
 \citet[Theorem~1]{heckel-2025-difference}, we use vertex-exposure
 concentration as in \citet[Theorem~1]{scott-2008-2017} to find a large
 induced subgraph with the desired cocoloring. We then color the leftover
 vertices. Their set depends on the graph, so a bound for a fixed vertex set
 would not suffice; the first lemma controls all sets simultaneously. The
-second lemma uses this bound and the seed exponent $\Lambda_n$. Its cost in
+second lemma uses this bound and the exponent in the probability bound $\Lambda_n$. Its cost in
 (10.5) will be $o(n/(\log n)^3)$, smaller than the root separation.
 
 \subsection*{Coloring every leftover vertex set}
@@ -3961,7 +3932,7 @@ every \(S\).
 
 \Needspace{6\baselineskip}
 \subsection*{Amplification by vertex exposure}
-\begin{lemma}[Amplification from a seed]
+\begin{lemma}[Amplification by vertex exposure]
 \label{lemma-10.2-amplification-from-a-seed}
 
 There is an absolute constant $C>0$ and a deterministic sequence
@@ -3996,7 +3967,7 @@ $\varepsilon_n^{\mathrm{left}}:=\mathbb P(\mathcal G_n^c)=o(1)$. This sequence i
 of $k_n$, $\Lambda_n$, and $r$.
 
 To apply concentration, we measure the largest vertex set that can be
-cocolored with at most the seed's number of classes. For $W\subseteq[n]$, let
+cocolored with at most the given number of classes. For $W\subseteq[n]$, let
 $\zeta(W)=\zeta(G_n[W])$, with $\zeta(\varnothing)=0$, and define
 
 \[
@@ -4023,7 +3994,7 @@ Since $S_{k_n}=n$ exactly when $\zeta(G_n)\le k_n$,
  \le\exp\!\left\{-\frac{2(n-\Exp{S_{k_n}})^2}{n-1}\right\}.
 \]
 
-The seed thus bounds the mean number of uncovered vertices. Taking
+The probability bound thus bounds the mean number of uncovered vertices. Taking
 logarithms gives
 
 \[
@@ -4059,13 +4030,12 @@ $C$ and $\varepsilon_n^{\mathrm{left}}$ independent of the three
 deterministic parameters.
 \end{proof}
 
-\subsection*{Mean excess above the seed}
+\subsection*{Mean excess above the class-count bound}
 
-The same argument also bounds how far the cochromatic number lies above
-the seed on average. It uses the mean uncovered mass in (10.7), so no
-additional concentration radius is required.
+The same argument bounds the mean excess above $k$, using the mean number
+of uncovered vertices in (10.7).
 
-\begin{lemma}[Mean amplification from a seed]
+\begin{lemma}[Mean bound for the cochromatic number]
 \label{lem:mean-seed-amplification}
 For all sufficiently large $n$, every deterministic integer $k\ge0$ and
 every deterministic finite real $\Lambda\ge0$ satisfying
@@ -4097,7 +4067,7 @@ union bound,
  \Prob{\mathcal D_n^c}\le\varepsilon_n^{\mathrm{dens}}.
 \]
 On this same event, (10.3) holds for every vertex set. Let $S_k$ be the
-largest cocolorable-set size in (10.6). The seed and (10.7) give
+largest cocolorable-set size in (10.6). The probability bound and (10.7) give
 \[
  \Exp{n-S_k}\le\sqrt{(n-1)\Lambda/2}.
 \]
@@ -4124,7 +4094,7 @@ so $\varepsilon_n^{\mathrm{dens}}\le e^{-c\sqrt n}$ eventually for one
 absolute $c>0$.
 \end{proof}
 
-For the selected seed (10.2), the explicit ledger satisfies
+For the probability bound (10.2), the explicit second-moment bound satisfies
 $\Lambda_n=o(n/(\log n)^4)$. Consequently,
 \[
  \Exp{(\zeta(G_n)-k_{\mathrm{co}})_+}
@@ -4134,7 +4104,7 @@ This also gives $\Exp{\zeta(G_n)}\le k_{\mathrm{co}}+o(n/(\log n)^3)$,
 uniformly along the full integer sequence.
 
 \Needspace{6\baselineskip}
-\subsection*{Applying the seed bound}
+\subsection*{Applying the probability bound}
 The mean bound gives the high-probability conclusion by Markov's inequality.
 Put \(s_n=n/(\log n)^3\) and let
 \[
@@ -4164,19 +4134,14 @@ explicit tail estimate for applications where that estimate is needed.
 \subsection{Uniformity across the phase}
 \label{subsec:uniformity-phase-v3}
 
-Every constant in the root and first-moment estimates was chosen on the compact
-set $K_*$, and the errors in Sections~5 and~7 were replaced by deterministic
-phase-independent envelopes.  The three partial-diagonal ranges and the three
-residual regimes are disjoint and exhaustive.  After finitely many additional
-eventual conditions---among them $\alpha>8$, $U\ge2$,
-$\rho_{\Sigma}\le1$, and $\tau_n^{\mathrm{end}}\le1$---the bare-skeleton bound
-holds for the total high-skeleton sum of the selected four-size profile, while
-the attachment bound holds uniformly over every feasible canonical high
-skeleton. Finally,
-$\mathcal G_n$ controls all leftover vertex sets simultaneously, while the
-constants in Lemma~\ref{lemma-10.2-amplification-from-a-seed} are independent
-of $k_n$, $\Lambda_n$, and $r$.  Taking the maximum of these finitely many
-thresholds gives one deterministic threshold for the final argument.
+The root estimates are uniform on $K_*$, and the errors above have
+deterministic bounds independent of the phase. The residual estimates
+cover all residual masses, and the leftover-coloring event holds for
+every vertex set simultaneously. All eventual conditions, including
+$\alpha>8$, $U\ge2$, $\rho_{\Sigma}\le1$ and
+$\tau_n^{\mathrm{end}}\le1$, therefore hold after one deterministic
+threshold. The amplification constants are independent of $k_n$,
+$\Lambda_n$ and $r$.
 
 \section{The phase-resolved gap and a uniform constant}
 \label{sec:final-assembly-v3}
@@ -4194,7 +4159,7 @@ closed phase interval to obtain the uniform constant.
 Take $n$ beyond the common deterministic eventuality threshold of
 Section~10.1.
 Let $r_+(n)$ be the ordinary first-moment root and let
-$r_4^{\mathrm{co}}(n)$ be the signed four-size root.
+$r_4^{\mathrm{co}}(n)$ be the four-size first-moment root for marked partitions.
 Proposition~\ref{prop:selected-profile-contract} gives
 \begin{equation}
   r_+(n)-r_4^{\mathrm{co}}(n)
@@ -4205,7 +4170,7 @@ Proposition~\ref{prop:selected-profile-contract} gives
   \frac{n}{(\log n)^3}.
   \label{eq:phase-resolved-root-gap-v3}
 \end{equation}
-The signed profile is placed a fixed distance above its first-moment root:
+The selected profile is placed a fixed distance above its first-moment root:
 \[
   k_{\mathrm{co}}
   =
@@ -4302,17 +4267,11 @@ Figure~\ref{fig:final-root-geometry-v3}.
     =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
       \frac{n}{(\log n)^3}$};
 \end{tikzpicture}
-\caption{Root geometry after rounding and amplification. For all sufficiently
-large $n$,
+\caption{First-moment roots and the class counts used after rounding and
+amplification. For all sufficiently large $n$,
 $r_4^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
-Here $r_4^{\mathrm{co}}$ and $r_+$ are analytic roots,
-$k_{\mathrm{co}}=\lceil r_4^{\mathrm{co}}\rceil+16$ is the number of classes
-in the signed witness, and $k_{\mathrm{co}}+a_n$ and $k_\chi^-$ are the
-deterministic locations used in the two probability events.
-The thick segment is the usable separation;
-$a_n=o(n/(\log n)^3)$ and
-$r_+-k_\chi^-\in[\log n,\log n+2)$. The horizontal positions are schematic
-and not to scale.}
+The thick segment is the remaining gap between the class counts.
+Positions are schematic and not to scale.}
 \label{fig:final-root-geometry-v3}
 \end{figure}
 
@@ -4391,13 +4350,6 @@ It follows that
   \right)
   \longrightarrow1.
 \]
-The displayed coefficient equals
-\[
-  \frac{(\log 2)^2}{4}
-  \log\!\left(\frac{200}{153}\right)
-  =0.032175871697936\ldots.
-\]
-
 This proves the main theorem. Since $n/(\log n)^3\to\infty$, the
 chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.  We have proved the lower-bound direction
@@ -4573,7 +4525,7 @@ For large $n$, $L-\ell>0$, while $K$ is bounded below. Exponentiating gives
 the complete phase.
 \end{proof}
 
-\section{Tilt brackets and tails for the entropy certificate}
+\section{Tilt brackets and tails for the entropy bound}
 \label{app:entropy-certificate-details}
 
 \begin{proof}[Proof of Lemma~\ref{lem:entropy-gap}]
@@ -5167,52 +5119,25 @@ All constants and eventuality thresholds in this extraction are independent of
 the phase.
 
 \displayheading{A negative bound for the leading rate}
-We now show that the leading rate is negative. The residual and selected
-deficits give two bounds:
+The inequalities used in the main proof of
+Lemma~\ref{lemma-7.1-all-common-subprofiles} are
 \begin{equation*}
- I_r-TR\le(5-T)R,
- \qquad
- I_r-TR=\sum_i(T-i)y_i\le(T-2)(1-R).
+ I_r-TR\le(5-T)R,\qquad I_r-TR\le(T-2)(1-R).
  \tag{7.22}
 \end{equation*}
-Recall that $q=\log 2$ and $Y=1-R$. Multiplying the first inequality in
-(7.22) by $Y$, the second by $R$, and adding gives
+Their weighted sum gives
 \begin{equation*}
- I_r-TR\le3RY.
+ I_r-TR\le3R(1-R).
  \tag{7.22a}
  \label{eq:partial-diagonal-combined-structural-v3}
 \end{equation*}
-For $0<R\le1$,
-\[
- \log R\le\frac{2(R-1)}{R+1}.
-\]
-Indeed, for $x=(1-R)/R\ge0$, the function
-$\log(1+x)-2x/(2+x)$ has derivative
-$x^2/((1+x)(2+x)^2)\ge0$ and vanishes at zero.  We also use (2.0).
-
-The condition $\rho\ge1/32$ above implies $R\ge1/64$ eventually.  If
-$1/64\le R\le3/4$, then
-\[
-\begin{aligned}
- \Phi_T
- &\le-\frac{2R}{1+R}Y+\frac{21}{20}RY\\
- &=-\left(\frac{2}{1+R}-\frac{21}{20}\right)RY
- \le-\frac{13}{8960}Y.
-\end{aligned}
-\]
-Here $2/(1+R)\ge8/7$ and $R\ge1/64$. If $3/4\le R\le1$, then (3.6) and
-(5.13) give
-$T=T_0+O(\log\log n/\log n)+O((\log n)^2/n)<4$ eventually. The second
-inequality in (7.22) therefore implies
-$I_r-TR\le2Y$. Since $\log R\le R-1=-Y$,
-\[
-  \Phi_T\le-RY+qY=(q-R)Y\le-\frac1{20}Y.
-\]
-Thus, whenever $\rho\ge1/32$, $1/64\le R\le1$, and $T<4$ as above,
+For $\rho\ge1/32$, we have $R\ge1/64$ eventually; (3.6) and (5.13)
+also give $T<4$. The logarithm inequalities in that proof imply
 \begin{equation*}
-  \Phi_T(z)\le-\frac{Y}{5000}.
-  \tag{7.23}
+ \Phi_T(z)\le-\frac{Y}{5000}.
+ \tag{7.23}
 \end{equation*}
+We retain the error estimates below, since $Y$ can tend to zero.
 
 \Needspace{6\baselineskip}
 \displayheading{Summing the intermediate profiles}

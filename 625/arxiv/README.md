@@ -1,13 +1,13 @@
 # Erdős 625 revised v2 manuscript
 
-Current reviewed v2 sources and PDF, prepared 13 October 2026. This prepares an arXiv replacement; no replacement has been submitted.
+Current reviewed v2 sources and PDF, prepared 13 October 2026, with terminology and redundancy edits after the mathematical review. This prepares an arXiv replacement; none has been submitted.
 
-Download [main.pdf](main.pdf) (53 pages) or [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip). The legacy archive name Erdos625_source.zip contains the same current package.
+Download [main.pdf](main.pdf) (52 pages) or [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip). The legacy archive name Erdos625_source.zip contains the same package.
 
-The uniform gap comes before the phase refinement. The central overlap estimate is explained in the main text, the local-ratio lemma names its numerator precisely, and the final amplification application uses the mean bound and Markov’s inequality. Matching notation is consistent.
+The terminology and redundancy pass replaces proof objects, skeletons and ledgers with descriptions of class marks, matchings, counts and bounds. Repeated definitions, roadmap paragraphs and the duplicate central overlap calculation are shortened. The paper is 52 pages, down from 53; the mathematical claims and hypotheses are retained.
 
-The source archive contains main.tex, main.bbl, references.bib and petkov-preprint.sty at its root. Compile main.tex with pdflatex (or latexmk -pdf); keep the supplied bibliography. arxiv-abstract.txt and arxiv-comments.txt provide separate metadata for the replacement form. Both papers use the same preprint style with coloured links.
+The archive contains main.tex, main.bbl, references.bib and petkov-preprint.sty at the root. Compile main.tex using pdflatex or latexmk -pdf; keep the supplied bibliography. arxiv-abstract.txt and arxiv-comments.txt provide separate metadata. The shared preprint font sizing and coloured links are preserved.
 
-The exact upload sources were compiled with PDFLaTeX/MiKTeX. The final logs contain no LaTeX warnings or errors, the fonts are embedded, and package contents match the compiled inputs. These checks support reproducibility; they do not constitute a complete formal verification of the manuscripts.
+The exact extracted upload sources compile with PDFLaTeX/MiKTeX without warnings or errors. Statement formulas, references, bibliography files, abstract text and the shared style were checked against the preceding reviewed version. These checks do not claim a new formal verification.
 
-[Manuscript before this review pass](https://github.com/SamPetkov/Erdos/tree/3ab76e5a5066e5ddeff132d5e9777b6965cc6ea2/625/arxiv) is preserved in Git history.
+[Before the terminology pass](https://github.com/SamPetkov/Erdos/tree/788b8f075208e374954c5feb91be7101264d9e9a/625/arxiv) is preserved in Git history.
