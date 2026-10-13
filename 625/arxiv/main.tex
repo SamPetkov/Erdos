@@ -522,7 +522,7 @@ Every finite-$n$ profile, maximization, and sum below uses $S^{(n)}$;
 limiting quantities use the displayed support $S$ itself.
 
 The class-size contribution will be split into an affine part and a
-remainder. For $i\in S_+^{(n)}$, define this remainder, the curved score, by
+remainder. For $i\in S_+^{(n)}$, define it by
 \begin{equation*}
   h_n(i):=
   \begin{cases}
@@ -534,6 +534,20 @@ remainder. For $i\in S_+^{(n)}$, define this remainder, the curved score, by
   \end{cases}
   \tag{3.1a}
 \end{equation*}
+
+The affine part is fixed by the mean constraint:
+\begin{equation*}
+  -\log d_{\alpha-i}=A_n+B_ni+h_n(i),
+  \tag{3.1b}\label{eq:root-affine}
+\end{equation*}
+where
+\begin{equation*}
+  A_n:=-\log d_\alpha,
+  \qquad
+  B_n:=q\alpha-\frac q2+\log\alpha,
+  \tag{3.1c}\label{eq:root-affine-coefficients}
+\end{equation*}
+Direct subtraction gives this identity also at $i=-1$.
 
 For $S\in\{S_+,S_4\}$ and a nonnegative real profile
 $\mathbf k=(k_i)_{i\in S^{(n)}}$, put
@@ -734,329 +748,10 @@ All displayed bounds and eventuality thresholds are uniform over the induced
 phases $\delta_n$, including sequences approaching either endpoint.
 \end{lemma}
 
-\begin{proof}
-Put $q:=\log 2$, $L:=\log n$, and $\ell:=\log\log n$.
-Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
-\[
-  \frac{L_S(n,n/s)}{n/s}
-  =(s-1)L-s+1+\log s
-   +\max_{\substack{p_i\ge0\ (i\in S^{(n)})\\
-                     \sum_i p_i=1,\ \sum_i ip_i=\alpha-s}}
-      \left[-\sum_i p_i\log p_i
-            -\sum_i p_i\log d_{\alpha-i}\right].
-\]
-The size-dependent term splits into an affine part, fixed by the mean
-constraint, and a curved part to be optimized:
-\begin{equation*}
-  -\log d_{\alpha-i}=A_n+B_ni+h_n(i),
-  \tag{3.10}
-\end{equation*}
-where
-\begin{equation*}
-  A_n:=-\log d_\alpha,
-  \qquad
-  B_n:=q\alpha-\frac q2+\log\alpha,
-  \tag{3.11}
-\end{equation*}
-and $h_n$ is the curved score defined in (3.1a). Direct subtraction verifies
-the displayed identity also at $i=-1$.
-Thus
-\begin{equation*}
-  h_n(i)=-\frac q2i^2+O(i^2/\alpha)
-  \quad\text{for every fixed }i,
-  \qquad
-  h_n(i)\le-\frac q2i^2
-  \quad(i\ge-1).
-  \tag{3.12}
-\end{equation*}
-The first estimate is uniform on every fixed finite set of deficits; the
-second is global on the finite support.
+The proof is in Appendix~\ref{app:uniform-root-proof}. It first controls
+the finite exponential tilts uniformly on \(K_*\), then applies Stirling's
+formula to locate the zeros and bound their slopes.
 
-\displayheading{Finite and limiting duals and optimizing tilts}
-We first solve the mean constraint by exponential tilting. The target
-center satisfies
-\begin{equation*}
-  \frac2q\le T_0\le1+\frac2q,
-  \tag{3.13}
-\end{equation*}
-so it lies in the interior of $K_*$. Every target in
-$K_*$ is also strictly inside the feasible mean range of both supports.
-
-Choose $\Lambda>0$ so that
-\[
-  M_S(-\Lambda)<\min K_*<\max K_*<M_S(\Lambda)
-  \qquad(S=S_+,S_4).
-\]
-Such a choice exists because the limiting mean maps are strictly increasing
-and their endpoint limits bracket $K_*$. We quantify the effect of the finite score before inverting the mean map.
-Write
-\[
-  w_i(\lambda):=\exp\!\left(\lambda i-\frac q2i^2\right),
-  \qquad
-  \rho_n(i):=-h_n(i)-\frac q2i^2
-\]
-on the finite support. By (3.1a), the score loss is nonnegative, and
-\[
-  0\le\rho_n(-1)=\log(1+1/\alpha)\le1/\alpha.
-\]
-For $0\le i\le\alpha/2$, use $-\log(1-x)\le2x$ on $0\le x\le1/2$ to get
-\[
-  0\le\rho_n(i)
-  =-\sum_{r=0}^{i-1}\log\!\left(1-\frac r\alpha\right)
-  \le\frac{i(i-1)}{\alpha}
-  \le\frac{i^2}{\alpha}.
-\]
-Since $0\le1-e^{-\rho_n(i)}\le\rho_n(i)$, for $m=0,1,2$ the retained low
-indices satisfy
-\[
-  \sum_{\substack{i\in S^{(n)}\\i\le\alpha/2}}
-  |i|^m\left|e^{\lambda i+h_n(i)}-w_i(\lambda)\right|
-  \le\frac{C_m}{\alpha}
-  \qquad(|\lambda|\le\Lambda).
-\]
-Here $|i|^0$ means one. The constants are finite because every polynomial
-times $\exp(\Lambda|i|-qi^2/2)$ is summable.
-
-For the remaining indices, (3.12) bounds the weight difference by the
-limiting weight. The omitted indices beyond the finite cutoff are covered
-by the same tail. For sufficiently large $\alpha$,
-\[
-  \sum_{i>\alpha/2}i^m e^{\Lambda i-qi^2/2}
-  \le\sum_{i>\alpha/2}i^m e^{-qi^2/4}
-  \le C_m e^{-c\alpha^2}.
-\]
-The last bound follows by comparison with a Gaussian integral, absorbing
-the fixed polynomial into a smaller Gaussian exponent. The tail for
-$S_4$ is eventually empty. Thus the zeroth, first, and second tilted
-moments differ by $O(1/\alpha)$ uniformly on $[-\Lambda,\Lambda]$, for
-both supports. Their zeroth moments have a common positive lower bound:
-retain the $i=2$ term, which is present in both finite supports, and use
-the bounded tilt interval and bounded $h_n(2)$. Taking logarithms and
-ratios therefore gives, uniformly on this interval,
-\[
-\begin{split}
-  \log Z_{n,S}-\log Z_S&=O(1/\alpha),\\
-  M_{n,S}-M_S&=O(1/\alpha),\\
-  M'_{n,S}-M'_S&=O(1/\alpha).
-\end{split}
-\]
-
-
-For all sufficiently large $n$, the finite support $S^{(n)}$ contains at
-least two indices, and hence
-$M'_{n,S}(\lambda)=\operatorname{Var}_{n,S,\lambda}(i)>0$ for every
-$\lambda\in\mathbb R$. Likewise,
-$M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$ for every $\lambda$.
-Thus both mean maps are globally strictly increasing. By continuity and
-compactness,
-\[
-  v_*:=\frac12
-  \min_{\substack{S\in\{S_+,S_4\}\\|\lambda|\le\Lambda}}
-  M'_S(\lambda)>0.
-\]
-For all sufficiently large $n$, one has
-$M'_{n,S}(\lambda)\ge v_*$ on the same interval, and the finite mean maps
-also bracket $K_*$. Hence, for every $T\in K_*$, the equations
-\[
-  M_{n,S}(\lambda_{n,S}(T))=T,
-  \qquad
-  M_S(\lambda_S(T))=T
-\]
-have unique solutions in $[-\Lambda,\Lambda]$. The inverse mean maps are
-uniformly $v_*^{-1}$-Lipschitz, and therefore
-\[
-  \sup_{T\in K_*}
-  |\lambda_{n,S}(T)-\lambda_S(T)|
-  \le
-  v_*^{-1}\sup_{|\lambda|\le\Lambda}
-  |M_{n,S}(\lambda)-M_S(\lambda)|
-  =O(1/\alpha).
-\]
-
-For the finite supports, the entropy functional in (3.8a) is strictly
-concave on its feasible simplex. Its unique optimizer is
-\[
-  p_{n,S,T}(i)
-  =\frac{
-    \exp\{\lambda_{n,S}(T)i+h_n(i)\}
-  }{Z_{n,S}(\lambda_{n,S}(T))},
-\]
-and its dual value is exactly
-\[
-  \mathcal F_{n,S}(T)
-  =\log Z_{n,S}(\lambda_{n,S}(T))
-   -\lambda_{n,S}(T)T.
-\]
-
-For the countable support $S_+$, we must also show that the entropy
-maximum is attained. Fix $T\in K_*$, write $\lambda=\lambda_{S_+}(T)$, and set
-\[
- \pi_\lambda(i):=
- \frac{\exp\{\lambda i-q i^2/2\}}{Z_{S_+}(\lambda)}.
-\]
-Write
-\[
-  D_{\mathrm{KL}}(p\Vert\pi_\lambda)
-  :=\sum_i p_i\log\frac{p_i}{\pi_\lambda(i)},
-\]
-with the convention that a summand with $p_i=0$ is zero.
-This probability distribution has mean $T$.  For every feasible probability
-vector $p$ with finite quadratic moment,
-\begin{equation}
- -\sum_i p_i\log p_i-\frac q2\sum_i i^2p_i
- =\log Z_{S_+}(\lambda)-\lambda T
-  -D_{\mathrm{KL}}(p\Vert\pi_\lambda).
- \tag{3.13a}
-\end{equation}
-The identity follows first for finitely supported $p$ and then by truncation;
-finite quadratic moment also makes the entropy finite by comparison with a
-Gaussian law.  We interpret the objective as $-\infty$ when the quadratic
-moment diverges.  Since relative entropy is nonnegative and vanishes only at
-$p=\pi_\lambda$, (3.13a) proves finiteness, attainment, uniqueness, and the
-dual formula for $S_+$.  The same identity also recovers the finite-support
-case. The dual objectives for the finite and limiting supports attain
-their minima in the same tilt interval. Their difference at a fixed tilt
-is $\log Z_{n,S}-\log Z_S$, so the difference of their minimum values is
-at most the uniform norm of this quantity. Together with the tilt estimate,
-this proves (3.9a) and
-\[
-  \varepsilon_n^{\mathrm{dual}}=O(1/\alpha).
-\]
-On the finite support $S_4$, the score perturbation and tilt error in the
-optimizer formula give the coordinatewise rate (3.9b). The limiting
-coordinates are positive and continuous in $T$ on the compact set $K_*$;
-their positive minimum, together with this rate, gives the asserted
-uniform lower bound on the finite coordinates.
-
-\displayheading{Exact cancellation between supports}
-We next return to the counting exponent. Substitution of (3.10) gives
-\begin{equation*}
-\begin{split}
-  \Psi_{n,S}(s)
-  &:=\frac{L_S(n,n/s)}{n/s}\\
-  &=(s-1)L-s+1+\log s
-    +A_n+B_n(\alpha-s)
-    +\mathcal F_{n,S}(\alpha-s).
-\end{split}
-  \tag{3.14}
-\end{equation*}
-Hold $k$ fixed at a value feasible for both supports. The mean class size
-$s$ and the mean deficit $T=\alpha-s$ are then the same, so the affine terms
-in (3.14) cancel. The difference is exactly the difference of the two finite
-dual values, as asserted in (3.8). This compares the supports at the same
-number of parts and vertices, before either dual value is replaced by its
-limit.
-
-\displayheading{The exponent at the phase center and its nearby slope}
-To locate the zero, we estimate the exponent at the phase center and its
-derivative nearby. At $s=s_0$, let $T_0=\alpha-s_0$. Applying Stirling to
-$A_n$ in (3.14) and collecting the affine terms gives
-\begin{equation*}
-\begin{split}
-  \Psi_{n,S}(s_0)-\mathcal F_{n,S}(T_0)
-  ={}&s_0\left(
-    L-\log\alpha-\frac q2s_0+\frac q2
-  \right)-L+T_0+1+\log s_0+\frac q2T_0^2\\
-  &\hspace{42mm}
-  -\frac12\log(2\pi\alpha)+O(1/L).
-\end{split}
-  \tag{3.15}
-\end{equation*}
-Equation (2.1) gives the exact identity
-\[
-  \frac{qs_0}{2}=L-\ell+\log q-q.
-\]
-Since $\alpha=s_0+T_0$ and $T_0$ is uniformly bounded,
-\[
-  \log\alpha
-  =\log s_0+\frac{T_0}{s_0}+O(L^{-2}),
-  \qquad
-  \log s_0=\ell+q-\log q+O(\ell/L).
-\]
-Consequently
-\[
-\begin{split}
-  s_0\left(
-    L-\log\alpha-\frac q2s_0+\frac q2
-  \right)
-  &=-T_0+\frac q2s_0+O(\ell)\\
-  &=-T_0+L-\ell+\log q-q+O(\ell).
-\end{split}
-\]
-Substitution in (3.15) cancels the terms $L$ and $T_0$ and leaves
-$O(\ell)$ uniformly in the phase. The dual term in (3.14) is $O(1)$ uniformly
-on $K_*$, by the Gaussian majorant above. Therefore
-\begin{equation*}
-  \Psi_{n,S}(s_0)=O(\ell)
-  \tag{3.16}
-\end{equation*}
-uniformly for both supports.
-
-The phase formula for $\alpha$ and the expansion of $\log\alpha$ also give
-\begin{equation*}
-  B_n=2L-\ell+O(1)
-  \tag{3.17}
-\end{equation*}
-uniformly in $\delta$. Strict concavity and the optimizer formula imply
-\[
-  \frac{d}{dT}\mathcal F_{n,S}(T)=-\lambda_{n,S}(T).
-\]
-Differentiating (3.14), with $T=\alpha-s$, yields
-\begin{equation*}
-  \Psi'_{n,S}(s)
-  =L-1+s^{-1}-B_n+\lambda_{n,S}(T)
-  =-L+O_A(\ell)
-  \tag{3.18}
-\end{equation*}
-uniformly whenever $|s-s_0|\le A\ell/L$. Indeed, the image of this corridor
-under $T=\alpha-s$ lies inside $K_*$ for all sufficiently large $n$, because
-$K_*$ has a fixed margin around the complete range of $T_0$.
-
-\displayheading{Roots and slopes in the phase corridor}
-Set
-\[
-  \Psi_{n,S,c}(s):=\Psi_{n,S}(s)+c.
-\]
-By (3.16), there is an absolute $C_0$ such that
-$|\Psi_{n,S,c}(s_0)|\le C_0\ell$ for both supports and every
-$0\le c\le q$. By (3.18), after one phase-independent eventuality threshold,
-\[
-  \Psi'_{n,S,c}(s)\le-\frac12L
-\]
-throughout each fixed corridor. Choose $A_*>2C_0$. Integration gives
-\[
-\begin{aligned}
-  \Psi_{n,S,c}\!\left(s_0-A_*\frac\ell L\right)
-  &\ge\left(\frac{A_*}{2}-C_0\right)\ell>0,\\
-  \Psi_{n,S,c}\!\left(s_0+A_*\frac\ell L\right)
-  &\le\left(C_0-\frac{A_*}{2}\right)\ell<0.
-\end{aligned}
-\]
-The endpoint signs give a zero, and strict decrease in $s$ gives uniqueness
-on this interval. Since $k=n/s>0$, this is the \emph{corridor} root
-$r_{S,c}$ of $L_S(n,k)+ck=0$. We have proved (3.6); the argument makes no
-claim about zeros outside the corridor.
-
-Finally,
-\[
-  L_S(n,k)+ck=k\Psi_{n,S,c}(s),
-  \qquad
-  \frac{ds}{dk}=-\frac sk.
-\]
-Hence
-\begin{equation*}
-\begin{split}
-  \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
-  &=\Psi_{n,S,c}(s)-s\Psi'_{n,S}(s)\\
-  &=\frac2qL^2+O_A(L\ell),
-\end{split}
-  \tag{3.19}
-\end{equation*}
-because $s=(2/q)L+O_A(\ell)$, (3.18) holds, and
-$\Psi_{n,S,c}(s)=O_A(\ell)$ throughout the corridor. This proves (3.7) and
-$\varepsilon_{n,A}^{\mathrm{slope}}\to0$ with one eventuality threshold for
-the complete phase.
-\end{proof}
 \section{\texorpdfstring{A uniform lower bound for the chromatic number $\chi$}{A uniform lower bound for the chromatic number}}
 \label{a-valid-unrestricted-lower-location-for-chi}
 
@@ -1284,7 +979,7 @@ The Gaussian factor makes both sums finite. Moreover,
 \(M_S'(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0\), and the endpoint
 limits of \(M_S\) are the endpoints of the convex hull of \(S\). Thus, for
 every \(T\in(2,5)\), there is a unique tilt
-\(\lambda_S(T)\) with \(M_S(\lambda_S(T))=T\). The Gibbs identity (3.13a)
+\(\lambda_S(T)\) with \(M_S(\lambda_S(T))=T\). The Gibbs identity \eqref{eq:root-gibbs-identity}
 proves that the optimizer in (3.9a) is
 
 \[
@@ -1603,7 +1298,7 @@ finite-\(n\) maximizer of \(L_{S_4}\).  Let
 \(\lambda_{n,\mathrm{def}}\) denote the Lagrange multiplier for the
 deficit-mean constraint, with the sign convention that its contribution
 is \(e^{\lambda_{n,\mathrm{def}}i}\).  The Lagrange equations and the
-decomposition (3.10) then give
+decomposition \eqref{eq:root-affine} then give
 
 \[
  p_i^{(n)}\ \propto\ d_{\alpha-i}^{-1}e^{\lambda_{n,\mathrm{def}}i}
@@ -1660,41 +1355,9 @@ so \(e_0,e_1=O(1)\), and add
 Set $\Delta k_4=\Delta k_5=0$, $k_i:=\widetilde k_i+\Delta k_i$ for
 $2\le i\le5$, and $\mathbf k:=(k_2,k_3,k_4,k_5)$.
 
-The correction satisfies \(\Delta k_2+\Delta k_3=-e_0\) and
-\(2\Delta k_2+3\Delta k_3=-e_1\), so it removes both constraint errors
-by changing \(O(1)\) counts. To estimate the resulting loss in the
-counting exponent, put
-\(\mathbf k^*=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^5\) and let
-\(\Delta^{\mathrm{tot}}=\mathbf k-\mathbf k^*\) be the total rounding
-and correction displacement.  There is a phase-independent constant
-$C_\Delta$ such that
-$\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$.  Moreover,
-$\Delta^{\mathrm{tot}}$ satisfies both homogeneous constraint equations,
-because $\mathbf k^*$ and $\mathbf k$ obey the same two constraints; thus it
-is tangent to the feasible affine plane.
-
-For Taylor's formula we need the optimizer and the corrected profile to be
-joined inside the positive orthant. By (5.15), $k_i^*\ge c_pk_{\mathrm{co}}$;
-hence, uniformly in $t\in[0,1]$ and in the phase,
-\[
-  k_i^*+t\Delta_i^{\mathrm{tot}}
-  \ge c_pk_{\mathrm{co}}-C_\Delta
-  \ge \frac{c_p}{2}k_{\mathrm{co}}
-\]
-for all sufficiently large $n$. In particular the correction preserves
-positivity. At the exact constrained optimizer the linear term in every
-tangent direction vanishes, while at a positive vector $x$ the Hessian of the
-entropy term is $-\operatorname{diag}(1/x_i)$. Its operator norm along the
-rounding segment is therefore at most $2/(c_pk_{\mathrm{co}})$. Taylor's
-formula with integral remainder gives
-
-\[
- \left|L_{\mathbf k^*+\Delta^{\mathrm{tot}}}-L_{\mathbf k^*}\right|
- \le \frac12\sup_{0\le t\le1}
- \left\|\nabla^2L_{\mathbf k^*+t\Delta^{\mathrm{tot}}}\right\|_{\mathrm{op}}
- \|\Delta^{\mathrm{tot}}\|_2^2
- =O(1/k_{\mathrm{co}}).
-\]
+The correction removes both constraint errors by changing only \(O(1)\)
+counts. Appendix~\ref{app:profile-rounding-proof} checks positivity and
+shows that the loss in the counting exponent is \(O(1/k_{\mathrm{co}})\).
 
 The resulting exact integer vector satisfies
 
@@ -1721,20 +1384,8 @@ profile-multiplicity factorials \(k_i!\) then gives
  \ge c_Z(\log n)^2                                               \tag{5.19}
 \]
 
-for a phase-independent \(c_Z>0\). The fixed displacement above the root
-provides the margin: $\Phi_n(r_4^{\mathrm{co}})=0$ and
-$16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17$. By Equation~(3.7), with
-$S=S_4$ and $c=\log 2$, there is a phase-independent $c_1>0$ such that
-$\Phi_n'(k)\ge c_1(\log n)^2$ throughout this interval for all sufficiently
-large $n$.  Integration therefore gives
-\[
-  L_{S_4}(n,k_{\mathrm{co}})+(\log 2)k_{\mathrm{co}}
-  =\Phi_n(k_{\mathrm{co}})
-  \ge16c_1(\log n)^2.
-\]
-The tangent rounding loss above is $O(k_{\mathrm{co}}^{-1})$, and the five
-Stirling approximations contribute $O(\log n)$ in total.  Both are smaller
-than the integrated margin; decreasing $c_Z$ proves the assertion. Every
+for a phase-independent \(c_Z>0\). Appendix~\ref{app:profile-rounding-proof} verifies that the fixed
+displacement above the root exceeds the rounding and Stirling losses. Every
 \(u_i\) tends to infinity, so the independent and complete
 declarations of one part are disjoint. Thus
 \(Z_{\mathbf k}^{\mathrm{sgn}}>0\)
@@ -1790,9 +1441,10 @@ the induced phases, including integer sequences approaching either endpoint.
 \end{proposition}
 
 \begin{proof}
-Equation (5.16) removes both rounding errors exactly. The segment estimate
-following (5.16) gives $k_i\ge(c_p/2)k_{\mathrm{co}}$ after one
-phase-independent threshold; take $c_*=c_p/2$. The root corridor and (5.13)
+Equation (5.16) removes both rounding errors exactly.
+Appendix~\ref{app:profile-rounding-proof} gives
+$k_i\ge(c_p/2)k_{\mathrm{co}}$ after one phase-independent threshold;
+take $c_*=c_p/2$. The root corridor and (5.13)
 give the order of $k_{\mathrm{co}}$. Equation (5.19) proves the first-moment
 bound, and the paragraph following it identifies a realized marked cocoloring
 with a cocoloring. The root separation is (5.11). Finally, (4.1) and (5.13)
@@ -3618,10 +3270,9 @@ $C_{\mathrm{att}}:=2C_1$.
 \subsection{The global second-moment exponent}
 \label{subsec:explicit-global-ledger-v3}
 
-We can now sum the exact decomposition. The bound for the exposed weights bounds
-the total exposed weight, and the residual estimate bounds each residual factor
-uniformly. Their logarithms add. We keep them separate until checking that
-both are small on the scale required by amplification.
+We combine the exposed-weight and residual-factor bounds in the exact
+decomposition. Their logarithms add; we check below that the resulting
+exponent is small enough for amplification.
 
 Combine the three deterministic partial-diagonal errors introduced in
 Section~7 and estimated in Appendix~\ref{app:common-subprofile-details} by
@@ -3847,9 +3498,11 @@ The probability bound need not tend to one. Following
 concentration as in \citet[Theorem~1]{scott-2008-2017} to find a large
 induced subgraph with the desired cocoloring. We then color the leftover
 vertices. Their set depends on the graph, so a bound for a fixed vertex set
-would not suffice; the first lemma controls all sets simultaneously. The
-second lemma uses this bound and the exponent in the probability bound $\Lambda_n$. Its cost in
-(10.5) will be $o(n/(\log n)^3)$, smaller than the root separation.
+would not suffice. The first lemma controls all sets simultaneously;
+the second bounds the mean excess above the desired class count. Markov's
+inequality then gives an error of $o(n/(\log n)^3)$, smaller than the root
+separation. Appendix~\ref{app:amplification-tail} gives a stronger explicit
+tail bound.
 
 \subsection*{Coloring every leftover vertex set}
 
@@ -3930,110 +3583,10 @@ After enlarging the absolute constant $C_0$, this is (10.3), simultaneously for
 every \(S\).
 \end{proof}
 
-\Needspace{6\baselineskip}
-\subsection*{Amplification by vertex exposure}
-\begin{lemma}[Amplification by vertex exposure]
-\label{lemma-10.2-amplification-from-a-seed}
-
-There is an absolute constant $C>0$ and a deterministic sequence
-$\varepsilon_n^{\mathrm{left}}\ge0$ with
-$\varepsilon_n^{\mathrm{left}}\to0$ such that the following holds. Suppose deterministic
-integers $k_n\ge0$ and deterministic reals $\Lambda_n\ge0$ satisfy, for all
-sufficiently large $n$,
-
-\[
- \Prob{\zeta(G_n)\le k_n}\ge e^{-\Lambda_n}.             \tag{10.4}
-\]
-
-For every deterministic choice $r=r(n)>0$, with the same $C$ and
-$\varepsilon_n^{\mathrm{left}}$ independent of $k_n,\Lambda_n,r$, the bound
-
-\[
-\begin{split}
- \mathbb{P}\!\Bigg(\zeta(G_n)>k_n+C\bigg(
- &\frac{\sqrt{n\Lambda_n}+\sqrt{nr}}{\log n}
-   +n^{1/3}+1\bigg)\Bigg)\\
- &\le e^{-r}+\varepsilon_n^{\mathrm{left}}.               \end{split}
-\tag{10.5}
-\]
-holds at every sufficiently large $n$ for which (10.4) holds.
-
-\end{lemma}
-
-\begin{proof}
-Let $\mathcal G_n$ be the simultaneous event in
-Lemma~\ref{lemma-10.1-simultaneous-leftover-coloring}, and set
-$\varepsilon_n^{\mathrm{left}}:=\mathbb P(\mathcal G_n^c)=o(1)$. This sequence is independent
-of $k_n$, $\Lambda_n$, and $r$.
-
-To apply concentration, we measure the largest vertex set that can be
-cocolored with at most the given number of classes. For $W\subseteq[n]$, let
-$\zeta(W)=\zeta(G_n[W])$, with $\zeta(\varnothing)=0$, and define
-
-\[
- S_{k_n}=\max\{|W|:W\subseteq[n],\ \zeta(W)\le k_n\}.  \tag{10.6}
-\]
-
-Expose the graph in \(n-1\) independent vertex blocks, placing in block
-\(v\) the edges from its vertex to earlier vertices. Two outcomes that differ
-only in block \(v\) agree on all edges away from that vertex. Take a
-maximizing set in the first outcome. If it contains the changed vertex,
-delete it and restrict the cocoloring to the remaining set; otherwise keep
-the set. Either way, it is feasible in the second outcome and has lost at
-most one vertex. Interchanging the outcomes gives the reverse comparison.
-Thus $S_{k_n}$ changes by at most one, and (1.3) applies
-\citep[Theorem~3.1]{mcdiarmid-1989}.
-
-\Needspace{6\baselineskip}
-Since $S_{k_n}=n$ exactly when $\zeta(G_n)\le k_n$,
-(10.4) and the upper one-sided bounded-differences tail give
-
-\[
- e^{-\Lambda_n}
- \le\Prob{S_{k_n}-\Exp{S_{k_n}}\ge n-\Exp{S_{k_n}}}
- \le\exp\!\left\{-\frac{2(n-\Exp{S_{k_n}})^2}{n-1}\right\}.
-\]
-
-The probability bound thus bounds the mean number of uncovered vertices. Taking
-logarithms gives
-
-\[
- n-\Exp{S_{k_n}}\le\sqrt{(n-1)\Lambda_n/2}.              \tag{10.7}
-\]
-
-The lower tail with radius \(\sqrt{(n-1)r/2}\) gives, outside an event of
-probability at most \(e^{-r}\),
-
-\[
- n-S_{k_n}\le
- \sqrt{(n-1)\Lambda_n/2}+\sqrt{(n-1)r/2}.                \tag{10.8}
-\]
-
-\Needspace{6\baselineskip}
-Choose a maximizing set \(W\) and put
-\(V_{\mathrm{left}}=[n]\setminus W\). Combining a cocoloring of \(G_n[W]\)
-using at most \(k_n\) parts with an ordinary coloring of
-\(G_n[V_{\mathrm{left}}]\) gives
-
-\[
- \zeta(G_n)\le k_n+\chi(G_n[V_{\mathrm{left}}]).         \tag{10.9}
-\]
-
-The set $V_{\mathrm{left}}$ was selected from the graph, but
-$\mathcal G_n$ controls it along with every other set. On this event and
-the event in (10.8), apply (10.3) with
-$|V_{\mathrm{left}}|=n-S_{k_n}$ in (10.9). Enlarging the absolute constant
-$C$ gives the additional parts in (10.5). The two exceptional events have
-total probability at most $e^{-r}+\varepsilon_n^{\mathrm{left}}$.
-The bound holds at every sufficiently large $n$ satisfying (10.4), with
-$C$ and $\varepsilon_n^{\mathrm{left}}$ independent of the three
-deterministic parameters.
-\end{proof}
-
 \subsection*{Mean excess above the class-count bound}
 
-The same argument bounds the mean excess above $k$, using the mean number
-of uncovered vertices in (10.7).
+We bound the mean number of vertices left outside a cocolorable set,
+then color those vertices on the simultaneous density event.
 
 \begin{lemma}[Mean bound for the cochromatic number]
 \label{lem:mean-seed-amplification}
@@ -4066,16 +3619,54 @@ union bound,
 \[
  \Prob{\mathcal D_n^c}\le\varepsilon_n^{\mathrm{dens}}.
 \]
-On this same event, (10.3) holds for every vertex set. Let $S_k$ be the
-largest cocolorable-set size in (10.6). The probability bound and (10.7) give
+On $\mathcal D_n$, (10.3) holds for every vertex set.
+
+To apply concentration, we measure the largest vertex set that can be
+cocolored with at most the given number of classes. For $W\subseteq[n]$, let
+$\zeta(W)=\zeta(G_n[W])$, with $\zeta(\varnothing)=0$, and define
+
 \[
- \Exp{n-S_k}\le\sqrt{(n-1)\Lambda/2}.
+ S_{k}=\max\{|W|:W\subseteq[n],\ \zeta(W)\le k\}.  \tag{10.4}\label{eq:amplification-largest-set}
 \]
-Choose a maximizing set as in (10.9). On $\mathcal D_n$, color the
-remaining vertices using the simultaneous leftover bound. This bound applies
-even though the set was chosen from the graph, because it holds for
-every vertex set. Combining this coloring with the cocoloring of the
-maximizing set gives
+
+Expose the graph in \(n-1\) independent vertex blocks, placing in block
+\(v\) the edges from its vertex to earlier vertices. Two outcomes that differ
+only in block \(v\) agree on all edges away from that vertex. Take a
+maximizing set in the first outcome. If it contains the changed vertex,
+delete it and restrict the cocoloring to the remaining set; otherwise keep
+the set. Either way, it is feasible in the second outcome and has lost at
+most one vertex. Interchanging the outcomes gives the reverse comparison.
+Thus $S_{k}$ changes by at most one, and (1.3) applies
+\citep[Theorem~3.1]{mcdiarmid-1989}.
+
+\Needspace{6\baselineskip}
+Since $S_{k}=n$ exactly when $\zeta(G_n)\le k$,
+the assumed probability bound and (1.3) give
+
+\[
+ e^{-\Lambda}
+ \le\Prob{S_{k}-\Exp{S_{k}}\ge n-\Exp{S_{k}}}
+ \le\exp\!\left\{-\frac{2(n-\Exp{S_{k}})^2}{n-1}\right\}.
+\]
+
+Taking logarithms bounds the mean number of uncovered vertices:
+
+\[
+ n-\Exp{S_{k}}\le\sqrt{(n-1)\Lambda/2}.              \tag{10.5}\label{eq:amplification-uncovered-mean}
+\]
+
+Choose a maximizing set \(W\) and put
+\(V_{\mathrm{left}}=[n]\setminus W\). Combining a cocoloring of \(G_n[W]\)
+using at most \(k\) parts with an ordinary coloring of
+\(G_n[V_{\mathrm{left}}]\) gives
+
+\[
+ \zeta(G_n)\le k+\chi(G_n[V_{\mathrm{left}}]).         \tag{10.6}\label{eq:amplification-leftover-coloring}
+\]
+
+On $\mathcal D_n$, the leftover bound applies to every vertex set,
+including this one chosen from the graph. Combining its coloring with the
+cocoloring of $W$ gives
 \[
  (\zeta(G_n)-k)_+
  \le\frac{C_0}{\log n}(n-S_k)+n^{1/3}.
@@ -4111,7 +3702,7 @@ Put \(s_n=n/(\log n)^3\) and let
  b_n:=\frac{C_0}{\log n}\sqrt{\frac{(n-1)\Lambda_n}{2}}
        +n^{1/3}+n\varepsilon_n^{\mathrm{dens}},
  \qquad a_n:=\sqrt{b_ns_n}.
- \tag{10.10}
+ \tag{10.7}\label{eq:amplification-markov-scales}
 \]
 Here \(b_n>0\) is a deterministic upper bound for
 \(\mathbb E(\zeta(G_n)-k_{\mathrm{co}})_+\).
@@ -4119,17 +3710,18 @@ Since \(\Lambda_n=o(n/(\log n)^4)\) and
 \(\varepsilon_n^{\mathrm{dens}}\le e^{-c\sqrt n}\),
 \[
  b_n=o(s_n),\qquad a_n=o(s_n).
- \tag{10.11}
+ \tag{10.8}\label{eq:amplification-markov-errors}
 \]
 Markov's inequality now gives
 \[
  \mathbb P\bigl(\zeta(G_n)>k_{\mathrm{co}}+a_n\bigr)
  \le\frac{b_n}{a_n}=\sqrt{\frac{b_n}{s_n}}\longrightarrow0.
- \tag{10.12}
+ \tag{10.9}\label{eq:amplification-markov-probability}
 \]
 All these sequences are deterministic, and the bounds hold uniformly in the
-phase. Lemma~\ref{lemma-10.2-amplification-from-a-seed} retains the stronger
-explicit tail estimate for applications where that estimate is needed.
+phase. The stronger tail estimate is
+Lemma~\ref{lemma-10.2-amplification-from-a-seed} in
+Appendix~\ref{app:amplification-tail}.
 
 \subsection{Uniformity across the phase}
 \label{subsec:uniformity-phase-v3}
@@ -4219,7 +3811,7 @@ and $k_\chi^-=r_+(n)+O(\log n)$. Combining this with
   \label{eq:integer-location-gap-v3}
 \end{equation}
 
-The amplification result (10.12) gives a deterministic sequence
+The amplification result \eqref{eq:amplification-markov-probability} gives a deterministic sequence
 $a_n=o(n/(\log n)^3)$ such that
 \[
   \mathbb P\bigl(\zeta(G_n)\le k_{\mathrm{co}}+a_n\bigr)
@@ -4282,7 +3874,7 @@ To make the final error explicit, put
   -\frac{(\log 2)^2}{4}A_4(\delta_n),\qquad
   \eta_n:=\frac{a_n}{s_n}.
 \]
-By \eqref{eq:integer-location-gap-v3} and (10.12),
+By \eqref{eq:integer-location-gap-v3} and \eqref{eq:amplification-markov-probability},
 $\theta_n\to0$ and $\eta_n\to0$.  Hence the nonnegative deterministic error
 \[
   \varepsilon_n^{\mathrm{gap}}:=|\theta_n|+\eta_n
@@ -4302,7 +3894,7 @@ tends to zero. On the event
     -\varepsilon_n^{\mathrm{gap}}
   \right]s_n.
 \]
-By (4.6) and (10.12), a union bound shows that this intersection has
+By (4.6) and \eqref{eq:amplification-markov-probability}, a union bound shows that this intersection has
 probability $1-o(1)$. Consequently,
 \begin{equation}
   \mathbb P\!\left(
@@ -4373,6 +3965,442 @@ the manuscript and formalization, and assumes responsibility for the
 accuracy, integrity, citations, and final submission.
 
 \appendix
+
+\section{Proof of the uniform root estimates}
+\label{app:uniform-root-proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:uniform-root-slope-dual}]
+Put $q:=\log 2$, $L:=\log n$, and $\ell:=\log\log n$.
+Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
+\[
+  \frac{L_S(n,n/s)}{n/s}
+  =(s-1)L-s+1+\log s
+   +\max_{\substack{p_i\ge0\ (i\in S^{(n)})\\
+                     \sum_i p_i=1,\ \sum_i ip_i=\alpha-s}}
+      \left[-\sum_i p_i\log p_i
+            -\sum_i p_i\log d_{\alpha-i}\right].
+\]
+Using the affine decomposition from Section~\ref{continuous-profile-roots},
+Thus
+\begin{equation*}
+  h_n(i)=-\frac q2i^2+O(i^2/\alpha)
+  \quad\text{for every fixed }i,
+  \qquad
+  h_n(i)\le-\frac q2i^2
+  \quad(i\ge-1).
+  \tag{\thesection.1}\label{eq:root-curvature}
+\end{equation*}
+The first estimate is uniform on every fixed finite set of deficits; the
+second is global on the finite support.
+
+\displayheading{Finite and limiting duals and optimizing tilts}
+We first solve the mean constraint by exponential tilting. The target
+center satisfies
+\begin{equation*}
+  \frac2q\le T_0\le1+\frac2q,
+  \tag{\thesection.2}\label{eq:root-dual-form}
+\end{equation*}
+so it lies in the interior of $K_*$. Every target in
+$K_*$ is also strictly inside the feasible mean range of both supports.
+
+Choose $\Lambda>0$ so that
+\[
+  M_S(-\Lambda)<\min K_*<\max K_*<M_S(\Lambda)
+  \qquad(S=S_+,S_4).
+\]
+Such a choice exists because the limiting mean maps are strictly increasing
+and their endpoint limits bracket $K_*$. We quantify the effect of the finite score before inverting the mean map.
+Write
+\[
+  w_i(\lambda):=\exp\!\left(\lambda i-\frac q2i^2\right),
+  \qquad
+  \rho_n(i):=-h_n(i)-\frac q2i^2
+\]
+on the finite support. By (3.1a), the score loss is nonnegative, and
+\[
+  0\le\rho_n(-1)=\log(1+1/\alpha)\le1/\alpha.
+\]
+For $0\le i\le\alpha/2$, use $-\log(1-x)\le2x$ on $0\le x\le1/2$ to get
+\[
+  0\le\rho_n(i)
+  =-\sum_{r=0}^{i-1}\log\!\left(1-\frac r\alpha\right)
+  \le\frac{i(i-1)}{\alpha}
+  \le\frac{i^2}{\alpha}.
+\]
+Since $0\le1-e^{-\rho_n(i)}\le\rho_n(i)$, for $m=0,1,2$ the retained low
+indices satisfy
+\[
+  \sum_{\substack{i\in S^{(n)}\\i\le\alpha/2}}
+  |i|^m\left|e^{\lambda i+h_n(i)}-w_i(\lambda)\right|
+  \le\frac{C_m}{\alpha}
+  \qquad(|\lambda|\le\Lambda).
+\]
+Here $|i|^0$ means one. The constants are finite because every polynomial
+times $\exp(\Lambda|i|-qi^2/2)$ is summable.
+
+For the remaining indices, \eqref{eq:root-curvature} bounds the weight difference by the
+limiting weight. The omitted indices beyond the finite cutoff are covered
+by the same tail. For sufficiently large $\alpha$,
+\[
+  \sum_{i>\alpha/2}i^m e^{\Lambda i-qi^2/2}
+  \le\sum_{i>\alpha/2}i^m e^{-qi^2/4}
+  \le C_m e^{-c\alpha^2}.
+\]
+The last bound follows by comparison with a Gaussian integral, absorbing
+the fixed polynomial into a smaller Gaussian exponent. The tail for
+$S_4$ is eventually empty. Thus the zeroth, first, and second tilted
+moments differ by $O(1/\alpha)$ uniformly on $[-\Lambda,\Lambda]$, for
+both supports. Their zeroth moments have a common positive lower bound:
+retain the $i=2$ term, which is present in both finite supports, and use
+the bounded tilt interval and bounded $h_n(2)$. Taking logarithms and
+ratios therefore gives, uniformly on this interval,
+\[
+\begin{split}
+  \log Z_{n,S}-\log Z_S&=O(1/\alpha),\\
+  M_{n,S}-M_S&=O(1/\alpha),\\
+  M'_{n,S}-M'_S&=O(1/\alpha).
+\end{split}
+\]
+
+
+For all sufficiently large $n$, the finite support $S^{(n)}$ contains at
+least two indices, and hence
+$M'_{n,S}(\lambda)=\operatorname{Var}_{n,S,\lambda}(i)>0$ for every
+$\lambda\in\mathbb R$. Likewise,
+$M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$ for every $\lambda$.
+Thus both mean maps are globally strictly increasing. By continuity and
+compactness,
+\[
+  v_*:=\frac12
+  \min_{\substack{S\in\{S_+,S_4\}\\|\lambda|\le\Lambda}}
+  M'_S(\lambda)>0.
+\]
+For all sufficiently large $n$, one has
+$M'_{n,S}(\lambda)\ge v_*$ on the same interval, and the finite mean maps
+also bracket $K_*$. Hence, for every $T\in K_*$, the equations
+\[
+  M_{n,S}(\lambda_{n,S}(T))=T,
+  \qquad
+  M_S(\lambda_S(T))=T
+\]
+have unique solutions in $[-\Lambda,\Lambda]$. The inverse mean maps are
+uniformly $v_*^{-1}$-Lipschitz, and therefore
+\[
+  \sup_{T\in K_*}
+  |\lambda_{n,S}(T)-\lambda_S(T)|
+  \le
+  v_*^{-1}\sup_{|\lambda|\le\Lambda}
+  |M_{n,S}(\lambda)-M_S(\lambda)|
+  =O(1/\alpha).
+\]
+
+For the finite supports, the entropy functional in (3.8a) is strictly
+concave on its feasible simplex. Its unique optimizer is
+\[
+  p_{n,S,T}(i)
+  =\frac{
+    \exp\{\lambda_{n,S}(T)i+h_n(i)\}
+  }{Z_{n,S}(\lambda_{n,S}(T))},
+\]
+and its dual value is exactly
+\[
+  \mathcal F_{n,S}(T)
+  =\log Z_{n,S}(\lambda_{n,S}(T))
+   -\lambda_{n,S}(T)T.
+\]
+
+For the countable support $S_+$, we must also show that the entropy
+maximum is attained. Fix $T\in K_*$, write $\lambda=\lambda_{S_+}(T)$, and set
+\[
+ \pi_\lambda(i):=
+ \frac{\exp\{\lambda i-q i^2/2\}}{Z_{S_+}(\lambda)}.
+\]
+Write
+\[
+  D_{\mathrm{KL}}(p\Vert\pi_\lambda)
+  :=\sum_i p_i\log\frac{p_i}{\pi_\lambda(i)},
+\]
+with the convention that a summand with $p_i=0$ is zero.
+This probability distribution has mean $T$.  For every feasible probability
+vector $p$ with finite quadratic moment,
+\begin{equation}
+ -\sum_i p_i\log p_i-\frac q2\sum_i i^2p_i
+ =\log Z_{S_+}(\lambda)-\lambda T
+  -D_{\mathrm{KL}}(p\Vert\pi_\lambda).
+ \tag{\thesection.3}\label{eq:root-gibbs-identity}
+\end{equation}
+The identity follows first for finitely supported $p$ and then by truncation;
+finite quadratic moment also makes the entropy finite by comparison with a
+Gaussian law.  We interpret the objective as $-\infty$ when the quadratic
+moment diverges.  Since relative entropy is nonnegative and vanishes only at
+$p=\pi_\lambda$, \eqref{eq:root-gibbs-identity} proves finiteness, attainment, uniqueness, and the
+dual formula for $S_+$.  The same identity also recovers the finite-support
+case. The dual objectives for the finite and limiting supports attain
+their minima in the same tilt interval. Their difference at a fixed tilt
+is $\log Z_{n,S}-\log Z_S$, so the difference of their minimum values is
+at most the uniform norm of this quantity. Together with the tilt estimate,
+this proves (3.9a) and
+\[
+  \varepsilon_n^{\mathrm{dual}}=O(1/\alpha).
+\]
+On the finite support $S_4$, the score perturbation and tilt error in the
+optimizer formula give the coordinatewise rate (3.9b). The limiting
+coordinates are positive and continuous in $T$ on the compact set $K_*$;
+their positive minimum, together with this rate, gives the asserted
+uniform lower bound on the finite coordinates.
+
+\displayheading{Exact cancellation between supports}
+We next return to the counting exponent. Substitution of \eqref{eq:root-affine} gives
+\begin{equation*}
+\begin{split}
+  \Psi_{n,S}(s)
+  &:=\frac{L_S(n,n/s)}{n/s}\\
+  &=(s-1)L-s+1+\log s
+    +A_n+B_n(\alpha-s)
+    +\mathcal F_{n,S}(\alpha-s).
+\end{split}
+  \tag{\thesection.4}\label{eq:root-counting-exponent}
+\end{equation*}
+Hold $k$ fixed at a value feasible for both supports. The mean class size
+$s$ and the mean deficit $T=\alpha-s$ are then the same, so the affine terms
+in \eqref{eq:root-counting-exponent} cancel. The difference is exactly the difference of the two finite
+dual values, as asserted in (3.8). This compares the supports at the same
+number of parts and vertices, before either dual value is replaced by its
+limit.
+
+\displayheading{The exponent at the phase center and its nearby slope}
+To locate the zero, we estimate the exponent at the phase center and its
+derivative nearby. At $s=s_0$, let $T_0=\alpha-s_0$. Applying Stirling to
+$A_n$ in \eqref{eq:root-counting-exponent} and collecting the affine terms gives
+\begin{equation*}
+\begin{split}
+  \Psi_{n,S}(s_0)-\mathcal F_{n,S}(T_0)
+  ={}&s_0\left(
+    L-\log\alpha-\frac q2s_0+\frac q2
+  \right)-L+T_0+1+\log s_0+\frac q2T_0^2\\
+  &\hspace{42mm}
+  -\frac12\log(2\pi\alpha)+O(1/L).
+\end{split}
+  \tag{\thesection.5}\label{eq:root-stirling-expansion}
+\end{equation*}
+Equation (2.1) gives the exact identity
+\[
+  \frac{qs_0}{2}=L-\ell+\log q-q.
+\]
+Since $\alpha=s_0+T_0$ and $T_0$ is uniformly bounded,
+\[
+  \log\alpha
+  =\log s_0+\frac{T_0}{s_0}+O(L^{-2}),
+  \qquad
+  \log s_0=\ell+q-\log q+O(\ell/L).
+\]
+Consequently
+\[
+\begin{split}
+  s_0\left(
+    L-\log\alpha-\frac q2s_0+\frac q2
+  \right)
+  &=-T_0+\frac q2s_0+O(\ell)\\
+  &=-T_0+L-\ell+\log q-q+O(\ell).
+\end{split}
+\]
+Substitution in \eqref{eq:root-stirling-expansion} cancels the terms $L$ and $T_0$ and leaves
+$O(\ell)$ uniformly in the phase. The dual term in \eqref{eq:root-counting-exponent} is $O(1)$ uniformly
+on $K_*$, by the Gaussian majorant above. Therefore
+\begin{equation*}
+  \Psi_{n,S}(s_0)=O(\ell)
+  \tag{\thesection.6}\label{eq:root-central-value}
+\end{equation*}
+uniformly for both supports.
+
+The phase formula for $\alpha$ and the expansion of $\log\alpha$ also give
+\begin{equation*}
+  B_n=2L-\ell+O(1)
+  \tag{\thesection.7}\label{eq:root-scaled-exponent}
+\end{equation*}
+uniformly in $\delta$. Strict concavity and the optimizer formula imply
+\[
+  \frac{d}{dT}\mathcal F_{n,S}(T)=-\lambda_{n,S}(T).
+\]
+Differentiating \eqref{eq:root-counting-exponent}, with $T=\alpha-s$, yields
+\begin{equation*}
+  \Psi'_{n,S}(s)
+  =L-1+s^{-1}-B_n+\lambda_{n,S}(T)
+  =-L+O_A(\ell)
+  \tag{\thesection.8}\label{eq:root-scaled-derivative}
+\end{equation*}
+uniformly whenever $|s-s_0|\le A\ell/L$. Indeed, the image of this corridor
+under $T=\alpha-s$ lies inside $K_*$ for all sufficiently large $n$, because
+$K_*$ has a fixed margin around the complete range of $T_0$.
+
+\displayheading{Roots and slopes in the phase corridor}
+Set
+\[
+  \Psi_{n,S,c}(s):=\Psi_{n,S}(s)+c.
+\]
+By \eqref{eq:root-central-value}, there is an absolute $C_0$ such that
+$|\Psi_{n,S,c}(s_0)|\le C_0\ell$ for both supports and every
+$0\le c\le q$. By \eqref{eq:root-scaled-derivative}, after one phase-independent eventuality threshold,
+\[
+  \Psi'_{n,S,c}(s)\le-\frac12L
+\]
+throughout each fixed corridor. Choose $A_*>2C_0$. Integration gives
+\[
+\begin{aligned}
+  \Psi_{n,S,c}\!\left(s_0-A_*\frac\ell L\right)
+  &\ge\left(\frac{A_*}{2}-C_0\right)\ell>0,\\
+  \Psi_{n,S,c}\!\left(s_0+A_*\frac\ell L\right)
+  &\le\left(C_0-\frac{A_*}{2}\right)\ell<0.
+\end{aligned}
+\]
+The endpoint signs give a zero, and strict decrease in $s$ gives uniqueness
+on this interval. Since $k=n/s>0$, this is the \emph{corridor} root
+$r_{S,c}$ of $L_S(n,k)+ck=0$. We have proved (3.6); the argument makes no
+claim about zeros outside the corridor.
+
+Finally,
+\[
+  L_S(n,k)+ck=k\Psi_{n,S,c}(s),
+  \qquad
+  \frac{ds}{dk}=-\frac sk.
+\]
+Hence
+\begin{equation*}
+\begin{split}
+  \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
+  &=\Psi_{n,S,c}(s)-s\Psi'_{n,S}(s)\\
+  &=\frac2qL^2+O_A(L\ell),
+\end{split}
+  \tag{\thesection.9}\label{eq:root-final-slope}
+\end{equation*}
+because $s=(2/q)L+O_A(\ell)$, \eqref{eq:root-scaled-derivative} holds, and
+$\Psi_{n,S,c}(s)=O_A(\ell)$ throughout the corridor. This proves (3.7) and
+$\varepsilon_{n,A}^{\mathrm{slope}}\to0$ with one eventuality threshold for
+the complete phase.
+\end{proof}
+
+\section{Rounding the selected profile and its first moment}
+\label{app:profile-rounding-proof}
+
+\begin{proof}[Rounding and first-moment estimates in Proposition~\ref{prop:selected-profile-contract}]
+The correction satisfies \(\Delta k_2+\Delta k_3=-e_0\) and
+\(2\Delta k_2+3\Delta k_3=-e_1\), so it removes both constraint errors
+by changing \(O(1)\) counts. To estimate the resulting loss in the
+counting exponent, put
+\(\mathbf k^*=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^5\) and let
+\(\Delta^{\mathrm{tot}}=\mathbf k-\mathbf k^*\) be the total rounding
+and correction displacement.  There is a phase-independent constant
+$C_\Delta$ such that
+$\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$.  Moreover,
+$\Delta^{\mathrm{tot}}$ satisfies both homogeneous constraint equations,
+because $\mathbf k^*$ and $\mathbf k$ obey the same two constraints; thus it
+is tangent to the feasible affine plane.
+
+For Taylor's formula we need the optimizer and the corrected profile to be
+joined inside the positive orthant. By (5.15), $k_i^*\ge c_pk_{\mathrm{co}}$;
+hence, uniformly in $t\in[0,1]$ and in the phase,
+\[
+  k_i^*+t\Delta_i^{\mathrm{tot}}
+  \ge c_pk_{\mathrm{co}}-C_\Delta
+  \ge \frac{c_p}{2}k_{\mathrm{co}}
+\]
+for all sufficiently large $n$. In particular the correction preserves
+positivity. At the exact constrained optimizer the linear term in every
+tangent direction vanishes, while at a positive vector $x$ the Hessian of the
+entropy term is $-\operatorname{diag}(1/x_i)$. Its operator norm along the
+rounding segment is therefore at most $2/(c_pk_{\mathrm{co}})$. Taylor's
+formula with integral remainder gives
+
+\[
+ \left|L_{\mathbf k^*+\Delta^{\mathrm{tot}}}-L_{\mathbf k^*}\right|
+ \le \frac12\sup_{0\le t\le1}
+ \left\|\nabla^2L_{\mathbf k^*+t\Delta^{\mathrm{tot}}}\right\|_{\mathrm{op}}
+ \|\Delta^{\mathrm{tot}}\|_2^2
+ =O(1/k_{\mathrm{co}}).
+\]
+
+The fixed displacement above the root
+provides the margin: $\Phi_n(r_4^{\mathrm{co}})=0$ and
+$16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17$. By Equation~(3.7), with
+$S=S_4$ and $c=\log 2$, there is a phase-independent $c_1>0$ such that
+$\Phi_n'(k)\ge c_1(\log n)^2$ throughout this interval for all sufficiently
+large $n$.  Integration therefore gives
+\[
+  L_{S_4}(n,k_{\mathrm{co}})+(\log 2)k_{\mathrm{co}}
+  =\Phi_n(k_{\mathrm{co}})
+  \ge16c_1(\log n)^2.
+\]
+The tangent rounding loss above is $O(k_{\mathrm{co}}^{-1})$, and the five
+Stirling approximations contribute $O(\log n)$ in total.  Both are smaller
+than the integrated margin; decreasing $c_Z$ proves the assertion.
+\end{proof}
+
+\section{An explicit tail bound for amplification}
+\label{app:amplification-tail}
+\begin{lemma}[Amplification by vertex exposure]
+\label{lemma-10.2-amplification-from-a-seed}
+
+There is an absolute constant $C>0$ and a deterministic sequence
+$\varepsilon_n^{\mathrm{left}}\ge0$ with
+$\varepsilon_n^{\mathrm{left}}\to0$ such that the following holds. Suppose deterministic
+integers $k_n\ge0$ and deterministic reals $\Lambda_n\ge0$ satisfy, for all
+sufficiently large $n$,
+
+\[
+ \Prob{\zeta(G_n)\le k_n}\ge e^{-\Lambda_n}.             \tag{\thesection.1}\label{eq:amplification-tail-assumption}
+\]
+
+For every deterministic choice $r=r(n)>0$, with the same $C$ and
+$\varepsilon_n^{\mathrm{left}}$ independent of $k_n,\Lambda_n,r$, the bound
+
+\[
+\begin{split}
+ \mathbb{P}\!\Bigg(\zeta(G_n)>k_n+C\bigg(
+ &\frac{\sqrt{n\Lambda_n}+\sqrt{nr}}{\log n}
+   +n^{1/3}+1\bigg)\Bigg)\\
+ &\le e^{-r}+\varepsilon_n^{\mathrm{left}}.               \end{split}
+\tag{\thesection.2}\label{eq:amplification-tail-bound}
+\]
+holds at every sufficiently large $n$ for which \eqref{eq:amplification-tail-assumption} holds.
+
+\end{lemma}
+
+\begin{proof}
+Let $\mathcal G_n$ be the simultaneous event in
+Lemma~\ref{lemma-10.1-simultaneous-leftover-coloring}, and set
+$\varepsilon_n^{\mathrm{left}}:=\mathbb P(\mathcal G_n^c)=o(1)$. This sequence is independent
+of $k_n$, $\Lambda_n$, and $r$.
+
+Let \(S_{k_n}\) be the maximum cocolorable-set size defined in
+\eqref{eq:amplification-largest-set}. The vertex-exposure argument in the
+proof of Lemma~\ref{lem:mean-seed-amplification} gives
+\eqref{eq:amplification-uncovered-mean}, with \(k=k_n\) and
+\(\Lambda=\Lambda_n\).
+
+The lower tail with radius \(\sqrt{(n-1)r/2}\) gives, outside an event of
+probability at most \(e^{-r}\),
+
+\[
+ n-S_{k_n}\le
+ \sqrt{(n-1)\Lambda_n/2}+\sqrt{(n-1)r/2}.                \tag{\thesection.3}\label{eq:amplification-uncovered-tail}
+\]
+
+\Needspace{6\baselineskip}
+Choose a maximizing set and its complement \(V_{\mathrm{left}}\) as in
+\eqref{eq:amplification-leftover-coloring}.
+
+The set $V_{\mathrm{left}}$ was selected from the graph, but
+$\mathcal G_n$ controls it along with every other set. On this event and
+the event in \eqref{eq:amplification-uncovered-tail}, apply (10.3) with
+$|V_{\mathrm{left}}|=n-S_{k_n}$ in \eqref{eq:amplification-leftover-coloring}. Enlarging the absolute constant
+$C$ gives the additional parts in \eqref{eq:amplification-tail-bound}. The two exceptional events have
+total probability at most $e^{-r}+\varepsilon_n^{\mathrm{left}}$.
+The bound holds at every sufficiently large $n$ satisfying \eqref{eq:amplification-tail-assumption}, with
+$C$ and $\varepsilon_n^{\mathrm{left}}$ independent of the three
+deterministic parameters.
+\end{proof}
+
+
 
 \section{Uniform Stirling expansion and adjacent-size ratios}
 \label{app:phase-expansion-details}
