@@ -54,9 +54,9 @@ Between the Chromatic and Cochromatic Numbers of a Random Graph}
 
 
 \begin{abstract}
-A proper coloring partitions the vertices of a graph into independent sets; a cocoloring allows both independent sets and cliques. The minimum numbers of classes are the chromatic number \(\chi(G)\) and cochromatic number \(\zeta(G)\), respectively. Thus \(\zeta(G)\le\chi(G)\). For \(G_n\sim G(n,1/2)\), Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\) tends to infinity with high probability. We prove \[ \mathbb P\!\left( \chi(G_n)-\zeta(G_n)\ge \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right) \frac{n}{(\log n)^3} \right)\longrightarrow1. \] All logarithms are natural, and the limit holds as \(n\to\infty\) through all integers. This lower bound has the conjectured scale \(n/(\log n)^3\).
+A proper coloring partitions the vertices of a graph into independent sets. In a cocoloring, each class may be an independent set or a clique. The minimum numbers of classes are the chromatic number \(\chi(G)\) and cochromatic number \(\zeta(G)\), respectively. Thus \(\zeta(G)\le\chi(G)\). For \(G_n\sim G(n,1/2)\), Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\) tends to infinity with high probability. We prove \[ \mathbb P\!\left( \chi(G_n)-\zeta(G_n)\ge \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right) \frac{n}{(\log n)^3} \right)\longrightarrow1. \] All logarithms are natural, and the limit holds as \(n\to\infty\) through all integers. This lower bound has the conjectured scale \(n/(\log n)^3\).
 
-We use four consecutive class sizes below the real first-moment center for independent-set sizes. This center need not be an integer; its fractional part is the rounding phase. Optimizing the proportions gives a sharper explicit phase-dependent coefficient, with one deterministic error tending to zero uniformly over the phase. We count partitions whose classes are marked as cliques or independent sets and estimate the contribution of their overlaps to the second moment. The estimate gives a cocoloring with a possibly small probability. Amplification raises this to high probability using \(o(n/(\log n)^3)\) extra classes.
+We choose four consecutive class sizes below the real-valued first-moment center for independent sets. The fractional part of this center is the rounding phase. Optimizing the proportions at each phase gives a sharper explicit coefficient, with a deterministic error tending to zero uniformly over the phase. For the second moment, we count partitions with each class declared independent or complete, and bound the contribution from pairs of overlapping partitions. This gives a cocoloring with a possibly small probability. Concentration and a coloring of the leftover vertices then give high probability at a cost of \(o(n/(\log n)^3)\) extra classes.
 \end{abstract}
 
 \maketitle
@@ -171,12 +171,13 @@ The uniform coefficient displayed above is
 The uniform bound uses a single constant. The refinement keeps
 \(A_4(\delta_n)\), so its leading coefficient depends on where the
 independent-set center lies between neighbouring integers.
-Continuity gives a positive uniform margin above the displayed constant,
-which absorbs the vanishing error for all sufficiently large integers.
+The positive uniform margin absorbs the vanishing error for all sufficiently
+large integers.
 Since \(n/(\log n)^3\to\infty\), both forms resolve the question of
 Erd\H{o}s and Gimbel along the full sequence.
 
-The class sizes are integers, but their center is real. When
+The class sizes are integers, but their center is real. A profile records
+how many classes have each size. When
 $\alpha_0(n)$ crosses an integer, the cutoff and admissible sizes change,
 so the optimization problem determining the profile and its first-moment
 root changes too. A bound for most integers can still miss a phase window.
@@ -201,10 +202,11 @@ near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers and conjectured that the natural full-sequence scale is
 $n/(\log n)^3$ \citep{heckel-2025-difference}.  We prove this lower bound along
 the full sequence $n\to\infty$, with an explicit phase-resolved coefficient.
-Our starting points are Heckel's first-moment gain from class marks and probability amplification. We use four consecutive class sizes to make the optimization
-uniform in the phase, and count the compatible signs exactly. In the second
-moment we retain every common subprofile, then separate the large cells from
-the residual matching.
+We start from Heckel's gain obtained by declaring each class independent or
+complete, and from her probability-amplification argument. Four consecutive
+class sizes make our optimization uniform in the phase. The second moment
+counts the compatible class declarations exactly and controls all overlaps
+between two partitions, including whole classes they share.
 
 \Needspace{8\baselineskip}
 \subsection*{Proof strategy}
@@ -238,19 +240,20 @@ final section combines the bounds.
 
 \subsection*{The two counting difficulties}
 
-The second moment must control both whole classes common to two partitions
-and large cells that contain only part of a class. For the former,
-Section~7 combines exact recurrences near the two endpoints with a negative
-rate for intermediate masses. This estimate covers every phase, including
-the range excluded by earlier tame-profile hypotheses.
+Two partitions may share whole classes. They may also have large
+intersections between classes that are not equal. Section~7 controls the
+whole-class overlaps by exact recurrences near the empty and full choices,
+and by a negative exponential rate between them. The estimate is uniform
+over the phase, including the range omitted in the earlier argument.
 
-For the latter, we expose all cells larger than half the size cap.
-They form a matching. Retaining their labelled pairs makes the extraction
-unique, so each labelled configuration is counted once. Section~8 sums
-these exposed weights using one ambient falling-factorial denominator.
-Section~9 bounds the remaining local factors and sign-compatibility
-factor by restricting even edge sets outside the exposed matching.
-The resulting second-moment ratio is
+For the remaining overlaps, we form a table whose entries are the sizes of
+intersections between a class of each partition. Entries larger than half
+the maximum class size cannot share a row or column, so they form a
+matching. Section~8 bounds their contribution; Section~9 handles the
+remaining entries and the compatibility of the class declarations. The
+chosen vertex pairs are retained throughout, so every labelled configuration
+is counted once. If \(Z\) counts the marked cocolorings of the chosen
+profile, the resulting second-moment bound is
 \[
  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
  \le \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
@@ -294,7 +297,7 @@ feasible on $n$ vertices with $k$ parts when
   \sum_s s k_s=n.
 \]
 The ordinary first moment counts profile partitions whose classes are all
-required to be independent. The first moment of the marked count counts profile partitions
+required to be independent. The marked first moment counts profile partitions
 together with one $I/K$ mark per class, subject to the corresponding
 independence or completeness requirement.
 
@@ -304,9 +307,10 @@ table is
 \[
   r_{ab}=|A_a\cap B_b|.
 \]
-Its row and column sums are the class sizes of the two partitions. It may also
-be viewed as the cell-count table of a bipartite configuration model: every
-underlying vertex pairs one labeled row stub with one labeled column stub.
+Its row and column sums are the class sizes of the two partitions. In the
+bipartite configuration model, we represent each vertex by one labelled
+placeholder, or stub, in its row class and one in its column class. Pairing
+the two stubs records which classes contain that vertex.
 
 The \emph{support graph} $H(r)$ is the simple bipartite graph whose vertices
 are the row and column classes incident to an edge and whose edge set is
@@ -489,7 +493,7 @@ deterministic cap error
 \label{continuous-profile-roots}
 
 We first allow real type counts and optimize the counting exponent under
-the two conservation constraints. The ordinary first-moment root will give a
+the two conservation constraints. We call its zeros first-moment roots. The ordinary first-moment root will give a
 lower location for the chromatic number. The four-size first-moment root for marked partitions will give
 the number of parts in our cocoloring. Section~5 compares these roots
 before rounding the type counts; Proposition~\ref{prop:selected-profile-contract}
@@ -975,7 +979,7 @@ function, and mean map
  =\frac{d}{d\lambda}\log Z_S(\lambda).
 \]
 
-The Gaussian factor makes both sums finite. Moreover,
+The Gaussian factor makes both sums converge. Moreover,
 \(M_S'(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0\), and the endpoint
 limits of \(M_S\) are the endpoints of the convex hull of \(S\). Thus, for
 every \(T\in(2,5)\), there is a unique tilt
@@ -1118,8 +1122,8 @@ Put
 \[
   \Phi_n(k):=L_{S_4}(n,k)+(\log 2)k.
 \]
-Then $\Phi_n(r_4^{\mathrm{co}})=0$ by definition. To evaluate the same
-function at the unrestricted root, let
+Then $\Phi_n(r_4^{\mathrm{co}})=0$ by definition. To compare the two roots, evaluate the same function at the unrestricted
+root. Let
 \[
   T_+(n):=\alpha-\frac{n}{r_+(n)}
 \]
@@ -2229,8 +2233,9 @@ For integers \(m\ge1\), \(d\ge0\), and \(h\ge0\) with \(2h<m\),
 \[
  \frac{f_{m,d}(m-h)}{f_{m,d}(m)}=R_{m,d}(h).
 \]
-The ambient falling-factorial denominator is not part of \(f_{m,d}\);
-it is restored once globally in the aggregate comparison below.
+The function \(f_{m,d}\) contains only the factors from one cell. The
+probability of all prescribed pairs contributes a single falling-factorial
+denominator, which we include in the aggregate comparison below.
 \end{lemma}
 
 \begin{proof}
@@ -3732,8 +3737,9 @@ cover all residual masses, and the leftover-coloring event holds for
 every vertex set simultaneously. All eventual conditions, including
 $\alpha>8$, $U\ge2$, $\rho_{\Sigma}\le1$ and
 $\tau_n^{\mathrm{end}}\le1$, therefore hold after one deterministic
-threshold. The amplification constants are independent of $k_n$,
-$\Lambda_n$ and $r$.
+threshold. The constants in the mean bound are independent of its parameters $k$ and
+$\Lambda$. Appendix~\ref{app:amplification-tail} records the corresponding
+uniformity for the explicit tail bound.
 
 \section{The phase-resolved gap and a uniform constant}
 \label{sec:final-assembly-v3}
@@ -3748,8 +3754,8 @@ closed phase interval to obtain the uniform constant.
 
 \begin{proof}[Proof of the main theorem]
 
-Take $n$ beyond the common deterministic eventuality threshold of
-Section~10.1.
+Take $n$ beyond the common deterministic threshold of
+Subsection~\ref{subsec:uniformity-phase-v3}.
 Let $r_+(n)$ be the ordinary first-moment root and let
 $r_4^{\mathrm{co}}(n)$ be the four-size first-moment root for marked partitions.
 Proposition~\ref{prop:selected-profile-contract} gives
@@ -3768,9 +3774,9 @@ The selected profile is placed a fixed distance above its first-moment root:
   =
   \left\lceil r_4^{\mathrm{co}}(n)\right\rceil+16.
 \]
-At this fixed value of $k_{\mathrm{co}}$, the tangent correction in
+At this fixed value of $k_{\mathrm{co}}$, the integer correction in
 Section~\ref{the-four-size-signed-first-moment-advantage} changes only the four
-type multiplicities by $O(1)$. Here $i\in\{2,3,4,5\}$,
+class-size counts by $O(1)$. Here $i\in\{2,3,4,5\}$,
 $u_i=\alpha-i$, and $k_i$ is the number of classes of size $u_i$. The
 correction preserves exactly both
 \[
@@ -3792,7 +3798,7 @@ Indeed, (5.13) gives
 $r_+(n)-k_{\mathrm{co}}
 =(r_+(n)-r_4^{\mathrm{co}})-16+O(1)$.
 The fixed displacement and the ceiling are absorbed by the displayed $o(1)$;
-the tangent correction preserves $k_{\mathrm{co}}$ itself.
+the correction preserves $k_{\mathrm{co}}$ itself.
 
 Section~\ref{a-valid-unrestricted-lower-location-for-chi} constructs a
 deterministic integer $k_\chi^-$ such that
@@ -3980,8 +3986,7 @@ Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
       \left[-\sum_i p_i\log p_i
             -\sum_i p_i\log d_{\alpha-i}\right].
 \]
-Using the affine decomposition from Section~\ref{continuous-profile-roots},
-Thus
+The definition of the remainder in (3.1a) gives
 \begin{equation*}
   h_n(i)=-\frac q2i^2+O(i^2/\alpha)
   \quad\text{for every fixed }i,
