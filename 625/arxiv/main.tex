@@ -56,7 +56,7 @@ Between the Chromatic and Cochromatic Numbers of a Random Graph}
 \begin{abstract}
 A proper coloring partitions the vertices of a graph into independent sets; a cocoloring allows both independent sets and cliques. The minimum numbers of classes are the chromatic number \(\chi(G)\) and cochromatic number \(\zeta(G)\), respectively. Thus \(\zeta(G)\le\chi(G)\). For \(G_n\sim G(n,1/2)\), Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\) tends to infinity with high probability. We prove \[ \mathbb P\!\left( \chi(G_n)-\zeta(G_n)\ge \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right) \frac{n}{(\log n)^3} \right)\longrightarrow1. \] All logarithms are natural, and the limit holds as \(n\to\infty\) through all integers. This lower bound has the conjectured scale \(n/(\log n)^3\).
 
-The natural threshold for class sizes need not be an integer. To cover every change caused by rounding, we use four consecutive sizes, with proportions chosen to separate the first-moment thresholds for colorings and cocolorings. We count partitions whose classes are marked as cliques or independent sets and estimate the contribution of their overlaps to the second moment. The resulting estimate gives a cocoloring with a possibly small probability. Amplification raises this to high probability, using only \(o(n/(\log n)^3)\) extra classes. The fractional part of the class-size threshold is the rounding phase. Retaining this phase in the optimization gives a sharper explicit coefficient.
+We use four consecutive class sizes below the real first-moment center for independent-set sizes. This center need not be an integer; its fractional part is the rounding phase. Optimizing the proportions gives a sharper explicit phase-dependent coefficient, with one deterministic error tending to zero uniformly over the phase. We count partitions whose classes are marked as cliques or independent sets and estimate the contribution of their overlaps to the second moment. The estimate gives a cocoloring with a possibly small probability. Amplification raises this to high probability using \(o(n/(\log n)^3)\) extra classes.
 \end{abstract}
 
 \maketitle
@@ -93,15 +93,23 @@ $\alpha_0(n)$ defined below \citep[p.~420]{bollobas-erdos-1976}.  Its fractional
 center relative to the neighboring integer class sizes and will be the phase
 $\delta_n$.  We include both quantities in the theorem statement.
 
-\begin{maintheorem}[Phase-resolved and uniform forms]
-For a finite graph $G$, let $\chi(G)$ be the least number of parts in a
-partition of $V(G)$ into independent sets, and let $\zeta(G)$ be the least
-number of parts in a partition of $V(G)$ into cliques or independent sets. For each integer
-$n\ge2$, put $[n]:=\{1,\ldots,n\}$ and let $G_n$ be the random simple graph on
-$[n]$ in which each unordered pair of distinct vertices is present as an edge,
-independently, with probability $1/2$.  For each $n$, $\mathbb P$ below denotes
-probability under this law.  All logarithms without a displayed base are natural, and
-all limits are as $n\to\infty$ through the integers.  Set
+\begin{maintheorem}[Uniform lower bound and phase refinement]
+For every integer \(n\ge2\), let \(G_n\sim G(n,1/2)\) be the random simple
+graph on \([n]\), with edges present independently with probability \(1/2\).
+All logarithms without a displayed base are natural, and all limits are
+as \(n\to\infty\) through the integers. Then
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    \frac{(\log 2)^2}{4}
+    \log\!\left(\frac{200}{153}\right)
+    \frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow 1.
+\]
+
+For the sharper phase-dependent form, set
 \[
   \alpha_0(n):=
   2\log_2 n-2\log_2\log_2 n+2\log_2(\mathrm e/2)+1,
@@ -131,6 +139,7 @@ Then $T_\delta\in(2,5)$.  For $S\in\{S_+,S_4\}$ and $T\in(2,5)$, put
 The series defining $\mathcal F_{S_+}(T)$ converges for every
 $\lambda\in\mathbb R$; for $T\in(2,5)$, each displayed infimum is a finite real
 and is uniquely attained.
+
 There is a deterministic sequence of nonnegative reals
 $(\varepsilon_n)_{n\ge2}$ with $\varepsilon_n\to0$ such that
 \[
@@ -151,17 +160,6 @@ $\delta\in[0,1]$,
 \]
 Continuity and compactness therefore give a positive uniform margin above
 this bound.
-Consequently,
-\[
-  \mathbb P\!\left(
-    \chi(G_n)-\zeta(G_n)
-    \ge
-    \frac{(\log 2)^2}{4}
-    \log\!\left(\frac{200}{153}\right)
-    \frac{n}{(\log n)^3}
-  \right)
-  \longrightarrow 1.
-\]
 \end{maintheorem}
 
 The uniform coefficient displayed above is
@@ -170,14 +168,13 @@ The uniform coefficient displayed above is
   \log\!\left(\frac{200}{153}\right)
   =0.032175871697936\ldots.
 \]
-The first assertion keeps $A_4(\delta_n)$, so the leading coefficient
-depends on where the independent-set center lies between neighboring
-integers. In the second assertion, the uniform positive lower bound
-replaces this dependence by a single constant. Continuity gives a uniform
-margin above the displayed constant, so the vanishing error can be absorbed
-for all sufficiently large integers. Since
-$n/(\log n)^3\to\infty$, either form resolves the question of
-Erd\H{o}s and Gimbel along the full sequence of integers.
+The uniform bound uses a single constant. The refinement keeps
+\(A_4(\delta_n)\), so its leading coefficient depends on where the
+independent-set center lies between neighbouring integers.
+Continuity gives a positive uniform margin above the displayed constant,
+which absorbs the vanishing error for all sufficiently large integers.
+Since \(n/(\log n)^3\to\infty\), both forms resolve the question of
+Erd\H{o}s and Gimbel along the full sequence.
 
 The class sizes are integers, but their center is real. When
 $\alpha_0(n)$ crosses an integer, the cutoff and admissible sizes change,
@@ -245,86 +242,27 @@ the rare seed. In Section~10, amplification constructs
 $a_n=o(n/(\log n)^3)$ and proves (C). The final section combines (A)--(C)
 and evaluates the constants.
 
-\subsection*{Main proof ingredients}
+\subsection*{The two counting difficulties}
 
-The three estimates above use the following six ingredients.  Three also
-apply outside Problem~625: the finite signed-overlap identity, the
-fixed-alphabet matching comparison, and the quantitative seed-amplification
-lemma.
+The second moment must control both whole classes common to two partitions
+and large cells that contain only part of a class. For the former,
+Section~7 combines exact recurrences near the two endpoints with a negative
+rate for intermediate masses. This estimate covers every phase, including
+the range excluded by earlier tame-profile hypotheses.
 
-\begin{enumerate}
-\item \textbf{Phase-resolved root separation.} Let $r_+$ and
-$r_4^{\mathrm{co}}$ denote the ordinary and signed four-size first-moment
-roots, respectively; they are defined in Sections~3 and~5. We prove, uniformly
-over the complete phase,
+For the latter, we expose all cells larger than half the size cap.
+They form a matching. Retaining their labelled pairs makes the extraction
+unique, so each labelled configuration is counted once. Section~8 sums
+these exposed weights using one ambient falling-factorial denominator.
+Section~9 bounds the remaining local rewards and sign-compatibility
+factor by restricting even edge sets outside the exposed matching.
+The resulting second-moment ratio is
 \[
-  r_+-r_4^{\mathrm{co}}
-  =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
-    \frac{n}{(\log n)^3}.
+ \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
+ \le \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
 \]
-The explicit lower bound $A_4(\delta)>\log(200/153)$ converts this
-phase-dependent comparison into a full-sequence estimate.
-
-\item \textbf{Exact signed-overlap structure.} Fix two partitions with
-the prescribed class sizes. Their intersections form the overlap table.
-If a cell contains two or more vertices, the same pair is constrained by
-both its row class and its column class. One class cannot be a clique and
-the other an independent set, since the shared edge would have to be both
-present and absent. Thus their signs agree. We sum the joint graph
-probabilities over all compatible sign choices before normalizing. The
-result is a product of local cell rewards and the size of a binary cycle
-space. Expose every cell larger than half the class-size cap, retaining
-all its labeled pairs. Give a completion weight zero if it adds a pair
-in an exposed cell or puts any other cell above half the cap. The completed
-labeled matching tells us exactly which high cells and pairs were exposed.
-This makes the decomposition canonical: each labeled matching is counted once.
-
-\item \textbf{Uniform control of all common subprofiles.} For a common
-whole-class subprofile $\ell=(\ell_i)$ of the selected profile
-$\mathbf k=(k_i)$, Section~7 defines an exposed diagonal reference weight
-$D(\ell)$. We prove
-\[
-  \sum_{0\le \ell_i\le k_i}D(\ell)=1+o(1)
-\]
-uniformly throughout the phase.  The proof treats the empty, central, and full
-ranges separately by a forward recurrence, a negative rate function, and a
-reverse recurrence. These estimates remain uniform in the exceptional phase
-where the earlier tame-profile hypotheses fail.
-
-\item \textbf{Canonical summation of large overlap cells.} Cells larger than
-half the class-size cap form a matching. We sum all their labeled
-realizations and compare them with full containment using one aggregate
-falling-factorial bound. We then group the weights by the class sizes at
-the two ends of each selected cell. The endpoint table records how many
-cells join each pair of sizes. The finite comparison applies more generally
-to any fixed endpoint alphabet whose selected cells form a matching.
-
-\item \textbf{Residual cycle-space restriction.} After the high cells are
-exposed, an even edge set in the combined support is determined by its edges
-outside their matching. This injective restriction bounds the remaining
-local rewards together with the cycle-space factor. Writing $Z$ for the
-resulting signed-witness count, we obtain
-\[
-  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
-  \le
-  \exp\!\left\{o\!\left(\frac{n}{(\log n)^4}\right)\right\}.
-\]
-
-\vspace{0.25\baselineskip}
-\item \textbf{Quantitative amplification from a rare seed.} Paley--Zygmund
-supplies a possibly rare signed witness. The following quantitative form of
-Heckel's amplification method \citep{heckel-2025-difference} applies whenever
-the displayed seed bound holds: if
-$\mathbb P(\zeta(G_n)\le k_n)\ge e^{-\Lambda_n}$, then for every deterministic
-$r=r(n)>0$ the amplification lemma adds at most
-\[
-  C\!\left(
-    \frac{\sqrt{n\Lambda_n}+\sqrt{nr}}{\log n}+n^{1/3}+1
-  \right)
-\]
-classes and has failure probability at most $e^{-r}+o(1)$, with one absolute
-constant $C$.
-\end{enumerate}
+Paley--Zygmund gives a possibly rare seed. The amplification in Section~10
+then adds only \(o(n/(\log n)^3)\) classes.
 
 Appendix~\ref{app:lean-reproducibility} records the companion Lean theorem and its reproducibility materials.
 
@@ -2378,6 +2316,59 @@ splitting the selected mass into three ranges. The forward recurrence
 intermediate range; the reverse recurrence (7.6), together with the large
 complete first moment, controls nearly full selected mass.
 
+The main point in the intermediate range is that the leading exponential
+rate is negative. Put \(K=k_{\mathrm{co}}\), \(p_i=k_i/K\), \(y_i=\ell_i/K\),
+and \(z_i=p_i-y_i\). Define
+\[
+ Y=\sum_i y_i,\qquad R=\sum_i z_i=1-Y,\qquad
+ T=\sum_i i p_i,\qquad I_r=\sum_i i z_i.
+\]
+Thus \(Y\) is the selected class fraction and \(R\) is the residual class
+fraction. The exact weight formula and the factorial estimates in
+Appendix~\ref{app:common-subprofile-details} give, when the residual vertex
+fraction \(\rho=(n-m)/n\) exceeds \(1/32\),
+\[
+ \log D(\ell)\le K\alpha\Phi_T
+       +C K Y\log(\mathrm e/Y)+C\log n,\qquad
+ \Phi_T=R\log R+\frac{\log2}{2}(I_r-TR),
+\]
+with a phase-independent constant \(C\).
+All deficits lie in \(\{2,3,4,5\}\), so
+\[
+ I_r-TR\le(5-T)R,\qquad
+ I_r-TR\le(T-2)(1-R).
+\]
+Multiplying the first bound by \(1-R\) and the second by \(R\), then adding,
+gives \(I_r-TR\le3R(1-R)\).
+Also \(\rho>1/32\) implies \(R\ge1/64\) eventually.
+For \(R\le3/4\), use \(\log R\le2(R-1)/(R+1)\) and \(\log2<7/10\):
+\[
+ \Phi_T\le-\left(\frac{2}{1+R}-\frac{21}{20}\right)R(1-R)
+          \le-\frac{13}{8960}Y.
+\]
+For \(R\ge3/4\), the selected profile has \(T<4\) eventually.
+The second deficit bound and \(\log R\le R-1\) then give
+\[
+ \Phi_T\le(\log2-R)Y\le-\frac{Y}{20}.
+\]
+Thus \(\Phi_T\le-Y/5000\) throughout this range.
+
+To see that this dominates the error, put
+\(\eta=\log\log n/(32\log n)\). For intermediate mass
+\(m>\eta n\), one has \(Y\ge\eta/2\) eventually. Dividing the error by
+\(K\alpha Y\) bounds it by
+\[
+ \frac{C\log(2\mathrm e/\eta)}{\alpha}
+ +\frac{2C\log n}{K\alpha\eta}=o(1),
+\]
+uniformly in the phase. Hence, after one deterministic threshold,
+\(\log D(\ell)\le-K\alpha\eta/20000\).
+There are at most \((K+1)^4\) subprofiles, and
+\(K\alpha\eta/\log n\to\infty\), so their total intermediate contribution
+tends to zero. The forward recurrence covers \(m\le\eta n\); the reverse
+recurrence covers \(n-m\le n/32\). The appendix keeps the endpoint estimates
+and the full error accounting.
+
 For the later second-moment assembly, write
 $\varepsilon_n^{\mathrm{empty}}$,
 $\varepsilon_n^{\mathrm{central}}$ and
@@ -2417,14 +2408,14 @@ Let $U:=\alpha-2$ be the largest class size in the fixed four-size profile and p
 A cell is \emph{high} if its multiplicity exceeds $R_0$. Two high cells cannot
 share a row or a column: otherwise that row or column would contain more than
 $U$ stubs, because $2(R_0+1)>U$. Hence all high cells form a canonical
-bipartite matching, denoted by $P$.
+bipartite matching, denoted by $M$.
 
-The matching $P$ records which class slots meet in high cells. A labeled
+The matching $M$ records which class slots meet in high cells. A labeled
 stub realization also specifies the pairs inside each of those cells.
-The endpoints of $P$ are disjoint, so selecting pairs in a cell of $P$ does
+The endpoints of $M$ are disjoint, so selecting pairs in a cell of $M$ does
 not use the stubs of another. This is why the realization counts multiply.
 
-For $e\in P$, let $s_e$ and $t_e$ be its endpoint block sizes and set
+For $e\in M$, let $s_e$ and $t_e$ be its endpoint block sizes and set
 \[
   m_e:=\min\{s_e,t_e\},
   \qquad
@@ -2439,13 +2430,13 @@ $m_e\le U$,
   2h_e<m_e.
   \label{eq:half-deficit-v3}
 \end{equation}
-Put $J:=\sum_{e\in P}j_e$.
+Put $J:=\sum_{e\in M}j_e$.
 
-For fixed $(P,j)$, let $\mathfrak F(P,j)$ be the finite set of labeled partial
-stub matchings containing exactly $J$ pairs, all in cells of $P$, with exactly
-$j_e$ pairs in each cell $e\in P$.  Thus
-\(\mathfrak F(P,j)\) is the set of labeled realizations of the high skeleton
-\((P,j)\).
+For fixed $(M,j)$, let $\mathfrak F(M,j)$ be the finite set of labeled partial
+stub matchings containing exactly $J$ pairs, all in cells of $M$, with exactly
+$j_e$ pairs in each cell $e\in M$.  Thus
+\(\mathfrak F(M,j)\) is the set of labeled realizations of the high skeleton
+\((M,j)\).
 
 A size-$j$ partial matching between labeled blocks of sizes $s$ and $t$ can be
 chosen in
@@ -2458,46 +2449,46 @@ ways: choose its two endpoint sets and then the bijection between them.
 
 \begin{proposition}[Aggregate weight of a fixed cell matching]
 \label{prop:aggregate-high-weight-v3}
-Let $P$ be a fixed matching support arising from two copies of the fixed
+Let $M$ be a fixed matching support arising from two copies of the fixed
 feasible $n$-vertex profile. For a multiplicity vector
-$j=(j_e)_{e\in P}$ satisfying
-$0\le j_e\le\min\{s_e,t_e\}$ for every $e\in P$, one has $J\le n$, and the
+$j=(j_e)_{e\in M}$ satisfying
+$0\le j_e\le\min\{s_e,t_e\}$ for every $e\in M$, one has $J\le n$, and the
 total configuration probability multiplied by the exposed local reward, summed
-over \(\mathfrak F(P,j)\), is
+over \(\mathfrak F(M,j)\), is
 \begin{equation}
-  w(P,j)
+  w(M,j)
   =
   \frac{
-    \displaystyle\prod_{e\in P}(s_e)_{j_e}(t_e)_{j_e}
+    \displaystyle\prod_{e\in M}(s_e)_{j_e}(t_e)_{j_e}
   }{
-    \displaystyle(n)_J\prod_{e\in P}j_e!
+    \displaystyle(n)_J\prod_{e\in M}j_e!
   }
-  \prod_{e\in P}g(j_e).
+  \prod_{e\in M}g(j_e).
   \label{eq:aggregate-high-weight-v3}
 \end{equation}
 \end{proposition}
 
 \begin{proof}
-Because $P$ is a matching, distinct selected cells use disjoint row and column
+Because $M$ is a matching, distinct selected cells use disjoint row and column
 stub sets. Therefore
 \[
-  |\mathfrak F(P,j)|
-  =\prod_{e\in P}\frac{(s_e)_{j_e}(t_e)_{j_e}}{j_e!}.
+  |\mathfrak F(M,j)|
+  =\prod_{e\in M}\frac{(s_e)_{j_e}(t_e)_{j_e}}{j_e!}.
 \]
 A prescribed set of $J$ stub pairs occurs with probability $(n)_J^{-1}$ in the
 uniform bipartite configuration matching. Multiplying this probability by the
 displayed cardinality and by the exposed reward
-$\prod_{e\in P}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
+$\prod_{e\in M}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
 \end{proof}
 
-We call $(P,j)$ a \emph{feasible high skeleton} when $P$ is a block matching
+We call $(M,j)$ a \emph{feasible high skeleton} when $M$ is a block matching
 and
 \[
-  R_0<j_e\le m_e\qquad(e\in P).
+  R_0<j_e\le m_e\qquad(e\in M).
 \]
 For a feasible high skeleton, write
 \[
-  w_{\mathrm{hi}}(P,j):=w(P,j).
+  w_{\mathrm{hi}}(M,j):=w(M,j).
 \]
 The same high-skeleton weight appears in the exact conditional decomposition
 of Section~9.
@@ -2544,9 +2535,9 @@ will have its own bound.
       \filldraw[highcell] (\x,\y) rectangle ++(1,1);
       \node at (\x+0.5,\y+0.5) {$\z$};
     }
-    \node[font=\footnotesize] at (2.5,4.65) {$j_P$};
+    \node[font=\footnotesize] at (2.5,4.65) {$j_M$};
     \node[align=center,text width=3.4cm] at (2.5,-0.85)
-      {high table supported on $P$, with $j=r|_P$};
+      {high table supported on $M$, with $j=r|_M$};
   \end{scope}
 
   \node[font=\large] at (13.25,2) {$+$};
@@ -2561,31 +2552,30 @@ will have its own bound.
     \node[text=gray!75!black] at (3.5,3.5) {$\le R_0$};
     \node[font=\footnotesize] at (2.5,4.65) {$r'=(r'_{ab})$};
     \node[align=center,text width=3.5cm] at (2.5,-0.85)
-      {capped residual $r'$, with $r'|_P=0$};
+      {capped residual $r'$, with $r'|_M=0$};
   \end{scope}
 
   \node[font=\small] at (9.75,-3.10) {$\displaystyle
     \frac{\mathbb E\!\left[(Z_{\mathbf k}^{\mathrm{sgn}})^2\right]}
          {\left(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}\right)^2}
-    =\sum_{(P,j)}
-      \underbrace{w_{\mathrm{hi}}(P,j)}_{\text{high-cell factor}}
+    =\sum_{(M,j)}
+      \underbrace{w_{\mathrm{hi}}(M,j)}_{\text{high-cell factor}}
       \qquad
-      \underbrace{\mathcal A(P,j)}_{\text{residual attachment}}$};
+      \underbrace{\mathcal A(M,j)}_{\text{residual attachment}}$};
 \end{tikzpicture}
-\caption{Canonical high-cell extraction at the overlap-table level. The
-highlighted cells $P=\{(a,b):r_{ab}>R_0\}$ form a matching and have
-multiplicities $j=r|_P$;
-extending $j$ by zero off $P$ gives $r=j_P+r'$, where the capped residual
-table $r'$ vanishes on $P$.
-Unlabeled cells of the first panel are unrestricted table entries; they are
-zero off $P$ in $j_P$ and at most $R_0$ off $P$ in $r'$.
-Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3} (where
-Section~9 writes $M=P$) lifts this table decomposition to a bijection of
-labeled configuration matchings by retaining both the selected-pair set
-$S\in\mathfrak F(P,j)$ and the residual matching $\Pi_{\mathrm{res}}$, and
-yields the displayed normalized factorization.}
+\caption{Canonical high-cell extraction. The highlighted cells
+\(M=\{(a,b):r_{ab}>R_0\}\) form a matching, with multiplicities \(j=r|_M\).
+Extending \(j\) by zero gives \(r=j_M+r'\), where \(r'\) vanishes on \(M\)
+and is capped by \(R_0\) elsewhere.}
 \label{fig:canonical-overlap-decomposition-v3}
 \end{figure}
+
+Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3} lifts this
+table decomposition to labelled configuration matchings by retaining the
+selected-pair set \(S\in\mathfrak F(M,j)\) and the residual matching
+\(\Pi_{\mathrm{res}}\). This gives the normalized factorization shown in
+the figure. A blank cell in the original table is unrestricted; outside
+\(M\), it becomes zero in \(j_M\) and is capped by \(R_0\) in \(r'\).
 
 \subsection{Deficit ratios and the ambient denominator}
 
@@ -2604,9 +2594,16 @@ The product in the denominator is empty when $h=0$.
 
 \begin{lemma}[Exact one-cell deficit ratio]
 \label{lem:exact-local-ratio-v3}
-For integers $m\ge1$, $d\ge0$, and $h\ge0$ with $2h<m$, the ratio of the aggregate
-one-cell factor at multiplicity $m-h$ to its full-containment value at
-multiplicity $m$ is $R_{m,d}(h)$.
+For endpoint sizes \(m\) and \(m+d\), define the local numerator
+\[
+ f_{m,d}(j):=\frac{(m)_j(m+d)_j}{j!}\,g(j).
+\]
+For integers \(m\ge1\), \(d\ge0\), and \(h\ge0\) with \(2h<m\),
+\[
+ \frac{f_{m,d}(m-h)}{f_{m,d}(m)}=R_{m,d}(h).
+\]
+The ambient falling-factorial denominator is not part of \(f_{m,d}\);
+it is restored once globally in the aggregate comparison below.
 \end{lemma}
 
 \begin{proof}
@@ -2628,13 +2625,13 @@ Multiplying the two identities proves the claim.
 
 Write
 \[
-  \mathbf m:=(m_e)_{e\in P},
+  \mathbf m:=(m_e)_{e\in M},
   \qquad
-  w_{\mathrm{full}}(P):=w(P,(m_e)_{e\in P}),
+  w_{\mathrm{full}}(M):=w(M,(m_e)_{e\in M}),
   \qquad
-  J_*:=\sum_{e\in P}m_e,
+  J_*:=\sum_{e\in M}m_e,
   \qquad
-  h_\bullet:=J_*-J=\sum_{e\in P}h_e.
+  h_\bullet:=J_*-J=\sum_{e\in M}h_e.
 \]
 After the one-cell ratios have been extracted, the only factor that still
 couples different cells is the ambient denominator:
@@ -2647,13 +2644,13 @@ couples different cells is the ambient denominator:
 
 \begin{lemma}[Aggregate deficit comparison]
 \label{lem:aggregate-deficit-comparison-v3}
-For every $h=(h_e)_{e\in P}\in\mathbb N_0^P$ satisfying
-$2h_e<m_e$ for each $e\in P$,
+For every $h=(h_e)_{e\in M}\in\mathbb N_0^M$ satisfying
+$2h_e<m_e$ for each $e\in M$,
 \begin{equation}
-  w(P,\mathbf m-h)
+  w(M,\mathbf m-h)
   \le
-  w_{\mathrm{full}}(P)
-  \prod_{e\in P}n^{h_e}R_{m_e,d_e}(h_e).
+  w_{\mathrm{full}}(M)
+  \prod_{e\in M}n^{h_e}R_{m_e,d_e}(h_e).
   \label{eq:aggregate-deficit-comparison-v3}
 \end{equation}
 \end{lemma}
@@ -2661,7 +2658,7 @@ $2h_e<m_e$ for each $e\in P$,
 \begin{proof}
 Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell, apply
 \eqref{eq:one-global-falling-factorial-v3} once, and use
-$n^{h_\bullet}=\prod_{e\in P}n^{h_e}$.
+$n^{h_\bullet}=\prod_{e\in M}n^{h_e}$.
 \end{proof}
 
 The local ratios now multiply, but the ambient matching probability still
@@ -2683,10 +2680,10 @@ their nonnegative weights only increases the upper bound.
 For any nonnegative $u_e(h)$, set $u_e(0):=1$. Expanding the finite product
 gives the optional-choice identity
 \[
-  \sum_{\omega\in\prod_{e\in P}(\{0\}\cup A_e)}
-    \prod_{e\in P}u_e(\omega_e)
+  \sum_{\omega\in\prod_{e\in M}(\{0\}\cup A_e)}
+    \prod_{e\in M}u_e(\omega_e)
   =
-  \prod_{e\in P}
+  \prod_{e\in M}
     \left(1+\sum_{h\in A_e}u_e(h)\right),
 \]
 where each $\omega_e$ is either the zero-deficit choice, of weight one, or one
@@ -2764,14 +2761,14 @@ $|A_e|\le m_e\le\alpha+1$. Summation proves the bound.
 
 \begin{proposition}[Fixed-support all-deficit bound]
 \label{prop:fixed-support-all-deficit-v3}
-Write $\mathbf m=(m_e)_{e\in P}$. If $\rho_{\Sigma}\le1$, then
+Write $\mathbf m=(m_e)_{e\in M}$. If $\rho_{\Sigma}\le1$, then
 \begin{equation}
-  \sum_{\substack{h_e\in\mathbb N_0\ (e\in P)\\
+  \sum_{\substack{h_e\in\mathbb N_0\ (e\in M)\\
                   m_e-h_e>R_0\ \text{for every }e}}
-    w(P,\mathbf m-h)
+    w(M,\mathbf m-h)
   \le
-  w_{\mathrm{full}}(P)
-  \left(1+(\alpha+1)\rho_{\Sigma}\right)^{|P|}.
+  w_{\mathrm{full}}(M)
+  \left(1+(\alpha+1)\rho_{\Sigma}\right)^{|M|}.
   \label{eq:fixed-support-all-deficit-v3}
 \end{equation}
 \end{proposition}
@@ -2786,7 +2783,7 @@ Define
 $K:=\sum_{i=0}^{3}\kappa_i=k_{\mathrm{co}}$, the number of row-class slots.
 Projection onto the row endpoint is injective on a block matching, and therefore
 \begin{equation}
-  |P|\le K.
+  |M|\le K.
   \label{eq:support-cardinality-v3}
 \end{equation}
 
@@ -2798,11 +2795,11 @@ of matched type pairs. We group supports with the same endpoint table,
 then compare their row and column margins with the partial-diagonal
 weights.
 
-For a block matching $P$, let
+For a block matching $M$, let
 \[
- \ell_{ij}(P):=\#\{e\in P:\text{$e$ joins row type $i$ to column type $j$}\},
+ \ell_{ij}(M):=\#\{e\in M:\text{$e$ joins row type $i$ to column type $j$}\},
  \qquad
- L(P):=(\ell_{ij}(P))_{0\le i,j\le3}.
+ L(M):=(\ell_{ij}(M))_{0\le i,j\le3}.
 \]
 With this deficit-indexed type convention, for
 $L=(\ell_{ij})\in\mathbb N_0^{4\times4}$ write
@@ -2818,21 +2815,21 @@ has a feasible table. For a feasible endpoint table $L$, define
 \[
   W(L)
   :=
-  \sum_{P:\,L(P)=L}w_{\mathrm{full}}(P).
+  \sum_{M:\,L(M)=L}w_{\mathrm{full}}(M).
 \]
 Equivalently, $W(L)$ is the sum of the full-containment terms over all
 block-slot matching supports with table $L$.
 
-Partitioning the finite set of block matchings by $L(P)$ gives
+Partitioning the finite set of block matchings by $L(M)$ gives
 \begin{equation}
-  \sum_P w_{\mathrm{full}}(P)
+  \sum_M w_{\mathrm{full}}(M)
   =
   \sum_{L\ \mathrm{feasible}}W(L).
   \label{eq:reference-grouping-v3}
 \end{equation}
 Similarly, for every nonnegative function $F$ of the endpoint table,
 \begin{equation}
-  \sum_P w_{\mathrm{full}}(P)F(L(P))
+  \sum_M w_{\mathrm{full}}(M)F(L(M))
   =
   \sum_{L\ \mathrm{feasible}}W(L)F(L).
   \label{eq:weighted-reference-grouping-v3}
@@ -3138,7 +3135,7 @@ Let $\Sigma_n^{\mathrm{hi}}$ denote the high-skeleton reference sum:
 \[
   \Sigma_n^{\mathrm{hi}}
   :=
-  \sum_{(P,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(P,j),
+  \sum_{(M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(M,j),
 \]
 where the sum ranges over the canonical high-cell matching supports and their
 admissible high multiplicities defined above.
@@ -3176,10 +3173,9 @@ $o(n/(\log n)^4)$. Combining these estimates with
 \label{sec:residual-attachments-v3}
 
 We keep the selected profile of Proposition~\ref{prop:selected-profile-contract}
-and the endpoint indexing from Section~8. The matching called $P$ there is
-called $M$ here: both names denote the same canonical matching of high
-cells. Its edges are pairs of class slots. The labeled stub pairs chosen
-inside those cells will be denoted by $S$.
+and the endpoint indexing from Section~8. The exposed matching \(M\)
+has pairs of class slots as its edges. The labelled stub pairs chosen
+inside those cells are denoted by \(S\).
 
 Fix one feasible high skeleton and one such labeled realization.
 Condition only on its stub pairs being present. The unused row stubs are
@@ -3465,38 +3461,29 @@ matching. If the restriction determines the original set, we may enlarge
 the sum to all subsets of the remaining edges and obtain a product bound.
 Here is the finite inequality we need.
 
-\begin{lemma}[Restriction-product bound]
+\begin{lemma}[Even-set restriction bound]
 \label{lem:restriction-product-v3}
-Let $E$ be a finite set, let $\mathfrak A$ be a finite family of subsets of
-$E$, and let $I\subseteq E$. Suppose that
+Let \(H\) be a finite graph, let \(M\subseteq E(H)\) be a matching, and
+let \(q_e\ge0\) for \(e\in E(H)\setminus M\). Then
 \[
-  A\longmapsto A\setminus I
-\]
-is injective on $\mathfrak A$. For nonnegative activities $(q_e)_{e\in E}$,
-\[
-  \sum_{A\in\mathfrak A}
-    \prod_{e\in A\setminus I}q_e
-  \le
-  \prod_{e\in E\setminus I}(1+q_e).
+ \sum_{\substack{F\subseteq E(H)\\F\text{ even}}}
+   \prod_{e\in F\setminus M}q_e
+ \le\prod_{e\in E(H)\setminus M}(1+q_e).
 \]
 \end{lemma}
 
 \begin{proof}
-The restrictions $A\setminus I$, for $A\in\mathfrak A$, form a subfamily of the power set of
-$E\setminus I$ and occur without repetition. Enlarge the sum to the full power
-set and expand the finite product.
+Two even edge sets with the same restriction outside \(M\) have an even
+symmetric difference contained in \(M\). A nonempty subset of a matching
+has a vertex of degree one, so the difference must be empty.
+Restriction outside \(M\) is therefore injective. Enlarge the resulting
+sum to all subsets of \(E(H)\setminus M\) and expand the product.
 \end{proof}
 
-Apply the lemma with $E=M\cup E_0$, $I=M$, and
-$\mathfrak A=\mathfrak E(M)$. Two even sets with the same restriction outside
-$M$ have an even symmetric difference contained in $M$. A nonempty subset
-of a matching has a vertex of degree one, so this difference is empty.
-The restriction is therefore injective, and the lemma gives
+Apply the lemma to the support graph with edge set \(M\cup E_0\). It gives
 \begin{equation}
-  \sum_{F\in\mathfrak E(M)}
-    \prod_{e\in F\setminus M}q_e
-  \le
-  \prod_{e\in E_0}(1+q_e).
+  \sum_{F\in\mathfrak E(M)}\prod_{e\in F\setminus M}q_e
+  \le\prod_{e\in E_0}(1+q_e).
   \label{eq:even-family-product-v3}
 \end{equation}
 
@@ -3513,10 +3500,9 @@ Thus both the local rewards and the cycle-space cardinality are controlled by
 one total residual activity.
 
 \begin{remark}
-Lemma~\ref{lem:restriction-product-v3} applies to any weighted set family whose
-restriction map is injective. Here the family happens to be a binary cycle
-space and injectivity follows solely from the fact that the deleted edge set is
-a matching.
+The product argument applies more generally to any weighted family of edge
+sets whose restriction outside a chosen set is injective. For even edge
+sets, the matching hypothesis supplies exactly this injectivity.
 \end{remark}
 
 \subsection{Large residual mass: a quadratic activity bound}
@@ -4145,46 +4131,35 @@ $\Lambda_n=o(n/(\log n)^4)$. Consequently,
  =o\!\left(\frac n{(\log n)^3}\right).
 \]
 This also gives $\Exp{\zeta(G_n)}\le k_{\mathrm{co}}+o(n/(\log n)^3)$,
-uniformly along the full integer sequence. The estimate is a mean upper
-bound; the phase-resolved gap still uses the probability amplification.
+uniformly along the full integer sequence.
 
 \Needspace{6\baselineskip}
 \subsection*{Applying the seed bound}
-Fix the absolute constant $C$ and the sequence $\varepsilon_n^{\mathrm{left}}$ from
-Lemma~\ref{lemma-10.2-amplification-from-a-seed}, and apply that lemma to
-(10.2). The exponent in this seed bound can also make the exceptional
-probability vanish. Both terms in \eqref{eq:explicit-lambda-ledger-v3}
-are nonnegative, and $U=\alpha-2\to\infty$. We may therefore take, for all
-sufficiently large $n$,
-
+The mean bound gives the high-probability conclusion by Markov's inequality.
+Put \(s_n=n/(\log n)^3\) and let
 \[
- \Lambda_n\ge\Gamma_n^{\mathrm{att}}\ge C_{\mathrm{att}}U^2\longrightarrow\infty,
- \qquad r_n:=\Lambda_n.                                      \tag{10.10}
+ b_n:=\frac{C_0}{\log n}\sqrt{\frac{(n-1)\Lambda_n}{2}}
+       +n^{1/3}+n\varepsilon_n^{\mathrm{dens}},
+ \qquad a_n:=\sqrt{b_ns_n}.
+ \tag{10.10}
 \]
-
-From $\Lambda_n=o(n/(\log n)^4)$,
-
+Here \(b_n>0\) is a deterministic upper bound for
+\(\mathbb E(\zeta(G_n)-k_{\mathrm{co}})_+\).
+Since \(\Lambda_n=o(n/(\log n)^4)\) and
+\(\varepsilon_n^{\mathrm{dens}}\le e^{-c\sqrt n}\),
 \[
- \frac{\sqrt{n\Lambda_n}}{\log n}=o(n/(\log n)^3),\qquad
- n^{1/3}=o(n/(\log n)^3).                                     \tag{10.11}
+ b_n=o(s_n),\qquad a_n=o(s_n).
+ \tag{10.11}
 \]
-
-Define the deterministic sequence
-
+Markov's inequality now gives
 \[
- a_n=C\left(
- \frac{2\sqrt{n\Lambda_n}}{\log n}+n^{1/3}+1\right).
-                                                             \tag{10.12}
+ \mathbb P\bigl(\zeta(G_n)>k_{\mathrm{co}}+a_n\bigr)
+ \le\frac{b_n}{a_n}=\sqrt{\frac{b_n}{s_n}}\longrightarrow0.
+ \tag{10.12}
 \]
-
-Then (10.11) and
-Lemma~\ref{lemma-10.2-amplification-from-a-seed} give
-
-\[
- a_n=o(n/(\log n)^3),\qquad
- \Prob{\zeta(G_n)>k_{\mathrm{co}}+a_n}
- \le e^{-\Lambda_n}+\varepsilon_n^{\mathrm{left}}\longrightarrow0. \tag{10.13}
-\]
+All these sequences are deterministic, and the bounds hold uniformly in the
+phase. Lemma~\ref{lemma-10.2-amplification-from-a-seed} retains the stronger
+explicit tail estimate for applications where that estimate is needed.
 
 \subsection{Uniformity across the phase}
 \label{subsec:uniformity-phase-v3}
@@ -4279,7 +4254,7 @@ and $k_\chi^-=r_+(n)+O(\log n)$. Combining this with
   \label{eq:integer-location-gap-v3}
 \end{equation}
 
-The amplification result (10.13) gives a deterministic sequence
+The amplification result (10.12) gives a deterministic sequence
 $a_n=o(n/(\log n)^3)$ such that
 \[
   \mathbb P\bigl(\zeta(G_n)\le k_{\mathrm{co}}+a_n\bigr)
@@ -4348,7 +4323,7 @@ To make the final error explicit, put
   -\frac{(\log 2)^2}{4}A_4(\delta_n),\qquad
   \eta_n:=\frac{a_n}{s_n}.
 \]
-By \eqref{eq:integer-location-gap-v3} and (10.13),
+By \eqref{eq:integer-location-gap-v3} and (10.12),
 $\theta_n\to0$ and $\eta_n\to0$.  Hence the nonnegative deterministic error
 \[
   \varepsilon_n^{\mathrm{gap}}:=|\theta_n|+\eta_n
@@ -4368,7 +4343,7 @@ tends to zero. On the event
     -\varepsilon_n^{\mathrm{gap}}
   \right]s_n.
 \]
-By (4.6) and (10.13), a union bound shows that this intersection has
+By (4.6) and (10.12), a union bound shows that this intersection has
 probability $1-o(1)$. Consequently,
 \begin{equation}
   \mathbb P\!\left(
@@ -5443,20 +5418,6 @@ disjoint sums gives
 which proves (7.7) with one eventuality threshold for the complete phase.
  \end{proof}
 
-\section{The Lean theorem and reproducibility records}\label{app:lean-reproducibility}
-A companion Lean~4 development kernel-checks the explicit full-sequence
-uniform consequence of the main theorem~\citep{petkov-erdos625-lean}. Its
-formal coefficient is
-$((\log 2)^2/4)\log(200/153)$. The top-level declaration is
-\texttt{Erdos625.\allowbreak erdos625}; its type is
-\texttt{Erdos625.\allowbreak Erdos625Statement}. The phase-resolved refinement
-involving $A_4(\delta_n)$ is proved in this manuscript and is not claimed as
-part of the Lean theorem. The cited source revision pins Lean and Mathlib at
-version~4.31.0 and contains the modular sources and generated single-file
-closure. The cited replay revision contains the trust-boundary audit and a
-clean-environment replay. Reproduction commands, checksums, and transcripts
-are recorded in the companion documentation.
-
 \section{Quadratic bounds for residual cell activities}\label{app:quadratic-activities}
 
 \begin{proof}[Proof of Lemma~\ref{lem:q-quadratic-v3}]
@@ -5536,6 +5497,20 @@ continuously to $\theta=0$ with value $1/2$. Therefore
 \]
 Taking $C_0=\max\{5/2,C_{\mathrm{small}}\}$ proves the lemma for every $U$.
 \end{proof}
+
+\section{The Lean theorem and reproducibility records}\label{app:lean-reproducibility}
+A companion Lean~4 development kernel-checks the explicit full-sequence
+uniform consequence of the main theorem~\citep{petkov-erdos625-lean}. Its
+formal coefficient is
+$((\log 2)^2/4)\log(200/153)$. The top-level declaration is
+\texttt{Erdos625.\allowbreak erdos625}; its type is
+\texttt{Erdos625.\allowbreak Erdos625Statement}. The phase-resolved refinement
+involving $A_4(\delta_n)$ is proved in this manuscript and is not claimed as
+part of the Lean theorem. The cited source revision pins Lean and Mathlib at
+version~4.31.0 and contains the modular sources and generated single-file
+closure. The cited replay revision contains the trust-boundary audit and a
+clean-environment replay. Reproduction commands, checksums, and transcripts
+are recorded in the companion documentation.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup
