@@ -1,19 +1,21 @@
-# Erdős 625: current v2 manuscript package
+# Erdős 625: final v2 manuscript package
 
-The final bounded GPT-6 Pro review of each paper was completed on 13 October 2026. The checked local prose corrections are included here. No new theorem or hypothesis change was introduced by this final pass.
+Prepared 14 October 2026 after a fresh independent GPT-6 Pro release recheck of each exact current manuscript. Both reports recommend author-managed v2 release and identify no mathematical blocker within their stated coverage. Two useful optional prose corrections per paper were independently checked and applied; the abstracts, theorem statements and displayed mathematics are unchanged by this final recheck.
+
+The proof roadmap now places the amplification cost and completion of the deterministic gap in the sections that establish them. An unlabelled heading duplicating the adjacent proof heading has been removed.
 
 - `main.pdf`: the current 52-page paper.
-- `main.tex`: editable LaTeX source.
-- `Erdos625-v2-arxiv-upload.zip`: the arXiv upload package.
-- `MANIFEST.txt` and `SHA256SUMS`: the current scoped inventory and checksums for this directory. The checksum ledger excludes itself.
-- `arxiv-abstract.txt` and `arxiv-comments.txt`: separate arXiv metadata.
+- `main.tex`: editable source.
+- `Erdos625-v2-arxiv-upload.zip`: arXiv upload package; `Erdos625_source.zip` contains the same package.
+- `MANIFEST.txt` and `SHA256SUMS`: current scoped inventory and digests for this directory; the ledger excludes itself.
+- `arxiv-abstract.txt` and `arxiv-comments.txt`: separate submission metadata.
 
-The upload archive contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty`. Its exact extracted contents compiled successfully with pdfLaTeX on 13 October 2026, without warnings, unresolved references or citations, missing glyphs, or overfull/underfull boxes. All PDF fonts are embedded, and internal and external hyperlinks are present. Both papers use the same stylesheet.
+The upload ZIP contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty`. The exact extracted sources compiled successfully with pdfLaTeX, without warnings or errors, unresolved references/citations, box warnings or missing glyphs. All PDF fonts are embedded, and bookmarks plus coloured internal/external links are present. Both papers retain the same stylesheet.
 
-## Formalization scope
+## Formalization scope and evidence
 
-The released Erdős development proves the full-sequence fixed-coefficient lower bound for the actual Mathlib G(n,1/2) distribution. It uses tail amplification. The mean-positive-excess lemma proved in the paper is not claimed as a separately released Lean theorem; see Appendix H.
+Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The latter is not claimed as a separately released Lean theorem.
 
-The fresh kernel replay runs only on Procida, using Lean 4.31.0 and the pinned Mathlib revision `fabf563a7c95a166b8d7b6efca11c8b4dc9d911f`. It uses new project OLeans and a reused Mathlib cache. The SSH connection became unavailable before the full run could be retrieved. As of the last verified progress, WOW had checked 67 of 195 production-closure modules and Erdős had checked 194 of 480 under its required `autoImplicit=false` option, with no failures observed in those corrected runs. Full fresh closure, standalone and endpoint-patch completion are unconfirmed until the source-bound remote logs are retrieved. Earlier successful compilation evidence remains historical evidence; it is not described as a completed fresh replay.
+The author waived further Lean reruns and log retrieval on 13 October 2026. No new Lean run was performed in this recheck. The earlier fresh Procida replay's full completion remains unconfirmed after the SSH outage; its last retrieved corrected checkpoints were 67/195 WOW and 194/480 Erdős production modules, without observed failures. Archived source-identified compilation evidence remains historical. Unpublished endpoint patches, retired/vacuous modules and unimported templates are excluded from stronger coverage claims. No released Lean source or toolchain was changed in this publication, and no Lean was run on the PC in this recheck.
 
-Separately prepared unpublished endpoint patches are excluded from released formalization coverage. No Lean sources or toolchain were changed by this manuscript publication. This directory is ready for an author-managed arXiv replacement; no arXiv submission was made. No new AI-detector score is claimed.
+The fresh Pro reviews are mathematical/editorial checks with explicit coverage limits, not new kernel verification or proof certification. No new AI-detector score is claimed. No arXiv submission has been made; these packages are ready for the author's replacement submission.
