@@ -1,0 +1,120 @@
+ERDŐS 625 — REVIEWED REPLACEMENT, 31 OCTOBER 2026
+================================================================
+
+Authoritative input: the erdos625 manuscript in the author's
+Erdos593_625_WOW284_Manual_Upload_Pack_2026-10-31.zip.
+
+No confirmed blocking theorem-level defect was found in the written review.
+All substantive sections and appendices were inspected, together with the
+uploaded-source differences and final changes. This is not a comprehensive
+machine certification or an exhaustive novelty search.
+
+======================
+The main theorem concerns G_n ~ G(n,1/2) through every integer n. It proves
+a high-probability chromatic–cochromatic gap at least
+
+  c n/(log n)^3,
+  c = ((log 2)^2/4) log(200/153)
+    = 0.03217587169793604... .
+
+The stronger phase-resolved lower bound has leading coefficient
+((log 2)^2/4) A_4(delta_n), with a deterministic error epsilon_n -> 0.
+The phase constants are uniform, including sequences approaching integer
+cutoffs. The new remark makes the rate explicit:
+
+  epsilon_n = O(log log n / log n),
+
+with a phase-independent implied constant. Equivalently, the remainder in
+the unnormalized gap is O(n log log n/(log n)^4).
+
+Why the refinement is justified
+-------------------------------
+Write L = log n and ell = log log n. The explicit overlap ledger in Section 9
+already gives Lambda_n = O(n^(3/4) L). The amplification scales in (10.7)
+therefore satisfy
+
+  b_n = O(n^(7/8) L^(-1/2)),
+  a_n = O(n^(15/16) L^(-7/4)) = o(n ell/L^4).
+
+The root comparison (5.11) has error O(n ell/L^4), while the chromatic lower
+location (4.1), rounded cocoloring location (5.13), and amplification cost
+are smaller on this scale. Thus the normalized root error theta_n is
+O(ell/L), and the normalized remaining cost eta_n is o(ell/L).
+The already-defined epsilon_n = |theta_n| + eta_n has the asserted rate.
+
+This result is stated and proved after the main theorem proof, with an
+introductory pointer. It does not change the fixed uniform coefficient,
+provide a numerical finite-n threshold, establish a matching upper bound,
+or add a newly formalized Lean theorem. It exposes information already
+contained in the written proof's explicit estimates.
+
+Most delicate parts checked
+---------------------------
+The audit checked the finite-to-Gaussian tilt approximation and inversion,
+uniformity of the root corridor and its derivative, the integer rounding
+correction satisfying both profile constraints, and the exact signed overlap
+factor. The common-class decomposition was checked in the small, intermediate,
+and nearly full regimes, including its boundary conventions. The large-cell
+matching and endpoint-table comparison were checked for counting multiplicity
+and inequality direction. The residual activity bounds and both amplification
+arguments were examined together with the final deterministic error sequence.
+
+In particular, selected common subprofiles need not form disjoint events;
+the manuscript uses nonnegative upper bounds. The threshold-two overlap
+reward retains the support-cycle factor. The rounding argument uses vanishing
+first derivative in the constraint plane, so it has no omitted linear loss.
+The finite-profile optimization and the whole proof preserve phase uniformity.
+
+Independent diagnostics
+-----------------------
+An exhaustive enumeration of all 2^15 graphs on six vertices, for cocolorings
+into two triples, gives E[Z]=5/8, E[Z^2]=125/128 and normalized second moment
+5/2. An independent compatible-sign overlap enumeration gives the same value.
+Exact rational arithmetic also checked 960 local deficit-ratio cases,
+including the small boundary cases. These tests support specific counting
+identities; they do not replace the asymptotic proof.
+
+Uncertified floating-point endpoint entropy diagnostics suggest the published
+uniform constant is conservative. No stronger constant has been substituted.
+A future improvement would require a rigorous global certificate and a
+decision about the corresponding formalization claim, rather than copying
+a numerical minimum into the theorem.
+
+Prose and attribution
+---------------------
+The abstract now gives a useful reader-level definition of coloring and
+cocoloring before the result. The introduction explains what the rounding
+phase means and identifies why four consecutive sizes are useful. The proof
+roadmap and appendix structure help organize a technically long argument.
+
+The prior-work paragraph was sharpened to state the actual implication
+observed by Heckel and Steiner: a high-probability upper bound on the gap
+would imply concentration of the chromatic number. That implication alone
+does not provide the desired high-probability divergent lower bound.
+Heckel's later result is described as covering a phase-restricted set of
+roughly 95% of n, while the present result covers the full sequence.
+The amplification wording credits the use in Heckel's argument without
+suggesting that the underlying concentration strategy originated there.
+
+Formal-proof-management phrases such as “eventuality threshold” and
+“complete phase” were replaced by “threshold” and “full phase interval”,
+preserving every uniformity assertion. The prior requested removal of the
+English-language-editing claim from the AI disclosure was restored; the
+mathematical assistance disclosure remains. A local Needspace instruction
+keeps Appendix B's heading with its opening proof on page 41.
+
+
+BUILD AND FORMALIZATION SCOPE
+----------------------------
+The final candidate and isolated extracted four-file archive both build
+successfully. Final page count: 53. LaTeX/BibTeX diagnostics: none.
+All fonts embedded. Extracted PDF text is byte-identical to the delivered
+PDF. The exact source and output hashes are in SOURCE_PACKAGE.json and
+SHA256SUMS. All-page PDF overviews and detailed changed-page checks found
+no remaining visual defect.
+
+Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The new quantified remainder belongs to the written refinement; it is not claimed as a newly released Lean theorem.
+
+No new Lean invocation was performed; no Lean source or toolchain changed.
+Historical evidence remains historical. The earlier interrupted fresh
+replay is not represented as complete. No arXiv submission was performed.

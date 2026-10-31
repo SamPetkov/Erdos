@@ -175,6 +175,8 @@ The positive uniform margin absorbs the vanishing error for all sufficiently
 large integers.
 Since \(n/(\log n)^3\to\infty\), both forms resolve the question of
 Erd\H{o}s and Gimbel along the full sequence.
+Remark~\ref{rem:phase-remainder-rate} gives the quantitative error rate
+\(\varepsilon_n=O(\log\log n/\log n)\).
 
 The class sizes are integers, but their center is real. A profile records
 how many classes have each size. When
@@ -195,15 +197,16 @@ include \citet{mcdiarmid-1990}, \citet{panagiotou-steger-2009}, and
 chromatic numbers associated with hereditary graph properties
 \citep{scheinerman-1992,bollobas-thomason-1995}.
 
-For the difference $\chi(G_n)-\zeta(G_n)$, Heckel and, independently, Steiner
-related divergence to the nonconcentration of the chromatic number
+For the difference $\chi(G_n)-\zeta(G_n)$, Heckel and, independently,
+Steiner showed how a high-probability upper bound on the gap would imply
+concentration of the chromatic number
 \citep{heckel-2024-question,steiner-2024}. Heckel subsequently proved a
 near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers and conjectured that the natural full-sequence scale is
 $n/(\log n)^3$ \citep{heckel-2025-difference}.  We prove this lower bound along
 the full sequence $n\to\infty$, with an explicit phase-resolved coefficient.
-We start from Heckel's gain obtained by declaring each class independent or
-complete, and from her probability-amplification argument. Four consecutive
+We use the gain from declaring each class independent or complete, and
+the probability-amplification strategy in Heckel's argument. Four consecutive
 class sizes make our optimization uniform in the phase. The second moment
 counts the compatible class declarations exactly and controls all overlaps
 between two partitions, including whole classes they share.
@@ -748,7 +751,7 @@ Moreover, there are $\eta_*>0$ and $n_{\mathrm{int}}\in\mathbb N$ such that
   \qquad
   (n\ge n_{\mathrm{int}},\ T\in K_*,\ 2\le i\le5).
 \]
-All displayed bounds and eventuality thresholds are uniform over the induced
+All displayed bounds and thresholds are uniform over the induced
 phases $\delta_n$, including sequences approaching either endpoint.
 \end{lemma}
 
@@ -1926,7 +1929,7 @@ and every intermediate mass.
 \begin{lemma}[All common subprofiles]
 \label{lemma-7.1-all-common-subprofiles}
 
-For the selected integer profile, uniformly over the complete phase,
+For the selected integer profile, uniformly over the full phase interval,
 
 \[
  \sum_{0\le\ell_i\le k_i}D(\ell)=1+o(1),               \tag{7.7}
@@ -2339,7 +2342,7 @@ Together with $\binom mh\le m^h$ and
 
 Endpoint tables have four rows and four columns. To label them from zero,
 we now use $i\in\{0,1,2,3\}$ for the deficit $\nu=i+2$ from Sections~5--7.
-Assume $\alpha>8$, a condition included in the common eventuality threshold
+Assume $\alpha>8$, a condition included in the common threshold
 of Subsection~\ref{subsec:uniformity-phase-v3}, and define
 \[
   \kappa_i:=k_{i+2},
@@ -3931,11 +3934,36 @@ of the conjectured $n/(\log n)^3$ scale; a matching upper bound and the optimal
 constant remain open.
 \end{proof}
 
+\begin{remark}[Rate of the phase-resolved remainder]
+\label{rem:phase-remainder-rate}
+The deterministic error in the main theorem may be chosen so that
+\[
+ \varepsilon_n=O\!\left(\frac{\log\log n}{\log n}\right),
+\]
+with a phase-independent implied constant. Indeed, put \(L=\log n\) and
+\(\ell=\log\log n\). The explicit bounds in
+Section~\ref{subsec:explicit-global-ledger-v3} give
+\(\Lambda_n=O(n^{3/4}L)\). Hence the quantities in
+\eqref{eq:amplification-markov-scales} satisfy
+\[
+ b_n=O(n^{7/8}L^{-1/2}),\qquad
+ a_n=O(n^{15/16}L^{-7/4})=o(n\ell/L^4).
+\]
+Combining (5.11), (4.1), and (5.13) therefore gives
+\[
+ \theta_n=O(\ell/L),\qquad \eta_n=o(\ell/L).
+\]
+The error \(\varepsilon_n^{\mathrm{gap}}=|\theta_n|+\eta_n\) used above
+has the asserted rate. Equivalently, the phase-resolved lower bound has
+deterministic remainder \(O(n\log\log n/(\log n)^4)\).
+All estimates are uniform over the phase.
+\end{remark}
+
 \paragraph{AI assistance disclosure.}
 OpenAI GPT-5.6 Sol, accessed through ChatGPT and Codex, was used to probe the
 written proof for counterexamples, audit symbolic consistency, and generate
-candidate Lean code. Codex also assisted with English-language editing,
-organization, and supplementary proof arguments for the finite-dual
+candidate Lean code. Codex also assisted with
+organization and supplementary proof arguments for the finite-dual
 approximation and residual overlap bounds. Aristotle, Harmonic's
 automated theorem-proving system \citep{achim-et-al-2025}, performed automated
 Lean proof search and a clean-environment replay. Every formal output
@@ -4221,7 +4249,7 @@ Set
 \]
 By \eqref{eq:root-central-value}, there is an absolute $C_0$ such that
 $|\Psi_{n,S,c}(s_0)|\le C_0\ell$ for both supports and every
-$0\le c\le q$. By \eqref{eq:root-scaled-derivative}, after one phase-independent eventuality threshold,
+$0\le c\le q$. By \eqref{eq:root-scaled-derivative}, after one phase-independent threshold,
 \[
   \Psi'_{n,S,c}(s)\le-\frac12L
 \]
@@ -4256,10 +4284,11 @@ Hence
 \end{equation*}
 because $s=(2/q)L+O_A(\ell)$, \eqref{eq:root-scaled-derivative} holds, and
 $\Psi_{n,S,c}(s)=O_A(\ell)$ throughout the corridor. This proves (3.7) and
-$\varepsilon_{n,A}^{\mathrm{slope}}\to0$ with one eventuality threshold for
-the complete phase.
+$\varepsilon_{n,A}^{\mathrm{slope}}\to0$ with one threshold for
+the full phase interval.
 \end{proof}
 
+\Needspace{8\baselineskip}
 \section{Rounding the selected profile and its first moment}
 \label{app:profile-rounding-proof}
 
@@ -4530,8 +4559,8 @@ For the lower adjacent size, (2.2) and (2.8a) give
 \end{split}
 \]
 For large $n$, $L-\ell>0$, while $K$ is bounded below. Exponentiating gives
-(2.4), with one absolute constant $c$ and one eventuality threshold valid for
-the complete phase.
+(2.4), with one absolute constant $c$ and one threshold valid for
+the full phase interval.
 \end{proof}
 
 \section{Tilt brackets and tails for the entropy bound}
@@ -5124,7 +5153,7 @@ where
  \Phi_T(z)=R\log R+\frac{\log 2}{2}(I_r-TR).
  \tag{7.21}
 \end{equation*}
-All constants and eventuality thresholds in this extraction are independent of
+All constants and thresholds in this extraction are independent of
 the phase.
 
 \displayheading{A negative bound for the leading rate}
@@ -5349,7 +5378,7 @@ disjoint sums gives
   +\varepsilon_n^{\mathrm{full}}
   =1+o(1),
 \]
-which proves (7.7) with one eventuality threshold for the complete phase.
+which proves (7.7) with one threshold for the full phase interval.
  \end{proof}
 
 \section{Quadratic bounds for residual cell activities}\label{app:quadratic-activities}

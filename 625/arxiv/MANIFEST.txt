@@ -2,7 +2,9 @@ Erdos625-v2-arxiv-upload.zip
 Erdos625_source.zip
 MANIFEST.txt
 README.md
+REVIEW_2026-10-31.txt
 SHA256SUMS
+SOURCE_PACKAGE.json
 arxiv-abstract.txt
 arxiv-comments.txt
 main.bbl

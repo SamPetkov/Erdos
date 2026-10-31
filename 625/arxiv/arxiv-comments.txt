@@ -1,1 +1,1 @@
-52 pages, 3 figures. Revised exposition, expanded proof explanations and appendices; additional references and local mathematical refinements; revised abstract; main text shortened, with detailed calculations in appendices.
+53 pages, 3 figures. Revised exposition and attribution; quantified remainder in the phase-resolved lower bound; detailed proofs and formalization scope.

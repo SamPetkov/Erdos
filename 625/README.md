@@ -16,7 +16,10 @@ P(chi(G_n) - zeta(G_n)
      * n/(log n)^3) -> 1,
 ```
 
-where `epsilon_n -> 0`. Its explicit uniform consequence is
+where `epsilon_n -> 0`. The 31 October 2026 review makes the existing
+estimates quantitative: `epsilon_n = O(log log n / log n)`, uniformly in the
+rounding phase. This refinement is proved in the manuscript and does not
+change the scope of the released Lean theorem. Its explicit uniform consequence is
 
 ```text
 P(chi(G_n) - zeta(G_n)
@@ -51,7 +54,8 @@ generated one-file proof
 Both sources kernel-check the displayed uniform consequence under the
 repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
 fixed-offset construction leading to the uniform coefficient. The stronger
-phase-resolved refinement involving `A_4(delta_n)` is proved in the manuscript
+phase-resolved refinement involving `A_4(delta_n)`, including its quantified
+remainder, is proved in the manuscript
 and is not claimed as part of the Lean theorem. The exact formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,

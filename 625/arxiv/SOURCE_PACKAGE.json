@@ -1,0 +1,35 @@
+{
+  "review_date": "2026-10-31",
+  "paper": "erdos625",
+  "repository": "SamPetkov/Erdos",
+  "author": "Samuil Petkov",
+  "supplied_arxiv_id": "2608.30604",
+  "live_arxiv_submission_state_checked": false,
+  "arxiv_submission_performed": false,
+  "pages": 53,
+  "figures": 3,
+  "source_entry_point": "main.tex",
+  "source_files_sha256": {
+    "main.tex": "da7686f56b648ad55d721a9d0c1c36c6e9de48a7ed21a54cadc1f38c1077de9d",
+    "main.bbl": "099e9ddc37217969bef9ddd9123509e877dc5c1a829e4eb98a9f9addbadee781",
+    "references.bib": "16b12c7fbb688d32d6063c576425ec0bcba0b74ef9489bd0efa79553ad854e26",
+    "petkov-preprint.sty": "be35fd01e7c78c5043fdbbd7fc452411f97c288018b8c07b6c1252135c2ea2e0"
+  },
+  "pdf_sha256": "af6480d8fac8132cb212ae4a60fd1e4630ed87d12e96f1747b724fc808c24ec0",
+  "source_zip_sha256": "c6ceb85a0f8d8cdf68c40718f5041067c54c917778b1b9aeff8eb4ff724deb53",
+  "source_zip_aliases": [
+    "Erdos625-v2-arxiv-upload.zip",
+    "Erdos625_source.zip"
+  ],
+  "candidate_build": "PASS",
+  "fresh_extracted_zip_build": "PASS",
+  "extracted_pdf_text_matches_delivered_pdf": true,
+  "all_fonts_embedded": true,
+  "final_latex_bibtex_diagnostics": [],
+  "fresh_lean_runs": 0,
+  "released_lean_source_changed": false,
+  "new_mathematical_refinements": "The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged.",
+  "formalization_scope": "Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The new quantified remainder belongs to the written refinement; it is not claimed as a newly released Lean theorem.",
+  "input_main_tex_sha256": "46778a2241e6bd4bda344278586c496b52a885ab951a1c1b909d4784b0aeef8e",
+  "input_pdf_sha256": "81ef4ac71ba2076e6aeafadd15ff4e8ac5add286d0e291b56fc60bd740826129"
+}
