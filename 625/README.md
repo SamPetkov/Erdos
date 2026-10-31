@@ -8,46 +8,47 @@ The [`G(12,1/2)` animation](assets/animations/) is an exactly solved finite
 illustration with recorded witnesses and checksums. It is not used in the
 asymptotic proof.
 
-For `G_n ~ G(n,1/2)`, the manuscript proves the phase-resolved statement
+For $G_n\sim G(n,1/2)$, write $\chi$ for the chromatic number and $\zeta$
+for the cochromatic number. The manuscript proves the phase-resolved statement
 
-```text
-P(chi(G_n) - zeta(G_n)
-  >= [((log 2)^2 / 4) A_4(delta_n) - epsilon_n]
-     * n/(log n)^3) -> 1,
-```
+$$
+\mathbb P\!\left(
+  \chi(G_n)-\zeta(G_n)
+  \ge \left[\frac{(\log 2)^2}{4}A_4(\delta_n)-\varepsilon_n\right]
+      \frac{n}{(\log n)^3}
+\right)\longrightarrow1.
+$$
 
-where `epsilon_n -> 0`. The 31 October 2026 review makes the existing
-estimates quantitative: `epsilon_n = O(log log n / log n)`, uniformly in the
-rounding phase. This refinement is proved in the manuscript and does not
-change the scope of the released Lean theorem. Corollary 11.2 also bounds the
-failure probability by `O((log n)^(2/log 2+1/2)/n)` for the phase-resolved
-remainder and for the fixed-coefficient consequence, with phase-independent
-constants and an eventual threshold. Its explicit uniform consequence is
+All logarithms are natural. The deterministic error satisfies
+$\varepsilon_n=O(\log\log n/\log n)$ uniformly in the rounding phase.
+Corollary 11.2 also bounds the failure probability by
+$O((\log n)^{2/\log 2+1/2}/n)$ for this remainder order and for the
+fixed-coefficient consequence, with phase-independent constants and an
+eventual threshold. These refinements are proved in the manuscript.
 
-```text
-P(chi(G_n) - zeta(G_n)
-  >= ((log 2)^2 / 4) log(200/153) * n/(log n)^3) -> 1.
-```
+The explicit uniform consequence, which is also the released Lean theorem, is
 
-The companion Lean theorem certifies this same explicit uniform consequence:
-
-```text
-P(chi(G_n) - zeta(G_n)
-  >= ((log 2)^2 / 4) log(200/153) * n/(log n)^3) -> 1.
-```
+$$
+\mathbb P\!\left(
+  \chi(G_n)-\zeta(G_n)
+  \ge \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right)
+      \frac{n}{(\log n)^3}
+\right)\longrightarrow1.
+$$
 
 In particular, the chromatic--cochromatic gap tends to infinity with high
 probability along the full sequence of integers.
 
 ## Publication files
 
-- [`arxiv/main.tex`](arxiv/main.tex) is the single, self-contained manuscript
-  source.
+- [`arxiv/main.tex`](arxiv/main.tex) is the main LaTeX entry point.
 - [`arxiv/main.pdf`](arxiv/main.pdf) is the compiled manuscript.
 - [`arxiv/references.bib`](arxiv/references.bib) and
   [`arxiv/main.bbl`](arxiv/main.bbl) contain the bibliography.
+- [`arxiv/petkov-preprint.sty`](arxiv/petkov-preprint.sty) is the required
+  stylesheet; keep it with the other three source files.
 - [`arxiv/Erdos625_source.zip`](arxiv/Erdos625_source.zip) is the submission
-  source package.
+  source package. See the [build instructions](arxiv/README.md#build-and-replacement).
 
 ## Formal verification
 
@@ -63,10 +64,9 @@ and is not claimed as part of the Lean theorem. The exact formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,
 the trust boundary, and the immutable cloud replay record at
-`31bbe00c529a996bdb61b880120d71240172d18f`. Later release commits leave the
-Lean proof sources and standalone file byte-for-byte unchanged while updating
-the manuscript, replay records, documentation, illustrative assets, and
-publication package.
+`31bbe00c529a996bdb61b880120d71240172d18f`. The current manuscript update
+leaves the released Lean proof sources and standalone file byte-for-byte
+unchanged.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These

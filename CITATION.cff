@@ -2,6 +2,8 @@ cff-version: 1.2.0
 message: >-
   If you use material from this repository, please cite Samuil Petkov using
   the metadata below and follow the CC BY 4.0 attribution requirements.
+  The version and release date are retained from the earlier Problem 625 package;
+  the current Problem 625 manuscript is in 625/arxiv.
 title: "Erdős Problem 625: Manuscript and Lean Formalization"
 authors:
   - family-names: Petkov
@@ -13,8 +15,10 @@ repository-code: "https://github.com/SamPetkov/Erdos"
 license: CC-BY-4.0
 abstract: >-
   A manuscript presenting a proposed positive resolution of Erdős Problem 625,
-  accompanied by a complete Lean 4 formalization and reproducibility checks.
-  The work has not yet received external peer review or community acceptance.
+  accompanied by a Lean 4 formalization of the explicit full-sequence
+  fixed-coefficient consequence. The phase-resolved refinement, quantified
+  remainder, and failure-probability bound are proved in the manuscript.
+  The manuscript is a preprint and has not undergone external peer review.
 keywords:
   - Erdős problems
   - random graphs

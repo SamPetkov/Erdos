@@ -1,37 +1,38 @@
 # Erdős 625: reviewed replacement manuscript
 
-Prepared **31 October 2026** from the author's supplied upload pack. No confirmed blocking theorem-level defect was found in the written mathematical review. The detailed changes and scope are recorded in `REVIEW_2026-10-31.txt`; this is a review result, not a new kernel certification.
+Prepared **31 October 2026** from the author's supplied upload pack. This directory contains the current manuscript and matching source package. The mathematical review and build records are summarized in [REVIEW_2026-10-31.txt](REVIEW_2026-10-31.txt).
 
 ## Current files
 
-- `main.pdf`: the reviewed 53-page paper.
-- `main.tex`, `main.bbl`, `references.bib`, `petkov-preprint.sty`: the matching editable sources.
-- `Erdos625-v2-arxiv-upload.zip` and `Erdos625_source.zip`: identical four-file source ZIPs; existing alias names are retained for repository continuity.
-- `arxiv-abstract.txt` and `arxiv-comments.txt`: submission text.
-- `SOURCE_PACKAGE.json`: exact source/PDF/ZIP bindings and check scope.
-- `MANIFEST.txt` and `SHA256SUMS`: current directory inventory and digests; the digest ledger excludes itself.
+- [main.pdf](main.pdf): the reviewed 53-page paper.
+- [main.tex](main.tex), [main.bbl](main.bbl), [references.bib](references.bib), [petkov-preprint.sty](petkov-preprint.sty): the matching editable sources.
+- [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip) and [Erdos625_source.zip](Erdos625_source.zip): identical four-file source ZIPs; existing alias names are retained for repository continuity.
+- [arxiv-abstract.txt](arxiv-abstract.txt) and [arxiv-comments.txt](arxiv-comments.txt): submission text.
+- [SOURCE_PACKAGE.json](SOURCE_PACKAGE.json): exact source/PDF/ZIP bindings and check scope.
+- [MANIFEST.txt](MANIFEST.txt) and [SHA256SUMS](SHA256SUMS): current directory inventory and digests; the digest ledger excludes itself.
 
 ## Changes in this review
 
-The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound `O((log n)^(2/log 2+1/2)/n)` for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the existing explicit tail amplification and sums all four exceptional-event bounds.
-
-The prior requested removal of the English-language-editing claim from the AI disclosure is retained; the mathematical assistance disclosure remains.
+The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound `O((log n)^(2/log 2+1/2)/n)` for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the explicit tail amplification and sums all four exceptional-event bounds. Lemma 10.1 states the existing bound $e^{-c\sqrt n}$ on the failure probability of simultaneous leftover coloring.
 
 ## Verification
 
 Both the candidate source and the exact four-file ZIP extracted into an empty directory compiled successfully with pdfLaTeX via latexmk. The extracted build has 53 pages and byte-identical extracted PDF text to the delivered PDF. No LaTeX/BibTeX warning or error, unresolved reference or citation, box warning, or missing-glyph diagnostic was found in the final logs. All fonts are embedded. The PDF was reviewed in an all-page overview and at higher resolution on changed and affected pages.
 
-Independent exact diagnostics checked the six-vertex signed second moment and 960 local deficit-ratio cases. All substantive sections and appendices of the written argument were reviewed, with a separate cross-check of the new remainder rate.
+The first 31 October review included exact diagnostics for the six-vertex signed second moment and 960 local deficit-ratio cases, a review of the written argument, and a separate cross-check of the remainder rate. The second review independently checked the analytic probability estimate stated in Lemma 10.1; these unaffected finite diagnostics were not rerun.
 
 ## Formalization boundary
 
 Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The quantified remainder and failure-probability bound belong to the written refinement; neither is claimed as a newly released Lean theorem.
 
-No new Lean run was performed and no released Lean source or toolchain was changed. The author had waived further Lean reruns and log retrieval. Earlier archived compilation evidence remains historical; the interrupted fresh replay is not promoted to a completed run.
+The released Lean sources and toolchain are unchanged by this manuscript update. The released formalization and its reproduction instructions are documented in the [Lean README](../formalization/README.md).
 
 ## Build and replacement
 
-From this directory, with a suitable TeX distribution:
+Use a TeX distribution with pdfLaTeX, BibTeX, `latexmk`, and the packages
+loaded by `main.tex` and `petkov-preprint.sty`. For a minimal installation,
+include `newtx`, its `kastrup` (`binhex.tex`) support, and the `tex-gyre` fonts.
+Keep all four source files together and run from this directory:
 
 ```bash
 latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex

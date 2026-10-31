@@ -9,9 +9,10 @@ Erdős problems.
 
 - [Problem 593](593/) -- the maintained `Erdos593` repository, linked here as
   a Git submodule.
-- [Problem 625](625/) -- a proposed full-sequence quantitative resolution of
-  the chromatic--cochromatic gap problem for `G(n,1/2)`, with a Lean 4
-  formalization of the explicit uniform consequence and a one-file formal proof.
+- [Problem 625](625/) -- a [manuscript](625/arxiv/main.pdf) giving a proposed
+  full-sequence quantitative resolution of the chromatic--cochromatic gap
+  problem for `G(n,1/2)`, with a [Lean 4 formalization](625/formalization/) of
+  the explicit uniform consequence and a one-file formal proof.
 
 The canonical Problem 625 publication package is in [`625/arxiv/`](625/arxiv/).
 Problem 593 submission files remain in [`arxiv_preprints/`](arxiv_preprints/).
