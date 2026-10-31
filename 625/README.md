@@ -19,7 +19,10 @@ P(chi(G_n) - zeta(G_n)
 where `epsilon_n -> 0`. The 31 October 2026 review makes the existing
 estimates quantitative: `epsilon_n = O(log log n / log n)`, uniformly in the
 rounding phase. This refinement is proved in the manuscript and does not
-change the scope of the released Lean theorem. Its explicit uniform consequence is
+change the scope of the released Lean theorem. Corollary 11.2 also bounds the
+failure probability by `O((log n)^(2/log 2+1/2)/n)` for the phase-resolved
+remainder and for the fixed-coefficient consequence, with phase-independent
+constants and an eventual threshold. Its explicit uniform consequence is
 
 ```text
 P(chi(G_n) - zeta(G_n)
@@ -55,7 +58,7 @@ Both sources kernel-check the displayed uniform consequence under the
 repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
 fixed-offset construction leading to the uniform coefficient. The stronger
 phase-resolved refinement involving `A_4(delta_n)`, including its quantified
-remainder, is proved in the manuscript
+remainder and failure-probability bound, is proved in the manuscript
 and is not claimed as part of the Lean theorem. The exact formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,

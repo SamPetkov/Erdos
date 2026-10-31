@@ -13,7 +13,7 @@ Prepared **31 October 2026** from the author's supplied upload pack. No confirme
 
 ## Changes in this review
 
-The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged.
+The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound `O((log n)^(2/log 2+1/2)/n)` for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the existing explicit tail amplification and sums all four exceptional-event bounds.
 
 The prior requested removal of the English-language-editing claim from the AI disclosure is retained; the mathematical assistance disclosure remains.
 
@@ -25,7 +25,7 @@ Independent exact diagnostics checked the six-vertex signed second moment and 96
 
 ## Formalization boundary
 
-Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The new quantified remainder belongs to the written refinement; it is not claimed as a newly released Lean theorem.
+Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The quantified remainder and failure-probability bound belong to the written refinement; neither is claimed as a newly released Lean theorem.
 
 No new Lean run was performed and no released Lean source or toolchain was changed. The author had waived further Lean reruns and log retrieval. Earlier archived compilation evidence remains historical; the interrupted fresh replay is not promoted to a completed run.
 

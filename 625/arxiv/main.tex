@@ -177,6 +177,8 @@ Since \(n/(\log n)^3\to\infty\), both forms resolve the question of
 Erd\H{o}s and Gimbel along the full sequence.
 Remark~\ref{rem:phase-remainder-rate} gives the quantitative error rate
 \(\varepsilon_n=O(\log\log n/\log n)\).
+Corollary~\ref{cor:phase-failure-probability} also bounds the probability
+that the corresponding lower bound fails.
 
 The class sizes are integers, but their center is real. A profile records
 how many classes have each size. When
@@ -3959,6 +3961,73 @@ deterministic remainder \(O(n\log\log n/(\log n)^4)\).
 All estimates are uniform over the phase.
 \end{remark}
 
+\begin{corollary}[A bound on the failure probability]
+\label{cor:phase-failure-probability}
+Put \(q=\log 2\). There are constants \(C_1,C_2>0\) and an integer
+\(N\), all independent of the phase, such that every integer \(n\ge N\)
+satisfies
+\[
+ \mathbb P\!\left(
+  \chi(G_n)-\zeta(G_n)
+  <\left[\frac{q^2}{4}A_4(\delta_n)
+         -C_1\frac{\log\log n}{\log n}\right]
+       \frac{n}{(\log n)^3}
+ \right)
+ \le C_2\frac{(\log n)^{2/q+1/2}}{n}.
+\]
+The failure probability of the fixed-coefficient lower bound in the main
+theorem obeys the same upper bound, after increasing \(N\).
+\end{corollary}
+
+\begin{proof}
+Write \(L=\log n\), \(\ell=\log\log n\), and \(\beta=2/q+1/2\).
+Apply Lemma~\ref{lemma-10.2-amplification-from-a-seed} to (10.2) with
+\(r=2L\). Since \(\Lambda_n=O(n^{3/4}L)\), its additional class allowance
+\[
+ t_n:=C\left(
+ \frac{\sqrt{n\Lambda_n}+\sqrt{2nL}}{L}+n^{1/3}+1
+ \right)
+ =O(n^{7/8}L^{-1/2})=o(n\ell/L^4)
+\]
+satisfies
+\[
+ \mathbb P\bigl(\zeta(G_n)>k_{\mathrm{co}}+t_n\bigr)
+ \le n^{-2}+e^{-c\sqrt n}
+\]
+for an absolute \(c>0\). Indeed, the density event used to prove
+Lemma~\ref{lemma-10.1-simultaneous-leftover-coloring} implies the
+simultaneous coloring event in the tail lemma, so
+\(\varepsilon_n^{\mathrm{left}}\le\varepsilon_n^{\mathrm{dens}}
+\le e^{-c\sqrt n}\).
+
+For the chromatic lower event, the first line of (2.3) can be written as
+\[
+ \log\mu_{\alpha+2}
+ =-L+\beta\ell+(\delta_n-1)(L-\ell)+O(1).
+\]
+The phase-dependent term is nonpositive for all sufficiently large \(n\),
+and the remainder is uniform. Hence
+\(\mu_{\alpha+2}\le C_{\mathrm{cap}}L^\beta/n\) for one absolute constant.
+By (4.5), the chromatic lower event fails with probability at most
+\(C_{\mathrm{cap}}L^\beta/n+e^{-c_\chi L^3}\).
+Equations (5.11), (4.1), and (5.13), together with the bound on \(t_n\), give
+\[
+ k_\chi^- - k_{\mathrm{co}}-t_n
+ \ge\frac{q^2}{4}A_4(\delta_n)\frac{n}{L^3}
+      -C_1\frac{n\ell}{L^4}
+\]
+after one phase-independent threshold. On the intersection of the two good
+events, \(\chi(G_n)-\zeta(G_n)>k_\chi^- - k_{\mathrm{co}}-t_n\).
+A union bound therefore bounds the probability in the statement by
+\[
+ C_{\mathrm{cap}}\frac{L^\beta}{n}
+ +e^{-c_\chi L^3}+n^{-2}+e^{-c\sqrt n}
+ \le C_2\frac{L^\beta}{n},
+\]
+after increasing \(N\). The positive uniform margin between
+\(A_4(\delta)\) and \(\log(200/153)\) gives the final assertion.
+\end{proof}
+
 \paragraph{AI assistance disclosure.}
 OpenAI GPT-5.6 Sol, accessed through ChatGPT and Codex, was used to probe the
 written proof for counterexamples, audit symbolic consistency, and generate
@@ -4563,6 +4632,7 @@ For large $n$, $L-\ell>0$, while $K$ is bounded below. Exponentiating gives
 the full phase interval.
 \end{proof}
 
+\Needspace{8\baselineskip}
 \section{Tilt brackets and tails for the entropy bound}
 \label{app:entropy-certificate-details}
 
@@ -5468,8 +5538,11 @@ formal coefficient is
 $((\log 2)^2/4)\log(200/153)$. The top-level declaration is
 \texttt{Erdos625.\allowbreak erdos625}; its type is
 \texttt{Erdos625.\allowbreak Erdos625Statement}. The phase-resolved refinement
-involving $A_4(\delta_n)$ is proved in this manuscript and is not claimed as
-part of the Lean theorem. The released proof uses tail amplification.
+involving $A_4(\delta_n)$, the quantified remainder in
+Remark~\ref{rem:phase-remainder-rate}, and the failure-probability estimate in
+Corollary~\ref{cor:phase-failure-probability} are proved in this manuscript
+and are not claimed as part of the Lean theorem.
+The released proof uses tail amplification.
 The mean-positive-excess bound in Lemma~\ref{lem:mean-seed-amplification}
 is proved here but is not asserted as a separately released Lean theorem.
 The cited source revision pins Lean and Mathlib at
