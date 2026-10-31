@@ -10,13 +10,13 @@
   "figures": 3,
   "source_entry_point": "main.tex",
   "source_files_sha256": {
-    "main.tex": "6c1bdc7b8cb050727a927144ecaa20a802fb343ae645df6f11e435e56f22b5a7",
+    "main.tex": "cb40c4e95d3aefbbd144db100b02aa1f206cf1dd485223538917376514ebc4cb",
     "main.bbl": "099e9ddc37217969bef9ddd9123509e877dc5c1a829e4eb98a9f9addbadee781",
     "references.bib": "16b12c7fbb688d32d6063c576425ec0bcba0b74ef9489bd0efa79553ad854e26",
     "petkov-preprint.sty": "be35fd01e7c78c5043fdbbd7fc452411f97c288018b8c07b6c1252135c2ea2e0"
   },
-  "pdf_sha256": "cffca69b5d0d4b2d890aaeaeeabcc937105a05facb7d301061b6b3241a23dfec",
-  "source_zip_sha256": "916d8ab544964192b4633d9d97b27dd1ebd88275eccdeb45b7b1b2a71b8db591",
+  "pdf_sha256": "a18f5322e1dc966bb8889fded4113a0909877290666cb06ab0440946de8b9b2a",
+  "source_zip_sha256": "5b7111b645258fabe8c3cd08e9b6c0642dbc954c83360ccce24b43866d61e4a4",
   "source_zip_aliases": [
     "Erdos625-v2-arxiv-upload.zip",
     "Erdos625_source.zip"
@@ -53,5 +53,20 @@
     "released_lean_sources_changed": false,
     "fresh_exact_verifier_replays": 0,
     "existing_exact_results_affected": false
-  }
+  },
+  "third_review": {
+    "date": "2026-10-31",
+    "baseline_commit": "b88c5a01377843e267316265dbecd8dd4e0d5633",
+    "scope": "One further focused mathematical and prose pass; preserve structure and accepted Lean sources.",
+    "result": "No new blocking mathematical issue found in the reviewed material.",
+    "changes": "Corollary 11.2 retains the rounding-phase factor in the failure bound: O(w_n), with beta=2/log(2)+1/2 and w_n=((log n)^beta/n)((log n)/n)^(1-delta_n). Constants and the eventual threshold remain phase-independent. For each fixed eta in (0,1), failure is O(n^(-1-eta)(log n)^(beta+eta)) along integers satisfying delta_n<=1-eta. The proof retains the phase term in the first-moment exponent and absorbs all four exceptional terms. The main theorem, fixed leading coefficient, and remainder order are unchanged.",
+    "independent_math_cross_check": "PASS",
+    "candidate_and_extracted_package_builds": "PASS",
+    "visual_review": "PASS",
+    "fresh_lean_runs": 0,
+    "released_lean_sources_changed": false,
+    "fresh_exact_verifier_replays": 0,
+    "existing_exact_results_affected": false
+  },
+  "current_failure_probability": "O(((log n)^beta/n)((log n)/n)^(1-delta_n)), beta=2/log(2)+1/2; phase-independent constants"
 }

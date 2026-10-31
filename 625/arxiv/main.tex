@@ -3968,9 +3968,14 @@ All estimates are uniform over the phase.
 
 \begin{corollary}[A bound on the failure probability]
 \label{cor:phase-failure-probability}
-Put \(q=\log 2\). There are constants \(C_1,C_2>0\) and an integer
-\(N\), all independent of the phase, such that every integer \(n\ge N\)
-satisfies
+Put \(q=\log 2\), \(\beta=2/q+1/2\), and
+\[
+ w_n:=\frac{(\log n)^\beta}{n}
+       \left(\frac{\log n}{n}\right)^{1-\delta_n}
+     =n^{\delta_n-2}(\log n)^{\beta+1-\delta_n}.
+\]
+There are constants \(C_1,C_2>0\) and an integer \(N\), all independent
+of the phase, such that every integer \(n\ge N\) satisfies
 \[
  \mathbb P\!\left(
   \chi(G_n)-\zeta(G_n)
@@ -3978,14 +3983,17 @@ satisfies
          -C_1\frac{\log\log n}{\log n}\right]
        \frac{n}{(\log n)^3}
  \right)
- \le C_2\frac{(\log n)^{2/q+1/2}}{n}.
+ \le C_2w_n\le C_2\frac{(\log n)^\beta}{n}.
 \]
 The failure probability of the fixed-coefficient lower bound in the main
 theorem obeys the same upper bound, after increasing \(N\).
+For each fixed \(\eta\in(0,1)\), both failure probabilities are therefore
+\(O(n^{-1-\eta}(\log n)^{\beta+\eta})\) along the integers for which
+\(\delta_n\le1-\eta\).
 \end{corollary}
 
 \begin{proof}
-Write \(L=\log n\), \(\ell=\log\log n\), and \(\beta=2/q+1/2\).
+Write \(L=\log n\) and \(\ell=\log\log n\).
 Apply Lemma~\ref{lemma-10.2-amplification-from-a-seed} to (10.2) with
 \(r=2L\). Since \(\Lambda_n=O(n^{3/4}L)\), its additional class allowance
 \[
@@ -4007,11 +4015,10 @@ For the chromatic lower event, the first line of (2.3) can be written as
  \log\mu_{\alpha+2}
  =-L+\beta\ell+(\delta_n-1)(L-\ell)+O(1).
 \]
-The phase-dependent term is nonpositive for all sufficiently large \(n\),
-and the remainder is uniform. Hence
-\(\mu_{\alpha+2}\le C_{\mathrm{cap}}L^\beta/n\) for one absolute constant.
+Since the remainder is uniform, retaining the phase-dependent term gives
+\(\mu_{\alpha+2}\le C_{\mathrm{cap}}w_n\) for one absolute constant.
 By (4.5), the chromatic lower event fails with probability at most
-\(C_{\mathrm{cap}}L^\beta/n+e^{-c_\chi L^3}\).
+\(C_{\mathrm{cap}}w_n+e^{-c_\chi L^3}\).
 Equations (5.11), (4.1), and (5.13), together with the bound on \(t_n\), give
 \[
  k_\chi^- - k_{\mathrm{co}}-t_n
@@ -4022,12 +4029,16 @@ after one phase-independent threshold. On the intersection of the two good
 events, \(\chi(G_n)-\zeta(G_n)>k_\chi^- - k_{\mathrm{co}}-t_n\).
 A union bound therefore bounds the probability in the statement by
 \[
- C_{\mathrm{cap}}\frac{L^\beta}{n}
+ C_{\mathrm{cap}}w_n
  +e^{-c_\chi L^3}+n^{-2}+e^{-c\sqrt n}
- \le C_2\frac{L^\beta}{n},
+ \le C_2w_n,
 \]
-after increasing \(N\). The positive uniform margin between
-\(A_4(\delta)\) and \(\log(200/153)\) gives the final assertion.
+after increasing \(N\): both exponential terms are then at most \(n^{-2}\),
+and \(n^{-2}\le w_n\le L^\beta/n\) uniformly for \(0\le\delta_n<1\).
+The positive uniform margin between \(A_4(\delta)\) and
+\(\log(200/153)\) gives the fixed-coefficient assertion.
+Finally, if \(\delta_n\le1-\eta\), then
+\(w_n\le n^{-1-\eta}L^{\beta+\eta}\), since \(L/n<1\).
 \end{proof}
 
 \paragraph{AI assistance disclosure.}

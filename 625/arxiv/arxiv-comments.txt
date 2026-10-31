@@ -1,1 +1,1 @@
-53 pages, 3 figures. Revised exposition and attribution; quantified remainder and failure-probability bound; detailed proofs and formalization scope.
+53 pages, 3 figures. Revised exposition and attribution; quantified remainder and phase-sensitive failure-probability bound; detailed proofs and formalization scope.

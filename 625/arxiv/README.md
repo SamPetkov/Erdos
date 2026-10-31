@@ -15,11 +15,15 @@ Prepared **31 October 2026** from the author's supplied upload pack. This direct
 
 The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound `O((log n)^(2/log 2+1/2)/n)` for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the explicit tail amplification and sums all four exceptional-event bounds. Lemma 10.1 states the existing bound $e^{-c\sqrt n}$ on the failure probability of simultaneous leftover coloring.
 
+The third focused pass retains the phase term in that probability estimate. With $\beta=2/\log 2+1/2$, Corollary 11.2 now bounds both failure probabilities by $O(w_n)$, where $w_n=((\log n)^\beta/n)((\log n)/n)^{1-\delta_n}$. Constants remain uniform in the phase. For each fixed $\eta\in(0,1)$, this gives $O(n^{-1-\eta}(\log n)^{\beta+\eta})$ along integers satisfying $\delta_n\le1-\eta$. The main theorem, leading coefficient, and remainder order are unchanged.
+
 ## Verification
 
 Both the candidate source and the exact four-file ZIP extracted into an empty directory compiled successfully with pdfLaTeX via latexmk. The extracted build has 53 pages and byte-identical extracted PDF text to the delivered PDF. No LaTeX/BibTeX warning or error, unresolved reference or citation, box warning, or missing-glyph diagnostic was found in the final logs. All fonts are embedded. The PDF was reviewed in an all-page overview and at higher resolution on changed and affected pages.
 
 The first 31 October review included exact diagnostics for the six-vertex signed second moment and 960 local deficit-ratio cases, a review of the written argument, and a separate cross-check of the remainder rate. The second review independently checked the analytic probability estimate stated in Lemma 10.1; these unaffected finite diagnostics were not rerun.
+
+The third review independently checked the retained phase factor, absorption of all four exceptional terms, and the stated subsequence consequence. Both current source builds passed; every text-changed page was visually inspected, and all unchanged-text pages were pixel-identical to the preceding reviewed PDF.
 
 ## Formalization boundary
 

@@ -22,9 +22,14 @@ $$
 All logarithms are natural. The deterministic error satisfies
 $\varepsilon_n=O(\log\log n/\log n)$ uniformly in the rounding phase.
 Corollary 11.2 also bounds the failure probability by
-$O((\log n)^{2/\log 2+1/2}/n)$ for this remainder order and for the
-fixed-coefficient consequence, with phase-independent constants and an
-eventual threshold. These refinements are proved in the manuscript.
+$O(w_n)$, where $\beta=2/\log 2+1/2$ and
+$w_n=((\log n)^\beta/n)((\log n)/n)^{1-\delta_n}$, for this remainder
+order and for the fixed-coefficient consequence. The constants and an
+eventual threshold are phase-independent. This retains the uniform bound
+$O((\log n)^\beta/n)$ and gives
+$O(n^{-1-\eta}(\log n)^{\beta+\eta})$ along integers with
+$\delta_n\le 1-\eta$, for each fixed $\eta\in(0,1)$. These refinements
+are proved in the manuscript.
 
 The explicit uniform consequence, which is also the released Lean theorem, is
 
