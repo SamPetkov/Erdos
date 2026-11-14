@@ -168,7 +168,7 @@ refinement keeps the coefficient \(A_5(\delta_n)\), which depends on where
 the independent-set center lies between neighboring integers. Since
 \(A_5(\delta_n)\) is at least the minimum of \(A_5\) on \([0,1]\) and
 \(\varepsilon_n\to0\), the refined bound implies the uniform bound for every
-\(c<c_5\). The constant \(c_5\) is evaluated in
+\(c<c_5\). The constant \(c_5\) is bounded from below in
 Section~\ref{sec:final-assembly}:
 Lemma~\ref{lem:phase-gain-sharp} shows that \(A_5>\log(169/100)\) on
 \([0,1]\), so
@@ -1231,10 +1231,15 @@ upper bound.
 \end{proof}
 
 Lemma~\ref{lem:entropy-gap} suffices for every positivity argument below.
-The value of the uniform constant in the main theorem uses the following
-sharper bound. Numerically, $\min_{[0,1]}A_5=A_5(1)\approx0.525995$, so
-this bound is within $0.0013$ of the minimum; the numerical value is not
-used.
+The lower bound for the uniform constant in the main theorem uses the
+following sharper bound. By Lemma~\ref{lem:phase-gain-concavity}, the
+minimum of $A_5$ on $[0,1]$ is attained at an endpoint. As a numerical
+observation that is not used in any proof: solving the saddle-point
+equations for $F_{S_+}$ and $F_{S_5}$ in $40$-digit floating-point
+arithmetic, with the sum over $S_+$ truncated at $i\le399$, gives
+$A_5(0)\approx0.659497$ and $A_5(1)\approx0.525995$. The minimum therefore
+appears to be $A_5(1)$, and the bound below appears to be within $0.0013$
+of it.
 
 \begin{lemma}[A sharp uniform bound for the phase gain]
 \label{lem:phase-gain-sharp}
@@ -4201,7 +4206,7 @@ It follows that
 \]
 This proves the main theorem.
 
-To evaluate the constant, Lemma~\ref{lem:phase-gain-sharp} gives
+To bound the constant from below, Lemma~\ref{lem:phase-gain-sharp} gives
 $m_5>\log(169/100)$. Consequently
 \[
   c_5>\frac{(\log 2)^2}{4}\log\!\left(\frac{169}{100}\right)

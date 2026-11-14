@@ -77,7 +77,7 @@ from the manuscript in `../arxiv/main.tex`. For every `delta` in `[0, 1]`:
 | `Erdos625/FiveSizePhaseGainSharp.lean` | `log_2605_div_1651_lt_phaseGain5` | `A_5(delta) > log(2605/1651)` |
 | `Erdos625/FiveSizePhaseGainCertificate.lean` | `log_169_div_100_lt_phaseGain5` | the manuscript's Lemma 5.4, `A_5(delta) > log(169/100)` |
 
-The third bound gives the manuscript's value of the uniform constant. These
+The third bound gives the manuscript's lower bound for the uniform constant. These
 modules are part of both the modular build and the one-file proof. They do not change
 `Erdos625Statement` or the proof of `Erdos625.erdos625`, whose coefficient is
 still `(log 2)^2 / 4 * log(200/153)`.
