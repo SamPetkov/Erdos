@@ -54,15 +54,15 @@ Between the Chromatic and Cochromatic Numbers of a Random Graph}
 
 
 \begin{abstract}
-A proper coloring partitions the vertices of a graph into independent sets. In a cocoloring, each class may be an independent set or a clique. The minimum numbers of classes are the chromatic number \(\chi(G)\) and cochromatic number \(\zeta(G)\), respectively. Thus \(\zeta(G)\le\chi(G)\). For \(G_n\sim G(n,1/2)\), Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\) tends to infinity with high probability. We prove \[ \mathbb P\!\left( \chi(G_n)-\zeta(G_n)\ge \frac{(\log 2)^2}{4}\log\!\left(\frac{200}{153}\right) \frac{n}{(\log n)^3} \right)\longrightarrow1. \] All logarithms are natural, and the limit holds as \(n\to\infty\) through all integers. This lower bound has the conjectured scale \(n/(\log n)^3\).
+The cochromatic number \(\zeta(G)\) of a graph \(G\) is the least number of parts in a partition of \(V(G)\) into cliques and independent sets, so \(\zeta(G)\le\chi(G)\). Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\to\infty\) with high probability for \(G_n\sim G(n,1/2)\). Heckel answered this affirmatively for about \(95\%\) of all integers \(n\) and conjectured that the natural order of the difference along the full sequence is \(n/(\log n)^3\). We prove that, as \(n\to\infty\) through all integers, \(\chi(G_n)-\zeta(G_n)\ge c\,n/(\log n)^3\) with high probability, where \(c=\frac14(\log 2)^2\log(8750/6681)\approx0.0324\) and \(\log\) is the natural logarithm. The failure probabilities are summable, so under any coupling of the graphs \(G_n\) the bound holds almost surely for all sufficiently large \(n\). A phase-resolved refinement replaces \(\log(8750/6681)\) by \(A_5(\delta_n)-o(1)\), where \(\delta_n\) is the fractional part of the first-moment approximation \(\alpha_0(n)\) to the independence number and \(A_5\) is an explicit, continuous, nonconstant function satisfying \(A_5>\log(8750/6681)\) on \([0,1]\).
 
-We choose four consecutive class sizes below the real-valued first-moment center for independent sets. The fractional part of this center is the rounding phase. Optimizing the proportions at each phase gives a sharper explicit coefficient, with a deterministic error tending to zero uniformly over the phase. For the second moment, we count partitions with each class declared independent or complete, and bound the contribution from pairs of overlapping partitions. This gives a cocoloring with a possibly small probability. Concentration and a coloring of the leftover vertices then give high probability at a cost of \(o(n/(\log n)^3)\) extra classes.
+The proof is a second-moment argument for partitions with five consecutive class sizes, in which each class is declared independent or complete. We control all overlaps between two such partitions, including whole shared classes and large intersections of unequal classes, uniformly in the rounding phase. Vertex-exposure concentration, together with a coloring of the leftover vertices, then raises the resulting probability bound to high probability at a cost of \(o(n/(\log n)^3)\) extra classes.
 \end{abstract}
 
 \maketitle
 
 \section*{Introduction}
-\label{sec:introduction-v3}
+\label{sec:introduction}
 
 A \emph{cocoloring} of a graph $G$ is a partition of $V(G)$ into nonempty
 classes, each inducing either an edgeless graph or a complete graph. The least
@@ -72,8 +72,8 @@ independent-set classes, one always has $\zeta(G)\le\chi(G)$.
 
 Write $[n]:=\{1,\ldots,n\}$, and let $G_n\sim G(n,1/2)$ be the labeled random
 graph on $[n]$. All logarithms are natural unless a base is displayed.
-The first-order scales of $\chi(G_n)$ and $\zeta(G_n)$ coincide, so this
-asymptotic alone does not tell us whether their difference grows. Erd\H{o}s
+The leading asymptotics of $\chi(G_n)$ and $\zeta(G_n)$ agree, so they do
+not determine whether the difference between the two numbers grows. Erd\H{o}s
 and Gimbel asked whether
 \[
   \chi(G_n)-\zeta(G_n)\longrightarrow\infty
@@ -88,10 +88,17 @@ The expected number of independent sets of size $k$ is
 \[
   \mu_k=\binom nk2^{-\binom k2}.
 \]
-The usual asymptotic solution of $\mu_k=1$ is the real-valued center
-$\alpha_0(n)$ defined below \citep[p.~420]{bollobas-erdos-1976}.  Its fractional part records the position of this
-center relative to the neighboring integer class sizes and will be the phase
-$\delta_n$.  We include both quantities in the theorem statement.
+Solving $\mu_k=1$ asymptotically gives a real-valued center
+$\alpha_0(n)$ \citep[p.~420]{bollobas-erdos-1976}. The phase
+$\delta_n$ is its fractional part, which records where this center lies
+between consecutive integer class sizes. Both quantities are defined
+precisely in the main theorem below.
+
+A profile records the number of classes of each integer size. To obtain the
+sharper coefficient in the theorem, we compare two optimizations over
+profiles with a fixed mean class size: one allows all sizes below the
+cutoff, and the other allows only five consecutive sizes. In both, the
+proportions of the class sizes are optimized.
 
 \begin{maintheorem}[Uniform lower bound and phase refinement]
 For every integer \(n\ge2\), let \(G_n\sim G(n,1/2)\) be the random simple
@@ -103,7 +110,7 @@ as \(n\to\infty\) through the integers. Then
     \chi(G_n)-\zeta(G_n)
     \ge
     \frac{(\log 2)^2}{4}
-    \log\!\left(\frac{200}{153}\right)
+    \log\!\left(\frac{8750}{6681}\right)
     \frac{n}{(\log n)^3}
   \right)
   \longrightarrow 1.
@@ -120,10 +127,10 @@ For the sharper phase-dependent form, set
 Thus $\delta_n\in[0,1)$ is deterministic.  For $0\le\delta\le1$, define
 \[
   S_+:=\{i\in\mathbb Z:i\ge-1\},\qquad
-  S_4:=\{2,3,4,5\},\qquad
+  S_5:=\{2,3,4,5,6\},\qquad
   T_\delta:=1+\frac{2}{\log 2}-\delta.
 \]
-Then $T_\delta\in(2,5)$.  For $S\in\{S_+,S_4\}$ and $T\in(2,5)$, put
+Then $T_\delta\in(2,5)$.  For $S\in\{S_+,S_5\}$ and $T\in(2,5)$, put
 \[
   \mathcal F_S(T):=
   \inf_{\lambda\in\mathbb R}
@@ -133,8 +140,8 @@ Then $T_\delta\in(2,5)$.  For $S\in\{S_+,S_4\}$ and $T\in(2,5)$, put
     -\lambda T
   \right\},
   \qquad
-  A_4(\delta):=
-  \log 2-\mathcal F_{S_+}(T_\delta)+\mathcal F_{S_4}(T_\delta).
+  A_5(\delta):=
+  \log 2-\mathcal F_{S_+}(T_\delta)+\mathcal F_{S_5}(T_\delta).
 \]
 The sum inside the logarithm defining $\mathcal F_{S_+}(T)$ converges for every
 $\lambda\in\mathbb R$; for $T\in(2,5)$, each displayed infimum is a finite real
@@ -147,16 +154,16 @@ $(\varepsilon_n)_{n\ge2}$ with $\varepsilon_n\to0$ such that
     \chi(G_n)-\zeta(G_n)
     \ge
     \left[
-      \frac{(\log 2)^2}{4}A_4(\delta_n)-\varepsilon_n
+      \frac{(\log 2)^2}{4}A_5(\delta_n)-\varepsilon_n
     \right]
     \frac{n}{(\log n)^3}
   \right)
   \longrightarrow1.
 \]
-Moreover, $A_4$ is continuous and nonconstant on $[0,1]$, and for every
+Moreover, $A_5$ is continuous and nonconstant on $[0,1]$, and for every
 $\delta\in[0,1]$,
 \[
-  A_4(\delta)>\log\!\left(\frac{200}{153}\right).
+  A_5(\delta)>\log\!\left(\frac{8750}{6681}\right).
 \]
 Continuity and compactness therefore give a positive uniform margin above
 this bound.
@@ -165,29 +172,31 @@ this bound.
 The uniform coefficient displayed above is
 \[
   \frac{(\log 2)^2}{4}
-  \log\!\left(\frac{200}{153}\right)
-  =0.032175871697936\ldots.
+  \log\!\left(\frac{8750}{6681}\right)
+  =0.032404877017029\ldots.
 \]
-The uniform bound uses a single constant. The refinement keeps
-\(A_4(\delta_n)\), so its leading coefficient depends on where the
-independent-set center lies between neighbouring integers.
-The positive uniform margin absorbs the vanishing error for all sufficiently
-large integers.
-Since \(n/(\log n)^3\to\infty\), both forms resolve the question of
-Erd\H{o}s and Gimbel along the full sequence.
-Remark~\ref{rem:phase-remainder-rate} gives the quantitative error rate
+The first bound has a fixed coefficient. The refinement keeps the
+coefficient \(A_5(\delta_n)\), which depends on where the independent-set
+center lies between neighboring integers. Since \(A_5\) exceeds
+\(\log(8750/6681)\) by a positive uniform margin and \(\varepsilon_n\to0\),
+the refined bound implies the fixed-coefficient bound for all sufficiently
+large \(n\).
+Since \(n/(\log n)^3\to\infty\), both forms answer the question of
+Erd\H{o}s and Gimbel along the full sequence of integers.
+Remark~\ref{rem:phase-remainder-rate} shows that one may take
 \(\varepsilon_n=O(\log\log n/\log n)\).
-Corollary~\ref{cor:phase-failure-probability} also bounds the probability
-that the corresponding lower bound fails.
+Corollary~\ref{cor:phase-failure-probability} bounds the failure probability
+by a summable sequence, and Corollary~\ref{cor:almost-sure-gap} deduces the
+almost-sure statement for each fixed coupling.
 
-The class sizes are integers, but their center is real. A profile records
-how many classes have each size. When
-$\alpha_0(n)$ crosses an integer, the cutoff and admissible sizes change,
-so the optimization problem determining the profile and its first-moment
-root changes too. A bound for most integers can still miss a phase window.
-To cover the full sequence, we keep the phase in the estimates and control
-them uniformly up to both endpoints, including integers on either side
-of every cutoff change.
+When
+$\alpha_0(n)$ crosses an integer, the size cutoff changes, and with it the
+optimization problem used to choose the profile and the first-moment root
+of that problem, the point where the optimized counting exponent vanishes.
+An argument that is valid for most integers can therefore miss some phases.
+We keep the phase explicit and make every estimate uniform up to both
+endpoints of the phase interval, including for integers on either side of
+a change of cutoff.
 
 \subsection*{Relation to previous work}
 
@@ -205,13 +214,16 @@ concentration of the chromatic number
 \citep{heckel-2024-question,steiner-2024}. Heckel subsequently proved a
 near-linear lower bound for a phase-dependent set containing approximately
 $95\%$ of the integers and conjectured that the natural full-sequence scale is
-$n/(\log n)^3$ \citep{heckel-2025-difference}.  We prove this lower bound along
-the full sequence $n\to\infty$, with an explicit phase-resolved coefficient.
-We use the gain from declaring each class independent or complete, and
-the probability-amplification strategy in Heckel's argument. Four consecutive
-class sizes make our optimization uniform in the phase. The second moment
-counts the compatible class declarations exactly and controls all overlaps
-between two partitions, including whole classes they share.
+$n/(\log n)^3$ \citep{heckel-2025-difference}.  We prove a lower bound of
+this order along the full sequence $n\to\infty$, with an explicit
+phase-resolved coefficient.
+We use two ingredients from Heckel's argument: the additional choices
+obtained by declaring each class independent or complete, and the strategy
+for raising a small success probability to high probability. Beyond these,
+we allow five consecutive class sizes, which makes the profile optimization
+uniform in the phase, and our second-moment estimate counts compatible class
+declarations exactly and controls all overlaps between two partitions,
+including whole shared classes.
 
 \Needspace{8\baselineskip}
 \subsection*{Proof strategy}
@@ -222,7 +234,7 @@ deterministic $a_n=o(n/(\log n)^3)$, for which
 \item
 \[
   k_\chi^- - k_{\mathrm{co}}-a_n
-  =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+  =\left[\frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)\right]
     \frac{n}{(\log n)^3};
 \]
 \item
@@ -239,25 +251,28 @@ The intersection of the events in (B) and (C), together with (A), gives the
 phase-resolved assertion of the main theorem; no independence between the two
 events is required.
 
-Sections~1--5 compare the first-moment roots and prove (B).
-Sections~6--9 bound the second moment. Section~10 constructs \(a_n\) and proves (C).
+Sections~1--5 prove (B) and compare the first-moment roots.
+Sections~6--9 estimate the second moment of the cocoloring count, and
+Section~10 uses that estimate to construct \(a_n\) and prove (C).
 The final section completes (A) and combines the bounds.
 
 \subsection*{The two counting difficulties}
 
-Two partitions may share whole classes. They may also have large
-intersections between classes that are not equal. Section~7 controls the
-whole-class overlaps by exact recurrences near the empty and full choices,
-and by a negative exponential rate between them. The estimate is uniform
-over the phase, including the range omitted in the earlier argument.
+Two kinds of overlap enter the second moment. The first is whole shared
+classes. Section~7 handles them by exact recurrences when few or almost
+all classes are shared, and by a negative exponential rate in the
+intermediate range. These estimates are uniform over the phase, including
+the range omitted in the earlier argument. The second is large
+intersections between classes that are not equal.
 
-For the remaining overlaps, we form a table whose entries are the sizes of
-intersections between a class of each partition. Entries larger than half
-the maximum class size cannot share a row or column, so they form a
-matching. Section~8 bounds their contribution; Section~9 handles the
-remaining entries and the compatibility of the class declarations. The
-chosen vertex pairs are retained throughout, so every labelled configuration
-is counted once. If \(Z\) counts the marked cocolorings of the chosen
+To handle these intersections, we form a table with one row for each class
+of the first partition and one column for each class of the second. Each
+entry is the size of the corresponding intersection. Entries larger than
+half the maximum class size cannot share a row or column; viewed as edges
+between row and column classes, they form a matching. Section~8 bounds
+their contribution. Section~9 treats the other entries and the compatibility
+of the class declarations. We retain the chosen vertex pairs throughout,
+so each labeled configuration is counted once. If \(Z\) counts the marked cocolorings of the chosen
 profile, the resulting second-moment bound is
 \[
  \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
@@ -266,9 +281,7 @@ profile, the resulting second-moment bound is
 Appendix~\ref{app:lean-reproducibility} records the companion Lean theorem and its reproducibility materials.
 
 \section*{Notation and counting conventions}
-\label{sec:conventions-v3}
-
-Notation specific to an estimate is introduced where it is used.
+\label{sec:conventions}
 
 \paragraph{Asymptotic and counting conventions.}
 An event holds \emph{with high probability} if its
@@ -286,11 +299,12 @@ and set $(x)_r=0$ for $r>x$. A quotient involving falling factorials is used
 only after the denominator has been shown to be nonzero.
 
 \paragraph{Class marks and profiles.}
-For counting, mark each class of a partition by $I$ or $K$, requiring it to
-be independent or complete, respectively. All classes in the selected
-profile have size at least two for sufficiently large $n$, so these two
-requirements are disjoint. Forgetting the marks recovers the cocoloring
-without multiplicity.
+For the counting argument, give each partition class a mark $I$ or $K$,
+meaning that the class must be independent or complete, respectively.
+All classes in the selected profile have size at least two for sufficiently
+large $n$. The two requirements are therefore disjoint, and a realized
+cocoloring determines its marks uniquely. Forgetting the marks introduces
+no multiplicity.
 
 A \emph{profile} is a finitely supported sequence $(k_s)_{s\ge1}$ of
 nonnegative integers, where $k_s$ is the number of classes of size $s$
@@ -301,10 +315,10 @@ feasible on $n$ vertices with $k$ parts when
   \qquad
   \sum_s s k_s=n.
 \]
-The ordinary first moment counts profile partitions whose classes are all
-required to be independent. The marked first moment counts profile partitions
-together with one $I/K$ mark per class, subject to the corresponding
-independence or completeness requirement.
+The ordinary first moment is the expected number of profile partitions
+whose classes are all independent. The marked first moment is the expected
+number of profile partitions with one $I/K$ declaration per class, each
+satisfying its independence or completeness requirement.
 
 \paragraph{Overlap table and support graph.}
 Let $(A_a)_a$ and $(B_b)_b$ be two ordered profile partitions. Their overlap
@@ -312,10 +326,11 @@ table is
 \[
   r_{ab}=|A_a\cap B_b|.
 \]
-Its row and column sums are the class sizes of the two partitions. In the
-bipartite configuration model, we represent each vertex by one labelled
-placeholder, or stub, in its row class and one in its column class. Pairing
-the two stubs records which classes contain that vertex.
+The row and column sums are the class sizes of the two partitions.
+To count possible tables, we use a bipartite configuration model. A vertex
+is represented by two labeled placeholders, called stubs: one in its row
+class and one in its column class. Pairing these stubs records the two
+classes containing the vertex.
 
 The \emph{support graph} $H(r)$ is the simple bipartite graph whose vertices
 are the row and column classes incident to an edge and whose edge set is
@@ -327,11 +342,11 @@ $c(H)$ for the number of connected components, with $c(\varnothing)=0$, we put
 \[
   \beta(H)=|E(H)|-|V(H)|+c(H).
 \]
-Then $\beta(H)$ is the dimension of the binary cycle space, so the number of
-even edge sets is $2^{\beta(H)}$. The threshold two is exact: a cell of size
-zero or one contains no edge internal to both partition classes, whereas a
-cell of size at least two forces the marks on its row and column classes to
-agree.
+The quantity $\beta(H)$ is the dimension of the binary cycle space; hence
+there are $2^{\beta(H)}$ even edge sets. The threshold of two reflects the
+edge constraints: a cell of size zero or one contains no edge internal to
+both classes, whereas a cell of size at least two contains such an edge and
+forces the marks on its row and column classes to agree.
 
 The large-cell threshold, deficit notation, endpoint tables, and the precise
 separation between exposed matching and residual factors are introduced where
@@ -345,8 +360,8 @@ For integers \(v,s\ge0\), with \(\binom vs=0\) when \(s>v\), let
  \mu_s(v)=\binom vs2^{-\binom s2},\qquad \mu_s=\mu_s(n). \tag{1.1}
 \]
 
-The proof needs the following standard inequalities.  We state the forms
-used below to fix their hypotheses and constants.
+We use the following standard inequalities, stated with the hypotheses
+and constants needed in the proof.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -403,6 +418,9 @@ We shall use the elementary bounds
  \frac23<q<\frac7{10}.
  \tag{2.0}
 \end{equation}
+We also use $q>56/81$: writing
+$q=2\int_0^{1/3}(1-t^2)^{-1}\,dt$ and retaining $1+t^2$ in the integrand
+gives this strict bound.
 The location parameter $\alpha_0$ defined in the introduction has the
 following equivalent form in natural logarithms
 \citep[Section~2.1]{heckel-2025-difference}:
@@ -425,9 +443,9 @@ Thus $0\le\delta<1$, $0<b\le1$, and
   \alpha=\frac{2(L-\ell+C)}q+b.
 \]
 When emphasizing dependence on $n$, we write $\delta_n:=\delta$.
-We prove the estimates on the closed parameter range $0\le\delta\le1$.
-Uniformity on this closure also covers integer sequences approaching either
-endpoint of the actual half-open phase interval.
+We prove uniform estimates on the closed range $0\le\delta\le1$.
+This also covers integer sequences whose actual phases approach either
+endpoint of the half-open interval.
 
 \begin{lemma}[Uniform phase expansion and adjacent-size control]
 There exist a bounded continuous function $K\colon[0,1]\to\mathbb R$,
@@ -473,10 +491,10 @@ while
 for all sufficiently large $n$.
 \end{lemma}
 
-Stirling's formula gives the phase expansion with a uniform remainder.
-The exact ratios for adjacent class sizes then give both the upper cap and
-the lower first-moment bound. Appendix~\ref{app:phase-expansion-details}
-contains the remainder estimates and the complete ratio calculation.
+The proof starts with Stirling's formula and bounds its remainder
+uniformly in the phase. Ratios between adjacent class sizes then give the
+upper size cap and the lower first-moment bound.
+Appendix~\ref{app:phase-expansion-details} gives both calculations.
 
 Let $\alpha(G)$ denote the independence number of a graph $G$, and let
 $X_{\alpha+2}$ denote the number of independent sets of size
@@ -497,41 +515,47 @@ deterministic cap error
 \section{Real profile optimization and first-moment roots}
 \label{continuous-profile-roots}
 
-We first allow real type counts and optimize the counting exponent under
-the two conservation constraints. We call its zeros first-moment roots. The ordinary first-moment root will give a
-lower location for the chromatic number. The four-size first-moment root for marked partitions will give
-the number of parts in our cocoloring. Section~5 compares these roots
-before rounding the type counts; Proposition~\ref{prop:selected-profile-contract}
-collects the properties of the resulting integer profile.
-Throughout this section, $n$ is sufficiently large that $\alpha\ge6$.
+We initially allow real class counts and maximize the logarithmic counting
+exponent subject to fixed totals for classes and vertices. A zero of this
+optimized exponent is a first-moment root. The ordinary-coloring root is used to obtain
+a lower bound for the chromatic number; the five-size marked-partition root
+determines the number of parts in our cocoloring. Section~5 compares these
+roots before the class counts are rounded to integers.
+Proposition~\ref{prop:selected-profile-contract} collects the properties of
+the selected integer profile.
+Throughout this section, $n$ is sufficiently large that $\alpha\ge10$.
 For an integer class size $u\ge1$, put
 \[
   d_u:=2^{\binom u2}u!.
 \]
-Write $u=\alpha-i$, so $i$ is the deficit from the phase center $\alpha$.
-We use
+Write $u=\alpha-i$. The index $i$ records the deficit of a class size from
+the integer center $\alpha$. We call the set of allowed deficits the
+support and use
 \begin{equation*}
   S_+:=\{-1,0,1,2,\ldots\},
   \qquad
-  S_4:=\{2,3,4,5\}.
+  S_5:=\{2,3,4,5,6\}.
   \tag{3.1}
 \end{equation*}
 At finite $n$, the unrestricted support is
-$S_+^{(n)}:=\{-1,0,\ldots,\alpha-1\}$: the lower endpoint comes from the
-cap event (2.9), and the upper endpoint from positivity of class sizes.
-For $S\in\{S_+,S_4\}$, set
+$S_+^{(n)}:=\{-1,0,\ldots,\alpha-1\}$: the lower endpoint is the
+deterministic size cap $u\le\alpha+1$, and the upper endpoint comes from
+positivity of class sizes.
+For $S\in\{S_+,S_5\}$, set
 \[
   S^{(n)}:=
   \begin{cases}
     S_+^{(n)},&S=S_+,\\
-    S_4,&S=S_4.
+    S_5,&S=S_5.
   \end{cases}
 \]
-Every finite-$n$ profile, maximization, and sum below uses $S^{(n)}$;
-limiting quantities use the displayed support $S$ itself.
+All profiles, maximizations and sums at finite $n$ use $S^{(n)}$.
+Only the limiting quantities use the full support $S$.
 
-The class-size contribution will be split into an affine part and a
-remainder. For $i\in S_+^{(n)}$, define it by
+We separate the class-size contribution into an affine function of the
+deficit and a remainder. The conservation constraints fix the affine
+contribution, leaving only the remainder to optimize.
+For $i\in S_+^{(n)}$, define that remainder by
 \begin{equation*}
   h_n(i):=
   \begin{cases}
@@ -558,7 +582,7 @@ where
 \end{equation*}
 Direct subtraction gives this identity also at $i=-1$.
 
-For $S\in\{S_+,S_4\}$ and a nonnegative real profile
+For $S\in\{S_+,S_5\}$ and a nonnegative real profile
 $\mathbf k=(k_i)_{i\in S^{(n)}}$, put
 $k:=\sum_{i\in S^{(n)}}k_i$. When $k>0$, define
 \begin{equation*}
@@ -586,9 +610,11 @@ $T=\sum_{i\in S^{(n)}}ip_i$; thus $T$ is the mean deficit of the normalized
 profile.
 
 \Needspace{8\baselineskip}
-For $S\in\{S_+,S_4\}$, the positive weights below are normalized by their
-sum, called the partition function. The mean map gives the mean deficit
-under the resulting distribution. Define the finite and limiting versions by
+For $S\in\{S_+,S_5\}$, assign positive weights to the allowed deficits.
+Normalizing by their sum, the partition function, gives a probability
+distribution. A real parameter, the tilt, changes its mean deficit; the mean
+map gives this mean as a function of the tilt. The finite and limiting
+versions are
 \[
   Z_{n,S}(\lambda)
   :=\sum_{i\in S^{(n)}}\exp\{\lambda i+h_n(i)\},
@@ -601,9 +627,14 @@ under the resulting distribution. Define the finite and limiting versions by
   \qquad
   M_S(\lambda):=\frac{d}{d\lambda}\log Z_S(\lambda).
 \]
-Whenever the equations $M_{n,S}(\lambda)=T$ and $M_S(\lambda)=T$ have
-unique solutions, denote them by $\lambda_{n,S}(T)$ and $\lambda_S(T)$,
-respectively.
+To obtain a prescribed mean deficit, we solve $M_{n,S}(\lambda)=T$ or
+$M_S(\lambda)=T$. When the solution is unique, write it as
+$\lambda_{n,S}(T)$ or $\lambda_S(T)$, respectively.
+
+We need the first-moment roots only near the typical average class size.
+The next lemma gives a narrow interval, called the root corridor, in which
+the roots are unique and their slopes are controlled. It also relates the
+finite profile optimization to its limiting one-parameter formula.
 
 \Needspace{6\baselineskip}
 \begin{lemma}[Uniform root, slope, and finite-dual estimates]
@@ -617,7 +648,7 @@ Let
   \tag{3.5}
 \end{equation*}
 There exist a fixed $A_*>0$ and an integer $n_{\mathrm{root}}\ge2$ such that,
-for every $n\ge n_{\mathrm{root}}$, every $S\in\{S_+,S_4\}$, and every
+for every $n\ge n_{\mathrm{root}}$, every $S\in\{S_+,S_5\}$, and every
 $0\le c\le\log 2$, the equation
 \[
   L_S(n,k)+ck=0
@@ -639,7 +670,7 @@ Uniformly in $S$, $c$, and the phase,
   \tag{3.6}
 \end{equation*}
 
-For every fixed $A>0$, uniformly over $S\in\{S_+,S_4\}$,
+For every fixed $A>0$, uniformly over $S\in\{S_+,S_5\}$,
 $0\le c\le\log 2$, and $k$ feasible for $S$ with
 $|n/k-s_0|\le A\log\log n/\log n$,
 \begin{equation*}
@@ -648,13 +679,15 @@ $|n/k-s_0|\le A\log\log n/\log n$,
    +O_A((\log n)(\log\log n)).
   \tag{3.7}
 \end{equation*}
-In particular, the deterministic normalized slope error
+For the normalized slope error, take the maximum over
+$S\in\{S_+,S_5\}$ and $0\le c\le\log 2$. For each pair, take the supremum
+over feasible $k$ satisfying $|n/k-s_0|\le A\log\log n/\log n$. Thus the
+deterministic normalized slope error
 \[
   \varepsilon_{n,A}^{\mathrm{slope}}
   :=
-  \max_{\substack{S\in\{S_+,S_4\}\\0\le c\le\log 2}}
-  \sup_{\substack{k\ \mathrm{feasible\ for}\ S\\
-                   |n/k-s_0|\le A\log\log n/\log n}}
+  \max_{S,c}
+  \sup_k
   \left|
     \frac{1}{(\log n)^2}
     \frac{\partial}{\partial k}\{L_S(n,k)+ck\}
@@ -663,20 +696,19 @@ In particular, the deterministic normalized slope error
 \]
 satisfies $\varepsilon_{n,A}^{\mathrm{slope}}\to0$.
 
-For two supports $R,S\in\{S_+,S_4\}$ at a $k$ feasible for both finite
+For two supports $R,S\in\{S_+,S_5\}$ at a $k$ feasible for both finite
 supports $R^{(n)}$ and $S^{(n)}$,
 \begin{equation*}
   \frac{L_R(n,k)-L_S(n,k)}{k}
   =\mathcal F_{n,R}(T)-\mathcal F_{n,S}(T),
   \tag{3.8}
 \end{equation*}
-where
+where the maximum below is over nonnegative weights on $S^{(n)}$ with
+total mass one and mean $T$:
 \begin{equation*}
   \mathcal F_{n,S}(T)
   :=
-  \max_{\substack{p_i\ge0\ (i\in S^{(n)})\\
-                   \sum_{i\in S^{(n)}} p_i=1\\
-                   \sum_{i\in S^{(n)}} i p_i=T}}
+  \max
   \left[
     -\sum_{i\in S^{(n)}} p_i\log p_i
     +\sum_{i\in S^{(n)}} p_i h_n(i)
@@ -699,22 +731,20 @@ Then, uniformly for $T\in K_*$,
   \longrightarrow
   \mathcal F_S(T),
 \end{equation*}
-where $\mathcal F_S$ is the function defined in the main theorem;
-equivalently,
+where $\mathcal F_S$ is the function defined in the main theorem.
+Equivalently, maximize over nonnegative weights on $S$ with total mass one,
+mean $T$, and finite second moment, $\sum_{i\in S}i^2p_i<\infty$:
 \begin{equation*}
   \mathcal F_S(T)
   =
-  \max_{\substack{p_i\ge0\ (i\in S)\\
-                   \sum_{i\in S} p_i=1\\
-                   \sum_{i\in S} i p_i=T\\
-                   \sum_{i\in S} i^2p_i<\infty}}
+  \max
   \left[
     -\sum_{i\in S} p_i\log p_i
     -\frac{\log 2}{2}\sum_{i\in S} i^2p_i
   \right].
   \tag{3.9a}
 \end{equation*}
-For every $S\in\{S_+,S_4\}$ and $T\in K_*$, the limiting mean equation
+For every $S\in\{S_+,S_5\}$ and $T\in K_*$, the limiting mean equation
 $M_S(\lambda)=T$ has the unique solution $\lambda_S(T)$. There exist a fixed
 $\Lambda>0$ and an integer $n_{\mathrm{dual}}$ such that, for every
 $n\ge n_{\mathrm{dual}}$, every such $S$, and every $T\in K_*$, the finite
@@ -726,7 +756,7 @@ For $n\ge n_{\mathrm{dual}}$, define the deterministic dual error
 \[
 \begin{split}
   \varepsilon_n^{\mathrm{dual}}
-  :=\max_{S\in\{S_+,S_4\}}
+  :=\max_{S\in\{S_+,S_5\}}
   \sup_{T\in K_*}
   \bigl(&|\mathcal F_{n,S}(T)-\mathcal F_S(T)|\\
         &+|\lambda_{n,S}(T)-\lambda_S(T)|\bigr)
@@ -740,10 +770,10 @@ and set it arbitrarily, say equal to zero, for $n<n_{\mathrm{dual}}$. Then
 with a phase-independent implied constant. In particular,
 $\varepsilon_n^{\mathrm{dual}}\to0$.
 
-For $S_4$, both optimizers are unique; denote them by $p_{n,i}(T)$ and
+For $S_5$, both optimizers are unique; denote them by $p_{n,i}(T)$ and
 $p_i(T)$. Then
 \begin{equation*}
-  \sup_{T\in K_*}\max_{2\le i\le5}
+  \sup_{T\in K_*}\max_{2\le i\le6}
   |p_{n,i}(T)-p_i(T)|=O(1/\alpha).
   \tag{3.9b}
 \end{equation*}
@@ -751,15 +781,15 @@ Moreover, there are $\eta_*>0$ and $n_{\mathrm{int}}\in\mathbb N$ such that
 \[
   p_{n,i}(T)\ge\eta_*
   \qquad
-  (n\ge n_{\mathrm{int}},\ T\in K_*,\ 2\le i\le5).
+  (n\ge n_{\mathrm{int}},\ T\in K_*,\ 2\le i\le6).
 \]
 All displayed bounds and thresholds are uniform over the induced
 phases $\delta_n$, including sequences approaching either endpoint.
 \end{lemma}
 
-The proof is in Appendix~\ref{app:uniform-root-proof}. It first controls
-the finite exponential tilts uniformly on \(K_*\), then applies Stirling's
-formula to locate the zeros and bound their slopes.
+Appendix~\ref{app:uniform-root-proof} proves the lemma. It first bounds
+the finite tilts uniformly on \(K_*\). Stirling's formula then locates the
+roots and controls their slopes.
 
 \section{\texorpdfstring{A uniform lower bound for the chromatic number $\chi$}{A uniform lower bound for the chromatic number}}
 \label{a-valid-unrestricted-lower-location-for-chi}
@@ -771,9 +801,10 @@ $L_+(n,k):=L_{S_+}(n,k)$, and put
   k_\chi^-:=\lfloor r_+(n)\rfloor-\lceil\log n\rceil.
   \tag{4.1}
 \end{equation*}
-This deterministic integer is chosen a logarithmic distance below the
-ordinary first-moment root. The slope estimate will make the resulting
-decrease in the counting exponent dominate the error in the profile sum. Since
+We choose this deterministic integer a logarithmic distance below the
+ordinary first-moment root. Over that distance, the slope estimate makes
+the counting exponent decrease by more than the error incurred when we
+sum over profiles. Since
 $r_+(n)=\Theta(n/\log n)$ uniformly in the phase, one has
 $1\le k_\chi^-<n$ for all sufficiently large $n$.
 
@@ -871,7 +902,10 @@ satisfies
   \le (A_*+1)\frac{\log\log n}{\log n}.
 \]
 
-Equation (3.7), with $A=A_*+1$, $S=S_+$, and $c=0$, consequently gives an
+The same estimates place $T(k)=\alpha-n/k$ in
+$K_*\subset(-1,\alpha-1)$ throughout this interval, so every point is
+feasible for $S_+$. Equation (3.7), with $A=A_*+1$, $S=S_+$, and $c=0$,
+consequently gives an
 absolute $c_*>0$ such that
 \begin{equation*}
   \frac{d}{dk}L_+(n,k)\ge c_*(\log n)^2
@@ -902,75 +936,124 @@ such that
   \tag{4.4a}
 \end{equation*}
 
-\subsection*{Removing the size cap}
+\subsection*{Removing the size cap with one additional class}
 
-Let
+For an integer \(s\), let \(X_s\) count independent \(s\)-subsets of \(G_n\),
+and put \(\mu_s=\mathbb E X_s=\binom ns2^{-\binom s2}\).
+For the size-cap argument, it is enough to rule out the presence of two
+distinct independent sets of the exceptional size. The next bound therefore
+estimates their pair count, allowing a single exceptional set.
+
+\begin{lemma}[An independent-set pair bound]\label{lem:independent-pair-tail}
+For integers \(1\le s<n\), put
 \[
-  \mathcal A_n:=\{\alpha(G_n)\le\alpha+1\}.
+ a=\frac{s^2\,2^{s/4}}{n-s},
+ \qquad b=\sqrt2\,sn\,2^{-3s/4}.
 \]
-Equation (2.9) gives a deterministic phase-uniform sequence
-$\varepsilon_n^{\mathrm{cap}}\to0$ such that
+Then
 \[
-  \Prob{\mathcal A_n^c}
-  \le\varepsilon_n^{\mathrm{cap}}.
+ \mathbb E[X_s(X_s-1)]\le \mu_s^2 e^a+\mu_s(e^b-1).
 \]
-On $\mathcal A_n$, every class of every proper coloring has size at most
-$\alpha+1$.
-
-Suppose that $\chi(G_n)\le k_\chi^-$ and choose a proper coloring with
-$h\le k_\chi^-$ nonempty classes. If $h<k_\chi^-$, then some class contains at
-least two vertices: otherwise $h=n$, contradicting $h<k_\chi^-<n$. Splitting
-such a class into two nonempty subsets preserves independence. Repeating this
-operation produces a proper coloring with exactly $k_\chi^-$ nonempty classes.
-The size cap is preserved under splitting. Therefore
+\end{lemma}
+\begin{proof}
+Write \((x)_j=x(x-1)\cdots(x-j+1)\), with \((x)_0=1\).
+For independently and uniformly sampled \(s\)-subsets \(S,T\) of \([n]\), let
+\(p_j=\mathbb P(|S\cap T|=j)\). Counting ordered distinct pairs gives
 \[
-  \{\chi(G_n)\le k_\chi^-\}\cap\mathcal A_n
-  \subseteq
-  \{\text{an exactly $k_\chi^-$, $(\alpha+1)$-bounded coloring exists}\}.
+ \mathbb E[X_s(X_s-1)]
+ =\mu_s^2\sum_{j=0}^{s-1}p_j\,2^{\binom j2}.
 \]
-Markov's inequality and (4.4a) now give
-\begin{equation*}
-\begin{aligned}
-  \Prob{\chi(G_n)\le k_\chi^-}
-  &\le
-  \Prob{\mathcal A_n^c}
-  +E_{n,k_\chi^-,\alpha+1}\\
-  &\le
-  \varepsilon_n^{\mathrm{cap}}
-  +\varepsilon_n^{\mathrm{prof}}
-  \longrightarrow0.
-\end{aligned}
-  \tag{4.5}
-\end{equation*}
-Equivalently,
-\begin{equation*}
-  \Prob{\chi(G_n)>k_\chi^-}\longrightarrow1.
-  \tag{4.6}
-\end{equation*}
+For \(0\le j\le s/2\), a union bound over \(j\)-subsets of \(S\) gives
+\[
+ p_j\le\binom sj\frac{(s)_j}{(n)_j}
+ \le\frac1{j!}\left(\frac{s^2}{n-s}\right)^j.
+\]
+Since \(2^{(j-1)/2}\le2^{s/4}\), this part of the sum is at most \(e^a\).
 
-Finally, (4.3b) also records the location precision:
+For \(j>s/2\), write \(r=s-j\), so \(1\le r<s/2\).
+Conditional on a fixed \(S\) being independent in \(G_n\), the expected
+number of independent partners with this overlap is
+\[
+ \binom sr\binom{n-s}{r}
+ 2^{-r(2s-r-1)/2}
+ \le\frac{b^r}{(r!)^2}.
+\]
+Indeed, the partner requires \(r(2s-r-1)/2\) additional absent edges, and
+\(s-(r+1)/2\ge3s/4-1/2\). Summing over the first set contributes \(\mu_s\)
+times this conditional expectation. The large-overlap contribution is
+therefore at most
+\(\mu_s\sum_{r\ge1}b^r/(r!)^2\le\mu_s(e^b-1)\).
+The two ranges exhaust the distinct pairs; the diagonal \(j=s\) is excluded.
+\end{proof}
+
+For any graph on \(n\) vertices, if \(2\le s<n\) and \(X_s\le1\), no
+independent set has more than \(s\) vertices. Otherwise an independent
+\((s+1)\)-set would contain at least two independent \(s\)-sets.
+Moreover, a proper coloring has at most one class of size \(s\).
+If such a class is present, split off one vertex as a singleton. Thus, whenever
+\(1\le k<n\), a proper coloring with at most \(k\) classes yields one with
+at most \(k+1\) classes, all of size at most \(s-1\). Since the target class
+count does not exceed the number of vertices, further splitting gives exactly
+\(k+1\) nonempty classes.
+
+Apply this observation with \(s=\alpha+2\) and \(k=k_\chi^-\), using the
+same \(n\) and cutoff throughout. Since \(X_s(X_s-1)\ge2\) on
+\(\{X_s\ge2\}\),
+\[
+ \mathbb P(\chi(G_n)\le k_\chi^-)
+ \le\frac{\mu_s^2e^a+\mu_s(e^b-1)}2
+       +E_{n,k_\chi^-+1,\alpha+1}.
+\]
+For \(u=k_\chi^-+1\), equations (4.3b)--(4.3c) give
+\[
+ r_+-u\ge\log n-1,\qquad
+ L_+(n,u)\le-c_*(\log n)^2(\log n-1).
+\]
+For sufficiently large \(n\), \(u\in[k_\chi^-,r_+]\).
+Equation (4.3a) therefore gives
+\(E_{n,u,\alpha+1}\le e^{-c_1(\log n)^3}\), for an absolute \(c_1>0\).
+If its feasible profile set is empty, this expectation is zero.
+We have proved
 \begin{equation*}
-  |k_\chi^--r_+(n)|
-  <\log n+2
-  =o\!\left(\frac{n}{(\log n)^3}\right).
-  \tag{4.7}
+ \mathbb P(\chi(G_n)\le k_\chi^-)
+ \le\frac{\mu_s^2e^a+\mu_s(e^b-1)}2+e^{-c_1(\log n)^3},
+ \qquad s=\alpha+2.
+ \tag{4.5}
 \end{equation*}
-Thus both the probability statement and the location error hold with one set
-of phase-independent thresholds along the full sequence of integers.
+The phase formula gives \(2^s=\Theta(n^2/(\log n)^2)\) uniformly, hence
+\(a=O((\log n)^{3/2}/\sqrt n)\) and
+\(b=O((\log n)^{5/2}/\sqrt n)\).
+Together with \(\mu_{\alpha+2}\to0\) from (2.9), this proves
+\begin{equation*}
+ \mathbb P(\chi(G_n)>k_\chi^-)\longrightarrow1.
+ \tag{4.6}
+\end{equation*}
+The sharper form of (4.5) will also yield a summable failure bound below.
+Finally, (4.3b) records the unchanged location precision:
+\begin{equation*}
+ |k_\chi^--r_+(n)|
+ <\log n+2=o\!\left(\frac n{(\log n)^3}\right).
+ \tag{4.7}
+\end{equation*}
+All constants and eventual thresholds are independent of the phase.
 
-\section{Four-size entropy gain and the selected integer profile}\label{the-four-size-signed-first-moment-advantage}
 
-The choice \(S_4=\{2,3,4,5\}\) costs profile entropy but makes the later
-overlap estimates uniform. We must show that this cost is less than
-\(\log 2\) per part, so that the \(2^k\) sign choices leave a positive
-gain. Lemma~\ref{lem:entropy-gap} gives the required margin. The slope
-estimate in Lemma~\ref{lem:uniform-root-slope-dual} then converts this gain
-in the counting exponent into a distance between its roots.
+
+\section{Five-size entropy gain and the selected integer profile}\label{the-five-size-signed-first-moment-advantage}
+
+Restricting the allowed deficits to \(S_5=\{2,3,4,5,6\}\) reduces the
+number of available profiles, but makes the later overlap estimates uniform.
+We compare the resulting entropy loss per part with \(\log 2\), the gain from
+the \(2^k\) class declarations. The loss is smaller, and
+Lemma~\ref{lem:entropy-gap} gives a uniform margin for the resulting
+positive net gain. The slope estimate
+in Lemma~\ref{lem:uniform-root-slope-dual} then converts this gain in the
+counting exponent into a separation between the roots.
 
 \Needspace{8\baselineskip}
 \subsection{The phase coefficient and entropy bound}
-For \(S\in\{S_+,S_4\}\), introduce the tilted weights, partition
-function, and mean map
+For \(S\in\{S_+,S_5\}\), recall the limiting weights, their partition
+function and the corresponding mean deficit:
 
 \[
  w_i(\lambda):=\exp\!\left(\lambda i-\frac{\log 2}{2}i^2\right),
@@ -1006,40 +1089,40 @@ This also gives the dual representation
 \]
 
 Since $T_0=1+2/{\log 2}-\delta=T_\delta$, introduce the entropy loss
-$D_4$ and the uniform bound $\gamma_4$ by
+$D_5$ and the uniform bound $\gamma_5$ by
 
 \[
-  D_4(\delta):=\mathcal F_{S_+}(T_\delta)
-               -\mathcal F_{S_4}(T_\delta),\qquad
-  A_4(\delta)=\log 2-D_4(\delta),\qquad
-  \gamma_4:=\log\frac{200}{153}.                            \tag{5.2}
-  \label{eq:phase-function-definition-v3}
+  D_5(\delta):=\mathcal F_{S_+}(T_\delta)
+               -\mathcal F_{S_5}(T_\delta),\qquad
+  A_5(\delta)=\log 2-D_5(\delta),\qquad
+  \gamma_5:=\log\frac{8750}{6681}.                            \tag{5.2}
+  \label{eq:phase-function-definition}
 \]
-The restriction to four consecutive deficits also locates the smallest
-phase gain. At the same mean deficit, the four-size optimizer has smaller
-variance than the unrestricted optimizer. This gives the following curvature
-formula.
+To find the smallest phase gain, compare the two optimizing distributions
+at the same mean deficit. The five-size distribution has smaller variance
+than the unrestricted one. The following lemma translates this comparison
+into strict concavity of the phase gain.
 
 \begin{lemma}[Curvature and minimum of the phase gain]
 \label{lem:phase-gain-concavity}
-For $S\in\{S_+,S_4\}$ and $T\in(2,5)$, let
+For $S\in\{S_+,S_5\}$ and $T\in(2,5)$, let
 \[
  V_S(T):=\sum_{i\in S}(i-T)^2
  \frac{w_i(\lambda_S(T))}{Z_S(\lambda_S(T))}.
 \]
-Then $0<V_{S_4}(T)<V_{S_+}(T)$. The function $A_4$ extends to a twice
+Then $0<V_{S_5}(T)<V_{S_+}(T)$. The function $A_5$ extends to a twice
 continuously differentiable function on an open interval containing $[0,1]$,
 and
 \[
- A_4'(\delta)=\lambda_{S_4}(T_\delta)-\lambda_{S_+}(T_\delta),
+ A_5'(\delta)=\lambda_{S_5}(T_\delta)-\lambda_{S_+}(T_\delta),
  \qquad
- A_4''(\delta)=\frac1{V_{S_+}(T_\delta)}
-               -\frac1{V_{S_4}(T_\delta)}<0.
+ A_5''(\delta)=\frac1{V_{S_+}(T_\delta)}
+               -\frac1{V_{S_5}(T_\delta)}<0.
 \]
-In particular, $A_4$ is strictly concave and nonconstant on $[0,1]$, and
+In particular, $A_5$ is strictly concave and nonconstant on $[0,1]$, and
 \[
- \min_{0\le\delta\le1}A_4(\delta)
- =\min\{A_4(0),A_4(1)\}.
+ \min_{0\le\delta\le1}A_5(\delta)
+ =\min\{A_5(0),A_5(1)\}.
 \]
 \end{lemma}
 
@@ -1053,24 +1136,24 @@ value gives
  \mathcal F_S''(T)=-\frac1{V_S(T)}.
 \]
 
-For the variance comparison, fix $T$ and write $p_+$ and $p_4$ for the two
-probability vectors in (5.1), extending $p_4$ by zero off $S_4$. On $S_4$,
+For the variance comparison, fix $T$ and write $p_+$ and $p_5$ for the two
+probability vectors in (5.1), extending $p_5$ by zero off $S_5$. On $S_5$,
 \[
- \frac{p_4(i)}{p_+(i)}
+ \frac{p_5(i)}{p_+(i)}
  =\frac{Z_{S_+}(\lambda_{S_+}(T))}
-        {Z_{S_4}(\lambda_{S_4}(T))}
-   e^{(\lambda_{S_4}(T)-\lambda_{S_+}(T))i}.
+        {Z_{S_5}(\lambda_{S_5}(T))}
+   e^{(\lambda_{S_5}(T)-\lambda_{S_+}(T))i}.
 \]
-Within the four-size support, this ratio is monotone in the index.
-Thus the indices where $d_i:=p_4(i)-p_+(i)>0$ form a consecutive block
-$\{j,\ldots,k\}\subseteq S_4$. This block is nonempty because $p_+$ has
-positive mass outside $S_4$ and both vectors have total mass one. Put
+Within the five-size support, this ratio is monotone in the index.
+Thus the indices where $d_i:=p_5(i)-p_+(i)>0$ form a consecutive block
+$\{j,\ldots,k\}\subseteq S_5$. This block is nonempty because $p_+$ has
+positive mass outside $S_5$ and both vectors have total mass one. Put
 $a=j-1/2$ and $b=k+1/2$. Then $(i-a)(i-b)d_i\le0$ for every $i\in S_+$:
 the quadratic factor is negative on the block and positive at all other
 integer indices. The inequality is strict at $i=j$. Both vectors have mass one and mean $T$,
 so the constant and linear terms of the quadratic cancel in the sum:
 \[
- V_{S_4}(T)-V_{S_+}(T)
+ V_{S_5}(T)-V_{S_+}(T)
  =\sum_{i\in S_+}i^2d_i
  =\sum_{i\in S_+}(i-a)(i-b)d_i<0.
 \]
@@ -1079,34 +1162,84 @@ consequence of the equal-mean relative log-concavity comparison
 \citep[Theorem~12]{Yu2010RelativeLogConcavity}; the quadratic argument
 above verifies strictness here.
 
-The derivative formulas now follow from $T_\delta'= -1$. Since
-$T_\delta\in(2,5)$ on a neighborhood of $[0,1]$, they also apply at both
-endpoints. Strict concavity gives the endpoint minimum.
+Use $T_\delta'= -1$ in the derivative formulas above. Since
+$T_\delta\in(2,5)$ on a neighborhood of $[0,1]$, the resulting formulas
+remain valid at both endpoints. The minimum is attained at an endpoint
+because the phase gain is strictly concave.
 \end{proof}
 
-\begin{lemma}[Uniform entropy bound]
-\label{lem:entropy-gap}
 
-For every \(0\le \delta\le 1\),
-
+For comparison only, extend the same tilted definitions to
+$S_4:=\{2,3,4,5\}$, and put
 \[
- 0\le D_4(\delta)<\log\frac{153}{100},\qquad
- A_4(\delta)>\gamma_4.                                          \tag{5.3}
+ A_4(\delta):=q-\mathcal F_{S_+}(T_\delta)+\mathcal F_{S_4}(T_\delta),
+ \qquad D_4(\delta):=q-A_4(\delta).
 \]
-
+This four-size calculation gives an explicit reference bound for the
+entropy loss. We use it to obtain the stronger five-size bound.
+\begin{lemma}[Four-size comparison certificate]
+\label{lem:four-size-entropy-certificate}
+For $0\le\delta\le1$,
+\[
+ 0\le D_4(\delta)<\log(153/100),\qquad A_4(\delta)>\log(200/153).
+\]
 \end{lemma}
+Its proof in Appendix~\ref{app:entropy-certificate-details} uses only the
+four-size optimizer; none of the profiles selected below uses that support.
 
-To bound the entropy loss, evaluate the unrestricted dual at the
-four-size minimizing tilt. A fixed bracket for this tilt lets us control
-the omitted weights on either side of the four-size support.
-Appendix~\ref{app:entropy-certificate-details} gives the tilt comparisons,
-the rational bounds and the Gaussian-tail calculation.
+\begin{lemma}[Uniform entropy bound and strict five-size gain]
+\label{lem:entropy-gap}
+For every $0\le\delta\le1$,
+\[
+ A_5(\delta)-A_4(\delta)>\log(525/524),\qquad
+ 0\le D_5(\delta)<\log(6681/4375),\qquad A_5(\delta)>\gamma_5.
+ \tag{5.3}
+\]
+\end{lemma}
+\begin{proof}
+Write $\vartheta=2^{-1/2}<3/4$. At tilt $2q$, the five weights, after
+division by their first weight, are
+\[
+ 1,\quad\vartheta,\quad1/4,\quad\vartheta/16,\quad1/256.
+\]
+Consequently
+\[
+ M_{S_5}(2q)=2+
+ \frac{19\vartheta/16+33/64}{321/256+17\vartheta/16}<14/5.
+\]
+Indeed, four-fifths of the denominator minus the numerator is
+$(39-27\vartheta)/80>0$. At tilt $4q$, symmetry about deficit four gives
+$M_{S_5}(4q)=4$. Since
+$T_\delta\in[2/q,1+2/q]\subset(14/5,4)$, strict monotonicity of the mean
+gives $2q<\lambda_{S_5}(T_\delta)<4q$.
+
+Let $p_4,p_5$ be the optimizers at this same mean, extending $p_4$ by zero
+at deficit six. The finite Gibbs identity gives
+\[
+ \mathcal F_{S_5}(T_\delta)-\mathcal F_{S_4}(T_\delta)
+ =\sum_{i=2}^5p_4(i)\log\frac{p_4(i)}{p_5(i)}.
+\]
+Put $r_i=p_5(i)/(1-p_5(6))$ for $i=2,3,4,5$. These numbers sum to one.
+The inequality $\log x\le x-1$ gives
+$\sum_i p_4(i)\log(p_4(i)/r_i)\ge0$, so the displayed expression is at
+least $-\log(1-p_5(6))$.
+The mass at six increases strictly with the tilt, since its derivative is
+$p_5(6)(6-M_{S_5})>0$. Hence
+\[
+ p_5(6)>\frac1{321+272\vartheta}>\frac1{525}.
+\]
+The unrestricted dual cancels in $A_5-A_4$, proving the first inequality.
+Combining it with Lemma~\ref{lem:four-size-entropy-certificate} gives
+$A_5>\log(200/153)+\log(525/524)=\log(8750/6681)=\gamma_5$.
+Finally $S_5\subset S_+$ gives $D_5\ge0$, and $D_5=q-A_5$ gives its
+upper bound.
+\end{proof}
 
 \subsection{The gain from class marks and root separation}
 
-The following \(2^k\) gain is the one-partition identity isolated by
-\citet[Proposition~6]{heckel-2025-difference}.  We repeat its short
-argument because it is an input to the new root calculation.  For a fixed
+The factor \(2^k\) comes from the one-partition identity in
+\citet[Proposition~6]{heckel-2025-difference}. We recall its short proof
+before using it to compare the roots.  For a fixed
 partition into \(k\) classes, assigning each class the declaration
 ``independent'' or ``complete'' multiplies its first moment by \(2^k\):
 every declaration prescribes all internal edge bits, and all \(2^k\)
@@ -1114,28 +1247,28 @@ declarations have probability \(2^{-\sum \binom{u}{2}}\). The declarations
 are disjoint because every allowed class size is at least two for all
 sufficiently large $n$.
 Let
-\(r_4^{\mathrm{co}}=r_{S_4,{\log 2}}\)
+\(r_5^{\mathrm{co}}=r_{S_5,{\log 2}}\)
 be the unique corridor zero of
 
 \[
- L_{S_4}(n,k)+{\log 2}k.                                       \tag{5.9}
+ L_{S_5}(n,k)+{\log 2}k.                                       \tag{5.9}
 \]
 
 
 
 Put
 \[
-  \Phi_n(k):=L_{S_4}(n,k)+(\log 2)k.
+  \Phi_n(k):=L_{S_5}(n,k)+(\log 2)k.
 \]
-Then $\Phi_n(r_4^{\mathrm{co}})=0$ by definition. To compare the two roots, evaluate the same function at the unrestricted
+Then $\Phi_n(r_5^{\mathrm{co}})=0$ by definition. To compare the two roots, evaluate the same function at the unrestricted
 root. Let
 \[
   T_+(n):=\alpha-\frac{n}{r_+(n)}
 \]
 and introduce the finite-$n$ support loss
 \[
-  D_{4,n}(T):=
-  \mathcal F_{n,S_+}(T)-\mathcal F_{n,S_4}(T).
+  D_{5,n}(T):=
+  \mathcal F_{n,S_+}(T)-\mathcal F_{n,S_5}(T).
 \]
 By (3.6) and the fixed margin in (3.9), one has
 $T_+(n)\in K_*\subset(2,5)$ for all sufficiently large $n$, uniformly in the
@@ -1144,14 +1277,14 @@ Since $L_{S_+}(n,r_+)=0$, the exact support-comparison identity (3.8) gives
 \begin{equation*}
 \begin{aligned}
   \Phi_n(r_+)
-  &=L_{S_4}(n,r_+)-L_{S_+}(n,r_+)+(\log 2)r_+\\
-  &=r_+\{\log 2-D_{4,n}(T_+(n))\}.
+  &=L_{S_5}(n,r_+)-L_{S_+}(n,r_+)+(\log 2)r_+\\
+  &=r_+\{\log 2-D_{5,n}(T_+(n))\}.
 \end{aligned}
 \tag{5.9a}
 \end{equation*}
-For finite $n$, we have expressed the signed exponent at the unrestricted root in
-terms of the finite support loss. It remains to replace that loss by its
-phase-dependent limit.
+For finite $n$, this identity expresses the marked counting exponent at
+the unrestricted root in terms of the loss from restricting the support.
+We next replace that finite loss by its phase-dependent limit.
 
 There are two errors in this replacement: the finite dual values differ
 from their limits, and the root target $T_+(n)$ differs from the phase-center
@@ -1169,7 +1302,8 @@ Equation (3.6) gives the equivalent phase-uniform statements
   \longrightarrow0.
   \tag{5.9b}
 \end{equation*}
-The common corridor lies inside the fixed compact interval $K_*$ for all
+The target means corresponding to the common corridor lie inside the fixed
+compact interval $K_*$ for all
 sufficiently large $n$.
 
 The limiting dual value is differentiable, with
@@ -1184,7 +1318,7 @@ The deterministic finite-dual error from Section~3 satisfies
   \sup_{T\in K_*}
   |\mathcal F_{n,S}(T)-\mathcal F_S(T)|
   \le\varepsilon_n^{\mathrm{dual}}
-  \qquad(S=S_+,S_4).
+  \qquad(S=S_+,S_5).
 \]
 Consequently the single root error used in the final theorem,
 \begin{equation*}
@@ -1197,12 +1331,12 @@ Consequently the single root error used in the final theorem,
 is deterministic and phase-uniform. Indeed,
 \[
 \begin{aligned}
-  |D_{4,n}(T_+(n))-D_4(\delta)|
+  |D_{5,n}(T_+(n))-D_5(\delta)|
   \le{}&
   |\mathcal F_{n,S_+}(T_+)-\mathcal F_{S_+}(T_+)|\\
-  &+|\mathcal F_{n,S_4}(T_+)-\mathcal F_{S_4}(T_+)|\\
+  &+|\mathcal F_{n,S_5}(T_+)-\mathcal F_{S_5}(T_+)|\\
   &+|\mathcal F_{S_+}(T_+)-\mathcal F_{S_+}(T_0)|\\
-  &+|\mathcal F_{S_4}(T_+)-\mathcal F_{S_4}(T_0)|\\
+  &+|\mathcal F_{S_5}(T_+)-\mathcal F_{S_5}(T_0)|\\
   \le{}&\omega_n^{\mathrm{root}}.
 \end{aligned}
 \]
@@ -1217,30 +1351,30 @@ with a phase-independent implied constant.
 
 Substitution into (5.9a) yields the estimate used in the final theorem,
 \begin{equation*}
-  L_{S_4}(n,r_+)+(\log 2)r_+
-  =r_+\{\log 2-D_4(\delta)+O(\omega_n^{\mathrm{root}})\}
-  =r_+\{\log 2-D_4(\delta)+o(1)\}.
+  L_{S_5}(n,r_+)+(\log 2)r_+
+  =r_+\{\log 2-D_5(\delta)+O(\omega_n^{\mathrm{root}})\}
+  =r_+\{\log 2-D_5(\delta)+o(1)\}.
   \tag{5.10}
 \end{equation*}
 The $o(1)$ in (5.10) is bounded uniformly by the sum of the finite-dual and
 target-displacement errors.
 
 Finally, Lemma~\ref{lem:entropy-gap} gives
-$\log 2-D_4(\delta)\ge\gamma_4>0$. Hence (5.10) implies
+$\log 2-D_5(\delta)\ge\gamma_5>0$. Hence (5.10) implies
 $\Phi_n(r_+)>0$ for all sufficiently large $n$, uniformly in the phase. The
 normalized slope error in (3.7) tends to zero, so the derivative of $\Phi_n$
 is positive throughout the common root corridor after one phase-independent
-threshold. Since $\Phi_n(r_4^{\mathrm{co}})=0$, this proves
+threshold. Since $\Phi_n(r_5^{\mathrm{co}})=0$, this proves
 \[
-  r_4^{\mathrm{co}}<r_+.
+  r_5^{\mathrm{co}}<r_+.
 \]
 The exponent gain becomes a root separation by division by the slope.
 Both roots lie in (3.6), so the slope estimate holds throughout the interval
 between them. The mean-value theorem gives a point
-\(\xi_n\in(r_4^{\mathrm{co}},r_+)\) such that
+\(\xi_n\in(r_5^{\mathrm{co}},r_+)\) such that
 \[
- \Phi_n(r_+)-\Phi_n(r_4^{\mathrm{co}})
- =\Phi_n'(\xi_n)(r_+-r_4^{\mathrm{co}}).
+ \Phi_n(r_+)-\Phi_n(r_5^{\mathrm{co}})
+ =\Phi_n'(\xi_n)(r_+-r_5^{\mathrm{co}}).
 \]
 The corridor estimate (3.6) gives
 \[
@@ -1253,17 +1387,17 @@ and (3.7), uniformly at \(\xi_n\), gives
  \Phi_n'(\xi_n)=\frac2{\log 2}(\log n)^2
                  +O((\log n)(\log\log n)).
 \]
-In the exact comparison (5.9a), the support-loss error is bounded by
-$\omega_n^{\mathrm{root}}$. We have just shown that it has the same
-relative order as the corridor and slope errors. Dividing the exponent
-difference by the slope therefore yields
+The support-loss error in (5.9a) is bounded by
+$\omega_n^{\mathrm{root}}$, of the same relative order as the errors in
+the root locations and slopes. Divide the exponent difference by the slope
+to obtain
 \[
- r_+-r_4^{\mathrm{co}}
- =\frac{(\log 2)^2}{4}A_4(\delta_n)\frac n{(\log n)^3}
+ r_+-r_5^{\mathrm{co}}
+ =\frac{(\log 2)^2}{4}A_5(\delta_n)\frac n{(\log n)^3}
    +O\!\left(\frac{n\log\log n}{(\log n)^4}\right).
  \tag{5.11}
 \]
-The implied constant is independent of the phase: $A_4$ is bounded on
+The implied constant is independent of the phase: $A_5$ is bounded on
 $[0,1]$, and all three relative errors above are uniform. This remainder
 concerns the analytic roots. Rounding and amplification introduce further
 errors in the probabilistic bound.
@@ -1273,7 +1407,7 @@ For the fixed-offset selection below, we use the following coarse consequence
 of (5.11): for all sufficiently large \(n\),
 
 \[
- r_+-r_4^{\mathrm{co}}\ge\frac{(\log 2)^2\gamma_4}{8}\frac n{(\log n)^3}.     \tag{5.12}
+ r_+-r_5^{\mathrm{co}}\ge\frac{(\log 2)^2\gamma_5}{8}\frac n{(\log n)^3}.     \tag{5.12}
 \]
 
 \subsection{An exact integer profile above the first-moment root for marked partitions}
@@ -1281,28 +1415,29 @@ of (5.11): for all sufficiently large \(n\),
 Choose an integer a fixed distance above the first-moment root for marked partitions:
 
 \[
- k_{\mathrm{co}}=\left\lceil r_4^{\mathrm{co}}\right\rceil+16. \tag{5.13}
+ k_{\mathrm{co}}=\left\lceil r_5^{\mathrm{co}}\right\rceil+16. \tag{5.13}
 \]
 
 Thus
 \[
-  16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17.
+  16\le k_{\mathrm{co}}-r_5^{\mathrm{co}}<17.
 \]
 By (5.12), $k_{\mathrm{co}}<r_+$ for all sufficiently large $n$.
 Consequently the common corridor in
 Lemma~\ref{lem:uniform-root-slope-dual} contains the entire interval
-from $r_4^{\mathrm{co}}$ to $k_{\mathrm{co}}$.  Every real point of this
+from $r_5^{\mathrm{co}}$ to $k_{\mathrm{co}}$.  Every real point of this
 interval therefore has target deficit mean in the fixed compact interval
-$K_*\subset(2,5)$ and is feasible for the real $S_4$ optimization.  In
+$K_*\subset(2,5)$ and is feasible for the real $S_5$ optimization.  In
 particular this holds at the selected integer before the type counts are
 rounded.  The convenient choice $16$ leaves a fixed explicit margin in (5.19).
 
-We now choose the \emph{selected integer profile}. We round the
-optimizing type counts while preserving both finite-\(n\) conservation
-constraints.
+We now round the optimizing real class counts to obtain the
+\emph{selected integer profile}. The rounding must preserve both
+finite-\(n\) conservation constraints: the total number of classes and
+the total number of vertices.
 
-At $k=k_{\mathrm{co}}$, let \(p_i^{(n)}\) be the
-finite-\(n\) maximizer of \(L_{S_4}\).  Let
+At $k=k_{\mathrm{co}}$, let \(p_i^{(n)}\) be the normalized proportions
+of the finite-\(n\) maximizing profile for \(L_{S_5}\). Let
 \(\lambda_{n,\mathrm{def}}\) denote the Lagrange multiplier for the
 deficit-mean constraint, with the sign convention that its contribution
 is \(e^{\lambda_{n,\mathrm{def}}i}\).  The Lagrange equations and the
@@ -1314,13 +1449,14 @@ decomposition \eqref{eq:root-affine} then give
  \widehat\lambda_n:=B_n+\lambda_{n,\mathrm{def}}.          \tag{5.14}
 \]
 
-The finite-support tilt \(\widehat\lambda_n\) absorbs the affine term
-\(B_ni\). With a size-coordinate multiplier \(\tau_n\), the sign convention is
+The finite-support tilt \(\widehat\lambda_n\) includes the affine
+contribution \(B_ni\). If the constraint is instead written in terms of
+class size, with multiplier \(\tau_n\), the sign convention becomes
 \(\lambda_{n,\mathrm{def}}=-\tau_n\).
 The target deficit mean is $\alpha-n/k_{\mathrm{co}}$. By uniqueness in
 Lemma~\ref{lem:uniform-root-slope-dual}, $\widehat\lambda_n$ is the finite-support
-tilt $\lambda_{n,S_4}(\alpha-n/k_{\mathrm{co}})$ introduced there. The corridor estimate
-and $k_{\mathrm{co}}-r_4^{\mathrm{co}}=O(1)$ give,
+tilt $\lambda_{n,S_5}(\alpha-n/k_{\mathrm{co}})$ introduced there. The corridor estimate
+and $k_{\mathrm{co}}-r_5^{\mathrm{co}}=O(1)$ give,
 uniformly in the phase,
 \[
  \left|\alpha-\frac n{k_{\mathrm{co}}}-T_0\right|
@@ -1330,13 +1466,13 @@ uniformly in the phase,
 \]
 Lemma~\ref{lem:uniform-root-slope-dual} therefore makes these proportions
 converge uniformly to (5.1), with
-\(\widehat\lambda_n-\lambda_{S_4}(T_0)\to0\) uniformly in the phase.
-The tilt bracket (5.6), proved in
-Appendix~\ref{app:entropy-certificate-details}, also shows directly that
-the four limiting weights differ by at most a fixed factor. Thus
+\(\widehat\lambda_n-\lambda_{S_5}(T_0)\to0\) uniformly in the phase.
+The five-size tilt bracket in the proof of
+Lemma~\ref{lem:entropy-gap} also shows directly that the five limiting
+weights differ by at most a fixed factor. Thus
 
 \[
- \min_{2\le i\le5}p_i^{(n)}\ge c_p>0                    \tag{5.15}
+ \min_{2\le i\le6}p_i^{(n)}\ge c_p>0                    \tag{5.15}
 \]
 uniformly in the phase.
 
@@ -1357,8 +1493,8 @@ so \(e_0,e_1=O(1)\), and add
  \Delta k_3=2e_0-e_1.                                   \tag{5.16}
 \]
 
-Set $\Delta k_4=\Delta k_5=0$, $k_i:=\widetilde k_i+\Delta k_i$ for
-$2\le i\le5$, and $\mathbf k:=(k_2,k_3,k_4,k_5)$.
+Set $\Delta k_4=\Delta k_5=\Delta k_6=0$, $k_i:=\widetilde k_i+\Delta k_i$ for
+$2\le i\le6$, and $\mathbf k:=(k_2,k_3,k_4,k_5,k_6)$.
 
 The correction removes both constraint errors by changing only \(O(1)\)
 counts. Appendix~\ref{app:profile-rounding-proof} checks positivity and
@@ -1367,11 +1503,11 @@ shows that the loss in the counting exponent is \(O(1/k_{\mathrm{co}})\).
 The resulting exact integer vector satisfies
 
 \[
- u_i=\alpha-i,\qquad k_i=\Theta(n/{\log n})\quad(2\le i\le5).   \tag{5.17}
+ u_i=\alpha-i,\qquad k_i=\Theta(n/{\log n})\quad(2\le i\le6).   \tag{5.17}
 \]
 
 Let $Z_{\mathbf k}^{\mathrm{sgn}}$ be the number of pairs consisting of a
-partition with exactly $k_i$ classes of size $u_i$ for $2\le i\le5$ and a
+partition with exactly $k_i$ classes of size $u_i$ for $2\le i\le6$ and a
 declaration of each class as independent or complete, such that every
 declaration is realized by $G_n$. Direct counting gives the exact identity
 
@@ -1380,12 +1516,12 @@ declaration is realized by $G_n$. Direct counting gives the exact identity
  =2^{k_{\mathrm{co}}}\frac{n!}{\prod_i(u_i!)^{k_i}k_i!}
    2^{-\sum_i k_i\binom{u_i}{2}},                        \tag{5.18}
 \]
-Keeping every \(u_i!\) exact and applying (1.2) only to \(n!\) and the four
+Keeping every \(u_i!\) exact and applying (1.2) only to \(n!\) and the five
 profile-multiplicity factorials \(k_i!\) then gives
 
 \[
  \log \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
- =L_{S_4}(n,k_{\mathrm{co}})+{\log 2}k_{\mathrm{co}}+O({\log n})
+ =L_{S_5}(n,k_{\mathrm{co}})+{\log 2}k_{\mathrm{co}}+O({\log n})
  \ge c_Z(\log n)^2                                               \tag{5.19}
 \]
 
@@ -1396,26 +1532,30 @@ declarations of one part are disjoint. Thus
 \(Z_{\mathbf k}^{\mathrm{sgn}}>0\)
 implies an actual cocoloring with \(k_{\mathrm{co}}\) parts.
 
-The construction gives one deterministic profile for the rest of the
-proof. We collect its properties here so that the second-moment estimates
-can refer to a single statement.
+This fixes a deterministic profile for the rest of the proof. The next
+proposition collects the exact constraints, the first-moment bound and the
+root separation that the second-moment argument will use.
 
-\begin{proposition}[The selected four-size profile]
+\begin{proposition}[The selected five-size profile]
 \label{prop:selected-profile-contract}
 For each sufficiently large $n$, choose $k_{\mathrm{co}}$ by (5.13) and
-$\mathbf k=(k_2,k_3,k_4,k_5)$ by the deterministic rounding and correction
+$\mathbf k=(k_2,k_3,k_4,k_5,k_6)$ by the deterministic rounding and correction
 above. There are phase-independent constants $c_*>0$, $c_Z>0$ and an
 integer $n_0$ such that, for every integer $n\ge n_0$, the following hold.
 \begin{enumerate}[label=\textup{(\roman*)}]
-\item With $u_i=\alpha-i$ for $2\le i\le5$, the counts $k_i$ are positive
+\item With $u_i=\alpha-i$ for $2\le i\le6$, the counts $k_i$ are positive
 integers and satisfy exactly
 \[
-  \sum_{i=2}^5 k_i=k_{\mathrm{co}},
+  \sum_{i=2}^6 k_i=k_{\mathrm{co}},
   \qquad
-  \sum_{i=2}^5u_i k_i=n.
+  \sum_{i=2}^6u_i k_i=n.
 \]
 Moreover, $k_i/k_{\mathrm{co}}\ge c_*$ for every $i$, and
-$k_{\mathrm{co}}\asymp n/\log n$.
+$k_{\mathrm{co}}\asymp n/\log n$. The mean deficit satisfies
+\[
+ T:=\alpha-\frac{n}{k_{\mathrm{co}}}
+ =T_0+O\!\left(\frac{\log\log n}{\log n}\right)\le39/10.
+\]
 \item For $G_n\sim G(n,1/2)$, the marked cocoloring count defined in (5.18)
 obeys
 \[
@@ -1425,17 +1565,17 @@ A positive count gives a cocoloring with exactly
 $k_{\mathrm{co}}$ parts.
 \item The ordinary and signed roots satisfy
 \[
- r_+(n)-r_4^{\mathrm{co}}(n)
- =\frac{(\log 2)^2}{4}A_4(\delta_n)\frac n{(\log n)^3}
+ r_+(n)-r_5^{\mathrm{co}}(n)
+ =\frac{(\log 2)^2}{4}A_5(\delta_n)\frac n{(\log n)^3}
    +O\!\left(\frac{n\log\log n}{(\log n)^4}\right).
 \]
 For the integer chromatic lower location $k_\chi^-$ in (4.1),
 \[
 \begin{aligned}
  k_\chi^- -k_{\mathrm{co}}
- &=\left[\frac{(\log 2)^2}{4}A_4(\delta)+o(1)\right]
+ &=\left[\frac{(\log 2)^2}{4}A_5(\delta)+o(1)\right]
        \frac n{(\log n)^3}\\
- &\ge\left[\frac{(\log 2)^2\gamma_4}{4}-o(1)\right]
+ &\ge\left[\frac{(\log 2)^2\gamma_5}{4}-o(1)\right]
        \frac n{(\log n)^3}.
 \end{aligned}                                                   \tag{5.20}
 \]
@@ -1450,7 +1590,11 @@ Equation (5.16) removes both rounding errors exactly.
 Appendix~\ref{app:profile-rounding-proof} gives
 $k_i\ge(c_p/2)k_{\mathrm{co}}$ after one phase-independent threshold;
 take $c_*=c_p/2$. The root corridor and (5.13)
-give the order of $k_{\mathrm{co}}$. Equation (5.19) proves the first-moment
+give the order of $k_{\mathrm{co}}$ and the displayed estimate for $T$.
+Since $q>56/81$, one has
+$T_0\le1+2/q<109/28=39/10-1/140$. The displayed error therefore gives
+$T\le39/10$ after one phase-independent threshold. This window concerns
+the selected target, not every point of $K_*$. Equation (5.19) proves the first-moment
 bound, and the paragraph following it identifies a realized marked cocoloring
 with a cocoloring. The root separation is (5.11). Finally, (4.1) and (5.13)
 change its two roots by $O(\log n)$ and $O(1)$ respectively, giving (5.20).
@@ -1459,18 +1603,18 @@ All these bounds were proved with phase-independent constants and errors.
 
 \displayheading{The gap and amplification scales}
 
-It remains to turn this large first moment of the marked count into a lower bound on the
-probability of a cocoloring. The second-moment analysis in Sections~8--9 produces a deterministic exponent
-$\Lambda_n$ such that
+A large first moment alone does not give a useful probability of a
+cocoloring. The second-moment estimates in Sections~8--9 supply that
+probability through a deterministic exponent $\Lambda_n$ satisfying
 \[
   \frac{\mathbb E[(Z_{\mathbf k}^{\mathrm{sgn}})^2]}
        {(\mathbb E Z_{\mathbf k}^{\mathrm{sgn}})^2}
   \le e^{\Lambda_n}
 \]
-and yields the scale hierarchy
+and give the scale hierarchy
 \[
   k_{\mathrm{co}}\asymp\frac n{\log n},\qquad
-  r_+-r_4^{\mathrm{co}}\asymp\frac n{(\log n)^3},\qquad
+  r_+-r_5^{\mathrm{co}}\asymp\frac n{(\log n)^3},\qquad
   \Lambda_n=o\!\left(\frac n{(\log n)^4}\right).
 \]
 Once the last estimate is available, its amplification cost satisfies
@@ -1482,21 +1626,23 @@ which is smaller than the root separation.
 
 \section{Second moment of the marked cocoloring count}\label{exact-signed-second-moment-representation}
 
-Fix the deterministic four-size profile from
-Proposition~\ref{prop:selected-profile-contract}. Its marked cocoloring count
-has a large first moment. To bound the probability that it is positive, we
-must control the edge constraints shared by two partitions. We begin by counting their compatible signs. For partitions sharing exactly \(\ell\) whole
-classes, \citet[Proposition~6]{heckel-2025-difference} used the bound
+Fix the deterministic five-size profile from
+Proposition~\ref{prop:selected-profile-contract}. The marked cocoloring count
+has a large first moment. To bound from below the probability that it is
+positive, we must determine which edge constraints two partitions share and
+whether their class marks, which we also call signs, prescribe consistent
+constraints. We begin by counting the compatible pairs of markings. For partitions sharing exactly \(\ell\) whole classes,
+\citet[Proposition~6]{heckel-2025-difference} used the bound
 \(2^{2k-\ell}\) to transfer selected ordinary-coloring estimates to
-cocolorings. We keep the full overlap matrix instead. Lemma~6.1 evaluates
-the sign count from the connected components formed by cells of size at
-least two; common whole classes are included in this count.
+cocolorings. Here we retain the full overlap matrix. Lemma~\ref{lemma-6.1-exact-sign-sum} counts the
+compatible markings using the connected components formed by cells of size
+at least two, including cells that are whole classes in both partitions.
 
 \subsection*{Overlap law and compatible signs}
 
-Temporarily label all slots within each of the four types. This
-multiplies the marked partition count by the deterministic factor
-\(\prod_i k_i!\), leaving its normalized second moment unchanged. Let $\mathcal I_{\mathrm{row}}$ and $\mathcal I_{\mathrm{col}}$ be the row- and column-slot index
+Temporarily distinguish the class slots within each of the five types.
+This multiplies the marked partition count by the deterministic factor
+\(\prod_i k_i!\), and therefore leaves its normalized second moment unchanged. Let $\mathcal I_{\mathrm{row}}$ and $\mathcal I_{\mathrm{col}}$ be the row- and column-slot index
 sets. Choose two independent uniform ordered partitions of the profile, write
 them as $(V_a)_{a\in\mathcal I_{\mathrm{row}}}$ and
 $(W_b)_{b\in\mathcal I_{\mathrm{col}}}$, and set
@@ -1521,12 +1667,12 @@ The overlap matrix has the exact law
             {n!\prod_{a,b}r_{ab}!},                      \tag{6.2}
 \]
 
-Both degree lists are the multiset given by (5.17).
-Equivalently, place \(s_a\) stubs at each row slot and
-\(t_b\) stubs at each column slot and take a uniform perfect
-matching of the two \(n\)-stub sets.  For a fixed ordered column partition,
-the $\prod_b t_b!$ orderings of its column stubs form a constant-size fibre;
-hence this matching model induces exactly the law (6.2).
+Both degree lists are the multiset in (5.17). We can obtain the same law
+by placing \(s_a\) stubs at each row slot and \(t_b\) stubs at each column
+slot, then choosing a uniform perfect matching of the two \(n\)-stub sets.
+Each fixed ordered column partition arises from the same number,
+$\prod_b t_b!$, of column-stub orderings. Thus this configuration model
+induces exactly the law (6.2).
 
 Let \(H(r)\) be the simple bipartite graph whose edges are cells
 with \(r_{ab}\ge 2\), omitting isolated slot vertices.
@@ -1539,8 +1685,9 @@ Write $H:=H(r)$ and
 We use the standard convention \(c(\varnothing)=0\), so that
 \(\beta(\varnothing)=0\).
 
-Figure~\ref{fig:signed-support-mechanism-v3} shows a small exact example of
-the thresholding operation and the two factors that it creates.
+Figure~\ref{fig:signed-support-mechanism} illustrates how cells of size
+at least two determine the support graph, and how its cycle-space factor combines
+with the local cell factors.
 
 \begin{figure}[htbp]
 \centering
@@ -1605,8 +1752,13 @@ one four-cycle (solid blue) and one isolated edge (dashed orange), so its binary
 cycle space has dimension one. Compatible signs are constant on each connected
 component; the colors and line styles mark the two components and carry no sign
 information. The displayed arithmetic verifies (6.4) for this example.}
-\label{fig:signed-support-mechanism-v3}
+\label{fig:signed-support-mechanism}
 \end{figure}
+
+For a fixed pair of partitions, divide the expected number of compatible
+pairs of valid markings by the square of the one-partition expectation.
+The next lemma expresses this normalized factor in terms of the overlap
+table.
 
 \begin{lemma}[Exact sign sum]
 \label{lemma-6.1-exact-sign-sum}
@@ -1640,10 +1792,10 @@ defined above.
 
 \begin{proof}
 Fix the two partitions. Let \(B=\sum_a \binom{s_a}{2}\) be the number of
-internal edge bits prescribed by either one. A cell of size at least two
-contains an internal edge, so its row and column signs are compatible
-exactly when they agree. This forces a constant sign on each component of
-\(H\). \Needspace{5\baselineskip}The number of compatible pairs
+edge indicators prescribed by each partition. A cell of size at least
+two contains an edge whose presence is prescribed by both its row and its
+column. Their signs must therefore agree. Repeating this condition along
+the support edges forces a constant sign on each component of \(H\). \Needspace{5\baselineskip}The number of compatible pairs
 of sign assignments, including the free signs on slots isolated from $H$, is
 
 \[
@@ -1652,8 +1804,8 @@ of sign assignments, including the free signs on slots isolated from $H$, is
 
 For each compatible pair, \(W\) edge bits are prescribed twice, so the
 probability of all constraints is
-\(2^{-(2B-W)}\). Division by the square of the one-partition
-signed probability
+\(2^{-(2B-W)}\). Division by the square of the expected number
+of valid markings of one fixed partition
 \((2^{k_{\mathrm{co}}}2^{-B})^2\)
 gives
 
@@ -1677,6 +1829,7 @@ and multiplying by \(2^{\beta(H)}\) gives
 the second expression. Averaging over (6.2) proves (6.6).
 \end{proof}
 
+Call an edge set even if every vertex has even degree in that edge set.
 The identity
 
 \[
@@ -1684,17 +1837,16 @@ The identity
  =\#\{F\subseteq E(H):\deg_F(v)\text{ is even for every }v\} \tag{6.7}
 \]
 
-expresses the cycle-space factor as a count of even edge sets. This
-description is useful in Section~9: restriction outside the exposed large-cell
-matching is injective, so we can bound the cycle-space contribution together
-with the local factors. The identity is the elementary fact that the even
-subgraphs form the binary cycle space of dimension \(\beta(H)\).
+counts these sets: they form the binary cycle space, whose dimension is
+\(\beta(H)\). In Section~9 we will restrict an even set to the edges outside
+the exposed large-cell matching. That restriction is injective, allowing
+us to bound the cycle-space and local-cell contributions together.
 
 \subsection*{Joint multiplicity bounds for overlap cells}
 
-The overlap cells are dependent. The next configuration-model estimate
-bounds a joint prescription of cell multiplicities by counting the stub
-pairs that realize it.
+The overlap cells are dependent, so separate one-cell probability bounds
+are not enough. We instead count stub pairs that meet all the prescribed
+cell demands at once. The next estimate bounds that joint event.
 
 \begin{lemma}[Joint prescribed-cell bound]
 \label{lemma-6.2-joint-prescribed-cell-bound}
@@ -1764,9 +1916,10 @@ is
       {\prod_{(a,b)\in D}x_{ab}!}.
 \]
 
-Any prescribed set of stub pairs occurs with probability \(1/(m_0)_x\), because after
-its \(x\) prescribed pairs are exposed the remaining matching is uniform
-on the unused stubs.  A union bound proves (6.8).
+A fixed set of stub pairs occurs with probability \(1/(m_0)_x\): after
+its \(x\) pairs are exposed, the remaining matching is uniform on the unused
+stubs. Summing over the possible prescribed pair sets gives (6.8) by a
+union bound.
 
 It remains to simplify the global denominator.  For \(1\le x\le m_0\),
 
@@ -1793,25 +1946,25 @@ factorial before the coarser bound (6.9) is taken.
 
 \section{Weights of common whole classes}\label{exact-partial-diagonals}
 
-Keep the profile of Proposition~\ref{prop:selected-profile-contract} fixed.
-First consider overlap cells that are whole classes common to both
-partitions. We choose equally sized row and column classes and require
-them to have the same vertex set. A \emph{partial diagonal} is a specified
-collection of these common classes. We mark the chosen collection, so an
-overlap with several common classes appears once for each collection
-selected from them. This overcount is harmless for the upper bounds below:
-all marked weights are nonnegative.
+Fix the profile of Proposition~\ref{prop:selected-profile-contract}.
+A specified collection of whole classes common to both partitions is a
+\emph{partial diagonal}. In each selected pair, the row and column classes
+have the same vertex set. Here a marked collection specifies which common
+classes are selected; this marking is distinct from the class marks used
+for independence or completeness. An overlap is counted once for each
+selection. Such repeated counting is valid in the upper bounds because
+all weights are nonnegative.
 
-For each vector of class-size counts, sum the exposed weights over all
-marked choices and denote the result by $D(\ell)$. These weights provide
-the reference case in the endpoint-table comparison of Section~8.
-We prove that their sum over all subprofiles is $1+o(1)$ uniformly in the
-phase. The finite-$n$ counting identities (7.1)--(7.6) let us add common
-blocks near the empty profile and missing blocks near the full profile.
-A rate estimate handles the intermediate masses.
+For each vector of selected class counts, let $D(\ell)$ be the sum of the
+weights over its marked choices. Section~8 uses these common-class weights
+as the reference for large overlap cells. We prove that their sum over all
+subprofiles is $1+o(1)$ uniformly in the phase. The finite-$n$ identities
+(7.1)--(7.6) let us add common blocks near the empty profile and missing
+blocks near the full profile. Between these ranges, we estimate the
+exponential rate directly.
 
 For a selected common subprofile \(\ell=(\ell_i)\), with
-$i\in\{2,3,4,5\}$, put
+$i\in\{2,3,4,5,6\}$, put
 
 \[
  \ell_\bullet=\sum_i\ell_i,\qquad
@@ -1845,9 +1998,9 @@ exact \emph{marked} common-subprofile weight
                   {Y_\ell^{\mathrm{sgn}}}.                         \tag{7.3}\label{eq:marked-common-subprofile-weight}
 \]
 
-Only the incidence and local signed reward of the marked whole blocks
-enter $D(\ell)$. The other cell factors and the cycle-space factor remain
-to be estimated in Sections~8--9.
+The weight $D(\ell)$ accounts only for the selection of whole common
+classes and their local signed factors. The other cell factors and the
+cycle-space factor remain to be estimated in Sections~8--9.
 
 Different marked choices need not be disjoint: an overlap containing several
 common blocks contributes to each corresponding marked choice. The sums below
@@ -1924,10 +2077,42 @@ profiles enters through the tame-coloring estimates of
 \citet[Lemmas~5.1--5.3, 6.3--6.5, and~7.20]{heckel-panagiotou-2023},
 as used in \citet[Proposition~5]{heckel-2025-difference}; their hypotheses are the
 source of the lower \(\mu_\alpha\)-window in that theorem.  The next lemma
-supplies the uniform four-size estimate needed here, including both corners
+supplies the uniform five-size estimate needed here, including both corners
 and every intermediate mass.
 
 \Needspace{6\baselineskip}
+
+\begin{lemma}[A uniform rate for five deficit sizes]\label{lem:five-size-rate}
+Let $1/64\le R\le1$, $T\le39/10$, and
+$D\le4R(1-R)$, $D\le(T-2)(1-R)$. Then
+\[
+ R\log R+\frac{q}{2}D\le-\frac{1-R}{10000}.
+\]
+\end{lemma}
+\begin{proof}
+Put $a=12/25$ and $L_0=111176/151959$. With $t=13/37$,
+\[
+ -\log a=2\int_0^t\frac{du}{1-u^2}
+ >2(t+t^3/3)=L_0.
+\]
+For $R\le a$, concavity of $\log$ on the chord from $R$ to $1$ gives
+$\log R\le(1-R)\log a/(1-a)$. Using $q<7/10$ and $R\ge1/64$,
+\[
+ R\log R+(q/2)D
+ \le-R(1-R)\left(\frac{L_0}{1-a}-\frac75\right)
+ \le-\frac{5287}{48626880}(1-R).
+\]
+For $R\ge a$, convexity of $x\log x$ on $[a,1]$ gives
+$R\log R\le(1-R)a\log a/(1-a)$. Therefore
+\[
+ R\log R+(q/2)D
+ \le-(1-R)\left(\frac{aL_0}{1-a}-\frac{133}{200}\right)
+ =-\frac{104751}{10130600}(1-R).
+\]
+Both rational constants exceed $1/10000$. These arguments include $R=1$,
+where the desired bound is zero.
+\end{proof}
+
 \begin{lemma}[All common subprofiles]
 \label{lemma-7.1-all-common-subprofiles}
 
@@ -1941,11 +2126,11 @@ where the error is bounded by one deterministic sequence tending to zero.
 
 \end{lemma}
 
-The empty marked profile contributes one. We bound every other term by
-splitting the selected mass into three ranges. The forward recurrence
-(7.4) controls small selected mass; a negative leading rate controls the
-intermediate range; the reverse recurrence (7.6), together with the large
-complete first moment, controls nearly full selected mass.
+The empty marked profile contributes one. We bound all other terms in
+three ranges: the forward recurrence (7.4) handles small selected mass,
+a negative leading rate handles intermediate mass, and the reverse
+recurrence (7.6) handles a nearly full selected profile. In the last range,
+the large first moment of the complete profile supplies the decay.
 
 The main point in the intermediate range is that the leading exponential
 rate is negative. Put \(K=k_{\mathrm{co}}\), \(p_i=k_i/K\), \(y_i=\ell_i/K\),
@@ -1964,25 +2149,15 @@ fraction \(\rho=(n-m)/n\) exceeds \(1/32\),
  \Phi_T=R\log R+\frac{\log2}{2}(I_r-TR),
 \]
 with a phase-independent constant \(C\).
-All deficits lie in \(\{2,3,4,5\}\), so
+All deficits lie in $\{2,3,4,5,6\}$, so
 \[
- I_r-TR\le(5-T)R,\qquad
- I_r-TR\le(T-2)(1-R).
+ I_r-TR\le(6-T)R,\qquad I_r-TR\le(T-2)(1-R).
 \]
-Multiplying the first bound by \(1-R\) and the second by \(R\), then adding,
-gives \(I_r-TR\le3R(1-R)\).
-Also \(\rho>1/32\) implies \(R\ge1/64\) eventually.
-For \(R\le3/4\), use \(\log R\le2(R-1)/(R+1)\) and \(\log2<7/10\):
-\[
- \Phi_T\le-\left(\frac{2}{1+R}-\frac{21}{20}\right)R(1-R)
-          \le-\frac{13}{8960}Y.
-\]
-For \(R\ge3/4\), the selected profile has \(T<4\) eventually.
-The second deficit bound and \(\log R\le R-1\) then give
-\[
- \Phi_T\le(\log2-R)Y\le-\frac{Y}{20}.
-\]
-Thus \(\Phi_T\le-Y/5000\) throughout this range.
+Multiplying by $1-R$ and $R$, respectively, and adding gives
+$I_r-TR\le4R(1-R)$. Also $\rho>1/32$ implies $R\ge1/64$ eventually,
+and Proposition~\ref{prop:selected-profile-contract} gives $T\le39/10$.
+Lemma~\ref{lem:five-size-rate} therefore yields
+$\Phi_T\le-Y/10000$ throughout this range.
 
 To see that this dominates the error, put
 \(\eta=\log\log n/(32\log n)\). For intermediate mass
@@ -1993,32 +2168,33 @@ To see that this dominates the error, put
  +\frac{2C\log n}{K\alpha\eta}=o(1),
 \]
 uniformly in the phase. Hence, after one deterministic threshold,
-\(\log D(\ell)\le-K\alpha\eta/20000\).
-There are at most \((K+1)^4\) subprofiles, and
+\(\log D(\ell)\le-K\alpha\eta/40000\).
+There are at most \((K+1)^5\) subprofiles, and
 \(K\alpha\eta/\log n\to\infty\), so their total intermediate contribution
 tends to zero. The forward recurrence covers \(m\le\eta n\); the reverse
 recurrence covers \(n-m\le n/32\). The appendix keeps the endpoint estimates
 and the full error accounting.
 
-For the later second-moment assembly, write
+To keep track of these bounds in the second moment, denote their three
+deterministic nonnegative errors by
 $\varepsilon_n^{\mathrm{empty}}$,
 $\varepsilon_n^{\mathrm{central}}$ and
-$\varepsilon_n^{\mathrm{full}}$ for the three deterministic,
-nonnegative error sequences in these estimates. The small-mass sum is
-bounded by the exponential of the first error, and the other two sums by
-their respective errors. Appendix~\ref{app:common-subprofile-details}
-specifies these sequences, proves that they tend to zero uniformly in the
-phase, and gives the complete three-range argument.
+$\varepsilon_n^{\mathrm{full}}$. The small-mass sum is bounded by the
+exponential of its error; each of the other two sums is bounded by its
+error itself. Appendix~\ref{app:common-subprofile-details} defines the
+sequences and gives the complete three-range argument, including their
+convergence to zero uniformly in the phase.
 
 \section{Large overlap cells and endpoint comparisons}
-\label{sec:canonical-high-cells-v3}
+\label{sec:canonical-high-cells}
 
-We now allow large overlap cells that stop short of whole classes. For a
-fixed set of such cells, sum all its labeled stub realizations and compare
-the resulting weight with full containment. The comparison has two costs:
-missing stubs inside a selected cell, and unequal sizes at its endpoints.
-We bound the first by summing deficits, then group the full-containment
-weights by endpoint table to bound the second.
+A large overlap cell need not contain a whole class. Our reference is
+full containment, where every stub of the smaller endpoint class is
+matched inside the cell. For a fixed set of large cells, we first sum over
+their labeled stub realizations. The remaining costs come from missing
+stubs in these cells and unequal endpoint class sizes. We sum over the
+missing-stub deficits, then group the full-containment weights by endpoint
+type to control the unequal sizes.
 
 The common-class weights from Section~7 have total mass $1+o(1)$.
 Here we sum the weights of cells larger than half the class-size cap;
@@ -2028,7 +2204,7 @@ Section~9 bounds the remaining local factors and the cycle-space factor.
 
 \subsection{Large cells and their labeled realizations}
 
-Let $U:=\alpha-2$ be the largest class size in the fixed four-size profile and put
+Let $U:=\alpha-2$ be the largest class size in the fixed five-size profile and put
 \[
   R_0:=\left\lfloor\frac U2\right\rfloor.
 \]
@@ -2037,10 +2213,11 @@ share a row or a column: otherwise that row or column would contain more than
 $U$ stubs, because $2(R_0+1)>U$. Hence all large cells form a canonical
 bipartite matching, denoted by $M$.
 
-The matching $M$ records which class slots meet in large cells. A labeled
-stub realization also specifies the pairs inside each of those cells.
-The endpoints of $M$ are disjoint, so selecting pairs in a cell of $M$ does
-not use the stubs of another. This is why the realization counts multiply.
+The matching $M$ records which pairs of class slots form large cells.
+A labeled stub realization specifies the individual stub pairs within
+those cells. The endpoints of $M$ are disjoint, so choosing pairs in one
+cell of $M$ uses none of the stubs available to another. The realization
+counts therefore multiply.
 
 For $e\in M$, let $s_e$ and $t_e$ be its endpoint block sizes and set
 \[
@@ -2055,14 +2232,14 @@ multiplicity, $h_e$ is the deficit, and $j_e=m_e-h_e$. Since $j_e>U/2$ and
 $m_e\le U$,
 \begin{equation}
   2h_e<m_e.
-  \label{eq:half-deficit-v3}
+  \label{eq:half-deficit}
 \end{equation}
 Put $J:=\sum_{e\in M}j_e$.
 
 For fixed $(M,j)$, let $\mathfrak F(M,j)$ be the finite set of labeled partial
 stub matchings containing exactly $J$ pairs, all in cells of $M$, with exactly
 $j_e$ pairs in each cell $e\in M$.  Thus
-\(\mathfrak F(M,j)\) records the labelled pairs, not just their cell counts.
+\(\mathfrak F(M,j)\) records the labeled pairs, not just their cell counts.
 
 A size-$j$ partial matching between labeled blocks of sizes $s$ and $t$ can be
 chosen in
@@ -2074,7 +2251,7 @@ chosen in
 ways: choose its two endpoint sets and then the bijection between them.
 
 \begin{proposition}[Aggregate weight of a fixed cell matching]
-\label{prop:aggregate-high-weight-v3}
+\label{prop:aggregate-high-weight}
 Let $M$ be a fixed matching support arising from two copies of the fixed
 feasible $n$-vertex profile. For a multiplicity vector
 $j=(j_e)_{e\in M}$ satisfying
@@ -2090,7 +2267,7 @@ over \(\mathfrak F(M,j)\), is
     \displaystyle(n)_J\prod_{e\in M}j_e!
   }
   \prod_{e\in M}g(j_e).
-  \label{eq:aggregate-high-weight-v3}
+  \label{eq:aggregate-high-weight}
 \end{equation}
 \end{proposition}
 
@@ -2104,7 +2281,10 @@ stub sets. Therefore
 A prescribed set of $J$ stub pairs occurs with probability $(n)_J^{-1}$ in the
 uniform bipartite configuration matching. Multiplying this probability by the
 displayed cardinality and by the exposed reward
-$\prod_{e\in M}g(j_e)$ gives \eqref{eq:aggregate-high-weight-v3}.
+$\prod_{e\in M}g(j_e)$ gives \eqref{eq:aggregate-high-weight}.
+The sum is over prescribed partial matchings and can count one full
+matching more than once. Section~9 enforces exact cell multiplicities
+through the residual-completion condition.
 \end{proof}
 
 A pair $(M,j)$ is \emph{feasible} when $M$ is a matching between classes and
@@ -2124,13 +2304,13 @@ a column, their endpoint choices would compete for the same stubs and the
 one-cell realization counts would not multiply.
 \end{remark}
 
-Figure~\ref{fig:canonical-overlap-decomposition-v3} shows how the overlap
-table is split. To recover a full labeled matching, we must also retain
-the exposed stub pairs; this is done in
-Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3}. The last
-line of the figure separates the exposed weight $w_{\mathrm{hi}}$, defined
-above, from the residual factor $\mathcal A$ of Section~9. Each factor
-will have its own bound.
+Figure~\ref{fig:canonical-overlap-decomposition} shows how we split the
+overlap table. To recover the full labeled matching, we also retain the
+exposed stub pairs, as in
+Proposition~\ref{prop:canonical-exact-overlap-decomposition}. The last
+line separates the exposed weight $w_{\mathrm{hi}}$, defined above, from
+the residual factor $\mathcal A$, which accounts for the unexposed matching
+and is defined in Section~9. We bound these two factors separately.
 
 \begin{figure}[htbp]
 \centering
@@ -2192,11 +2372,11 @@ will have its own bound.
 \(M=\{(a,b):r_{ab}>R_0\}\) form a matching, with multiplicities \(j=r|_M\).
 Extending \(j\) by zero gives \(r=j_M+r'\), where \(r'\) vanishes on \(M\)
 and is capped by \(R_0\) elsewhere.}
-\label{fig:canonical-overlap-decomposition-v3}
+\label{fig:canonical-overlap-decomposition}
 \end{figure}
 
-Proposition~\ref{prop:canonical-exact-overlap-decomposition-v3} lifts this
-table decomposition to labelled configuration matchings by retaining the
+Proposition~\ref{prop:canonical-exact-overlap-decomposition} lifts this
+table decomposition to labeled configuration matchings by retaining the
 selected-pair set \(S\in\mathfrak F(M,j)\) and the residual matching
 \(\Pi_{\mathrm{res}}\). This gives the normalized factorization shown in
 the figure. Blank cells have no displayed multiplicity. Outside \(M\), the
@@ -2214,12 +2394,12 @@ For endpoint sizes $m$ and $m+d$, define
   2^{-hm+h(h+1)/2},
   \qquad
   R_{m,d}(0):=1.
-  \label{eq:local-deficit-ratio-v3}
+  \label{eq:local-deficit-ratio}
 \end{equation}
 The product in the denominator is empty when $h=0$.
 
 \begin{lemma}[Exact one-cell deficit ratio]
-\label{lem:exact-local-ratio-v3}
+\label{lem:exact-local-ratio}
 For endpoint sizes \(m\) and \(m+d\), define the local numerator
 \[
  f_{m,d}(j):=\frac{(m)_j(m+d)_j}{j!}\,g(j).
@@ -2266,11 +2446,11 @@ couples different cells is the ambient denominator:
   \frac{(n)_{J_*}}{(n)_J}
   =(n-J)_{h_\bullet}
   \le n^{h_\bullet}.
-  \label{eq:one-global-falling-factorial-v3}
+  \label{eq:one-global-falling-factorial}
 \end{equation}
 
 \begin{lemma}[Aggregate deficit comparison]
-\label{lem:aggregate-deficit-comparison-v3}
+\label{lem:aggregate-deficit-comparison}
 For every $h=(h_e)_{e\in M}\in\mathbb N_0^M$ satisfying
 $2h_e<m_e$ for each $e\in M$,
 \begin{equation}
@@ -2278,22 +2458,22 @@ $2h_e<m_e$ for each $e\in M$,
   \le
   w_{\mathrm{full}}(M)
   \prod_{e\in M}n^{h_e}R_{m_e,d_e}(h_e).
-  \label{eq:aggregate-deficit-comparison-v3}
+  \label{eq:aggregate-deficit-comparison}
 \end{equation}
 \end{lemma}
 
 \begin{proof}
-Apply Lemma~\ref{lem:exact-local-ratio-v3} in each selected cell, apply
-\eqref{eq:one-global-falling-factorial-v3} once, and use
+Apply Lemma~\ref{lem:exact-local-ratio} in each selected cell, apply
+\eqref{eq:one-global-falling-factorial} once, and use
 $n^{h_\bullet}=\prod_{e\in M}n^{h_e}$.
 \end{proof}
 
-The local ratios now multiply, but the ambient matching probability still
-has one denominator for all exposed pairs. Summing the labeled realizations
-before estimating that denominator leaves exactly
-$(n-J)_{h_\bullet}\le n^{h_\bullet}$, as in
-\eqref{eq:one-global-falling-factorial-v3}. Thus each missing pair is charged
-once in the aggregate comparison.
+Summing the labeled realizations first lets us multiply the local ratios
+while retaining a single matching-probability denominator for all exposed
+pairs. The remaining global factor is
+$(n-J)_{h_\bullet}\le n^{h_\bullet}$ from
+\eqref{eq:one-global-falling-factorial}. Thus the comparison charges
+each missing pair once.
 
 \subsection{Summing all positive deficits}
 
@@ -2329,47 +2509,47 @@ Multiplying by $h$ yields
   h\left\lfloor\frac{3m-1}{4}\right\rfloor
   \le
   hm-\frac{h(h+1)}2.
-  \label{eq:three-quarter-budget-v3}
+  \label{eq:three-quarter-budget}
 \end{equation}
 Together with $\binom mh\le m^h$ and
-\eqref{eq:local-deficit-ratio-v3}, this gives
+\eqref{eq:local-deficit-ratio}, this gives
 \begin{equation}
   n^hR_{m,d}(h)
   \le
   \left(
     \frac{nm}{2^{\lfloor(3m-1)/4\rfloor}}
   \right)^h.
-  \label{eq:three-quarter-charge-v3}
+  \label{eq:three-quarter-charge}
 \end{equation}
 
-Endpoint tables have four rows and four columns. To label them from zero,
-we now use $i\in\{0,1,2,3\}$ for the deficit $\nu=i+2$ from Sections~5--7.
+Endpoint tables have five rows and five columns. To label them from zero,
+we now use $i\in\{0,1,2,3,4\}$ for the deficit $\nu=i+2$ from Sections~5--7.
 Assume $\alpha>8$, a condition included in the common threshold
-of Subsection~\ref{subsec:uniformity-phase-v3}, and define
+of Subsection~\ref{subsec:uniformity-phase}, and define
 \[
   \kappa_i:=k_{i+2},
   \qquad
   u_i:=\alpha-2-i,
-  \qquad 0\le i\le3.
+  \qquad 0\le i\le4.
 \]
 Thus an endpoint of type $i$ has the same size and multiplicity as a class
 of deficit $i+2$ in Section~5. From here through Section~9, the symbol $u_i$
 uses this shifted index; it is the earlier size $u_{i+2}$, with that earlier
-index running from $2$ to $5$. The counts $\kappa_i$ are therefore the same
+index running from $2$ to $6$. The counts $\kappa_i$ are therefore the same
 selected counts, not a new profile. For
-$i,j\in\{0,1,2,3\}$ let $m_{ij}:=\min\{u_i,u_j\}$ and put
+$i,j\in\{0,1,2,3,4\}$ let $m_{ij}:=\min\{u_i,u_j\}$ and put
 \[
   \rho_{ij}
   :=
   \frac{n m_{ij}}{2^{\lfloor(3m_{ij}-1)/4\rfloor}},
   \qquad
-  \rho_{\Sigma}:=\sum_{i,j=0}^{3}\rho_{ij}.
+  \rho_{\Sigma}:=\sum_{i,j=0}^{4}\rho_{ij}.
 \]
-Every local base in \eqref{eq:three-quarter-charge-v3} is at most
+Every local base in \eqref{eq:three-quarter-charge} is at most
 $\rho_{\Sigma}$.
 
 \begin{lemma}[Coarse local deficit sum]
-\label{lem:coarse-local-deficit-sum-v3}
+\label{lem:coarse-local-deficit-sum}
 Suppose $\rho_{\Sigma}\le1$. Then, for every selected cell $e$,
 \[
   \sum_{h\in A_e}n^hR_{m_e,d_e}(h)
@@ -2380,60 +2560,61 @@ Suppose $\rho_{\Sigma}\le1$. Then, for every selected cell $e$,
 
 \begin{proof}
 If $e$ has endpoint type $(i,j)$, then
-\eqref{eq:three-quarter-charge-v3} bounds its term of deficit $h$ by
+\eqref{eq:three-quarter-charge} bounds its term of deficit $h$ by
 $\rho_{ij}^h$. Since $h\ge1$ and
 $\rho_{ij}\le\rho_{\Sigma}\le1$, this is at most $\rho_{\Sigma}$. Moreover,
 $|A_e|\le m_e\le\alpha+1$. Summation proves the bound.
 \end{proof}
 
 \begin{proposition}[Fixed-support all-deficit bound]
-\label{prop:fixed-support-all-deficit-v3}
-Write $\mathbf m=(m_e)_{e\in M}$. If $\rho_{\Sigma}\le1$, then
+\label{prop:fixed-support-all-deficit}
+Write $\mathbf m=(m_e)_{e\in M}$. The sum below runs over vectors
+$h=(h_e)_{e\in M}$ of nonnegative integers satisfying $m_e-h_e>R_0$ for every
+$e\in M$. If $\rho_{\Sigma}\le1$, then
 \begin{equation}
-  \sum_{\substack{h_e\in\mathbb N_0\ (e\in M)\\
-                  m_e-h_e>R_0\ \text{for every }e}}
+  \sum_h
     w(M,\mathbf m-h)
   \le
   w_{\mathrm{full}}(M)
   \left(1+(\alpha+1)\rho_{\Sigma}\right)^{|M|}.
-  \label{eq:fixed-support-all-deficit-v3}
+  \label{eq:fixed-support-all-deficit}
 \end{equation}
 \end{proposition}
 
 \begin{proof}
-Use Lemma~\ref{lem:aggregate-deficit-comparison-v3}, enlarge the deficit range
+Use Lemma~\ref{lem:aggregate-deficit-comparison}, enlarge the deficit range
 to $A_e$, apply the optional-choice identity above, and then use
-Lemma~\ref{lem:coarse-local-deficit-sum-v3}.
+Lemma~\ref{lem:coarse-local-deficit-sum}.
 \end{proof}
 
 Define
-$K:=\sum_{i=0}^{3}\kappa_i=k_{\mathrm{co}}$, the number of row-class slots.
+$K:=\sum_{i=0}^{4}\kappa_i=k_{\mathrm{co}}$, the number of row-class slots.
 Projection onto the row endpoint is injective on a block matching, and therefore
 \begin{equation}
   |M|\le K.
-  \label{eq:support-cardinality-v3}
+  \label{eq:support-cardinality}
 \end{equation}
 
 \subsection{Regrouping by endpoint table}
 
-After summing the deficits, only the full-containment reference weights
-remain. Their dependence on the endpoint sizes is captured by the numbers
-of matched type pairs. We group supports with the same endpoint table,
-then compare their row and column margins with the partial-diagonal
-weights.
+After summing the deficits, we must sum the full-containment reference
+weights. These depend on how many matched class pairs have each pair of
+endpoint types. Record those counts in an endpoint table and group the
+matching supports by that table. We can then compare its row and column
+margins with the common-class weights from Section~7.
 
 For a block matching $M$, let
 \[
  \ell_{ij}(M):=\#\{e\in M:\text{$e$ joins row type $i$ to column type $j$}\},
  \qquad
- L(M):=(\ell_{ij}(M))_{0\le i,j\le3}.
+ L(M):=(\ell_{ij}(M))_{0\le i,j\le4}.
 \]
 With this deficit-indexed type convention, for
-$L=(\ell_{ij})\in\mathbb N_0^{4\times4}$ write
+$L=(\ell_{ij})\in\mathbb N_0^{5\times5}$ write
 \[
-  r=(r_i)_{i=0}^3,\qquad r_i=\sum_j\ell_{ij},
+  r=(r_i)_{i=0}^4,\qquad r_i=\sum_j\ell_{ij},
   \qquad
-  c=(c_j)_{j=0}^3,\qquad c_j=\sum_i\ell_{ij}.
+  c=(c_j)_{j=0}^4,\qquad c_j=\sum_i\ell_{ij}.
 \]
 Call $L$ \emph{feasible} if $r_i\le\kappa_i$ and $c_j\le\kappa_j$ for every
 $i,j$. Such a table is realized by choosing the indicated row and column
@@ -2452,46 +2633,45 @@ Partitioning the finite set of block matchings by $L(M)$ gives
   \sum_M w_{\mathrm{full}}(M)
   =
   \sum_{L\ \mathrm{feasible}}W(L).
-  \label{eq:reference-grouping-v3}
+  \label{eq:reference-grouping}
 \end{equation}
 Similarly, for every nonnegative function $F$ of the endpoint table,
 \begin{equation}
   \sum_M w_{\mathrm{full}}(M)F(L(M))
   =
   \sum_{L\ \mathrm{feasible}}W(L)F(L).
-  \label{eq:weighted-reference-grouping-v3}
+  \label{eq:weighted-reference-grouping}
 \end{equation}
 
 Whenever $\rho_{\Sigma}\le1$, combining
-Proposition~\ref{prop:fixed-support-all-deficit-v3},
-\eqref{eq:support-cardinality-v3}, and
-\eqref{eq:reference-grouping-v3} yields, after enlarging the nonnegative sum
+Proposition~\ref{prop:fixed-support-all-deficit},
+\eqref{eq:support-cardinality}, and
+\eqref{eq:reference-grouping} yields, after enlarging the nonnegative sum
 from canonical large-cell matchings to all block matchings,
 \begin{equation}
   \sum_{(M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}
   \le
   \left(\sum_{L\ \mathrm{feasible}}W(L)\right)
   \left(1+(\alpha+1)\rho_{\Sigma}\right)^K.
-  \label{eq:coarse-realized-table-reduction-v3}
+  \label{eq:coarse-realized-table-reduction}
 \end{equation}
 
 The finite argument through
-\eqref{eq:coarse-realized-table-reduction-v3} applies to any fixed endpoint
-alphabet whose selected cells form a matching.  The four consecutive sizes
+\eqref{eq:coarse-realized-table-reduction} applies to any fixed set of endpoint
+types for which the selected cells form a matching.  The five consecutive sizes
 enter through the numerical deficit bound and the endpoint-table comparison
 below.
 
 \subsection{Comparison with the common-class weights}
 
-Assume throughout that $\alpha>8$. For equal endpoint sizes, a
-full-containment cell is a whole class common to the two partitions.
-This gives the reference case estimated in Section~7. We compare a
-general full-containment table with the partial-diagonal weights of its
-two margins, including their row and column multinomial factors. Their
-geometric mean gives the reference value, and unequal endpoint sizes
-contribute a small correction.
+Assume throughout that $\alpha>8$. When the endpoint sizes agree, full
+containment means that a whole class is common to both partitions, the
+case estimated in Section~7. For a general endpoint table, we compare its
+weight with the common-class weights of the row and column margins,
+including the corresponding multinomial factors. The reference value is
+their geometric mean; unequal endpoint sizes introduce a small correction.
 
-Recall that $u_i=a-i$ and $\kappa_i=k_{i+2}$ for $0\le i\le3$, where
+Recall that $u_i=a-i$ and $\kappa_i=k_{i+2}$ for $0\le i\le4$, where
 $a=\alpha-2$ and the corresponding deficit label is $i+2$.
 The dictionary with Section~7 is
 \[
@@ -2505,8 +2685,8 @@ this dictionary to identify the one-sided weights below with (7.3).
 For a full-containment table $L=(\ell_{ij})$, set
 \[
 \begin{aligned}
-  r&=(r_i)_{i=0}^3,& r_i&=\sum_j\ell_{ij},&
-  c&=(c_j)_{j=0}^3,& c_j&=\sum_i\ell_{ij},\\
+  r&=(r_i)_{i=0}^4,& r_i&=\sum_j\ell_{ij},&
+  c&=(c_j)_{j=0}^4,& c_j&=\sum_i\ell_{ij},\\
   x_{ij}&=\min\{u_i,u_j\},&&&
   J(L)&=\sum_{i,j}x_{ij}\ell_{ij}.
 \end{aligned}
@@ -2529,12 +2709,12 @@ weight is
   \left[
     \frac{(u_i)_{x_{ij}}(u_j)_{x_{ij}}}{x_{ij}!}g(x_{ij})
   \right]^{\ell_{ij}}.
-  \label{eq:endpoint-reference-weight-v3}
+  \label{eq:endpoint-reference-weight}
 \end{equation}
 Let
 \[
   \mathcal V:=
-  \{v=(v_i)_{i=0}^3\in\mathbb N_0^4:0\le v_i\le\kappa_i
+  \{v=(v_i)_{i=0}^4\in\mathbb N_0^5:0\le v_i\le\kappa_i
     \text{ for every }i\}.
 \]
 For $v\in\mathcal V$, define
@@ -2544,14 +2724,14 @@ For $v\in\mathcal V$, define
   \frac{\prod_i[u_i!g(u_i)]^{v_i}}{(n)_{m(v)}},
   \qquad
   m(v)=\sum_i u_iv_i.
-  \label{eq:one-sided-diagonal-weight-v3}
+  \label{eq:one-sided-diagonal-weight}
 \end{equation}
 With $\ell_{i+2}^{\mathrm{pd}}=v_i$, $D(v)$ is the common-subprofile weight
 in \eqref{eq:marked-common-subprofile-weight}. This follows from
 $\kappa_i=k_{i+2}$, $u_i=\alpha-(i+2)$, and
 $g(u_i)=2^{\binom{u_i}{2}-1}$ for $\alpha>8$.
 Below, $D(r)$ and $D(c)$ evaluate
-\eqref{eq:one-sided-diagonal-weight-v3} on the margins in
+\eqref{eq:one-sided-diagonal-weight} on the margins in
 $0\le v_i\le\kappa_i$.
 
 \begin{samepage}
@@ -2570,15 +2750,15 @@ and define
   \frac{\sqrt{(t_{ij})_{d_{ij}}}}{d_{ij}!}
   2^{-\{d_{ij}s_{ij}+\binom{d_{ij}}2\}/2}.
 \]
-Thus $Q_{ii}=1$. Since $t_{ij}\le a$, $s_{ij}\ge a-3$, and
-$d_{ij}\le3$,
+Thus $Q_{ii}=1$. Since $t_{ij}\le a$, $s_{ij}\ge a-4$, and
+$d_{ij}\le4$,
 \begin{equation}
   Q_{ij}\le\frac{(\tau_n^{\mathrm{end}})^{d_{ij}}}{d_{ij}!},
   \qquad
   \tau_n^{\mathrm{end}}=
-  2^{3/2}\sqrt{\frac{(n+1)a}{2^a}}
+  4\sqrt{\frac{(n+1)a}{2^a}}
   =O\!\left(\frac{(\log n)^{3/2}}{\sqrt n}\right).
-  \label{eq:endpoint-eta-v3}
+  \label{eq:endpoint-eta}
 \end{equation}
 \end{samepage}
 
@@ -2592,26 +2772,27 @@ Let
 \]
 
 \begin{lemma}[Endpoint-table product comparison]
-Assume $\alpha>8$ and that $(\kappa_i,u_i)_{i=0}^3$ is the fixed feasible
-profile, so $\sum_{i=0}^3\kappa_i u_i=n$. Then every feasible endpoint table $L$
+Assume $\alpha>8$ and that $(\kappa_i,u_i)_{i=0}^4$ is the fixed feasible
+profile, so $\sum_{i=0}^4\kappa_i u_i=n$. Then every feasible endpoint table $L$
 satisfies
 \begin{equation}
   W(L)^2
   \le
   \bigl(D(r)A_LQ^L\bigr)\bigl(D(c)C_LQ^L\bigr).
-  \label{eq:endpoint-table-product-comparison-v3}
+  \label{eq:endpoint-table-product-comparison}
 \end{equation}
 \end{lemma}
 
 \begin{proof}
 Fix the table and divide $W(L)^2$ by $(D(r)A_L)(D(c)C_L)$. The profile
-multiplicities and table factorials cancel. We are left with a local ratio
-for each endpoint pair and a ratio of ambient falling factorials; the
-latter will compensate the powers in the former.
+multiplicities and table factorials cancel, leaving one ratio for each
+endpoint pair and one ratio of falling factorials from the matching
+probabilities. We compute the cell ratios first, then bound the remaining
+matching ratio.
 
 Fix one endpoint pair and abbreviate $s=s_{ij}$, $t=t_{ij}$,
 $d=d_{ij}=t-s$, and $x_{ij}=s$. Its local atom in
-\eqref{eq:endpoint-reference-weight-v3} is
+\eqref{eq:endpoint-reference-weight} is
 \[
   \frac{(s)_s(t)_s}{s!}g(s)
   =
@@ -2628,7 +2809,7 @@ Consequently
   =
   \frac{Q_{ij}^2}{(n+1)^d}.
 \]
-Under the hypothesis, $s\ge\alpha-5>3$, so in particular $s\ge2$. Hence we
+Under the hypothesis, $s\ge\alpha-6\ge3$, so in particular $s\ge2$. Hence we
 may use $g(t)/g(s)=2^{ds+\binom d2}$; the identity is also valid for $d=0$.
 
 Moreover, $m(r),m(c)\ge J(L)$ and
@@ -2657,31 +2838,31 @@ Combining this inequality with the local ratio cell by cell gives
 \]
 where the equality uses
 \(m(r)+m(c)-2J(L)=\sum_{i,j}d_{ij}\ell_{ij}\). This proves
-\eqref{eq:endpoint-table-product-comparison-v3}.
+\eqref{eq:endpoint-table-product-comparison}.
 \end{proof}
 
 \begin{proposition}[Endpoint-table sum]
-\label{prop:endpoint-table-sum-v3}
+\label{prop:endpoint-table-sum}
 There is an absolute constant $C_{\mathrm{end}}>0$ such that, for all
 sufficiently large $n$, uniformly in the phase,
 \begin{equation}
   \sum_{L\ \mathrm{feasible}}W(L)
   \le
-  (1+3\tau_n^{\mathrm{end}})^K
+  (1+4\tau_n^{\mathrm{end}})^K
   \sum_{v\in\mathcal V}D(v)
   \le
   \exp\!\left\{C_{\mathrm{end}}\sqrt{n\log n}\right\}.
-  \label{eq:endpoint-table-sum-v3}
+  \label{eq:endpoint-table-sum}
 \end{equation}
 All sums in this proposition are finite.
 \end{proposition}
 
 \begin{proof}
 For all sufficiently large $n$, one has $\tau_n^{\mathrm{end}}\le1$ by
-\eqref{eq:endpoint-eta-v3}; hence $Q_{ij}\le\tau_n^{\mathrm{end}}$ whenever
+\eqref{eq:endpoint-eta}; hence $Q_{ij}\le\tau_n^{\mathrm{end}}$ whenever
 $i\ne j$.
 By the arithmetic--geometric mean inequality and
-\eqref{eq:endpoint-table-product-comparison-v3},
+\eqref{eq:endpoint-table-product-comparison},
 \[
   2W(L)
   \le
@@ -2694,28 +2875,28 @@ row margin $r$, since $A_LQ^L\ge0$. The multinomial theorem then gives
   \sum_{\substack{L\ \mathrm{feasible}\\
                   \operatorname{row}(L)=r}}A_LQ^L
   \le
-  \sum_{\substack{L\in\mathbb N_0^{4\times4}\\
+  \sum_{\substack{L\in\mathbb N_0^{5\times5}\\
                   \operatorname{row}(L)=r}}A_LQ^L
   =
   \prod_i\left(\sum_jQ_{ij}\right)^{r_i}
   \le
-  (1+3\tau_n^{\mathrm{end}})^K.
+  (1+4\tau_n^{\mathrm{end}})^K.
 \]
 Multiply by $D(r)$ and sum over the row margin $r$. The result is at most
-$(1+3\tau_n^{\mathrm{end}})^K\sum_{v\in\mathcal V}D(v)$, with $v$ a dummy
+$(1+4\tau_n^{\mathrm{end}})^K\sum_{v\in\mathcal V}D(v)$, with $v$ a dummy
 subprofile variable. Exchanging rows and columns gives the same bound for
 the second term. Thus the endpoint-table choices cost only the displayed
 correction factor. The remaining sum over margins is the common-subprofile
 sum of Section~7:
 $\sum_{v\in\mathcal V}D(v)=1+o(1)$ uniformly in the phase, with all
 common-class overlaps included. Finally, $K=\Theta(n/\log n)$ and
-\eqref{eq:endpoint-eta-v3} imply
+\eqref{eq:endpoint-eta} imply
 $\tau_n^{\mathrm{end}}K=O(\sqrt{n\log n})$.
 \end{proof}
 
 \subsection{The large-cell bound across the phase}
 
-The phase satisfies
+The integer center for the independent-set size satisfies
 \[
   \alpha
   =
@@ -2724,35 +2905,35 @@ The phase satisfies
 In particular, for all sufficiently large $n$,
 \begin{equation}
   \frac52\log n\le\alpha.
-  \label{eq:coarse-phase-corridor-v3}
+  \label{eq:coarse-phase-corridor}
 \end{equation}
-Every endpoint minimum satisfies $m_{ij}\ge\alpha-5$, and elementary floor
+Every endpoint minimum satisfies $m_{ij}\ge\alpha-6$, and elementary floor
 arithmetic gives
 \[
-  3\alpha-19
+  3\alpha-22
   \le
   4\left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor.
 \]
-Using $\log 2>2/3$ and \eqref{eq:coarse-phase-corridor-v3}, we obtain
+Using $\log 2>2/3$ and \eqref{eq:coarse-phase-corridor}, we obtain
 \begin{equation}
-  \frac54\log n-\frac{19}{6}
+  \frac54\log n-\frac{11}{3}
   \le
   (\log 2)
   \left\lfloor\frac{3m_{ij}-1}{4}\right\rfloor.
-  \label{eq:coarse-log-budget-v3}
+  \label{eq:coarse-log-budget}
 \end{equation}
 Hence
 \[
   2^{\lfloor(3m_{ij}-1)/4\rfloor}
   \ge
-  e^{-19/6}n^{5/4}.
+  e^{-11/3}n^{5/4}.
 \]
 Since every $m_{ij}=O(\log n)$,
 \begin{equation}
   \rho_{\Sigma}
   =O\!\left(\frac{\log n}{n^{1/4}}\right)
   \longrightarrow0.
-  \label{eq:rho-sum-small-v3}
+  \label{eq:rho-sum-small}
 \end{equation}
 Thus $\rho_{\Sigma}\le1$ for all sufficiently large $n$.
 
@@ -2765,7 +2946,7 @@ Let $\Sigma_n^{\mathrm{hi}}$ denote the sum of exposed weights:
 where the sum is over the feasible pairs $(M,j)$ defined above.
 
 \begin{proposition}[Bound for the exposed weights]
-\label{prop:bare-high-skeleton-v3}
+\label{prop:bare-high-skeleton}
 There is a phase-independent deterministic sequence
 $\varepsilon_n^{\mathrm{hi}}\ge0$ with
 $\varepsilon_n^{\mathrm{hi}}\to0$ such that, for all sufficiently large $n$,
@@ -2775,42 +2956,40 @@ $\varepsilon_n^{\mathrm{hi}}\to0$ such that, for all sufficiently large $n$,
   \exp\!\left\{
     \varepsilon_n^{\mathrm{hi}}\frac{n}{(\log n)^4}
   \right\}.
-  \label{eq:bare-skeleton-final-v3}
+  \label{eq:bare-skeleton-final}
 \end{equation}
 \end{proposition}
 
 \begin{proof}
-The deficit factor in \eqref{eq:coarse-realized-table-reduction-v3} satisfies
+The deficit factor in \eqref{eq:coarse-realized-table-reduction} satisfies
 \[
   \log\left(1+(\alpha+1)\rho_{\Sigma}\right)^K
   \le
   K(\alpha+1)\rho_{\Sigma}
   =O(n^{3/4}\log n).
 \]
-Proposition~\ref{prop:endpoint-table-sum-v3} contributes
+Proposition~\ref{prop:endpoint-table-sum} contributes
 $O(\sqrt{n\log n})$ to the logarithm. Both quantities are
 $o(n/(\log n)^4)$. Combining these estimates with
-\eqref{eq:coarse-realized-table-reduction-v3} proves the proposition.
+\eqref{eq:coarse-realized-table-reduction} proves the proposition.
 \end{proof}
 
 \section{Residual factors and the second-moment bound}
-\label{sec:residual-attachments-v3}
+\label{sec:residual-attachments}
 
 We keep the selected profile of Proposition~\ref{prop:selected-profile-contract}
 and the endpoint indexing from Section~8. The exposed matching \(M\)
-has pairs of class slots as its edges. The labelled stub pairs chosen
+has pairs of class slots as its edges. The labeled stub pairs chosen
 inside those cells are denoted by \(S\).
 
-Fix one feasible pair $(M,j)$ and one such labeled realization.
-Condition only on its stub pairs being present. The unused row stubs are
-then matched uniformly to the unused column stubs. The indicator of allowed
-completions is zero if a completion adds a pair in an exposed cell or
-exceeds the residual cap elsewhere, and one otherwise. Both the local factors
-and the cycle-space factor depend on this same residual matching. We multiply
-their product by the indicator of allowed completions before taking its
-expectation. A bound uniform over every
-feasible pair $(M,j)$ can then be taken outside the exposed-weight sum
-from Section~8.
+Fix a feasible pair $(M,j)$ and condition on a labeled realization of its
+exposed stub pairs being present. The unused row and column stubs are then
+matched uniformly. An allowed completion adds no pair in an exposed cell
+and respects the residual cap elsewhere. We estimate the local and
+cycle-space factors jointly, since they depend on this same residual
+matching, and include the indicator that the completion is allowed.
+A bound uniform over all feasible pairs $(M,j)$ can then be taken outside
+the exposed-weight sum from Section~8.
 
 Throughout this section, write $Z:=Z_{\mathbf k}^{\mathrm{sgn}}$ for the
 selected marked cocoloring count.
@@ -2823,7 +3002,7 @@ Fix a feasible pair $(M,j)$ and recall $J=\sum_{e\in M}j_e$. Put
 \]
 Here feasibility means that \(M\) is a block matching and
 \(R_0<j_e\le\min\{s_e,t_e\}\) for every \(e\in M\). Each
-\(S\in\mathfrak F(M,j)\) is a labelled partial matching containing exactly
+\(S\in\mathfrak F(M,j)\) is a labeled partial matching containing exactly
 $J$ pairs.
 Let $(d_a)_a$ and $(d'_b)_b$ be the residual row and column degrees. Their two
 sums equal $m_0$, and every degree is at most the phase cap $U$.
@@ -2856,7 +3035,7 @@ matching,
   \mathbb P\{S\subseteq\Pi,\ \Pi\setminus S\in\mathcal B\}
   =
   \frac{1}{(n)_J}\,\mathbb P_{\mathrm{res}}(\mathcal B).
-  \label{eq:exposed-residual-factorization-v3}
+  \label{eq:exposed-residual-factorization}
 \end{equation}
 Different labeled realizations leave the same residual degree lists. A
 blockwise bijection between the unused row stubs, together with one between
@@ -2871,24 +3050,24 @@ $M$ and the degree lists alone. Define
     2^{\beta(M\cup H_{\mathrm{res}})}
     \mathbf 1_{\mathcal E(M,j)}
   \right].
-  \label{eq:residual-attachment-v3}
+  \label{eq:residual-attachment}
 \end{equation}
 Only the residual configuration matching is random in this expectation.
 
-Thus $w_{\mathrm{hi}}(M,j)$ sums the exposed realizations in
-$\mathfrak F(M,j)$, while $\mathbf 1_{\mathcal E(M,j)}$ selects exactly
-their completions with capped residual cells and no further pairs in exposed cells. The next proposition puts the two
-counts together.
+Thus $w_{\mathrm{hi}}(M,j)$ sums over the exposed realizations in
+$\mathfrak F(M,j)$, and $\mathbf 1_{\mathcal E(M,j)}$ retains precisely
+their allowed completions: residual cells are capped and exposed cells
+receive no further pairs. The next proposition combines these two counts.
 
 \begin{proposition}[Canonical exact overlap decomposition]
-\label{prop:canonical-exact-overlap-decomposition-v3}
+\label{prop:canonical-exact-overlap-decomposition}
 Let $n$ be finite and let the fixed selected profile be feasible, with phase cap
 $U\ge2$. Then
 \begin{equation}
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   =
   \sum_{(M,j)}w_{\mathrm{hi}}(M,j)\,\mathcal A(M,j),
-  \label{eq:exact-attachment-decomposition-v3}
+  \label{eq:exact-attachment-decomposition}
 \end{equation}
 where the sum ranges over the finite family of feasible pairs $(M,j)$.
 \end{proposition}
@@ -2922,15 +3101,15 @@ multiplicity at most $R_0$. Thus its canonical large-cell data are exactly
 $(M,j)$, and this construction is the inverse of the displayed map.
 
 For each fixed $S$, the exposed-residual factorization
-\eqref{eq:exposed-residual-factorization-v3} contributes $(n)_J^{-1}$ and the
+\eqref{eq:exposed-residual-factorization} contributes $(n)_J^{-1}$ and the
 residual configuration law. Summing over $S\in\mathfrak F(M,j)$ and including
 the exposed local factors gives $w_{\mathrm{hi}}(M,j)$ by
-Proposition~\ref{prop:aggregate-high-weight-v3}. By
+Proposition~\ref{prop:aggregate-high-weight}. By
 Lemma~\ref{lemma-6.1-exact-sign-sum}, the unexposed local factors and the
 remaining sign factor are exactly the integrand defining
 $\mathcal A(M,j)$, with support factor
 $2^{\beta(M\cup H_{\mathrm{res}})}$. The bijection therefore yields
-\eqref{eq:exact-attachment-decomposition-v3} and counts every full matching
+\eqref{eq:exact-attachment-decomposition} and counts every full matching
 once.
 \end{proof}
 
@@ -2941,10 +3120,10 @@ $\beta(M)=0$, so
 \begin{equation}
   \mathcal A(M,j)=1
   \qquad(m_0=0).
-  \label{eq:zero-residual-attachment-v3}
+  \label{eq:zero-residual-attachment}
 \end{equation}
 In all subsequent subsections we assume $m_0>0$. In view of
-Proposition~\ref{prop:bare-high-skeleton-v3}, it remains to bound
+Proposition~\ref{prop:bare-high-skeleton}, it remains to bound
 $\mathcal A(M,j)$ uniformly in the positive-residual case.
 
 \subsection{Threshold expansion and cell activities}
@@ -2953,11 +3132,12 @@ For every row--column pair $(a,b)$, put
 \begin{equation}
   \theta_{ab}:=
   \frac{\mathrm e\,d_ad'_b}{m_0}.
-  \label{eq:theta-v3}
+  \label{eq:theta}
 \end{equation}
-The intensity is defined on cells of $M$ as well as outside $M$. The
-activities below collect the terms used to bound the expansion of the
-residual product; they are set to zero on $M$. Let
+This intensity is defined for cells of $M$ as well as for cells outside
+$M$. We now collect the bounds for residual threshold events into two
+quantities, called cell activities. Both activities are set to zero on
+$M$. Let
 \[
   \Delta_x:=g(x)-g(x-1),
   \qquad
@@ -2974,9 +3154,12 @@ For $(a,b)\notin M$, define
   q_{ab}
   :=
   \frac{\theta_{ab}^2}{2}+\lambda_{ab}.
-  \label{eq:lambda-q-v3}
+  \label{eq:lambda-q}
 \end{equation}
 On $M$, set $\lambda_{ab}=q_{ab}=0$.
+The first activity accounts for increments of the local factor above
+one. The second also includes the threshold-two requirement for an edge
+of the residual support.
 
 For a finite array of nonnegative integer demands $x=(x_{ab})$ supported
 outside $M$, apply Lemma~\ref{lemma-6.2-joint-prescribed-cell-bound} to the
@@ -2987,7 +3170,7 @@ $\operatorname{supp}(x):=\{(a,b):x_{ab}>0\}$.  It gives, in all cases,
   \le
   \prod_{(a,b)\in\operatorname{supp}(x)}
     \frac{\theta_{ab}^{x_{ab}}}{x_{ab}!}.
-  \label{eq:prescribed-cell-residual-v3}
+  \label{eq:prescribed-cell-residual}
 \end{equation}
 Because this estimate is joint, it applies simultaneously to cells sharing a
 row or a column; no independence between cells is asserted.
@@ -3041,7 +3224,7 @@ $\mathbf 1_{\mathcal E(M,j)}$ gives an upper bound for its expectation. On $\mat
 without identifying it with the uncapped reward.
 
 \begin{lemma}[Fixed even-set expansion]
-\label{lem:fixed-even-set-expansion-v3}
+\label{lem:fixed-even-set-expansion}
 For every $F\in\mathfrak E(M)$,
 \[
   \mathbb E_{\mathrm{res}}\!\left[
@@ -3054,15 +3237,16 @@ For every $F\in\mathfrak E(M)$,
 \end{lemma}
 
 \begin{proof}
-Expand $\Phi_F$ into its nonnegative threshold monomials. In a cell of
-$F\setminus M$, a monomial chooses either the threshold-two term or one higher
-increment; it never chooses both. In a cell outside $F\cup M$, it chooses
-nothing or one higher increment. Apply
-\eqref{eq:prescribed-cell-residual-v3} once to the complete demand of each
-monomial. The threshold-two contribution is $\theta_e^2/2$, the higher
-increments sum to $\lambda_e$, and the empty choice contributes one. Every
-monomial is nonnegative and $\mathbf 1_{\mathcal E(M,j)}\le1$, so omitting
-the indicator of $\mathcal E(M,j)$ can only increase the expectation.
+Expand $\Phi_F$ by choosing one summand from each factor. For a cell in
+$F\setminus M$, choose either the threshold-two term or one higher
+increment, never both. For a cell outside $F\cup M$, choose either the
+constant term or one higher increment. Apply
+\eqref{eq:prescribed-cell-residual} once to all the demands in each
+resulting product. The threshold-two term contributes $\theta_e^2/2$;
+the higher increments sum to $\lambda_e$; and the constant choice
+contributes one. Every product is nonnegative and
+$\mathbf 1_{\mathcal E(M,j)}\le1$, so dropping the indicator of
+$\mathcal E(M,j)$ can only increase its expectation.
 \end{proof}
 
 Summing over $F$ and then inserting the missing factors
@@ -3073,19 +3257,19 @@ $1+\lambda_e\ge1$ gives
   \left(\prod_{e\in E_0}(1+\lambda_e)\right)
   \sum_{F\in\mathfrak E(M)}
     \prod_{e\in F\setminus M}q_e.
-  \label{eq:lambda-even-factorization-v3}
+  \label{eq:lambda-even-factorization}
 \end{equation}
 
 \subsection{Restricting even edge sets outside the exposed matching}
 
-The sum over even sets remains. Their edges inside the exposed matching
-carry no activity, so we restrict each set to its edges outside that
-matching. If the restriction determines the original set, we may enlarge
-the sum to all subsets of the remaining edges and obtain a product bound.
-Here is the finite inequality we need.
+To bound the sum over even edge sets, we first discard their edges in the
+exposed matching, which have unit weight. The retained edges determine
+the entire even set. We can therefore bound the sum by allowing every
+subset of the edges outside the matching and expanding the resulting
+product.
 
 \begin{lemma}[Even-set restriction bound]
-\label{lem:restriction-product-v3}
+\label{lem:restriction-product}
 Let \(H\) be a finite graph, let \(M\subseteq E(H)\) be a matching, and
 let \(q_e\ge0\) for \(e\in E(H)\setminus M\). Then
 \[
@@ -3107,32 +3291,32 @@ Apply the lemma to the complete bipartite graph on the row and column slots, wit
 \begin{equation}
   \sum_{F\in\mathfrak E(M)}\prod_{e\in F\setminus M}q_e
   \le\prod_{e\in E_0}(1+q_e).
-  \label{eq:even-family-product-v3}
+  \label{eq:even-family-product}
 \end{equation}
 
 Since $0\le\lambda_e\le q_e$, equations
-\eqref{eq:lambda-even-factorization-v3} and
-\eqref{eq:even-family-product-v3}, together with $1+x\le e^x$, imply
+\eqref{eq:lambda-even-factorization} and
+\eqref{eq:even-family-product}, together with $1+x\le e^x$, imply
 \begin{equation}
   \mathcal A(M,j)
   \le
   \exp\!\left(2\sum_{e\in E_0}q_e\right).
-  \label{eq:q-only-attachment-v3}
+  \label{eq:q-only-attachment}
 \end{equation}
 Thus both the local factors and the cycle-space cardinality are controlled by
 one total residual activity.
 
 \subsection{Large residual mass: a quadratic activity bound}
 
-It remains to sum the residual activities. We first treat residual mass
-large enough to make every intensity small relative to the class-size cap.
-In this range the higher-reward contribution to each cell activity is
-bounded by a constant times the square of its intensity.
+We next bound the sum of the residual activities. When many stubs remain
+unmatched, each cell intensity is small relative to the class-size cap.
+In this range, the contribution from higher multiplicities is bounded
+by a constant times the square of the intensity.
 
 Assume
 \begin{equation}
   2^U\le m_0^3.
-  \label{eq:intrinsic-residual-regime-v3}
+  \label{eq:intrinsic-residual-regime}
 \end{equation}
 Then $m_0\ge2^{U/3}$ and, by the degree cap,
 \[
@@ -3142,12 +3326,12 @@ Then $m_0\ge2^{U/3}$ and, by the degree cap,
 \]
 
 \begin{lemma}[Quadratic activity bound]
-\label{lem:q-quadratic-v3}
+\label{lem:q-quadratic}
 There is an absolute constant $C_0$ such that, under
-\eqref{eq:intrinsic-residual-regime-v3},
+\eqref{eq:intrinsic-residual-regime},
 \begin{equation}
   q_{ab}\le C_0\theta_{ab}^2
-  \label{eq:q-quadratic-v3}
+  \label{eq:q-quadratic}
 \end{equation}
 for every residual cell outside $M$.
 \end{lemma}
@@ -3174,23 +3358,24 @@ Therefore
 \begin{equation}
   \sum_{e\in E_0}q_e\le C_1U^2
   \qquad\text{for one absolute }C_1>0.
-  \label{eq:total-q-v3}
+  \label{eq:total-q}
 \end{equation}
-Together with \eqref{eq:q-only-attachment-v3}, this proves
+Together with \eqref{eq:q-only-attachment}, this proves
 \begin{equation}
   \mathcal A(M,j)\le\exp(2C_1U^2)
   \qquad\text{if }2^U\le m_0^3.
-  \label{eq:intrinsic-attachment-v3}
+  \label{eq:intrinsic-attachment}
 \end{equation}
 
 \subsection{Small residual mass: a pointwise bound}
 
-If the residual mass is smaller, the quadratic activity estimate need not
-apply. There are then few residual pairs, and a pointwise bound suffices.
+When few stubs remain unmatched, the quadratic activity estimate may not
+apply. We instead bound the contribution of each residual matching
+directly.
 Suppose $2^U>m_0^3$. Then
 \begin{equation}
   m_0<2^{U/3}\le2^{\lceil U/3\rceil}.
-  \label{eq:small-residual-mass-v3}
+  \label{eq:small-residual-mass}
 \end{equation}
 The pointwise argument uses only the canonical cap and the matching
 property, so it also applies outside this regime. Retaining the cap gives
@@ -3206,7 +3391,7 @@ Every support edge is a cell of multiplicity at least two, so the local factor, 
   \prod_{a,b}g(r'_{ab})=2^{W'-|E(H)|}.
 \]
 Restriction of even edge sets outside the matching $M$ is injective by
-the argument following Lemma~\ref{lem:restriction-product-v3}.
+the argument following Lemma~\ref{lem:restriction-product}.
 No residual pair lies in an exposed cell, so $E(H)\cap M=\varnothing$; hence
 \[
   2^{\beta(M\cup H)}\le2^{|E(H)|}.
@@ -3227,16 +3412,17 @@ expectations proves
 \begin{equation}
   \mathcal A(M,j)\le2^{(R_0-1)m_0/2}
   \qquad\text{for every }m_0\ge0.
-  \label{eq:complementary-attachment-v3}
+  \label{eq:complementary-attachment}
 \end{equation}
 We use this bound when the positive residual mass is small. It also covers
 zero residual mass, empty residual support, and an empty canonical event.
 
-We combine the zero-residual case with the two positive-residual regimes
-$2^U\le m_0^3$ and $2^U>m_0^3$.
+The following proposition collects the bounds for zero, large and small
+residual mass. The threshold depends on the class-size cap $U$, rather than
+on the number of class-size types.
 
 \begin{proposition}[Uniform residual factor]
-\label{prop:uniform-residual-attachment-v3}
+\label{prop:uniform-residual-attachment}
 For the fixed feasible selected profile with $U\ge2$, there is an absolute
 constant $C_{\mathrm{att}}>0$ such that every feasible pair $(M,j)$
 satisfies
@@ -3253,18 +3439,19 @@ satisfies
 
 \begin{proof}
 The three cases are exhaustive.  Their bounds are
-\eqref{eq:zero-residual-attachment-v3},
-\eqref{eq:intrinsic-attachment-v3}, and
-\eqref{eq:complementary-attachment-v3}, with
+\eqref{eq:zero-residual-attachment},
+\eqref{eq:intrinsic-attachment}, and
+\eqref{eq:complementary-attachment}, with
 $C_{\mathrm{att}}:=2C_1$.
 \end{proof}
 
 \subsection{The global second-moment exponent}
-\label{subsec:explicit-global-ledger-v3}
+\label{subsec:explicit-global-ledger}
 
-We combine the exposed-weight and residual-factor bounds in the exact
-decomposition. Their logarithms add; we check below that the resulting
-exponent is small enough for amplification.
+Insert the bounds for exposed weights and residual factors into the
+exact second-moment decomposition. Their logarithms add. We keep track
+of the resulting exponent to verify that it is small enough for the
+amplification step.
 
 Combine the three deterministic partial-diagonal errors introduced in
 Section~7 and estimated in Appendix~\ref{app:common-subprofile-details} by
@@ -3275,13 +3462,13 @@ setting
   e^{\varepsilon_n^{\mathrm{empty}}}-1
   +\varepsilon_n^{\mathrm{central}}
   +\varepsilon_n^{\mathrm{full}}.
-  \label{eq:partial-diagonal-ledger-v3}
+  \label{eq:partial-diagonal-ledger}
 \end{equation}
 Then $\varepsilon_n^{\mathrm{pd}}\to0$ uniformly in the phase, and the disjoint
 three-range assembly gives
 \begin{equation}
   \sum_{v\in\mathcal V}D(v)\le1+\varepsilon_n^{\mathrm{pd}}.
-  \label{eq:partial-diagonal-ledger-sum-v3}
+  \label{eq:partial-diagonal-ledger-sum}
 \end{equation}
 All sums in this subsection are finite and range over the domains defined in
 Sections~7--9.
@@ -3289,56 +3476,57 @@ Sections~7--9.
 Let
 \[
   \tau_n^{\mathrm{end}}
-  :=2^{3/2}\sqrt{\frac{(n+1)a}{2^a}},
+  :=4\sqrt{\frac{(n+1)a}{2^a}},
   \qquad a=\alpha-2.
 \]
-The notation agrees with \eqref{eq:endpoint-eta-v3}. For all sufficiently
+The notation agrees with \eqref{eq:endpoint-eta}. For all sufficiently
 large $n$,
-$\tau_n^{\mathrm{end}}\le1$. Since $Q_{ii}=1$ and each row has only three
-off-diagonal positions, \eqref{eq:endpoint-eta-v3} gives the explicit row
+$\tau_n^{\mathrm{end}}\le1$. Since $Q_{ii}=1$ and each row has only four
+off-diagonal positions, \eqref{eq:endpoint-eta} gives the explicit row
 bound
 \begin{equation}
   \sum_jQ_{ij}
-  \le1+3\tau_n^{\mathrm{end}}.
-  \label{eq:explicit-endpoint-row-bound-v3}
+  \le1+4\tau_n^{\mathrm{end}}.
+  \label{eq:explicit-endpoint-row-bound}
 \end{equation}
 Indeed, for $i\ne j$ one has
 $Q_{ij}\le(\tau_n^{\mathrm{end}})^{d_{ij}}/d_{ij}!
 \le\tau_n^{\mathrm{end}}$.
 
-Combining Proposition~\ref{prop:endpoint-table-sum-v3} with
-\eqref{eq:partial-diagonal-ledger-sum-v3} gives
+Combining Proposition~\ref{prop:endpoint-table-sum} with
+\eqref{eq:partial-diagonal-ledger-sum} gives
 \begin{equation}
   \sum_{L\ \mathrm{feasible}}W(L)
   \le
-  (1+3\tau_n^{\mathrm{end}})^K
+  (1+4\tau_n^{\mathrm{end}})^K
   (1+\varepsilon_n^{\mathrm{pd}}).
-  \label{eq:explicit-endpoint-table-sum-v3}
+  \label{eq:explicit-endpoint-table-sum}
 \end{equation}
 Combining this with the single aggregate deficit reduction
-\eqref{eq:coarse-realized-table-reduction-v3}, define
+\eqref{eq:coarse-realized-table-reduction}, define
 \begin{equation}
 \begin{split}
   \Gamma_n^{\mathrm{skel}}
   :={}&
   K\log\!\left(1+(\alpha+1)\rho_{\Sigma}\right)\\
-  &+K\log\!\left(1+3\tau_n^{\mathrm{end}}\right)
+  &+K\log\!\left(1+4\tau_n^{\mathrm{end}}\right)
   +\log\!\left(1+\varepsilon_n^{\mathrm{pd}}\right).
 \end{split}
-  \label{eq:explicit-skeleton-ledger-v3}
+  \label{eq:explicit-skeleton-ledger}
 \end{equation}
-The sum over $(M,j)$ in
-\eqref{eq:exact-attachment-decomposition-v3} is precisely the
-$\Sigma_n^{\mathrm{hi}}$ defined in Section~8. For all sufficiently
+The exposed weights in \eqref{eq:exact-attachment-decomposition} sum to
+$\Sigma_n^{\mathrm{hi}}=\sum_{(M,j)\ \mathrm{feasible}}w_{\mathrm{hi}}(M,j)$,
+as defined in Section~8. For all sufficiently
 large $n$,
 \begin{equation}
   \Sigma_n^{\mathrm{hi}}
   \le e^{\Gamma_n^{\mathrm{skel}}}.
-  \label{eq:explicit-bare-skeleton-bound-v3}
+  \label{eq:explicit-bare-skeleton-bound}
 \end{equation}
-In $\Gamma_n^{\mathrm{skel}}$, the first term pays for the missing pairs,
-the second for unequal endpoint sizes, and the third for the common-class
-reference mass. We estimate each term on the required scale.
+The three terms in $\Gamma_n^{\mathrm{skel}}$ bound, respectively, the
+missing-pair deficits, the unequal endpoint sizes and the total
+common-class reference weight. We estimate them separately on the scale
+needed below.
 
 The phase estimates from Section~8 imply
 \[
@@ -3346,8 +3534,8 @@ The phase estimates from Section~8 imply
   K\log\!\left(1+(\alpha+1)\rho_{\Sigma}\right)
   &\le K(\alpha+1)\rho_{\Sigma}
     =O(n^{3/4}\log n),\\
-  K\log\!\left(1+3\tau_n^{\mathrm{end}}\right)
-  &\le3K\tau_n^{\mathrm{end}}
+  K\log\!\left(1+4\tau_n^{\mathrm{end}}\right)
+  &\le4K\tau_n^{\mathrm{end}}
     =O(\sqrt{n\log n}),\\
   \log(1+\varepsilon_n^{\mathrm{pd}})&=o(1).
 \end{split}
@@ -3358,11 +3546,11 @@ Consequently the deterministic normalized exposed-weight error
   :=
   \frac{(\log n)^4}{n}\Gamma_n^{\mathrm{skel}}
   \longrightarrow0.
-  \label{eq:normalized-skeleton-error-v3}
+  \label{eq:normalized-skeleton-error}
 \end{equation}
 
 Let $C_{\mathrm{att}}$ be the constant from
-Proposition~\ref{prop:uniform-residual-attachment-v3}.
+Proposition~\ref{prop:uniform-residual-attachment}.
 Define
 \begin{equation}
   \Gamma_n^{\mathrm{att}}
@@ -3371,23 +3559,24 @@ Define
     C_{\mathrm{att}}U^2,
     \frac{\log 2}{2}(R_0-1)2^{U/3}
   \right\}.
-  \label{eq:attachment-ledger-v3}
+  \label{eq:attachment-ledger}
 \end{equation}
-Proposition~\ref{prop:uniform-residual-attachment-v3} implies the uniform
+Proposition~\ref{prop:uniform-residual-attachment} implies the uniform
 bound
 \begin{equation}
   \mathcal A(M,j)\le e^{\Gamma_n^{\mathrm{att}}}
-  \label{eq:uniform-attachment-exponential-v3}
+  \label{eq:uniform-attachment-exponential}
 \end{equation}
 for every feasible pair $(M,j)$. For large residual mass we use
-\eqref{eq:intrinsic-attachment-v3}. For small positive residual mass,
+\eqref{eq:intrinsic-attachment}. For small positive residual mass,
 $m_0<2^{U/3}$ and
 \[
   2^{(R_0-1)m_0/2}
   =\exp\!\left(\frac{\log 2}{2}(R_0-1)m_0\right)
   \le\exp\!\left(\frac{\log 2}{2}(R_0-1)2^{U/3}\right).
 \]
-The zero-residual case contributes one.
+The zero-residual case contributes one. Recall that
+$R_0=\lfloor U/2\rfloor$ and $U\ge2$, so $1\le R_0=O(U)$.
 
 Since
 \[
@@ -3409,12 +3598,12 @@ Thus the deterministic normalized residual factor error
   :=
   \frac{(\log n)^4}{n}\Gamma_n^{\mathrm{att}}
   \longrightarrow0.
-  \label{eq:normalized-attachment-error-v3}
+  \label{eq:normalized-attachment-error}
 \end{equation}
 
 \Needspace{8\baselineskip}
 \begin{proposition}[Explicit normalized second-moment bound]
-\label{prop:explicit-normalized-second-moment-ledger-v3}
+\label{prop:explicit-normalized-second-moment-ledger}
 For the marked cocoloring count
 $Z=Z_{\mathbf k}^{\mathrm{sgn}}$ from
 Proposition~\ref{prop:selected-profile-contract}, define
@@ -3428,11 +3617,12 @@ Proposition~\ref{prop:selected-profile-contract}, define
     +\varepsilon_n^{\mathrm{att}}
   \right)
   \frac{n}{(\log n)^4}.
-  \label{eq:explicit-lambda-ledger-v3}
+  \label{eq:explicit-lambda-ledger}
 \end{equation}
 Then
 \[
-  \Lambda_n=o\!\left(\frac{n}{(\log n)^4}\right)
+  \Lambda_n=O(n^{3/4}\log n)
+  =o\!\left(\frac{n}{(\log n)^4}\right)
 \]
 and
 for all sufficiently large $n$,
@@ -3441,15 +3631,15 @@ for all sufficiently large $n$,
   \le
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le e^{\Lambda_n}.
-  \label{eq:explicit-second-moment-ledger-v3}
+  \label{eq:explicit-second-moment-ledger}
 \end{equation}
 \end{proposition}
 
 \begin{proof}
-Insert \eqref{eq:uniform-attachment-exponential-v3} into the exact decomposition
-\eqref{eq:exact-attachment-decomposition-v3}. Because all summands are
+Insert \eqref{eq:uniform-attachment-exponential} into the exact decomposition
+\eqref{eq:exact-attachment-decomposition}. Because all summands are
 nonnegative, the uniform residual factor may be taken outside the finite
-sum over $(M,j)$. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
+sum over $(M,j)$. Equation~\eqref{eq:explicit-bare-skeleton-bound} then gives
 \[
   \frac{\mathbb E Z^2}{(\mathbb E Z)^2}
   \le
@@ -3459,41 +3649,42 @@ sum over $(M,j)$. Equation~\eqref{eq:explicit-bare-skeleton-bound-v3} then gives
   e^{\Gamma_n^{\mathrm{att}}+\Gamma_n^{\mathrm{skel}}}
   =e^{\Lambda_n}.
 \]
-The lower bound follows from $\operatorname{Var}(Z)\ge0$. Equations
-\eqref{eq:normalized-skeleton-error-v3} and
-\eqref{eq:normalized-attachment-error-v3} give the stated order of $\Lambda_n$.
+The lower bound follows from $\operatorname{Var}(Z)\ge0$.
+The component estimates above give the stated $O(n^{3/4}\log n)$ bound
+for $\Lambda_n$, while \eqref{eq:normalized-skeleton-error} and
+\eqref{eq:normalized-attachment-error} give the small-$o$ bound.
 \end{proof}
 
-The second-moment estimate is now ready for Paley--Zygmund.
-$\Gamma_n^{\mathrm{skel}}$ accounts for partial diagonals, deficits, and
-endpoint tables; $\Gamma_n^{\mathrm{att}}$ accounts for residual local factors and the cycle-space factor. Their sum is the exponent used in
-the amplification step.
+The contribution $\Gamma_n^{\mathrm{skel}}$ comes from common classes,
+deficits and endpoint tables; $\Gamma_n^{\mathrm{att}}$ comes from residual
+local factors and the cycle-space factor. Applying Paley--Zygmund with
+their sum gives the probability bound used in the next section.
 \section{Amplifying a cocoloring probability bound}\label{rare-event-amplification}
 
-Proposition~\ref{prop:explicit-normalized-second-moment-ledger-v3} and (1.4)
+Proposition~\ref{prop:explicit-normalized-second-moment-ledger} and (1.4)
 give the probability bound
 
 \[
  \Prob{Z_{\mathbf k}^{\mathrm{sgn}}>0}\ge e^{-\Lambda_n}.       \tag{10.1}
 \]
 
-The event $Z_{\mathbf k}^{\mathrm{sgn}}>0$ yields a marked cocoloring and hence a
-cocoloring with $k_{\mathrm{co}}$ classes, so the probability bound implies
+On the event $Z_{\mathbf k}^{\mathrm{sgn}}>0$, a realized marked partition
+gives a cocoloring with $k_{\mathrm{co}}$ classes. Hence
 
 \[
  \Prob{\zeta(G_n)\le k_{\mathrm{co}}}\ge e^{-\Lambda_n}.        \tag{10.2}
 \]
 
-The probability bound need not tend to one. Following
+The probability in (10.2) may be small. Following
 \citet[Theorem~1]{heckel-2025-difference}, we use vertex-exposure
-concentration as in \citet[Theorem~1]{scott-2008-2017} to find a large
-induced subgraph with the desired cocoloring. We then color the leftover
-vertices. Their set depends on the graph, so a bound for a fixed vertex set
-would not suffice. The first lemma controls all sets simultaneously;
-the second bounds the mean excess above the desired class count. Markov's
-inequality then gives an error of $o(n/(\log n)^3)$, smaller than the root
-separation. Appendix~\ref{app:amplification-tail} gives a stronger explicit
-tail bound.
+concentration, as in \citet[Theorem~1]{scott-2008-2017}, to find a large
+induced subgraph with the desired cocoloring. We then color the vertices
+outside it. Because this leftover set depends on the graph, we first
+prove a coloring bound that holds simultaneously for every vertex set.
+The second lemma uses that bound to control the mean number of additional
+classes. Markov's inequality then gives an error of $o(n/(\log n)^3)$,
+smaller than the root separation. Appendix~\ref{app:amplification-tail}
+gives a stronger explicit tail bound.
 
 \subsection*{Coloring every leftover vertex set}
 
@@ -3511,8 +3702,9 @@ large \(n\), with probability at least \(1-e^{-c\sqrt n}\), every
 \end{lemma}
 
 \begin{proof}
-We find independent sets in every sufficiently large vertex set by
-working in the complement \(H\) of \(G_n\). Put
+We work in the complement \(H\) of \(G_n\), where a clique is an
+independent set in the original graph. We will find such a clique in
+every sufficiently large vertex set. Put
 \(u_0=\lceil n^{1/4}\rceil\). For a fixed \(u_0\)-set, (1.5) bounds the
 probability that its \(H\)-edge density is below \(1/4\) by
 \(\exp\{-\binom{u_0}{2}/16\}\). There are
@@ -3528,7 +3720,8 @@ for an absolute \(c>0\): the positive term is \(O(n^{1/4}\log n)\),
 whereas \(u_0(u_0-1)=(1+o(1))\sqrt n\).
 Thus, outside an event of probability at most
 \(e^{-c\sqrt n}\), every \(u_0\)-set has density at least \(1/4\).
-If \(S\) has size \(s\ge u_0\), double-counting each edge of
+For edge counts, the subscript specifies the graph and the argument
+specifies the vertex set. If \(S\) has size \(s\ge u_0\), double-counting each edge of
 \(H[S]\) over the \(u_0\)-subsets containing it gives
 \[
  \frac{1}{\binom{s}{u_0}}
@@ -3539,7 +3732,8 @@ If \(S\) has size \(s\ge u_0\), double-counting each edge of
 Therefore every larger set also has density at least \(1/4\).
 
 Let $S_0$ be any vertex set of size at least \(n^{1/3}\). While
-$|S_t|\ge u_0$, choose $v_t\in S_t$ of maximum degree in $H[S_t]$, define
+$|S_t|\ge u_0$, choose $v_t\in S_t$ of maximum degree in $H[S_t]$ and retain
+its neighbors in the current set. Define
 $S_{t+1}:=N_H(v_t)\cap S_t$, and put $s_t:=|S_t|$.
 Density at least \(1/4\) implies
 $|N_H(v_t)\cap S_t|\ge(s_t-1)/4$. Hence
@@ -3667,12 +3861,12 @@ cocoloring of $W$ gives
  (\zeta(G_n)-k)_+
  \le\frac{C_0}{\log n}(n-S_k)+n^{1/3}.
 \]
-Outside $\mathcal D_n$, the positive excess is at most $n$. Bound the
-contribution of this exceptional event by its probability times the
-number of vertices. On the density event, removing the indicator from
-the nonnegative uncovered mass $n-S_k$ can only increase its expectation.
-Taking expectations therefore proves the bound. No independence between
-the maximizing set and $\mathcal D_n$ is needed. Finally,
+Outside $\mathcal D_n$, the positive excess is at most $n$, so its
+contribution to the expectation is bounded by the exceptional-event
+probability times the number of vertices. On the density event, drop the
+indicator from the nonnegative uncovered mass $n-S_k$ to obtain an upper
+bound. Taking expectations proves the assertion. The maximizing set need
+not be independent of $\mathcal D_n$. Finally,
 \[
  \log\binom n{u_0}=O(n^{1/4}\log n),\qquad
  \binom{u_0}{2}=(1+o(1))\sqrt n/2,
@@ -3720,7 +3914,7 @@ Lemma~\ref{lemma-10.2-amplification-from-a-seed} in
 Appendix~\ref{app:amplification-tail}.
 
 \subsection{Uniformity across the phase}
-\label{subsec:uniformity-phase-v3}
+\label{subsec:uniformity-phase}
 
 The root estimates are uniform on $K_*$, and the errors above have
 deterministic bounds independent of the phase. The residual estimates
@@ -3733,39 +3927,41 @@ $\Lambda$. Appendix~\ref{app:amplification-tail} records the corresponding
 uniformity for the explicit tail bound.
 
 \section{The phase-resolved gap and a uniform constant}
-\label{sec:final-assembly-v3}
+\label{sec:final-assembly}
 
-We return to (A)--(C) of the introduction. The first-moment roots give
-the deterministic separation; the chromatic lower bound and the amplified
-cocoloring upper bound hold with high probability. Intersecting their
-events gives the phase-resolved gap. We then use continuity over the
-closed phase interval to obtain the uniform constant.
+We now combine the three estimates (A)--(C) from the introduction.
+The first-moment roots give a deterministic separation. With high
+probability, the chromatic number lies above its lower location and the
+cochromatic number lies below the amplified upper location. On the
+intersection of these events, their separation gives the phase-resolved
+gap. Continuity on the closed phase interval then gives a uniform
+constant.
 
 \begin{proof}[Proof of the main theorem]
 
 Take $n$ beyond the common deterministic threshold of
-Subsection~\ref{subsec:uniformity-phase-v3}.
+Subsection~\ref{subsec:uniformity-phase}.
 Let $r_+(n)$ be the ordinary first-moment root and let
-$r_4^{\mathrm{co}}(n)$ be the four-size first-moment root for marked partitions.
+$r_5^{\mathrm{co}}(n)$ be the five-size first-moment root for marked partitions.
 Proposition~\ref{prop:selected-profile-contract} gives
 \begin{equation}
-  r_+(n)-r_4^{\mathrm{co}}(n)
+  r_+(n)-r_5^{\mathrm{co}}(n)
   =
   \left[
-    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
-  \label{eq:phase-resolved-root-gap-v3}
+  \label{eq:phase-resolved-root-gap}
 \end{equation}
 The selected profile is placed a fixed distance above its first-moment root:
 \[
   k_{\mathrm{co}}
   =
-  \left\lceil r_4^{\mathrm{co}}(n)\right\rceil+16.
+  \left\lceil r_5^{\mathrm{co}}(n)\right\rceil+16.
 \]
-Proposition~\ref{prop:selected-profile-contract} changes the four class-size
+Proposition~\ref{prop:selected-profile-contract} changes the five class-size
 counts by $O(1)$ at this fixed $k_{\mathrm{co}}$. With the same notation
-$i\in\{2,3,4,5\}$ and $u_i=\alpha-i$, it preserves both
+$i\in\{2,3,4,5,6\}$ and $u_i=\alpha-i$, it preserves both
 \[
   \sum_i k_i=k_{\mathrm{co}}
   \qquad\text{and}\qquad
@@ -3776,14 +3972,14 @@ Thus there is no additional correction to the total number of classes. Hence
   r_+(n)-k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
-  \label{eq:near-root-retained-gap-v3}
+  \label{eq:near-root-retained-gap}
 \end{equation}
 Indeed, (5.13) gives
 $r_+(n)-k_{\mathrm{co}}
-=(r_+(n)-r_4^{\mathrm{co}})-16+O(1)$.
+=(r_+(n)-r_5^{\mathrm{co}})-16+O(1)$.
 The fixed displacement and ceiling are absorbed by the displayed $o(1)$.
 
 Section~\ref{a-valid-unrestricted-lower-location-for-chi} constructs a
@@ -3792,15 +3988,15 @@ deterministic integer $k_\chi^-$ such that
   \mathbb P\bigl(\chi(G_n)>k_\chi^-\bigr)\longrightarrow1
 \]
 and $k_\chi^-=r_+(n)+O(\log n)$. Combining this with
-\eqref{eq:near-root-retained-gap-v3} gives
+\eqref{eq:near-root-retained-gap} gives
 \begin{equation}
   k_\chi^- - k_{\mathrm{co}}
   =
   \left[
-    \frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)
+    \frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)
   \right]
   \frac{n}{(\log n)^3}.
-  \label{eq:integer-location-gap-v3}
+  \label{eq:integer-location-gap}
 \end{equation}
 
 The amplification result \eqref{eq:amplification-markov-probability} gives a deterministic sequence
@@ -3815,7 +4011,7 @@ On this event and the chromatic lower event,
   >k_\chi^- -k_{\mathrm{co}}-a_n.
 \]
 The deterministic locations used in this comparison are collected in
-Figure~\ref{fig:final-root-geometry-v3}.
+Figure~\ref{fig:final-root-geometry}.
 
 \begin{figure}[htbp]
 \centering
@@ -3831,7 +4027,7 @@ Figure~\ref{fig:final-root-geometry-v3}.
   \foreach \x in {0,1.0,2.0,10.6,11.5}
     \draw[line width=0.55pt] (\x,-0.10) -- (\x,0.10);
 
-  \node[below=3pt] at (0,0) {$r_4^{\mathrm{co}}$};
+  \node[below=3pt] at (0,0) {$r_5^{\mathrm{co}}$};
   \node[above=3pt] at (1.0,0) {$k_{\mathrm{co}}$};
   \node[below=3pt] at (2.0,0) {$k_{\mathrm{co}}+a_n$};
   \node[above=3pt] at (10.6,0) {$k_\chi^-$};
@@ -3841,32 +4037,32 @@ Figure~\ref{fig:final-root-geometry-v3}.
 
   \draw[<->] (0,1.35) -- (11.5,1.35);
   \node[above=2pt,font=\scriptsize] at (5.75,1.35) {$\displaystyle
-    r_+-r_4^{\mathrm{co}}
-    =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+    r_+-r_5^{\mathrm{co}}
+    =\left[\frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)\right]
       \frac{n}{(\log n)^3}$};
 
   \draw[<->] (1.0,-1.30) -- (11.5,-1.30);
   \node[below=2pt,font=\scriptsize] at (6.25,-1.30) {$\displaystyle
     r_+-k_{\mathrm{co}}
-    =\left[\frac{(\log 2)^2}{4}A_4(\delta_n)+o(1)\right]
+    =\left[\frac{(\log 2)^2}{4}A_5(\delta_n)+o(1)\right]
       \frac{n}{(\log n)^3}$};
 \end{tikzpicture}
 \caption{First-moment roots and the class counts used after rounding and
 amplification. For all sufficiently large $n$,
-$r_4^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
+$r_5^{\mathrm{co}}<k_{\mathrm{co}}<k_{\mathrm{co}}+a_n<k_\chi^-<r_+$.
 The thick segment is the remaining gap between the class counts.
 Positions are schematic and not to scale.}
-\label{fig:final-root-geometry-v3}
+\label{fig:final-root-geometry}
 \end{figure}
 
 To make the final error explicit, put
 \[
   s_n:=\frac{n}{(\log n)^3},\qquad
   \theta_n:=\frac{k_\chi^- - k_{\mathrm{co}}}{s_n}
-  -\frac{(\log 2)^2}{4}A_4(\delta_n),\qquad
+  -\frac{(\log 2)^2}{4}A_5(\delta_n),\qquad
   \eta_n:=\frac{a_n}{s_n}.
 \]
-By \eqref{eq:integer-location-gap-v3} and \eqref{eq:amplification-markov-probability},
+By \eqref{eq:integer-location-gap} and \eqref{eq:amplification-markov-probability},
 $\theta_n\to0$ and $\eta_n\to0$.  Hence the nonnegative deterministic error
 \[
   \varepsilon_n^{\mathrm{gap}}:=|\theta_n|+\eta_n
@@ -3882,7 +4078,7 @@ tends to zero. On the event
   > k_\chi^- - k_{\mathrm{co}}-a_n
   \ge
   \left[
-    \frac{(\log 2)^2}{4}A_4(\delta_n)
+    \frac{(\log 2)^2}{4}A_5(\delta_n)
     -\varepsilon_n^{\mathrm{gap}}
   \right]s_n.
 \]
@@ -3893,13 +4089,13 @@ probability $1-o(1)$. Consequently,
     \chi(G_n)-\zeta(G_n)
     \ge
     \left[
-      \frac{(\log 2)^2}{4}A_4(\delta_n)
+      \frac{(\log 2)^2}{4}A_5(\delta_n)
       -\varepsilon_n^{\mathrm{gap}}
     \right]
     \frac{n}{(\log n)^3}
   \right)
   \longrightarrow1.
-  \label{eq:phase-resolved-final-v3}
+  \label{eq:phase-resolved-final}
 \end{equation}
 
 On this tail, set $\varepsilon_n:=\varepsilon_n^{\mathrm{gap}}$ and define the
@@ -3908,28 +4104,28 @@ $(\varepsilon_n)_{n\ge2}$ is deterministic, nonnegative, and tends to zero.
 
 \displayheading{The uniform coefficient}
 
-Put $q:=\log 2$ and $\gamma_4:=\log(200/153)>0$.
+Put $q:=\log 2$ and $\gamma_5:=\log(8750/6681)>0$.
 Lemma~\ref{lem:phase-gain-concavity} locates the smallest phase gain at an
 endpoint, while Lemma~\ref{lem:entropy-gap} bounds both endpoint values.
 Hence
 \[
-  m_4:=\min\{A_4(0),A_4(1)\}
-      =\min_{0\le\delta\le1}A_4(\delta)>\gamma_4.
+  m_5:=\min\{A_5(0),A_5(1)\}
+      =\min_{0\le\delta\le1}A_5(\delta)>\gamma_5.
 \]
 Since $\varepsilon_n^{\mathrm{gap}}\to0$, eventually
 \[
   \varepsilon_n^{\mathrm{gap}}
-  <\frac{q^2}{4}(m_4-\gamma_4).
+  <\frac{q^2}{4}(m_5-\gamma_5).
 \]
-Therefore the coefficient in \eqref{eq:phase-resolved-final-v3} is at least
-$q^2\gamma_4/4$ for all sufficiently large $n$.
+Therefore the coefficient in \eqref{eq:phase-resolved-final} is at least
+$q^2\gamma_5/4$ for all sufficiently large $n$.
 It follows that
 \[
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
     \ge
     \frac{(\log 2)^2}{4}
-    \log\!\left(\frac{200}{153}\right)
+    \log\!\left(\frac{8750}{6681}\right)
     \frac{n}{(\log n)^3}
   \right)
   \longrightarrow1.
@@ -3949,7 +4145,7 @@ The deterministic error in the main theorem may be chosen so that
 \]
 with a phase-independent implied constant. Indeed, put \(L=\log n\) and
 \(\ell=\log\log n\). The explicit bounds in
-Section~\ref{subsec:explicit-global-ledger-v3} give
+Section~\ref{subsec:explicit-global-ledger} give
 \(\Lambda_n=O(n^{3/4}L)\). Hence the quantities in
 \eqref{eq:amplification-markov-scales} satisfy
 \[
@@ -3966,95 +4162,119 @@ deterministic remainder \(O(n\log\log n/(\log n)^4)\).
 All estimates are uniform over the phase.
 \end{remark}
 
-\begin{corollary}[A bound on the failure probability]
-\label{cor:phase-failure-probability}
-Put \(q=\log 2\), \(\beta=2/q+1/2\), and
-\[
- w_n:=\frac{(\log n)^\beta}{n}
-       \left(\frac{\log n}{n}\right)^{1-\delta_n}
-     =n^{\delta_n-2}(\log n)^{\beta+1-\delta_n}.
-\]
-There are constants \(C_1,C_2>0\) and an integer \(N\), all independent
-of the phase, such that every integer \(n\ge N\) satisfies
-\[
- \mathbb P\!\left(
-  \chi(G_n)-\zeta(G_n)
-  <\left[\frac{q^2}{4}A_4(\delta_n)
-         -C_1\frac{\log\log n}{\log n}\right]
-       \frac{n}{(\log n)^3}
- \right)
- \le C_2w_n\le C_2\frac{(\log n)^\beta}{n}.
-\]
-The failure probability of the fixed-coefficient lower bound in the main
-theorem obeys the same upper bound, after increasing \(N\).
-For each fixed \(\eta\in(0,1)\), both failure probabilities are therefore
-\(O(n^{-1-\eta}(\log n)^{\beta+\eta})\) along the integers for which
-\(\delta_n\le1-\eta\).
-\end{corollary}
+The pair bound in Section~\ref{a-valid-unrestricted-lower-location-for-chi}
+sharpens the probability estimate enough to sum the failures over all \(n\).
 
+\begin{corollary}[A summable bound on the failure probability]
+\label{cor:phase-failure-probability}
+Put \(q=\log2\), \(\beta=2/q+1/2\), \(L=\log n\), and
+\[
+ w_n:=\frac{L^\beta}{n}
+       \left(\frac Ln\right)^{1-\delta_n}
+     =n^{\delta_n-2}L^{\beta+1-\delta_n}.
+\]
+There are constants \(C_1,C_2>0\) and an integer \(N\), all independent of
+the phase, such that every integer \(n\ge N\) satisfies
+\[
+ \begin{split}
+ &\mathbb P\!\left(
+  \chi(G_n)-\zeta(G_n)
+  <\left[\frac{q^2}{4}A_5(\delta_n)
+       -C_1\frac{\log\log n}{\log n}\right]\frac n{(\log n)^3}
+ \right)
+ \\[-2pt]
+ &\qquad\le C_2\left(w_n^2+\frac{w_nL^{5/2}}{\sqrt n}+n^{-2}\right).
+ \end{split}
+\]
+The right-hand side is \(O(n^{-3/2}(\log n)^{\beta+5/2})\), uniformly in
+the phase, and is summable over \(n\). The fixed-coefficient lower bound
+in the main theorem has the same failure bound, after increasing \(N\).
+\end{corollary}
 \begin{proof}
-Write \(L=\log n\) and \(\ell=\log\log n\).
-Apply Lemma~\ref{lemma-10.2-amplification-from-a-seed} to (10.2) with
-\(r=2L\). Since \(\Lambda_n=O(n^{3/4}L)\), its additional class allowance
+Write \(\ell=\log\log n\). Apply
+Lemma~\ref{lemma-10.2-amplification-from-a-seed} to (10.2) with \(r=2L\).
+Since \(\Lambda_n=O(n^{3/4}L)\), its additional class allowance
 \[
  t_n:=C\left(
- \frac{\sqrt{n\Lambda_n}+\sqrt{2nL}}{L}+n^{1/3}+1
+ \frac{\sqrt{n\Lambda_n}+\sqrt{2nL}}L+n^{1/3}+1
  \right)
  =O(n^{7/8}L^{-1/2})=o(n\ell/L^4)
 \]
 satisfies
 \[
- \mathbb P\bigl(\zeta(G_n)>k_{\mathrm{co}}+t_n\bigr)
- \le n^{-2}+e^{-c\sqrt n}
+ \mathbb P(\zeta(G_n)>k_{\mathrm{co}}+t_n)
+ \le n^{-2}+e^{-c\sqrt n}.
 \]
-for an absolute \(c>0\), by the probability bound for the simultaneous
-coloring event in Lemma~\ref{lemma-10.1-simultaneous-leftover-coloring}.
+Here the second term is the simultaneous leftover-coloring failure
+probability in Lemma~\ref{lemma-10.1-simultaneous-leftover-coloring}.
 
-For the chromatic lower event, the first line of (2.3) can be written as
+For the chromatic lower event, the uniform expansion (2.3) gives
 \[
  \log\mu_{\alpha+2}
- =-L+\beta\ell+(\delta_n-1)(L-\ell)+O(1).
+ =-L+\beta\ell+(\delta_n-1)(L-\ell)+O(1),
+ \qquad \mu_{\alpha+2}\le C_{\mathrm{cap}}w_n.
 \]
-Since the remainder is uniform, retaining the phase-dependent term gives
-\(\mu_{\alpha+2}\le C_{\mathrm{cap}}w_n\) for one absolute constant.
-By (4.5), the chromatic lower event fails with probability at most
-\(C_{\mathrm{cap}}w_n+e^{-c_\chi L^3}\).
-Equations (5.11), (4.1), and (5.13), together with the bound on \(t_n\), give
+In (4.5), the estimates for \(a,b\) imply \(e^a=O(1)\) and
+\(e^b-1=O(L^{5/2}/\sqrt n)\). Thus
+\[
+ \mathbb P(\chi(G_n)\le k_\chi^-)
+ \le C\left(w_n^2+\frac{w_nL^{5/2}}{\sqrt n}\right)+e^{-c_1L^3}.
+\]
+Equations (5.11), (4.1), and (5.13), together with the bound on \(t_n\),
+give, after one phase-independent threshold,
 \[
  k_\chi^- - k_{\mathrm{co}}-t_n
- \ge\frac{q^2}{4}A_4(\delta_n)\frac{n}{L^3}
-      -C_1\frac{n\ell}{L^4}
+ \ge\frac{q^2}{4}A_5(\delta_n)\frac n{L^3}
+       -C_1\frac{n\ell}{L^4}.
 \]
-after one phase-independent threshold. On the intersection of the two good
-events, \(\chi(G_n)-\zeta(G_n)>k_\chi^- - k_{\mathrm{co}}-t_n\).
-A union bound therefore bounds the probability in the statement by
+On the chromatic lower event and the cocoloring upper event, the gap is
+larger than the left-hand side. A union bound, with both exponential terms
+absorbed into \(n^{-2}\), proves the displayed failure bound.
+Since \(0\le\delta_n<1\) and \(L/n<1\),
 \[
- C_{\mathrm{cap}}w_n
- +e^{-c_\chi L^3}+n^{-2}+e^{-c\sqrt n}
- \le C_2w_n,
+ w_n\le\frac{L^\beta}{n},\qquad
+ w_n^2+\frac{w_nL^{5/2}}{\sqrt n}+n^{-2}
+ =O\!\left(n^{-3/2}L^{\beta+5/2}\right).
 \]
-after increasing \(N\): both exponential terms are then at most \(n^{-2}\),
-and \(n^{-2}\le w_n\le L^\beta/n\) uniformly for \(0\le\delta_n<1\).
-The positive uniform margin between \(A_4(\delta)\) and
-\(\log(200/153)\) gives the fixed-coefficient assertion.
-Finally, if \(\delta_n\le1-\eta\), then
-\(w_n\le n^{-1-\eta}L^{\beta+\eta}\), since \(L/n<1\).
+This envelope is summable. Finally,
+\(\min_{\delta\in[0,1]}A_5(\delta)>\log(8750/6681)\); the resulting positive
+uniform margin absorbs \(C_1\ell/L\), proving the fixed-coefficient assertion.
+\end{proof}
+
+\begin{corollary}[Almost-sure eventual gap]\label{cor:almost-sure-gap}
+Fix any joint law of \((G_n)_{n\ge1}\) whose \(n\)-th marginal is
+\(G(n,1/2)\). With probability one, for every sufficiently large \(n\),
+\[
+ \chi(G_n)-\zeta(G_n)
+ \ge\left[\frac{(\log2)^2}{4}A_5(\delta_n)
+       -C_1\frac{\log\log n}{\log n}\right]\frac n{(\log n)^3}.
+\]
+The fixed-coefficient lower bound in the main theorem also holds almost
+surely for every sufficiently large \(n\).
+\end{corollary}
+\begin{proof}
+Under the fixed joint law, let \(F_n\) be failure of the phase-resolved bound.
+The preceding corollary bounds each marginal failure probability and gives
+\(\sum_n\mathbb P(F_n)<\infty\). The first Borel--Cantelli lemma therefore
+implies that only finitely many \(F_n\) occur. Independence across \(n\) is
+not required. The eventual threshold may depend on the realization; the
+assertion is for each fixed joint law.
 \end{proof}
 
 \paragraph{AI assistance disclosure.}
 OpenAI GPT-5.6 Sol, accessed through ChatGPT and Codex, was used to probe the
-written proof for counterexamples, audit symbolic consistency, and generate
-candidate Lean code. Codex also assisted with
-organization and supplementary proof arguments for the finite-dual
-approximation and residual overlap bounds. Aristotle, Harmonic's
-automated theorem-proving system \citep{achim-et-al-2025}, performed automated
-Lean proof search and a clean-environment replay. Every formal output
-incorporated into the released development was reviewed and rebuilt under the
-pinned Lean toolchain. Machine-checked claims
-rest on the Lean kernel, and manuscript-only claims on the written proof.
-Samuil Petkov directed the work, selected the claims and arguments, reviewed
-the manuscript and formalization, and assumes responsibility for the
-accuracy, integrity, citations, and final submission.
+written proof for counterexamples, check symbolic consistency, and generate
+candidate Lean code. Codex also assisted with supplementary proof arguments
+for the finite-dual approximation and residual overlap bounds. Aristotle,
+Harmonic's automated theorem-proving system \citep{achim-et-al-2025},
+performed automated Lean proof search and a clean-environment replay. Every
+formal output incorporated into the released development was reviewed and
+rebuilt under the pinned Lean toolchain. Machine-checked claims rest on the
+Lean kernel, and manuscript-only claims on the written proof. Samuil Petkov
+directed the work, selected the claims and arguments, reviewed the manuscript
+and formalization, and assumes responsibility for the accuracy, integrity,
+citations, and final submission.
+
 
 \appendix
 
@@ -4063,12 +4283,13 @@ accuracy, integrity, citations, and final submission.
 
 \begin{proof}[Proof of Lemma~\ref{lem:uniform-root-slope-dual}]
 Put $q:=\log 2$, $L:=\log n$, and $\ell:=\log\log n$.
-Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives
+Dividing (3.2) by $k=n/s$ and writing $p_i=k_i/k$ gives the formula below.
+All sums in this formula are over $S^{(n)}$. The maximum is over nonnegative
+weights with total mass one and mean deficit $\alpha-s$.
 \[
   \frac{L_S(n,n/s)}{n/s}
   =(s-1)L-s+1+\log s
-   +\max_{\substack{p_i\ge0\ (i\in S^{(n)})\\
-                     \sum_i p_i=1,\ \sum_i ip_i=\alpha-s}}
+   +\max
       \left[-\sum_i p_i\log p_i
             -\sum_i p_i\log d_{\alpha-i}\right].
 \]
@@ -4081,12 +4302,12 @@ The definition of the remainder in (3.1a) gives
   \quad(i\ge-1).
   \tag{\thesection.1}\label{eq:root-curvature}
 \end{equation*}
-The first estimate is uniform on every fixed finite set of deficits; the
-second is global on the finite support.
+The first estimate controls each fixed finite set of deficits uniformly.
+The second applies to the whole finite support.
 
 \displayheading{Finite and limiting duals and optimizing tilts}
-We first solve the mean constraint by exponential tilting. The target
-center satisfies
+We first choose the exponential tilt so that the weighted distribution has
+the required mean. The target center satisfies
 \begin{equation*}
   \frac2q\le T_0\le1+\frac2q,
   \tag{\thesection.2}\label{eq:root-dual-form}
@@ -4097,17 +4318,18 @@ $K_*$ is also strictly inside the feasible mean range of both supports.
 Choose $\Lambda>0$ so that
 \[
   M_S(-\Lambda)<\min K_*<\max K_*<M_S(\Lambda)
-  \qquad(S=S_+,S_4).
+  \qquad(S=S_+,S_5).
 \]
-Such a choice exists because the limiting mean maps are strictly increasing
-and their endpoint limits bracket $K_*$. We quantify the effect of the finite score before inverting the mean map.
-Write
+The limiting mean maps are strictly increasing, and their endpoint limits
+bracket $K_*$, so this choice is possible. Before inverting the mean maps,
+we compare the finite weights with their limiting Gaussian weights. Write
 \[
   w_i(\lambda):=\exp\!\left(\lambda i-\frac q2i^2\right),
   \qquad
   \rho_n(i):=-h_n(i)-\frac q2i^2
 \]
-on the finite support. By (3.1a), the score loss is nonnegative, and
+for indices in the finite support. Formula (3.1a) shows that this loss in
+the exponent is nonnegative, and
 \[
   0\le\rho_n(-1)=\log(1+1/\alpha)\le1/\alpha.
 \]
@@ -4129,22 +4351,23 @@ indices satisfy
 Here $|i|^0$ means one. The constants are finite because every polynomial
 times $\exp(\Lambda|i|-qi^2/2)$ is summable.
 
-For the remaining indices, \eqref{eq:root-curvature} bounds the weight difference by the
-limiting weight. The omitted indices beyond the finite cutoff are covered
-by the same tail. For sufficiently large $\alpha$,
+For the remaining indices, \eqref{eq:root-curvature} bounds the difference by the
+limiting weight itself. The same tail also contains every index omitted by
+the finite cutoff. For sufficiently large $\alpha$,
 \[
   \sum_{i>\alpha/2}i^m e^{\Lambda i-qi^2/2}
   \le\sum_{i>\alpha/2}i^m e^{-qi^2/4}
   \le C_m e^{-c\alpha^2}.
 \]
-The last bound follows by comparison with a Gaussian integral, absorbing
-the fixed polynomial into a smaller Gaussian exponent. The tail for
-$S_4$ is eventually empty. Thus the zeroth, first, and second tilted
-moments differ by $O(1/\alpha)$ uniformly on $[-\Lambda,\Lambda]$, for
-both supports. Their zeroth moments have a common positive lower bound:
-retain the $i=2$ term, which is present in both finite supports, and use
-the bounded tilt interval and bounded $h_n(2)$. Taking logarithms and
-ratios therefore gives, uniformly on this interval,
+Comparison with a Gaussian integral proves the last bound: the fixed
+polynomial can be absorbed by weakening the Gaussian exponent. The tail for
+$S_5$ is eventually empty. Combining the low-index and tail bounds, the
+zeroth, first and second unnormalized tilted moments differ by
+$O(1/\alpha)$ uniformly on $[-\Lambda,\Lambda]$, for both supports. The
+zeroth moments also have a common positive lower bound. Indeed, retain the
+$i=2$ term, which occurs in both finite supports; the tilt interval and
+$h_n(2)$ are bounded. We may therefore take logarithms and ratios to obtain,
+uniformly on this interval,
 \[
 \begin{split}
   \log Z_{n,S}-\log Z_S&=O(1/\alpha),\\
@@ -4159,11 +4382,12 @@ least two indices, and hence
 $M'_{n,S}(\lambda)=\operatorname{Var}_{n,S,\lambda}(i)>0$ for every
 $\lambda\in\mathbb R$. Likewise,
 $M'_S(\lambda)=\operatorname{Var}_{S,\lambda}(i)>0$ for every $\lambda$.
-Thus both mean maps are globally strictly increasing. By continuity and
-compactness,
+Thus both mean maps are globally strictly increasing. Take the minimum
+below over $S\in\{S_+,S_5\}$ and $|\lambda|\le\Lambda$. Continuity and
+compactness give
 \[
   v_*:=\frac12
-  \min_{\substack{S\in\{S_+,S_4\}\\|\lambda|\le\Lambda}}
+  \min_{S,\lambda}
   M'_S(\lambda)>0.
 \]
 For all sufficiently large $n$, one has
@@ -4174,8 +4398,8 @@ also bracket $K_*$. Hence, for every $T\in K_*$, the equations
   \qquad
   M_S(\lambda_S(T))=T
 \]
-have unique solutions in $[-\Lambda,\Lambda]$. The inverse mean maps are
-uniformly $v_*^{-1}$-Lipschitz, and therefore
+have unique solutions in $[-\Lambda,\Lambda]$. The derivative lower bound
+makes the inverse mean maps uniformly $v_*^{-1}$-Lipschitz. Consequently
 \[
   \sup_{T\in K_*}
   |\lambda_{n,S}(T)-\lambda_S(T)|
@@ -4200,8 +4424,9 @@ and its dual value is exactly
    -\lambda_{n,S}(T)T.
 \]
 
-For the countable support $S_+$, we must also show that the entropy
-maximum is attained. Fix $T\in K_*$, write $\lambda=\lambda_{S_+}(T)$, and set
+For the countable support $S_+$, strict concavity alone does not establish
+attainment. We verify it using the tilted distribution. Fix $T\in K_*$,
+write $\lambda=\lambda_{S_+}(T)$, and set
 \[
  \pi_\lambda(i):=
  \frac{\exp\{\lambda i-q i^2/2\}}{Z_{S_+}(\lambda)}.
@@ -4212,8 +4437,8 @@ Write
   :=\sum_i p_i\log\frac{p_i}{\pi_\lambda(i)},
 \]
 with the convention that a summand with $p_i=0$ is zero.
-This probability distribution has mean $T$.  For every feasible probability
-vector $p$ with finite quadratic moment,
+The tilted distribution defined above has mean $T$. For every feasible
+probability vector $p$ with finite quadratic moment,
 \begin{equation}
  -\sum_i p_i\log p_i-\frac q2\sum_i i^2p_i
  =\log Z_{S_+}(\lambda)-\lambda T
@@ -4234,11 +4459,11 @@ this proves (3.9a) and
 \[
   \varepsilon_n^{\mathrm{dual}}=O(1/\alpha).
 \]
-On the finite support $S_4$, the score perturbation and tilt error in the
-optimizer formula give the coordinatewise rate (3.9b). The limiting
-coordinates are positive and continuous in $T$ on the compact set $K_*$;
-their positive minimum, together with this rate, gives the asserted
-uniform lower bound on the finite coordinates.
+On the finite support $S_5$, substitute the exponent and tilt error bounds into
+the optimizer formula to obtain the coordinatewise rate (3.9b). The limiting
+coordinates are positive and continuous in $T$ on the compact set $K_*$.
+They therefore have a positive minimum, and the coordinatewise rate transfers
+this lower bound to the finite optimizers.
 
 \displayheading{Exact cancellation between supports}
 We next return to the counting exponent. Substitution of \eqref{eq:root-affine} gives
@@ -4252,12 +4477,11 @@ We next return to the counting exponent. Substitution of \eqref{eq:root-affine} 
 \end{split}
   \tag{\thesection.4}\label{eq:root-counting-exponent}
 \end{equation*}
-Hold $k$ fixed at a value feasible for both supports. The mean class size
-$s$ and the mean deficit $T=\alpha-s$ are then the same, so the affine terms
-in \eqref{eq:root-counting-exponent} cancel. The difference is exactly the difference of the two finite
-dual values, as asserted in (3.8). This compares the supports at the same
-number of parts and vertices, before either dual value is replaced by its
-limit.
+Fix a class count $k$ feasible for both supports. They then have the same
+mean class size $s$ and mean deficit $T=\alpha-s$. The affine terms in
+\eqref{eq:root-counting-exponent} cancel, leaving exactly the difference of
+the two finite dual values in (3.8). This comparison uses the same numbers
+of parts and vertices on both sides, before taking either limiting dual.
 
 \displayheading{The exponent at the phase center and its nearby slope}
 To locate the zero, we estimate the exponent at the phase center and its
@@ -4344,10 +4568,10 @@ throughout each fixed corridor. Choose $A_*>2C_0$. Integration gives
   &\le\left(C_0-\frac{A_*}{2}\right)\ell<0.
 \end{aligned}
 \]
-The endpoint signs give a zero, and strict decrease in $s$ gives uniqueness
-on this interval. Since $k=n/s>0$, this is the \emph{corridor} root
-$r_{S,c}$ of $L_S(n,k)+ck=0$. We have proved (3.6); the argument makes no
-claim about zeros outside the corridor.
+The opposite endpoint signs give a zero, and strict decrease in $s$ makes
+it unique on this interval. Since $k=n/s>0$, this gives the
+\emph{corridor} root $r_{S,c}$ of $L_S(n,k)+ck=0$ in (3.6). The uniqueness
+claim is restricted to this corridor.
 
 Finally,
 \[
@@ -4379,18 +4603,22 @@ The correction satisfies \(\Delta k_2+\Delta k_3=-e_0\) and
 \(2\Delta k_2+3\Delta k_3=-e_1\), so it removes both constraint errors
 by changing \(O(1)\) counts. To estimate the resulting loss in the
 counting exponent, put
-\(\mathbf k^*=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^5\) and let
+\(\mathbf k^*=(k_{\mathrm{co}}p_i^{(n)})_{i=2}^6\) and let
 \(\Delta^{\mathrm{tot}}=\mathbf k-\mathbf k^*\) be the total rounding
-and correction displacement.  There is a phase-independent constant
-$C_\Delta$ such that
-$\|\Delta^{\mathrm{tot}}\|_\infty\le C_\Delta$.  Moreover,
-$\Delta^{\mathrm{tot}}$ satisfies both homogeneous constraint equations,
-because $\mathbf k^*$ and $\mathbf k$ obey the same two constraints; thus it
-is tangent to the feasible affine plane.
+and correction displacement. If $e_i=\widetilde k_i-k_i^*$ for
+$i=4,5,6$, the two conservation equations give exactly
+\[
+ \Delta^{\mathrm{tot}}=
+ (e_4+2e_5+3e_6,\,-2e_4-3e_5-4e_6,\,e_4,e_5,e_6).
+\]
+Thus $\|\Delta^{\mathrm{tot}}\|_\infty\le9$ and
+$\|\Delta^{\mathrm{tot}}\|_2^2\le120$. Set $C_\Delta=9$.
+The displacement preserves both conservation equations, so it lies in the
+tangent space of the feasible affine plane.
 
-For Taylor's formula we need the optimizer and the corrected profile to be
-joined inside the positive orthant. By (5.15), $k_i^*\ge c_pk_{\mathrm{co}}$;
-hence, uniformly in $t\in[0,1]$ and in the phase,
+To apply Taylor's formula, we must keep the segment from the optimizer to
+the corrected profile inside the positive orthant. By (5.15),
+$k_i^*\ge c_pk_{\mathrm{co}}$; hence, uniformly in $t\in[0,1]$ and in the phase,
 \[
   k_i^*+t\Delta_i^{\mathrm{tot}}
   \ge c_pk_{\mathrm{co}}-C_\Delta
@@ -4412,29 +4640,35 @@ formula with integral remainder gives
 \]
 
 The fixed displacement above the root
-provides the margin: $\Phi_n(r_4^{\mathrm{co}})=0$ and
-$16\le k_{\mathrm{co}}-r_4^{\mathrm{co}}<17$. By Equation~(3.7), with
-$S=S_4$ and $c=\log 2$, there is a phase-independent $c_1>0$ such that
+provides the margin: $\Phi_n(r_5^{\mathrm{co}})=0$ and
+$16\le k_{\mathrm{co}}-r_5^{\mathrm{co}}<17$. By Equation~(3.7), with
+$S=S_5$ and $c=\log 2$, there is a phase-independent $c_1>0$ such that
 $\Phi_n'(k)\ge c_1(\log n)^2$ throughout this interval for all sufficiently
 large $n$.  Integration therefore gives
 \[
-  L_{S_4}(n,k_{\mathrm{co}})+(\log 2)k_{\mathrm{co}}
+  L_{S_5}(n,k_{\mathrm{co}})+(\log 2)k_{\mathrm{co}}
   =\Phi_n(k_{\mathrm{co}})
   \ge16c_1(\log n)^2.
 \]
-The tangent rounding loss above is $O(k_{\mathrm{co}}^{-1})$, and the five
-Stirling approximations contribute $O(\log n)$ in total.  Both are smaller
-than the integrated margin; decreasing $c_Z$ proves the assertion.
+Rounding within the constraint plane loses $O(k_{\mathrm{co}}^{-1})$ in the
+exponent, and the six Stirling approximations contribute $O(\log n)$ in
+total. Both errors are smaller than the margin just obtained. Decreasing
+$c_Z$ proves the assertion.
 \end{proof}
 
 \section{An explicit tail bound for amplification}
 \label{app:amplification-tail}
+
+The mean bound in Section~10 gives the high-probability conclusion. Here we
+retain a free tail parameter in the concentration bound, as needed for the
+summable failure estimate.
 \begin{lemma}[Amplification by vertex exposure]
 \label{lemma-10.2-amplification-from-a-seed}
 
-There is an absolute constant $C>0$ and a deterministic sequence
-$\varepsilon_n^{\mathrm{left}}\ge0$ with
-$\varepsilon_n^{\mathrm{left}}\to0$ such that the following holds. Suppose deterministic
+There are absolute constants $C,c>0$ and a deterministic sequence
+$\varepsilon_n^{\mathrm{left}}\ge0$ such that
+$\varepsilon_n^{\mathrm{left}}\le e^{-c\sqrt n}$ for all sufficiently large
+$n$, and the following holds. Suppose deterministic
 integers $k_n\ge0$ and deterministic reals $\Lambda_n\ge0$ satisfy, for all
 sufficiently large $n$,
 
@@ -4483,15 +4717,19 @@ probability at most \(e^{-r}\),
 Choose a maximizing set and its complement \(V_{\mathrm{left}}\) as in
 \eqref{eq:amplification-leftover-coloring}.
 
-The set $V_{\mathrm{left}}$ was selected from the graph, but
-$\mathcal G_n$ controls it along with every other set. On this event and
-the event in \eqref{eq:amplification-uncovered-tail}, apply (10.3) with
-$|V_{\mathrm{left}}|=n-S_{k_n}$ in \eqref{eq:amplification-leftover-coloring}. Enlarging the absolute constant
-$C$ gives the additional parts in \eqref{eq:amplification-tail-bound}. The two exceptional events have
-total probability at most $e^{-r}+\varepsilon_n^{\mathrm{left}}$.
-The bound holds at every sufficiently large $n$ satisfying \eqref{eq:amplification-tail-assumption}, with
-$C$ and $\varepsilon_n^{\mathrm{left}}$ independent of the three
-deterministic parameters.
+The leftover set $V_{\mathrm{left}}$ depends on the graph. The event
+$\mathcal G_n$ nevertheless controls its coloring, because it controls every
+vertex set simultaneously. Intersect this event with the event in
+\eqref{eq:amplification-uncovered-tail}, and apply (10.3) with
+$|V_{\mathrm{left}}|=n-S_{k_n}$ in
+\eqref{eq:amplification-leftover-coloring}. After enlarging the absolute
+constant $C$, the additional number of parts has the form in
+\eqref{eq:amplification-tail-bound}. A union bound gives exceptional
+probability at most $e^{-r}+\varepsilon_n^{\mathrm{left}}$.
+Thus the estimate holds at every sufficiently large $n$ satisfying
+\eqref{eq:amplification-tail-assumption}, with $C$ and
+$\varepsilon_n^{\mathrm{left}}$ independent of the three deterministic
+parameters.
 \end{proof}
 
 
@@ -4500,8 +4738,10 @@ deterministic parameters.
 \label{app:phase-expansion-details}
 
 \begin{proof}[Proof of the phase-expansion lemma in Section~\ref{the-complete-independence-number-phase}]
-Because $\alpha=O(L)$ uniformly in the phase, one has $\alpha<n/2$ for all
-sufficiently large $n$. For $0\le x\le1/2$,
+We first control the remainder in the logarithmic count at the integer
+center. Exact adjacent-size ratios will then give the upper and lower
+size estimates. Because $\alpha=O(L)$ uniformly in the phase, one has
+$\alpha<n/2$ for all sufficiently large $n$. For $0\le x\le1/2$,
 $-2x\le\log(1-x)\le-x$. Hence
 \[
   \log(n)_\alpha
@@ -4591,12 +4831,12 @@ Thus (2.2) holds with
 \end{split}
   \tag{2.7}
 \end{equation*}
-This function is continuous, hence bounded, on $[0,1]$. The combined remainder
-in (2.5)--(2.7) has absolute value at most
-$C'(1+\ell^2)/L$ for an absolute $C'$. Taking
-$C_{\mathrm{ph}}\ge C'$ gives
-$|E_n^{\mathrm{ph}}|\le\varepsilon_n^{\mathrm{ph}}$ in (2.2), where
-$E_n^{\mathrm{ph}}$ denotes the combined remainder just obtained.
+This function is continuous and therefore bounded on $[0,1]$. Combining
+the remainders in (2.5)--(2.7) bounds their absolute value by
+$C'(1+\ell^2)/L$ for an absolute $C'$. Choose
+$C_{\mathrm{ph}}\ge C'$; then
+$|E_n^{\mathrm{ph}}|\le\varepsilon_n^{\mathrm{ph}}$ as required in (2.2),
+with $E_n^{\mathrm{ph}}$ denoting that combined remainder.
 
 For integers $1\le s<n$, the adjacent-size ratios are exact:
 \begin{equation*}
@@ -4648,10 +4888,11 @@ the full phase interval.
 \end{proof}
 
 \Needspace{8\baselineskip}
+
 \section{Tilt brackets and tails for the entropy bound}
 \label{app:entropy-certificate-details}
 
-\begin{proof}[Proof of Lemma~\ref{lem:entropy-gap}]
+\begin{proof}[Proof of Lemma~\ref{lem:four-size-entropy-certificate}]
 Fix \(\delta\in[0,1]\), put
 \(T_0=1+2/{\log 2}-\delta\), and abbreviate
 
@@ -4659,8 +4900,9 @@ Fix \(\delta\in[0,1]\), put
  \lambda_4:=\lambda_{S_4}(T_0).
 \]
 
-We will evaluate the unrestricted dual function at this four-size tilt.
-To control the omitted weights, first bracket the tilt. At
+We compare the two dual values by evaluating the unrestricted dual at the
+four-size optimizer. First we bound the tilt; these bounds will control the
+weights omitted from the four-size support. At
 \(\lambda=2{\log 2}\), set \(j=i-2\), which maps \(S_4\) onto
 \(\{0,1,2,3\}\). Substitution of \(i=j+2\) gives
 
@@ -4789,9 +5031,9 @@ Let \(M_A(\lambda)\) denote the mean of \(i\) under the weights
 \end{aligned}
 \]
 Thus \(R_{\mathrm{low}}\) decreases and \(R_{\mathrm{high}}\) increases
-on \(\mathbb R\). We can bound them at the endpoints of the tilt interval,
-splitting at its intermediate reference tilt. The required values follow
-from the direct calculations and Gaussian-tail bounds below:
+on \(\mathbb R\). To bound their sum throughout the tilt interval, we split
+the interval at the intermediate reference tilt and use the appropriate
+endpoint bound for each ratio. The calculations below give:
 
 \[
  R_{\mathrm{low}}(2{\log 2})<\frac{51}{100},\quad
@@ -4905,20 +5147,22 @@ Since \(S_4\) is a subset of \(S_+\), the loss is
 nonnegative. Subtracting from \(\log 2\) completes the proof.
 \end{proof}
 
+
 \section{Three-range estimates for common subprofiles}
 \label{app:common-subprofile-details}
 
 \begin{proof}[Proof of Lemma~\ref{lemma-7.1-all-common-subprofiles}]
+We use the original deficit indexing of Section~7 throughout this proof.
 Set
 \[
   \eta:=\frac{\log\log n}{32\log n}.
 \]
-For all sufficiently large $n$ we have $\eta<31/32$. Divide the selected
-mass into $m\le\eta n$, $m>\eta n$ with $n-m>n/32$, and $n-m\le n/32$.
-These ranges are disjoint. The first contains the term that will contribute
-one to the sum; we show that all other terms in it, and both remaining
-ranges, have vanishing total contribution. We use (7.4) in the first range,
-a rate estimate in the second, and (7.6) in the third.
+For all sufficiently large $n$ we have $\eta<31/32$. Split the selected
+mass into three disjoint ranges: $m\le\eta n$; $m>\eta n$ with
+$n-m>n/32$; and $n-m\le n/32$. The empty subprofile in the first range
+contributes one. We show that every other contribution vanishes in total,
+using recurrence (7.4) for the first range, a rate estimate for the second,
+and reverse recurrence (7.6) for the third.
 
 
 \displayheading{Small selected mass}
@@ -4975,7 +5219,8 @@ $(k_i-a_i)^2\le k_i^2$, and (7.10) give
   \le
   \frac{(\log n)^{3/8}\xi_i}{a_i+1}.
 \]
-Multiplication along any exposure order gives the order-independent bound
+Multiplying these one-block bounds gives the same estimate for every
+exposure order:
 \[
   D(\ell)
   \le
@@ -4983,9 +5228,9 @@ Multiplication along any exposure order gives the order-independent bound
   \frac{\bigl((\log n)^{3/8}\xi_i\bigr)^{\ell_i}}
        {\ell_i!}.
 \]
-All summands are nonnegative, so enlarging from the selected-mass range to the
-whole nonnegative four-dimensional lattice and expanding the exponential
-series yields
+All summands are nonnegative. We may therefore sum over every nonnegative
+integer choice of the five type counts, rather than only the selected-mass
+range. Expanding the resulting exponential series yields
 \begin{equation*}
   1
   \le
@@ -5021,7 +5266,8 @@ $\varepsilon_n^{\mathrm{empty}}\to0$ independent of the phase,
 
 \displayheading{Intermediate selected mass}
 
-Write
+Normalize the selected and remaining class counts by the total number of
+classes. Write
 \[\begin{gathered}
 p_i=k_i/k_{\mathrm{co}},\quad y_i=\ell_i/k_{\mathrm{co}},\quad
  Y=\sum_i y_i,\quad I=\sum_i i y_i,\\
@@ -5058,12 +5304,13 @@ $C_{\mathrm S}>0$,
   |\sigma(t)|\le C_{\mathrm S}\log(t+2)
   \qquad(t\in\mathbb N_0),
 \]
-with the convention $0\log0=0$. Apply it only to the ambient and
-profile-multiplicity factorials \(n!\), \((n-m)!\), \(k_i!\), \(\ell_i!\), and
-\((k_i-\ell_i)!\); the coefficient-weighted class-size factorials \(u_i!\)
-remain exact. Only a fixed number of factorials are approximated, and every
-argument is at most $n$. Therefore the total remainder is $O(\!\log n)$
-uniformly, including when some $\ell_i$ or $k_i-\ell_i$ is zero.
+with the convention $0\log0=0$. Apply this estimate to the factorials that
+count vertices and classes: \(n!\), \((n-m)!\), \(k_i!\), \(\ell_i!\), and
+\((k_i-\ell_i)!\). Keep the class-size factorials \(u_i!\) exact, because
+their coefficients depend on the subprofile. We approximate only a fixed
+number of factorials, each with argument at most $n$. Their total remainder
+is therefore $O(\!\log n)$ uniformly, even when some $\ell_i$ or
+$k_i-\ell_i$ is zero.
 
 Set $K=k_{\mathrm{co}}$, so $k_i=Kp_i$, $\ell_i=Ky_i$, and
 $k_i-\ell_i=Kz_i$. The profile-multiplicity factorials then contribute
@@ -5100,8 +5347,8 @@ $Y\log K=\sum_i y_i\log K$ gives
  \log D(\ell)={}&n\rho\log\rho\\
  &+k_{\mathrm{co}}\sum_i\{2p_i\log p_i
      -2(p_i-y_i)\log(p_i-y_i)
-     -y_i\log y_i-y_i+y_iE_i\}
-     +O(\!\log n),
+     -y_i\log y_i-y_i+y_iE_i\}\\
+ &+O(\!\log n),
 \end{split}
  \tag{7.14}
 \end{equation*}
@@ -5113,18 +5360,18 @@ where
 \end{equation*}
 
 \Needspace{4\baselineskip}
-We next bound the entropy term in (7.14), allowing any coordinate of the
-selected subprofile to reach an endpoint. By (5.15) and the bounded rounding
-displacement, $p_i\ge c_p>0$ for the exact integer profile, after decreasing
-$c_p$ if needed. There is therefore an absolute $C_{\mathrm H}$ such that,
-for $c_p\le p\le1$ and $0\le y\le p$,
+The entropy bound must remain valid when a type is entirely selected or
+entirely unselected. By (5.15) and the bounded rounding displacement,
+$p_i\ge c_p>0$ for the exact integer profile, after decreasing $c_p$ if
+needed. There is therefore an absolute $C_{\mathrm H}$ such that, for
+$c_p\le p\le1$ and $0\le y\le p$,
 \begin{equation*}
   2p\log p-2(p-y)\log(p-y)-y\log y-y
   \le C_{\mathrm H}y\log\!\left(\frac{\mathrm e}{y}\right).
   \tag{7.15a}
 \end{equation*}
 Here and below, \(y\log(\mathrm e/y)\) takes its continuous value \(0\) at
-\(y=0\); the analogous convention applies to \(Y\log(4\mathrm e/Y)\).
+\(y=0\); the analogous convention applies to \(Y\log(5\mathrm e/Y)\).
 Indeed, when $y\le p/2$, the mean-value theorem bounds
 $p\log p-(p-y)\log(p-y)$ by $C_{\mathrm H}y$, while $-y\log y$ supplies the only
 singular term. When $y\ge p/2$, one has $y\ge c_p/2$, and the assertion follows
@@ -5132,9 +5379,9 @@ by compactness. Finally,
 \[
   \sum_i y_i\log\!\left(\frac{\mathrm e}{y_i}\right)
   \le
-  Y\log\!\left(\frac{4\mathrm e}{Y}\right),
+  Y\log\!\left(\frac{5\mathrm e}{Y}\right),
 \]
-by the entropy bound on four coordinates. The resulting sum is
+by the entropy bound on five coordinates. The resulting sum is
 $O(Y\log(\mathrm e/Y))$ uniformly.
 
 Since $u_{i+1}=u_i-1$, exact subtraction in (7.15) gives
@@ -5146,13 +5393,13 @@ Since $u_{i+1}=u_i-1$, exact subtraction in (7.15) gives
 \end{aligned}
  \tag{7.16}
 \end{equation*}
-uniformly for $2\le i\le4$. For the second line, use
+uniformly for $2\le i\le5$. For the second line, use
 $(\log 2)\alpha/2=\log n-\log\log n+O(1)$ and
 $\log(\alpha-i)=\log\log n+O(1)$.
 
-The coefficients have a large affine variation, but their profile-weighted
-mean is bounded above by the complete first moment. Let
-$\bar E=\sum_i p_iE_i$. Applying Stirling to that moment gives
+The type coefficients vary strongly, but we only need an upper bound for
+their average over the full profile. The complete first moment gives this
+bound. Let $\bar E=\sum_i p_iE_i$. Applying Stirling to that first moment gives
 \begin{equation*}
  -\frac1{k_{\mathrm{co}}}
    \log \Exp{Z_{\mathbf k}^{\mathrm{sgn}}}
@@ -5161,20 +5408,20 @@ $\bar E=\sum_i p_iE_i$. Applying Stirling to that moment gives
 \end{equation*}
 The phase-uniform growth estimate (5.19) is eventually positive.  Solving
 (7.17) for $\bar E$ and using
-$-\sum_i p_i\log p_i\le\log4$ therefore gives
+$-\sum_i p_i\log p_i\le\log5$ therefore gives
 \[
   \bar E
   =1-\sum_i p_i\log p_i
     -\frac1{k_{\mathrm{co}}}\log\mathbb E Z_{\mathbf k}^{\mathrm{sgn}}
     +o(1)
-  \le1+\log4+o(1).
+  \le1+\log5+o(1).
 \]
 In particular, $\bar E\le C_E$ for one phase-independent constant. To expose
 the affine structure in (7.16), set
 \[
   F_i:=E_i+\frac{(\log 2)\alpha}{2}i.
 \]
-Then $F_{i+1}-F_i=O(1)$. Because the support has only four consecutive
+Then $F_{i+1}-F_i=O(1)$. Because the support has only five consecutive
 indices,
 \[
   F_i=\sum_jp_jF_j+O(1)
@@ -5192,15 +5439,16 @@ and therefore
 \end{equation*}
 Only the upper bound on $\bar E$ is used here.
 
-The ambient term uses the remaining vertex fraction $\rho$, whereas the
-coefficient bound uses the remaining class fraction $R$. We put them on
-the same scale. Since $2\le i\le5$ and $2\le T\le5$,
+The two bounds are expressed in different variables: the ambient term uses
+the remaining vertex fraction $\rho$, while the coefficient bound uses the
+remaining class fraction $R$. We now compare these fractions. Since
+$2\le i\le6$ and $2\le T\le6$,
 \[
-  |I-TY|=\left|\sum_i(i-T)y_i\right|\le3Y,
+  |I-TY|=\left|\sum_i(i-T)y_i\right|\le4Y,
 \]
 so (7.13) gives
 \[
-  |\rho-R|\le\frac{3Y}{\alpha-T}=O(Y/\alpha).
+  |\rho-R|\le\frac{4Y}{\alpha-T}=O(Y/\alpha).
 \]
 If $\rho\ge1/32$, then $Y\le1$ and the preceding bound implies
 $R\ge1/64$ for all sufficiently large $n$. Hence $x\mapsto x\log x$ is
@@ -5214,7 +5462,7 @@ $x\mapsto x\log x$ on $[1/64,1]$. Then
 &\qquad\le
  k_{\mathrm{co}}(\alpha-T)C_{\mathrm{lip}}|\rho-R|
  +k_{\mathrm{co}}T|R\log R|
- \le (3C_{\mathrm{lip}}+5)k_{\mathrm{co}}Y,
+ \le (4C_{\mathrm{lip}}+6)k_{\mathrm{co}}Y,
 \end{aligned}
 \]
 which proves
@@ -5238,29 +5486,30 @@ where
  \Phi_T(z)=R\log R+\frac{\log 2}{2}(I_r-TR).
  \tag{7.21}
 \end{equation*}
-All constants and thresholds in this extraction are independent of
-the phase.
+All constants and thresholds in this bound are independent of the phase.
 
 \displayheading{A negative bound for the leading rate}
 The inequalities used in the main proof of
 Lemma~\ref{lemma-7.1-all-common-subprofiles} are
 \begin{equation*}
- I_r-TR\le(5-T)R,\qquad I_r-TR\le(T-2)(1-R).
+ I_r-TR\le(6-T)R,\qquad I_r-TR\le(T-2)(1-R).
  \tag{7.22}
 \end{equation*}
 Their weighted sum gives
 \begin{equation*}
- I_r-TR\le3R(1-R).
+ I_r-TR\le4R(1-R).
  \tag{7.22a}
- \label{eq:partial-diagonal-combined-structural-v3}
+ \label{eq:partial-diagonal-combined-structural}
 \end{equation*}
 For $\rho\ge1/32$, we have $R\ge1/64$ eventually; (3.6) and (5.13)
-also give $T<4$. The logarithm inequalities in that proof imply
+also give $T\le39/10$ by the selected-profile contract.
+Lemma~\ref{lem:five-size-rate} implies
 \begin{equation*}
- \Phi_T(z)\le-\frac{Y}{5000}.
+ \Phi_T(z)\le-\frac{Y}{10000}.
  \tag{7.23}
 \end{equation*}
-We retain the error estimates below, since $Y$ can tend to zero.
+Because $Y$ can tend to zero, the negative leading term alone is not enough;
+we must compare the errors with it.
 
 \Needspace{6\baselineskip}
 \displayheading{Summing the intermediate profiles}
@@ -5303,9 +5552,9 @@ $Y\ge\eta/2$, equations (7.20) and (7.23) give
   \log D(\ell)
   \le
   -k_{\mathrm{co}}\alpha Y
-   \left(\frac1{5000}-\varepsilon_n^{\mathrm{diag}}\right).
+   \left(\frac1{10000}-\varepsilon_n^{\mathrm{diag}}\right).
 \]
-For all sufficiently large $n$, the parenthesis is at least $1/10000$.
+For all sufficiently large $n$, the parenthesis is at least $1/20000$.
 Moreover, $\alpha\eta=\Theta(\log\log n)$. Hence there is a phase-independent
 $c>0$ such that
 \begin{equation*}
@@ -5323,10 +5572,10 @@ Define the phase-independent envelope
 \[
   \varepsilon_n^{\mathrm{central}}
   :=
-  \left(C_K\frac n{\log n}+1\right)^4
+  \left(C_K\frac n{\log n}+1\right)^5
   \exp\!\left\{-c c_K\frac n{\log n}\log\log n\right\}.
 \]
-There are at most $(k_{\mathrm{co}}+1)^4$ subprofiles, so the total
+There are at most $(k_{\mathrm{co}}+1)^5$ subprofiles, so the total
 central-range contribution is at most
 $\varepsilon_n^{\mathrm{central}}$. Since
 $n\log\log n/\log n\gg\log n$, this deterministic sequence tends to zero.
@@ -5339,17 +5588,17 @@ Put $h=\mathbf k-\ell$ and write
 \[
   v(h):=\sum_i u_i h_i=n-m.
 \]
-The full corner is the range
+The nearly full range, also called the full corner, is
 \begin{equation*}
   v(h)\le\frac n{32}.
   \tag{7.26}
 \end{equation*}
-We use the exact reverse recurrence (7.6) without replacing any ambient
-falling factorial.
+In this range we use the exact reverse recurrence (7.6), keeping the
+ambient falling factorials unchanged.
 
-The residual first moments are uniformly small. For
-every integer $0\le w\le n$ and every one of the four block sizes, the ratio is
-zero when $w<u_i$; otherwise
+The remaining vertex set has small first moments for each of the five
+block sizes. For every integer $0\le w\le n$, the ratio below is zero when
+$w<u_i$; otherwise
 \[
   \frac{\mu_{u_i}(w)}{\mu_{u_i}(n)}
   =\frac{(w)_{u_i}}{(n)_{u_i}}
@@ -5357,24 +5606,24 @@ zero when $w<u_i$; otherwise
   \le\left(\frac wn\right)^{u_i}.
 \]
 Equations (2.2) and (2.8) give
-$\mu_{u_i}(n)\le n^{6+o(1)}$ uniformly in the phase. Moreover,
+$\mu_{u_i}(n)\le n^{7+o(1)}$ uniformly in the phase. Moreover,
 $u_i=(2/\log 2+o(1))\log n$, and
 $\log 32=5\log 2$. Consequently, uniformly for $w\le n/32$,
 \begin{equation*}
   \mu_{u_i}(w)
   \le
-  n^{6+o(1)}32^{-u_i}
-  =n^{-4+o(1)}.
+  n^{7+o(1)}32^{-u_i}
+  =n^{-3+o(1)}.
   \tag{7.26a}
 \end{equation*}
 In particular, there is one phase-independent threshold after which
 \begin{equation*}
-  \mu_{u_i}(w)\le n^{-3}
+  \mu_{u_i}(w)\le n^{-5/2}
   \qquad
-  (w\le n/32,\ 2\le i\le5).
+  (w\le n/32,\ 2\le i\le6).
   \tag{7.26b}
 \end{equation*}
-We use the weaker exponent $-3$ so that the next recurrence bound has a
+We use the weaker exponent $-5/2$ so that the next recurrence bound has a
 single threshold valid for every phase.
 
 Fix a final residual profile $h$ satisfying (7.26), and expose its blocks in
@@ -5389,7 +5638,7 @@ The exact recurrence (7.6), $k_i-a_i\le k_i\le n$, and (7.26b) now give
   \frac{B(a+e_i)}{B(a)}
   =
   \frac{2(k_i-a_i)\mu_{u_i}(v(a)+u_i)}{(a_i+1)^2}
-  \le2n^{-2}<1
+  \le2n^{-3/2}<1
 \]
 for all sufficiently large $n$.  By convention $M_{\mathbf0}(0)=1$, and hence
 $B(0)=1$.  Thus $B$ never increases along the path from $0$ to $h$, and
@@ -5405,18 +5654,18 @@ growth estimate (5.19),
   \le \exp\{-c_Z(\log n)^2\}.
   \tag{7.27a}
 \end{equation*}
-There are at most $(k_{\mathrm{co}}+1)^4$ residual profiles. Therefore
+There are at most $(k_{\mathrm{co}}+1)^5$ residual profiles. Therefore
 \[
   \sum_{v(h)\le n/32}D(\mathbf k-h)
   \le
-  \exp\{4\log(k_{\mathrm{co}}+1)-c_Z(\log n)^2\}
+  \exp\{5\log(k_{\mathrm{co}}+1)-c_Z(\log n)^2\}
   =o(1)
 \]
 uniformly in the phase.  More explicitly, it is bounded by the
 phase-independent sequence
 \[
  \varepsilon_n^{\mathrm{full}}
- :=\left(C_K\frac n{\log n}+1\right)^4e^{-c_Z(\log n)^2}
+ :=\left(C_K\frac n{\log n}+1\right)^5e^{-c_Z(\log n)^2}
  \longrightarrow0.
 \]
 
@@ -5468,12 +5717,12 @@ which proves (7.7) with one threshold for the full phase interval.
 
 \section{Quadratic bounds for residual cell activities}\label{app:quadratic-activities}
 
-\begin{proof}[Proof of Lemma~\ref{lem:q-quadratic-v3}]
+\begin{proof}[Proof of Lemma~\ref{lem:q-quadratic}]
 Fix a cell and write $\theta=\theta_{ab}$. If $\theta=0$, then
 $q_{ab}=0$, so the claim holds. Assume $\theta>0$. If $R<3$, the
 higher-reward sum is empty, so $q_{ab}=\theta^2/2$ and the claim is immediate.
-We may therefore assume $R\ge3$. Since
-$0\le\Delta_x\le g(x)$, it is enough to bound
+We may therefore assume $R\ge3$. To control the contribution from higher
+multiplicities, use $0\le\Delta_x\le g(x)$ and bound
 \[
   a_x:=g(x)\frac{\theta^x}{x!},
   \qquad x\ge3.
@@ -5488,8 +5737,8 @@ For $x\ge3$,
   =
   2\frac{x+1}{x+2}>1.
 \]
-Thus $(a_x)$ is log-convex, and its maximum on $[3,R]$ occurs at an endpoint.
-Consequently
+The successive ratios increase, so $(a_x)$ is log-convex. Its maximum on
+$[3,R]$ is therefore attained at an endpoint, giving
 \[
   \lambda_{ab}
   \le
@@ -5521,10 +5770,12 @@ For sufficiently large $U$, one has $R\ge3$ and $g(R)=2^{\binom R2-1}$. Hence
   -\frac{U^2}{24}+O(U\log U).
 \end{aligned}
 \]
-The growth of $g(R)$ contributes the first quadratic term, and the small
-intensity in $\theta^{R-2}$ contributes the second. Their difference is
-negative; the factorial further lowers the bound. Thus $Ra_R\le\theta^2$
-for all sufficiently large $U$. Combining the two endpoint estimates gives
+The positive quadratic term comes from the growth of $g(R)$; the larger
+negative term comes from the small intensity in $\theta^{R-2}$. The
+factorial only improves the bound. This estimate is uniform for
+$0<\theta\le\mathrm e U^2 2^{-U/3}$. Adding $\log_2R=O(\log U)$ does not
+change the leading negative term, so $Ra_R\le\theta^2$ for all sufficiently
+large $U$. Combining the two endpoint bounds gives
 $\lambda_{ab}\le2\theta^2$, and hence $q_{ab}\le(5/2)\theta^2$.
 
 Choose an integer $U_0$ beyond which the preceding two
@@ -5546,25 +5797,28 @@ continuously to $\theta=0$ with value $1/2$. Therefore
 Taking $C_0=\max\{5/2,C_{\mathrm{small}}\}$ proves the lemma for every $U$.
 \end{proof}
 
+
 \section{The Lean theorem and reproducibility records}\label{app:lean-reproducibility}
-A companion Lean~4 development kernel-checks the explicit full-sequence
-uniform consequence of the main theorem~\citep{petkov-erdos625-lean}. Its
-formal coefficient is
+A companion Lean~4 development~\citep{petkov-erdos625-lean} kernel-checks a
+weaker full-sequence consequence of the uniform bound in the main
+theorem, with formal coefficient
 $((\log 2)^2/4)\log(200/153)$. The top-level declaration is
 \texttt{Erdos625.\allowbreak erdos625}; its type is
-\texttt{Erdos625.\allowbreak Erdos625Statement}. The phase-resolved refinement
-involving $A_4(\delta_n)$, the quantified remainder in
+\texttt{Erdos625.\allowbreak Erdos625Statement}. The following results are
+proved in this manuscript but lie outside the scope of the released Lean
+theorem: the stronger five-size coefficient, the phase-resolved refinement
+involving $A_5(\delta_n)$, the quantified remainder in
 Remark~\ref{rem:phase-remainder-rate}, and the failure-probability estimate in
-Corollary~\ref{cor:phase-failure-probability} are proved in this manuscript
-and are not claimed as part of the Lean theorem.
-The released proof uses tail amplification.
-The mean-positive-excess bound in Lemma~\ref{lem:mean-seed-amplification}
-is proved here but is not asserted as a separately released Lean theorem.
-The cited source revision pins Lean and Mathlib at
-version~4.31.0 and contains the modular sources and generated single-file
-closure. The cited replay revision contains the trust-boundary audit and a
-clean-environment replay. Reproduction commands, checksums, and transcripts
-are recorded in the \href{https://github.com/SamPetkov/Erdos/blob/31bbe00c529a996bdb61b880120d71240172d18f/625/formalization/replay/aristotle-03e8124e-c359-4219-8b37-442060dae209/README.md}{sharp-constant replay record}.
+Corollary~\ref{cor:phase-failure-probability} together with its almost-sure
+consequence in Corollary~\ref{cor:almost-sure-gap}.
+The Lean proof uses tail amplification. The mean-positive-excess bound in
+Lemma~\ref{lem:mean-seed-amplification} is proved here but is not asserted
+as a separately released Lean theorem.
+The cited source revision fixes Lean and Mathlib at version~4.31.0 and
+contains the modular sources together with their generated single-file
+closure. A separate replay revision records the trust-boundary check and a
+replay in a clean environment; the commands, checksums and transcripts needed
+to reproduce that replay are recorded in the \href{https://github.com/SamPetkov/Erdos/blob/31bbe00c529a996bdb61b880120d71240172d18f/625/formalization/replay/aristotle-03e8124e-c359-4219-8b37-442060dae209/README.md}{sharp-constant replay record}.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup

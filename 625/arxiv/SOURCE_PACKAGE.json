@@ -1,72 +1,115 @@
 {
-  "review_date": "2026-10-31",
+  "review_date": "2026-11-14",
   "paper": "erdos625",
   "repository": "SamPetkov/Erdos",
   "author": "Samuil Petkov",
   "supplied_arxiv_id": "2608.30604",
+  "manuscript_date": "30 August 2026",
   "live_arxiv_submission_state_checked": false,
   "arxiv_submission_performed": false,
-  "pages": 53,
+  "pages": 56,
   "figures": 3,
   "source_entry_point": "main.tex",
   "source_files_sha256": {
-    "main.tex": "cb40c4e95d3aefbbd144db100b02aa1f206cf1dd485223538917376514ebc4cb",
+    "main.tex": "01a2b169d3181c3735f28968ea60e06792461abba6538c3b28d095f11226619b",
     "main.bbl": "099e9ddc37217969bef9ddd9123509e877dc5c1a829e4eb98a9f9addbadee781",
     "references.bib": "16b12c7fbb688d32d6063c576425ec0bcba0b74ef9489bd0efa79553ad854e26",
     "petkov-preprint.sty": "be35fd01e7c78c5043fdbbd7fc452411f97c288018b8c07b6c1252135c2ea2e0"
   },
-  "pdf_sha256": "a18f5322e1dc966bb8889fded4113a0909877290666cb06ab0440946de8b9b2a",
-  "source_zip_sha256": "5b7111b645258fabe8c3cd08e9b6c0642dbc954c83360ccce24b43866d61e4a4",
+  "pdf_sha256": "1f2b75f77aa0b46a08e7efbee113ca5c8e67f629edac0fe86e78c85263130cd1",
+  "source_zip_sha256": "52a7d6849b95df90a5eae76d76f78a2a8bb220392caee47f1d4464727ccd5231",
   "source_zip_aliases": [
     "Erdos625-v2-arxiv-upload.zip",
     "Erdos625_source.zip"
   ],
-  "candidate_build": "PASS",
-  "fresh_extracted_zip_build": "PASS",
-  "extracted_pdf_text_matches_delivered_pdf": true,
-  "all_fonts_embedded": true,
-  "final_latex_bibtex_diagnostics": [],
-  "fresh_lean_runs": 0,
-  "released_lean_source_changed": false,
-  "new_mathematical_refinements": "The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound O((log n)^(2/log 2+1/2)/n) for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the existing explicit tail amplification and sums all four exceptional-event bounds.",
-  "formalization_scope": "Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The quantified remainder and failure-probability bound belong to the written refinement; neither is claimed as a newly released Lean theorem.",
-  "input_main_tex_sha256": "46778a2241e6bd4bda344278586c496b52a885ab951a1c1b909d4784b0aeef8e",
-  "input_pdf_sha256": "81ef4ac71ba2076e6aeafadd15ff4e8ac5add286d0e291b56fc60bd740826129",
-  "continued_review": {
-    "corollary": "11.2",
-    "failure_probability": "O((log n)^(2/log 2+1/2)/n)",
-    "independent_mathematical_cross_checks": 2,
-    "new_lean_runs": 0,
-    "pdf_build": "PASS",
-    "extracted_source_zip_build": "PASS"
+  "source_zip_members": [
+    "main.bbl",
+    "main.tex",
+    "petkov-preprint.sty",
+    "references.bib"
+  ],
+  "checks": {
+    "fresh_extracted_zip_build": "PASS: pdfLaTeX (MiKTeX), three passes with the shipped main.bbl; no LaTeX error, no undefined or multiply defined reference, no overfull box; 56 pages",
+    "all_fonts_embedded": true,
+    "comparison_with_author_source_2026_11_13": "every body display and equation tag unchanged; inline mathematics changed only in the abstract and a few introduction sentences; 78 label keys lost a version suffix; one hard-coded lemma number became a cross-reference; the restored disclosure cites achim-et-al-2025"
   },
-  "second_review": {
-    "date": "2026-10-31",
-    "baseline_commit": "71b6d3c1c87555dc257edcabbad909643af27670",
-    "scope": "Focused technical, boundary, and documentation review after the previous improvements; no major rewrite.",
-    "result": "No new blocking mathematical issue found in the reviewed material.",
-    "changes": "Lemma 10.1 now states the existing exp(-c sqrt n) exceptional-probability bound explicitly and displays its exact density union bound. The greedy construction explicitly uses integrality at ceil(n^(1/4)); its independent-set-size constant is separated from the tail constant. Appendix C and Corollary 11.2 cite the quantitative lemma directly. The main theorem, leading coefficient, remainder order, and failure-probability rate are unchanged.",
-    "independent_math_cross_check": "PASS",
-    "candidate_and_extracted_package_builds": "PASS",
-    "visual_review": "PASS",
+  "not_checked": [
+    "page-by-page comparison of main.pdf with an independent rebuild",
+    "BibTeX regeneration of main.bbl",
+    "live arXiv submission state"
+  ],
+  "changes": {
+    "mathematics": "Five consecutive class sizes replace four; uniform coefficient (log 2)^2/4 * log(8750/6681); phase gain A_5 with A_5 > log(8750/6681) on [0,1] (Lemma 5.3); summable failure-probability bound O(n^(-3/2) (log n)^(beta+5/2)), beta = 2/log 2 + 1/2 (Corollary 11.2); almost-sure eventual gap under any coupling (Corollary 11.3).",
+    "exposition": "Abstract rewritten; introduction, notation and several section openings edited for clarity; American spelling; no paper version numbers in the text; AI-assistance disclosure of the first arXiv version restored."
+  },
+  "formalization_scope": "The released Lean theorem is the fixed-coefficient consequence with log(200/153). Lean modules in ../formalization prove Lemma 5.3 and the stronger bounds A_5 > log(2605/1651) and A_5 > log(169/100) on [0,1]; they do not lift the released theorem. The phase refinement, remainder rate and failure-probability bounds are written results.",
+  "previous_version": {
+    "note": "Bindings and review records of the preceding version, superseded by this revision.",
+    "review_date": "2026-10-31",
+    "live_arxiv_submission_state_checked": false,
+    "arxiv_submission_performed": false,
+    "pages": 53,
+    "figures": 3,
+    "source_entry_point": "main.tex",
+    "source_files_sha256": {
+      "main.tex": "cb40c4e95d3aefbbd144db100b02aa1f206cf1dd485223538917376514ebc4cb",
+      "main.bbl": "099e9ddc37217969bef9ddd9123509e877dc5c1a829e4eb98a9f9addbadee781",
+      "references.bib": "16b12c7fbb688d32d6063c576425ec0bcba0b74ef9489bd0efa79553ad854e26",
+      "petkov-preprint.sty": "be35fd01e7c78c5043fdbbd7fc452411f97c288018b8c07b6c1252135c2ea2e0"
+    },
+    "pdf_sha256": "a18f5322e1dc966bb8889fded4113a0909877290666cb06ab0440946de8b9b2a",
+    "source_zip_sha256": "5b7111b645258fabe8c3cd08e9b6c0642dbc954c83360ccce24b43866d61e4a4",
+    "source_zip_aliases": [
+      "Erdos625-v2-arxiv-upload.zip",
+      "Erdos625_source.zip"
+    ],
+    "candidate_build": "PASS",
+    "fresh_extracted_zip_build": "PASS",
+    "extracted_pdf_text_matches_delivered_pdf": true,
+    "all_fonts_embedded": true,
+    "final_latex_bibtex_diagnostics": [],
     "fresh_lean_runs": 0,
-    "released_lean_sources_changed": false,
-    "fresh_exact_verifier_replays": 0,
-    "existing_exact_results_affected": false
-  },
-  "third_review": {
-    "date": "2026-10-31",
-    "baseline_commit": "b88c5a01377843e267316265dbecd8dd4e0d5633",
-    "scope": "One further focused mathematical and prose pass; preserve structure and accepted Lean sources.",
-    "result": "No new blocking mathematical issue found in the reviewed material.",
-    "changes": "Corollary 11.2 retains the rounding-phase factor in the failure bound: O(w_n), with beta=2/log(2)+1/2 and w_n=((log n)^beta/n)((log n)/n)^(1-delta_n). Constants and the eventual threshold remain phase-independent. For each fixed eta in (0,1), failure is O(n^(-1-eta)(log n)^(beta+eta)) along integers satisfying delta_n<=1-eta. The proof retains the phase term in the first-moment exponent and absorbs all four exceptional terms. The main theorem, fixed leading coefficient, and remainder order are unchanged.",
-    "independent_math_cross_check": "PASS",
-    "candidate_and_extracted_package_builds": "PASS",
-    "visual_review": "PASS",
-    "fresh_lean_runs": 0,
-    "released_lean_sources_changed": false,
-    "fresh_exact_verifier_replays": 0,
-    "existing_exact_results_affected": false
-  },
-  "current_failure_probability": "O(((log n)^beta/n)((log n)/n)^(1-delta_n)), beta=2/log(2)+1/2; phase-independent constants"
+    "released_lean_source_changed": false,
+    "new_mathematical_refinements": "The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound O((log n)^(2/log 2+1/2)/n) for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the existing explicit tail amplification and sums all four exceptional-event bounds.",
+    "formalization_scope": "Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The quantified remainder and failure-probability bound belong to the written refinement; neither is claimed as a newly released Lean theorem.",
+    "input_main_tex_sha256": "46778a2241e6bd4bda344278586c496b52a885ab951a1c1b909d4784b0aeef8e",
+    "input_pdf_sha256": "81ef4ac71ba2076e6aeafadd15ff4e8ac5add286d0e291b56fc60bd740826129",
+    "continued_review": {
+      "corollary": "11.2",
+      "failure_probability": "O((log n)^(2/log 2+1/2)/n)",
+      "independent_mathematical_cross_checks": 2,
+      "new_lean_runs": 0,
+      "pdf_build": "PASS",
+      "extracted_source_zip_build": "PASS"
+    },
+    "second_review": {
+      "date": "2026-10-31",
+      "baseline_commit": "71b6d3c1c87555dc257edcabbad909643af27670",
+      "scope": "Focused technical, boundary, and documentation review after the previous improvements; no major rewrite.",
+      "result": "No new blocking mathematical issue found in the reviewed material.",
+      "changes": "Lemma 10.1 now states the existing exp(-c sqrt n) exceptional-probability bound explicitly and displays its exact density union bound. The greedy construction explicitly uses integrality at ceil(n^(1/4)); its independent-set-size constant is separated from the tail constant. Appendix C and Corollary 11.2 cite the quantitative lemma directly. The main theorem, leading coefficient, remainder order, and failure-probability rate are unchanged.",
+      "independent_math_cross_check": "PASS",
+      "candidate_and_extracted_package_builds": "PASS",
+      "visual_review": "PASS",
+      "fresh_lean_runs": 0,
+      "released_lean_sources_changed": false,
+      "fresh_exact_verifier_replays": 0,
+      "existing_exact_results_affected": false
+    },
+    "third_review": {
+      "date": "2026-10-31",
+      "baseline_commit": "b88c5a01377843e267316265dbecd8dd4e0d5633",
+      "scope": "One further focused mathematical and prose pass; preserve structure and accepted Lean sources.",
+      "result": "No new blocking mathematical issue found in the reviewed material.",
+      "changes": "Corollary 11.2 retains the rounding-phase factor in the failure bound: O(w_n), with beta=2/log(2)+1/2 and w_n=((log n)^beta/n)((log n)/n)^(1-delta_n). Constants and the eventual threshold remain phase-independent. For each fixed eta in (0,1), failure is O(n^(-1-eta)(log n)^(beta+eta)) along integers satisfying delta_n<=1-eta. The proof retains the phase term in the first-moment exponent and absorbs all four exceptional terms. The main theorem, fixed leading coefficient, and remainder order are unchanged.",
+      "independent_math_cross_check": "PASS",
+      "candidate_and_extracted_package_builds": "PASS",
+      "visual_review": "PASS",
+      "fresh_lean_runs": 0,
+      "released_lean_sources_changed": false,
+      "fresh_exact_verifier_replays": 0,
+      "existing_exact_results_affected": false
+    },
+    "current_failure_probability": "O(((log n)^beta/n)((log n)/n)^(1-delta_n)), beta=2/log(2)+1/2; phase-independent constants"
+  }
 }

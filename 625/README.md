@@ -9,29 +9,35 @@ illustration with recorded witnesses and checksums. It is not used in the
 asymptotic proof.
 
 For $G_n\sim G(n,1/2)$, write $\chi$ for the chromatic number and $\zeta$
-for the cochromatic number. The manuscript proves the phase-resolved statement
+for the cochromatic number. All logarithms are natural. The manuscript proves
 
 $$
 \mathbb P\!\left(
   \chi(G_n)-\zeta(G_n)
-  \ge \left[\frac{(\log 2)^2}{4}A_4(\delta_n)-\varepsilon_n\right]
+  \ge \frac{(\log 2)^2}{4}\log\!\left(\frac{8750}{6681}\right)
       \frac{n}{(\log n)^3}
-\right)\longrightarrow1.
+\right)\longrightarrow1,
 $$
 
-All logarithms are natural. The deterministic error satisfies
-$\varepsilon_n=O(\log\log n/\log n)$ uniformly in the rounding phase.
-Corollary 11.2 also bounds the failure probability by
-$O(w_n)$, where $\beta=2/\log 2+1/2$ and
-$w_n=((\log n)^\beta/n)((\log n)/n)^{1-\delta_n}$, for this remainder
-order and for the fixed-coefficient consequence. The constants and an
-eventual threshold are phase-independent. This retains the uniform bound
-$O((\log n)^\beta/n)$ and gives
-$O(n^{-1-\eta}(\log n)^{\beta+\eta})$ along integers with
-$\delta_n\le 1-\eta$, for each fixed $\eta\in(0,1)$. These refinements
-are proved in the manuscript.
+using five consecutive class sizes. It also proves the phase-resolved statement
 
-The explicit uniform consequence, which is also the released Lean theorem, is
+$$
+\mathbb P\!\left(
+  \chi(G_n)-\zeta(G_n)
+  \ge \left[\frac{(\log 2)^2}{4}A_5(\delta_n)-\varepsilon_n\right]
+      \frac{n}{(\log n)^3}
+\right)\longrightarrow1,
+$$
+
+where $A_5>\log(8750/6681)$ on $[0,1]$ and the deterministic error satisfies
+$\varepsilon_n=O(\log\log n/\log n)$ uniformly in the rounding phase.
+Corollary 11.2 bounds the failure probability by
+$O(n^{-3/2}(\log n)^{\beta+5/2})$, where $\beta=2/\log 2+1/2$, uniformly in
+the phase. This bound is summable over $n$, so under any coupling of the
+graphs the gap bound holds almost surely for all sufficiently large $n$
+(Corollary 11.3).
+
+The released Lean theorem is the weaker explicit consequence
 
 $$
 \mathbb P\!\left(
@@ -62,16 +68,18 @@ generated one-file proof
 [`Erdos625SelfContained.lean`](formalization/Erdos625SelfContained.lean).
 Both sources kernel-check the displayed uniform consequence under the
 repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
-fixed-offset construction leading to the uniform coefficient. The stronger
-phase-resolved refinement involving `A_4(delta_n)`, including its quantified
-remainder and failure-probability bound, is proved in the manuscript
-and is not claimed as part of the Lean theorem. The cloud-replayed formal source is
+fixed-offset construction leading to the uniform coefficient. The
+manuscript's sharper coefficient `log(8750/6681)` and its phase-resolved
+refinement involving `A_5(delta_n)`, including the remainder and
+failure-probability bounds, are proved in the manuscript and are not claimed
+as part of the Lean theorem. The cloud-replayed formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,
 the trust boundary, and the immutable cloud replay record at
 `31bbe00c529a996bdb61b880120d71240172d18f`. Both Lean sources now also
 contain three modules proving lower bounds for the five-size phase gain `A_5`
-of the revised manuscript on `[0, 1]`, up to `A_5(delta) > log(169/100)`. They
+on `[0, 1]`: the manuscript's Lemma 5.3 and stronger bounds up to
+`A_5(delta) > log(169/100)`. They
 do not change the Lean theorem, and the extended sources have not been
 replayed in the cloud.
 

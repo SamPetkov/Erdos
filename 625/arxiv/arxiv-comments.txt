@@ -1,1 +1,1 @@
-53 pages, 3 figures. Revised exposition and attribution; quantified remainder and phase-sensitive failure-probability bound; detailed proofs and formalization scope.
+56 pages, 3 figures. Five consecutive class sizes and the improved uniform coefficient (log 2)^2 log(8750/6681)/4; summable failure probabilities and an almost-sure eventual gap; revised exposition and formalization scope.

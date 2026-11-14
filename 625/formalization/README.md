@@ -3,8 +3,9 @@
 This directory contains a complete Lean 4 formalization of the explicit
 uniform quantitative consequence below. That consequence resolves Erdős
 Problem 625. The manuscript in `../arxiv/main.tex` additionally proves the
-phase-resolved refinement involving `A_4(delta_n)`; that refinement is not
-claimed as part of the current Lean theorem.
+sharper uniform coefficient `(log 2)^2 / 4 * log(8750/6681)` and a
+phase-resolved refinement involving `A_5(delta_n)`; neither is claimed as part
+of the current Lean theorem.
 
 The exact top-level result is
 
@@ -68,8 +69,7 @@ F_S(T) = inf over real lambda of
          log sum_{i in S} exp(lambda*i - (log 2/2)*i^2) - lambda*T,
 ```
 
-from the revised manuscript of arXiv:2608.30604, which replaces the four
-class sizes of `../arxiv/main.tex` by five. For every `delta` in `[0, 1]`:
+from the manuscript in `../arxiv/main.tex`. For every `delta` in `[0, 1]`:
 
 | Module | Main theorem | Statement |
 |---|---|---|
