@@ -112,9 +112,5 @@ immutable public commit
 The current one-file proof differs from that replayed file only by the three
 five-size phase-gain modules and the root module's added imports and
 documentation; the current file itself has not been replayed in the cloud.
-
-The sibling replay directory
-`replay/aristotle-76792321-4b5f-4367-8885-d1470db80091` is a historical replay
-of the superseded source commit
-`86c4422f9b41c4ce50e7c920dc7349a9f07f24a8`; it is preserved as provenance and
-is not the replay record for the sharp release.
+The replay records are not kept on the main branch; they remain available at
+that commit.

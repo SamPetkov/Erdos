@@ -35,7 +35,6 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import hashlib
-          import json
           import pathlib
           import zipfile
 
@@ -64,31 +63,17 @@ jobs:
           if ledger != expected:
               raise SystemExit("SHA256SUMS does not match the files listed in MANIFEST.txt")
 
-          package = json.loads((root / "SOURCE_PACKAGE.json").read_text(encoding="utf-8"))
           source_names = {"main.tex", "main.bbl", "references.bib", "petkov-preprint.sty"}
-          if set(package["source_files_sha256"]) != source_names:
-              raise SystemExit("SOURCE_PACKAGE.json lists unexpected source files")
-          for name, value in package["source_files_sha256"].items():
-              if digest(name) != value:
-                  raise SystemExit(f"SOURCE_PACKAGE.json digest is stale: {name}")
-          if digest("main.pdf") != package["pdf_sha256"]:
-              raise SystemExit("SOURCE_PACKAGE.json PDF digest is stale")
-          aliases = package["source_zip_aliases"]
-          if "Erdos625_source.zip" not in aliases:
-              raise SystemExit("Erdos625_source.zip is not a recorded source ZIP alias")
-          for alias in aliases:
-              if digest(alias) != package["source_zip_sha256"]:
-                  raise SystemExit(f"source ZIP differs from SOURCE_PACKAGE.json: {alias}")
-              with zipfile.ZipFile(root / alias) as archive:
-                  members = archive.namelist()
-                  if len(members) != len(set(members)) or set(members) != source_names:
-                      raise SystemExit(f"unexpected source ZIP members in {alias}: {members}")
-                  for name in source_names:
-                      if archive.read(name) != (root / name).read_bytes():
-                          raise SystemExit(f"source ZIP member is stale in {alias}: {name}")
+          with zipfile.ZipFile(root / "Erdos625_source.zip") as archive:
+              members = archive.namelist()
+              if len(members) != len(set(members)) or set(members) != source_names:
+                  raise SystemExit(f"unexpected source ZIP members: {members}")
+              for name in source_names:
+                  if archive.read(name) != (root / name).read_bytes():
+                      raise SystemExit(f"source ZIP member is stale: {name}")
           print(
-              f"verified {len(manifest)}-file inventory, digest ledger, package record "
-              f"and four-file source archives"
+              f"verified {len(manifest)}-file inventory, digest ledger "
+              f"and four-file source archive"
           )
           PY
 

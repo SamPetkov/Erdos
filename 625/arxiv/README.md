@@ -1,49 +1,27 @@
 # Erdős 625: revised replacement manuscript
 
-Prepared **14 November 2026** from the author's revised sources of 13 November 2026. This directory contains the current manuscript and matching source package. The manuscript keeps the date of the first arXiv posting, 30 August 2026. [REVIEW_2026-10-31.txt](REVIEW_2026-10-31.txt) records the review of the preceding four-size version and does not cover this revision.
+This directory contains the current manuscript and its source package, prepared on 14 November 2026 from the author's revised sources of 13 November 2026. The manuscript keeps the date of the first arXiv posting, 30 August 2026.
 
-## Current files
+## Files
 
 - [main.pdf](main.pdf): the 56-page paper.
 - [main.tex](main.tex), [main.bbl](main.bbl), [references.bib](references.bib), [petkov-preprint.sty](petkov-preprint.sty): the matching editable sources.
-- [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip) and [Erdos625_source.zip](Erdos625_source.zip): identical four-file source ZIPs; existing alias names are retained for repository continuity.
+- [Erdos625_source.zip](Erdos625_source.zip): the four source files above, ready for arXiv.
 - [arxiv-abstract.txt](arxiv-abstract.txt) and [arxiv-comments.txt](arxiv-comments.txt): submission text.
-- [SOURCE_PACKAGE.json](SOURCE_PACKAGE.json): exact source/PDF/ZIP bindings and check scope.
-- [MANIFEST.txt](MANIFEST.txt) and [SHA256SUMS](SHA256SUMS): current directory inventory and digests; the digest ledger excludes itself.
+- [MANIFEST.txt](MANIFEST.txt) and [SHA256SUMS](SHA256SUMS): directory inventory and digests; the digest list excludes itself.
 
 ## Changes in this revision
-
-Mathematics:
 
 - **Five class sizes.** The argument uses five consecutive class sizes instead of four. The uniform coefficient becomes `(log 2)^2/4 * log(8750/6681) ≈ 0.032405`, up from `(log 2)^2/4 * log(200/153) ≈ 0.032176`. The phase-resolved form uses the five-size phase gain `A_5`, and Lemma 5.3 gives `A_5 > log(8750/6681)` on `[0, 1]`.
 - **Summable failure probability.** Corollary 11.2 bounds the failure probability by `O(n^(-3/2) (log n)^(β+5/2))` with `β = 2/log 2 + 1/2`, uniformly in the phase. This is summable over `n`.
 - **Almost-sure form.** Corollary 11.3 deduces that, under any coupling of the graphs, the gap bound holds almost surely for all sufficiently large `n`.
-
-Exposition:
-
-- The abstract is rewritten.
-- The introduction, the notation section and several section openings are edited for clarity.
-- The text uses American spelling and contains no paper version numbers.
-- The AI-assistance disclosure of the first arXiv version is restored.
-
-Compared with the author's 13 November source, every display and equation tag in the body is unchanged; the abstract no longer contains a display. Inline mathematics changed only in the abstract and in a few introduction sentences. Other source-level changes:
-
-- 78 internal label keys lost a version suffix, with every reference updated;
-- one hard-coded lemma number became a cross-reference;
-- the restored disclosure cites Aristotle (`achim-et-al-2025`), an entry already present in `main.bbl`.
-
-## Verification
-
-- The four-file ZIP was extracted into an empty directory and compiled with pdfLaTeX (MiKTeX, three passes, using the shipped `main.bbl`). The build had no LaTeX error, no undefined or multiply defined reference, and no overfull box. The resulting PDF has 56 pages.
-- `pdffonts` reports all 16 fonts of `main.pdf` as embedded.
-- The comparison with the author's 13 November source described above was made with a script, item by item.
-- The PDF was not compared page by page with an independent rebuild. No arXiv submission has been made.
+- **Exposition.** The abstract is rewritten, and the introduction, the notation section and several section openings are edited for clarity.
 
 ## Formalization boundary
 
-The released Lean theorem is the fixed-coefficient consequence with `log(200/153)`. The Lean project also proves Lemma 5.3 and two stronger lower bounds for `A_5` on `[0, 1]`, the strongest being `A_5 > log(169/100)`. These modules do not lift the released theorem to the manuscript's coefficient. The phase refinement, the remainder rate and the failure-probability bounds are written results, not Lean theorems. See the [Lean README](../formalization/README.md).
+The released Lean theorem is the fixed-coefficient consequence with `log(200/153)`. The Lean project also proves Lemmas 5.2 and 5.3 and two stronger lower bounds for `A_5` on `[0, 1]`, the strongest being `A_5 > log(169/100)`. These modules do not lift the released theorem to the manuscript's coefficient. The phase refinement, the remainder rate and the failure-probability bounds are written results, not Lean theorems. See the [Lean README](../formalization/README.md).
 
-## Build and replacement
+## Build
 
 Use a TeX distribution with pdfLaTeX, BibTeX, `latexmk`, and the packages
 loaded by `main.tex` and `petkov-preprint.sty`. For a minimal installation,
@@ -54,4 +32,4 @@ Keep all four source files together and run from this directory:
 latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 ```
 
-The ZIP contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty` at its root. It excludes the PDF, metadata, logs and audit files. Its replacement destination is arXiv:2608.30604. No arXiv submission has been made. The author should inspect the PDF generated by arXiv during replacement.
+The ZIP contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty` at its root. Its replacement destination is arXiv:2608.30604.
