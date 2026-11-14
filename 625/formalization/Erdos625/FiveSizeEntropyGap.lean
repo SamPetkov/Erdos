@@ -455,13 +455,29 @@ theorem five_mean_at_two_log_two_le {T : ℝ} (hT : 14 / 5 ≤ T) :
   nlinarith [mul_nonneg (sub_nonneg.mpr hT) hu.le,
     mul_nonneg (sub_nonneg.mpr hT) hw5.le]
 
+/-- The scalar inequality behind `five_ge_four_of_ge`, with the exponential
+factors abstracted: `4 + 2u + 1 + w₅ ≤ 8.019 < 520/64` for
+`u ≤ 71/50`, `w₅ ≤ 5/28`. -/
+theorem five_four_scalar {E2 E3 E4 E5 E6 u w5 : ℝ}
+    (e2 : E2 ≤ E6) (e3 : E3 ≤ E6) (e4 : E4 ≤ E6) (e5 : E5 ≤ E6) (hE6 : 0 < E6)
+    (hu0 : 0 ≤ u) (hu : u ≤ 71 / 50) (hw0 : 0 ≤ w5) (hw : w5 ≤ 5 / 28) :
+    (521 / 520 : ℝ) * (4 * E2 + 2 * u * E3 + 1 * E4 + w5 * E5) ≤
+      4 * E2 + 2 * u * E3 + 1 * E4 + w5 * E5 + 1 / 64 * E6 := by
+  have h3 : 2 * u * E3 ≤ 2 * u * E6 :=
+    mul_le_mul_of_nonneg_left e3 (by linarith)
+  have h5 : w5 * E5 ≤ w5 * E6 := mul_le_mul_of_nonneg_left e5 hw0
+  have hu6 : 2 * u * E6 ≤ 2 * (71 / 50) * E6 :=
+    mul_le_mul_of_nonneg_right (by linarith) hE6.le
+  have hw6 : w5 * E6 ≤ 5 / 28 * E6 := mul_le_mul_of_nonneg_right hw hE6.le
+  linarith
+
 /-- For `λ ≥ 2 log 2`, the sixth weight is at least `1/520` of the four-size
 partition function. -/
 theorem five_ge_four_of_ge (lambda : ℝ) (hl : 2 * Real.log 2 ≤ lambda) :
     (521 / 520 : ℝ) * ∑ i ∈ F4, gaussWeight lambda i ≤
       ∑ i ∈ F5, gaussWeight lambda i := by
   obtain ⟨h2, h3, h4, -, h6⟩ := weights_at_two_log_two
-  obtain ⟨-, -, -, hu_hi⟩ := sqrt_two_facts
+  obtain ⟨hu, -, -, hu_hi⟩ := sqrt_two_facts
   have hw5 := gaussWeight_pos (2 * Real.log 2) 5
   have hw5le := weight5_at_two_log_two_le
   have hs : 0 ≤ lambda - 2 * Real.log 2 := by linarith
@@ -482,11 +498,7 @@ theorem five_ge_four_of_ge (lambda : ℝ) (hl : 2 * Real.log 2 ≤ lambda) :
     gaussWeight_shift lambda (2 * Real.log 2) 4,
     gaussWeight_shift lambda (2 * Real.log 2) 5,
     gaussWeight_shift lambda (2 * Real.log 2) 6, h2, h3, h4, h6]
-  nlinarith [mul_le_mul_of_nonneg_left e3
-      (by positivity : (0 : ℝ) ≤ 2 * Real.exp (Real.log 2 / 2)),
-    mul_le_mul_of_nonneg_left e5 hw5.le,
-    mul_le_mul_of_nonneg_right hu_hi hE6.le,
-    mul_le_mul_of_nonneg_right hw5le hE6.le]
+  exact five_four_scalar e2 e3 e4 e5 hE6 hu.le hu_hi hw5.le hw5le
 
 /-- Uniform five-size lower bound: for every tilt `λ`,
 `Z_{S₅}(λ) e^{-λT} ≥ (521/520) Z_{S₄}(λ₄) e^{-λ₄T}`. -/
@@ -511,7 +523,7 @@ theorem five_tangent_lower {T l4 : ℝ} (hT : 14 / 5 ≤ T)
         mul_le_mul_of_nonneg_right h2 hE.le
   by_cases hl : 2 * Real.log 2 ≤ lambda
   · exact hhigh lambda hl
-  · push_neg at hl
+  · have hl' : lambda < 2 * Real.log 2 := not_le.mp hl
     refine (hhigh (2 * Real.log 2) le_rfl).trans ?_
     have h := tangent_finset F5 T (2 * Real.log 2) lambda
     have hS := five_mean_at_two_log_two_le hT
