@@ -1,1 +1,1 @@
-57 pages, 3 figures. Five consecutive class sizes; the uniform bound holds for every constant below (log 2)^2 min A_5/4, which exceeds (log 2)^2 log(169/100)/4 ≈ 0.0630; summable failure probabilities and an almost-sure eventual gap; revised exposition and formalization scope.
+53 pages, 3 figures. Five consecutive class sizes; the uniform bound holds for every constant below (log 2)^2 min A_5/4, which exceeds (log 2)^2 log(169/100)/4 ≈ 0.0630; summable failure probabilities and an almost-sure eventual gap; revised exposition and formalization scope.

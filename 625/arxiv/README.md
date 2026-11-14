@@ -4,7 +4,7 @@ This directory contains the current manuscript and its source package, prepared 
 
 ## Files
 
-- [main.pdf](main.pdf): the 57-page paper.
+- [main.pdf](main.pdf): the 53-page paper.
 - [main.tex](main.tex), [main.bbl](main.bbl), [references.bib](references.bib), [petkov-preprint.sty](petkov-preprint.sty): the matching editable sources.
 - [Erdos625_source.zip](Erdos625_source.zip): the four source files above, ready for arXiv.
 - [arxiv-abstract.txt](arxiv-abstract.txt) and [arxiv-comments.txt](arxiv-comments.txt): submission text.
