@@ -54,7 +54,7 @@ Between the Chromatic and Cochromatic Numbers of a Random Graph}
 
 
 \begin{abstract}
-The cochromatic number \(\zeta(G)\) of a graph \(G\) is the least number of parts in a partition of \(V(G)\) into cliques and independent sets, so \(\zeta(G)\le\chi(G)\). Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\to\infty\) with high probability for \(G_n\sim G(n,1/2)\). Heckel answered this affirmatively for about \(95\%\) of all integers \(n\) and conjectured that the natural order of the difference along the full sequence is \(n/(\log n)^3\). We prove that, as \(n\to\infty\) through all integers, \(\chi(G_n)-\zeta(G_n)\ge c\,n/(\log n)^3\) with high probability, where \(c=\frac14(\log 2)^2\log(8750/6681)\approx0.0324\) and \(\log\) is the natural logarithm. The failure probabilities are summable, so under any coupling of the graphs \(G_n\) the bound holds almost surely for all sufficiently large \(n\). A phase-resolved refinement replaces \(\log(8750/6681)\) by \(A_5(\delta_n)-o(1)\), where \(\delta_n\) is the fractional part of the first-moment approximation \(\alpha_0(n)\) to the independence number and \(A_5\) is an explicit, continuous, nonconstant function satisfying \(A_5>\log(8750/6681)\) on \([0,1]\).
+The cochromatic number \(\zeta(G)\) of a graph \(G\) is the least number of parts in a partition of \(V(G)\) into cliques and independent sets, so \(\zeta(G)\le\chi(G)\). Erd\H{o}s and Gimbel asked whether \(\chi(G_n)-\zeta(G_n)\to\infty\) with high probability for \(G_n\sim G(n,1/2)\). Heckel answered this affirmatively for about \(95\%\) of all integers \(n\) and conjectured that the natural order of the difference along the full sequence is \(n/(\log n)^3\). We prove that, as \(n\to\infty\) through all integers, \(\chi(G_n)-\zeta(G_n)\ge c\,n/(\log n)^3\) with high probability for every constant \(c<c_5\), where \(c_5>\frac14(\log 2)^2\log(169/100)\approx0.0630\) is explicit and \(\log\) is the natural logarithm. The failure probabilities are summable, so under any coupling of the graphs \(G_n\) the bound holds almost surely for all sufficiently large \(n\). A phase-resolved refinement replaces \(c\) by \(\frac14(\log 2)^2A_5(\delta_n)-o(1)\), where \(\delta_n\) is the fractional part of the first-moment approximation \(\alpha_0(n)\) to the independence number and \(A_5\) is an explicit, continuous, nonconstant function whose minimum on \([0,1]\) determines \(c_5\).
 
 The proof is a second-moment argument for partitions with five consecutive class sizes, in which each class is declared independent or complete. We control all overlaps between two such partitions, including whole shared classes and large intersections of unequal classes, uniformly in the rounding phase. Vertex-exposure concentration, together with a coloring of the leftover vertices, then raises the resulting probability bound to high probability at a cost of \(o(n/(\log n)^3)\) extra classes.
 \end{abstract}
@@ -95,7 +95,7 @@ between consecutive integer class sizes. Both quantities are defined
 precisely in the main theorem below.
 
 A profile records the number of classes of each integer size. To obtain the
-sharper coefficient in the theorem, we compare two optimizations over
+coefficient in the theorem, we compare two optimizations over
 profiles with a fixed mean class size: one allows all sizes below the
 cutoff, and the other allows only five consecutive sizes. In both, the
 proportions of the class sizes are optimized.
@@ -104,19 +104,7 @@ proportions of the class sizes are optimized.
 For every integer \(n\ge2\), let \(G_n\sim G(n,1/2)\) be the random simple
 graph on \([n]\), with edges present independently with probability \(1/2\).
 All logarithms without a displayed base are natural, and all limits are
-as \(n\to\infty\) through the integers. Then
-\[
-  \mathbb P\!\left(
-    \chi(G_n)-\zeta(G_n)
-    \ge
-    \frac{(\log 2)^2}{4}
-    \log\!\left(\frac{8750}{6681}\right)
-    \frac{n}{(\log n)^3}
-  \right)
-  \longrightarrow 1.
-\]
-
-For the sharper phase-dependent form, set
+as \(n\to\infty\) through the integers. Set
 \[
   \alpha_0(n):=
   2\log_2 n-2\log_2\log_2 n+2\log_2(\mathrm e/2)+1,
@@ -147,7 +135,20 @@ The sum inside the logarithm defining $\mathcal F_{S_+}(T)$ converges for every
 $\lambda\in\mathbb R$; for $T\in(2,5)$, each displayed infimum is a finite real
 and is uniquely attained.
 
-There is a deterministic sequence of nonnegative reals
+Then $A_5$ is continuous, positive and nonconstant on $[0,1]$, so
+\[
+  c_5:=\frac{(\log 2)^2}{4}\min_{0\le\delta\le1}A_5(\delta)>0.
+\]
+For every constant \(c<c_5\),
+\[
+  \mathbb P\!\left(
+    \chi(G_n)-\zeta(G_n)
+    \ge
+    c\,\frac{n}{(\log n)^3}
+  \right)
+  \longrightarrow 1.
+\]
+Moreover, there is a deterministic sequence of nonnegative reals
 $(\varepsilon_n)_{n\ge2}$ with $\varepsilon_n\to0$ such that
 \[
   \mathbb P\!\left(
@@ -160,27 +161,21 @@ $(\varepsilon_n)_{n\ge2}$ with $\varepsilon_n\to0$ such that
   \right)
   \longrightarrow1.
 \]
-Moreover, $A_5$ is continuous and nonconstant on $[0,1]$, and for every
-$\delta\in[0,1]$,
-\[
-  A_5(\delta)>\log\!\left(\frac{8750}{6681}\right).
-\]
-Continuity and compactness therefore give a positive uniform margin above
-this bound.
 \end{maintheorem}
 
-The uniform coefficient displayed above is
+The first bound holds for every fixed coefficient below \(c_5\). The
+refinement keeps the coefficient \(A_5(\delta_n)\), which depends on where
+the independent-set center lies between neighboring integers. Since
+\(A_5(\delta_n)\) is at least the minimum of \(A_5\) on \([0,1]\) and
+\(\varepsilon_n\to0\), the refined bound implies the uniform bound for every
+\(c<c_5\). The constant \(c_5\) is evaluated in
+Section~\ref{sec:final-assembly}:
+Lemma~\ref{lem:phase-gain-sharp} shows that \(A_5>\log(169/100)\) on
+\([0,1]\), so
 \[
-  \frac{(\log 2)^2}{4}
-  \log\!\left(\frac{8750}{6681}\right)
-  =0.032404877017029\ldots.
+  c_5>\frac{(\log 2)^2}{4}\log\!\left(\frac{169}{100}\right)
+  =0.0630268508\ldots.
 \]
-The first bound has a fixed coefficient. The refinement keeps the
-coefficient \(A_5(\delta_n)\), which depends on where the independent-set
-center lies between neighboring integers. Since \(A_5\) exceeds
-\(\log(8750/6681)\) by a positive uniform margin and \(\varepsilon_n\to0\),
-the refined bound implies the fixed-coefficient bound for all sufficiently
-large \(n\).
 Since \(n/(\log n)^3\to\infty\), both forms answer the question of
 Erd\H{o}s and Gimbel along the full sequence of integers.
 Remark~\ref{rem:phase-remainder-rate} shows that one may take
@@ -1233,6 +1228,82 @@ Combining it with Lemma~\ref{lem:four-size-entropy-certificate} gives
 $A_5>\log(200/153)+\log(525/524)=\log(8750/6681)=\gamma_5$.
 Finally $S_5\subset S_+$ gives $D_5\ge0$, and $D_5=q-A_5$ gives its
 upper bound.
+\end{proof}
+
+Lemma~\ref{lem:entropy-gap} suffices for every positivity argument below.
+The value of the uniform constant in the main theorem uses the following
+sharper bound. Numerically, $\min_{[0,1]}A_5=A_5(1)\approx0.525995$, so
+this bound is within $0.0013$ of the minimum; the numerical value is not
+used.
+
+\begin{lemma}[A sharp uniform bound for the phase gain]
+\label{lem:phase-gain-sharp}
+For every $0\le\delta\le1$,
+\[
+ A_5(\delta)>\log\frac{169}{100}.
+\]
+\end{lemma}
+
+\begin{proof}
+For $y>0$ put $\lambda(y):=q/2+\log y$. Then
+$w_i(\lambda(y))=y^i2^{-i(i-1)/2}$ for every integer $i$. Write
+\[
+ P(y):=Z_{S_5}(\lambda(y))
+ =\frac{y^2}{2}+\frac{y^3}{8}+\frac{y^4}{64}+\frac{y^5}{1024}
+  +\frac{y^6}{32768},
+ \qquad
+ M(y):=M_{S_5}(\lambda(y)),
+\]
+and $V(y):=\log P(y)-\lambda(y)M(y)$. For rational $y$, both $P(y)$ and
+$M(y)$ are rational. Moreover, $M$ is increasing, because $M_{S_5}$ and
+$\lambda$ are.
+
+\emph{The five-size dual.} The function $\lambda\mapsto\log Z_{S_5}(\lambda)$
+is convex with derivative $M_{S_5}(\lambda)$. Its tangent line at
+$\lambda(y)$ gives $\log Z_{S_5}(\lambda)-\lambda M(y)\ge V(y)$ for every
+real $\lambda$. Let $y_a<y_b$ and $T=\theta M(y_a)+(1-\theta)M(y_b)$ with
+$\theta\in[0,1]$. Writing $\log Z_{S_5}(\lambda)-\lambda T$ as the same
+convex combination of the two tangent expressions and taking the infimum
+over $\lambda$ gives
+\[
+ \mathcal F_{S_5}(T)\ge\theta V(y_a)+(1-\theta)V(y_b).
+\]
+
+\emph{The unrestricted dual.} Let $0<z\le16$. For $i\ge7$,
+$w_{i+1}(\lambda(z))/w_i(\lambda(z))=z2^{-i}\le1/8$, so the terms with
+$i\ge7$ sum to at most $\frac87w_7(\lambda(z))=\frac87z^72^{-21}$. Hence
+\[
+ Z_{S_+}(\lambda(z))\le U(z):=\frac1{2z}+1+z+P(z)+\frac{8z^7}{7\cdot2^{21}},
+\]
+and evaluating the infimum at $\lambda(z)$ gives
+$\mathcal F_{S_+}(T)\le\log U(z)-\lambda(z)T$.
+
+\emph{Reduction to the endpoints.} If
+$T_\delta=\theta M(y_a)+(1-\theta)M(y_b)$, the two bounds give
+\[
+ A_5(\delta)\ge q-\log U(z)+\lambda(z)T_\delta
+   +\theta V(y_a)+(1-\theta)V(y_b).
+\]
+The right-hand side is affine in $\theta$. At $\theta=1$ it equals
+$\log\bigl(2P(y_a)/U(z)\bigr)+M(y_a)\log(z/y_a)$, and at $\theta=0$ it is
+the same expression with $y_b$ in place of $y_a$. Thus, with $K=169/100$,
+\[
+ A_5(\delta)-\log K\ge\min\{E(y_a,z),E(y_b,z)\},
+ \qquad
+ E(y,z):=\log\frac{2P(y)}{K\,U(z)}+M(y)\log\frac zy,
+\]
+for every $\delta$ with $M(y_a)\le T_\delta\le M(y_b)$.
+
+\emph{Two cells.} Use the cells
+\[
+ (y_a,y_b,z)=\Bigl(\frac{1907}{500},\frac{703}{100},\frac{527}{100}\Bigr),
+ \qquad
+ (y_a,y_b,z)=\Bigl(\frac{703}{100},\frac{513}{50},\frac{213}{25}\Bigr).
+\]
+Appendix~\ref{app:phase-gain-sharp-endpoints} shows that
+$M(1907/500)<2/q$ and $M(513/50)>1+2/q$, and that $E$ is positive at the
+four endpoint pairs. Since $T_\delta\in[2/q,1+2/q]$ for $\delta\in[0,1]$
+and $M$ is increasing, every $T_\delta$ lies in one of the two cells.
 \end{proof}
 
 \subsection{The gain from class marks and root separation}
@@ -4104,33 +4175,40 @@ $(\varepsilon_n)_{n\ge2}$ is deterministic, nonnegative, and tends to zero.
 
 \displayheading{The uniform coefficient}
 
-Put $q:=\log 2$ and $\gamma_5:=\log(8750/6681)>0$.
-Lemma~\ref{lem:phase-gain-concavity} locates the smallest phase gain at an
-endpoint, while Lemma~\ref{lem:entropy-gap} bounds both endpoint values.
-Hence
+Put $q:=\log 2$.
+Lemma~\ref{lem:phase-gain-concavity} shows that $A_5$ is continuous and
+nonconstant on $[0,1]$ and locates its smallest value at an endpoint, while
+Lemma~\ref{lem:entropy-gap} shows that $A_5>\gamma_5>0$. Hence
 \[
   m_5:=\min\{A_5(0),A_5(1)\}
-      =\min_{0\le\delta\le1}A_5(\delta)>\gamma_5.
+      =\min_{0\le\delta\le1}A_5(\delta)>0,
+  \qquad
+  c_5=\frac{q^2}{4}m_5>0.
 \]
-Since $\varepsilon_n^{\mathrm{gap}}\to0$, eventually
-\[
-  \varepsilon_n^{\mathrm{gap}}
-  <\frac{q^2}{4}(m_5-\gamma_5).
-\]
-Therefore the coefficient in \eqref{eq:phase-resolved-final} is at least
-$q^2\gamma_5/4$ for all sufficiently large $n$.
+Fix $c<c_5$. Since $\varepsilon_n^{\mathrm{gap}}\to0$, eventually
+$\varepsilon_n^{\mathrm{gap}}<c_5-c$. Therefore the coefficient in
+\eqref{eq:phase-resolved-final} is at least
+$q^2A_5(\delta_n)/4-\varepsilon_n^{\mathrm{gap}}\ge
+c_5-\varepsilon_n^{\mathrm{gap}}>c$ for all sufficiently large $n$.
 It follows that
 \[
   \mathbb P\!\left(
     \chi(G_n)-\zeta(G_n)
     \ge
-    \frac{(\log 2)^2}{4}
-    \log\!\left(\frac{8750}{6681}\right)
-    \frac{n}{(\log n)^3}
+    c\,\frac{n}{(\log n)^3}
   \right)
   \longrightarrow1.
 \]
-This proves the main theorem. Since $n/(\log n)^3\to\infty$, the
+This proves the main theorem.
+
+To evaluate the constant, Lemma~\ref{lem:phase-gain-sharp} gives
+$m_5>\log(169/100)$. Consequently
+\[
+  c_5>\frac{(\log 2)^2}{4}\log\!\left(\frac{169}{100}\right)
+  =0.0630268508\ldots,
+\]
+and the uniform bound holds in particular with
+$c=\frac14(\log 2)^2\log(169/100)$. Since $n/(\log n)^3\to\infty$, the
 chromatic--cochromatic difference tends to infinity with high probability
 along the full sequence of integers.  We have proved the lower-bound direction
 of the conjectured $n/(\log n)^3$ scale; a matching upper bound and the optimal
@@ -4187,8 +4265,9 @@ the phase, such that every integer \(n\ge N\) satisfies
  \end{split}
 \]
 The right-hand side is \(O(n^{-3/2}(\log n)^{\beta+5/2})\), uniformly in
-the phase, and is summable over \(n\). The fixed-coefficient lower bound
-in the main theorem has the same failure bound, after increasing \(N\).
+the phase, and is summable over \(n\). For each fixed \(c<c_5\), the
+uniform lower bound in the main theorem with coefficient \(c\) has the same
+failure bound, after increasing \(N\).
 \end{corollary}
 \begin{proof}
 Write \(\ell=\log\log n\). Apply
@@ -4236,9 +4315,9 @@ Since \(0\le\delta_n<1\) and \(L/n<1\),
  w_n^2+\frac{w_nL^{5/2}}{\sqrt n}+n^{-2}
  =O\!\left(n^{-3/2}L^{\beta+5/2}\right).
 \]
-This envelope is summable. Finally,
-\(\min_{\delta\in[0,1]}A_5(\delta)>\log(8750/6681)\); the resulting positive
-uniform margin absorbs \(C_1\ell/L\), proving the fixed-coefficient assertion.
+This envelope is summable. Finally, for \(c<c_5\), the positive margin
+\(c_5-c\le\frac{q^2}{4}A_5(\delta_n)-c\) absorbs \(C_1\ell/L\), proving the
+assertion for the uniform bound.
 \end{proof}
 
 \begin{corollary}[Almost-sure eventual gap]\label{cor:almost-sure-gap}
@@ -4249,8 +4328,8 @@ Fix any joint law of \((G_n)_{n\ge1}\) whose \(n\)-th marginal is
  \ge\left[\frac{(\log2)^2}{4}A_5(\delta_n)
        -C_1\frac{\log\log n}{\log n}\right]\frac n{(\log n)^3}.
 \]
-The fixed-coefficient lower bound in the main theorem also holds almost
-surely for every sufficiently large \(n\).
+For each fixed \(c<c_5\), the uniform lower bound in the main theorem with
+coefficient \(c\) also holds almost surely for every sufficiently large \(n\).
 \end{corollary}
 \begin{proof}
 Under the fixed joint law, let \(F_n\) be failure of the phase-resolved bound.
@@ -5147,6 +5226,56 @@ Since \(S_4\) is a subset of \(S_+\), the loss is
 nonnegative. Subtracting from \(\log 2\) completes the proof.
 \end{proof}
 
+\Needspace{8\baselineskip}
+
+\section{Endpoint values for the sharp phase-gain bound}
+\label{app:phase-gain-sharp-endpoints}
+
+This appendix completes the proof of Lemma~\ref{lem:phase-gain-sharp} and
+uses its notation. For rational \(y\) and \(z\), the numbers \(P(y)\),
+\(M(y)\) and \(U(z)\) are rational, so only the logarithms require
+estimates. Every logarithm below is bounded from below by
+\[
+ \log m\ge\log c+2\sum_{j=0}^{5}\frac{u^{2j+1}}{2j+1}
+ \qquad\text{whenever } m\ge c\,\frac{1+u}{1-u},\ 0\le u<1,
+\]
+with \(c\in\{1/4,1/2,1,2\}\), together with
+\(0.6931471803<\log 2<0.6931471808\).
+
+\emph{Breakpoints.} The bounds for \(\log 2\) give
+\(2/\log 2>2.8853900\) and \(1+2/\log 2<3.8853901\). Direct evaluation gives
+\(M(1907/500)<2.8853656\) and \(M(513/50)>3.8856023\). This proves
+\(M(1907/500)<2/q\) and \(M(513/50)>1+2/q\).
+
+\emph{Endpoint values.} Table~\ref{tab:phase-gain-sharp-endpoints} lists,
+for each endpoint pair, a lower bound for each logarithm in \(E(y,z)\) and a
+bound for \(M(y)\). The bound for \(M(y)\) is a lower bound when
+\(\log(z/y)>0\) and an upper bound when \(\log(z/y)<0\), so the last column,
+computed from the displayed entries, is a lower bound for \(E(y,z)\).
+
+\begin{table}[ht]
+\centering
+\caption{Endpoint values for Lemma~\ref{lem:phase-gain-sharp}, with
+\(K=169/100\).}
+\label{tab:phase-gain-sharp-endpoints}
+\small
+\begin{tabular}{cccccc}
+\(y\) & \(z\) & bound for \(M(y)\) &
+\(\log\dfrac{2P(y)}{K\,U(z)}\ge\) & \(\log\dfrac zy\ge\) &
+\(E(y,z)\ge\)\\[4pt]
+\hline
+\(1907/500\) & \(527/100\) & \(\ge2.8853655\) & \(-0.9318854\) & \(0.3233518\) & \(0.00110\)\\
+\(703/100\) & \(527/100\) & \(\le3.4578900\) & \(0.9981835\) & \(-0.2881564\) & \(0.00177\)\\
+\(703/100\) & \(213/25\) & \(\ge3.4578899\) & \(-0.5607627\) & \(0.1922296\) & \(0.10394\)\\
+\(513/50\) & \(213/25\) & \(\le3.8856024\) & \(0.8263169\) & \(-0.1858365\) & \(0.10423\)
+\end{tabular}
+\end{table}
+
+All four lower bounds for \(E\) are positive, which completes the proof of
+Lemma~\ref{lem:phase-gain-sharp}. The same cells, endpoint inequalities and
+logarithm bounds are checked by the Lean kernel; see
+Appendix~\ref{app:lean-reproducibility}.
+
 
 \section{Three-range estimates for common subprofiles}
 \label{app:common-subprofile-details}
@@ -5822,8 +5951,11 @@ to reproduce that replay are recorded in the \href{https://github.com/SamPetkov/
 A later revision of the same repository,
 \href{https://github.com/SamPetkov/Erdos/tree/b654d1ca6eaddaf3025fe4d487628ec4d05a21b9/625/formalization}{\texttt{b654d1c}},
 also kernel-checks the entropy bounds of
-Lemmas~\ref{lem:four-size-entropy-certificate} and~\ref{lem:entropy-gap},
-including $A_5(\delta)>\gamma_5$ for every $\delta\in[0,1]$. The released
+Lemmas~\ref{lem:four-size-entropy-certificate}, \ref{lem:entropy-gap}
+and~\ref{lem:phase-gain-sharp}, including $A_5(\delta)>\gamma_5$ and
+$A_5(\delta)>\log(169/100)$ for every $\delta\in[0,1]$; the last bound is
+\texttt{Erdos625.\allowbreak FiveSizePhaseGainCertificate.\allowbreak
+log\_169\_div\_100\_lt\_phaseGain5}. The released
 theorem \texttt{Erdos625.\allowbreak erdos625} does not use these lemmas, and
 its coefficient is unchanged.
 
