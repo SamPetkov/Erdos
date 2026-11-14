@@ -5819,6 +5819,13 @@ contains the modular sources together with their generated single-file
 closure. A separate replay revision records the trust-boundary check and a
 replay in a clean environment; the commands, checksums and transcripts needed
 to reproduce that replay are recorded in the \href{https://github.com/SamPetkov/Erdos/blob/31bbe00c529a996bdb61b880120d71240172d18f/625/formalization/replay/aristotle-03e8124e-c359-4219-8b37-442060dae209/README.md}{sharp-constant replay record}.
+A later revision of the same repository,
+\href{https://github.com/SamPetkov/Erdos/tree/b654d1ca6eaddaf3025fe4d487628ec4d05a21b9/625/formalization}{\texttt{b654d1c}},
+also kernel-checks the entropy bounds of
+Lemmas~\ref{lem:four-size-entropy-certificate} and~\ref{lem:entropy-gap},
+including $A_5(\delta)>\gamma_5$ for every $\delta\in[0,1]$. The released
+theorem \texttt{Erdos625.\allowbreak erdos625} does not use these lemmas, and
+its coefficient is unchanged.
 
 \renewcommand{\bibsection}{\section*{References}}
 \begingroup
