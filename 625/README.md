@@ -65,13 +65,15 @@ repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
 fixed-offset construction leading to the uniform coefficient. The stronger
 phase-resolved refinement involving `A_4(delta_n)`, including its quantified
 remainder and failure-probability bound, is proved in the manuscript
-and is not claimed as part of the Lean theorem. The exact formal source is
+and is not claimed as part of the Lean theorem. The cloud-replayed formal source is
 commit `824e4b609466d2e26b216a76ecf103184dac2663`; see
 [`formalization/README.md`](formalization/README.md) for reproduction commands,
 the trust boundary, and the immutable cloud replay record at
-`31bbe00c529a996bdb61b880120d71240172d18f`. The current manuscript update
-leaves the released Lean proof sources and standalone file byte-for-byte
-unchanged.
+`31bbe00c529a996bdb61b880120d71240172d18f`. Both Lean sources now also
+contain three modules proving lower bounds for the five-size phase gain `A_5`
+of the revised manuscript on `[0, 1]`, up to `A_5(delta) > log(169/100)`. They
+do not change the Lean theorem, and the extended sources have not been
+replayed in the cloud.
 
 [`verification/`](verification/) contains independent finite and symbolic
 checks used to test numerical certificates and manuscript identities. These

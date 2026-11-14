@@ -3,11 +3,12 @@ import Erdos625.FiveSizePhaseGainSharp
 /-!
 # A two-cell certificate: `A₅(δ) > log (169/100)` on `[0,1]`
 
-This standalone module proves a uniform lower bound for the five-size phase
-gain that is close to its true minimum (`min_δ A₅ ≈ 0.525995 = log 1.69214`,
-numerical evidence only).  It is **not** imported by `Erdos625.lean`; the
-released theorem `Erdos625.erdos625` is unchanged.  The definitions are those
-of `Erdos625.FiveSizeEntropyGap`.
+This module proves a uniform lower bound for the five-size phase gain that is
+close to its true minimum (`min_δ A₅ ≈ 0.525995 = log 1.69214`, numerical
+evidence only).  `Erdos625.lean` imports it, so it is part of the one-file
+proof `Erdos625SelfContained.lean`; the released theorem `Erdos625.erdos625`
+does not use it and is unchanged.  The definitions are those of
+`Erdos625.FiveSizeEntropyGap`.
 
 ## Main result
 

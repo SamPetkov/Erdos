@@ -3,9 +3,10 @@ import Erdos625.FiveSizeEntropyGap
 /-!
 # A sharper uniform lower bound for the five-size phase gain
 
-This standalone module sharpens the uniform constant of
-`Erdos625.FiveSizeEntropyGap` without editing it.  It is **not** imported by
-`Erdos625.lean`; the released theorem `Erdos625.erdos625` is unchanged.
+This module sharpens the uniform constant of `Erdos625.FiveSizeEntropyGap`
+without editing it.  `Erdos625.lean` imports it, so it is part of the one-file
+proof `Erdos625SelfContained.lean`; the released theorem `Erdos625.erdos625`
+does not use it and is unchanged.
 
 The definitions are those of `Erdos625.FiveSizeEntropyGap` (the manuscript's
 literal `gaussWeight`, `partitionFn`, `dualValue`, `phaseTarget`, `phaseGain5`,

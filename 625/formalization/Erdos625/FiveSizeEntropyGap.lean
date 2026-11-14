@@ -3,10 +3,11 @@ import Erdos625.UniformExplicitPartitionRatio
 /-!
 # The five-size entropy gap (v2 manuscript, Lemma `lem:entropy-gap`)
 
-This standalone module states, with the manuscript's own definitions, the
-five-size entropy bound of the v2 Erdős 625 manuscript and proves it.  It is
-**not** imported by `Erdos625.lean`; the released theorem `Erdos625.erdos625`
-still carries the v1 constant `log (200 / 153)`.
+This module states, with the manuscript's own definitions, the five-size
+entropy bound of the v2 Erdős 625 manuscript and proves it.  `Erdos625.lean`
+imports it, so it is part of the one-file proof `Erdos625SelfContained.lean`.
+The released theorem `Erdos625.erdos625` does not use it and still carries the
+v1 constant `log (200 / 153)`.
 
 ## Source-facing definitions (main theorem and Section 5 of the v2 manuscript)
 
