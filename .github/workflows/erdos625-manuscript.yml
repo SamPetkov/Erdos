@@ -150,7 +150,14 @@ jobs:
           rebuilt_pages="$(pdfinfo main.pdf | awk '/^Pages:/ {print $2}')"
           committed_pages="$(pdfinfo "$GITHUB_WORKSPACE/625/arxiv/main.pdf" | awk '/^Pages:/ {print $2}')"
           test -n "$rebuilt_pages"
-          test "$rebuilt_pages" -eq "$committed_pages"
+          test -n "$committed_pages"
+          # The runner's TeX Live and the distribution that produced the committed
+          # PDF may break the final page differently; allow one page of difference.
+          page_diff=$(( rebuilt_pages - committed_pages ))
+          if [ "${page_diff#-}" -gt 1 ]; then
+            echo "page count differs: rebuilt ${rebuilt_pages}, committed ${committed_pages}"
+            exit 1
+          fi
           test "$rebuilt_pages" -ge 40
 
           pdftotext -layout main.pdf rebuilt.txt
