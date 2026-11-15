@@ -34,23 +34,36 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
+          import hashlib
           import pathlib
           import zipfile
 
           root = pathlib.Path("625/arxiv")
-          expected_files = {
-              "Erdos625_source.zip", "README.md", "main.bbl",
-              "main.pdf", "main.tex", "references.bib",
-          }
-          actual_files = {path.name for path in root.iterdir() if path.is_file()}
-          actual_dirs = {path.name for path in root.iterdir() if path.is_dir()}
-          if actual_files != expected_files or actual_dirs:
+          manifest = [
+              line
+              for line in (root / "MANIFEST.txt").read_text(encoding="utf-8").splitlines()
+              if line
+          ]
+          if manifest != sorted(set(manifest)):
+              raise SystemExit("MANIFEST.txt is not a sorted list of unique paths")
+          actual = sorted(
+              path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()
+          )
+          if actual != manifest:
               raise SystemExit(
-                  f"unexpected 625/arxiv inventory: files={sorted(actual_files)}, "
-                  f"directories={sorted(actual_dirs)}"
+                  f"625/arxiv inventory differs from MANIFEST.txt: "
+                  f"files={actual}, manifest={manifest}"
               )
 
-          source_names = {"README.md", "main.bbl", "main.tex", "references.bib"}
+          def digest(name):
+              return hashlib.sha256((root / name).read_bytes()).hexdigest()
+
+          ledger = (root / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+          expected = [f"{digest(name)}  {name}" for name in manifest if name != "SHA256SUMS"]
+          if ledger != expected:
+              raise SystemExit("SHA256SUMS does not match the files listed in MANIFEST.txt")
+
+          source_names = {"main.tex", "main.bbl", "references.bib", "petkov-preprint.sty"}
           with zipfile.ZipFile(root / "Erdos625_source.zip") as archive:
               members = archive.namelist()
               if len(members) != len(set(members)) or set(members) != source_names:
@@ -58,7 +71,10 @@ jobs:
               for name in source_names:
                   if archive.read(name) != (root / name).read_bytes():
                       raise SystemExit(f"source ZIP member is stale: {name}")
-          print("verified six-file inventory and four-file source archive")
+          print(
+              f"verified {len(manifest)}-file inventory, digest ledger "
+              f"and four-file source archive"
+          )
           PY
 
       - name: Check manuscript source and repository hygiene
@@ -69,7 +85,16 @@ jobs:
           test "$(grep -c '\\begin{maintheorem}' "$tex")" -eq 1
           test "$(grep -c '\\end{maintheorem}' "$tex")" -eq 1
           test "$(grep -cF 'OpenAI GPT-5.6 Sol' "$tex")" -eq 1
-          test "$(grep -cF "Aristotle, Harmonic's automated theorem-proving system" "$tex")" -eq 1
+          python3 - "$tex" <<'PY'
+          import pathlib
+          import sys
+
+          # Normalize whitespace so that line breaks inside the phrase do not matter.
+          text = " ".join(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").split())
+          count = text.count("Aristotle, Harmonic's automated theorem-proving system")
+          if count != 1:
+              raise SystemExit(f"expected one Aristotle disclosure, found {count}")
+          PY
           ! grep -nF '\input{' "$tex"
           grep -qF '200/153' "$tex"
           if grep -nEi \
@@ -93,7 +118,7 @@ jobs:
           set -euo pipefail
           build_dir="$(mktemp -d)"
           trap 'rm -rf "$build_dir"' EXIT
-          cp 625/arxiv/{main.tex,main.bbl,references.bib,README.md} "$build_dir"/
+          cp 625/arxiv/{main.tex,main.bbl,references.bib,petkov-preprint.sty} "$build_dir"/
           cd "$build_dir"
           pdflatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex
           bibtex main
@@ -110,7 +135,14 @@ jobs:
           rebuilt_pages="$(pdfinfo main.pdf | awk '/^Pages:/ {print $2}')"
           committed_pages="$(pdfinfo "$GITHUB_WORKSPACE/625/arxiv/main.pdf" | awk '/^Pages:/ {print $2}')"
           test -n "$rebuilt_pages"
-          test "$rebuilt_pages" -eq "$committed_pages"
+          test -n "$committed_pages"
+          # The runner's TeX Live and the distribution that produced the committed
+          # PDF may break the final page differently; allow one page of difference.
+          page_diff=$(( rebuilt_pages - committed_pages ))
+          if [ "${page_diff#-}" -gt 1 ]; then
+            echo "page count differs: rebuilt ${rebuilt_pages}, committed ${committed_pages}"
+            exit 1
+          fi
           test "$rebuilt_pages" -ge 40
 
           pdftotext -layout main.pdf rebuilt.txt

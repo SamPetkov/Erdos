@@ -1,7 +1,8 @@
 % Common, readable AMS preprint layout. Mathematics and metadata stay paper-local.
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{petkov-preprint}[2026/10/12 Consistent readable AMS preprints]
-\RequirePackage[a4paper,margin=24mm]{geometry}
+% 10pt type; side margins keep the line length of the former 11pt layout.
+\RequirePackage[a4paper,top=24mm,bottom=24mm,left=31.5mm,right=31.5mm]{geometry}
 \RequirePackage[T1]{fontenc}
 \RequirePackage{amsmath}
 \RequirePackage{newtxtext,newtxmath}
@@ -46,7 +47,7 @@
     {}{\PackageError{petkov-preprint}{AMS abstract width patch failed}
       {Check the installed amsart abstract definition.}}
 }{\PackageError{petkov-preprint}{This style requires the amsart class}
-  {Use documentclass[a4paper,11pt,reqno]{amsart}.}}
+  {Use documentclass[a4paper,10pt,reqno]{amsart}.}}
 \makeatother
 % Outside body-size folios on every page, including the AMS title page.
 \pagestyle{fancy}

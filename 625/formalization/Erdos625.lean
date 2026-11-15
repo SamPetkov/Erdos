@@ -442,6 +442,9 @@ import Erdos625.Section12FixedOffsetCanonicalBareSkeletonAsymptotic
 import Erdos625.Section13GlobalFixedOffsetSeed
 import Erdos625.Section15FinalInstantiation
 import Erdos625.AxiomAudit
+import Erdos625.FiveSizeEntropyGap
+import Erdos625.FiveSizePhaseGainSharp
+import Erdos625.FiveSizePhaseGainCertificate
 
 /-!
 # Erdős Problem 625
@@ -457,4 +460,9 @@ gap event tends to one as `n → ∞`.  The proof composes the global
 fixed-offset seed, concrete chromatic lower-tail estimate, sharp root-gap
 estimate, and final probability adapter. See the individual section modules
 for the definitions, intermediate statements, and permanent axiom audit.
+
+The root also imports three modules on the five-size phase gain `A₅`:
+`FiveSizeEntropyGap`, `FiveSizePhaseGainSharp`, and
+`FiveSizePhaseGainCertificate`. They prove lower bounds for `A₅` on `[0, 1]`
+and do not change `Erdos625Statement` or the proof of `Erdos625.erdos625`.
 -/

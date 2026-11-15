@@ -1,3 +1,0 @@
-# Preserve the downloaded cloud transcripts byte-for-byte.
-*.log binary
-exit-code.txt binary

@@ -89500,9 +89500,1719 @@ END SOURCE MODULE: Erdos625.AxiomAudit
 ========================================================================== -/
 
 /- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FiveSizeEntropyGap
+Source: Erdos625/FiveSizeEntropyGap.lean
+Normalized SHA-256: e2c076f90cb6fd7d34287824f7083c3e9f44dbe01ea0a5b26e467320fe5a702a
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FiveSizeEntropyGap
+
+/-!
+# The five-size entropy gap (v2 manuscript, Lemma `lem:entropy-gap`)
+
+This module states, with the manuscript's own definitions, the five-size
+entropy bound of the v2 Erdős 625 manuscript and proves it.  `Erdos625.lean`
+imports it, so it is part of the one-file proof `Erdos625SelfContained.lean`.
+The released theorem `Erdos625.erdos625` does not use it and still carries the
+v1 constant `log (200 / 153)`.
+
+## Source-facing definitions (main theorem and Section 5 of the v2 manuscript)
+
+* `gaussWeight lambda i = exp (lambda * i - (log 2 / 2) * i ^ 2)`  (`w_i(λ)`),
+* `Splus = {i : ℤ | -1 ≤ i}`, `S5 = {2,3,4,5,6}`, `S4 = {2,3,4,5}`,
+* `partitionFn S lambda = ∑' i : S, gaussWeight lambda i`  (`Z_S(λ)`),
+* `dualValue S T = ⨅ lambda : ℝ, (log (partitionFn S lambda) - lambda * T)`
+  (`𝓕_S(T)`),
+* `phaseTarget delta = 1 + 2 / log 2 - delta`  (`T_δ`),
+* `phaseGain5 delta = log 2 - 𝓕_{S₊}(T_δ) + 𝓕_{S₅}(T_δ)`  (`A₅(δ)`), and the
+  comparison quantities `phaseGain4` (`A₄`), `entropyLoss5` (`D₅`),
+  `entropyLoss4` (`D₄`), `gamma5 = log (8750 / 6681)` (`γ₅`).
+
+Because `tsum` returns `0` on non-summable families and `⨅` over `ℝ` returns
+`0` on sets that are not bounded below, the module also proves that these
+junk values never occur on the source domain:
+`hasSum_partitionFn` (every `Z_S(λ)` is a genuine convergent sum) and
+`isGLB_dualValue` (for `S ∈ {S₄, S₅, S₊}` and `T ∈ (2,5)`, `dualValue S T`
+is the genuine greatest lower bound of the dual objective).
+
+## Main results
+
+* `entropy_gap` — the full statement (5.3) of Lemma `lem:entropy-gap`:
+  for `0 ≤ δ ≤ 1`,
+  `A₅(δ) - A₄(δ) > log (525/524)`, `0 ≤ D₅(δ) < log (6681/4375)` and
+  `A₅(δ) > γ₅ = log (8750/6681)`;
+* `four_size_entropy_certificate` — Lemma `lem:four-size-entropy-certificate`
+  with the manuscript's literal infimum definitions;
+* `log_8750_div_6681_lt_phaseGain5` — the bound `A₅(δ) > log (8750/6681)`
+  asserted in the main theorem;
+* `phaseGain5_uniform_margin` — the explicit uniform margin
+  `A₅(δ) > log (8750/6681) + log (273004/273000)` on `[0,1]`.
+
+## Proof route
+
+The four-size input is the repository's verified uniform partition-ratio
+estimate `uniform_four_size_partition_ratio_for_delta`
+(`Z_{S₊}(λ₄)/Z_{S₄}(λ₄) < 153/100` at the four-size tilt `λ₄ = λ_{S₄}(T_δ)`).
+The five-size step replaces the manuscript's argument through the five-size
+optimizer by an equivalent elementary one that needs no five-point tilt:
+for every finite support the inequality `exp x ≥ 1 + x` gives the tangent
+bound `Z(λ) e^{-λT} ≥ Z(μ) e^{-μT} (1 + (λ-μ)(M(μ) - T))`; with
+`Z_{S₅}(λ) ≥ (521/520) Z_{S₄}(λ)` for `λ ≥ 2 log 2` and
+`M_{S₅}(2 log 2) < 14/5 ≤ T_δ` this yields
+`𝓕_{S₅}(T_δ) ≥ 𝓕_{S₄}(T_δ) + log (521/520)` uniformly in `δ`.
+-/
+
+namespace Erdos625
+
+namespace FiveSizeEntropyGap
+
+open scoped BigOperators Topology
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-! ## Source-facing definitions -/
+
+/-- The limiting weight `w_i(λ) = exp (λ i - (log 2 / 2) i²)` of the
+manuscript, at an integer deficit `i`. -/
+def gaussWeight (lambda : ℝ) (i : ℤ) : ℝ :=
+  Real.exp (lambda * (i : ℝ) - Real.log 2 / 2 * (i : ℝ) ^ 2)
+
+/-- The unrestricted support `S₊ = {i ∈ ℤ : i ≥ -1}`. -/
+def Splus : Set ℤ := {i : ℤ | -1 ≤ i}
+
+/-- The five-size support `S₅ = {2,3,4,5,6}`. -/
+def S5 : Set ℤ := {2, 3, 4, 5, 6}
+
+/-- The four-size comparison support `S₄ = {2,3,4,5}` of Section 5. -/
+def S4 : Set ℤ := {2, 3, 4, 5}
+
+/-- The partition function `Z_S(λ) = ∑_{i ∈ S} w_i(λ)`. -/
+def partitionFn (S : Set ℤ) (lambda : ℝ) : ℝ :=
+  ∑' i : S, gaussWeight lambda i
+
+/-- The dual value `𝓕_S(T) = inf_{λ ∈ ℝ} { log Z_S(λ) - λ T }`. -/
+def dualValue (S : Set ℤ) (T : ℝ) : ℝ :=
+  ⨅ lambda : ℝ, (Real.log (partitionFn S lambda) - lambda * T)
+
+/-- The phase target `T_δ = 1 + 2 / log 2 - δ`. -/
+def phaseTarget (delta : ℝ) : ℝ :=
+  1 + 2 / Real.log 2 - delta
+
+/-- The five-size phase gain `A₅(δ) = log 2 - 𝓕_{S₊}(T_δ) + 𝓕_{S₅}(T_δ)`. -/
+def phaseGain5 (delta : ℝ) : ℝ :=
+  Real.log 2 - dualValue Splus (phaseTarget delta) +
+    dualValue S5 (phaseTarget delta)
+
+/-- The four-size comparison gain `A₄(δ) = q - 𝓕_{S₊}(T_δ) + 𝓕_{S₄}(T_δ)`,
+with `q = log 2`. -/
+def phaseGain4 (delta : ℝ) : ℝ :=
+  Real.log 2 - dualValue Splus (phaseTarget delta) +
+    dualValue S4 (phaseTarget delta)
+
+/-- The five-size entropy loss `D₅(δ) = 𝓕_{S₊}(T_δ) - 𝓕_{S₅}(T_δ)`. -/
+def entropyLoss5 (delta : ℝ) : ℝ :=
+  dualValue Splus (phaseTarget delta) - dualValue S5 (phaseTarget delta)
+
+/-- The four-size entropy loss `D₄(δ) = q - A₄(δ)`. -/
+def entropyLoss4 (delta : ℝ) : ℝ :=
+  dualValue Splus (phaseTarget delta) - dualValue S4 (phaseTarget delta)
+
+/-- The uniform constant `γ₅ = log (8750 / 6681)` of (5.2). -/
+def gamma5 : ℝ :=
+  Real.log (8750 / 6681)
+
+/-! ## Elementary facts about the weights -/
+
+theorem gaussWeight_pos (lambda : ℝ) (i : ℤ) : 0 < gaussWeight lambda i :=
+  Real.exp_pos _
+
+theorem gaussWeight_eq_exp (lambda : ℝ) (i : ℤ) (c : ℝ)
+    (h : lambda * (i : ℝ) - Real.log 2 / 2 * (i : ℝ) ^ 2 = c) :
+    gaussWeight lambda i = Real.exp c := by
+  unfold gaussWeight
+  rw [h]
+
+/-- Changing the tilt multiplies each weight by an exponential factor. -/
+theorem gaussWeight_shift (lambda mu : ℝ) (i : ℤ) :
+    gaussWeight lambda i = gaussWeight mu i * Real.exp ((lambda - mu) * (i : ℝ)) := by
+  unfold gaussWeight
+  rw [← Real.exp_add]
+  congr 1
+  ring
+
+/-- The weights are summable over all of `ℤ`. -/
+theorem summable_gaussWeight (lambda : ℝ) : Summable (gaussWeight lambda) := by
+  refine Summable.of_nat_of_neg ?_ ?_
+  · refine (summable_extendedGaussianNaturalTerm (a := q) (lambda := lambda)
+      q_pos).congr (fun n => ?_)
+    unfold gaussWeight extendedGaussianNaturalTerm q
+    simp
+  · refine (summable_extendedGaussianNaturalTerm (a := q) (lambda := -lambda)
+      q_pos).congr (fun n => ?_)
+    unfold gaussWeight extendedGaussianNaturalTerm q
+    congr 1
+    push_cast
+    ring
+
+/-- **Fidelity of `Z_S`.** For every `S ⊆ ℤ` and every real tilt, the `tsum`
+defining `partitionFn S lambda` is a genuine convergent sum. -/
+theorem hasSum_partitionFn (S : Set ℤ) (lambda : ℝ) :
+    HasSum (fun i : S => gaussWeight lambda i) (partitionFn S lambda) :=
+  ((summable_gaussWeight lambda).subtype (· ∈ S)).hasSum
+
+/-- Enlarging the support enlarges the partition function. -/
+theorem partitionFn_mono {S S' : Set ℤ} (h : S ⊆ S') (lambda : ℝ) :
+    partitionFn S lambda ≤ partitionFn S' lambda := by
+  unfold partitionFn
+  rw [tsum_subtype S (gaussWeight lambda), tsum_subtype S' (gaussWeight lambda)]
+  refine Summable.tsum_le_tsum (fun i => ?_)
+    ((summable_gaussWeight lambda).indicator S)
+    ((summable_gaussWeight lambda).indicator S')
+  by_cases hi : i ∈ S
+  · rw [Set.indicator_of_mem hi, Set.indicator_of_mem (h hi)]
+  · rw [Set.indicator_of_notMem hi]
+    exact Set.indicator_nonneg (fun j _ => (gaussWeight_pos lambda j).le) i
+
+/-- On a finite support the partition function is the finite sum. -/
+theorem partitionFn_coe_finset (F : Finset ℤ) (lambda : ℝ) :
+    partitionFn (F : Set ℤ) lambda = ∑ i ∈ F, gaussWeight lambda i := by
+  unfold partitionFn
+  exact Finset.tsum_subtype' F (gaussWeight lambda)
+
+/-! ## The finite supports as finsets -/
+
+/-- `S₄` as a finset. -/
+def F4 : Finset ℤ := {2, 3, 4, 5}
+
+/-- `S₅` as a finset. -/
+def F5 : Finset ℤ := {2, 3, 4, 5, 6}
+
+theorem coe_F4 : (F4 : Set ℤ) = S4 := by
+  ext i
+  simp [F4, S4]
+
+theorem coe_F5 : (F5 : Set ℤ) = S5 := by
+  ext i
+  simp [F5, S5]
+
+theorem F4_nonempty : F4.Nonempty := ⟨2, by simp [F4]⟩
+
+theorem F5_nonempty : F5.Nonempty := ⟨2, by simp [F5]⟩
+
+theorem sum_F4 (f : ℤ → ℝ) : ∑ i ∈ F4, f i = f 2 + f 3 + f 4 + f 5 := by
+  have h : F4 = insert 2 (insert 3 (insert 4 {5})) := rfl
+  rw [h, Finset.sum_insert (by simp), Finset.sum_insert (by simp),
+    Finset.sum_insert (by simp), Finset.sum_singleton]
+  ring
+
+theorem sum_F5 (f : ℤ → ℝ) :
+    ∑ i ∈ F5, f i = f 2 + f 3 + f 4 + f 5 + f 6 := by
+  have h : F5 = insert 2 (insert 3 (insert 4 (insert 5 {6}))) := rfl
+  rw [h, Finset.sum_insert (by simp), Finset.sum_insert (by simp),
+    Finset.sum_insert (by simp), Finset.sum_insert (by simp),
+    Finset.sum_singleton]
+  ring
+
+theorem partitionFn_S4 (lambda : ℝ) :
+    partitionFn S4 lambda = ∑ i ∈ F4, gaussWeight lambda i := by
+  rw [← coe_F4]
+  exact partitionFn_coe_finset F4 lambda
+
+theorem partitionFn_S5 (lambda : ℝ) :
+    partitionFn S5 lambda = ∑ i ∈ F5, gaussWeight lambda i := by
+  rw [← coe_F5]
+  exact partitionFn_coe_finset F5 lambda
+
+theorem sum_gaussWeight_pos (F : Finset ℤ) (hF : F.Nonempty) (lambda : ℝ) :
+    0 < ∑ i ∈ F, gaussWeight lambda i :=
+  Finset.sum_pos (fun i _ => gaussWeight_pos lambda i) hF
+
+theorem S4_subset_S5 : S4 ⊆ S5 := by
+  intro i hi
+  simp only [S4, S5, Set.mem_insert_iff, Set.mem_singleton_iff] at hi ⊢
+  omega
+
+theorem S5_subset_Splus : S5 ⊆ Splus := by
+  intro i hi
+  simp only [S5, Set.mem_insert_iff, Set.mem_singleton_iff] at hi
+  show (-1 : ℤ) ≤ i
+  omega
+
+theorem S4_subset_Splus : S4 ⊆ Splus :=
+  Set.Subset.trans S4_subset_S5 S5_subset_Splus
+
+/-! ## The unrestricted support and the repository's extended profile -/
+
+/-- `Z_{S₊}(λ)` is the repository's `extendedGaussianPartition q λ`
+(exceptional atom at `-1` plus the natural-deficit `tsum`). -/
+theorem hasSum_gaussWeight_Splus (lambda : ℝ) :
+    HasSum (fun i : Splus => gaussWeight lambda i)
+      (extendedGaussianPartition q lambda) := by
+  refine (hasSum_subtype_iff_indicator (f := gaussWeight lambda) (s := Splus)).mpr ?_
+  have h1 : HasSum (fun n : ℕ => Splus.indicator (gaussWeight lambda) (n : ℤ))
+      (∑' n : ℕ, extendedGaussianNaturalTerm q lambda n) := by
+    have hs := (summable_extendedGaussianNaturalTerm (a := q) (lambda := lambda)
+      q_pos).hasSum
+    convert hs using 1
+    funext n
+    have hmem : (n : ℤ) ∈ Splus := by
+      show (-1 : ℤ) ≤ (n : ℤ)
+      omega
+    rw [Set.indicator_of_mem hmem]
+    unfold gaussWeight extendedGaussianNaturalTerm q
+    simp
+  have h2 : HasSum (fun n : ℕ => Splus.indicator (gaussWeight lambda) (-((n : ℤ) + 1)))
+      (extendedGaussianExceptionalAtom q lambda) := by
+    have hfun : (fun n : ℕ => Splus.indicator (gaussWeight lambda) (-((n : ℤ) + 1))) =
+        fun n : ℕ => if n = 0 then extendedGaussianExceptionalAtom q lambda else 0 := by
+      funext n
+      by_cases hn : n = 0
+      · subst hn
+        have hmem : (-(((0 : ℕ) : ℤ) + 1)) ∈ Splus := by
+          show (-1 : ℤ) ≤ -(((0 : ℕ) : ℤ) + 1)
+          omega
+        rw [Set.indicator_of_mem hmem, if_pos rfl]
+        unfold gaussWeight extendedGaussianExceptionalAtom q
+        congr 1
+        push_cast
+        ring
+      · have hnot : (-((n : ℤ) + 1)) ∉ Splus := by
+          intro h
+          have h' : (-1 : ℤ) ≤ -((n : ℤ) + 1) := h
+          omega
+        rw [Set.indicator_of_notMem hnot, if_neg hn]
+    rw [hfun]
+    exact hasSum_ite_eq 0 _
+  have h := h1.of_nat_of_neg_add_one h2
+  convert h using 1
+  rw [extendedGaussianPartition]
+  ring
+
+theorem partitionFn_Splus (lambda : ℝ) :
+    partitionFn Splus lambda = extendedGaussianPartition q lambda :=
+  (hasSum_gaussWeight_Splus lambda).tsum_eq
+
+/-! ## The four-size support and the repository's `ProfileEntropyS4` -/
+
+theorem unnormalized_eq_gaussWeight (lambda : ℝ) (i : Fin 4) (k : ℤ)
+    (hk : ProfileEntropyS4.support i = (k : ℝ)) :
+    ProfileEntropyS4.unnormalized fourGaussianScore lambda i = gaussWeight lambda k := by
+  unfold ProfileEntropyS4.unnormalized fourGaussianScore gaussWeight q
+  rw [hk]
+  congr 1
+  ring
+
+theorem partition_four_eq (lambda : ℝ) :
+    ProfileEntropyS4.partition fourGaussianScore lambda =
+      gaussWeight lambda 2 + gaussWeight lambda 3 + gaussWeight lambda 4 +
+        gaussWeight lambda 5 := by
+  unfold ProfileEntropyS4.partition
+  rw [Fin.sum_univ_four, unnormalized_eq_gaussWeight lambda 0 2 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 1 3 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 2 4 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 3 5 (by norm_num)]
+
+theorem firstNumerator_four_eq (lambda : ℝ) :
+    ProfileEntropyS4.firstNumerator fourGaussianScore lambda =
+      2 * gaussWeight lambda 2 + 3 * gaussWeight lambda 3 +
+        4 * gaussWeight lambda 4 + 5 * gaussWeight lambda 5 := by
+  unfold ProfileEntropyS4.firstNumerator
+  rw [Fin.sum_univ_four, unnormalized_eq_gaussWeight lambda 0 2 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 1 3 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 2 4 (by norm_num),
+    unnormalized_eq_gaussWeight lambda 3 5 (by norm_num)]
+  simp only [ProfileEntropyS4.support_zero, ProfileEntropyS4.support_one,
+    ProfileEntropyS4.support_two, ProfileEntropyS4.support_three]
+
+/-- A four-size tilt with mean `T` balances the centred first moment. -/
+theorem mean_condition {T lambda : ℝ}
+    (h : ProfileEntropyS4.mean fourGaussianScore lambda = T) :
+    ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight lambda i = 0 := by
+  have hpos := ProfileEntropyS4.partition_pos fourGaussianScore lambda
+  unfold ProfileEntropyS4.mean at h
+  rw [div_eq_iff hpos.ne', firstNumerator_four_eq, partition_four_eq] at h
+  rw [sum_F4]
+  push_cast
+  linear_combination h
+
+/-! ## The tangent bound for finite exponential sums -/
+
+theorem log_sub_mul_eq {Z : ℝ} (hZ : 0 < Z) (lambda T : ℝ) :
+    Real.log Z - lambda * T = Real.log (Z * Real.exp (-(lambda * T))) := by
+  rw [Real.log_mul hZ.ne' (Real.exp_pos _).ne', Real.log_exp]
+  ring
+
+/-- Supporting-line inequality for `λ ↦ Z_F(λ) e^{-λT}` on a finite support,
+from `exp x ≥ 1 + x`. -/
+theorem tangent_finset (F : Finset ℤ) (T mu lambda : ℝ) :
+    (∑ i ∈ F, gaussWeight mu i) * Real.exp (-(mu * T)) +
+        (lambda - mu) * Real.exp (-(mu * T)) *
+          ∑ i ∈ F, ((i : ℝ) - T) * gaussWeight mu i ≤
+      (∑ i ∈ F, gaussWeight lambda i) * Real.exp (-(lambda * T)) := by
+  calc
+    (∑ i ∈ F, gaussWeight mu i) * Real.exp (-(mu * T)) +
+        (lambda - mu) * Real.exp (-(mu * T)) *
+          ∑ i ∈ F, ((i : ℝ) - T) * gaussWeight mu i =
+        ∑ i ∈ F, (gaussWeight mu i * Real.exp (-(mu * T)) +
+          (lambda - mu) * Real.exp (-(mu * T)) *
+            (((i : ℝ) - T) * gaussWeight mu i)) := by
+      rw [Finset.sum_add_distrib, Finset.sum_mul, Finset.mul_sum]
+    _ ≤ ∑ i ∈ F, gaussWeight lambda i * Real.exp (-(lambda * T)) := by
+      refine Finset.sum_le_sum fun i _ => ?_
+      have hshift : gaussWeight lambda i * Real.exp (-(lambda * T)) =
+          gaussWeight mu i * Real.exp (-(mu * T)) *
+            Real.exp ((lambda - mu) * ((i : ℝ) - T)) := by
+        unfold gaussWeight
+        simp only [← Real.exp_add]
+        congr 1
+        ring
+      have ha : 0 ≤ gaussWeight mu i * Real.exp (-(mu * T)) :=
+        (mul_pos (gaussWeight_pos mu i) (Real.exp_pos _)).le
+      rw [hshift]
+      calc
+        gaussWeight mu i * Real.exp (-(mu * T)) +
+            (lambda - mu) * Real.exp (-(mu * T)) *
+              (((i : ℝ) - T) * gaussWeight mu i) =
+            gaussWeight mu i * Real.exp (-(mu * T)) *
+              ((lambda - mu) * ((i : ℝ) - T) + 1) := by
+          ring
+        _ ≤ gaussWeight mu i * Real.exp (-(mu * T)) *
+              Real.exp ((lambda - mu) * ((i : ℝ) - T)) :=
+          mul_le_mul_of_nonneg_left (Real.add_one_le_exp _) ha
+    _ = (∑ i ∈ F, gaussWeight lambda i) * Real.exp (-(lambda * T)) := by
+      rw [Finset.sum_mul]
+
+/-- At a four-size tilt with mean `T`, the four-size dual objective is
+minimized. -/
+theorem four_dual_tangent {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) (lambda : ℝ) :
+    (∑ i ∈ F4, gaussWeight l4 i) * Real.exp (-(l4 * T)) ≤
+      (∑ i ∈ F4, gaussWeight lambda i) * Real.exp (-(lambda * T)) := by
+  have h := tangent_finset F4 T l4 lambda
+  rw [hmean, mul_zero, add_zero] at h
+  exact h
+
+/-! ## Explicit weights at the tilt `2 log 2` -/
+
+theorem sqrt_two_facts :
+    0 < Real.exp (Real.log 2 / 2) ∧ Real.exp (Real.log 2 / 2) ^ 2 = 2 ∧
+      (7 / 5 : ℝ) ≤ Real.exp (Real.log 2 / 2) ∧
+        Real.exp (Real.log 2 / 2) ≤ 71 / 50 := by
+  have hpos := Real.exp_pos (Real.log 2 / 2)
+  have hsq : Real.exp (Real.log 2 / 2) ^ 2 = 2 := by
+    rw [sq, ← Real.exp_add,
+      show Real.log 2 / 2 + Real.log 2 / 2 = Real.log 2 by ring,
+      Real.exp_log (by norm_num)]
+  refine ⟨hpos, hsq, ?_, ?_⟩
+  · nlinarith
+  · nlinarith
+
+/-- With `u = exp (log 2 / 2) = √2`, the five weights at tilt `2 log 2` are
+`4, 2u, 1, 1/(4u), 1/64`. -/
+theorem weights_at_two_log_two :
+    gaussWeight (2 * Real.log 2) 2 = 4 ∧
+      gaussWeight (2 * Real.log 2) 3 = 2 * Real.exp (Real.log 2 / 2) ∧
+      gaussWeight (2 * Real.log 2) 4 = 1 ∧
+      gaussWeight (2 * Real.log 2) 5 * (4 * Real.exp (Real.log 2 / 2)) = 1 ∧
+      gaussWeight (2 * Real.log 2) 6 = 1 / 64 := by
+  obtain ⟨-, hsq, -, -⟩ := sqrt_two_facts
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · rw [gaussWeight_eq_exp (2 * Real.log 2) 2 (((2 : ℕ) : ℝ) * Real.log 2)
+        (by push_cast; ring),
+      Real.exp_nat_mul, Real.exp_log (by norm_num)]
+    norm_num
+  · rw [gaussWeight_eq_exp (2 * Real.log 2) 3 (((3 : ℕ) : ℝ) * (Real.log 2 / 2))
+        (by push_cast; ring),
+      Real.exp_nat_mul]
+    have h3 : Real.exp (Real.log 2 / 2) ^ 3 =
+        Real.exp (Real.log 2 / 2) ^ 2 * Real.exp (Real.log 2 / 2) := by ring
+    rw [h3, hsq]
+  · rw [gaussWeight_eq_exp (2 * Real.log 2) 4 0 (by push_cast; ring), Real.exp_zero]
+  · rw [gaussWeight_eq_exp (2 * Real.log 2) 5 (-(((5 : ℕ) : ℝ) * (Real.log 2 / 2)))
+        (by push_cast; ring)]
+    have h5 : 4 * Real.exp (Real.log 2 / 2) = Real.exp (Real.log 2 / 2) ^ 5 := by
+      have : Real.exp (Real.log 2 / 2) ^ 5 =
+          (Real.exp (Real.log 2 / 2) ^ 2) ^ 2 * Real.exp (Real.log 2 / 2) := by ring
+      rw [this, hsq]
+      norm_num
+    rw [h5, ← Real.exp_nat_mul, ← Real.exp_add, neg_add_cancel, Real.exp_zero]
+  · rw [gaussWeight_eq_exp (2 * Real.log 2) 6 (-(((6 : ℕ) : ℝ) * Real.log 2))
+        (by push_cast; ring),
+      Real.exp_neg, Real.exp_nat_mul, Real.exp_log (by norm_num)]
+    norm_num
+
+theorem weight5_at_two_log_two_le :
+    gaussWeight (2 * Real.log 2) 5 ≤ 5 / 28 := by
+  obtain ⟨-, -, -, h5, -⟩ := weights_at_two_log_two
+  obtain ⟨-, -, hu_lo, -⟩ := sqrt_two_facts
+  have hw5 := gaussWeight_pos (2 * Real.log 2) 5
+  nlinarith [mul_le_mul_of_nonneg_left hu_lo hw5.le]
+
+/-- The five-size mean at tilt `2 log 2` is below `14/5`, hence below every
+target `T ≥ 14/5`. -/
+theorem five_mean_at_two_log_two_le {T : ℝ} (hT : 14 / 5 ≤ T) :
+    ∑ i ∈ F5, ((i : ℝ) - T) * gaussWeight (2 * Real.log 2) i ≤ 0 := by
+  obtain ⟨h2, h3, h4, -, h6⟩ := weights_at_two_log_two
+  obtain ⟨hu, -, -, hu_hi⟩ := sqrt_two_facts
+  have hw5 := gaussWeight_pos (2 * Real.log 2) 5
+  have hw5le := weight5_at_two_log_two_le
+  rw [sum_F5, h2, h3, h4, h6]
+  push_cast
+  nlinarith [mul_nonneg (sub_nonneg.mpr hT) hu.le,
+    mul_nonneg (sub_nonneg.mpr hT) hw5.le]
+
+/-- The scalar inequality behind `five_ge_four_of_ge`, with the exponential
+factors abstracted: `4 + 2u + 1 + w₅ ≤ 8.019 < 520/64` for
+`u ≤ 71/50`, `w₅ ≤ 5/28`. -/
+theorem five_four_scalar {E2 E3 E4 E5 E6 u w5 : ℝ}
+    (e2 : E2 ≤ E6) (e3 : E3 ≤ E6) (e4 : E4 ≤ E6) (e5 : E5 ≤ E6) (hE6 : 0 < E6)
+    (hu0 : 0 ≤ u) (hu : u ≤ 71 / 50) (hw0 : 0 ≤ w5) (hw : w5 ≤ 5 / 28) :
+    (521 / 520 : ℝ) * (4 * E2 + 2 * u * E3 + 1 * E4 + w5 * E5) ≤
+      4 * E2 + 2 * u * E3 + 1 * E4 + w5 * E5 + 1 / 64 * E6 := by
+  have h3 : 2 * u * E3 ≤ 2 * u * E6 :=
+    mul_le_mul_of_nonneg_left e3 (by linarith)
+  have h5 : w5 * E5 ≤ w5 * E6 := mul_le_mul_of_nonneg_left e5 hw0
+  have hu6 : 2 * u * E6 ≤ 2 * (71 / 50) * E6 :=
+    mul_le_mul_of_nonneg_right (by linarith) hE6.le
+  have hw6 : w5 * E6 ≤ 5 / 28 * E6 := mul_le_mul_of_nonneg_right hw hE6.le
+  linarith
+
+/-- For `λ ≥ 2 log 2`, the sixth weight is at least `1/520` of the four-size
+partition function. -/
+theorem five_ge_four_of_ge (lambda : ℝ) (hl : 2 * Real.log 2 ≤ lambda) :
+    (521 / 520 : ℝ) * ∑ i ∈ F4, gaussWeight lambda i ≤
+      ∑ i ∈ F5, gaussWeight lambda i := by
+  obtain ⟨h2, h3, h4, -, h6⟩ := weights_at_two_log_two
+  obtain ⟨hu, -, -, hu_hi⟩ := sqrt_two_facts
+  have hw5 := gaussWeight_pos (2 * Real.log 2) 5
+  have hw5le := weight5_at_two_log_two_le
+  have hs : 0 ≤ lambda - 2 * Real.log 2 := by linarith
+  have hE : ∀ k : ℤ, k ≤ 6 →
+      Real.exp ((lambda - 2 * Real.log 2) * (k : ℝ)) ≤
+        Real.exp ((lambda - 2 * Real.log 2) * ((6 : ℤ) : ℝ)) := by
+    intro k hk
+    apply Real.exp_le_exp.mpr
+    apply mul_le_mul_of_nonneg_left _ hs
+    exact_mod_cast hk
+  have e2 := hE 2 (by norm_num)
+  have e3 := hE 3 (by norm_num)
+  have e4 := hE 4 (by norm_num)
+  have e5 := hE 5 (by norm_num)
+  have hE6 := Real.exp_pos ((lambda - 2 * Real.log 2) * ((6 : ℤ) : ℝ))
+  rw [sum_F4, sum_F5, gaussWeight_shift lambda (2 * Real.log 2) 2,
+    gaussWeight_shift lambda (2 * Real.log 2) 3,
+    gaussWeight_shift lambda (2 * Real.log 2) 4,
+    gaussWeight_shift lambda (2 * Real.log 2) 5,
+    gaussWeight_shift lambda (2 * Real.log 2) 6, h2, h3, h4, h6]
+  exact five_four_scalar e2 e3 e4 e5 hE6 hu.le hu_hi hw5.le hw5le
+
+/-- Uniform five-size lower bound: for every tilt `λ`,
+`Z_{S₅}(λ) e^{-λT} ≥ (521/520) Z_{S₄}(λ₄) e^{-λ₄T}`. -/
+theorem five_tangent_lower {T l4 : ℝ} (hT : 14 / 5 ≤ T)
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) (lambda : ℝ) :
+    (521 / 520 : ℝ) * ((∑ i ∈ F4, gaussWeight l4 i) * Real.exp (-(l4 * T))) ≤
+      (∑ i ∈ F5, gaussWeight lambda i) * Real.exp (-(lambda * T)) := by
+  have hhigh : ∀ l : ℝ, 2 * Real.log 2 ≤ l →
+      (521 / 520 : ℝ) * ((∑ i ∈ F4, gaussWeight l4 i) * Real.exp (-(l4 * T))) ≤
+        (∑ i ∈ F5, gaussWeight l i) * Real.exp (-(l * T)) := by
+    intro l hl
+    have h1 := four_dual_tangent hmean l
+    have h2 := five_ge_four_of_ge l hl
+    have hE := Real.exp_pos (-(l * T))
+    calc
+      (521 / 520 : ℝ) * ((∑ i ∈ F4, gaussWeight l4 i) * Real.exp (-(l4 * T))) ≤
+          (521 / 520 : ℝ) * ((∑ i ∈ F4, gaussWeight l i) * Real.exp (-(l * T))) :=
+        mul_le_mul_of_nonneg_left h1 (by norm_num)
+      _ = ((521 / 520 : ℝ) * ∑ i ∈ F4, gaussWeight l i) * Real.exp (-(l * T)) := by
+        ring
+      _ ≤ (∑ i ∈ F5, gaussWeight l i) * Real.exp (-(l * T)) :=
+        mul_le_mul_of_nonneg_right h2 hE.le
+  by_cases hl : 2 * Real.log 2 ≤ lambda
+  · exact hhigh lambda hl
+  · have hl' : lambda < 2 * Real.log 2 := not_le.mp hl
+    refine (hhigh (2 * Real.log 2) le_rfl).trans ?_
+    have h := tangent_finset F5 T (2 * Real.log 2) lambda
+    have hS := five_mean_at_two_log_two_le hT
+    have hE := Real.exp_pos (-(2 * Real.log 2 * T))
+    have ha : (lambda - 2 * Real.log 2) * Real.exp (-(2 * Real.log 2 * T)) ≤ 0 := by
+      nlinarith
+    have hnonneg : 0 ≤ (lambda - 2 * Real.log 2) * Real.exp (-(2 * Real.log 2 * T)) *
+        ∑ i ∈ F5, ((i : ℝ) - T) * gaussWeight (2 * Real.log 2) i := by
+      nlinarith [mul_nonneg (neg_nonneg.mpr ha) (neg_nonneg.mpr hS)]
+    linarith
+
+/-! ## Dual values -/
+
+/-- The four-size dual value is a lower bound for the dual objective of any
+support containing `S₄`. -/
+theorem dual_lower_of_superset {S : Set ℤ} (hS : S4 ⊆ S) {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) (l : ℝ) :
+    Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T ≤
+      Real.log (partitionFn S l) - l * T := by
+  have hZ4pos : 0 < ∑ i ∈ F4, gaussWeight l i := sum_gaussWeight_pos F4 F4_nonempty l
+  have hZ4l4pos : 0 < ∑ i ∈ F4, gaussWeight l4 i :=
+    sum_gaussWeight_pos F4 F4_nonempty l4
+  have hZ4 : ∑ i ∈ F4, gaussWeight l i ≤ partitionFn S l := by
+    rw [← partitionFn_S4]
+    exact partitionFn_mono hS l
+  have htan := four_dual_tangent hmean l
+  have h1 : Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T ≤
+      Real.log (∑ i ∈ F4, gaussWeight l i) - l * T := by
+    rw [log_sub_mul_eq hZ4l4pos, log_sub_mul_eq hZ4pos]
+    exact Real.log_le_log (mul_pos hZ4l4pos (Real.exp_pos _)) htan
+  have h2 := Real.log_le_log hZ4pos hZ4
+  linarith
+
+theorem bddBelow_dual {S : Set ℤ} (hS : S4 ⊆ S) {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) :
+    BddBelow (Set.range fun l : ℝ => Real.log (partitionFn S l) - l * T) :=
+  ⟨Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T, by
+    rintro _ ⟨l, rfl⟩
+    exact dual_lower_of_superset hS hmean l⟩
+
+theorem dualValue_le_at {S : Set ℤ} (hS : S4 ⊆ S) {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) (l : ℝ) :
+    dualValue S T ≤ Real.log (partitionFn S l) - l * T :=
+  ciInf_le (bddBelow_dual hS hmean) l
+
+theorem le_dualValue_of_superset {S : Set ℤ} (hS : S4 ⊆ S) {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) :
+    Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T ≤ dualValue S T :=
+  le_ciInf (dual_lower_of_superset hS hmean)
+
+/-- The four-size infimum is attained at the four-size tilt. -/
+theorem dualValue_S4_eq {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) :
+    dualValue S4 T = Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T := by
+  apply le_antisymm
+  · calc
+      dualValue S4 T ≤ Real.log (partitionFn S4 l4) - l4 * T :=
+        dualValue_le_at subset_rfl hmean l4
+      _ = Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T := by
+        rw [partitionFn_S4]
+  · exact le_dualValue_of_superset subset_rfl hmean
+
+/-- The dual value is monotone in the support (for supports containing
+`S₄`). -/
+theorem dualValue_mono {S S' : Set ℤ} (hS : S4 ⊆ S) (hSS' : S ⊆ S') {T l4 : ℝ}
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) :
+    dualValue S T ≤ dualValue S' T := by
+  refine le_ciInf (fun l => ?_)
+  have hpos : 0 < partitionFn S l := by
+    refine lt_of_lt_of_le (sum_gaussWeight_pos F4 F4_nonempty l) ?_
+    rw [← partitionFn_S4]
+    exact partitionFn_mono hS l
+  have h1 := dualValue_le_at hS hmean l
+  have h2 := Real.log_le_log hpos (partitionFn_mono hSS' l)
+  show dualValue S T ≤ Real.log (partitionFn S' l) - l * T
+  linarith
+
+/-- **Five-versus-four comparison.**  Uniformly in the tilt,
+`𝓕_{S₅}(T) ≥ 𝓕_{S₄}(T) + log (521/520)` for `T ≥ 14/5`. -/
+theorem le_dualValue_S5 {T l4 : ℝ} (hT : 14 / 5 ≤ T)
+    (hmean : ∑ i ∈ F4, ((i : ℝ) - T) * gaussWeight l4 i = 0) :
+    Real.log (521 / 520) + (Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T) ≤
+      dualValue S5 T := by
+  refine le_ciInf (fun l => ?_)
+  have hZ4pos := sum_gaussWeight_pos F4 F4_nonempty l4
+  have hZ5pos := sum_gaussWeight_pos F5 F5_nonempty l
+  have hX : 0 < (∑ i ∈ F4, gaussWeight l4 i) * Real.exp (-(l4 * T)) :=
+    mul_pos hZ4pos (Real.exp_pos _)
+  have key := five_tangent_lower hT hmean l
+  show Real.log (521 / 520) + (Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * T) ≤
+    Real.log (partitionFn S5 l) - l * T
+  rw [partitionFn_S5, log_sub_mul_eq hZ5pos, log_sub_mul_eq hZ4pos,
+    ← Real.log_mul (by norm_num) hX.ne']
+  exact Real.log_le_log (mul_pos (by norm_num) hX) key
+
+/-! ## The phase interval -/
+
+theorem phaseTarget_bounds (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    phaseTarget delta ∈ Set.Ioo (2 : ℝ) 5 ∧ (14 / 5 : ℝ) ≤ phaseTarget delta := by
+  obtain ⟨h0, h1⟩ := hdelta
+  have hq57 : Real.log 2 < 5 / 7 := by linarith [Real.log_two_lt_d9]
+  have hq12 : 1 / 2 < Real.log 2 := by linarith [Real.log_two_gt_d9]
+  have hpos : 0 < Real.log 2 := by linarith
+  have hA : (14 / 5 : ℝ) < 2 / Real.log 2 := by
+    rw [lt_div_iff₀ hpos]
+    linarith
+  have hB : 2 / Real.log 2 < 4 := by
+    rw [div_lt_iff₀ hpos]
+    linarith
+  unfold phaseTarget
+  exact ⟨⟨by linarith, by linarith⟩, by linarith⟩
+
+/-- **Fidelity of `𝓕_S`.**  For `S ∈ {S₄, S₅, S₊}` (any `S ⊇ S₄`) and every
+`T ∈ (2,5)`, the dual objective is bounded below, so the Lean infimum
+`dualValue S T` is its genuine greatest lower bound (no junk value). -/
+theorem isGLB_dualValue {S : Set ℤ} (hS : S4 ⊆ S) {T : ℝ}
+    (hT : T ∈ Set.Ioo (2 : ℝ) 5) :
+    IsGLB (Set.range fun l : ℝ => Real.log (partitionFn S l) - l * T)
+      (dualValue S T) :=
+  isGLB_ciInf (bddBelow_dual hS
+    (mean_condition (ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT)))
+
+/-! ## Assembly -/
+
+/-- The four comparison inequalities at the phase target, with the four-size
+dual value `v = 𝓕_{S₄}(T_δ)`. -/
+theorem core_at_delta (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    ∃ v : ℝ,
+      dualValue S4 (phaseTarget delta) = v ∧
+      Real.log (521 / 520) + v ≤ dualValue S5 (phaseTarget delta) ∧
+      dualValue Splus (phaseTarget delta) < Real.log (153 / 100) + v ∧
+      dualValue S5 (phaseTarget delta) ≤ dualValue Splus (phaseTarget delta) ∧
+      v ≤ dualValue Splus (phaseTarget delta) := by
+  obtain ⟨hT25, hT⟩ := phaseTarget_bounds delta hdelta
+  obtain ⟨l4, hmeanT⟩ : ∃ l4 : ℝ,
+      ProfileEntropyS4.mean fourGaussianScore l4 = phaseTarget delta :=
+    ⟨_, ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT25⟩
+  have hmean := mean_condition hmeanT
+  refine ⟨Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * phaseTarget delta,
+    dualValue_S4_eq hmean, le_dualValue_S5 hT hmean, ?_,
+    dualValue_mono S4_subset_S5 S5_subset_Splus hmean,
+    le_dualValue_of_superset S4_subset_Splus hmean⟩
+  have hratio := uniform_four_size_partition_ratio_for_delta delta l4
+    hdelta.1 hdelta.2 hmeanT
+  have hle := dualValue_le_at S4_subset_Splus hmean l4
+  rw [partitionFn_Splus] at hle
+  have hZ4 : ProfileEntropyS4.partition fourGaussianScore l4 =
+      ∑ i ∈ F4, gaussWeight l4 i := by
+    rw [partition_four_eq, sum_F4]
+  rw [hZ4] at hratio
+  have hZ4pos := sum_gaussWeight_pos F4 F4_nonempty l4
+  have hZpos := extendedGaussianPartition_pos (a := q) (lambda := l4) q_pos
+  have hlog : Real.log (extendedGaussianPartition q l4) -
+      Real.log (∑ i ∈ F4, gaussWeight l4 i) < Real.log (153 / 100) := by
+    rw [← Real.log_div hZpos.ne' hZ4pos.ne']
+    exact Real.log_lt_log (div_pos hZpos hZ4pos) hratio
+  linarith
+
+theorem log_200_div_153_eq : Real.log (200 / 153) = Real.log 2 - Real.log (153 / 100) := by
+  rw [show (200 / 153 : ℝ) = 2 / (153 / 100) by norm_num]
+  exact Real.log_div (by norm_num) (by norm_num)
+
+theorem log_8750_div_6681_eq :
+    Real.log (8750 / 6681) = Real.log (200 / 153) + Real.log (525 / 524) := by
+  rw [show (8750 / 6681 : ℝ) = 200 / 153 * (525 / 524) by norm_num]
+  exact Real.log_mul (by norm_num) (by norm_num)
+
+theorem log_6681_div_4375_eq :
+    Real.log (6681 / 4375) = Real.log (153 / 100) - Real.log (525 / 524) := by
+  rw [show (6681 / 4375 : ℝ) = (153 / 100) / (525 / 524) by norm_num]
+  exact Real.log_div (by norm_num) (by norm_num)
+
+theorem log_margin_eq :
+    Real.log (273004 / 273000) = Real.log (521 / 520) - Real.log (525 / 524) := by
+  rw [show (273004 / 273000 : ℝ) = (521 / 520) / (525 / 524) by norm_num]
+  exact Real.log_div (by norm_num) (by norm_num)
+
+theorem log_525_div_524_lt_log_521_div_520 :
+    Real.log (525 / 524) < Real.log (521 / 520) :=
+  Real.log_lt_log (by norm_num) (by norm_num)
+
+/-- **Lemma `lem:four-size-entropy-certificate`** with the manuscript's
+literal infimum definitions: for `0 ≤ δ ≤ 1`,
+`0 ≤ D₄(δ) < log (153/100)` and `A₄(δ) > log (200/153)`. -/
+theorem four_size_entropy_certificate (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    (0 ≤ entropyLoss4 delta ∧ entropyLoss4 delta < Real.log (153 / 100)) ∧
+      Real.log (200 / 153) < phaseGain4 delta := by
+  obtain ⟨v, h4, -, hplus, -, hv⟩ := core_at_delta delta hdelta
+  have L1 := log_200_div_153_eq
+  unfold entropyLoss4 phaseGain4
+  rw [h4]
+  exact ⟨⟨by linarith, by linarith⟩, by linarith⟩
+
+/-- **Lemma `lem:entropy-gap`, statement (5.3).**  For every `0 ≤ δ ≤ 1`,
+`A₅(δ) - A₄(δ) > log (525/524)`, `0 ≤ D₅(δ) < log (6681/4375)`, and
+`A₅(δ) > γ₅ = log (8750/6681)`. -/
+theorem entropy_gap (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    Real.log (525 / 524) < phaseGain5 delta - phaseGain4 delta ∧
+      (0 ≤ entropyLoss5 delta ∧ entropyLoss5 delta < Real.log (6681 / 4375)) ∧
+      gamma5 < phaseGain5 delta := by
+  obtain ⟨v, h4, h5, hplus, h5plus, -⟩ := core_at_delta delta hdelta
+  have L1 := log_200_div_153_eq
+  have L2 := log_8750_div_6681_eq
+  have L3 := log_6681_div_4375_eq
+  have L4 := log_525_div_524_lt_log_521_div_520
+  unfold phaseGain5 phaseGain4 entropyLoss5 gamma5
+  rw [h4]
+  exact ⟨by linarith, ⟨by linarith, by linarith⟩, by linarith⟩
+
+/-- The bound `A₅(δ) > log (8750/6681)` for every `δ ∈ [0,1]`, as asserted in
+the v2 main theorem. -/
+theorem log_8750_div_6681_lt_phaseGain5 (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    Real.log (8750 / 6681) < phaseGain5 delta :=
+  (entropy_gap delta hdelta).2.2
+
+/-- An explicit positive uniform margin above `γ₅` on the whole phase
+interval: `A₅(δ) > log (8750/6681) + log (273004/273000)`. -/
+theorem phaseGain5_uniform_margin (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    Real.log (8750 / 6681) + Real.log (273004 / 273000) < phaseGain5 delta := by
+  obtain ⟨v, -, h5, hplus, -, -⟩ := core_at_delta delta hdelta
+  have L1 := log_200_div_153_eq
+  have L2 := log_8750_div_6681_eq
+  have L5 := log_margin_eq
+  unfold phaseGain5
+  linarith
+
+theorem log_273004_div_273000_pos : 0 < Real.log (273004 / 273000) :=
+  Real.log_pos (by norm_num)
+
+end
+
+end FiveSizeEntropyGap
+
+end Erdos625
+
+#print axioms Erdos625.FiveSizeEntropyGap.hasSum_partitionFn
+#print axioms Erdos625.FiveSizeEntropyGap.isGLB_dualValue
+#print axioms Erdos625.FiveSizeEntropyGap.four_size_entropy_certificate
+#print axioms Erdos625.FiveSizeEntropyGap.entropy_gap
+#print axioms Erdos625.FiveSizeEntropyGap.log_8750_div_6681_lt_phaseGain5
+#print axioms Erdos625.FiveSizeEntropyGap.phaseGain5_uniform_margin
+
+end Erdos625SelfContained_Module_Erdos625_FiveSizeEntropyGap
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FiveSizeEntropyGap
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FiveSizePhaseGainSharp
+Source: Erdos625/FiveSizePhaseGainSharp.lean
+Normalized SHA-256: 133913b59c718e40aa386b0ac960aa70e59151b171348fc1e2f5520079ef7009
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FiveSizePhaseGainSharp
+
+/-!
+# A sharper uniform lower bound for the five-size phase gain
+
+This module sharpens the uniform constant of `Erdos625.FiveSizeEntropyGap`
+without editing it.  `Erdos625.lean` imports it, so it is part of the one-file
+proof `Erdos625SelfContained.lean`; the released theorem `Erdos625.erdos625`
+does not use it and is unchanged.
+
+The definitions are those of `Erdos625.FiveSizeEntropyGap` (the manuscript's
+literal `gaussWeight`, `partitionFn`, `dualValue`, `phaseTarget`, `phaseGain5`,
+...).  The only change is a sharper four-size partition-ratio certificate.
+
+## Main results
+
+* `sharp_four_size_partition_ratio_for_delta` — at the four-size tilt
+  `λ₄ = λ_{S₄}(T_δ)`, `Z_{S₊}(λ₄) / Z_{S₄}(λ₄) < 127/100` for `0 ≤ δ ≤ 1`
+  (the repository's `uniform_four_size_partition_ratio_for_delta` has `153/100`).
+* `sharp_four_size_entropy_certificate` — `0 ≤ D₄(δ) < log (127/100)` and
+  `A₄(δ) > log (200/127)`.
+* `log_2605_div_1651_lt_phaseGain5` — `A₅(δ) > log (2605/1651)` on `[0,1]`,
+  where `log (2605/1651) = log (200/127) + log (521/520) ≈ 0.45605`
+  (the module `FiveSizeEntropyGap` proves `log (8750/6681) ≈ 0.26979`).
+
+## Proof of the ratio certificate
+
+Write `q = log 2` and parametrize tilts by `y = e^{λ - q/2}`
+(`yTilt y = q/2 + log y`).  Then `w_i(yTilt y) = y^i / 2^{i(i-1)/2}` is
+rational for rational `y`.
+
+1. Tilt corridor: the four-size mean at `y = 389/100` is below `2885/1000 < 2/q`
+   and at `y = 308/25` it is above `38854/10000 > 1 + 2/q`; strict monotonicity
+   of the mean gives `yTilt (389/100) < λ₄ < yTilt (308/25)`.
+2. Tail: for `λ ≤ 9q/2`, `w_{d+1} ≤ w_d / 8` for `d ≥ 7`, so
+   `Z_{S₊} ≤ (w_{-1} + w_0 + w_1) + Z_{S₄} + (w_6 + (8/7) w_7)`.
+3. Cell bound: for `a ≤ λ ≤ b`, each `w_i(λ)/Z_{S₄}(λ)` with `i ≤ 1` is at most
+   its value at `a`, and each with `i ≥ 6` is at most its value at `b`.
+4. Four rational cells with breakpoints `y = 389/100, 4, 5, 10, 308/25`; on each
+   the cell bound is below `27/100` (checked by `norm_num`).
+-/
+
+namespace Erdos625
+
+namespace FiveSizePhaseGainSharp
+
+open scoped BigOperators Topology
+open FiveSizeEntropyGap
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-! ## The tilt parametrization `y = e^{λ - q/2}` -/
+
+/-- The tilt `λ = log 2 / 2 + log y`, i.e. `e^{λ - q/2} = y`. -/
+def yTilt (y : ℝ) : ℝ :=
+  Real.log 2 / 2 + Real.log y
+
+theorem gaussWeight_yTilt (y : ℝ) (hy : 0 < y) (i : ℤ) (n k : ℕ)
+    (hi : (i : ℝ) = n) (hk : (k : ℝ) = (n : ℝ) * ((n : ℝ) - 1) / 2) :
+    gaussWeight (yTilt y) i = y ^ n / 2 ^ k := by
+  rw [gaussWeight_eq_exp (yTilt y) i ((n : ℝ) * Real.log y - (k : ℝ) * Real.log 2)
+      (by unfold yTilt; rw [hi]; linear_combination (Real.log 2) * hk),
+    Real.exp_sub, Real.exp_nat_mul, Real.exp_nat_mul, Real.exp_log hy,
+    Real.exp_log (by norm_num : (0 : ℝ) < 2)]
+
+theorem gaussWeight_yTilt_neg_one (y : ℝ) (hy : 0 < y) :
+    gaussWeight (yTilt y) (-1) = 1 / (2 * y) := by
+  rw [gaussWeight_eq_exp (yTilt y) (-1) (-Real.log (2 * y))
+      (by unfold yTilt; rw [Real.log_mul two_ne_zero hy.ne']; push_cast; ring),
+    Real.exp_neg, Real.exp_log (mul_pos two_pos hy), one_div]
+
+/-- The weights `w_{-1}, …, w_7` at the tilt `yTilt y`. -/
+theorem weights_yTilt (y : ℝ) (hy : 0 < y) :
+    gaussWeight (yTilt y) (-1) = 1 / (2 * y) ∧
+      gaussWeight (yTilt y) 0 = 1 ∧
+      gaussWeight (yTilt y) 1 = y ∧
+      gaussWeight (yTilt y) 2 = y ^ 2 / 2 ∧
+      gaussWeight (yTilt y) 3 = y ^ 3 / 8 ∧
+      gaussWeight (yTilt y) 4 = y ^ 4 / 64 ∧
+      gaussWeight (yTilt y) 5 = y ^ 5 / 1024 ∧
+      gaussWeight (yTilt y) 6 = y ^ 6 / 32768 ∧
+      gaussWeight (yTilt y) 7 = y ^ 7 / 2097152 := by
+  refine ⟨gaussWeight_yTilt_neg_one y hy, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [gaussWeight_yTilt y hy 0 0 0 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 1 1 0 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 2 2 1 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 3 3 3 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 4 4 6 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 5 5 10 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 6 6 15 (by norm_num) (by norm_num)]
+    norm_num
+  · rw [gaussWeight_yTilt y hy 7 7 21 (by norm_num) (by norm_num)]
+    norm_num
+
+theorem yTilt_le_yTilt {y y' : ℝ} (hy : 0 < y) (h : y ≤ y') : yTilt y ≤ yTilt y' := by
+  unfold yTilt
+  linarith [Real.log_le_log hy h]
+
+theorem yTilt_le_nine_q_half {y : ℝ} (hy : 0 < y) (h : y ≤ 16) : yTilt y ≤ 9 * q / 2 := by
+  have h16 : Real.log 16 = 4 * Real.log 2 := by
+    rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow]
+    norm_num
+  have hl := Real.log_le_log hy h
+  unfold yTilt q
+  linarith
+
+/-! ## The pieces of the partition functions -/
+
+/-- `Z_{S₄}(λ) = ∑_{i ∈ {2,3,4,5}} w_i(λ)`. -/
+def fourPartition (lambda : ℝ) : ℝ :=
+  ∑ i ∈ F4, gaussWeight lambda i
+
+/-- The weights of `S₊` below `S₄`: `w_{-1} + w_0 + w_1`. -/
+def lowPart (lambda : ℝ) : ℝ :=
+  gaussWeight lambda (-1) + gaussWeight lambda 0 + gaussWeight lambda 1
+
+/-- The bound `w_6 + (8/7) w_7` for the weights of `S₊` above `S₄`. -/
+def highPart (lambda : ℝ) : ℝ :=
+  gaussWeight lambda 6 + 8 / 7 * gaussWeight lambda 7
+
+theorem fourPartition_pos (lambda : ℝ) : 0 < fourPartition lambda :=
+  sum_gaussWeight_pos F4 F4_nonempty lambda
+
+theorem fourPartition_yTilt (y : ℝ) (hy : 0 < y) :
+    fourPartition (yTilt y) = y ^ 2 / 2 + y ^ 3 / 8 + y ^ 4 / 64 + y ^ 5 / 1024 := by
+  obtain ⟨-, -, -, h2, h3, h4, h5, -, -⟩ := weights_yTilt y hy
+  unfold fourPartition
+  rw [sum_F4, h2, h3, h4, h5]
+
+theorem lowPart_yTilt (y : ℝ) (hy : 0 < y) :
+    lowPart (yTilt y) = 1 / (2 * y) + 1 + y := by
+  obtain ⟨hm1, h0, h1, -, -, -, -, -, -⟩ := weights_yTilt y hy
+  unfold lowPart
+  rw [hm1, h0, h1]
+
+theorem highPart_yTilt (y : ℝ) (hy : 0 < y) :
+    highPart (yTilt y) = y ^ 6 / 32768 + 8 / 7 * (y ^ 7 / 2097152) := by
+  obtain ⟨-, -, -, -, -, -, -, h6, h7⟩ := weights_yTilt y hy
+  unfold highPart
+  rw [h6, h7]
+
+theorem mean_yTilt (y : ℝ) (hy : 0 < y) :
+    ProfileEntropyS4.mean fourGaussianScore (yTilt y) =
+      (2 * (y ^ 2 / 2) + 3 * (y ^ 3 / 8) + 4 * (y ^ 4 / 64) + 5 * (y ^ 5 / 1024)) /
+        (y ^ 2 / 2 + y ^ 3 / 8 + y ^ 4 / 64 + y ^ 5 / 1024) := by
+  obtain ⟨-, -, -, h2, h3, h4, h5, -, -⟩ := weights_yTilt y hy
+  unfold ProfileEntropyS4.mean
+  rw [firstNumerator_four_eq, partition_four_eq, h2, h3, h4, h5]
+
+/-! ## A sharper tilt corridor -/
+
+theorem two_div_q_bounds : (2885 / 1000 : ℝ) < 2 / q ∧ 1 + 2 / q < 38854 / 10000 := by
+  have hq0 : 0 < q := q_pos
+  have hqlo : (0.6931471803 : ℝ) < q := Real.log_two_gt_d9
+  have hqhi : q < (0.6931471808 : ℝ) := Real.log_two_lt_d9
+  constructor
+  · rw [lt_div_iff₀ hq0]
+    linarith
+  · have h : 2 / q < 28854 / 10000 := by
+      rw [div_lt_iff₀ hq0]
+      linarith
+    linarith
+
+theorem mean_lower_endpoint :
+    ProfileEntropyS4.mean fourGaussianScore (yTilt (389 / 100)) < 2885 / 1000 := by
+  rw [mean_yTilt (389 / 100) (by norm_num)]
+  norm_num
+
+theorem mean_upper_endpoint :
+    (38854 / 10000 : ℝ) < ProfileEntropyS4.mean fourGaussianScore (yTilt (308 / 25)) := by
+  rw [mean_yTilt (308 / 25) (by norm_num)]
+  norm_num
+
+/-- **Sharper tilt corridor.**  For `0 ≤ δ ≤ 1`, every four-size tilt with
+mean `T_δ` satisfies `log 2/2 + log (389/100) < λ < log 2/2 + log (308/25)`. -/
+theorem sharp_tilt_corridor {delta lambda : ℝ} (hd0 : 0 ≤ delta) (hd1 : delta ≤ 1)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda = 1 + 2 / q - delta) :
+    yTilt (389 / 100) < lambda ∧ lambda < yTilt (308 / 25) := by
+  obtain ⟨hlo, hhi⟩ := two_div_q_bounds
+  have hm := ProfileEntropyS4.strictMono_mean fourGaussianScore
+  have e1 := mean_lower_endpoint
+  have e2 := mean_upper_endpoint
+  constructor
+  · by_contra h
+    have h' := hm.monotone (not_lt.mp h)
+    rw [hMean] at h'
+    linarith
+  · by_contra h
+    have h' := hm.monotone (not_lt.mp h)
+    rw [hMean] at h'
+    linarith
+
+/-! ## Tail of the unrestricted partition function -/
+
+theorem atom_eq (lambda : ℝ) :
+    extendedGaussianExceptionalAtom q lambda = gaussWeight lambda (-1) := by
+  unfold extendedGaussianExceptionalAtom gaussWeight q
+  congr 1
+  push_cast
+  ring
+
+theorem natTerm_eq (lambda : ℝ) (d : ℕ) :
+    extendedGaussianNaturalTerm q lambda d = gaussWeight lambda (d : ℤ) := by
+  unfold gaussWeight extendedGaussianNaturalTerm q
+  simp
+
+theorem exp_neg_three_q : Real.exp (-(3 * q)) = 1 / 8 := by
+  rw [Real.exp_neg, show (3 : ℝ) * q = ((3 : ℕ) : ℝ) * Real.log 2 by unfold q; norm_num,
+    Real.exp_nat_mul, Real.exp_log (by norm_num : (0 : ℝ) < 2)]
+  norm_num
+
+theorem natTerm_succ_le (lambda : ℝ) (hl : lambda ≤ 9 * q / 2) (d : ℕ) (hd : 7 ≤ d) :
+    extendedGaussianNaturalTerm q lambda (d + 1) ≤
+      1 / 8 * extendedGaussianNaturalTerm q lambda d := by
+  have hq : 0 < q := q_pos
+  have hstep : extendedGaussianNaturalTerm q lambda (d + 1) =
+      Real.exp (lambda - q / 2 * (2 * d + 1)) * extendedGaussianNaturalTerm q lambda d := by
+    unfold extendedGaussianNaturalTerm
+    rw [← Real.exp_add]
+    push_cast
+    congr 1
+    ring
+  have hd' : (7 : ℝ) ≤ d := by exact_mod_cast hd
+  have hle : lambda - q / 2 * (2 * d + 1) ≤ -(3 * q) := by
+    nlinarith [mul_le_mul_of_nonneg_left hd' hq.le]
+  have h8 : Real.exp (lambda - q / 2 * (2 * d + 1)) ≤ 1 / 8 := by
+    rw [← exp_neg_three_q]
+    exact Real.exp_le_exp.mpr hle
+  rw [hstep]
+  exact mul_le_mul_of_nonneg_right h8 (Real.exp_nonneg _)
+
+theorem tsum_natTerm_le (lambda : ℝ) (hl : lambda ≤ 9 * q / 2) :
+    ∑' d : ℕ, extendedGaussianNaturalTerm q lambda d ≤
+      (∑ d ∈ Finset.range 7, extendedGaussianNaturalTerm q lambda d) +
+        8 / 7 * extendedGaussianNaturalTerm q lambda 7 := by
+  have hs : Summable (extendedGaussianNaturalTerm q lambda) :=
+    summable_extendedGaussianNaturalTerm q_pos
+  have hgeom : ∀ n : ℕ, extendedGaussianNaturalTerm q lambda (n + 7) ≤
+      (1 / 8 : ℝ) ^ n * extendedGaussianNaturalTerm q lambda 7 := by
+    intro n
+    induction n with
+    | zero => simp
+    | succ n ih =>
+      rw [(by omega : n + 1 + 7 = n + 7 + 1)]
+      calc extendedGaussianNaturalTerm q lambda (n + 7 + 1)
+          ≤ 1 / 8 * extendedGaussianNaturalTerm q lambda (n + 7) :=
+            natTerm_succ_le lambda hl (n + 7) (by omega)
+        _ ≤ 1 / 8 * ((1 / 8 : ℝ) ^ n * extendedGaussianNaturalTerm q lambda 7) :=
+            mul_le_mul_of_nonneg_left ih (by norm_num)
+        _ = (1 / 8 : ℝ) ^ (n + 1) * extendedGaussianNaturalTerm q lambda 7 := by
+            ring
+  have hgs : Summable (fun n : ℕ => (1 / 8 : ℝ) ^ n * extendedGaussianNaturalTerm q lambda 7) :=
+    (summable_geometric_of_lt_one (by norm_num) (by norm_num)).mul_right _
+  have htail : ∑' n : ℕ, extendedGaussianNaturalTerm q lambda (n + 7) ≤
+      8 / 7 * extendedGaussianNaturalTerm q lambda 7 := by
+    calc ∑' n : ℕ, extendedGaussianNaturalTerm q lambda (n + 7)
+        ≤ ∑' n : ℕ, (1 / 8 : ℝ) ^ n * extendedGaussianNaturalTerm q lambda 7 :=
+          Summable.tsum_le_tsum hgeom ((summable_nat_add_iff 7).mpr hs) hgs
+      _ = 8 / 7 * extendedGaussianNaturalTerm q lambda 7 := by
+          rw [tsum_mul_right,
+            tsum_geometric_of_lt_one (r := (1 / 8 : ℝ)) (by norm_num) (by norm_num)]
+          norm_num
+  rw [← hs.sum_add_tsum_nat_add 7]
+  linarith
+
+/-- For `λ ≤ 9q/2`: `Z_{S₊}(λ) ≤ (w_{-1}+w_0+w_1) + Z_{S₄} + (w_6 + (8/7) w_7)`. -/
+theorem Zplus_le (lambda : ℝ) (hl : lambda ≤ 9 * q / 2) :
+    extendedGaussianPartition q lambda ≤
+      lowPart lambda + fourPartition lambda + highPart lambda := by
+  have h := tsum_natTerm_le lambda hl
+  have hfin : (∑ d ∈ Finset.range 7, extendedGaussianNaturalTerm q lambda d) +
+      8 / 7 * extendedGaussianNaturalTerm q lambda 7 =
+      gaussWeight lambda 0 + gaussWeight lambda 1 + fourPartition lambda +
+        highPart lambda := by
+    unfold fourPartition highPart
+    simp only [Finset.sum_range_succ, Finset.sum_range_zero, natTerm_eq, sum_F4]
+    push_cast
+    ring
+  unfold extendedGaussianPartition
+  rw [atom_eq]
+  unfold lowPart
+  linarith
+
+/-! ## Monotone ratio bounds on a cell -/
+
+theorem cross_le {a lambda : ℝ} (h : a ≤ lambda) {i j : ℤ} (hij : i ≤ j) :
+    gaussWeight lambda i * gaussWeight a j ≤ gaussWeight a i * gaussWeight lambda j := by
+  rw [gaussWeight_shift lambda a i, gaussWeight_shift lambda a j]
+  have hexp : Real.exp ((lambda - a) * (i : ℝ)) ≤ Real.exp ((lambda - a) * (j : ℝ)) :=
+    Real.exp_le_exp.mpr
+      (mul_le_mul_of_nonneg_left (by exact_mod_cast hij) (sub_nonneg.mpr h))
+  have hpos := mul_pos (gaussWeight_pos a i) (gaussWeight_pos a j)
+  calc gaussWeight a i * Real.exp ((lambda - a) * (i : ℝ)) * gaussWeight a j
+      = (gaussWeight a i * gaussWeight a j) * Real.exp ((lambda - a) * (i : ℝ)) := by ring
+    _ ≤ (gaussWeight a i * gaussWeight a j) * Real.exp ((lambda - a) * (j : ℝ)) :=
+        mul_le_mul_of_nonneg_left hexp hpos.le
+    _ = gaussWeight a i * (gaussWeight a j * Real.exp ((lambda - a) * (j : ℝ))) := by ring
+
+theorem mem_F4_bounds {j : ℤ} (hj : j ∈ F4) : 2 ≤ j ∧ j ≤ 5 := by
+  simp only [F4, Finset.mem_insert, Finset.mem_singleton] at hj
+  omega
+
+/-- For `i ≤ 2` and `a ≤ λ`: `w_i(λ)/Z_{S₄}(λ) ≤ w_i(a)/Z_{S₄}(a)`. -/
+theorem one_low_mono {a lambda : ℝ} (h : a ≤ lambda) {i : ℤ} (hi : i ≤ 2) :
+    gaussWeight lambda i * fourPartition a ≤ gaussWeight a i * fourPartition lambda := by
+  unfold fourPartition
+  rw [Finset.mul_sum, Finset.mul_sum]
+  refine Finset.sum_le_sum fun j hj => cross_le h ?_
+  have := (mem_F4_bounds hj).1
+  omega
+
+/-- For `i ≥ 5` and `λ ≤ b`: `w_i(λ)/Z_{S₄}(λ) ≤ w_i(b)/Z_{S₄}(b)`. -/
+theorem one_high_mono {lambda b : ℝ} (h : lambda ≤ b) {i : ℤ} (hi : 5 ≤ i) :
+    gaussWeight lambda i * fourPartition b ≤ gaussWeight b i * fourPartition lambda := by
+  unfold fourPartition
+  rw [Finset.mul_sum, Finset.mul_sum]
+  refine Finset.sum_le_sum fun j hj => ?_
+  have hji : j ≤ i := by
+    have := (mem_F4_bounds hj).2
+    omega
+  linarith [cross_le h hji]
+
+theorem low_mono {a lambda : ℝ} (h : a ≤ lambda) :
+    lowPart lambda * fourPartition a ≤ lowPart a * fourPartition lambda := by
+  have h1 := one_low_mono h (i := -1) (by norm_num)
+  have h2 := one_low_mono h (i := 0) (by norm_num)
+  have h3 := one_low_mono h (i := 1) (by norm_num)
+  calc lowPart lambda * fourPartition a
+      = gaussWeight lambda (-1) * fourPartition a + gaussWeight lambda 0 * fourPartition a +
+          gaussWeight lambda 1 * fourPartition a := by unfold lowPart; ring
+    _ ≤ gaussWeight a (-1) * fourPartition lambda + gaussWeight a 0 * fourPartition lambda +
+          gaussWeight a 1 * fourPartition lambda := add_le_add (add_le_add h1 h2) h3
+    _ = lowPart a * fourPartition lambda := by unfold lowPart; ring
+
+theorem high_mono {lambda b : ℝ} (h : lambda ≤ b) :
+    highPart lambda * fourPartition b ≤ highPart b * fourPartition lambda := by
+  have h6 := one_high_mono h (i := 6) (by norm_num)
+  have h7 := one_high_mono h (i := 7) (by norm_num)
+  calc highPart lambda * fourPartition b
+      = gaussWeight lambda 6 * fourPartition b +
+          8 / 7 * (gaussWeight lambda 7 * fourPartition b) := by unfold highPart; ring
+    _ ≤ gaussWeight b 6 * fourPartition lambda +
+          8 / 7 * (gaussWeight b 7 * fourPartition lambda) :=
+        add_le_add h6 (mul_le_mul_of_nonneg_left h7 (by norm_num))
+    _ = highPart b * fourPartition lambda := by unfold highPart; ring
+
+/-- **Cell bound.**  If `a ≤ λ ≤ b ≤ 9q/2` then
+`Z_{S₊}(λ) < (1 + r) Z_{S₄}(λ)` whenever
+`(w_{-1}+w_0+w_1)(a)/Z_{S₄}(a) + (w_6 + (8/7)w_7)(b)/Z_{S₄}(b) < r`. -/
+theorem ratio_cell {a b lambda : ℝ} (ha : a ≤ lambda) (hb : lambda ≤ b)
+    (hb9 : b ≤ 9 * q / 2) {r : ℝ}
+    (hcell : lowPart a / fourPartition a + highPart b / fourPartition b < r) :
+    extendedGaussianPartition q lambda < (1 + r) * fourPartition lambda := by
+  have hZa := fourPartition_pos a
+  have hZb := fourPartition_pos b
+  have hZ := fourPartition_pos lambda
+  have h1 : lowPart lambda ≤ lowPart a / fourPartition a * fourPartition lambda := by
+    rw [div_mul_eq_mul_div, le_div_iff₀ hZa]
+    exact low_mono ha
+  have h2 : highPart lambda ≤ highPart b / fourPartition b * fourPartition lambda := by
+    rw [div_mul_eq_mul_div, le_div_iff₀ hZb]
+    exact high_mono hb
+  calc extendedGaussianPartition q lambda
+      ≤ lowPart lambda + fourPartition lambda + highPart lambda :=
+        Zplus_le lambda (hb.trans hb9)
+    _ ≤ lowPart a / fourPartition a * fourPartition lambda + fourPartition lambda +
+          highPart b / fourPartition b * fourPartition lambda := by linarith
+    _ = (1 + (lowPart a / fourPartition a + highPart b / fourPartition b)) *
+          fourPartition lambda := by ring
+    _ < (1 + r) * fourPartition lambda :=
+        mul_lt_mul_of_pos_right (by linarith) hZ
+
+/-! ## The four rational cells -/
+
+theorem cell_1 :
+    lowPart (yTilt (389 / 100)) / fourPartition (yTilt (389 / 100)) +
+      highPart (yTilt 4) / fourPartition (yTilt 4) < 27 / 100 := by
+  rw [lowPart_yTilt (389 / 100) (by norm_num), fourPartition_yTilt (389 / 100) (by norm_num),
+    highPart_yTilt 4 (by norm_num), fourPartition_yTilt 4 (by norm_num)]
+  norm_num
+
+theorem cell_2 :
+    lowPart (yTilt 4) / fourPartition (yTilt 4) +
+      highPart (yTilt 5) / fourPartition (yTilt 5) < 27 / 100 := by
+  rw [lowPart_yTilt 4 (by norm_num), fourPartition_yTilt 4 (by norm_num),
+    highPart_yTilt 5 (by norm_num), fourPartition_yTilt 5 (by norm_num)]
+  norm_num
+
+theorem cell_3 :
+    lowPart (yTilt 5) / fourPartition (yTilt 5) +
+      highPart (yTilt 10) / fourPartition (yTilt 10) < 27 / 100 := by
+  rw [lowPart_yTilt 5 (by norm_num), fourPartition_yTilt 5 (by norm_num),
+    highPart_yTilt 10 (by norm_num), fourPartition_yTilt 10 (by norm_num)]
+  norm_num
+
+theorem cell_4 :
+    lowPart (yTilt 10) / fourPartition (yTilt 10) +
+      highPart (yTilt (308 / 25)) / fourPartition (yTilt (308 / 25)) < 27 / 100 := by
+  rw [lowPart_yTilt 10 (by norm_num), fourPartition_yTilt 10 (by norm_num),
+    highPart_yTilt (308 / 25) (by norm_num), fourPartition_yTilt (308 / 25) (by norm_num)]
+  norm_num
+
+/-! ## The sharper partition-ratio certificate -/
+
+/-- **Sharper uniform partition-ratio certificate.**  For `0 ≤ δ ≤ 1` and every
+tilt `λ` whose four-size mean is `T_δ = 1 + 2/q - δ`,
+`Z_{S₊}(λ) / Z_{S₄}(λ) < 127/100`.  Same hypotheses as the repository's
+`uniform_four_size_partition_ratio_for_delta` (which has `153/100`). -/
+theorem sharp_four_size_partition_ratio_for_delta
+    (delta lambda : ℝ)
+    (hDeltaLower : 0 ≤ delta)
+    (hDeltaUpper : delta ≤ 1)
+    (hMean : ProfileEntropyS4.mean fourGaussianScore lambda = 1 + 2 / q - delta) :
+    extendedGaussianPartition q lambda /
+        ProfileEntropyS4.partition fourGaussianScore lambda <
+      (127 / 100 : ℝ) := by
+  obtain ⟨hlo, hhi⟩ := sharp_tilt_corridor hDeltaLower hDeltaUpper hMean
+  have hZ : ProfileEntropyS4.partition fourGaussianScore lambda = fourPartition lambda := by
+    rw [partition_four_eq]
+    unfold fourPartition
+    rw [sum_F4]
+  rw [hZ, div_lt_iff₀ (fourPartition_pos lambda)]
+  have h9 : ∀ y : ℝ, 0 < y → y ≤ 16 → yTilt y ≤ 9 * q / 2 :=
+    fun y hy h => yTilt_le_nine_q_half hy h
+  have key : extendedGaussianPartition q lambda < (1 + 27 / 100) * fourPartition lambda := by
+    rcases le_or_gt lambda (yTilt 4) with h1 | h1
+    · exact ratio_cell hlo.le h1 (h9 4 (by norm_num) (by norm_num)) cell_1
+    rcases le_or_gt lambda (yTilt 5) with h2 | h2
+    · exact ratio_cell h1.le h2 (h9 5 (by norm_num) (by norm_num)) cell_2
+    rcases le_or_gt lambda (yTilt 10) with h3 | h3
+    · exact ratio_cell h2.le h3 (h9 10 (by norm_num) (by norm_num)) cell_3
+    · exact ratio_cell h3.le hhi.le (h9 (308 / 25) (by norm_num) (by norm_num)) cell_4
+  linarith
+
+/-! ## Consequences for `A₄` and `A₅` -/
+
+/-- The comparison inequalities at the phase target with the sharper ratio,
+with the four-size dual value `v = 𝓕_{S₄}(T_δ)`. -/
+theorem sharp_core_at_delta (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    ∃ v : ℝ,
+      dualValue S4 (phaseTarget delta) = v ∧
+      Real.log (521 / 520) + v ≤ dualValue S5 (phaseTarget delta) ∧
+      dualValue Splus (phaseTarget delta) < Real.log (127 / 100) + v ∧
+      v ≤ dualValue Splus (phaseTarget delta) := by
+  obtain ⟨hT25, hT⟩ := phaseTarget_bounds delta hdelta
+  obtain ⟨l4, hmeanT⟩ : ∃ l4 : ℝ,
+      ProfileEntropyS4.mean fourGaussianScore l4 = phaseTarget delta :=
+    ⟨_, ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT25⟩
+  have hmean := mean_condition hmeanT
+  refine ⟨Real.log (∑ i ∈ F4, gaussWeight l4 i) - l4 * phaseTarget delta,
+    dualValue_S4_eq hmean, le_dualValue_S5 hT hmean, ?_,
+    le_dualValue_of_superset S4_subset_Splus hmean⟩
+  have hratio := sharp_four_size_partition_ratio_for_delta delta l4
+    hdelta.1 hdelta.2 hmeanT
+  have hle := dualValue_le_at S4_subset_Splus hmean l4
+  rw [partitionFn_Splus] at hle
+  have hZ4 : ProfileEntropyS4.partition fourGaussianScore l4 =
+      ∑ i ∈ F4, gaussWeight l4 i := by
+    rw [partition_four_eq, sum_F4]
+  rw [hZ4] at hratio
+  have hZ4pos := sum_gaussWeight_pos F4 F4_nonempty l4
+  have hZpos := extendedGaussianPartition_pos (a := q) (lambda := l4) q_pos
+  have hlog : Real.log (extendedGaussianPartition q l4) -
+      Real.log (∑ i ∈ F4, gaussWeight l4 i) < Real.log (127 / 100) := by
+    rw [← Real.log_div hZpos.ne' hZ4pos.ne']
+    exact Real.log_lt_log (div_pos hZpos hZ4pos) hratio
+  linarith
+
+theorem log_200_div_127_eq :
+    Real.log (200 / 127) = Real.log 2 - Real.log (127 / 100) := by
+  rw [show (200 / 127 : ℝ) = 2 / (127 / 100) by norm_num]
+  exact Real.log_div (by norm_num) (by norm_num)
+
+theorem log_2605_div_1651_eq :
+    Real.log (2605 / 1651) = Real.log (200 / 127) + Real.log (521 / 520) := by
+  rw [show (2605 / 1651 : ℝ) = 200 / 127 * (521 / 520) by norm_num]
+  exact Real.log_mul (by norm_num) (by norm_num)
+
+/-- The sharper four-size certificate: for `0 ≤ δ ≤ 1`,
+`0 ≤ D₄(δ) < log (127/100)` and `A₄(δ) > log (200/127)`. -/
+theorem sharp_four_size_entropy_certificate (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    (0 ≤ entropyLoss4 delta ∧ entropyLoss4 delta < Real.log (127 / 100)) ∧
+      Real.log (200 / 127) < phaseGain4 delta := by
+  obtain ⟨v, h4, -, hplus, hv⟩ := sharp_core_at_delta delta hdelta
+  have L1 := log_200_div_127_eq
+  unfold entropyLoss4 phaseGain4
+  rw [h4]
+  exact ⟨⟨by linarith, by linarith⟩, by linarith⟩
+
+/-- **Sharper uniform bound for the five-size phase gain.**  For every
+`0 ≤ δ ≤ 1`, `A₅(δ) > log (2605/1651) = log (200/127) + log (521/520)`
+(`≈ 0.45605`). -/
+theorem log_2605_div_1651_lt_phaseGain5 (delta : ℝ)
+    (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    Real.log (2605 / 1651) < phaseGain5 delta := by
+  obtain ⟨v, -, h5, hplus, -⟩ := sharp_core_at_delta delta hdelta
+  have L1 := log_200_div_127_eq
+  have L2 := log_2605_div_1651_eq
+  unfold phaseGain5
+  linarith
+
+/-- The new constant improves the manuscript's `γ₅ = log (8750/6681)`. -/
+theorem gamma5_lt_log_2605_div_1651 : gamma5 < Real.log (2605 / 1651) := by
+  unfold gamma5
+  exact Real.log_lt_log (by norm_num) (by norm_num)
+
+end
+
+end FiveSizePhaseGainSharp
+
+end Erdos625
+
+#print axioms Erdos625.FiveSizePhaseGainSharp.sharp_tilt_corridor
+#print axioms Erdos625.FiveSizePhaseGainSharp.sharp_four_size_partition_ratio_for_delta
+#print axioms Erdos625.FiveSizePhaseGainSharp.sharp_four_size_entropy_certificate
+#print axioms Erdos625.FiveSizePhaseGainSharp.log_2605_div_1651_lt_phaseGain5
+#print axioms Erdos625.FiveSizePhaseGainSharp.gamma5_lt_log_2605_div_1651
+
+end Erdos625SelfContained_Module_Erdos625_FiveSizePhaseGainSharp
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FiveSizePhaseGainSharp
+========================================================================== -/
+
+/- ==========================================================================
+BEGIN SOURCE MODULE: Erdos625.FiveSizePhaseGainCertificate
+Source: Erdos625/FiveSizePhaseGainCertificate.lean
+Normalized SHA-256: 6576169ae70bd5c36d654fcbe26c0e094dbdf00cd60a2abf8065db461bf161df
+========================================================================== -/
+section Erdos625SelfContained_Module_Erdos625_FiveSizePhaseGainCertificate
+
+/-!
+# A two-cell certificate: `A₅(δ) > log (169/100)` on `[0,1]`
+
+This module proves a uniform lower bound for the five-size phase gain that is
+close to its true minimum (`min_δ A₅ ≈ 0.525995 = log 1.69214`, numerical
+evidence only).  `Erdos625.lean` imports it, so it is part of the one-file
+proof `Erdos625SelfContained.lean`; the released theorem `Erdos625.erdos625`
+does not use it and is unchanged.  The definitions are those of
+`Erdos625.FiveSizeEntropyGap`.
+
+## Main result
+
+* `log_169_div_100_lt_phaseGain5` — for every `0 ≤ δ ≤ 1`,
+  `A₅(δ) = log 2 - 𝓕_{S₊}(T_δ) + 𝓕_{S₅}(T_δ) > log (169/100) ≈ 0.52473`.
+
+The proof uses neither the four-size partition ratio nor the five-versus-four
+step of `FiveSizeEntropyGap`.
+
+## Proof
+
+Write `q = log 2`, `yTilt y = q/2 + log y`, and for `y > 0`
+`P₅(y) = Z_{S₅}(yTilt y)`, `M₅(y)` = the five-size mean at `yTilt y`
+(both rational for rational `y`).
+
+1. Tangent bound: `𝓕_{S₅}(M₅(y)) ≥ log P₅(y) - yTilt y · M₅(y)`.
+2. Concavity: `𝓕_{S₅}` is an infimum of affine functions of `T`, so on
+   `[M₅(y_a), M₅(y_b)]` it lies above the chord through the two values of 1.
+3. For one tilt `yTilt z` per cell, `𝓕_{S₊}(T) ≤ log U(z) - yTilt z · T`, where
+   `U(z) ≥ Z_{S₊}(yTilt z)` is the explicit tail bound of
+   `FiveSizePhaseGainSharp.Zplus_le`.
+4. The resulting lower bound for `A₅` is affine in `T` on the cell, so it
+   suffices that at both endpoints
+   `log (2 P₅(y_e) / (K U(z))) + M₅(y_e) · log (z / y_e) > 0`, `K = 169/100`.
+5. These four endpoint inequalities are certified with rational lower bounds
+   for logarithms (partial sums of `log ((1+u)/(1-u)) = 2 ∑ u^{2j+1}/(2j+1)`
+   and `0.6931471803 < log 2 < 0.6931471808`).
+
+Cells: `y ∈ [1907/500, 703/100]` with `z = 527/100`, and
+`y ∈ [703/100, 513/50]` with `z = 213/25`.  The means satisfy
+`M₅(1907/500) < 2/q` and `M₅(513/50) > 1 + 2/q`, so the two cells cover every
+`T_δ`, `0 ≤ δ ≤ 1`.
+-/
+
+namespace Erdos625
+
+namespace FiveSizePhaseGainCertificate
+
+open scoped BigOperators Topology
+open FiveSizeEntropyGap FiveSizePhaseGainSharp
+
+set_option autoImplicit false
+
+noncomputable section
+
+/-! ## Five-size quantities at the tilt `yTilt y` -/
+
+/-- `Z_{S₅}(yTilt y) = y²/2 + y³/8 + y⁴/64 + y⁵/1024 + y⁶/32768`. -/
+def fivePartY (y : ℝ) : ℝ :=
+  y ^ 2 / 2 + y ^ 3 / 8 + y ^ 4 / 64 + y ^ 5 / 1024 + y ^ 6 / 32768
+
+/-- `∑_{i ∈ S₅} i · w_i(yTilt y)`. -/
+def fiveFirstY (y : ℝ) : ℝ :=
+  2 * (y ^ 2 / 2) + 3 * (y ^ 3 / 8) + 4 * (y ^ 4 / 64) + 5 * (y ^ 5 / 1024) +
+    6 * (y ^ 6 / 32768)
+
+/-- The five-size mean `M₅` at the tilt `yTilt y`. -/
+def fiveMeanY (y : ℝ) : ℝ :=
+  fiveFirstY y / fivePartY y
+
+/-- The explicit upper bound `U(z) ≥ Z_{S₊}(yTilt z)` (valid for `z ≤ 16`). -/
+def plusBoundY (z : ℝ) : ℝ :=
+  (1 / (2 * z) + 1 + z) + (z ^ 2 / 2 + z ^ 3 / 8 + z ^ 4 / 64 + z ^ 5 / 1024) +
+    (z ^ 6 / 32768 + 8 / 7 * (z ^ 7 / 2097152))
+
+theorem fivePartY_pos {y : ℝ} (hy : 0 < y) : 0 < fivePartY y := by
+  unfold fivePartY
+  positivity
+
+theorem plusBoundY_pos {z : ℝ} (hz : 0 < z) : 0 < plusBoundY z := by
+  unfold plusBoundY
+  positivity
+
+theorem sum_F5_yTilt (y : ℝ) (hy : 0 < y) :
+    ∑ i ∈ F5, gaussWeight (yTilt y) i = fivePartY y := by
+  obtain ⟨-, -, -, h2, h3, h4, h5, h6, -⟩ := weights_yTilt y hy
+  unfold fivePartY
+  rw [sum_F5, h2, h3, h4, h5, h6]
+
+/-- At the tilt `yTilt y` the five-size mean is `fiveMeanY y`. -/
+theorem five_mean_condition_yTilt (y : ℝ) (hy : 0 < y) :
+    ∑ i ∈ F5, ((i : ℝ) - fiveMeanY y) * gaussWeight (yTilt y) i = 0 := by
+  obtain ⟨-, -, -, h2, h3, h4, h5, h6, -⟩ := weights_yTilt y hy
+  have hP := fivePartY_pos hy
+  have hmul : fiveMeanY y * fivePartY y = fiveFirstY y := by
+    unfold fiveMeanY
+    rw [div_mul_eq_mul_div, mul_div_assoc, div_self hP.ne', mul_one]
+  unfold fivePartY fiveFirstY at hmul
+  rw [sum_F5, h2, h3, h4, h5, h6]
+  push_cast
+  linear_combination -hmul
+
+/-- Tangent bound: `𝓕_{S₅}`'s objective at any tilt dominates its value at
+`yTilt y` for the target `M₅(y)`. -/
+theorem five_dual_lower (y : ℝ) (hy : 0 < y) (lambda : ℝ) :
+    Real.log (fivePartY y) - yTilt y * fiveMeanY y ≤
+      Real.log (partitionFn S5 lambda) - lambda * fiveMeanY y := by
+  have htan := tangent_finset F5 (fiveMeanY y) (yTilt y) lambda
+  rw [five_mean_condition_yTilt y hy, mul_zero, add_zero, sum_F5_yTilt y hy] at htan
+  have hP := fivePartY_pos hy
+  have hZ5 := sum_gaussWeight_pos F5 F5_nonempty lambda
+  rw [partitionFn_S5, log_sub_mul_eq hP, log_sub_mul_eq hZ5]
+  exact Real.log_le_log (mul_pos hP (Real.exp_pos _)) htan
+
+/-- Concavity of `𝓕_{S₅}` between two tangent points: the chord bound. -/
+theorem five_dual_interp {ya yb T : ℝ} (hya : 0 < ya) (hyb : 0 < yb)
+    (hTa : fiveMeanY ya ≤ T) (hTb : T ≤ fiveMeanY yb)
+    (hab : fiveMeanY ya < fiveMeanY yb) :
+    (fiveMeanY yb - T) * (Real.log (fivePartY ya) - yTilt ya * fiveMeanY ya) +
+        (T - fiveMeanY ya) * (Real.log (fivePartY yb) - yTilt yb * fiveMeanY yb) ≤
+      dualValue S5 T * (fiveMeanY yb - fiveMeanY ya) := by
+  have hD : 0 < fiveMeanY yb - fiveMeanY ya := by linarith
+  have hα : 0 ≤ fiveMeanY yb - T := by linarith
+  have hβ : 0 ≤ T - fiveMeanY ya := by linarith
+  have key :
+      ((fiveMeanY yb - T) * (Real.log (fivePartY ya) - yTilt ya * fiveMeanY ya) +
+          (T - fiveMeanY ya) * (Real.log (fivePartY yb) - yTilt yb * fiveMeanY yb)) /
+        (fiveMeanY yb - fiveMeanY ya) ≤ dualValue S5 T := by
+    refine le_ciInf fun l => ?_
+    show _ ≤ Real.log (partitionFn S5 l) - l * T
+    rw [div_le_iff₀ hD]
+    have e1 := mul_le_mul_of_nonneg_left (five_dual_lower ya hya l) hα
+    have e2 := mul_le_mul_of_nonneg_left (five_dual_lower yb hyb l) hβ
+    linarith
+  exact (div_le_iff₀ hD).mp key
+
+/-! ## One cell -/
+
+/-- **Cell lemma.**  If both endpoint inequalities hold, then
+`log K < log 2 - 𝓕_{S₊}(T) + 𝓕_{S₅}(T)` for every `T` between the two
+five-size means. -/
+theorem phaseGain_cell_T {ya yb z K T : ℝ} (hya : 0 < ya) (hyb : 0 < yb) (hz : 0 < z)
+    (hz16 : z ≤ 16) (hK : 0 < K) (hab : fiveMeanY ya < fiveMeanY yb)
+    (hVa : 0 < Real.log (2 * fivePartY ya / (K * plusBoundY z)) +
+      fiveMeanY ya * Real.log (z / ya))
+    (hVb : 0 < Real.log (2 * fivePartY yb / (K * plusBoundY z)) +
+      fiveMeanY yb * Real.log (z / yb))
+    (hT25 : T ∈ Set.Ioo (2 : ℝ) 5) (hTa : fiveMeanY ya ≤ T) (hTb : T ≤ fiveMeanY yb) :
+    Real.log K < Real.log 2 - dualValue Splus T + dualValue S5 T := by
+  have hmean4 := mean_condition (ProfileEntropyS4.mean_tilt_eq fourGaussianScore hT25)
+  have hU := plusBoundY_pos hz
+  have hPa := fivePartY_pos hya
+  have hPb := fivePartY_pos hyb
+  -- the unrestricted support, at the single tilt `yTilt z`
+  have hplus : dualValue Splus T ≤ Real.log (plusBoundY z) - yTilt z * T := by
+    have h1 := dualValue_le_at S4_subset_Splus hmean4 (yTilt z)
+    rw [partitionFn_Splus] at h1
+    have h2 := Zplus_le (yTilt z) (yTilt_le_nine_q_half hz hz16)
+    rw [lowPart_yTilt z hz, fourPartition_yTilt z hz, highPart_yTilt z hz] at h2
+    have h3 : Real.log (extendedGaussianPartition q (yTilt z)) ≤ Real.log (plusBoundY z) :=
+      Real.log_le_log (extendedGaussianPartition_pos q_pos) h2
+    linarith
+  -- the five-size support, by the chord bound
+  have h5 := five_dual_interp hya hyb hTa hTb hab
+  -- unfold the endpoint inequalities
+  have eρa : Real.log (2 * fivePartY ya / (K * plusBoundY z)) =
+      Real.log 2 + Real.log (fivePartY ya) - Real.log K - Real.log (plusBoundY z) := by
+    rw [Real.log_div (mul_pos two_pos hPa).ne' (mul_pos hK hU).ne',
+      Real.log_mul two_ne_zero hPa.ne', Real.log_mul hK.ne' hU.ne']
+    ring
+  have eρb : Real.log (2 * fivePartY yb / (K * plusBoundY z)) =
+      Real.log 2 + Real.log (fivePartY yb) - Real.log K - Real.log (plusBoundY z) := by
+    rw [Real.log_div (mul_pos two_pos hPb).ne' (mul_pos hK hU).ne',
+      Real.log_mul two_ne_zero hPb.ne', Real.log_mul hK.ne' hU.ne']
+    ring
+  have era : Real.log (z / ya) = yTilt z - yTilt ya := by
+    unfold yTilt
+    rw [Real.log_div hz.ne' hya.ne']
+    ring
+  have erb : Real.log (z / yb) = yTilt z - yTilt yb := by
+    unfold yTilt
+    rw [Real.log_div hz.ne' hyb.ne']
+    ring
+  rw [eρa, era] at hVa
+  rw [eρb, erb] at hVb
+  have hD : 0 < fiveMeanY yb - fiveMeanY ya := by linarith
+  have hα : 0 ≤ fiveMeanY yb - T := by linarith
+  have hβ : 0 ≤ T - fiveMeanY ya := by linarith
+  have hpos : 0 < (fiveMeanY yb - T) *
+        (Real.log 2 + Real.log (fivePartY ya) - Real.log K - Real.log (plusBoundY z) +
+          fiveMeanY ya * (yTilt z - yTilt ya)) +
+      (T - fiveMeanY ya) *
+        (Real.log 2 + Real.log (fivePartY yb) - Real.log K - Real.log (plusBoundY z) +
+          fiveMeanY yb * (yTilt z - yTilt yb)) := by
+    rcases eq_or_lt_of_le hα with h0 | h0
+    · rw [← h0, zero_mul, zero_add]
+      exact mul_pos (by linarith) hVb
+    · exact add_pos_of_pos_of_nonneg (mul_pos h0 hVa) (mul_nonneg hβ hVb.le)
+  have e := mul_le_mul_of_nonneg_left hplus hD.le
+  have key : (fiveMeanY yb - fiveMeanY ya) * Real.log K <
+      (fiveMeanY yb - fiveMeanY ya) * (Real.log 2 - dualValue Splus T + dualValue S5 T) := by
+    linarith
+  exact lt_of_mul_lt_mul_left key hD.le
+
+/-! ## Rational lower bounds for logarithms -/
+
+/-- Partial sums of `log ((1+u)/(1-u)) = ∑ 2 u^{2j+1}/(2j+1)` are lower bounds
+for `0 ≤ u < 1`. -/
+theorem artanh_partial_le {u : ℝ} (hu0 : 0 ≤ u) (hu1 : u < 1) (N : ℕ) :
+    ∑ j ∈ Finset.range N, 2 * (1 / (2 * (j : ℝ) + 1)) * u ^ (2 * j + 1) ≤
+      Real.log ((1 + u) / (1 - u)) := by
+  have h := Real.hasSum_log_sub_log_of_abs_lt_one
+    (show |u| < 1 by rw [abs_of_nonneg hu0]; exact hu1)
+  rw [Real.log_div (show (0 : ℝ) < 1 + u by linarith).ne'
+    (show (0 : ℝ) < 1 - u by linarith).ne']
+  refine sum_le_hasSum (Finset.range N) (fun j _ => ?_) h
+  have h1 : (0 : ℝ) ≤ 1 / (2 * (j : ℝ) + 1) := by positivity
+  exact mul_nonneg (mul_nonneg (by norm_num) h1) (pow_nonneg hu0 _)
+
+/-- `log m ≥ lc + L` whenever `m ≥ c (1+u)/(1-u)`, `log c ≥ lc`, and `L` is
+below a partial sum of the series of `log ((1+u)/(1-u))`. -/
+theorem log_ge_of_artanh {m c u lc L : ℝ} (hc : 0 < c) (hlc : lc ≤ Real.log c)
+    (hu0 : 0 ≤ u) (hu1 : u < 1) (hm : c * ((1 + u) / (1 - u)) ≤ m) (N : ℕ)
+    (hL : L ≤ ∑ j ∈ Finset.range N, 2 * (1 / (2 * (j : ℝ) + 1)) * u ^ (2 * j + 1)) :
+    lc + L ≤ Real.log m := by
+  have hX : 0 < (1 + u) / (1 - u) := div_pos (by linarith) (by linarith)
+  have hlog := Real.log_le_log (mul_pos hc hX) hm
+  rw [Real.log_mul hc.ne' hX.ne'] at hlog
+  have := artanh_partial_le hu0 hu1 N
+  linarith
+
+theorem log_two_ge : (0.6931471803 : ℝ) ≤ Real.log 2 :=
+  Real.log_two_gt_d9.le
+
+theorem log_one_ge : (0 : ℝ) ≤ Real.log 1 := by
+  simp
+
+theorem log_half_ge : -(0.6931471808 : ℝ) ≤ Real.log (1 / 2) := by
+  rw [one_div, Real.log_inv]
+  linarith [Real.log_two_lt_d9]
+
+theorem log_quarter_ge : -(2 * 0.6931471808 : ℝ) ≤ Real.log (1 / 4) := by
+  rw [one_div, Real.log_inv, show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow]
+  push_cast
+  linarith [Real.log_two_lt_d9]
+
+/-- Combine lower bounds `lρ ≤ log ρ`, `lr ≤ log r` and a bound on `T`. -/
+theorem endpoint_of_bounds {ρ r T lρ lr t : ℝ} (hρ : lρ ≤ Real.log ρ)
+    (hr : lr ≤ Real.log r) (hT : 0 ≤ T) (ht : t * lr ≤ T * lr)
+    (hpos : 0 < lρ + t * lr) :
+    0 < Real.log ρ + T * Real.log r := by
+  have := mul_le_mul_of_nonneg_left hr hT
+  linarith
+
+/-! ## The four endpoint certificates -/
+
+theorem endpoint_1a :
+    0 < Real.log (2 * fivePartY (1907 / 500) / (169 / 100 * plusBoundY (527 / 100))) +
+      fiveMeanY (1907 / 500) * Real.log (527 / 100 / (1907 / 500)) := by
+  have hρ := log_ge_of_artanh
+    (m := 2 * fivePartY (1907 / 500) / (169 / 100 * plusBoundY (527 / 100)))
+    (u := 2233739 / 10000000) (L := 71001373 / 156250000) (by norm_num) log_quarter_ge
+    (by norm_num) (by norm_num) (by unfold fivePartY plusBoundY; norm_num) 6
+    (by norm_num [Finset.sum_range_succ])
+  have hr := log_ge_of_artanh (m := 527 / 100 / (1907 / 500)) (u := 364 / 2271)
+    (L := 3233518553 / 10000000000) (by norm_num) log_one_ge
+    (by norm_num) (by norm_num) (by norm_num) 6 (by norm_num [Finset.sum_range_succ])
+  exact endpoint_of_bounds hρ hr (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (t := 577073 / 200000) (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (by norm_num)
+
+theorem endpoint_1b :
+    0 < Real.log (2 * fivePartY (703 / 100) / (169 / 100 * plusBoundY (527 / 100))) +
+      fiveMeanY (703 / 100) * Real.log (527 / 100 / (703 / 100)) := by
+  have hρ := log_ge_of_artanh
+    (m := 2 * fivePartY (703 / 100) / (169 / 100 * plusBoundY (527 / 100)))
+    (u := 189183 / 1250000) (L := 610072451 / 2000000000) (by norm_num) log_two_ge
+    (by norm_num) (by norm_num) (by unfold fivePartY plusBoundY; norm_num) 6
+    (by norm_num [Finset.sum_range_succ])
+  have hr := log_ge_of_artanh (m := 527 / 100 / (703 / 100)) (u := 351 / 1757)
+    (L := 4049908371 / 10000000000) (by norm_num) log_half_ge
+    (by norm_num) (by norm_num) (by norm_num) 6 (by norm_num [Finset.sum_range_succ])
+  exact endpoint_of_bounds hρ hr (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (t := 345789 / 100000) (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (by norm_num)
+
+theorem endpoint_2a :
+    0 < Real.log (2 * fivePartY (703 / 100) / (169 / 100 * plusBoundY (213 / 25))) +
+      fiveMeanY (703 / 100) * Real.log (213 / 25 / (703 / 100)) := by
+  have hρ := log_ge_of_artanh
+    (m := 2 * fivePartY (703 / 100) / (169 / 100 * plusBoundY (213 / 25)))
+    (u := 660957 / 10000000) (L := 1323844051 / 10000000000) (by norm_num) log_half_ge
+    (by norm_num) (by norm_num) (by unfold fivePartY plusBoundY; norm_num) 6
+    (by norm_num [Finset.sum_range_succ])
+  have hr := log_ge_of_artanh (m := 213 / 25 / (703 / 100)) (u := 149 / 1555)
+    (L := 38445927 / 200000000) (by norm_num) log_one_ge
+    (by norm_num) (by norm_num) (by norm_num) 6 (by norm_num [Finset.sum_range_succ])
+  exact endpoint_of_bounds hρ hr (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (t := 3457889 / 1000000) (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (by norm_num)
+
+theorem endpoint_2b :
+    0 < Real.log (2 * fivePartY (513 / 50) / (169 / 100 * plusBoundY (213 / 25))) +
+      fiveMeanY (513 / 50) * Real.log (213 / 25 / (513 / 50)) := by
+  have hρ := log_ge_of_artanh
+    (m := 2 * fivePartY (513 / 50) / (169 / 100 * plusBoundY (213 / 25)))
+    (u := 332433 / 5000000) (L := 1331696559 / 10000000000) (by norm_num) log_two_ge
+    (by norm_num) (by norm_num) (by unfold fivePartY plusBoundY; norm_num) 6
+    (by norm_num [Finset.sum_range_succ])
+  have hr := log_ge_of_artanh (m := 213 / 25 / (513 / 50)) (u := 113 / 455)
+    (L := 2536553397 / 5000000000) (by norm_num) log_half_ge
+    (by norm_num) (by norm_num) (by norm_num) 6 (by norm_num [Finset.sum_range_succ])
+  exact endpoint_of_bounds hρ hr (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (t := 3885603 / 1000000) (by unfold fiveMeanY fiveFirstY fivePartY; norm_num)
+    (by norm_num)
+
+/-! ## Covering the phase interval -/
+
+theorem two_div_log_two_bounds :
+    (288537 / 100000 : ℝ) < 2 / Real.log 2 ∧ 1 + 2 / Real.log 2 < 38854 / 10000 := by
+  have hq0 : 0 < Real.log 2 := Real.log_pos one_lt_two
+  have hqlo := Real.log_two_gt_d9
+  have hqhi := Real.log_two_lt_d9
+  constructor
+  · rw [lt_div_iff₀ hq0]
+    linarith
+  · have h : 2 / Real.log 2 < 28854 / 10000 := by
+      rw [div_lt_iff₀ hq0]
+      linarith
+    linarith
+
+theorem fiveMean_breakpoints :
+    fiveMeanY (1907 / 500) < 288537 / 100000 ∧
+      fiveMeanY (1907 / 500) < fiveMeanY (703 / 100) ∧
+      fiveMeanY (703 / 100) < fiveMeanY (513 / 50) ∧
+      (38854 / 10000 : ℝ) < fiveMeanY (513 / 50) := by
+  unfold fiveMeanY fiveFirstY fivePartY
+  norm_num
+
+/-! ## Main theorem -/
+
+/-- **Uniform bound `A₅(δ) > log (169/100)`.**  For every `0 ≤ δ ≤ 1`,
+`log (169/100) < A₅(δ) = log 2 - 𝓕_{S₊}(T_δ) + 𝓕_{S₅}(T_δ)`
+(`log (169/100) ≈ 0.52473`; numerically `min_δ A₅ ≈ 0.52599`). -/
+theorem log_169_div_100_lt_phaseGain5 (delta : ℝ) (hdelta : delta ∈ Set.Icc (0 : ℝ) 1) :
+    Real.log (169 / 100) < phaseGain5 delta := by
+  obtain ⟨hT25, -⟩ := phaseTarget_bounds delta hdelta
+  obtain ⟨hA, hB⟩ := two_div_log_two_bounds
+  obtain ⟨c0, c01, c12, c2⟩ := fiveMean_breakpoints
+  obtain ⟨h0, h1⟩ := hdelta
+  have hlo : fiveMeanY (1907 / 500) ≤ phaseTarget delta := by
+    unfold phaseTarget
+    linarith
+  have hhi : phaseTarget delta ≤ fiveMeanY (513 / 50) := by
+    unfold phaseTarget
+    linarith
+  unfold phaseGain5
+  rcases le_total (phaseTarget delta) (fiveMeanY (703 / 100)) with h | h
+  · exact phaseGain_cell_T (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+      (by norm_num) c01 endpoint_1a endpoint_1b hT25 hlo h
+  · exact phaseGain_cell_T (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+      (by norm_num) c12 endpoint_2a endpoint_2b hT25 h hhi
+
+/-- The new constant improves both `γ₅ = log (8750/6681)` and the constant
+`log (2605/1651)` of `FiveSizePhaseGainSharp`. -/
+theorem log_2605_div_1651_lt_log_169_div_100 :
+    gamma5 < Real.log (169 / 100) ∧ Real.log (2605 / 1651) < Real.log (169 / 100) := by
+  unfold gamma5
+  exact ⟨Real.log_lt_log (by norm_num) (by norm_num),
+    Real.log_lt_log (by norm_num) (by norm_num)⟩
+
+end
+
+end FiveSizePhaseGainCertificate
+
+end Erdos625
+
+#print axioms Erdos625.FiveSizePhaseGainCertificate.log_169_div_100_lt_phaseGain5
+#print axioms Erdos625.FiveSizePhaseGainCertificate.log_2605_div_1651_lt_log_169_div_100
+
+end Erdos625SelfContained_Module_Erdos625_FiveSizePhaseGainCertificate
+/- ==========================================================================
+END SOURCE MODULE: Erdos625.FiveSizePhaseGainCertificate
+========================================================================== -/
+
+/- ==========================================================================
 BEGIN SOURCE MODULE: Erdos625
 Source: Erdos625.lean
-Normalized SHA-256: a6e6630a9ab38386abb2d202fb39f01b79d0b9e36346aaec6d2b609305c90ba7
+Normalized SHA-256: 263bb66fa312cd4afb71a84f8eb604a48da18f12e2776e54887b8ea8ab3f973c
 ========================================================================== -/
 section Erdos625SelfContained_Module_Erdos625
 
@@ -89520,6 +91230,11 @@ gap event tends to one as `n → ∞`.  The proof composes the global
 fixed-offset seed, concrete chromatic lower-tail estimate, sharp root-gap
 estimate, and final probability adapter. See the individual section modules
 for the definitions, intermediate statements, and permanent axiom audit.
+
+The root also imports three modules on the five-size phase gain `A₅`:
+`FiveSizeEntropyGap`, `FiveSizePhaseGainSharp`, and
+`FiveSizePhaseGainCertificate`. They prove lower bounds for `A₅` on `[0, 1]`
+and do not change `Erdos625Statement` or the proof of `Erdos625.erdos625`.
 -/
 
 end Erdos625SelfContained_Module_Erdos625

@@ -14,13 +14,15 @@ lake env lean -DwarningAsError=true Erdos625SelfContained.lean
 
 Generated source metrics:
 
-- local source modules: 480;
+- local source modules: 483;
 - external Mathlib imports: 86;
-- lines: 89,528;
-- normalized-LF SHA-256: `53060b9563330f20a5f2133ffdf8f56e5a41eae6d0f772487193d9c54133e837`.
+- lines: 91,243;
+- normalized-LF SHA-256: `bbbfd1867af9996e2aa058defc5bbc020319a5967e5e8b86e693c60f01ee3368`.
 
 The top-level theorem is
 `Erdos625.erdos625 : Erdos625.Erdos625Statement`. Its printed axiom closure
 contains only `propext`, `Classical.choice`, and `Quot.sound`.
-The current file is byte-identical to the standalone file at source commit
+The file also contains the three five-size phase-gain modules described in
+`README.md`. Apart from those modules and the root module's added imports and
+documentation, it is identical to the standalone file at source commit
 `824e4b609466d2e26b216a76ecf103184dac2663`.

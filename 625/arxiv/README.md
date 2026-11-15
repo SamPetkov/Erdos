@@ -1,37 +1,27 @@
-# Erdős 625: reviewed replacement manuscript
+# Erdős 625: revised replacement manuscript
 
-Prepared **31 October 2026** from the author's supplied upload pack. This directory contains the current manuscript and matching source package. The mathematical review and build records are summarized in [REVIEW_2026-10-31.txt](REVIEW_2026-10-31.txt).
+This directory contains the current manuscript and its source package, prepared on 14 November 2026 from the author's revised sources of 13 November 2026. The manuscript keeps the date of the first arXiv posting, 30 August 2026.
 
-## Current files
+## Files
 
-- [main.pdf](main.pdf): the reviewed 53-page paper.
+- [main.pdf](main.pdf): the 53-page paper.
 - [main.tex](main.tex), [main.bbl](main.bbl), [references.bib](references.bib), [petkov-preprint.sty](petkov-preprint.sty): the matching editable sources.
-- [Erdos625-v2-arxiv-upload.zip](Erdos625-v2-arxiv-upload.zip) and [Erdos625_source.zip](Erdos625_source.zip): identical four-file source ZIPs; existing alias names are retained for repository continuity.
+- [Erdos625_source.zip](Erdos625_source.zip): the four source files above, ready for arXiv.
 - [arxiv-abstract.txt](arxiv-abstract.txt) and [arxiv-comments.txt](arxiv-comments.txt): submission text.
-- [SOURCE_PACKAGE.json](SOURCE_PACKAGE.json): exact source/PDF/ZIP bindings and check scope.
-- [MANIFEST.txt](MANIFEST.txt) and [SHA256SUMS](SHA256SUMS): current directory inventory and digests; the digest ledger excludes itself.
+- [MANIFEST.txt](MANIFEST.txt) and [SHA256SUMS](SHA256SUMS): directory inventory and digests; the digest list excludes itself.
 
-## Changes in this review
+## Changes in this revision
 
-The phase-resolved deterministic error is now quantified as `O(log log n / log n)`, with a phase-independent constant, in a proved remark. The unnormalized remainder is `O(n log log n / (log n)^4)`. The prior-work comparison is more precise, a few formal-proof-management phrases have been simplified, and Appendix B starts with its opening proof. The fixed uniform coefficient and abstract are unchanged. Corollary 11.2 also gives a phase-independent failure-probability bound `O((log n)^(2/log 2+1/2)/n)` for the same remainder order, and for the fixed-coefficient consequence after an increased threshold. Its proof uses the explicit tail amplification and sums all four exceptional-event bounds. Lemma 10.1 states the existing bound $e^{-c\sqrt n}$ on the failure probability of simultaneous leftover coloring.
-
-The third focused pass retains the phase term in that probability estimate. With $\beta=2/\log 2+1/2$, Corollary 11.2 now bounds both failure probabilities by $O(w_n)$, where $w_n=((\log n)^\beta/n)((\log n)/n)^{1-\delta_n}$. Constants remain uniform in the phase. For each fixed $\eta\in(0,1)$, this gives $O(n^{-1-\eta}(\log n)^{\beta+\eta})$ along integers satisfying $\delta_n\le1-\eta$. The main theorem, leading coefficient, and remainder order are unchanged.
-
-## Verification
-
-Both the candidate source and the exact four-file ZIP extracted into an empty directory compiled successfully with pdfLaTeX via latexmk. The extracted build has 53 pages and byte-identical extracted PDF text to the delivered PDF. No LaTeX/BibTeX warning or error, unresolved reference or citation, box warning, or missing-glyph diagnostic was found in the final logs. All fonts are embedded. The PDF was reviewed in an all-page overview and at higher resolution on changed and affected pages.
-
-The first 31 October review included exact diagnostics for the six-vertex signed second moment and 960 local deficit-ratio cases, a review of the written argument, and a separate cross-check of the remainder rate. The second review independently checked the analytic probability estimate stated in Lemma 10.1; these unaffected finite diagnostics were not rerun.
-
-The third review independently checked the retained phase factor, absorption of all four exceptional terms, and the stated subsequence consequence. Both current source builds passed; every text-changed page was visually inspected, and all unchanged-text pages were pixel-identical to the preceding reviewed PDF.
+- **Five class sizes and the uniform constant.** The argument uses five consecutive class sizes instead of four. The phase-resolved form uses the five-size phase gain `A_5`, and the uniform bound holds for every constant `c < c_5 = (log 2)^2/4 * min A_5`. The new Lemma 5.4 gives `A_5 > log(169/100)` on `[0, 1]`, so `c_5 > (log 2)^2/4 * log(169/100) ≈ 0.063027`, up from `(log 2)^2/4 * log(200/153) ≈ 0.032176`. Lemma 5.3 (`A_5 > log(8750/6681)`) is kept for the positivity arguments of Section 5.
+- **Summable failure probability.** Corollary 11.2 bounds the failure probability by `O(n^(-3/2) (log n)^(β+5/2))` with `β = 2/log 2 + 1/2`, uniformly in the phase. This is summable over `n`.
+- **Almost-sure form.** Corollary 11.3 deduces that, under any coupling of the graphs, the gap bound holds almost surely for all sufficiently large `n`.
+- **Exposition.** The abstract is rewritten. The introduction gains a roadmap and the figure locating the first-moment roots. Long routine proofs are moved to Appendices A–G, ordered by first citation and placed after the references, with each statement kept where it is used. Each section and appendix opens with what it proves, and several skipped steps are written out.
 
 ## Formalization boundary
 
-Appendix H distinguishes the released full-sequence fixed-coefficient theorem and its tail-amplification route from the phase refinement and the complete written mean-positive-excess proof. The quantified remainder and failure-probability bound belong to the written refinement; neither is claimed as a newly released Lean theorem.
+The released Lean theorem is the fixed-coefficient consequence with `log(200/153)`. The Lean project also proves Lemmas 5.2, 5.3 and 5.4, including `A_5 > log(169/100)` on `[0, 1]`, and the intermediate bound `A_5 > log(2605/1651)`. These modules do not lift the released theorem to the manuscript's constant. The phase refinement, the remainder rate and the failure-probability bounds are written results, not Lean theorems. See the [Lean README](../formalization/README.md).
 
-The released Lean sources and toolchain are unchanged by this manuscript update. The released formalization and its reproduction instructions are documented in the [Lean README](../formalization/README.md).
-
-## Build and replacement
+## Build
 
 Use a TeX distribution with pdfLaTeX, BibTeX, `latexmk`, and the packages
 loaded by `main.tex` and `petkov-preprint.sty`. For a minimal installation,
@@ -42,4 +32,4 @@ Keep all four source files together and run from this directory:
 latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 ```
 
-The ZIP contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty` at its root. It excludes the PDF, metadata, logs and audit files. Its supplied replacement destination is arXiv:2608.30604; the live account's version/submission state was not certified. No arXiv submission has been made in this review. The author should inspect the PDF generated by arXiv during replacement.
+The ZIP contains exactly `main.tex`, `main.bbl`, `references.bib`, and `petkov-preprint.sty` at its root. Its replacement destination is arXiv:2608.30604.
