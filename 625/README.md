@@ -9,17 +9,20 @@ illustration with recorded witnesses and checksums. It is not used in the
 asymptotic proof.
 
 For $G_n\sim G(n,1/2)$, write $\chi$ for the chromatic number and $\zeta$
-for the cochromatic number. All logarithms are natural. The manuscript proves
+for the cochromatic number. All logarithms are natural. Using five consecutive
+class sizes, the manuscript proves
 
 $$
 \mathbb P\!\left(
   \chi(G_n)-\zeta(G_n)
-  \ge \frac{(\log 2)^2}{4}\log\!\left(\frac{8750}{6681}\right)
-      \frac{n}{(\log n)^3}
-\right)\longrightarrow1,
+  \ge c\,\frac{n}{(\log n)^3}
+\right)\longrightarrow1
 $$
 
-using five consecutive class sizes. It also proves the phase-resolved statement
+for every constant $c\lt c_5=\frac{(\log 2)^2}{4}\min_{[0,1]}A_5$, and
+Lemma 5.4 gives $c_5\gt\frac{(\log 2)^2}{4}\log(169/100)=0.0630268508\ldots$;
+in particular the bound holds with $c=0.063$. It also proves the
+phase-resolved statement
 
 $$
 \mathbb P\!\left(
@@ -29,7 +32,7 @@ $$
 \right)\longrightarrow1,
 $$
 
-where $A_5>\log(8750/6681)$ on $[0,1]$ and the deterministic error satisfies
+where $A_5\gt\log(169/100)$ on $[0,1]$ and the deterministic error satisfies
 $\varepsilon_n=O(\log\log n/\log n)$ uniformly in the rounding phase.
 Corollary 11.2 bounds the failure probability by
 $O(n^{-3/2}(\log n)^{\beta+5/2})$, where $\beta=2/\log 2+1/2$, uniformly in
@@ -69,7 +72,8 @@ generated one-file proof
 Both sources kernel-check the displayed uniform consequence under the
 repository-pinned Lean/mathlib v4.31.0 toolchain. The formal proof includes the
 fixed-offset construction leading to the uniform coefficient. The
-manuscript's sharper coefficient `log(8750/6681)` and its phase-resolved
+manuscript's larger constant `c_5`, which exceeds
+`(log 2)^2/4 * log(169/100)`, and its phase-resolved
 refinement involving `A_5(delta_n)`, including the remainder and
 failure-probability bounds, are proved in the manuscript and are not claimed
 as part of the Lean theorem. The cloud-replayed formal source is
@@ -84,9 +88,8 @@ do not change the Lean theorem, and the extended sources have not been
 replayed in the cloud.
 
 [`verification/`](verification/) contains independent finite and symbolic
-checks used to test numerical certificates and manuscript identities. These
-checks support the audit trail; they are not substitutes for either the
-mathematical argument or the Lean proof.
+checks used to test numerical certificates and manuscript identities. They
+are not substitutes for either the mathematical argument or the Lean proof.
 
 This is a preprint and has not undergone external peer review. The repository
 makes the argument and formalization available for expert scrutiny; it does not

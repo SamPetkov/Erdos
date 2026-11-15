@@ -4,7 +4,7 @@ This directory contains the current manuscript and its source package, prepared 
 
 ## Files
 
-- [main.pdf](main.pdf): the 51-page paper.
+- [main.pdf](main.pdf): the 53-page paper.
 - [main.tex](main.tex), [main.bbl](main.bbl), [references.bib](references.bib), [petkov-preprint.sty](petkov-preprint.sty): the matching editable sources.
 - [Erdos625_source.zip](Erdos625_source.zip): the four source files above, ready for arXiv.
 - [arxiv-abstract.txt](arxiv-abstract.txt) and [arxiv-comments.txt](arxiv-comments.txt): submission text.
@@ -15,7 +15,7 @@ This directory contains the current manuscript and its source package, prepared 
 - **Five class sizes and the uniform constant.** The argument uses five consecutive class sizes instead of four. The phase-resolved form uses the five-size phase gain `A_5`, and the uniform bound holds for every constant `c < c_5 = (log 2)^2/4 * min A_5`. The new Lemma 5.4 gives `A_5 > log(169/100)` on `[0, 1]`, so `c_5 > (log 2)^2/4 * log(169/100) ≈ 0.063027`, up from `(log 2)^2/4 * log(200/153) ≈ 0.032176`. Lemma 5.3 (`A_5 > log(8750/6681)`) is kept for the positivity arguments of Section 5.
 - **Summable failure probability.** Corollary 11.2 bounds the failure probability by `O(n^(-3/2) (log n)^(β+5/2))` with `β = 2/log 2 + 1/2`, uniformly in the phase. This is summable over `n`.
 - **Almost-sure form.** Corollary 11.3 deduces that, under any coupling of the graphs, the gap bound holds almost surely for all sufficiently large `n`.
-- **Exposition.** The abstract is rewritten, and the introduction, the notation section and several section openings are edited for clarity.
+- **Exposition.** The abstract is rewritten. The introduction gains a roadmap and the figure locating the first-moment roots. Long routine proofs are moved to Appendices A–G, ordered by first citation and placed after the references, with each statement kept where it is used. Each section and appendix opens with what it proves, and several skipped steps are written out.
 
 ## Formalization boundary
 
